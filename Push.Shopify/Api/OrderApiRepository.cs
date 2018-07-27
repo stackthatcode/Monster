@@ -10,6 +10,7 @@ using Push.Shopify.HttpClient;
 
 namespace Push.Shopify.Api
 {
+
     public class OrderApiRepository
     {
         private readonly ShopifyRequestBuilder _requestFactory;
