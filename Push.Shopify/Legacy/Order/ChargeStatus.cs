@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Push.Shopify.Api.Order
+namespace Push.Shopify.Legacy.Order
 {
     public enum ChargeStatus
     {

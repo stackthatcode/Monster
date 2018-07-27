@@ -1,7 +1,7 @@
 ﻿using System;
 using Push.Foundation.Web.Helpers;
 
-namespace Push.Shopify.Api.Order
+namespace Push.Shopify.Legacy.Order
 {
     public enum ShopifySortOrder
     {

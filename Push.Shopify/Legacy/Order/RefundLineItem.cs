@@ -1,4 +1,4 @@
-﻿namespace Push.Shopify.Api.Order
+﻿namespace Push.Shopify.Legacy.Order
 {
     public class RefundLineItem
     {

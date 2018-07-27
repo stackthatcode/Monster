@@ -1,35 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-
 
 namespace Push.Shopify.Api.Order
 {
     public class Refund
     {
-        public long Id { get; set; }
-        public DateTime CreatedAtShopTz { get; set; }
-
-        public Order ParentOrder { get; set; }
-        public IList<RefundLineItem> LineItems { get; set; }
-        public List<OrderAdjustment> OrderAdjustments { get; set; }
-        public IList<Transaction> Transactions { get; set; }
-        public bool IsValid => Transactions.Any() && Transactions.All(x => x.IsSuccess);
-
-        public bool IsOrderLevel => !LineItems.Any();
-
-        public decimal TransactionAmount => Transactions.Sum(x => x.Amount);
-
-        public decimal ShippingAdjustment 
-                        => OrderAdjustments
-                            .Where(x => x.IsShippingAdjustment)
-                            .Sum(x => x.Amount);
-
-        public decimal NonShippingAdjustment
-                        => OrderAdjustments
-                            .Where(x => !x.IsShippingAdjustment)
-                            .Sum(x => x.Amount);
-
-        public decimal TaxRefundTotal => LineItems.Sum(x => x.TaxTotal);
+        public object id { get; set; }
+        public object order_id { get; set; }
+        public DateTime created_at { get; set; }
+        public string note { get; set; }
+        public object user_id { get; set; }
+        public DateTime processed_at { get; set; }
+        public bool restock { get; set; }
+        public List<object> refund_line_items { get; set; }
+        public List<Transaction> transactions { get; set; }
+        public List<object> order_adjustments { get; set; }
     }
 }
