@@ -14,14 +14,14 @@ namespace Push.Shopify.Config
         public string EncryptIv { get; set; }
 
 
-        // Need this for serialization functions
+        // DO NOT REMOVE - need this for serialization functions
         public ShopifySecuritySettings()
         {     
         }
 
         public static ShopifySecuritySettings FromConfiguration()
         {
-            var config = ShopifySecurityConfig.Settings;
+            var config = ShopifySecurityConfiguration.Settings;
             var output = new ShopifySecuritySettings()
             {
                 ApiKey = config.ApiKey,

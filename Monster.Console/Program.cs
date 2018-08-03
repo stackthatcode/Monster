@@ -1,12 +1,11 @@
 ﻿using System;
 using Autofac;
-using Monster.Middle.Workers;
 using Monster.Middle.Workers.Permutation;
+using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
-using Push.Shopify.Api.Product;
+using Push.Shopify.Api.Order;
 using Push.Shopify.Config;
-using Push.Shopify.Credentials;
 
 
 namespace Monster.ConsoleApp
@@ -24,12 +23,10 @@ namespace Monster.ConsoleApp
                             .FromConfiguration()
                             .MakePrivateAppCredentials();
                     
-                    var productApi = factory.MakeProductApi(credentials);
-                    var filter = new ProductFilter()
-                    {
-                        UpdatedAtMinUtc = DateTime.Today.AddDays(-7)
-                    };
-                    var result = productApi.RetrieveCount(filter);
+                    var orderApi = factory.MakeOrderApi(credentials);
+                    var result = orderApi.Retrieve(554500751458);
+
+                    var order = result.DeserializeFromJson<OrderParent>();
                 });
 
             Console.WriteLine("Finished - hit any key to exit...");
@@ -65,3 +62,4 @@ namespace Monster.ConsoleApp
         }
     }
 }
+

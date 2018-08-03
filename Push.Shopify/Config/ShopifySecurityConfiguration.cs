@@ -4,13 +4,15 @@ using Push.Foundation.Utilities.Security;
 
 namespace Push.Shopify.Config
 {
-    public class ShopifySecurityConfig : ConfigurationSection
+    public class ShopifySecurityConfiguration : ConfigurationSection
     {
         private static readonly
             Hashtable _settings =
-                (Hashtable) ConfigurationManager.GetSection("shopifySecurityConfig") ?? new Hashtable();
+                (Hashtable) ConfigurationManager.GetSection("shopifySecurityConfiguration") ?? new Hashtable();
 
-        public static ShopifySecurityConfig Settings { get; } = new ShopifySecurityConfig();
+        public static 
+            ShopifySecurityConfiguration Settings
+                { get; } = new ShopifySecurityConfiguration();
 
 
         [ConfigurationProperty("ApiKey", IsRequired = true)]

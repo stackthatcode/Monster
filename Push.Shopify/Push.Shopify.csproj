@@ -100,10 +100,12 @@
     <Compile Include="Api\Order\LineItem.cs" />
     <Compile Include="Api\Order\Order.cs" />
     <Compile Include="Api\Order\DiscountApplication.cs" />
+    <Compile Include="Api\Order\OrderAdjustment.cs" />
     <Compile Include="Api\Order\OriginLocation.cs" />
     <Compile Include="Api\Order\PaymentDetails.cs" />
     <Compile Include="Api\Order\Receipt.cs" />
     <Compile Include="Api\Order\Refund.cs" />
+    <Compile Include="Api\Order\RefundLineItem.cs" />
     <Compile Include="Api\Order\RootObject.cs" />
     <Compile Include="Api\Order\ShippingAddress.cs" />
     <Compile Include="Api\Order\ShippingLine.cs" />
@@ -111,7 +113,7 @@
     <Compile Include="Api\Order\Transaction.cs" />
     <Compile Include="Config\ShopifyClientConfig.cs" />
     <Compile Include="Config\ShopifyClientSettings.cs" />
-    <Compile Include="Config\ShopifySecurityConfig.cs" />
+    <Compile Include="Config\ShopifySecurityConfiguration.cs" />
     <Compile Include="Config\ShopifySecuritySettings.cs" />
     <Compile Include="HttpClient\Credentials\ExtensionMethods.cs" />
     <Compile Include="HttpClient\Credentials\ApiKeyAndSecret.cs" />
@@ -160,7 +162,9 @@
       <Name>Push.Foundation.Web</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Api\Order\Extensions\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

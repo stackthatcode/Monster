@@ -6,10 +6,10 @@ namespace Push.Shopify.Credentials
 {
     public static class ExtensionMethods
     {
-        public static IShopifyCredentials ToPrivateAppCredentials(this ShopifySecurityConfig config)
+        public static IShopifyCredentials ToPrivateAppCredentials(this ShopifySecurityConfiguration configuration)
         {
-            var domain = new ShopDomain(config.PrivateAppDomain);
-            return new ApiKeyAndSecret(config.ApiKey, config.ApiSecret, domain);
+            var domain = new ShopDomain(configuration.PrivateAppDomain);
+            return new ApiKeyAndSecret(configuration.ApiKey, configuration.ApiSecret, domain);
         }
     }
 }

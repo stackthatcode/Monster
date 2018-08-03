@@ -15,10 +15,10 @@ namespace Push.Shopify.Api.Order
         public bool test { get; set; }
         public string authorization { get; set; }
         public string currency { get; set; }
-        public long location_id { get; set; }
-        public long user_id { get; set; }
+        public long? location_id { get; set; }
+        public long? user_id { get; set; }
         public long parent_id { get; set; }
-        public long device_id { get; set; }
+        public long? device_id { get; set; }
         public Receipt receipt { get; set; }
         public string error_code { get; set; }
         public string source_name { get; set; }
