@@ -6,7 +6,7 @@ namespace Push.Shopify.Api.Order
     {
         public long id { get; set; }
         public long order_id { get; set; }
-        public string amount { get; set; }
+        public decimal amount { get; set; }
         public string kind { get; set; }
         public string gateway { get; set; }
         public string status { get; set; }

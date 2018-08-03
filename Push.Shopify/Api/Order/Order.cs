@@ -27,6 +27,7 @@ namespace Push.Shopify.Api.Order
         public string currency { get; set; }
         public decimal total_price { get; set; }
         public decimal subtotal_price { get; set; }
+
         public bool taxes_included { get; set; }
         public decimal total_tax { get; set; }
         public decimal total_discounts { get; set; }
@@ -41,8 +42,8 @@ namespace Push.Shopify.Api.Order
         public List<DiscountApplication> discount_applications { get; set; }
         public List<DiscountCode> discount_codes { get; set; }
 
-        public long location_id { get; set; }
-        public long user_id { get; set; }
+        public long? location_id { get; set; }
+        public long? user_id { get; set; }
         public string email { get; set; }
         public string contact_email { get; set; }
         public bool buyer_accepts_marketing { get; set; }

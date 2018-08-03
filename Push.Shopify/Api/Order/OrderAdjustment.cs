@@ -15,5 +15,6 @@ namespace Push.Shopify.Api.Order
         public decimal tax_amount { get; set; }
         public string kind { get; set; }
         public string reason { get; set; }
+        
     }
 }

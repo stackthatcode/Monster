@@ -96,6 +96,9 @@
     <Compile Include="Api\Order\DestinationLocation.cs" />
     <Compile Include="Api\Order\DiscountAllocation.cs" />
     <Compile Include="Api\Order\DiscountCode.cs" />
+    <Compile Include="Api\Order\Extensions\OrderAdjusmentExtensions.cs" />
+    <Compile Include="Api\Order\Extensions\RefundExtensions.cs" />
+    <Compile Include="Api\Order\Extensions\TransactionExtensions.cs" />
     <Compile Include="Api\Order\Fulfillment.cs" />
     <Compile Include="Api\Order\LineItem.cs" />
     <Compile Include="Api\Order\Order.cs" />
@@ -162,9 +165,7 @@
       <Name>Push.Foundation.Web</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Api\Order\Extensions\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
