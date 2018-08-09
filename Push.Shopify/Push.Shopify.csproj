@@ -96,11 +96,7 @@
     <Compile Include="Api\Order\DestinationLocation.cs" />
     <Compile Include="Api\Order\DiscountAllocation.cs" />
     <Compile Include="Api\Order\DiscountCode.cs" />
-    <Compile Include="Api\Order\Extensions\OrderAdjusmentExtensions.cs" />
-    <Compile Include="Api\Order\Extensions\RefundExtensions.cs" />
-    <Compile Include="Api\Order\Extensions\RefundLineItemExtensions.cs" />
-    <Compile Include="Api\Order\Extensions\RestockType.cs" />
-    <Compile Include="Api\Order\Extensions\TransactionExtensions.cs" />
+    <Compile Include="Api\Order\RestockType.cs" />
     <Compile Include="Api\Order\Fulfillment.cs" />
     <Compile Include="Api\Order\LineItem.cs" />
     <Compile Include="Api\Order\Order.cs" />
@@ -116,6 +112,7 @@
     <Compile Include="Api\Order\ShippingLine.cs" />
     <Compile Include="Api\Order\TaxLine.cs" />
     <Compile Include="Api\Order\Transaction.cs" />
+    <Compile Include="Api\Order\ValueType.cs" />
     <Compile Include="Config\ShopifyClientConfig.cs" />
     <Compile Include="Config\ShopifyClientSettings.cs" />
     <Compile Include="Config\ShopifySecurityConfiguration.cs" />

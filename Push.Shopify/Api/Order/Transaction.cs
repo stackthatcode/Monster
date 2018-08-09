@@ -22,5 +22,8 @@ namespace Push.Shopify.Api.Order
         public Receipt receipt { get; set; }
         public string error_code { get; set; }
         public string source_name { get; set; }
+        
+
+        public bool IsSuccess => status == "success";
     }
 }

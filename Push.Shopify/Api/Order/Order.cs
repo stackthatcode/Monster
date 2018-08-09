@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Push.Shopify.Api.Order
 {
@@ -58,5 +59,15 @@ namespace Push.Shopify.Api.Order
         public List<Fulfillment> fulfillments { get; set; }
         
         public ClientDetails client_details { get; set; }
+
+
+        // Computed properties - refunds
+        public decimal TransactionTotal => refunds.Sum(x => x.TransactionTotal);
+        public decimal ShippingAdjustmentSubTotal => refunds.Sum(x => x.ShippingAdjustmentSubTotal);
+        public decimal RefundDiscrepancySubTotal => refunds.Sum(x => x.RefundDiscrepancySubTotal);
+        public decimal TaxTotal => refunds.Sum(x => x.TaxTotal);
+
+        // Computed properties - discounts
+
     }
 }

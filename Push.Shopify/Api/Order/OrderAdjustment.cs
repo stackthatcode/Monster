@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Push.Shopify.Api.Order
+﻿namespace Push.Shopify.Api.Order
 {
     public class OrderAdjustment
     {
@@ -15,6 +9,9 @@ namespace Push.Shopify.Api.Order
         public decimal tax_amount { get; set; }
         public string kind { get; set; }
         public string reason { get; set; }
-        
+
+        public bool IsShippingAdjustment => kind == "shipping_refund";
+        public bool IsRefundDiscrepancy => kind == "refund_discrepancy";
+        public decimal SubTotal => amount + tax_amount;
     }
 }
