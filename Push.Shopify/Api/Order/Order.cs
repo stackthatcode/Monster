@@ -37,7 +37,10 @@ namespace Push.Shopify.Api.Order
         public List<TaxLine> tax_lines { get; set; }
         public List<ShippingLine> shipping_lines { get; set; }
         public List<Refund> refunds { get; set; }
+
         public PaymentDetails payment_details { get; set; }
+        public List<string> payment_gateway_names { get; set; }
+        public string processing_method { get; set; }
 
         public List<DiscountApplication> discount_applications { get; set; }
         public List<DiscountCode> discount_codes { get; set; }
@@ -50,9 +53,6 @@ namespace Push.Shopify.Api.Order
         public Customer customer { get; set; }
         public BillingAddress billing_address { get; set; }
         public ShippingAddress shipping_address { get; set; }
-
-        public List<string> payment_gateway_names { get; set; }
-        public string processing_method { get; set; }
 
         public string fulfillment_status { get; set; }
         public List<Fulfillment> fulfillments { get; set; }

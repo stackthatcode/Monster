@@ -6,6 +6,12 @@
         {
             return adjustment.kind == "shipping_refund";
         }
+
+        public static bool IsRefundDiscrepancy(this OrderAdjustment adjustment)
+        {
+            return adjustment.kind == "refund_discrepancy";
+        }
+
     }
 }
 

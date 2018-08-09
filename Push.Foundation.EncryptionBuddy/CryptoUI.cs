@@ -69,6 +69,17 @@ namespace Push.Foundation
             this.textAesDecryptedOutput.Text = crypto.Decrypt(this.textAesEncryptedInput.Text);
             Clipboard.SetText(textAesDecryptedOutput.Text);
         }
+
+        private void buttonHMAC256_Click(object sender, EventArgs e)
+        {
+            var hmacCrypto = new HmacCryptoService();
+
+            var hashedResult = 
+                hmacCrypto.ToBase64EncodedSha256(
+                        this.textHMACSecret.Text, this.textHMACPayload.Text);
+
+            this.textHMACOutput.Text = hashedResult;
+        }
     }        
 }
 

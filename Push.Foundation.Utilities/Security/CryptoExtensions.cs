@@ -9,7 +9,8 @@ namespace Push.Foundation.Utilities.Security
     public static class CryptoExtensions
     {
         // WARNING *** Do not change (!!!) ***
-        static readonly byte[] PermanentSalt = Encoding.Unicode.GetBytes("Salt This, Baby!");
+        //static readonly byte[] PermanentSalt = Encoding.Unicode.GetBytes("Salt This, Baby!");
+        static byte[] PermanentSalt = System.Text.Encoding.Unicode.GetBytes("Salt My Boomba, Baby!");
         
         public static string DpApiEncryptString(this SecureString input)
         {

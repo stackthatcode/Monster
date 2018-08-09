@@ -5,11 +5,11 @@ namespace Push.Shopify.Api.Order
 {
     public class Refund
     {
-        public object id { get; set; }
-        public object order_id { get; set; }
+        public long id { get; set; }
+        public long order_id { get; set; }
         public DateTime created_at { get; set; }
         public string note { get; set; }
-        public object user_id { get; set; }
+        public long? user_id { get; set; }
         public DateTime processed_at { get; set; }
         public bool restock { get; set; }
 

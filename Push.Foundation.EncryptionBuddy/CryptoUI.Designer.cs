@@ -49,6 +49,7 @@ namespace Push.Foundation
             this.textNonEncrypted = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.label11 = new System.Windows.Forms.Label();
             this.textAesIv = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.textAesKey = new System.Windows.Forms.TextBox();
@@ -63,11 +64,19 @@ namespace Push.Foundation
             this.label7 = new System.Windows.Forms.Label();
             this.textAesPlaintext = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.textHMACSecret = new System.Windows.Forms.TextBox();
+            this.textHMACPayload = new System.Windows.Forms.TextBox();
+            this.buttonHMAC256 = new System.Windows.Forms.Button();
+            this.label14 = new System.Windows.Forms.Label();
+            this.textHMACOutput = new System.Windows.Forms.TextBox();
             this.tabPage5.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabPage5
@@ -144,6 +153,7 @@ namespace Push.Foundation
             this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Location = new System.Drawing.Point(53, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -301,6 +311,16 @@ namespace Push.Foundation
             this.tabPage2.Text = "AES Crypto";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(270, 103);
+            this.label11.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(0, 36);
+            this.label11.TabIndex = 75;
+            // 
             // textAesIv
             // 
             this.textAesIv.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F);
@@ -451,15 +471,96 @@ namespace Push.Foundation
             this.label8.TabIndex = 61;
             this.label8.Text = "Plain Text Input";
             // 
-            // label11
+            // tabPage3
             // 
-            this.label11.AutoSize = true;
-            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(270, 103);
-            this.label11.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(0, 36);
-            this.label11.TabIndex = 75;
+            this.tabPage3.Controls.Add(this.textHMACOutput);
+            this.tabPage3.Controls.Add(this.label14);
+            this.tabPage3.Controls.Add(this.buttonHMAC256);
+            this.tabPage3.Controls.Add(this.textHMACPayload);
+            this.tabPage3.Controls.Add(this.textHMACSecret);
+            this.tabPage3.Controls.Add(this.label13);
+            this.tabPage3.Controls.Add(this.label12);
+            this.tabPage3.Location = new System.Drawing.Point(8, 39);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(1222, 988);
+            this.tabPage3.TabIndex = 7;
+            this.tabPage3.Text = "HMAC256";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(64, 158);
+            this.label12.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(123, 36);
+            this.label12.TabIndex = 62;
+            this.label12.Text = "Payload";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(64, 70);
+            this.label13.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(100, 36);
+            this.label13.TabIndex = 63;
+            this.label13.Text = "Secret";
+            // 
+            // textHMACSecret
+            // 
+            this.textHMACSecret.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textHMACSecret.Location = new System.Drawing.Point(264, 59);
+            this.textHMACSecret.Margin = new System.Windows.Forms.Padding(6);
+            this.textHMACSecret.Name = "textHMACSecret";
+            this.textHMACSecret.Size = new System.Drawing.Size(660, 47);
+            this.textHMACSecret.TabIndex = 64;
+            this.textHMACSecret.WordWrap = false;
+            // 
+            // textHMACPayload
+            // 
+            this.textHMACPayload.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textHMACPayload.Location = new System.Drawing.Point(264, 146);
+            this.textHMACPayload.Margin = new System.Windows.Forms.Padding(6);
+            this.textHMACPayload.Multiline = true;
+            this.textHMACPayload.Name = "textHMACPayload";
+            this.textHMACPayload.Size = new System.Drawing.Size(660, 191);
+            this.textHMACPayload.TabIndex = 65;
+            // 
+            // buttonHMAC256
+            // 
+            this.buttonHMAC256.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.125F);
+            this.buttonHMAC256.Location = new System.Drawing.Point(264, 400);
+            this.buttonHMAC256.Name = "buttonHMAC256";
+            this.buttonHMAC256.Size = new System.Drawing.Size(660, 87);
+            this.buttonHMAC256.TabIndex = 68;
+            this.buttonHMAC256.Text = "Encrypt + Copy";
+            this.buttonHMAC256.UseVisualStyleBackColor = true;
+            this.buttonHMAC256.Click += new System.EventHandler(this.buttonHMAC256_Click);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(83, 560);
+            this.label14.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(104, 36);
+            this.label14.TabIndex = 69;
+            this.label14.Text = "Output";
+            // 
+            // textHMACOutput
+            // 
+            this.textHMACOutput.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textHMACOutput.Location = new System.Drawing.Point(264, 548);
+            this.textHMACOutput.Margin = new System.Windows.Forms.Padding(6);
+            this.textHMACOutput.Multiline = true;
+            this.textHMACOutput.Name = "textHMACOutput";
+            this.textHMACOutput.Size = new System.Drawing.Size(660, 191);
+            this.textHMACOutput.TabIndex = 70;
             // 
             // CryptoUi
             // 
@@ -480,6 +581,8 @@ namespace Push.Foundation
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -521,6 +624,14 @@ namespace Push.Foundation
         private System.Windows.Forms.TextBox textAesKey;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TextBox textHMACPayload;
+        private System.Windows.Forms.TextBox textHMACSecret;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox textHMACOutput;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Button buttonHMAC256;
     }
 }
 

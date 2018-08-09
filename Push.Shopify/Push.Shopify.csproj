@@ -98,6 +98,8 @@
     <Compile Include="Api\Order\DiscountCode.cs" />
     <Compile Include="Api\Order\Extensions\OrderAdjusmentExtensions.cs" />
     <Compile Include="Api\Order\Extensions\RefundExtensions.cs" />
+    <Compile Include="Api\Order\Extensions\RefundLineItemExtensions.cs" />
+    <Compile Include="Api\Order\Extensions\RestockType.cs" />
     <Compile Include="Api\Order\Extensions\TransactionExtensions.cs" />
     <Compile Include="Api\Order\Fulfillment.cs" />
     <Compile Include="Api\Order\LineItem.cs" />
