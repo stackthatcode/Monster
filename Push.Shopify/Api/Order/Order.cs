@@ -67,7 +67,42 @@ namespace Push.Shopify.Api.Order
         public decimal RefundDiscrepancySubTotal => refunds.Sum(x => x.RefundDiscrepancySubTotal);
         public decimal TaxTotal => refunds.Sum(x => x.TaxTotal);
 
-        // Computed properties - discounts
 
+        public void Initialize()
+        {
+            line_items.ForEach(x => x.Parent = this);
+            discount_applications.ForEach(x => x.Parent = this);
+        }
+
+        public List<DiscountAllocation> FindAllocations(DiscountApplication application)
+        {
+            var index = discount_applications.IndexOf(application);
+
+            if (application.target_type == DiscountTargetType.LineItem)
+            {
+                var output =
+                    line_items
+                        .SelectMany(x => x.discount_allocations)
+                        .Where(x => x.discount_application_index == index)
+                        .ToList();
+
+                return output;
+            }
+
+            if (application.target_type == DiscountTargetType.ShippingLine)
+            {
+                var output =
+                    shipping_lines
+                        .SelectMany(x => x.discount_allocations)
+                        .Where(x => x.discount_application_index == index)
+                        .ToList();
+
+                return output;
+            }
+
+            throw new ArgumentException(
+                    $"Unrecognized target_type {application.target_type}");
+        }
     }
 }
+

@@ -95,7 +95,9 @@
     <Compile Include="Api\Order\DefaultAddress.cs" />
     <Compile Include="Api\Order\DestinationLocation.cs" />
     <Compile Include="Api\Order\DiscountAllocation.cs" />
+    <Compile Include="Api\Order\DiscountAllocationMethod.cs" />
     <Compile Include="Api\Order\DiscountCode.cs" />
+    <Compile Include="Api\Order\DiscountConstants.cs" />
     <Compile Include="Api\Order\RestockType.cs" />
     <Compile Include="Api\Order\Fulfillment.cs" />
     <Compile Include="Api\Order\LineItem.cs" />

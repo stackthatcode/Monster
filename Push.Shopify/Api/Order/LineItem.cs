@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Push.Shopify.Api.Order
 {
@@ -29,5 +30,12 @@ namespace Push.Shopify.Api.Order
         public List<TaxLine> tax_lines { get; set; }
         public OriginLocation origin_location { get; set; }
         public DestinationLocation destination_location { get; set; }
+
+        
+        // Computed-ish properties
+        public Order Parent { get; set; }
+        public decimal TotalTaxes => tax_lines.Sum(x => x.rate);
+        public decimal TotalDiscount => discount_allocations.Sum(x => x.amount);
+        
     }
 }
