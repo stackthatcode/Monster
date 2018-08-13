@@ -26,7 +26,10 @@ namespace Monster.ConsoleApp
                     var orderApi = factory.MakeOrderApi(credentials);
                     var result = orderApi.Retrieve(554500751458);
 
-                    var order = result.DeserializeFromJson<OrderParent>();
+                    var orderParent = result.DeserializeFromJson<OrderParent>();
+                    orderParent.order.Initialize();
+                    
+                    var serializedToJson = orderParent.SerializeToJson();
                 });
 
             Console.WriteLine("Finished - hit any key to exit...");

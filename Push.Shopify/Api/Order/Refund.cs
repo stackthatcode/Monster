@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Push.Shopify.Api.Order
 {
@@ -19,27 +20,48 @@ namespace Push.Shopify.Api.Order
         public List<OrderAdjustment> order_adjustments { get; set; }
 
 
-        // Computed properties
+        [JsonIgnore]
+        public Order Parent { get; set; }
 
+
+
+        //
+        // Computed properties
+        //
         public bool IsValid => transactions.Any() && transactions.All(x => x.IsSuccess);
 
         public decimal TransactionTotal => transactions.Sum(x => x.amount);
+
+        public decimal RefundLineItemTotal => refund_line_items.Sum(x => x.Total);
         
-        public decimal AmountTotal => order_adjustments.Sum(x => x.amount);
-
-        public decimal TaxTotal => order_adjustments.Sum(x => x.tax_amount);
-
-        public decimal ShippingAdjustmentSubTotal =>
+        public decimal ShippingAdjustmentTotal =>
                             order_adjustments
                                 .Where(x => x.IsShippingAdjustment)
-                                .Sum(x => x.SubTotal);
+                                .Sum(x => x.Total);
 
-        public decimal RefundDiscrepancySubTotal =>
+        public decimal RefundDiscrepancyTotal =>
                             order_adjustments
                                 .Where(x => x.IsRefundDiscrepancy)
-                                .Sum(x => x.SubTotal);
+                                .Sum(x => x.Total);
+        
+        public decimal Total => 
+                RefundLineItemTotal + ShippingAdjustmentTotal + RefundDiscrepancyTotal;
 
-        public decimal SubTotal => order_adjustments.Sum(x => x.SubTotal);
+        public decimal TaxTotal =>
+                refund_line_items.Sum(x => x.total_tax) +
+                order_adjustments.Sum(x => x.tax_amount);
+        
+        public List<RefundTaxLine> 
+                TaxBreakdown => Parent
+                        .tax_lines
+                        .Select(x => new RefundTaxLine()
+                                {
+                                    Rate = x.rate,
+                                    Title = x.title,
+                                    Price = x.PercentOfTotalTaxes * this.TaxTotal,
+                                })
+                        .ToList();
+
     }
 }
 

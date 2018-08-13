@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Push.Shopify.Api.Order
 {
@@ -14,6 +15,8 @@ namespace Push.Shopify.Api.Order
         public string description { get; set; }
         public string title { get; set; }
 
+
+        [JsonIgnore]
         public Order Parent { get; set; }
 
         public List<DiscountAllocation> Allocations => Parent.FindAllocations(this);

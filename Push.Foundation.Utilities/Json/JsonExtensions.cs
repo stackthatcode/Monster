@@ -9,7 +9,6 @@ namespace Push.Foundation.Utilities.Json
         public static Formatting Formatting = Formatting.Indented;
 
         
-
         public static string SerializeToJson(this object input)
         {
             var stringWriter = new StringWriter();

@@ -12,6 +12,6 @@
 
         public bool IsShippingAdjustment => kind == "shipping_refund";
         public bool IsRefundDiscrepancy => kind == "refund_discrepancy";
-        public decimal SubTotal => amount + tax_amount;
+        public decimal Total => amount + tax_amount;
     }
 }

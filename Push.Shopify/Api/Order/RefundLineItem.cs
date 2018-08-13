@@ -9,6 +9,8 @@
         public string restock_type { get; set; }
         public decimal subtotal { get; set; }
         public decimal total_tax { get; set; }
+
+        public decimal Total => subtotal + total_tax;
     }
 }
 

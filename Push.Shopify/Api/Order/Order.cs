@@ -35,7 +35,7 @@ namespace Push.Shopify.Api.Order
         public decimal total_line_items_price { get; set; }
         
         public List<LineItem> line_items { get; set; }
-        public List<TaxLine> tax_lines { get; set; }
+        public List<OrderTaxLine> tax_lines { get; set; }
         public List<ShippingLine> shipping_lines { get; set; }
         public List<Refund> refunds { get; set; }
 
@@ -61,17 +61,24 @@ namespace Push.Shopify.Api.Order
         public ClientDetails client_details { get; set; }
 
 
+
+        // Computed properties - Taxes
+        public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
+
+
         // Computed properties - refunds
-        public decimal TransactionTotal => refunds.Sum(x => x.TransactionTotal);
-        public decimal ShippingAdjustmentSubTotal => refunds.Sum(x => x.ShippingAdjustmentSubTotal);
-        public decimal RefundDiscrepancySubTotal => refunds.Sum(x => x.RefundDiscrepancySubTotal);
-        public decimal TaxTotal => refunds.Sum(x => x.TaxTotal);
+        public decimal RefundTransactionTotal => refunds.Sum(x => x.TransactionTotal);
+        public decimal RefundTotal => refunds.Sum(x => x.Total);
+        public decimal RefundTaxTotal => refunds.Sum(x => x.TaxTotal);
+
 
 
         public void Initialize()
         {
             line_items.ForEach(x => x.Parent = this);
             discount_applications.ForEach(x => x.Parent = this);
+            refunds.ForEach(x => x.Parent = this);
+            tax_lines.ForEach(x => x.Parent = this);
         }
 
         public List<DiscountAllocation> FindAllocations(DiscountApplication application)
