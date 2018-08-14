@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Push.Shopify.Api.Order
 {
@@ -16,7 +17,7 @@ namespace Push.Shopify.Api.Order
         public int order_number { get; set; }
         public bool test { get; set; }
 
-        public DateTimeOffset closed_at { get; set; }
+        public DateTimeOffset? closed_at { get; set; }
         public DateTimeOffset created_at { get; set; }
         public DateTimeOffset updated_at { get; set; }
         public DateTimeOffset? processed_at { get; set; }
@@ -61,19 +62,28 @@ namespace Push.Shopify.Api.Order
         public ClientDetails client_details { get; set; }
 
 
-
-        // Computed properties - Taxes
+        //
+        // Computed properties
+        //
         public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
+        
+        public decimal LineItemDiscountTotal
+                        => discount_applications
+                            .Where(x => x.target_type == DiscountTargetType.LineItem)
+                            .Sum(x => x.TotalAllocations);
 
-
-        //
-        // Computed properties - refunds
-        // NOTE: RefundTransactionTotal should equal RefundTotal
-        //
         public decimal RefundTransactionTotal => refunds.Sum(x => x.TransactionTotal);
         public decimal RefundTotal => refunds.Sum(x => x.Total);
         public decimal RefundTaxTotal => refunds.Sum(x => x.TaxTotal);
 
+        [JsonIgnore]
+        public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
+        public decimal ShippingDiscountsTotal
+                        => discount_applications
+                            .Where(x => x.target_type == DiscountTargetType.ShippingLine)
+                            .Sum(x => x.TotalAllocations);
+        public decimal ShippingTotal => shipping_lines.Sum(x => x.price);
+        public decimal ShippingDiscountedTotal => ShippingTotal - ShippingDiscountsTotal;
 
 
         public void Initialize()

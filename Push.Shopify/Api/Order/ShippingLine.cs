@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Push.Shopify.Api.Order
 {
@@ -22,12 +23,8 @@ namespace Push.Shopify.Api.Order
 
 
         // Computed fields
-        public decimal TotalTaxes => tax_lines.Sum(x => x.rate);
-
-        public decimal SubTotal => TotalTaxes + discounted_price;
-
-
-        // TODO => 
+        [JsonIgnore]
+        public decimal TotalTaxes => tax_lines.Sum(x => x.rate);        
     }
 }
 
