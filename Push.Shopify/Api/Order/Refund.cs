@@ -35,21 +35,21 @@ namespace Push.Shopify.Api.Order
         public decimal RefundLineItemTotal => refund_line_items.Sum(x => x.Total);
         
         public decimal ShippingAdjustmentTotal =>
-                            order_adjustments
+                            -(order_adjustments
                                 .Where(x => x.IsShippingAdjustment)
-                                .Sum(x => x.Total);
+                                .Sum(x => x.Total));
 
         public decimal RefundDiscrepancyTotal =>
-                            order_adjustments
+                            -(order_adjustments
                                 .Where(x => x.IsRefundDiscrepancy)
-                                .Sum(x => x.Total);
+                                .Sum(x => x.Total));
         
         public decimal Total => 
                 RefundLineItemTotal + ShippingAdjustmentTotal + RefundDiscrepancyTotal;
 
         public decimal TaxTotal =>
                 refund_line_items.Sum(x => x.total_tax) +
-                order_adjustments.Sum(x => x.tax_amount);
+                -(order_adjustments.Sum(x => x.tax_amount));
         
         public List<RefundTaxLine> 
                 TaxBreakdown => Parent
@@ -61,7 +61,6 @@ namespace Push.Shopify.Api.Order
                                     Price = x.PercentOfTotalTaxes * this.TaxTotal,
                                 })
                         .ToList();
-
     }
 }
 

@@ -66,7 +66,10 @@ namespace Push.Shopify.Api.Order
         public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
 
 
+        //
         // Computed properties - refunds
+        // NOTE: RefundTransactionTotal should equal RefundTotal
+        //
         public decimal RefundTransactionTotal => refunds.Sum(x => x.TransactionTotal);
         public decimal RefundTotal => refunds.Sum(x => x.Total);
         public decimal RefundTaxTotal => refunds.Sum(x => x.TaxTotal);
