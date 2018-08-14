@@ -1,0 +1,621 @@
+{
+  "order": {
+    "id": 554500751458,
+    "email": "aleksjones@gmail.com",
+    "closed_at": "2018-07-27T18:41:06-04:00",
+    "created_at": "2018-07-27T18:34:53-04:00",
+    "updated_at": "2018-07-27T18:43:05-04:00",
+    "number": 1,
+    "note": null,
+    "token": "68986a3edb05b3727e70e0294717fd22",
+    "gateway": "bogus",
+    "test": true,
+    "total_price": "244.28",
+    "subtotal_price": "200.00",
+    "total_weight": 22679,
+    "total_tax": "17.57",
+    "taxes_included": false,
+    "currency": "USD",
+    "financial_status": "partially_refunded",
+    "confirmed": true,
+    "total_discounts": "50.00",
+    "total_line_items_price": "250.00",
+    "cart_token": null,
+    "buyer_accepts_marketing": false,
+    "name": "#1001",
+    "referring_site": null,
+    "landing_site": null,
+    "cancelled_at": null,
+    "cancel_reason": null,
+    "total_price_usd": "244.28",
+    "checkout_token": "884566a467c54920fcf1125934664cf9",
+    "reference": null,
+    "user_id": 23379640418,
+    "location_id": null,
+    "source_identifier": null,
+    "source_url": null,
+    "processed_at": "2018-07-27T18:34:53-04:00",
+    "device_id": null,
+    "phone": null,
+    "customer_locale": null,
+    "app_id": 1354745,
+    "browser_ip": null,
+    "landing_site_ref": null,
+    "order_number": 1001,
+    "discount_applications": [
+      {
+        "type": "manual",
+        "value": "50.0",
+        "value_type": "fixed_amount",
+        "allocation_method": "across",
+        "target_selection": "all",
+        "target_type": "line_item",
+        "description": null,
+        "title": null
+      }
+    ],
+    "discount_codes": [
+      {
+        "code": "Custom discount",
+        "amount": "50.00",
+        "type": "fixed_amount"
+      }
+    ],
+    "note_attributes": [],
+    "payment_gateway_names": [
+      "bogus"
+    ],
+    "processing_method": "direct",
+    "checkout_id": 5041270423650,
+    "source_name": "shopify_draft_order",
+    "fulfillment_status": "fulfilled",
+    "tax_lines": [
+      {
+        "price": "14.17",
+        "rate": 0.0625,
+        "title": "IL State Tax"
+      },
+      {
+        "price": "1.70",
+        "rate": 0.0075,
+        "title": "Mchenry County Tax"
+      },
+      {
+        "price": "1.70",
+        "rate": 0.0075,
+        "title": "Algonquin Municipal Tax"
+      }
+    ],
+    "tags": "",
+    "contact_email": "aleksjones@gmail.com",
+    "order_status_url": "https://checkout.shopify.com/1785823330/orders/68986a3edb05b3727e70e0294717fd22/authenticate?key=94beeb782e27e2c66e56c6835177951e",
+    "admin_graphql_api_id": "gid://shopify/Order/554500751458",
+    "line_items": [
+      {
+        "id": 1365156200546,
+        "variant_id": 12489243918434,
+        "title": "Revenge of the Test Product",
+        "quantity": 5,
+        "price": "50.00",
+        "sku": "MED",
+        "variant_title": "MEDIUM",
+        "vendor": "Bridge-Over-Monsters",
+        "fulfillment_service": "manual",
+        "product_id": 1403130544226,
+        "requires_shipping": true,
+        "taxable": true,
+        "gift_card": false,
+        "name": "Revenge of the Test Product - MEDIUM",
+        "variant_inventory_management": "shopify",
+        "properties": [],
+        "product_exists": true,
+        "fulfillable_quantity": 0,
+        "grams": 4536,
+        "total_discount": "0.00",
+        "fulfillment_status": "fulfilled",
+        "discount_allocations": [
+          {
+            "amount": "50.00",
+            "discount_application_index": 0
+          }
+        ],
+        "admin_graphql_api_id": "gid://shopify/LineItem/1365156200546",
+        "tax_lines": [
+          {
+            "title": "IL State Tax",
+            "price": "12.50",
+            "rate": 0.0625
+          },
+          {
+            "title": "Mchenry County Tax",
+            "price": "1.50",
+            "rate": 0.0075
+          },
+          {
+            "title": "Algonquin Municipal Tax",
+            "price": "1.50",
+            "rate": 0.0075
+          }
+        ],
+        "origin_location": {
+          "id": 544804700258,
+          "country_code": "US",
+          "province_code": "IL",
+          "name": "Bridge-Over-Monsters",
+          "address1": "2833 Waterfront Ave.",
+          "address2": "",
+          "city": "Algonquin",
+          "zip": "60102"
+        },
+        "destination_location": {
+          "id": 544804733026,
+          "country_code": "US",
+          "province_code": "IL",
+          "name": "AL JONES",
+          "address1": "719 Monroe",
+          "address2": "",
+          "city": "Evanston",
+          "zip": "60202"
+        }
+      }
+    ],
+    "shipping_lines": [
+      {
+        "id": 468278116450,
+        "title": "Priority Mail",
+        "price": "26.71",
+        "code": "Priority",
+        "source": "usps",
+        "phone": null,
+        "requested_fulfillment_service_id": null,
+        "delivery_category": null,
+        "carrier_identifier": null,
+        "discounted_price": "26.71",
+        "discount_allocations": [],
+        "tax_lines": [
+          {
+            "title": "IL State Tax",
+            "price": "1.67",
+            "rate": 0.0625
+          },
+          {
+            "title": "Mchenry County Tax",
+            "price": "0.20",
+            "rate": 0.0075
+          },
+          {
+            "title": "Algonquin Municipal Tax",
+            "price": "0.20",
+            "rate": 0.0075
+          }
+        ]
+      }
+    ],
+    "billing_address": {
+      "first_name": "AL",
+      "address1": "719 Monroe",
+      "phone": "847-123-1234",
+      "city": "Evanston",
+      "zip": "60202",
+      "province": "Illinois",
+      "country": "United States",
+      "last_name": "JONES",
+      "address2": null,
+      "company": "Aleks Jones",
+      "latitude": 42.0309699,
+      "longitude": -87.6813234,
+      "name": "AL JONES",
+      "country_code": "US",
+      "province_code": "IL"
+    },
+    "shipping_address": {
+      "first_name": "AL",
+      "address1": "719 Monroe",
+      "phone": "847-123-1234",
+      "city": "Evanston",
+      "zip": "60202",
+      "province": "Illinois",
+      "country": "United States",
+      "last_name": "JONES",
+      "address2": null,
+      "company": "Aleks Jones",
+      "latitude": 42.0309699,
+      "longitude": -87.6813234,
+      "name": "AL JONES",
+      "country_code": "US",
+      "province_code": "IL"
+    },
+    "fulfillments": [
+      {
+        "id": 534774251618,
+        "order_id": 554500751458,
+        "status": "success",
+        "created_at": "2018-07-27T18:40:34-04:00",
+        "service": "manual",
+        "updated_at": "2018-07-27T18:40:35-04:00",
+        "tracking_company": "FedEx",
+        "shipment_status": null,
+        "location_id": 14390394978,
+        "tracking_number": "123456984068",
+        "tracking_numbers": [
+          "123456984068"
+        ],
+        "tracking_url": "http://www.fedex.com/Tracking?tracknumbers=123456984068&action=track",
+        "tracking_urls": [
+          "http://www.fedex.com/Tracking?tracknumbers=123456984068&action=track"
+        ],
+        "receipt": {},
+        "name": "#1001.2",
+        "admin_graphql_api_id": "gid://shopify/Fulfillment/534774251618",
+        "line_items": [
+          {
+            "id": 1365156200546,
+            "variant_id": 12489243918434,
+            "title": "Revenge of the Test Product",
+            "quantity": 3,
+            "price": "50.00",
+            "sku": "MED",
+            "variant_title": "MEDIUM",
+            "vendor": "Bridge-Over-Monsters",
+            "fulfillment_service": "manual",
+            "product_id": 1403130544226,
+            "requires_shipping": true,
+            "taxable": true,
+            "gift_card": false,
+            "name": "Revenge of the Test Product - MEDIUM",
+            "variant_inventory_management": "shopify",
+            "properties": [],
+            "product_exists": true,
+            "fulfillable_quantity": 0,
+            "grams": 4536,
+            "total_discount": "0.00",
+            "fulfillment_status": "fulfilled",
+            "discount_allocations": [
+              {
+                "amount": "50.00",
+                "discount_application_index": 0
+              }
+            ],
+            "admin_graphql_api_id": "gid://shopify/LineItem/1365156200546",
+            "tax_lines": [
+              {
+                "title": "IL State Tax",
+                "price": "12.50",
+                "rate": 0.0625
+              },
+              {
+                "title": "Mchenry County Tax",
+                "price": "1.50",
+                "rate": 0.0075
+              },
+              {
+                "title": "Algonquin Municipal Tax",
+                "price": "1.50",
+                "rate": 0.0075
+              }
+            ],
+            "origin_location": {
+              "id": 544804700258,
+              "country_code": "US",
+              "province_code": "IL",
+              "name": "Bridge-Over-Monsters",
+              "address1": "2833 Waterfront Ave.",
+              "address2": "",
+              "city": "Algonquin",
+              "zip": "60102"
+            },
+            "destination_location": {
+              "id": 544804733026,
+              "country_code": "US",
+              "province_code": "IL",
+              "name": "AL JONES",
+              "address1": "719 Monroe",
+              "address2": "",
+              "city": "Evanston",
+              "zip": "60202"
+            }
+          }
+        ]
+      },
+      {
+        "id": 534774022242,
+        "order_id": 554500751458,
+        "status": "success",
+        "created_at": "2018-07-27T18:40:19-04:00",
+        "service": "manual",
+        "updated_at": "2018-07-27T18:40:19-04:00",
+        "tracking_company": "Bluedart",
+        "shipment_status": null,
+        "location_id": 14390394978,
+        "tracking_number": "123456678",
+        "tracking_numbers": [
+          "123456678"
+        ],
+        "tracking_url": "https://www.bluedart.com/servlet/RoutingServlet?handler=tnt&action=awbquery&awb=awb&numbers=123456678",
+        "tracking_urls": [
+          "https://www.bluedart.com/servlet/RoutingServlet?handler=tnt&action=awbquery&awb=awb&numbers=123456678"
+        ],
+        "receipt": {},
+        "name": "#1001.1",
+        "admin_graphql_api_id": "gid://shopify/Fulfillment/534774022242",
+        "line_items": [
+          {
+            "id": 1365156200546,
+            "variant_id": 12489243918434,
+            "title": "Revenge of the Test Product",
+            "quantity": 2,
+            "price": "50.00",
+            "sku": "MED",
+            "variant_title": "MEDIUM",
+            "vendor": "Bridge-Over-Monsters",
+            "fulfillment_service": "manual",
+            "product_id": 1403130544226,
+            "requires_shipping": true,
+            "taxable": true,
+            "gift_card": false,
+            "name": "Revenge of the Test Product - MEDIUM",
+            "variant_inventory_management": "shopify",
+            "properties": [],
+            "product_exists": true,
+            "fulfillable_quantity": 0,
+            "grams": 4536,
+            "total_discount": "0.00",
+            "fulfillment_status": "fulfilled",
+            "discount_allocations": [
+              {
+                "amount": "50.00",
+                "discount_application_index": 0
+              }
+            ],
+            "admin_graphql_api_id": "gid://shopify/LineItem/1365156200546",
+            "tax_lines": [
+              {
+                "title": "IL State Tax",
+                "price": "12.50",
+                "rate": 0.0625
+              },
+              {
+                "title": "Mchenry County Tax",
+                "price": "1.50",
+                "rate": 0.0075
+              },
+              {
+                "title": "Algonquin Municipal Tax",
+                "price": "1.50",
+                "rate": 0.0075
+              }
+            ],
+            "origin_location": {
+              "id": 544804700258,
+              "country_code": "US",
+              "province_code": "IL",
+              "name": "Bridge-Over-Monsters",
+              "address1": "2833 Waterfront Ave.",
+              "address2": "",
+              "city": "Algonquin",
+              "zip": "60102"
+            },
+            "destination_location": {
+              "id": 544804733026,
+              "country_code": "US",
+              "province_code": "IL",
+              "name": "AL JONES",
+              "address1": "719 Monroe",
+              "address2": "",
+              "city": "Evanston",
+              "zip": "60202"
+            }
+          }
+        ]
+      }
+    ],
+    "client_details": {
+      "browser_ip": "69.47.101.64",
+      "accept_language": "en-US,en;q=0.9",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36",
+      "session_hash": null,
+      "browser_width": null,
+      "browser_height": null
+    },
+    "refunds": [
+      {
+        "id": 25316720738,
+        "order_id": 554500751458,
+        "created_at": "2018-07-27T18:41:36-04:00",
+        "note": "Wrong type of death ray won't work on the Blob!",
+        "user_id": 23379640418,
+        "processed_at": "2018-07-27T18:41:36-04:00",
+        "restock": true,
+        "admin_graphql_api_id": "gid://shopify/Refund/25316720738",
+        "refund_line_items": [
+          {
+            "id": 47312765026,
+            "quantity": 2,
+            "line_item_id": 1365156200546,
+            "location_id": 14390394978,
+            "restock_type": "return",
+            "subtotal": 80.0,
+            "total_tax": 6.2,
+            "line_item": { }
+          }
+        ],
+        "transactions": [
+          {
+            "id": 714671620194,
+            "order_id": 554500751458,
+            "amount": "86.20",
+            "kind": "refund",
+            "gateway": "bogus",
+            "status": "success",
+            "message": "Bogus Gateway: Forced success",
+            "created_at": "2018-07-27T18:41:35-04:00",
+            "test": true,
+            "authorization": null,
+            "currency": "USD",
+            "location_id": null,
+            "user_id": null,
+            "parent_id": 714671226978,
+            "device_id": null,
+            "receipt": {
+              "paid_amount": "86.20"
+            },
+            "error_code": null,
+            "source_name": "web",
+            "admin_graphql_api_id": "gid://shopify/OrderTransaction/714671620194"
+          }
+        ],
+        "order_adjustments": []
+      },
+      {
+        "id": 25316753506,
+        "order_id": 554500751458,
+        "created_at": "2018-07-27T18:42:47-04:00",
+        "note": "Paid way to much for shipping",
+        "user_id": 23379640418,
+        "processed_at": "2018-07-27T18:42:47-04:00",
+        "restock": false,
+        "admin_graphql_api_id": "gid://shopify/Refund/25316753506",
+        "refund_line_items": [],
+        "transactions": [
+          {
+            "id": 714672210018,
+            "order_id": 554500751458,
+            "amount": "20.00",
+            "kind": "refund",
+            "gateway": "bogus",
+            "status": "success",
+            "message": "Bogus Gateway: Forced success",
+            "created_at": "2018-07-27T18:42:47-04:00",
+            "test": true,
+            "authorization": null,
+            "currency": "USD",
+            "location_id": null,
+            "user_id": null,
+            "parent_id": 714671226978,
+            "device_id": null,
+            "receipt": {
+              "paid_amount": "20.00"
+            },
+            "error_code": null,
+            "source_name": "web",
+            "admin_graphql_api_id": "gid://shopify/OrderTransaction/714672210018"
+          }
+        ],
+        "order_adjustments": [
+          {
+            "id": 14792261730,
+            "order_id": 554500751458,
+            "refund_id": 25316753506,
+            "amount": "-26.71",
+            "tax_amount": "-2.07",
+            "kind": "shipping_refund",
+            "reason": "Shipping refund"
+          },
+          {
+            "id": 14792294498,
+            "order_id": 554500751458,
+            "refund_id": 25316753506,
+            "amount": "8.78",
+            "tax_amount": "0.00",
+            "kind": "refund_discrepancy",
+            "reason": "Refund discrepancy"
+          }
+        ]
+      },
+      {
+        "id": 25316786274,
+        "order_id": 554500751458,
+        "created_at": "2018-07-27T18:43:05-04:00",
+        "note": "Did I mention you're the greatest?",
+        "user_id": 23379640418,
+        "processed_at": "2018-07-27T18:43:05-04:00",
+        "restock": false,
+        "admin_graphql_api_id": "gid://shopify/Refund/25316786274",
+        "refund_line_items": [],
+        "transactions": [
+          {
+            "id": 714672472162,
+            "order_id": 554500751458,
+            "amount": "20.00",
+            "kind": "refund",
+            "gateway": "bogus",
+            "status": "success",
+            "message": "Bogus Gateway: Forced success",
+            "created_at": "2018-07-27T18:43:04-04:00",
+            "test": true,
+            "authorization": null,
+            "currency": "USD",
+            "location_id": null,
+            "user_id": null,
+            "parent_id": 714671226978,
+            "device_id": null,
+            "receipt": {
+              "paid_amount": "20.00"
+            },
+            "error_code": null,
+            "source_name": "web",
+            "admin_graphql_api_id": "gid://shopify/OrderTransaction/714672472162"
+          }
+        ],
+        "order_adjustments": [
+          {
+            "id": 14792327266,
+            "order_id": 554500751458,
+            "refund_id": 25316786274,
+            "amount": "-20.00",
+            "tax_amount": "0.00",
+            "kind": "refund_discrepancy",
+            "reason": "Refund discrepancy"
+          }
+        ]
+      }
+    ],
+    "payment_details": {
+      "credit_card_bin": "1",
+      "avs_result_code": null,
+      "cvv_result_code": null,
+      "credit_card_number": "•••• •••• •••• 1",
+      "credit_card_company": "Bogus"
+    },
+    "customer": {
+      "id": 669996220514,
+      "email": "aleksjones@gmail.com",
+      "accepts_marketing": false,
+      "created_at": "2018-07-27T18:33:41-04:00",
+      "updated_at": "2018-07-27T18:34:53-04:00",
+      "first_name": "AL",
+      "last_name": "JONES",
+      "orders_count": 0,
+      "state": "disabled",
+      "total_spent": "0.00",
+      "last_order_id": null,
+      "note": null,
+      "verified_email": true,
+      "multipass_identifier": null,
+      "tax_exempt": false,
+      "phone": null,
+      "tags": "",
+      "last_order_name": null,
+      "admin_graphql_api_id": "gid://shopify/Customer/669996220514",
+      "default_address": {
+        "id": 729636634722,
+        "customer_id": 669996220514,
+        "first_name": "AL",
+        "last_name": "JONES",
+        "company": "Aleks Jones",
+        "address1": "719 Monroe",
+        "address2": "",
+        "city": "Evanston",
+        "province": "Illinois",
+        "country": "United States",
+        "zip": "60202",
+        "phone": "847-123-1234",
+        "name": "AL JONES",
+        "province_code": "IL",
+        "country_code": "US",
+        "country_name": "United States",
+        "default": true
+      }
+    }
+  }
+}
