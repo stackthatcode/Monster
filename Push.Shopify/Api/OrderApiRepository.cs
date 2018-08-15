@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.HttpClient;
@@ -55,6 +53,16 @@ namespace Push.Shopify.Api
             var request = _requestFactory.HttpGet(path);
             var clientResponse = _executionFacade.ExecuteRequest(request);
             return clientResponse.Body;
+        }
+
+
+        public virtual string RetrieveTransactions(long orderId)
+        {
+            var path = $"/admin/orders/{orderId}/transactions.json";
+            var request = _requestFactory.HttpGet(path);
+            var response = _executionFacade.ExecuteRequest(request);
+
+            return response.Body;
         }
 
         public virtual string Retrieve(long orderId)
