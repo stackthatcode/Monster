@@ -1,7 +1,7 @@
 using System;
 using Push.Foundation.Web.HttpClient;
 using Push.Shopify.Config;
-using Push.Shopify.Credentials;
+// ReSharper disable once RedundantUsingDirective
 using Push.Shopify.HttpClient;
 using Push.Shopify.HttpClient.Credentials;
 
@@ -27,19 +27,22 @@ namespace Push.Shopify.Api
             Func<ShopifyRequestBuilder, ClientFacade, EventApiRepository> _eventApiRepositoryFactory;
         private readonly 
             Func<ShopifyRequestBuilder, ClientFacade, ShopApiRepository> _shopApiRepositoryFactory;
-        
+        private readonly
+            Func<ShopifyRequestBuilder, ClientFacade, PayoutApiRepository> _payoutApiRepositoryFactory;
+
 
 
         public ApiFactory(
                 Func<IShopifyCredentials, ShopifyRequestBuilder> requestBuilderFactory,
                 Func<ClientSettings, ClientFacade> clientFacadeFactory,
                 
+                ShopifyClientSettings clientSettings,
+
                 Func<ShopifyRequestBuilder, ClientFacade, OrderApiRepository> orderApiRepositoryFactory,
                 Func<ShopifyRequestBuilder, ClientFacade, ProductApiRepository> productApiRepositoryFactory,
                 Func<ShopifyRequestBuilder, ClientFacade, EventApiRepository> eventApiRepositoryFactory,
                 Func<ShopifyRequestBuilder, ClientFacade, ShopApiRepository> shopApiRepositoryFactory,
-                
-                ShopifyClientSettings clientSettings)
+                Func<ShopifyRequestBuilder, ClientFacade, PayoutApiRepository> payoutApiRepositoryFactory)
         {
             _requestBuilderFactory = requestBuilderFactory;
 
@@ -50,6 +53,7 @@ namespace Push.Shopify.Api
             _productApiRepositoryFactory = productApiRepositoryFactory;
             _eventApiRepositoryFactory = eventApiRepositoryFactory;
             _shopApiRepositoryFactory = shopApiRepositoryFactory;
+            _payoutApiRepositoryFactory = payoutApiRepositoryFactory;
         }
 
 
@@ -60,8 +64,7 @@ namespace Push.Shopify.Api
             var repository = _orderApiRepositoryFactory(requestBuilder, clientFacade);
             return repository;
         }
-
-
+        
         public virtual ProductApiRepository MakeProductApi(IShopifyCredentials credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
@@ -70,7 +73,6 @@ namespace Push.Shopify.Api
             return repository;
         }
         
-
         public virtual EventApiRepository MakeEventApi(IShopifyCredentials credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
@@ -79,6 +81,13 @@ namespace Push.Shopify.Api
             return repository;
         }
 
+        public virtual PayoutApiRepository MakePayoutApi(IShopifyCredentials credentials)
+        {
+            var requestBuilder = _requestBuilderFactory(credentials);
+            var clientFacade = _clientFacadeFactory(_clientSettings);
+            var repository = _payoutApiRepositoryFactory(requestBuilder, clientFacade);
+            return repository;
+        }
 
         public virtual ShopApiRepository MakeShopApi(IShopifyCredentials credentials)
         {

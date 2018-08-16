@@ -39,7 +39,7 @@ namespace Push.Shopify.Api
         }
 
 
-        public virtual IList<Event.Event> Retrieve(EventFilter filter, int page = 1, int limit = 250)
+        public virtual IList<Legacy.Event.Event> Retrieve(EventFilter filter, int page = 1, int limit = 250)
         {
             var querystring
                 = new QueryStringBuilder()
@@ -56,10 +56,10 @@ namespace Push.Shopify.Api
 
             dynamic parent = JsonConvert.DeserializeObject(clientResponse.Body);
 
-            var output = new List<Event.Event>();
+            var output = new List<Legacy.Event.Event>();
             foreach (var @event in parent.events)
             {
-                var result = new Event.Event();
+                var result = new Legacy.Event.Event();
                 result.Id = @event.id;
                 result.SubjectId = @event.subject_id;
                 result.SubjectType = @event.subject_type;

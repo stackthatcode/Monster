@@ -30,7 +30,7 @@ namespace Push.Shopify.Api.Transaction
         public PaymentDetails payment_details { get; set; }
     }
 
-    public class TransactionRoot
+    public class TransactionList
     {
         public List<Transaction> transactions { get; set; }
 

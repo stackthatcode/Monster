@@ -1,4 +1,4 @@
-﻿namespace Push.Shopify.Api.Event
+﻿namespace Push.Shopify.Api.Legacy.Event
 {
     public class Event
     {

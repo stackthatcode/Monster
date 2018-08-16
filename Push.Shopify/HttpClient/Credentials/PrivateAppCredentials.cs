@@ -1,7 +1,4 @@
-﻿using Push.Shopify.HttpClient;
-using Push.Shopify.HttpClient.Credentials;
-
-namespace Push.Shopify.Credentials
+﻿namespace Push.Shopify.HttpClient.Credentials
 {
     // Used exclusively by private apps
     public class PrivateAppCredentials : IShopifyCredentials

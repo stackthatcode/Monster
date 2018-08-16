@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Push.Shopify.Config;
-using Push.Shopify.Credentials;
 using Push.Shopify.HttpClient.Credentials;
 
 namespace Push.Shopify.HttpClient

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.IO;
 using Autofac;
+using Monster.ConsoleApp.TestJson;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Order;
+using Push.Shopify.Api.Payout;
 using Push.Shopify.Api.Product;
 using Push.Shopify.Api.Transaction;
 using Push.Shopify.Config;
+using Push.Shopify.HttpClient.Credentials;
 
 
 namespace Monster.ConsoleApp
@@ -16,23 +19,29 @@ namespace Monster.ConsoleApp
     {
         static void Main(string[] args)
         {
-            // DeserializePayPalTransaction();
+            //DeserializeJson<BalanceTransactionList>("3duPayouts20180813.json");
+            //DeserializeJson<TransactionList>("3duPayPalTransactions.json");
             // ExecuteInLifetimeScope(scope => RetrieveOrderData(scope));
-            ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
-            //ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
+            // ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
+            // ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
 
+            ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));
+            
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
 
+        static IShopifyCredentials CredentialsFactory()
+        {
+            return ShopifySecuritySettings
+                    .FromConfiguration()
+                    .MakePrivateAppCredentials();
+        }
 
         static void RetrieveOrderData(ILifetimeScope scope, long orderId)
         {
             var factory = scope.Resolve<ApiFactory>();
-            var credentials =
-                ShopifySecuritySettings
-                    .FromConfiguration()
-                    .MakePrivateAppCredentials();
+            var credentials = CredentialsFactory();
 
             var orderApi = factory.MakeOrderApi(credentials);
             var shopifyOrderJson = orderApi.Retrieve(orderId);
@@ -43,19 +52,15 @@ namespace Monster.ConsoleApp
 
             var shopifyTransactionJson = orderApi.RetrieveTransactions(orderId);
             var transactionParent =
-                    shopifyTransactionJson.DeserializeFromJson<TransactionRoot>();
+                    shopifyTransactionJson.DeserializeFromJson<TransactionList>();
 
             var monsterTransactionJson = transactionParent.SerializeToJson();
         }
-
-
+        
         static void RetrieveProductData(ILifetimeScope scope, long productId)
         {
             var factory = scope.Resolve<ApiFactory>();
-            var credentials =
-                ShopifySecuritySettings
-                    .FromConfiguration()
-                    .MakePrivateAppCredentials();
+            var credentials = CredentialsFactory();
 
             var productApi = factory.MakeProductApi(credentials);
             var shopifyOrderJson = productApi.Retrieve(productId);
@@ -71,11 +76,8 @@ namespace Monster.ConsoleApp
         static void RetrieveLocations(ILifetimeScope scope)
         {
             var factory = scope.Resolve<ApiFactory>();
-            var credentials =
-                ShopifySecuritySettings
-                    .FromConfiguration()
-                    .MakePrivateAppCredentials();
-
+            var credentials = CredentialsFactory();
+            
             var productApi = factory.MakeProductApi(credentials);
             var shopifyLocationJson = productApi.RetrieveLocations();
 
@@ -83,15 +85,27 @@ namespace Monster.ConsoleApp
             var monsterLocationJson = locations.SerializeToJson();
         }
 
-
-
-        static void DeserializePayPalTransaction()
+        static void RetrievePayoutDta(ILifetimeScope scope)
         {
-            var data = File.ReadAllText(@".\TestJson\3duPayPalTransactions.json");
-            var transaction = data.DeserializeFromJson<TransactionRoot>();
-            var jsonAgain = transaction.SerializeToJson();
+            var factory = scope.Resolve<ApiFactory>();
+            var credentials = CredentialsFactory();
+
+            var payoutApi = factory.MakePayoutApi(credentials);
+
+            var date = new DateTimeOffset(2018, 8, 8, 0, 0, 0, new TimeSpan(0, 0, 0));
+            var shopifyPayouts = payoutApi.RetrievePayouts(date);
+
+            var payouts = shopifyPayouts.DeserializeFromJson<BalanceTransactionList>();
         }
 
+        static void DeserializeJson<T>(string inputJsonFile)
+        {
+            var json = TestLoader.GimmeJson(inputJsonFile);
+            var deserializedObject = json.DeserializeFromJson<T>();
+            var reserializedJson = deserializedObject.SerializeToJson();
+            Console.WriteLine(reserializedJson);
+        }
+        
         static void ExecuteInLifetimeScope(Action<ILifetimeScope> action)
         {
             using (var container = ConsoleAutofac.Build(false))
@@ -109,7 +123,6 @@ namespace Monster.ConsoleApp
                 }
             }
         }
-
     }
 }
 

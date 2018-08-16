@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Push.Shopify.Model
+namespace Push.Shopify.Api.Legacy.Billing
 {
     public class RecurringApplicationCharge
     {

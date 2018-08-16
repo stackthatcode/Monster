@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Push.Shopify.Api.Event
+namespace Push.Shopify.Api.Legacy.Event
 {
     public class Webhook
     {

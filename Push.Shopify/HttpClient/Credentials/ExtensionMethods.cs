@@ -1,8 +1,6 @@
 ﻿using Push.Shopify.Config;
-using Push.Shopify.HttpClient;
-using Push.Shopify.HttpClient.Credentials;
 
-namespace Push.Shopify.Credentials
+namespace Push.Shopify.HttpClient.Credentials
 {
     public static class ExtensionMethods
     {
