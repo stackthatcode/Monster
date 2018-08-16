@@ -118,6 +118,8 @@
     <Compile Include="Api\Order\Transaction.cs" />
     <Compile Include="Api\Order\ValueType.cs" />
     <Compile Include="Api\Payout\BalanceTransaction.cs" />
+    <Compile Include="Api\Payout\Payouts.cs" />
+    <Compile Include="Api\Payout\PayoutDetail.cs" />
     <Compile Include="Api\Product\Image.cs" />
     <Compile Include="Api\Product\InventoryLevel.cs" />
     <Compile Include="Api\Product\Location.cs" />

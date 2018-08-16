@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Autofac;
 using Monster.ConsoleApp.TestJson;
 using Push.Foundation.Utilities.Json;
@@ -92,10 +93,14 @@ namespace Monster.ConsoleApp
 
             var payoutApi = factory.MakePayoutApi(credentials);
 
-            var date = new DateTimeOffset(2018, 8, 8, 0, 0, 0, new TimeSpan(0, 0, 0));
-            var shopifyPayouts = payoutApi.RetrievePayouts(date);
+            //var date = new DateTimeOffset(2018, 8, 8, 0, 0, 0, new TimeSpan(0, 0, 0));
 
-            var payouts = shopifyPayouts.DeserializeFromJson<BalanceTransactionList>();
+            var shopifyPayoutJson = payoutApi.RetrievePayouts();
+            var monsterPayout = shopifyPayoutJson.DeserializeFromJson<PayoutList>();
+            var firstPayoutId = monsterPayout.payouts.First().id;
+
+            var shopifyPayoutDetailJson = payoutApi.RetrievePayoutDetail(firstPayoutId);
+            var monsterPayoutDetail = shopifyPayoutDetailJson.DeserializeFromJson<PayoutDetail>();
         }
 
         static void DeserializeJson<T>(string inputJsonFile)

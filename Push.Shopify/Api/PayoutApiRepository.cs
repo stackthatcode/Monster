@@ -20,16 +20,19 @@ namespace Push.Shopify.Api
             _requestFactory = requestFactory;
         }
 
-        public virtual string RetrievePayouts(DateTimeOffset date)
+        public virtual string RetrievePayouts()
         {
-            var formattedDate = date.ToString("yyyy-MM-dd");
+            var path = "/admin/shopify_payments/payouts.json";
+            var request = _requestFactory.HttpGet(path);
+            var clientResponse = _executionFacade.ExecuteRequest(request);
 
-            //var path = "/admin/shopify_payments/payouts.json";
+            var output = clientResponse.Body;
+            return output;
+        }
 
-            // Gets the payouts
-            //var path = $"/admin/payments/transactions.json?payout_date={formattedDate}";                       
-
-            var path = "/admin/shopify_payments/balance/transactions.json?payout_id=18795823204";
+        public virtual string RetrievePayoutDetail(long id)
+        {            
+            var path = $"/admin/shopify_payments/balance/transactions.json?payout_id={id}";
             var request = _requestFactory.HttpGet(path);
             var clientResponse = _executionFacade.ExecuteRequest(request);
 

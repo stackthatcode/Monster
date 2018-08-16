@@ -25,6 +25,6 @@ namespace Push.Shopify.Api.Payout
 
     public class BalanceTransactionList
     {
-        public List<BalanceTransaction> balance_transactions { get; set; }
+        public List<BalanceTransaction> transactions { get; set; }
     }
 }
