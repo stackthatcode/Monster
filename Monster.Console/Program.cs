@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using Autofac;
-using Monster.Middle.Workers.Permutation;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Order;
+using Push.Shopify.Api.Product;
 using Push.Shopify.Api.Transaction;
 using Push.Shopify.Config;
 
@@ -16,9 +16,10 @@ namespace Monster.ConsoleApp
     {
         static void Main(string[] args)
         {
+            // DeserializePayPalTransaction();
             // ExecuteInLifetimeScope(scope => RetrieveOrderData(scope));
-
-            DeserializePayPalTransaction();
+            ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
+            //ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
@@ -46,17 +47,44 @@ namespace Monster.ConsoleApp
 
             var monsterTransactionJson = transactionParent.SerializeToJson();
         }
-        
-        static void GeneratePermutations()
+
+
+        static void RetrieveProductData(ILifetimeScope scope, long productId)
         {
-            ExecuteInLifetimeScope(
-                scope =>
-                {
-                    var worker = scope.Resolve<PermutationWorker>();
-                    worker.Do();
-                });
+            var factory = scope.Resolve<ApiFactory>();
+            var credentials =
+                ShopifySecuritySettings
+                    .FromConfiguration()
+                    .MakePrivateAppCredentials();
+
+            var productApi = factory.MakeProductApi(credentials);
+            var shopifyOrderJson = productApi.Retrieve(productId);
+
+            var productParent = shopifyOrderJson.DeserializeFromJson<ProductParent>();
+            productParent.Initialize();
+            var monsterProductJson = productParent.SerializeToJson();
+
+            var inventoryItemIDs = productParent.product.InventoryItemIds;
+            var shopifyInventoryLevels = productApi.RetrieveInventoryLevels(inventoryItemIDs);
         }
-        
+
+        static void RetrieveLocations(ILifetimeScope scope)
+        {
+            var factory = scope.Resolve<ApiFactory>();
+            var credentials =
+                ShopifySecuritySettings
+                    .FromConfiguration()
+                    .MakePrivateAppCredentials();
+
+            var productApi = factory.MakeProductApi(credentials);
+            var shopifyLocationJson = productApi.RetrieveLocations();
+
+            var locations = shopifyLocationJson.DeserializeFromJson<LocationList>();
+            var monsterLocationJson = locations.SerializeToJson();
+        }
+
+
+
         static void DeserializePayPalTransaction()
         {
             var data = File.ReadAllText(@".\TestJson\3duPayPalTransactions.json");

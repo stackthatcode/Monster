@@ -1,7 +1,7 @@
 ﻿using System;
 using Push.Foundation.Web.Helpers;
 
-namespace Push.Shopify.Api.Product
+namespace Push.Shopify.Model
 {
     public class ProductFilter
     {

@@ -64,10 +64,6 @@
     <Compile Include="EF\Repository.cs" />
     <Compile Include="MiddleAutofac.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Workers\Permutation\BundlePermutation.cs" />
-    <Compile Include="Workers\Permutation\PermutationExtensions.cs" />
-    <Compile Include="Workers\Permutation\PermutationContext.cs" />
-    <Compile Include="Workers\Permutation\PermutationWorker.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -98,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Config\" />
+    <Folder Include="Workers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

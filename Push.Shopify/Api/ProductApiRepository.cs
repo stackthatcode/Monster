@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.HttpClient;
-using Push.Shopify.Api.Product;
 using Push.Shopify.Config;
 using Push.Shopify.HttpClient;
+using Push.Shopify.Model;
 
 namespace Push.Shopify.Api
 {
@@ -41,7 +43,8 @@ namespace Push.Shopify.Api
             return count;
         }
 
-        public virtual IList<Product.Product> Retrieve(ProductFilter filter, int page = 1, int limit = 250)
+        public virtual string Retrieve(
+                    ProductFilter filter, int page = 1, int limit = 250)
         {
             var querystring
                 = new QueryStringBuilder()
@@ -54,45 +57,45 @@ namespace Push.Shopify.Api
 
             var request = _requestFactory.HttpGet(path);
             var clientResponse = _client.ExecuteRequest(request);
+            _logger.Trace(clientResponse.Body);            
+            return clientResponse.Body;
+        }
+
+        public virtual string Retrieve(long id)
+        {
+            var path = $"/admin/products/{id}.json";
+            var request = _requestFactory.HttpGet(path);
+            var clientResponse = _client.ExecuteRequest(request);
             _logger.Trace(clientResponse.Body);
+            return clientResponse.Body;
+        }
+        
+        public virtual string RetrieveLocations()
+        {
+            var path = $"/admin/locations.json";
+            var request = _requestFactory.HttpGet(path);
+            var clientResponse = _client.ExecuteRequest(request);
+            _logger.Trace(clientResponse.Body);
+            return clientResponse.Body;
+        }
 
-            dynamic parent = JsonConvert.DeserializeObject(clientResponse.Body);
-            var results = new List<Product.Product>();
+        public virtual string RetrieveInventoryLevels(List<long> inventoryItemIds)
+        {
+            if (inventoryItemIds.Count == 0)
+                throw new ArgumentException("Empty list of InventoryItemIds");
+            if (inventoryItemIds.Count > 50)
+                throw new ArgumentException("Maximum size for InventoryItemIds is 50");
 
-            foreach (var product in parent.products)
-            {
-                var resultProduct =
-                    new Product.Product
-                    {
-                        Id = product.id,
-                        Title = product.title,
-                        Tags = product.tags,
-                        Vendor = product.vendor,
-                        ProductType = product.product_type,
-                        Variants = new List<Variant>(),
-                    };
+            var queryString =
+                new QueryStringBuilder()
+                    .Add("inventory_item_ids", inventoryItemIds.ToCommaSeparatedList())
+                    .ToString();
 
-
-                foreach (var variant in product.variants)
-                {
-                    resultProduct.Variants.Add(
-                        new Variant()
-                        {
-                            Id = variant.id,
-                            Title = variant.title,
-                            Price = variant.price,
-                            Sku = variant.sku,
-                            ParentProduct = resultProduct,
-                            UpdatedAt = variant.updated_at,
-                            Inventory = variant.inventory_quantity,
-                            InventoryManagement = variant.inventory_management,
-                        });
-                }
-
-                results.Add(resultProduct);
-            }
-
-            return results;
+            var path = $"/admin/inventoryItemIds?{queryString}";
+            var request = _requestFactory.HttpGet(path);
+            var clientResponse = _client.ExecuteRequest(request);
+            _logger.Trace(clientResponse.Body);
+            return clientResponse.Body;
         }
     }
 }
