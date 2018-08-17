@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
+using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.HttpClient;
+using Push.Shopify.Api.Product;
 using Push.Shopify.Config;
 using Push.Shopify.HttpClient;
 using Push.Shopify.Model;
@@ -69,7 +71,50 @@ namespace Push.Shopify.Api
             _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
+        public virtual string RetrieveByCollection(long id)
+        {
+            var path = $"/admin/products.json?collection_id={id}";
+            var request = _requestFactory.HttpGet(path);
+            var clientResponse = _client.ExecuteRequest(request);
+            _logger.Trace(clientResponse.Body);
+            return clientResponse.Body;
+        }
+        public virtual string RetrieveProductMetafields(long product_id)
+        {
+            var path = $"/admin/products/{product_id}/metafields.json";
+            var request = _requestFactory.HttpGet(path);
+            var clientResponse = _client.ExecuteRequest(request);
+            _logger.Trace(clientResponse.Body);
+            return clientResponse.Body;
+        }
+
+        public virtual void DeleteMetafield(long metafieldId)
+        {
+            var path = $"/admin/metafields/{metafieldId}.json";
+            var request = _requestFactory.HttpDelete(path);
+            var clientResponse = _client.ExecuteRequest(request);
+            _logger.Trace(clientResponse.Body);
+        }
         
+        public virtual void AddMetafield(long productId, MetafieldParent metafield)
+        {
+            var json = metafield.SerializeToJson();
+            var path = $"/admin/products/{productId}/metafields.json";
+            var request = _requestFactory.HttpPost(path, json);
+            var clientResponse = _client.ExecuteRequest(request);
+            _logger.Trace(clientResponse.Body);            
+        }
+
+
+        public virtual void UpdateMetafield(long productId, MetafieldParent metafield)
+        {
+            var json = metafield.SerializeToJson();
+            var path = $"/admin/products/#{productId}/metafields.json";
+            var request = _requestFactory.HttpPut(path, json);
+            var clientResponse = _client.ExecuteRequest(request);
+            _logger.Trace(clientResponse.Body);
+        }
+
         public virtual string RetrieveLocations()
         {
             var path = $"/admin/locations.json";

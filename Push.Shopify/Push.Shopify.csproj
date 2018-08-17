@@ -120,9 +120,12 @@
     <Compile Include="Api\Payout\BalanceTransaction.cs" />
     <Compile Include="Api\Payout\Payouts.cs" />
     <Compile Include="Api\Payout\PayoutDetail.cs" />
+    <Compile Include="Api\Product\Collection.cs" />
     <Compile Include="Api\Product\Image.cs" />
     <Compile Include="Api\Product\InventoryLevel.cs" />
     <Compile Include="Api\Product\Location.cs" />
+    <Compile Include="Api\Product\Metafield.cs" />
+    <Compile Include="Api\Product\MetafieldRead.cs" />
     <Compile Include="Api\Product\Option.cs" />
     <Compile Include="Api\Product\Product.cs" />
     <Compile Include="Api\Product\ProductFilter.cs" />

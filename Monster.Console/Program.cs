@@ -25,9 +25,10 @@ namespace Monster.ConsoleApp
             // ExecuteInLifetimeScope(scope => RetrieveOrderData(scope));
             // ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
             // ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
-
-            ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));
+            //ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));
             
+            ExecuteInLifetimeScope(scope => UpdateMetadata(scope));
+
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
@@ -90,7 +91,6 @@ namespace Monster.ConsoleApp
         {
             var factory = scope.Resolve<ApiFactory>();
             var credentials = CredentialsFactory();
-
             var payoutApi = factory.MakePayoutApi(credentials);
 
             //var date = new DateTimeOffset(2018, 8, 8, 0, 0, 0, new TimeSpan(0, 0, 0));
@@ -102,6 +102,54 @@ namespace Monster.ConsoleApp
             var shopifyPayoutDetailJson = payoutApi.RetrievePayoutDetail(firstPayoutId);
             var monsterPayoutDetail = shopifyPayoutDetailJson.DeserializeFromJson<PayoutDetail>();
         }
+        
+        static void UpdateMetadata(ILifetimeScope scope)
+        {
+            var factory = scope.Resolve<ApiFactory>();
+            var credentials = CredentialsFactory();
+            var productApi = factory.MakeProductApi(credentials);
+
+            var products = 
+                productApi
+                    .RetrieveByCollection(56819023972)
+                    .DeserializeFromJson<ProductList>();
+
+            foreach (var product in products.products)
+            {
+                var metafields =
+                    productApi
+                        .RetrieveProductMetafields(product.id)
+                        .DeserializeFromJson<MetafieldReadList>()
+                        .metafields;
+
+                var existingMeta =
+                    metafields.FirstOrDefault(
+                        x => x.@namespace == "global" && x.key == "lead_time");
+
+                var newMeta = new Metafield()
+                {
+                    @namespace = "global",
+                    key = "lead_time",
+                    value_type = "string",
+                    value = "1 to 2 weeks from time of placing order",
+                };
+                var newMetaParent = new MetafieldParent()
+                {
+                    metafield = newMeta
+                };
+
+                if (existingMeta != null)
+                {
+                    productApi.UpdateMetafield(product.id, newMetaParent);
+                }
+                else
+                {
+                    productApi.AddMetafield(product.id, newMetaParent);
+                }
+            }
+
+        }
+
 
         static void DeserializeJson<T>(string inputJsonFile)
         {
