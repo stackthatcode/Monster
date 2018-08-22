@@ -24,6 +24,7 @@ namespace Push.Foundation.Web.HttpClient
 
             // All other non-200 calls throw an exception
             if (this.StatusCode != HttpStatusCode.OK
+                    && this.StatusCode != HttpStatusCode.NoContent
                     && this.StatusCode != HttpStatusCode.Created
                     && this.StatusCode != HttpStatusCode.Accepted)
             {

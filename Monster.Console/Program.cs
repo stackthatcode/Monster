@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Autofac;
+using Monster.Acumatica.Http;
 using Monster.ConsoleApp.TestJson;
 using Monster.ConsoleApp._3duStuff;
 using Push.Foundation.Utilities.Json;
@@ -20,14 +21,15 @@ namespace Monster.ConsoleApp
     {
         static void Main(string[] args)
         {
-            //DeserializeJson<BalanceTransactionList>("3duPayouts20180813.json");
-            //DeserializeJson<TransactionList>("3duPayPalTransactions.json");
+            // DeserializeJson<BalanceTransactionList>("3duPayouts20180813.json");
+            // DeserializeJson<TransactionList>("3duPayPalTransactions.json");
             // ExecuteInLifetimeScope(scope => RetrieveOrderData(scope));
             // ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
             // ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
-            //ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));
-            
-            ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
+            // ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));            
+            // ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
+
+            ExecuteInLifetimeScope(scope => RetrieveAcumaticaItemClass(scope));
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
@@ -110,7 +112,15 @@ namespace Monster.ConsoleApp
             var reserializedJson = deserializedObject.SerializeToJson();
             Console.WriteLine(reserializedJson);
         }
-        
+
+        static void RetrieveAcumaticaItemClass(ILifetimeScope scope)
+        {
+            var repository = scope.Resolve<SpikeRepository>();
+            repository.RetrieveSession();
+            var results = repository.RetrieveItemClass();
+        }
+
+
         static void ExecuteInLifetimeScope(Action<ILifetimeScope> action)
         {
             using (var container = ConsoleAutofac.Build(false))

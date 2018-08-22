@@ -4,20 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E92C70F6-9712-42CC-A5E6-02ED5CEF8D0D}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{E31F2A05-6346-48D5-B323-3D048AB0E392}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Monster.ConsoleApp</RootNamespace>
-    <AssemblyName>Monster.ConsoleApp</AssemblyName>
+    <RootNamespace>Monster.Acumatica.Http</RootNamespace>
+    <AssemblyName>Monster.Acumatica.Http</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -27,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -40,18 +35,7 @@
       <HintPath>..\packages\Autofac.4.8.0\lib\net45\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -61,34 +45,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="3duStuff\Metaplay.cs" />
-    <Compile Include="ConsoleAutofac.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="AcumaticaCredentials.cs" />
+    <Compile Include="AcumaticaHttpSettings.cs" />
+    <Compile Include="AcumaticaRequestBuilder.cs" />
+    <Compile Include="SpikeRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestJson\TestLoader.cs" />
+    <Compile Include="AcumaticaHttpAutofac.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="packages.config" />
-    <None Include="TestJson\3duPayPalTransactions.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestJson\3duPayouts20180813.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.Http.csproj">
-      <Project>{E31F2A05-6346-48D5-B323-3D048AB0E392}</Project>
-      <Name>Monster.Acumatica.Http</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Monster.Middle\Monster.Middle.csproj">
-      <Project>{df155c7d-78c2-4d81-9af5-654725dda7b6}</Project>
-      <Name>Monster.Middle</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Push.Foundation.Utilities\Push.Foundation.Utilities.csproj">
       <Project>{4e08819b-bab3-46ee-9479-141af7a4057d}</Project>
       <Name>Push.Foundation.Utilities</Name>
@@ -97,13 +64,6 @@
       <Project>{09b408ff-dd25-46d4-abe6-012baac51296}</Project>
       <Name>Push.Foundation.Web</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Push.Shopify\Push.Shopify.csproj">
-      <Project>{98704840-5bbd-4175-ae04-45a40cd48adb}</Project>
-      <Name>Push.Shopify</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

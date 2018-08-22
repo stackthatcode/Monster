@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using Autofac;
+using Monster.Acumatica.Http;
 using Monster.Middle;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
@@ -44,13 +45,14 @@ namespace Monster.ConsoleApp
                 .As<SqlConnection>()
                 .As<DbConnection>()
                 .As<IDbConnection>();
-                //.InstancePerBackgroundJobIfTrue(containerForHangFire);
+            //.InstancePerBackgroundJobIfTrue(containerForHangFire);
 
 
-            // Register Components
-            MiddleAutofac.Build(builder);
-            ShopifyApiAutofac.Build(builder);
+            // Register external assemblies
             FoundationWebAutofac.Build(builder);
+            AcumaticaHttpAutofac.Build(builder);
+            ShopifyApiAutofac.Build(builder);
+            MiddleAutofac.Build(builder);
 
             return builder.Build();
         }
