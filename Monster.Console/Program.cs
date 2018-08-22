@@ -117,6 +117,7 @@ namespace Monster.ConsoleApp
         {
             var repository = scope.Resolve<SpikeRepository>();
             repository.RetrieveSession();
+            repository.RetrieveSession();
             var results = repository.RetrieveItemClass();
         }
 

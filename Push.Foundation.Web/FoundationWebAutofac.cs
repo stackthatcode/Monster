@@ -29,9 +29,9 @@ namespace Push.Foundation.Web
             builder.RegisterType<HmacCryptoService>();            
             
             // Http Client namespace
-            builder.RegisterType<ClientSettings>();
+            builder.RegisterType<HttpSettings>();
             builder.RegisterType<HttpWebRequestProcessor>();
-            builder.RegisterType<ClientFacade>();
+            builder.RegisterType<HttpFacade>();
             builder.RegisterType<RequestFactory>();
 
             // Misc (but very important)

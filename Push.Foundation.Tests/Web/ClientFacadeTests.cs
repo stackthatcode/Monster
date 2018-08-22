@@ -19,13 +19,13 @@ namespace Push.Foundation.Tests.Web
             var insistor = MockRepository.GenerateStub<InsistentExecutor>();
             var requestProcessor = MockRepository.GenerateMock<HttpWebRequestProcessor>();
             var throttler = MockRepository.GenerateStub<Throttler>();
-            var configuration = new ClientSettings();
+            var configuration = new HttpSettings();
             configuration.RetryLimit = 3;
 
             insistor.Expect(x => x.Execute((Func<ResponseEnvelope>) null)).IgnoreArguments();
 
             var sut = 
-                new ClientFacade(
+                new HttpFacade(
                     requestProcessor, configuration, throttler, insistor, logger);
 
             // Act
@@ -50,14 +50,14 @@ namespace Push.Foundation.Tests.Web
 
 
             var throttler = MockRepository.GenerateMock<Throttler>();
-            var configuration = new ClientSettings();
+            var configuration = new HttpSettings();
             configuration.RetryLimit = 0;
 
             var request = (HttpWebRequest)WebRequest.Create("http://test.com/a/b");
             throttler.Expect(x => x.Process(String.Empty)).IgnoreArguments();
 
             var sut =
-                new ClientFacade(
+                new HttpFacade(
                     requestProcessor, configuration, throttler, insistor, logger);
 
             // Act
@@ -71,7 +71,7 @@ namespace Push.Foundation.Tests.Web
         public void ExecuteInvokesRequestProcessor()
         {
             // Arrange
-            var configuration = new ClientSettings();
+            var configuration = new HttpSettings();
             configuration.RetryLimit = 0;
 
             var logger = MockRepository.GenerateStub<IPushLogger>();
@@ -86,7 +86,7 @@ namespace Push.Foundation.Tests.Web
                 .Return(new ResponseEnvelope());
 
             var sut =
-                new ClientFacade(
+                new HttpFacade(
                     requestProcessor, configuration, throttler, insistor, logger);
 
             // Act

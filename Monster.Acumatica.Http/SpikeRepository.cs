@@ -9,11 +9,11 @@ namespace Monster.Acumatica.Http
 {
     public class SpikeRepository
     {
-        private readonly ClientFacade _clientFacade;
+        private readonly HttpFacade _clientFacade;
         private readonly AcumaticaRequestBuilder _requestBuilder;
         private readonly AcumaticaCredentials _credentials;
 
-        public SpikeRepository(ClientFacade clientFacade)
+        public SpikeRepository(HttpFacade clientFacade)
         {
             _clientFacade = clientFacade;
 

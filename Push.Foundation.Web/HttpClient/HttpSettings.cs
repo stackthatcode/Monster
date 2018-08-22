@@ -1,6 +1,6 @@
 ﻿namespace Push.Foundation.Web.HttpClient
 {
-    public class ClientSettings
+    public class HttpSettings
     {
         public int RetryLimit { get; set; }
         public int Timeout { get; set; }
@@ -8,7 +8,7 @@
         public bool RetriesEnabled => RetryLimit > 0;
         
 
-        public ClientSettings()
+        public HttpSettings()
         {
             RetryLimit = 3;
             Timeout = 60000;

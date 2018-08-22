@@ -16,33 +16,33 @@ namespace Push.Shopify.Api
         private readonly ShopifyClientSettings _clientSettings;
 
         // Factory enables deliberate injection of ShopifyClientSettings
-        private readonly Func<ClientSettings, ClientFacade> _clientFacadeFactory;
+        private readonly Func<HttpSettings, HttpFacade> _clientFacadeFactory;
         
         // Autofac factories for API Repositories
         private readonly 
-            Func<ShopifyRequestBuilder, ClientFacade, OrderApiRepository> _orderApiRepositoryFactory;
+            Func<ShopifyRequestBuilder, HttpFacade, OrderApiRepository> _orderApiRepositoryFactory;
         private readonly 
-            Func<ShopifyRequestBuilder, ClientFacade, ProductApiRepository> _productApiRepositoryFactory;
+            Func<ShopifyRequestBuilder, HttpFacade, ProductApiRepository> _productApiRepositoryFactory;
         private readonly 
-            Func<ShopifyRequestBuilder, ClientFacade, EventApiRepository> _eventApiRepositoryFactory;
+            Func<ShopifyRequestBuilder, HttpFacade, EventApiRepository> _eventApiRepositoryFactory;
         private readonly 
-            Func<ShopifyRequestBuilder, ClientFacade, ShopApiRepository> _shopApiRepositoryFactory;
+            Func<ShopifyRequestBuilder, HttpFacade, ShopApiRepository> _shopApiRepositoryFactory;
         private readonly
-            Func<ShopifyRequestBuilder, ClientFacade, PayoutApiRepository> _payoutApiRepositoryFactory;
+            Func<ShopifyRequestBuilder, HttpFacade, PayoutApiRepository> _payoutApiRepositoryFactory;
 
 
 
         public ApiFactory(
                 Func<IShopifyCredentials, ShopifyRequestBuilder> requestBuilderFactory,
-                Func<ClientSettings, ClientFacade> clientFacadeFactory,
+                Func<HttpSettings, HttpFacade> clientFacadeFactory,
                 
                 ShopifyClientSettings clientSettings,
 
-                Func<ShopifyRequestBuilder, ClientFacade, OrderApiRepository> orderApiRepositoryFactory,
-                Func<ShopifyRequestBuilder, ClientFacade, ProductApiRepository> productApiRepositoryFactory,
-                Func<ShopifyRequestBuilder, ClientFacade, EventApiRepository> eventApiRepositoryFactory,
-                Func<ShopifyRequestBuilder, ClientFacade, ShopApiRepository> shopApiRepositoryFactory,
-                Func<ShopifyRequestBuilder, ClientFacade, PayoutApiRepository> payoutApiRepositoryFactory)
+                Func<ShopifyRequestBuilder, HttpFacade, OrderApiRepository> orderApiRepositoryFactory,
+                Func<ShopifyRequestBuilder, HttpFacade, ProductApiRepository> productApiRepositoryFactory,
+                Func<ShopifyRequestBuilder, HttpFacade, EventApiRepository> eventApiRepositoryFactory,
+                Func<ShopifyRequestBuilder, HttpFacade, ShopApiRepository> shopApiRepositoryFactory,
+                Func<ShopifyRequestBuilder, HttpFacade, PayoutApiRepository> payoutApiRepositoryFactory)
         {
             _requestBuilderFactory = requestBuilderFactory;
 

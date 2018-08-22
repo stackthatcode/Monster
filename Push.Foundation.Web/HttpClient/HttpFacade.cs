@@ -5,18 +5,18 @@ using Push.Foundation.Web.Misc;
 
 namespace Push.Foundation.Web.HttpClient
 {
-    public class ClientFacade
+    public class HttpFacade
     {
         private readonly HttpWebRequestProcessor _requestProcessor;
-        private ClientSettings _settings;
+        private HttpSettings _settings;
         private readonly Throttler _throttler;
         private readonly InsistentExecutor _insistentExecutor;
         private readonly IPushLogger _pushLogger;
         
 
-        public ClientFacade(
+        public HttpFacade(
                 HttpWebRequestProcessor requestProcessor, 
-                ClientSettings settings,
+                HttpSettings settings,
                 Throttler throttler,
                 InsistentExecutor insistentExecutor,
                 IPushLogger logger)
@@ -33,7 +33,7 @@ namespace Push.Foundation.Web.HttpClient
             _pushLogger = logger;
         }
 
-        public ClientSettings Settings
+        public HttpSettings Settings
         {
             get { return _settings; }
             set { _settings = value; }
@@ -43,12 +43,13 @@ namespace Push.Foundation.Web.HttpClient
         {
             if (_settings.RetriesEnabled)
             {
-                // Only invoke via lambda if retries are enabled
-                return _insistentExecutor.Execute(() => HttpInvocation(request));
+                return _insistentExecutor
+                        .Execute(() => HttpInvocation(request))
+                        .ProcessStatusCodes();
             }
             else
             {
-                return HttpInvocation(request);
+                return HttpInvocation(request).ProcessStatusCodes();
             }
         }
 
@@ -71,7 +72,7 @@ namespace Push.Foundation.Web.HttpClient
             var executionTime = DateTime.UtcNow - startTime;
             _pushLogger.Debug($"Call performance - {executionTime} ms");
             
-            return response.ProcessStatusCodes();
+            return response;
         }
     }
 }

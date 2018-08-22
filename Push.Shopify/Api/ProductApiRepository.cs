@@ -17,12 +17,12 @@ namespace Push.Shopify.Api
     public class ProductApiRepository
     {
         private readonly ShopifyRequestBuilder _requestFactory;
-        private readonly ClientFacade _client;
+        private readonly HttpFacade _client;
         private readonly IPushLogger _logger;
         
 
         public ProductApiRepository(
-                ClientFacade client,
+                HttpFacade client,
                 ShopifyClientSettings settings,
                 ShopifyRequestBuilder requestFactory, 
                 IPushLogger logger)

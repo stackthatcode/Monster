@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Push.Foundation.Web.HttpClient
 {
-    public class RequestFactory
+    public class HttpWebRequestFactory
     {
-        private readonly ClientSettings _configuration;
+        private readonly HttpSettings _configuration;
 
-        public RequestFactory(ClientSettings configuration)
+        public HttpWebRequestFactory(HttpSettings configuration)
         {
             _configuration = configuration;
         }

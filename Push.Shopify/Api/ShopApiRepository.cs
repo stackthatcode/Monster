@@ -7,11 +7,11 @@ namespace Push.Shopify.Api
     public class ShopApiRepository
     {
         private readonly ShopifyRequestBuilder _requestFactory;
-        private readonly ClientFacade _executionFacade;
+        private readonly HttpFacade _executionFacade;
         
         public ShopApiRepository(
                 ShopifyRequestBuilder requestFactory,
-                ClientFacade executionFacade,
+                HttpFacade executionFacade,
                 ShopifyClientSettings settings)
         {
             _executionFacade = executionFacade;

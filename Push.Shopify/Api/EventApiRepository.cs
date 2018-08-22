@@ -12,11 +12,11 @@ namespace Push.Shopify.Api
     public class EventApiRepository
     {
         private readonly ShopifyRequestBuilder _requestFactory;
-        private readonly ClientFacade _client;
+        private readonly HttpFacade _client;
         private readonly IPushLogger _logger;
         
         public EventApiRepository(
-                ClientFacade client,
+                HttpFacade client,
                 ShopifyClientSettings settings,
                 ShopifyRequestBuilder requestFactory, 
                 IPushLogger logger)

@@ -166,8 +166,8 @@
     <Compile Include="HttpClient\RequestFactory.cs" />
     <Compile Include="HttpClient\BadStatusCodeException.cs" />
     <Compile Include="HttpClient\HttpWebRequestProcessor.cs" />
-    <Compile Include="HttpClient\ClientFacade.cs" />
-    <Compile Include="HttpClient\ClientSettings.cs" />
+    <Compile Include="HttpClient\HttpFacade.cs" />
+    <Compile Include="HttpClient\HttpSettings.cs" />
     <Compile Include="HttpClient\ResponseEnvelope.cs" />
     <Compile Include="HttpClient\Extensions.cs" />
     <Compile Include="Identity\ApplicationDbContext.cs" />

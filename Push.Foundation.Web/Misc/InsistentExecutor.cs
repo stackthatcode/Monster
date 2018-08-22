@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Push.Foundation.Utilities.Logging;
 
 namespace Push.Foundation.Web.Misc
@@ -19,11 +20,11 @@ namespace Push.Foundation.Web.Misc
             MaxNumberOfAttempts = 1;
             _logger = new ConsoleAndDebugLogger();
         }
-
-
+        
         public virtual T Execute<T>(Func<T> function)
         {
             var counter = 1;
+            var exceptions = new List<Exception>();
 
             while (true)
             {
@@ -35,16 +36,15 @@ namespace Push.Foundation.Web.Misc
                 {
                     _logger.Error(ex);
                     counter++;
-
+                    
                     if (counter > MaxNumberOfAttempts)
                     {
-                        _logger.Fatal(
-                            $"Attempts has exceeded limit {MaxNumberOfAttempts}... throwing exception");
+                        _logger.Warn(exceptions, "Retry Limit has been exceeded... throwing exception");
                         throw;
                     }
                     else
                     {
-                        _logger.Info($"Encountered an exception on attempt {counter - 1}. Retrying invocation...");
+                        _logger.Debug("Encountered an exception. Retrying invocation...");
                     }
                 }
             }

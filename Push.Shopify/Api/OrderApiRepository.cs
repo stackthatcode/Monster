@@ -9,11 +9,11 @@ namespace Push.Shopify.Api
     public class OrderApiRepository
     {
         private readonly ShopifyRequestBuilder _requestFactory;
-        private readonly ClientFacade _executionFacade;
+        private readonly HttpFacade _executionFacade;
         private readonly IPushLogger _logger;
 
         public OrderApiRepository(
-                ClientFacade executionFacade,
+                HttpFacade executionFacade,
                 ShopifyRequestBuilder requestFactory,
                 IPushLogger logger)
         {

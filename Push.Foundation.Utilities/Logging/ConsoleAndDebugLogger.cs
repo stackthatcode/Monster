@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Push.Foundation.Utilities.Helpers;
 
 namespace Push.Foundation.Utilities.Logging
 {
@@ -35,6 +38,26 @@ namespace Push.Foundation.Utilities.Logging
             System.Diagnostics.Debug.WriteLine(message);
         }
 
+        public void Warn(List<Exception> exceptions, string message = null)
+        {
+            if (exceptions == null)
+            {
+                return;
+            }
+
+            var header =
+                message.IsNullOrEmpty() ? "" : message + Environment.NewLine;
+
+            var body =
+                exceptions
+                    .Select(x => x.FullStackTraceDump())
+                    .StringJoin(Environment.NewLine);
+
+            var entry = header + body;
+
+            Console.WriteLine(entry);
+            System.Diagnostics.Debug.WriteLine(entry);
+        }
         public void Error(string message)
         {
             Console.WriteLine(message);

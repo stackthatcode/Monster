@@ -2,7 +2,7 @@
 
 namespace Push.Shopify.Config
 {
-    public class ShopifyClientSettings : ClientSettings
+    public class ShopifyClientSettings : HttpSettings
     {
         public ShopifyClientSettings()
         {
