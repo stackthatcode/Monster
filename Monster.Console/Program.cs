@@ -1,8 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using Autofac;
 using Monster.ConsoleApp.TestJson;
+using Monster.ConsoleApp._3duStuff;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -27,13 +27,13 @@ namespace Monster.ConsoleApp
             // ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
             //ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));
             
-            ExecuteInLifetimeScope(scope => UpdateMetadata(scope));
+            ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
 
-        static IShopifyCredentials CredentialsFactory()
+        public static IShopifyCredentials CredentialsFactory()
         {
             return ShopifySecuritySettings
                     .FromConfiguration()
@@ -103,54 +103,6 @@ namespace Monster.ConsoleApp
             var monsterPayoutDetail = shopifyPayoutDetailJson.DeserializeFromJson<PayoutDetail>();
         }
         
-        static void UpdateMetadata(ILifetimeScope scope)
-        {
-            var factory = scope.Resolve<ApiFactory>();
-            var credentials = CredentialsFactory();
-            var productApi = factory.MakeProductApi(credentials);
-
-            var products = 
-                productApi
-                    .RetrieveByCollection(56819023972)
-                    .DeserializeFromJson<ProductList>();
-
-            foreach (var product in products.products)
-            {
-                var metafields =
-                    productApi
-                        .RetrieveProductMetafields(product.id)
-                        .DeserializeFromJson<MetafieldReadList>()
-                        .metafields;
-
-                var existingMeta =
-                    metafields.FirstOrDefault(
-                        x => x.@namespace == "global" && x.key == "lead_time");
-
-                var newMeta = new Metafield()
-                {
-                    @namespace = "global",
-                    key = "lead_time",
-                    value_type = "string",
-                    value = "1 to 2 weeks from time of placing order",
-                };
-                var newMetaParent = new MetafieldParent()
-                {
-                    metafield = newMeta
-                };
-
-                if (existingMeta != null)
-                {
-                    productApi.UpdateMetafield(product.id, newMetaParent);
-                }
-                else
-                {
-                    productApi.AddMetafield(product.id, newMetaParent);
-                }
-            }
-
-        }
-
-
         static void DeserializeJson<T>(string inputJsonFile)
         {
             var json = TestLoader.GimmeJson(inputJsonFile);
