@@ -32,7 +32,7 @@ namespace Push.Foundation.Web
             builder.RegisterType<HttpSettings>();
             builder.RegisterType<HttpWebRequestProcessor>();
             builder.RegisterType<HttpFacade>();
-            builder.RegisterType<RequestFactory>();
+            builder.RegisterType<HttpWebRequestFactory>();
 
             // Misc (but very important)
             builder.RegisterType<InsistentExecutor>();

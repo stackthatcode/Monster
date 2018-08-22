@@ -30,6 +30,9 @@ namespace Push.Foundation.Web.Misc
             {
                 try
                 {
+                    if (exceptions.Count > 0)
+                        _logger.Warn(exceptions, "Invocation succeeded, but encountered errors...");
+
                     return function();
                 }
                 catch (Exception ex)

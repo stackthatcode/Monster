@@ -16,11 +16,12 @@ namespace Push.Foundation.Web.HttpClient
 
         public virtual ResponseEnvelope ProcessStatusCodes()
         {
+            // UPDATE - 08/22/2018 - We're squashing this for now
             // HTTP 404's are the only non-200 calls for which we won't throw exceptions
-            if (this.StatusCode == HttpStatusCode.NotFound)
-            {
-                return this;
-            }
+            //if (this.StatusCode == HttpStatusCode.NotFound)
+            //{
+            //    return this;
+            //}
 
             // All other non-200 calls throw an exception
             if (this.StatusCode != HttpStatusCode.OK
