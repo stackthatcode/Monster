@@ -22,17 +22,18 @@ namespace Push.Foundation.Tests.Web
         }
 
         [Test]
-        public void Http404ReturnsSelf()
+        public void Http404ThrowsError()
         {
             // Assemble
             var sut = new ResponseEnvelope();
             sut.StatusCode = HttpStatusCode.NotFound;
 
-            // Act
-            var result = sut.ProcessStatusCodes();
-
-            // Assert
-            Assert.AreSame(result, sut);
+            // Act & Assert
+            Assert.Throws<BadStatusCodeException>(
+                () =>
+                {
+                    sut.ProcessStatusCodes();
+                });
         }
 
         [Test]

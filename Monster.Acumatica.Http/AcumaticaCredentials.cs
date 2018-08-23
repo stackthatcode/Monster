@@ -14,7 +14,10 @@ namespace Monster.Acumatica.Http
         public string Username = "admin";
         public string Password = "l0c4lInstance";
 
-        public string AuthenticationContent
+        public string InstanceUrl = "http://localhost/AcuInst2";
+        public string EndpointPrefix = "/entity/Default/17.200.001/";
+
+        public string AuthenticationJson
         {
             get
             {
@@ -29,16 +32,6 @@ namespace Monster.Acumatica.Http
                 return content.SerializeToJson();
             }
         }
-
-        public string InstanceUrl = "http://localhost/AcuInst2";
-        public string EndpointPrefix = "/entity/DefaultXYZ/17.200.001/";
-
-        public string LoginUrl => $"{InstanceUrl}/entity/auth/login";
-        public string ServiceBaseUrl => $"{InstanceUrl}{EndpointPrefix}";
-
-        public string ServiceMethodUrl(string path)
-        {
-            return $"{ServiceBaseUrl}{path}";
-        }
     }
 }
+

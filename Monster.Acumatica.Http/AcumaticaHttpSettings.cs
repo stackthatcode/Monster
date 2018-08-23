@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica.Http
 {
-    public class AcumaticaHttpSettings
+    public class AcumaticaHttpSettings : HttpSettings
     {
-        public int Timeout = 180000;
+        public AcumaticaHttpSettings()
+        {
+            RetryLimit = 3;
+            Timeout = 180000;
+            ThrottlingDelay = 250;
+        }
     }
 }

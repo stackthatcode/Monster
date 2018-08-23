@@ -1,13 +1,10 @@
-using System;
 using System.IO;
 using System.Net;
-using Push.Foundation.Utilities.Logging;
 
 namespace Push.Foundation.Web.HttpClient
 {
     public class HttpWebRequestProcessor
     {        
-
         private ResponseEnvelope ProcessImageRequest(HttpWebResponse resp)
         {
             using (var binaryReader = new BinaryReader(resp.GetResponseStream()))
@@ -45,8 +42,7 @@ namespace Push.Foundation.Web.HttpClient
                 };
             }
         }
-
-
+        
         public virtual ResponseEnvelope Execute(HttpWebRequest request)
         {
             try
@@ -84,10 +80,6 @@ namespace Push.Foundation.Web.HttpClient
                         };
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                throw;
             }
         }
     }

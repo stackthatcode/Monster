@@ -6,6 +6,15 @@ namespace Push.Foundation.Web.HttpClient
 {
     public static class Extensions
     {
+        public static void LoadContent(this HttpWebRequest request, string content)
+        {
+            var byteArray = Encoding.ASCII.GetBytes(content);
+            request.ContentLength = byteArray.Length;
+            var dataStream = request.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+        }
+
         public static HttpWebResponse GetResponseNoException(this HttpWebRequest req)
         {
             try

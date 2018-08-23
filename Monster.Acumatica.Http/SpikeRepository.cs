@@ -1,44 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Push.Foundation.Web.HttpClient;
+﻿using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica.Http
 {
     public class SpikeRepository
     {
         private readonly HttpFacade _clientFacade;
-        private readonly AcumaticaRequestBuilder _requestBuilder;
-        private readonly AcumaticaCredentials _credentials;
 
         public SpikeRepository(HttpFacade clientFacade)
         {
             _clientFacade = clientFacade;
-
-
-            // TODO: wire these into the DI architecture
-            var settings = new AcumaticaHttpSettings();
-           _credentials = new AcumaticaCredentials();
-            _requestBuilder = new AcumaticaRequestBuilder(settings);
         }
-
-
-        public void RetrieveSession()
+        
+        public void RetrieveSession(AcumaticaCredentials credentials)
         {
-            var path = _credentials.LoginUrl;
-            var content = _credentials.AuthenticationContent;
-            var request = _requestBuilder.HttpPost(path, content);
-            var response = _clientFacade.ExecuteRequest(request);
+            var path = "/entity/auth/login";
+            var content = credentials.AuthenticationJson;
+            var response = _clientFacade.Post(path);
         }
 
         public string RetrieveItemClass()
         {
-            var path = _credentials.ServiceMethodUrl("ItemClass");
-            var request = _requestBuilder.HttpGet(path);
-            var response = _clientFacade.ExecuteRequest(request);
+            var url = BuildMethodUrl("ItemClass");
+            var path = BuildMethodUrl(url);
+            var response = _clientFacade.Get(path);
             return response.Body;
+        }
+
+        public string BuildMethodUrl(string path)
+        {
+            return $"/entity/Default/17.200.001/{path}";
         }
     }
 }

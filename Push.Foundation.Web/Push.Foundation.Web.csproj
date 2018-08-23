@@ -156,6 +156,8 @@
     <Compile Include="Helpers\HttpExceptionUtilities.cs" />
     <Compile Include="Helpers\JsonHelperExtensions.cs" />
     <Compile Include="Helpers\NetworkUtilities.cs" />
+    <Compile Include="HttpClient\IRequestBuilder.cs" />
+    <Compile Include="HttpClient\RequestEnvelope.cs" />
     <Compile Include="Mvc\RequestActivityId.cs" />
     <Compile Include="Mvc\RequestActivityIdLogFormatter.cs" />
     <Compile Include="Helpers\ControllerHelpers.cs" />
@@ -163,7 +165,7 @@
     <Compile Include="Helpers\QueryStringBuilder.cs" />
     <Compile Include="Mvc\RouteValueDictionaryExtensions.cs" />
     <Compile Include="Helpers\UrlExtensions.cs" />
-    <Compile Include="HttpClient\HttpWebRequestFactory.cs" />
+    <Compile Include="HttpClient\GenericRequestBuilder.cs" />
     <Compile Include="HttpClient\BadStatusCodeException.cs" />
     <Compile Include="HttpClient\HttpWebRequestProcessor.cs" />
     <Compile Include="HttpClient\HttpFacade.cs" />

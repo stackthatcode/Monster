@@ -17,7 +17,7 @@ namespace Push.Shopify.Api.Event
 
         public override string ToString()
         {
-            return $"Event Filter dump: CreatedAtMin: {CreatedAtMinUtc} - Verb: {Verb} - Filter: {Filter}";
+            return $"Event Filter dump: CreatedAtMin: {CreatedAtMinUtc} - Method: {Verb} - Filter: {Filter}";
         }
 
         public QueryStringBuilder ToQueryStringBuilder()

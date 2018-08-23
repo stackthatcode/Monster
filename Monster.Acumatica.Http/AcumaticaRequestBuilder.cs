@@ -1,78 +1,37 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Text;
+using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica.Http
 {
-    public class AcumaticaRequestBuilder
+    public class AcumaticaRequestBuilder : IRequestBuilder
     {
-        private readonly AcumaticaHttpSettings _config;       
+        private readonly AcumaticaHttpSettings _config;
+        private readonly AcumaticaCredentials _credentials;
         private readonly CookieContainer _cookies;
 
 
         // This is instanced by the ApiFactory, which passes the valid credentials
-        public AcumaticaRequestBuilder(AcumaticaHttpSettings config)
+        public AcumaticaRequestBuilder(
+                AcumaticaHttpSettings config,
+                AcumaticaCredentials credentials)
         {
             _config = config;
+            _credentials = credentials;
             _cookies = new CookieContainer();
         }
+        
 
-
-        public HttpWebRequest HttpGet(string path)
-        {
-            var request = FactoryWorker(path);
-            request.Method = "GET";
-            return request;
-        }
-
-        public HttpWebRequest HttpPost(string path, string content)
-        {
-            var request = FactoryWorker(path);
-            request.Method = "POST";
-
-            var byteArray = Encoding.ASCII.GetBytes(content);
-            request.ContentLength = byteArray.Length;
-            request.ContentType = "application/json";
-
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-
-            return request;
-        }
-
-        public HttpWebRequest HttpPut(string path, string content)
-        {
-            var request = FactoryWorker(path);
-            request.Method = "PUT";
-
-            var byteArray = Encoding.ASCII.GetBytes(content);
-            request.ContentLength = byteArray.Length;
-            request.ContentType = "application/json";
-
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-
-            return request;
-        }
-
-        public HttpWebRequest HttpDelete(string path)
-        {
-            var request = FactoryWorker(path);
-            request.Method = "DELETE";
-            return request;
-        }
-
-        private HttpWebRequest FactoryWorker(string url)
+        // *** Noticeable quirk - 
+        public HttpWebRequest Make(RequestEnvelope requestEnvelope)
         {
             ServicePointManager.Expect100Continue = true;
             //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             // Spawn the WebRequest
-            var req = (HttpWebRequest)WebRequest.Create(url);
+            var req = requestEnvelope.MakeWebRequest(_credentials.InstanceUrl);
             req.Timeout = _config.Timeout;
             req.CookieContainer = _cookies;
 

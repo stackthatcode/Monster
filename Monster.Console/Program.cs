@@ -23,8 +23,9 @@ namespace Monster.ConsoleApp
         {
             // DeserializeJson<BalanceTransactionList>("3duPayouts20180813.json");
             // DeserializeJson<TransactionList>("3duPayPalTransactions.json");
-            // ExecuteInLifetimeScope(scope => RetrieveOrderData(scope));
-            // ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
+            //ExecuteInLifetimeScope(scope => RetrieveOrderData(scope));
+            
+            //ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
             // ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
             // ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));            
             // ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
@@ -115,9 +116,12 @@ namespace Monster.ConsoleApp
 
         static void RetrieveAcumaticaItemClass(ILifetimeScope scope)
         {
-            var repository = scope.Resolve<SpikeRepository>();
-            repository.RetrieveSession();
-            repository.RetrieveSession();
+            var credentials = new AcumaticaCredentials();
+
+            var factory = scope.Resolve<AcumaticaApiFactory>();
+            var repository = factory.MakeSpikeRepository(credentials);
+            repository.RetrieveSession(credentials);
+            repository.RetrieveSession(credentials);
             var results = repository.RetrieveItemClass();
         }
 

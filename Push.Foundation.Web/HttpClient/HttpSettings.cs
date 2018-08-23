@@ -10,7 +10,7 @@
 
         public HttpSettings()
         {
-            RetryLimit = 3;
+            RetryLimit = 0;
             Timeout = 60000;
             ThrottlingDelay = 0;
         }

@@ -7,24 +7,17 @@ namespace Push.Shopify.Api
 {
     public class PayoutApiRepository
     {
-        private readonly ShopifyRequestBuilder _requestFactory;
         private readonly HttpFacade _executionFacade;
         
-        public PayoutApiRepository(
-                ShopifyRequestBuilder requestFactory,
-                HttpFacade executionFacade,
-                ShopifyClientSettings settings)
+        public PayoutApiRepository(HttpFacade executionFacade)
         {
             _executionFacade = executionFacade;
-            _executionFacade.Settings = settings;
-            _requestFactory = requestFactory;
         }
 
         public virtual string RetrievePayouts()
         {
             var path = "/admin/shopify_payments/payouts.json";
-            var request = _requestFactory.HttpGet(path);
-            var clientResponse = _executionFacade.ExecuteRequest(request);
+            var clientResponse = _executionFacade.Get(path);
 
             var output = clientResponse.Body;
             return output;
@@ -33,8 +26,7 @@ namespace Push.Shopify.Api
         public virtual string RetrievePayoutDetail(long id)
         {            
             var path = $"/admin/shopify_payments/balance/transactions.json?payout_id={id}";
-            var request = _requestFactory.HttpGet(path);
-            var clientResponse = _executionFacade.ExecuteRequest(request);
+            var clientResponse = _executionFacade.Get(path);
 
             var output = clientResponse.Body;
             return output;
