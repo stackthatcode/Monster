@@ -15,8 +15,8 @@ namespace Push.Shopify.Api
         // Autofac factory to create Request Builder with Credentials wired-in
         private readonly Func<IShopifyCredentials, ShopifyRequestBuilder> _requestBuilderFactory;
 
-        // Factory enables deliberate injection of ShopifyRequestBuilder and ShopifyClientSettings
-        private readonly Func<ShopifyRequestBuilder, HttpSettings, HttpFacade> _clientFacadeFactory;
+        // Autofac factory to create Http Facade
+        private readonly Func<HttpFacade> _clientFacadeFactory;
         
         // Autofac factories for API Repositories
         private readonly 
@@ -33,10 +33,10 @@ namespace Push.Shopify.Api
 
 
         public ApiFactory(
-                Func<IShopifyCredentials, ShopifyRequestBuilder> requestBuilderFactory,
-                Func<ShopifyRequestBuilder, HttpSettings, HttpFacade> clientFacadeFactory,
-                
                 ShopifyClientSettings clientSettings,
+
+                Func<IShopifyCredentials, ShopifyRequestBuilder> requestBuilderFactory,
+                Func<HttpFacade> clientFacadeFactory,
 
                 Func<HttpFacade, OrderApiRepository> orderApiRepositoryFactory,
                 Func<HttpFacade, ProductApiRepository> productApiRepositoryFactory,
@@ -57,10 +57,17 @@ namespace Push.Shopify.Api
         }
 
 
+        public HttpFacade MakeHttpFacade(IRequestBuilder requestBuilder, HttpSettings settings)
+        {
+            return _clientFacadeFactory()
+                .InjectRequestBuilder(requestBuilder)
+                .InjectSettings(settings);
+        }
+
         public virtual OrderApiRepository MakeOrderApi(IShopifyCredentials credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = _clientFacadeFactory(requestBuilder, _clientSettings);
+            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
             var repository = _orderApiRepositoryFactory(clientFacade);
             return repository;
         }
@@ -68,7 +75,7 @@ namespace Push.Shopify.Api
         public virtual ProductApiRepository MakeProductApi(IShopifyCredentials credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = _clientFacadeFactory(requestBuilder, _clientSettings);
+            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
             var repository = _productApiRepositoryFactory(clientFacade);
             return repository;
         }
@@ -76,7 +83,7 @@ namespace Push.Shopify.Api
         public virtual EventApiRepository MakeEventApi(IShopifyCredentials credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = _clientFacadeFactory(requestBuilder, _clientSettings);
+            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
             var repository = _eventApiRepositoryFactory(clientFacade);
             return repository;
         }
@@ -84,7 +91,7 @@ namespace Push.Shopify.Api
         public virtual PayoutApiRepository MakePayoutApi(IShopifyCredentials credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = _clientFacadeFactory(requestBuilder, _clientSettings);
+            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
             var repository = _payoutApiRepositoryFactory(clientFacade);
             return repository;
         }
@@ -92,7 +99,7 @@ namespace Push.Shopify.Api
         public virtual ShopApiRepository MakeShopApi(IShopifyCredentials credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = _clientFacadeFactory(requestBuilder, _clientSettings);
+            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
             var repository = _shopApiRepositoryFactory(clientFacade);
             return repository;
         }

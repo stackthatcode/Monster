@@ -8,12 +8,9 @@ namespace Push.Shopify.Api
     {
         private readonly HttpFacade _executionFacade;
         
-        public ShopApiRepository(
-                HttpFacade executionFacade,
-                ShopifyClientSettings settings)
+        public ShopApiRepository(HttpFacade executionFacade)
         {
             _executionFacade = executionFacade;
-            _executionFacade.Settings = settings;
         }
 
         public virtual string Retrieve()

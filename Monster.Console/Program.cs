@@ -3,7 +3,6 @@ using System.Linq;
 using Autofac;
 using Monster.Acumatica.Http;
 using Monster.ConsoleApp.TestJson;
-using Monster.ConsoleApp._3duStuff;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -25,12 +24,12 @@ namespace Monster.ConsoleApp
             // DeserializeJson<TransactionList>("3duPayPalTransactions.json");
             //ExecuteInLifetimeScope(scope => RetrieveOrderData(scope));
             
-            //ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
+            ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
             // ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
             // ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));            
             // ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
 
-            ExecuteInLifetimeScope(scope => RetrieveAcumaticaItemClass(scope));
+            //ExecuteInLifetimeScope(scope => RetrieveAcumaticaItemClass(scope));
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();

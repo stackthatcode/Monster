@@ -8,36 +8,25 @@ namespace Push.Foundation.Web.HttpClient
     public class HttpFacade
     {
         private HttpSettings _settings;
-        private readonly IRequestBuilder _requestFactory;
+        private IRequestBuilder _requestBuilder;
 
         private readonly HttpWebRequestProcessor _requestProcessor;
         private readonly Throttler _throttler;
         private readonly InsistentExecutor _insistentExecutor;
         private readonly IPushLogger _pushLogger;
 
-        // The Request Factory and Settings are what will be injected
-        // by consumers of the Facade to dictate preferred behaviors
+        // The settings and builder are what will be property injected
+        // in the factory for the Facade to dictate preferred behaviors
         public HttpFacade(
-                IRequestBuilder requestFactory,
-                HttpSettings settings,
-                
                 HttpWebRequestProcessor requestProcessor, 
                 Throttler throttler,
                 InsistentExecutor insistentExecutor,
                 IPushLogger logger)
         {
-            _requestFactory = requestFactory;
-            _settings = settings;
-
-
+            
             _requestProcessor = requestProcessor;
-
             _throttler = throttler;
-            throttler.TimeBetweenCallsMs = _settings.ThrottlingDelay;
-
             _insistentExecutor = insistentExecutor;
-            _insistentExecutor.MaxNumberOfAttempts = _settings.RetryLimit;
-
             _pushLogger = logger;
         }
 
@@ -46,7 +35,19 @@ namespace Push.Foundation.Web.HttpClient
             get { return _settings; }
             set { _settings = value; }
         }
-        
+
+        public HttpFacade InjectRequestBuilder(IRequestBuilder builder)
+        {
+            _requestBuilder = builder;
+            return this;
+        }
+
+        public HttpFacade InjectSettings(HttpSettings settings)
+        {
+            _settings = settings;
+            return this;
+        }
+
 
         public virtual ResponseEnvelope Get(
                 string url,
@@ -105,6 +106,7 @@ namespace Push.Foundation.Web.HttpClient
 
         public virtual ResponseEnvelope ExecuteRequestWithInsistence(RequestEnvelope requestEnvelope)
         {
+            _insistentExecutor.MaxNumberOfAttempts = _settings.RetryLimit;
             return _insistentExecutor
                 .Execute(() => ExecuteRequest(requestEnvelope));
         }
@@ -116,10 +118,11 @@ namespace Push.Foundation.Web.HttpClient
                 $"on {requestEnvelope.Url}");
 
             // Create HttpWebRequest
-            var request = _requestFactory.Make(requestEnvelope);
+            var request = _requestBuilder.Make(requestEnvelope);
             var hostname = request.RequestUri.Host;
 
             // Invoke the Throttler
+            _throttler.TimeBetweenCallsMs = _settings.ThrottlingDelay;
             _throttler.Process(hostname);
             
             // Execute Request and process the HTTP Status Codes

@@ -20,8 +20,8 @@ namespace Push.Foundation.Tests.Web
 
             var testWebRequest = (HttpWebRequest)WebRequest.Create(request.Url);
 
-            var factory = MockRepository.GenerateMock<IRequestBuilder>();
-            factory
+            var requestBuilder = MockRepository.GenerateMock<GenericRequestBuilder>();
+            requestBuilder
                 .Expect(x => x.Make(request))
                 .Return(testWebRequest);
 
@@ -45,15 +45,15 @@ namespace Push.Foundation.Tests.Web
 
             var sut = 
                 new HttpFacade(
-                    factory, configuration, requestProcessor, 
-                    throttler, insistor, logger);
+                    requestProcessor, throttler, insistor, logger)
+                .InjectRequestBuilder(requestBuilder);
 
 
             // Act
             sut.ExecuteRequest(request);
 
             // Assert
-            factory.VerifyAllExpectations();
+            requestBuilder.VerifyAllExpectations();
             requestProcessor.VerifyAllExpectations();
             throttler.VerifyAllExpectations();
             response.VerifyAllExpectations();

@@ -17,7 +17,7 @@ namespace Push.Foundation.Web.HttpClient
         }
         
 
-        public HttpWebRequest Make(RequestEnvelope requestEnvelope)
+        public virtual HttpWebRequest Make(RequestEnvelope requestEnvelope)
         {
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;

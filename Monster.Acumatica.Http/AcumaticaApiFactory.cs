@@ -14,18 +14,17 @@ namespace Monster.Acumatica.Http
             Func<AcumaticaCredentials, AcumaticaRequestBuilder> _requestBuilderFactory;
 
         // Factory enables deliberate injection of ShopifyRequestBuilder and ShopifyClientSettings
-        private readonly 
-            Func<AcumaticaRequestBuilder, AcumaticaHttpSettings, HttpFacade> _clientFacadeFactory;
+        private readonly Func<HttpFacade> _clientFacadeFactory;
         
         // Autofac factories for API Repositories
         private readonly Func<HttpFacade, SpikeRepository> _spikeRepositoryFactory;
         
 
         public AcumaticaApiFactory(
-            Func<AcumaticaCredentials, AcumaticaRequestBuilder> requestBuilderFactory, 
-            Func<AcumaticaRequestBuilder, AcumaticaHttpSettings, HttpFacade> clientFacadeFactory, 
-            Func<HttpFacade, SpikeRepository> spikeRepositoryFactory, 
-            AcumaticaHttpSettings acumaticaHttpSettings)
+                Func<AcumaticaCredentials, AcumaticaRequestBuilder> requestBuilderFactory, 
+                Func<HttpFacade> clientFacadeFactory, 
+                Func<HttpFacade, SpikeRepository> spikeRepositoryFactory, 
+                AcumaticaHttpSettings acumaticaHttpSettings)
         {
             _requestBuilderFactory = requestBuilderFactory;
             _clientFacadeFactory = clientFacadeFactory;
@@ -36,7 +35,12 @@ namespace Monster.Acumatica.Http
         public virtual SpikeRepository MakeSpikeRepository(AcumaticaCredentials credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = _clientFacadeFactory(requestBuilder, _acumaticaHttpSettings);
+
+            var clientFacade =
+                _clientFacadeFactory()
+                    .InjectRequestBuilder(requestBuilder)
+                    .InjectSettings(_acumaticaHttpSettings);
+
             var repository = _spikeRepositoryFactory(clientFacade);
             return repository;
         }

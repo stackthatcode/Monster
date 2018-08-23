@@ -15,14 +15,13 @@ namespace Monster.Acumatica.Http
         {
             var path = "/entity/auth/login";
             var content = credentials.AuthenticationJson;
-            var response = _clientFacade.Post(path);
+            var response = _clientFacade.Post(path, content);
         }
 
         public string RetrieveItemClass()
         {
             var url = BuildMethodUrl("ItemClass");
-            var path = BuildMethodUrl(url);
-            var response = _clientFacade.Get(path);
+            var response = _clientFacade.Get(url);
             return response.Body;
         }
 
