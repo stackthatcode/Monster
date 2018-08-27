@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using NUnit.Framework;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.HttpClient;
@@ -20,7 +19,7 @@ namespace Push.Foundation.Tests.Web
 
             var testWebRequest = (HttpWebRequest)WebRequest.Create(request.Url);
 
-            var requestBuilder = MockRepository.GenerateMock<GenericRequestBuilder>();
+            var requestBuilder = MockRepository.GenerateMock<IRequestBuilder>();
             requestBuilder
                 .Expect(x => x.Make(request))
                 .Return(testWebRequest);
@@ -41,12 +40,12 @@ namespace Push.Foundation.Tests.Web
                 .Expect(x => x.Process(null))
                 .IgnoreArguments();
 
-            var configuration = new HttpSettings();
+            var settings = new HttpSettings();
 
-            var sut = 
-                new HttpFacade(
-                    requestProcessor, throttler, insistor, logger)
-                .InjectRequestBuilder(requestBuilder);
+            var sut =
+                new HttpFacade(requestProcessor, throttler, insistor, logger)
+                    .InjectRequestBuilder(requestBuilder)
+                    .InjectSettings(settings);
 
 
             // Act

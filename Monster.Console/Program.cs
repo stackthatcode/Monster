@@ -22,13 +22,17 @@ namespace Monster.ConsoleApp
         {
             // DeserializeJson<BalanceTransactionList>("3duPayouts20180813.json");
             // DeserializeJson<TransactionList>("3duPayPalTransactions.json");
-            //ExecuteInLifetimeScope(scope => RetrieveOrderData(scope));
             
-            ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
-            // ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
-            // ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));            
+            // Shopify => Bridge-Over-Monsters
+            ExecuteInLifetimeScope(scope => RetrieveOrderData(scope, 554500751458));
+            //ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
+            ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
             // ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
 
+            // Shopify => 3D Universe 
+            ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));            
+            
+            // Macbook Air => Acumatica Instance
             //ExecuteInLifetimeScope(scope => RetrieveAcumaticaItemClass(scope));
 
             Console.WriteLine("Finished - hit any key to exit...");

@@ -23,7 +23,6 @@ namespace Monster.Acumatica.Http
         }
         
 
-        // *** Noticeable quirk - 
         public HttpWebRequest Make(RequestEnvelope requestEnvelope)
         {
             ServicePointManager.Expect100Continue = true;
