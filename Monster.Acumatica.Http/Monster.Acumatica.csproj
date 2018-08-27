@@ -7,8 +7,8 @@
     <ProjectGuid>{E31F2A05-6346-48D5-B323-3D048AB0E392}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Monster.Acumatica.Http</RootNamespace>
-    <AssemblyName>Monster.Acumatica.Http</AssemblyName>
+    <RootNamespace>Monster.Acumatica</RootNamespace>
+    <AssemblyName>Monster.Acumatica</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -45,13 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AcumaticaCredentials.cs" />
-    <Compile Include="AcumaticaHttpSettings.cs" />
-    <Compile Include="AcumaticaRequestBuilder.cs" />
-    <Compile Include="AcumaticaApiFactory.cs" />
-    <Compile Include="SpikeRepository.cs" />
+    <Compile Include="Http\AcumaticaCredentials.cs" />
+    <Compile Include="Http\AcumaticaHttpSettings.cs" />
+    <Compile Include="Http\AcumaticaRequestBuilder.cs" />
+    <Compile Include="Http\AcumaticaApiFactory.cs" />
+    <Compile Include="Http\SpikeRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AcumaticaHttpAutofac.cs" />
+    <Compile Include="AcumaticaAutofac.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

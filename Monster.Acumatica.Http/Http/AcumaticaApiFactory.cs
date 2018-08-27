@@ -1,7 +1,6 @@
 using System;
+using Monster.Acumatica.Http;
 using Push.Foundation.Web.HttpClient;
-
-// ReSharper disable once RedundantUsingDirective
 
 namespace Monster.Acumatica.Http
 {
