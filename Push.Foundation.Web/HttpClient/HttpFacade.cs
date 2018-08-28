@@ -29,12 +29,7 @@ namespace Push.Foundation.Web.HttpClient
             _insistentExecutor = insistentExecutor;
             _pushLogger = logger;
         }
-
-        public HttpSettings Settings
-        {
-            get { return _settings; }
-            set { _settings = value; }
-        }
+        
 
         public HttpFacade InjectRequestBuilder(IRequestBuilder builder)
         {

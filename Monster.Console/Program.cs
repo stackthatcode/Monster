@@ -115,10 +115,15 @@ namespace Monster.ConsoleApp
 
         static void RetrieveAcumaticaItemClass(ILifetimeScope scope)
         {
+            // Pull these from secure storage
             var credentials = new AcumaticaCredentials();
 
+            // Spawn or constructor inject this factory
             var factory = scope.Resolve<AcumaticaApiFactory>();
+
+            // Make repository - done!
             var repository = factory.MakeSpikeRepository(credentials);
+
             repository.RetrieveSession(credentials);
             repository.RetrieveSession(credentials);
             var results = repository.RetrieveItemClass();
