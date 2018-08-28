@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Misc;
 
+
 namespace Push.Foundation.Web.HttpClient
 {
     public class HttpFacade
@@ -16,7 +17,7 @@ namespace Push.Foundation.Web.HttpClient
         private readonly IPushLogger _pushLogger;
 
         // The settings and builder are what will be property injected
-        // in the factory for the Facade to dictate preferred behaviors
+        // in the factory fo the Facade to dictate preferred behaviors
         public HttpFacade(
                 HttpWebRequestProcessor requestProcessor, 
                 Throttler throttler,
@@ -52,6 +53,7 @@ namespace Push.Foundation.Web.HttpClient
             var request = 
                 new RequestEnvelope(
                     "GET", url, contentType: contentType);
+
             return ExecuteRequestWithInsistence(request);
         }
 
@@ -101,13 +103,18 @@ namespace Push.Foundation.Web.HttpClient
 
         public virtual ResponseEnvelope ExecuteRequestWithInsistence(RequestEnvelope requestEnvelope)
         {
+            AssertDependencyQuorum();
+
             _insistentExecutor.MaxNumberOfAttempts = _settings.RetryLimit;
             return _insistentExecutor
                 .Execute(() => ExecuteRequest(requestEnvelope));
         }
 
-        public virtual ResponseEnvelope ExecuteRequest(RequestEnvelope requestEnvelope)
+        public virtual ResponseEnvelope 
+                            ExecuteRequest(RequestEnvelope requestEnvelope)
         {
+            AssertDependencyQuorum();
+
             _pushLogger.Debug(
                 $"Invoking HTTP {requestEnvelope.Method} " +
                 $"on {requestEnvelope.Url}");
@@ -132,6 +139,18 @@ namespace Push.Foundation.Web.HttpClient
             response.ProcessStatusCodes();
 
             return response;
+        }
+
+        private void AssertDependencyQuorum()
+        {
+            if (_requestBuilder == null)
+            {
+                throw new Exception("IRequestBuilder has not been populated via InjectRequestBuilder");
+            }
+            if (_settings == null)
+            {
+                throw new Exception("HttpSettings has not been populated via InjectSettings");
+            }
         }
     }
 }

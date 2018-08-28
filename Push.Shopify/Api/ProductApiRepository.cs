@@ -61,6 +61,7 @@ namespace Push.Shopify.Api
             _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
+
         public virtual string RetrieveByCollection(long id)
         {
             var path = $"/admin/products.json?collection_id={id}";
@@ -68,6 +69,7 @@ namespace Push.Shopify.Api
             _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
+
         public virtual string RetrieveProductMetafields(long product_id)
         {
             var path = $"/admin/products/{product_id}/metafields.json";
@@ -90,8 +92,7 @@ namespace Push.Shopify.Api
             var clientResponse = _client.Post(path, json);
             _logger.Trace(clientResponse.Body);            
         }
-
-
+        
         public virtual void UpdateMetafield(long productId, MetafieldParent metafield)
         {
             var json = metafield.SerializeToJson();

@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica.Http
@@ -23,7 +21,6 @@ namespace Monster.Acumatica.Http
         }
         
 
-        // *** Noticeable quirk - 
         public HttpWebRequest Make(RequestEnvelope requestEnvelope)
         {
             ServicePointManager.Expect100Continue = true;

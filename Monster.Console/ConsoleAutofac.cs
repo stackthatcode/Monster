@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using Autofac;
+using Monster.Acumatica;
 using Monster.Acumatica.Http;
 using Monster.Middle;
 using Push.Foundation.Utilities.Logging;

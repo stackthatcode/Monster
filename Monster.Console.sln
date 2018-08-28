@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Push.Foundation.Utilities", "Push.Foundation.Utilities\Push.Foundation.Utilities.csproj", "{4E08819B-BAB3-46EE-9479-141AF7A4057D}"
 EndProject
@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.Middle", "Monster.M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.ConsoleApp", "Monster.Console\Monster.ConsoleApp.csproj", "{E92C70F6-9712-42CC-A5E6-02ED5CEF8D0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.Acumatica.Http", "Monster.Acumatica.Http\Monster.Acumatica.Http.csproj", "{E31F2A05-6346-48D5-B323-3D048AB0E392}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.Acumatica", "Monster.Acumatica.Http\Monster.Acumatica.csproj", "{E31F2A05-6346-48D5-B323-3D048AB0E392}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

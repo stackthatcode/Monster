@@ -11,7 +11,7 @@ namespace Push.Foundation.Web.HttpClient
         {
             _configuration = configuration;
         }
-        
+
 
         public virtual HttpWebRequest Make(RequestEnvelope requestEnvelope)
         {
