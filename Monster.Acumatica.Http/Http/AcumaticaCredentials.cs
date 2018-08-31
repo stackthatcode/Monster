@@ -10,7 +10,6 @@ namespace Monster.Acumatica.Http
         public string Password = "l0c4lInstance";
 
         public string InstanceUrl = "http://localhost/AcuInst2";
-        public string EndpointPrefix = "/entity/Default/17.200.001/";
 
         public string AuthenticationJson
         {

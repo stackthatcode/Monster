@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Monster.Acumatica.Http;
+using Monster.Acumatica.Model;
 using Monster.ConsoleApp.TestJson;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -12,6 +14,7 @@ using Push.Shopify.Api.Product;
 using Push.Shopify.Api.Transaction;
 using Push.Shopify.Config;
 using Push.Shopify.HttpClient.Credentials;
+using Customer = Monster.Acumatica.Model.Customer;
 
 
 namespace Monster.ConsoleApp
@@ -24,20 +27,24 @@ namespace Monster.ConsoleApp
             // DeserializeJson<TransactionList>("3duPayPalTransactions.json");
             
             // Shopify => Bridge-Over-Monsters
-            ExecuteInLifetimeScope(scope => RetrieveOrderData(scope, 554500751458));
+            //ExecuteInLifetimeScope(scope => RetrieveOrderData(scope, 554500751458));
             //ExecuteInLifetimeScope(scope => RetrieveProductData(scope, 1403130544226));
-            ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
-            // ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
+            //ExecuteInLifetimeScope(scope => RetrieveLocations(scope));
+            //ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
 
             // Shopify => 3D Universe 
-            ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));            
+            //ExecuteInLifetimeScope(scope => RetrievePayoutDta(scope));            
             
             // Macbook Air => Acumatica Instance
             //ExecuteInLifetimeScope(scope => RetrieveAcumaticaItemClass(scope));
+            ExecuteInLifetimeScope(scope => RetrieveAcumaticaPostingClass(scope));
+
+            ExecuteInLifetimeScope(scope => RetrieveAcumaticaCustomer(scope));
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
+
 
         public static IShopifyCredentials CredentialsFactory()
         {
@@ -89,7 +96,10 @@ namespace Monster.ConsoleApp
             var productApi = factory.MakeProductApi(credentials);
             var shopifyLocationJson = productApi.RetrieveLocations();
 
-            var locations = shopifyLocationJson.DeserializeFromJson<LocationList>();
+            var locations = 
+                shopifyLocationJson
+                    .DeserializeFromJson<LocationList>();
+
             var monsterLocationJson = locations.SerializeToJson();
         }
 
@@ -117,6 +127,8 @@ namespace Monster.ConsoleApp
             Console.WriteLine(reserializedJson);
         }
 
+
+        // Acumatica 
         static void RetrieveAcumaticaItemClass(ILifetimeScope scope)
         {
             // Pull these from secure storage
@@ -133,6 +145,37 @@ namespace Monster.ConsoleApp
             var results = repository.RetrieveItemClass();
         }
 
+        static void RetrieveAcumaticaPostingClass(ILifetimeScope scope)
+        {
+            // Pull these from secure storage
+            var credentials = new AcumaticaCredentials();
+
+            // Spawn or constructor inject this factory
+            var factory = scope.Resolve<AcumaticaApiFactory>();
+
+            // Make repository - done!
+            var repository = factory.MakeSpikeRepository(credentials);
+
+            repository.RetrieveSession(credentials);
+            var results = repository.RetrievePostingClasses();
+        }
+
+        private static void RetrieveAcumaticaCustomer(ILifetimeScope scope)
+        { 
+            // Pull these from secure storage
+            var credentials = new AcumaticaCredentials();
+
+            // Spawn or constructor inject this factory
+            var factory = scope.Resolve<AcumaticaApiFactory>();
+
+            // Make repository - done!
+            var repository = factory.MakeSpikeRepository(credentials);
+
+            repository.RetrieveSession(credentials);
+            var results = repository.RetrieveCustomers();
+
+            var customers = results.DeserializeFromJson<Customer[]>();
+        }
 
         static void ExecuteInLifetimeScope(Action<ILifetimeScope> action)
         {
