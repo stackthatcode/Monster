@@ -50,6 +50,7 @@
     <Compile Include="Http\AcumaticaRequestBuilder.cs" />
     <Compile Include="Http\AcumaticaApiFactory.cs" />
     <Compile Include="Http\SpikeRepository.cs" />
+    <Compile Include="Model\Contact.cs" />
     <Compile Include="Model\Customer.cs" />
     <Compile Include="Model\ItemClass.cs" />
     <Compile Include="Model\Values.cs" />

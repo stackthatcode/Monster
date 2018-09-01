@@ -172,10 +172,37 @@ namespace Monster.ConsoleApp
             var repository = factory.MakeSpikeRepository(credentials);
 
             repository.RetrieveSession(credentials);
-            var results = repository.RetrieveCustomers();
 
-            var customers = results.DeserializeFromJson<Customer[]>();
+            //var results = repository.RetrieveCustomers();
+            //var customers = results.DeserializeFromJson<Customer[]>();
+
+            var results = repository.RetrieveCustomer("C000000001");
+
+            var customer = results.DeserializeFromJson<Customer>();
+
+            var backToJson = customer.SerializeToJson();
         }
+
+        static void AddNewAcumaticaCustomer(ILifetimeScope scope)
+        {
+            // Pull these from secure storage
+            var credentials = new AcumaticaCredentials();
+
+            // Spawn or constructor inject this factory
+            var factory = scope.Resolve<AcumaticaApiFactory>();
+
+            // Make repository - done!
+            var repository = factory.MakeSpikeRepository(credentials);
+
+            repository.RetrieveSession(credentials);
+
+            
+            //var customer = new Customer
+            //{
+            //    Address = 
+            //}
+        }
+
 
         static void ExecuteInLifetimeScope(Action<ILifetimeScope> action)
         {

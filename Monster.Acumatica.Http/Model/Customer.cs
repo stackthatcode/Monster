@@ -13,6 +13,14 @@ namespace Monster.Acumatica.Model
         public string id { get; set; }
         public int rowNumber { get; set; }
         public string note { get; set; }
+
+        public StringValue CustomerID { get; set; }
+
+        public Contact MainContact { get; set; }
+        public Contact BillingContact { get; set; }
+        public Contact ShippingContact { get; set; }
+
+
         public StringValue AccountRef { get; set; }
         public BoolValue ApplyOverdueCharges { get; set; }
         public BoolValue AutoApplyPayments { get; set; }
@@ -22,7 +30,6 @@ namespace Monster.Acumatica.Model
         public StringValue CurrencyID { get; set; }
         public StringValue CurrencyRateType { get; set; }
         public StringValue CustomerClass { get; set; }
-        public StringValue CustomerID { get; set; }
         public StringValue CustomerName { get; set; }
         public BoolValue EnableCurrencyOverride { get; set; }
         public BoolValue EnableRateOverride { get; set; }
