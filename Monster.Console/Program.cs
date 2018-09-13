@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Model;
 using Monster.ConsoleApp.TestJson;
@@ -37,88 +38,16 @@ namespace Monster.ConsoleApp
             
             // Macbook Air => Acumatica Instance
             //ExecuteInLifetimeScope(scope => RetrieveAcumaticaItemClass(scope));
-            ExecuteInLifetimeScope(scope => RetrieveAcumaticaPostingClass(scope));
 
-            ExecuteInLifetimeScope(scope => RetrieveAcumaticaCustomer(scope));
+            var acumaticaHarness = new AcumaticaTestbed();
+            ExecuteInLifetimeScope(scope => acumaticaHarness.RetrieveAcumaticaPostingClass(scope));
+            ExecuteInLifetimeScope(scope => acumaticaHarness.RetrieveAcumaticaCustomer(scope));
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
 
 
-        public static IShopifyCredentials CredentialsFactory()
-        {
-            return ShopifySecuritySettings
-                    .FromConfiguration()
-                    .MakePrivateAppCredentials();
-        }
-
-        static void RetrieveOrderData(ILifetimeScope scope, long orderId)
-        {
-            var factory = scope.Resolve<ApiFactory>();
-            var credentials = CredentialsFactory();
-
-            var orderApi = factory.MakeOrderApi(credentials);
-            var shopifyOrderJson = orderApi.Retrieve(orderId);
-
-            var orderParent = shopifyOrderJson.DeserializeFromJson<OrderParent>();
-            orderParent.order.Initialize();
-            var monsterOrderJson = orderParent.SerializeToJson();
-
-            var shopifyTransactionJson = orderApi.RetrieveTransactions(orderId);
-            var transactionParent =
-                    shopifyTransactionJson.DeserializeFromJson<TransactionList>();
-
-            var monsterTransactionJson = transactionParent.SerializeToJson();
-        }
-        
-        static void RetrieveProductData(ILifetimeScope scope, long productId)
-        {
-            var factory = scope.Resolve<ApiFactory>();
-            var credentials = CredentialsFactory();
-
-            var productApi = factory.MakeProductApi(credentials);
-            var shopifyOrderJson = productApi.Retrieve(productId);
-
-            var productParent = shopifyOrderJson.DeserializeFromJson<ProductParent>();
-            productParent.Initialize();
-            var monsterProductJson = productParent.SerializeToJson();
-
-            var inventoryItemIDs = productParent.product.InventoryItemIds;
-            var shopifyInventoryLevels = productApi.RetrieveInventoryLevels(inventoryItemIDs);
-        }
-
-        static void RetrieveLocations(ILifetimeScope scope)
-        {
-            var factory = scope.Resolve<ApiFactory>();
-            var credentials = CredentialsFactory();
-            
-            var productApi = factory.MakeProductApi(credentials);
-            var shopifyLocationJson = productApi.RetrieveLocations();
-
-            var locations = 
-                shopifyLocationJson
-                    .DeserializeFromJson<LocationList>();
-
-            var monsterLocationJson = locations.SerializeToJson();
-        }
-
-        static void RetrievePayoutDta(ILifetimeScope scope)
-        {
-            var factory = scope.Resolve<ApiFactory>();
-            var credentials = CredentialsFactory();
-            var payoutApi = factory.MakePayoutApi(credentials);
-
-            //var date = new DateTimeOffset(2018, 8, 8, 0, 0, 0, new TimeSpan(0, 0, 0));
-
-            var shopifyPayoutJson = payoutApi.RetrievePayouts();
-            var monsterPayout = shopifyPayoutJson.DeserializeFromJson<PayoutList>();
-            var firstPayoutId = monsterPayout.payouts.First().id;
-
-            var shopifyPayoutDetailJson = payoutApi.RetrievePayoutDetail(firstPayoutId);
-            var monsterPayoutDetail = shopifyPayoutDetailJson.DeserializeFromJson<PayoutDetail>();
-        }
-        
         static void DeserializeJson<T>(string inputJsonFile)
         {
             var json = TestLoader.GimmeJson(inputJsonFile);
@@ -126,84 +55,7 @@ namespace Monster.ConsoleApp
             var reserializedJson = deserializedObject.SerializeToJson();
             Console.WriteLine(reserializedJson);
         }
-
-
-        // Acumatica 
-        static void RetrieveAcumaticaItemClass(ILifetimeScope scope)
-        {
-            // Pull these from secure storage
-            var credentials = new AcumaticaCredentials();
-
-            // Spawn or constructor inject this factory
-            var factory = scope.Resolve<AcumaticaApiFactory>();
-
-            // Make repository - done!
-            var repository = factory.MakeSpikeRepository(credentials);
-
-            repository.RetrieveSession(credentials);
-            repository.RetrieveSession(credentials);
-            var results = repository.RetrieveItemClass();
-        }
-
-        static void RetrieveAcumaticaPostingClass(ILifetimeScope scope)
-        {
-            // Pull these from secure storage
-            var credentials = new AcumaticaCredentials();
-
-            // Spawn or constructor inject this factory
-            var factory = scope.Resolve<AcumaticaApiFactory>();
-
-            // Make repository - done!
-            var repository = factory.MakeSpikeRepository(credentials);
-
-            repository.RetrieveSession(credentials);
-            var results = repository.RetrievePostingClasses();
-        }
-
-        private static void RetrieveAcumaticaCustomer(ILifetimeScope scope)
-        { 
-            // Pull these from secure storage
-            var credentials = new AcumaticaCredentials();
-
-            // Spawn or constructor inject this factory
-            var factory = scope.Resolve<AcumaticaApiFactory>();
-
-            // Make repository - done!
-            var repository = factory.MakeSpikeRepository(credentials);
-
-            repository.RetrieveSession(credentials);
-
-            //var results = repository.RetrieveCustomers();
-            //var customers = results.DeserializeFromJson<Customer[]>();
-
-            var results = repository.RetrieveCustomer("C000000001");
-
-            var customer = results.DeserializeFromJson<Customer>();
-
-            var backToJson = customer.SerializeToJson();
-        }
-
-        static void AddNewAcumaticaCustomer(ILifetimeScope scope)
-        {
-            // Pull these from secure storage
-            var credentials = new AcumaticaCredentials();
-
-            // Spawn or constructor inject this factory
-            var factory = scope.Resolve<AcumaticaApiFactory>();
-
-            // Make repository - done!
-            var repository = factory.MakeSpikeRepository(credentials);
-
-            repository.RetrieveSession(credentials);
-
-            
-            //var customer = new Customer
-            //{
-            //    Address = 
-            //}
-        }
-
-
+        
         static void ExecuteInLifetimeScope(Action<ILifetimeScope> action)
         {
             using (var container = ConsoleAutofac.Build(false))

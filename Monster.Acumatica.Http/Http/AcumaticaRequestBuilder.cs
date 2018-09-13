@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Monster.Acumatica.Config;
 using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica.Http
@@ -6,14 +7,14 @@ namespace Monster.Acumatica.Http
     public class AcumaticaRequestBuilder : IRequestBuilder
     {
         private readonly AcumaticaHttpSettings _config;
-        private readonly AcumaticaCredentials _credentials;
+        private readonly AcumaticaSecuritySettings _credentials;
         private readonly CookieContainer _cookies;
 
 
         // This is instanced by the ApiFactory, which passes the valid credentials
         public AcumaticaRequestBuilder(
                 AcumaticaHttpSettings config,
-                AcumaticaCredentials credentials)
+                AcumaticaSecuritySettings credentials)
         {
             _config = config;
             _credentials = credentials;

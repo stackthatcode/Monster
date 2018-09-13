@@ -1,4 +1,5 @@
-﻿using Push.Foundation.Web.Helpers;
+﻿using Monster.Acumatica.Config;
+using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica.Http
@@ -16,7 +17,7 @@ namespace Monster.Acumatica.Http
             _settings = settings;
         }
         
-        public void RetrieveSession(AcumaticaCredentials credentials)
+        public void RetrieveSession(AcumaticaSecuritySettings credentials)
         {
             var path = "/entity/auth/login";
             var content = credentials.AuthenticationJson;

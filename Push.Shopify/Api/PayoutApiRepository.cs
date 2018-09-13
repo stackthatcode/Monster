@@ -1,7 +1,4 @@
-﻿using System;
-using Push.Foundation.Web.HttpClient;
-using Push.Shopify.Config;
-using Push.Shopify.HttpClient;
+﻿using Push.Foundation.Web.HttpClient;
 
 namespace Push.Shopify.Api
 {

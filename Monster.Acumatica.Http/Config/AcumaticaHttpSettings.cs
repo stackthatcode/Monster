@@ -1,6 +1,6 @@
 ﻿using Push.Foundation.Web.HttpClient;
 
-namespace Monster.Acumatica.Http
+namespace Monster.Acumatica.Config
 {
     public class AcumaticaHttpSettings : HttpSettings
     {

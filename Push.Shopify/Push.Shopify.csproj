@@ -161,6 +161,7 @@
     <Compile Include="Api\OrderApiRepository.cs" />
     <Compile Include="Api\ShopApiRepository.cs" />
     <Compile Include="Api\ProductApiRepository.cs" />
+    <Compile Include="Workers\PayoutsWorker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

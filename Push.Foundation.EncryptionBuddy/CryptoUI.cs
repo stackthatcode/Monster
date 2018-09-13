@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
+using Monster.Acumatica.Config;
+using Monster.Acumatica.Http;
 using Newtonsoft.Json;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Config;
@@ -79,6 +81,23 @@ namespace Push.Foundation
                         this.textHMACSecret.Text, this.textHMACPayload.Text);
 
             this.textHMACOutput.Text = hashedResult;
+        }
+
+        private void buttonAcumaticaXml_Click(object sender, EventArgs e)
+        {
+            var config = JsonConvert.DeserializeObject<AcumaticaSecuritySettings>(textAcumaticaJson.Text);
+
+            textAcumaticaXml.Text =
+                $@"<acumaticaSecurityConfiguration 
+    xdt:Transform=""Replace""
+    Branch=""{config.Branch}"" 
+    CompanyName=""{config.CompanyName}"" 
+    InstanceUrl=""{config.InstanceUrl}"" 
+    Username=""{config.Username.ToSecureString().DpApiEncryptString()}"" 
+    Password=""{config.Password.ToSecureString().DpApiEncryptString()}""                                               
+/>";
+
+            Clipboard.SetText(textAcumaticaXml.Text);
         }
     }        
 }

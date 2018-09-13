@@ -16,7 +16,9 @@ namespace Push.Foundation.Utilities.Json
             return stringWriter.ToString();
         }
 
-        public static void SerializeToJson(this object input, TextWriter textWriter)
+        public static void SerializeToJson(
+                this object input, 
+                TextWriter textWriter)
         {
             var writer = new JsonTextWriter(textWriter) { Formatting = Formatting };
             var serializer = JsonSerializer.Create(SerializerSettings);

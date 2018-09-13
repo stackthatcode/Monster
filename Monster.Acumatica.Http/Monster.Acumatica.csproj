@@ -36,6 +36,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -45,8 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Http\AcumaticaCredentials.cs" />
-    <Compile Include="Http\AcumaticaHttpSettings.cs" />
+    <Compile Include="Config\AcumaticaSecurityConfig.cs" />
+    <Compile Include="Config\AcumaticaSecuritySettings.cs" />
+    <Compile Include="Config\AcumaticaHttpSettings.cs" />
     <Compile Include="Http\AcumaticaRequestBuilder.cs" />
     <Compile Include="Http\AcumaticaApiFactory.cs" />
     <Compile Include="Http\SpikeRepository.cs" />

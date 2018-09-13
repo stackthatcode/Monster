@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Push.Foundation.Web.HttpClient;
 

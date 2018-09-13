@@ -1,5 +1,5 @@
 using System;
-using Monster.Acumatica.Http;
+using Monster.Acumatica.Config;
 using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica.Http
@@ -10,7 +10,7 @@ namespace Monster.Acumatica.Http
 
         // Autofac factory to create Request Builder with Credentials wired-in
         private readonly 
-            Func<AcumaticaCredentials, AcumaticaRequestBuilder> _requestBuilderFactory;
+            Func<AcumaticaSecuritySettings, AcumaticaRequestBuilder> _requestBuilderFactory;
 
         // Factory enables deliberate injection of ShopifyRequestBuilder and ShopifyClientSettings
         private readonly Func<HttpFacade> _clientFacadeFactory;
@@ -20,7 +20,7 @@ namespace Monster.Acumatica.Http
         
 
         public AcumaticaApiFactory(
-                Func<AcumaticaCredentials, AcumaticaRequestBuilder> requestBuilderFactory, 
+                Func<AcumaticaSecuritySettings, AcumaticaRequestBuilder> requestBuilderFactory, 
                 Func<HttpFacade> clientFacadeFactory, 
                 Func<HttpFacade, SpikeRepository> spikeRepositoryFactory, 
                 AcumaticaHttpSettings acumaticaHttpSettings)
@@ -31,7 +31,8 @@ namespace Monster.Acumatica.Http
             _acumaticaHttpSettings = acumaticaHttpSettings;
         }
         
-        public virtual SpikeRepository MakeSpikeRepository(AcumaticaCredentials credentials)
+        public virtual SpikeRepository MakeSpikeRepository(
+                            AcumaticaSecuritySettings credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);
 

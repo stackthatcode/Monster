@@ -122,6 +122,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.csproj">
+      <Project>{E31F2A05-6346-48D5-B323-3D048AB0E392}</Project>
+      <Name>Monster.Acumatica</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Push.Foundation.Utilities\Push.Foundation.Utilities.csproj">
       <Project>{4e08819b-bab3-46ee-9479-141af7a4057d}</Project>
       <Name>Push.Foundation.Utilities</Name>
