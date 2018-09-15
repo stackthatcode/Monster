@@ -16,7 +16,7 @@ namespace Monster.Middle.Workers
         private readonly ShopifyApiFactory _shopifyApiFactory;
         private readonly IPushLogger _logger;
 
-        public int PayoutPagingLimit = 50;
+        public int PayoutTransactionPagingLimit = 50;
 
         public ShopifyPayoutFetcher(
                 PayoutImportRepository persistRepository,
@@ -33,7 +33,7 @@ namespace Monster.Middle.Workers
         //
         public void ImportPayoutHeaders(
                 IShopifyCredentials credentials, 
-                int maxPages = 1, int recordsPerPage = 1)
+                int maxPages = 1, int recordsPerPage = 50)
         {
             var payoutApi = _shopifyApiFactory.MakePayoutApi(credentials);
             var currentPage = 1;
@@ -66,8 +66,8 @@ namespace Monster.Middle.Workers
                 }
 
                 _logger.Info(
-                    $"Shopify Payout {payout.id} not found - saving to persistence");
-
+                    $"Creating Header for Shopify Payout {payout.id}");
+                
                 var newPayout = new UsrShopifyPayout()
                 {
                     ShopifyPayoutId = payout.id,
@@ -87,22 +87,29 @@ namespace Monster.Middle.Workers
 
             foreach (var payout in payouts)
             {
-                ImportPayoutTransactions(credentials, payout.Id);
+                ImportPayoutTransactions(credentials, payout.ShopifyPayoutId);
+
+                _persistRepository
+                    .UpdatePayoutHeaderAllRecordsCaptured(
+                            payout.ShopifyPayoutId, true);
             }
         }
         
         public void ImportPayoutTransactions(
                         IShopifyCredentials credentials, long payoutId)
         {
+            _logger.Info($"Importing Transactions for Shopify Payout: {payoutId}");
+
             var payoutApi = _shopifyApiFactory.MakePayoutApi(credentials);
 
             // Read first batch
             var firstBatch = payoutApi
                     .RetrievePayoutDetail(
-                            payout_id: payoutId, limit: PayoutPagingLimit)
+                            payout_id: payoutId, 
+                            limit: PayoutTransactionPagingLimit)
                     .DeserializeFromJson<PayoutDetail>();
 
-            PersistPayoutTransactions(firstBatch);
+            PersistPayoutTransactions(firstBatch, payoutId);
 
             // Identify transaction id
             var lastTranscationId = firstBatch.transactions.Last().id;
@@ -112,11 +119,23 @@ namespace Monster.Middle.Workers
                 // Grab the next Batch
                 var nextBatch = payoutApi
                         .RetrievePayoutDetail(
-                                since_id: lastTranscationId, limit: PayoutPagingLimit)
+                                since_id: lastTranscationId, limit: PayoutTransactionPagingLimit)
                         .DeserializeFromJson<PayoutDetail>();
+
+                PersistPayoutTransactions(nextBatch, payoutId);
                 
-                // We stop iterating when we see type = "payout"
-                if (nextBatch.transactions.Any(x => x.type == "payout"))
+                // If there are fewer transactions than the paging limit, break!
+                if (nextBatch.transactions.Count < PayoutTransactionPagingLimit)
+                {
+                    break;
+                }
+
+                // We stop iterating when we see type = "payout" or a null payout id
+                if (nextBatch
+                        .transactions
+                        .Any(x => x.type == "payout" || 
+                                  x.payout_id == null || 
+                                  x.payout_id != payoutId))
                 {
                     break;
                 }
@@ -126,35 +145,20 @@ namespace Monster.Middle.Workers
             }
         }
 
-        //// We'll dump our output to JSON for easy review
-        //var filteredTransactions
-        //    = transactions.Where(x => x.payout_id != null).ToList();
-
-        //// Total up all of the charges
-        //var charges = filteredTransactions.Where(x => x.type == "charge").ToList();
-        //_logger.Info($"Total Charges -> Amount: {charges.Sum(x => x.amount)}");
-        //_logger.Info($"Total Charges -> Fee: {charges.Sum(x => x.fee)}");
-        //_logger.Info($"Total Charges -> Net: {charges.Sum(x => x.net)}");
-        //
-        //var payout = filteredTransactions.First(x => x.type == "payout");
-        //_logger.Info($"Payout -> Amount: {payout.amount}");
-        //_logger.Info($"Payout -> Fee: {payout.fee}");
-        //_logger.Info($"Payout -> Net: {payout.net}");
-
-
-        public void PersistPayoutTransactions(PayoutDetail transactions)
+        public void PersistPayoutTransactions(
+                        PayoutDetail transactions, long shopifyPayoutId)
         {
             var filteredTransactions
                 = transactions
                     .transactions
-                    .Where(x => x.payout_id != null).ToList();
+                    .Where(x => x.payout_id == shopifyPayoutId).ToList();
 
             foreach (var transaction in filteredTransactions)
             {
                 var persistedTransaction =
                     _persistRepository.RetrievePayoutTransaction(
                         transaction.payout_id.Value, transaction.id);
-
+                
                 if (persistedTransaction != null)
                 {
                     _logger.Info(
@@ -163,6 +167,11 @@ namespace Monster.Middle.Workers
                         $"(Transaction) Id {transaction.id}");
                     continue;
                 }
+
+                _logger.Info(
+                    $"Creating Transcation for " +
+                    $"Payout Id: {transaction.payout_id} - " +
+                    $"(Transaction) Id {transaction.id}");
 
                 var newTransaction = new UsrShopifyPayoutTransaction()
                 {
@@ -175,6 +184,40 @@ namespace Monster.Middle.Workers
                 _persistRepository.InsertPayoutTransaction(newTransaction);
             }
         }
+
+
+        public void GenerateBalancingSummaries(int limitHowFarBack = 10)
+        {
+            var payouts = _persistRepository.RetrievePayouts(limitHowFarBack);
+
+            foreach (var payout in payouts)
+            {
+                var transactions
+                    = _persistRepository
+                        .RetrievePayoutTranscations(payout.ShopifyPayoutId)
+                        .Select(x => x.Json.DeserializeFromJson<PayoutTransaction>())
+                        .ToList();
+
+                _logger.Info($"Balancing Payout: {payout.ShopifyPayoutId}");
+
+                TotalHelper(transactions, "charge");
+                TotalHelper(transactions, "refund");
+                TotalHelper(transactions, "adjustment");
+                TotalHelper(transactions, "payout");
+                _logger.Info(Environment.NewLine);
+            }
+        }
+
+        private void TotalHelper(
+                    IEnumerable<PayoutTransaction> transactions, string type)
+        {
+            var transByType = transactions.Where(x => x.type == type).ToList();
+            _logger.Info($"Total [type='{type}'] -> Amount: {transByType.Sum(x => x.amount):0.00}");
+            _logger.Info($"Total [type='{type}'] -> Fee: {transByType.Sum(x => x.fee):0.00}");
+            _logger.Info($"Total [type='{type}'] -> Net: {transByType.Sum(x => x.net):0.00}");
+
+        }
+
     }
 }
 

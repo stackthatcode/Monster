@@ -11,7 +11,6 @@ using Push.Shopify.Api.Product;
 using Push.Shopify.Api.Transaction;
 using Push.Shopify.Config;
 using Push.Shopify.Http.Credentials;
-using Transaction = Push.Shopify.Api.Payout.Transaction;
 
 namespace Monster.ConsoleApp.Shopify
 {

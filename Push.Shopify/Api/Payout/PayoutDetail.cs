@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Push.Shopify.Api.Payout
 {
 
-    public class Transaction
+    public class PayoutTransaction
     {
         public long id { get; set; }
         public string type { get; set; }
@@ -24,7 +24,7 @@ namespace Push.Shopify.Api.Payout
 
     public class PayoutDetail
     {
-        public List<Transaction> transactions { get; set; }
+        public List<PayoutTransaction> transactions { get; set; }
     }
 }
 

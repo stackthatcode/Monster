@@ -1,16 +1,19 @@
-﻿using Push.Foundation.Web.Helpers;
+﻿using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.Http;
-using Push.Foundation.Web.Misc;
+
 
 namespace Push.Shopify.Api
 {
     public class PayoutRepository
     {
         private readonly HttpFacade _executionFacade;
-        
-        public PayoutRepository(HttpFacade executionFacade)
+        private readonly IPushLogger _logger;
+
+        public PayoutRepository(HttpFacade executionFacade, IPushLogger logger)
         {
             _executionFacade = executionFacade;
+            _logger = logger;
         }
 
         public virtual string RetrievePayouts(int limit = 50, int page = 1)
@@ -28,8 +31,9 @@ namespace Push.Shopify.Api
             return output;
         }
 
-        public virtual string RetrievePayoutDetail(
-                long? payout_id = null, long? since_id = null, int limit = 50)
+        public virtual string 
+                RetrievePayoutDetail(
+                    long? payout_id = null, long? since_id = null, int limit = 50)
         {
             var builder = new QueryStringBuilder();
 
@@ -49,6 +53,8 @@ namespace Push.Shopify.Api
 
             var path = $"/admin/shopify_payments/balance/transactions.json?{queryString}";
             var clientResponse = _executionFacade.Get(path);
+
+            _logger.Debug($"{clientResponse.Body}");
 
             var output = clientResponse.Body;
             return output;

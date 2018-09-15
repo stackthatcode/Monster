@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Push.Shopify.Api;
 
 namespace Monster.Middle.EF
 {
@@ -13,9 +12,13 @@ namespace Monster.Middle.EF
             _dataContext = dataContext;
         }
 
-        public List<UsrShopifyPayout> RetrievePayouts()
+        public List<UsrShopifyPayout> RetrievePayouts(int limit = 50)
         {
-            return _dataContext.UsrShopifyPayouts.ToList();
+            return _dataContext
+                    .UsrShopifyPayouts
+                    .OrderByDescending(x => x.ShopifyPayoutId)
+                    .Take(limit)
+                    .ToList();
         }
 
         public UsrShopifyPayout RetrievePayout(long shopifyPayoutId)
@@ -30,7 +33,7 @@ namespace Monster.Middle.EF
             return _dataContext
                     .UsrShopifyPayouts
                     .Where(x => x.AllDetailRecordsCaptured == false)
-                    .OrderBy(x => x.CreatedDate)
+                    .OrderBy(x => x.ShopifyPayoutId)
                     .ToList();
         }
 
@@ -39,6 +42,14 @@ namespace Monster.Middle.EF
             _dataContext.UsrShopifyPayouts.Add(payout);
             _dataContext.SaveChanges();
             return payout.Id;
+        }
+
+        public void UpdatePayoutHeaderAllRecordsCaptured(
+                        long shopifyPayoutId, bool captured)
+        {
+            var header = RetrievePayout(shopifyPayoutId);
+            header.AllDetailRecordsCaptured = captured;
+            _dataContext.SaveChanges();
         }
 
 
@@ -50,6 +61,15 @@ namespace Monster.Middle.EF
                 .FirstOrDefault(
                     x => x.ShopifyPayoutId == shopifyPayoutId &&
                          x.ShopifyPayoutTransId == shopifyTransactionId);
+        }
+
+        public List<UsrShopifyPayoutTransaction>
+                    RetrievePayoutTranscations(long shopifyPayoutId)
+        {
+            return _dataContext
+                .UsrShopifyPayoutTransactions
+                .Where(x => x.ShopifyPayoutId == shopifyPayoutId)
+                .ToList();
         }
 
         public int InsertPayoutTransaction(

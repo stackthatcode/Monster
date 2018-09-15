@@ -19,8 +19,9 @@ namespace Monster.ConsoleApp
             var fetcher = scope.Resolve<ShopifyPayoutFetcher>();
             var credentials = CredentialsFactory();
 
-            fetcher.ImportPayoutHeaders(credentials);
-            fetcher.ImportIncompletePayoutTransactions(credentials);
+            //fetcher.ImportPayoutHeaders(credentials, maxPages: 1, recordsPerPage: 10);
+            //fetcher.ImportIncompletePayoutTransactions(credentials);
+            fetcher.GenerateBalancingSummaries(10);
         }
     }
 }
