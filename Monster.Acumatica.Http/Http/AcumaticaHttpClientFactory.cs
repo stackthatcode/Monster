@@ -8,10 +8,14 @@ namespace Monster.Acumatica.Http
 {
     public class AcumaticaHttpClientFactory
     {
+        private readonly SessionContainer _session;
         private readonly AcumaticaHttpSettings _settings;
 
-        public AcumaticaHttpClientFactory(AcumaticaHttpSettings settings)
+        public AcumaticaHttpClientFactory(
+                SessionContainer session,
+                AcumaticaHttpSettings settings)
         {
+            _session = session;
             _settings = settings;
         }
         
@@ -23,7 +27,7 @@ namespace Monster.Acumatica.Http
                     new HttpClientHandler
                     {
                         UseCookies = true,
-                        CookieContainer = new CookieContainer()
+                        CookieContainer = _session.CookieContainer,
                     })
                     {
                         BaseAddress = baseAddress,

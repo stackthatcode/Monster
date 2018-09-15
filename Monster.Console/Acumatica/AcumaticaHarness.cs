@@ -13,6 +13,13 @@ namespace Monster.ConsoleApp.Acumatica
 {
     public class AcumaticaHarness
     {
+        public static AcumaticaCredentials CredentialsFactory()
+        {
+            var config = AcumaticaCredentialsConfig.Settings;
+            return new AcumaticaCredentials(config);
+        }
+
+
         // Acumatica 
         public static void RetrieveItemClass(ILifetimeScope scope)
         {
@@ -23,28 +30,14 @@ namespace Monster.ConsoleApp.Acumatica
             var factory = scope.Resolve<AcumaticaApiFactory>();
 
             // Make repository - done!
-            var repository = factory.MakeSpikeRepository(credentials);
+            var sessionRepository = factory.MakeSessionRepository(credentials);
+            sessionRepository.RetrieveSession(credentials);
 
-            repository.RetrieveSession(credentials);
-            repository.RetrieveSession(credentials);
-            var results = repository.RetrieveItemClass();
+            var inventoryRepository = factory.MakeInventoryRepository(credentials);
+            var results = inventoryRepository.RetrieveItemClass();
+            var results2 = inventoryRepository.RetrievePostingClasses();
         }
-
-        public static void RetrievePostingClass(ILifetimeScope scope)
-        {
-            // Pull these from secure storage
-            var credentials = CredentialsFactory();
-
-            // Spawn or constructor inject this factory
-            var factory = scope.Resolve<AcumaticaApiFactory>();
-
-            // Make repository - done!
-            var repository = factory.MakeSpikeRepository(credentials);
-
-            repository.RetrieveSession(credentials);
-            var results = repository.RetrievePostingClasses();
-        }
-
+        
         public static void RetrieveAndAddNewCustomer(ILifetimeScope scope)
         {
             // Pull these from secure storage
@@ -54,42 +47,17 @@ namespace Monster.ConsoleApp.Acumatica
             var factory = scope.Resolve<AcumaticaApiFactory>();
 
             // Create the repository passing the credentials and invoke!
-            var repository = factory.MakeSpikeRepository(credentials);
-            repository.RetrieveSession(credentials);
+            var sessionRepository = factory.MakeSessionRepository(credentials);
+            sessionRepository.RetrieveSession(credentials);
 
-            //var results = repository.RetrieveCustomers();
-            //var customers = results.DeserializeFromJson<Customer[]>();
-
-            var results = repository.RetrieveCustomer("C000000001");
+            var customerRepository = factory.MakeCustomerRepository(credentials);
+            var results = customerRepository.RetrieveCustomer("C000000001");
 
             var customer = results.DeserializeFromJson<Customer>();
 
             var backToJson = customer.SerializeToJson();
         }
-
-        public static void AddNewCustomer(ILifetimeScope scope)
-        {
-            // Pull these from secure storage
-            var credentials = CredentialsFactory();
-
-            // Spawn or constructor inject this factory
-            var factory = scope.Resolve<AcumaticaApiFactory>();
-
-            // Make repository - done!
-            var repository = factory.MakeSpikeRepository(credentials);
-
-            repository.RetrieveSession(credentials);
-
-            var customers = repository.RetrieveCustomers();
-
-            //var newCustomer = new Customer
-            //{
-            //    CustomerName = "Test Customer ABC".ToValue(),
-            //};
-
-            repository.AddNewCustomer(NewCustomerRecord());
-        }
-
+        
         public static string NewCustomerRecord()
         {
             // Customer data
@@ -123,8 +91,7 @@ namespace Monster.ConsoleApp.Acumatica
 
             return entityAsString;
         }
-
-
+        
         public static void RetrieveImportBankTransactions(ILifetimeScope scope)
         {
             // Object instancing
@@ -135,18 +102,13 @@ namespace Monster.ConsoleApp.Acumatica
             var credentials = CredentialsFactory();
 
             // Create the repository passing the credentials and create session
-            var repository = factory.MakeSpikeRepository(credentials);
+            var repository = factory.MakeSessionRepository(credentials);
             repository.RetrieveSession(credentials);
 
             // Get the Bank Transactions
-            var results = repository.RetrieveImportBankTransactions();
+            var bankRepository = factory.MakeBankRepository(credentials);
+            var results = bankRepository.RetrieveImportBankTransactions();
             logger.Info(results);
-        }
-
-        public static AcumaticaCredentials CredentialsFactory()
-        {
-            var config = AcumaticaCredentialsConfig.Settings;
-            return new AcumaticaCredentials(config);
         }
 
         public static void InsertImportBankTransactions(ILifetimeScope scope)
@@ -159,9 +121,11 @@ namespace Monster.ConsoleApp.Acumatica
             var credentials = CredentialsFactory();
 
             // Create the repository passing the credentials and create session
-            var repository = factory.MakeSpikeRepository(credentials);
-            repository.RetrieveSession(credentials);
+            var sessionRepository = factory.MakeSessionRepository(credentials);
+            sessionRepository.RetrieveSession(credentials);
 
+            var repository = factory.MakeBankRepository(credentials);
+            
             // Get the Bank Transactions
             // TODO - create simple UTC wrapper
             var testDate = new DateTimeOffset(2018, 09, 14, 0, 0, 0, TimeSpan.Zero);

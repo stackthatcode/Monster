@@ -28,7 +28,7 @@ namespace Push.Foundation.Web.Http
             output.Body = message.Content.ReadAsStringAsync().Result;
             output.StatusCode = message.StatusCode;
             output.Headers = new Dictionary<string, string>();
-
+            
             foreach (var header in message.Headers)
             {
                 output.Headers[header.Key] = string.Join("", header.Value);

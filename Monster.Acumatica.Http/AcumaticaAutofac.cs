@@ -12,8 +12,14 @@ namespace Monster.Acumatica
             builder.RegisterType<AcumaticaHttpSettings>();
             builder.RegisterType<AcumaticaApiFactory>();
             builder.RegisterType<AcumaticaHttpClientFactory>();
+            builder.RegisterType<SessionContainer>()
+                    .InstancePerLifetimeScope();
+
+            builder.RegisterType<SessionRepository>();
             builder.RegisterType<CustomerRepository>();
-        }        
+            builder.RegisterType<InventoryRepository>();
+            builder.RegisterType<BankRepository>();
+        }
     }
 }
 

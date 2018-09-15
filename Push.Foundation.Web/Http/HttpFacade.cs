@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using Push.Foundation.Web.Misc;
 
 namespace Push.Foundation.Web.Http
 {
-    public class HttpFacade
+    public class HttpFacade : IDisposable
     {
         private readonly HttpClient _client;
         private readonly ExecutionContext _context;
@@ -17,9 +18,9 @@ namespace Push.Foundation.Web.Http
         }
 
         public virtual ResponseEnvelope Get(
-            string url,
-            Dictionary<string, string> headers = null,
-            string contentType = "application/json; charset=utf-8")
+                string url,
+                Dictionary<string, string> headers = null,
+                string contentType = "application/json; charset=utf-8")
         {
             _context.Logger.Debug($"HTTP GET on {url}");
 
@@ -50,7 +51,7 @@ namespace Push.Foundation.Web.Http
 
         public virtual ResponseEnvelope Put(string url, string content)
         {
-            _context.Logger.Debug($"HTTP POST on {url}");
+            _context.Logger.Debug($"HTTP PUT on {url}");
 
             var httpContent
                 = new StringContent(content, Encoding.UTF8, "application/json");
@@ -62,6 +63,11 @@ namespace Push.Foundation.Web.Http
             return response
                 .ToEnvelope()
                 .ProcessStatusCodes();
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
         }
     }
 }

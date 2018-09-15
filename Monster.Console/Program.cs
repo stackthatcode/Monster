@@ -1,7 +1,6 @@
 ﻿using System;
 using Autofac;
 using Monster.ConsoleApp.Acumatica;
-using Monster.ConsoleApp.Shopify;
 using Monster.ConsoleApp.TestJson;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;

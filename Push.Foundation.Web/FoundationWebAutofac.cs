@@ -9,7 +9,6 @@ using Microsoft.Owin.Security.DataProtection;
 using Push.Foundation.Utilities.Security;
 using Push.Foundation.Web.Http;
 using Push.Foundation.Web.Identity;
-using Push.Foundation.Web.Misc;
 
 
 namespace Push.Foundation.Web
@@ -23,6 +22,8 @@ namespace Push.Foundation.Web
         // ALSO: excludes EncryptionService, as each consumer will inject different keys
         public static void Build(ContainerBuilder builder)
         {
+            builder.RegisterType<HttpFacade>();
+
             RegisterOwinIdentity(builder);
             
             // The Hmac Service will be used to validate Webhooks from Shopify
