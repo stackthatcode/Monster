@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Monster.Middle.EF;
+using Monster.Middle.Workers;
 
 namespace Monster.Middle
 {
@@ -8,7 +9,9 @@ namespace Monster.Middle
         public static void Build(ContainerBuilder builder)
         {
             builder.RegisterType<MonsterDataContext>().InstancePerLifetimeScope();
-            builder.RegisterType<Repository>().InstancePerLifetimeScope();
+            builder.RegisterType<PayoutImportRepository>().InstancePerLifetimeScope();
+
+            builder.RegisterType<ShopifyPayoutFetcher>().InstancePerLifetimeScope();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Push.Shopify
             builder.RegisterType<ShopifyHttpClientFactory>();
             builder.RegisterType<ShopifyClientSettings>();
 
-            builder.RegisterType<ApiFactory>();     
+            builder.RegisterType<ShopifyApiFactory>();     
                    
             builder.RegisterType<ShopRepository>();
             builder.RegisterType<OrderRepository>();

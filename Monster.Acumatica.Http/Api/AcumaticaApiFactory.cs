@@ -27,21 +27,27 @@ namespace Monster.Acumatica.Api
         public AcumaticaApiFactory(
                 AcumaticaHttpSettings acumaticaHttpSettings,
                 AcumaticaHttpClientFactory httpClientFactory, 
+                
                 Func<IPushLogger> loggerFactory,
+                
                 Func<HttpClient, ExecutionContext, HttpFacade> facadeFactory,
+                
                 Func<HttpFacade, SessionRepository> sessionApiFactory,
                 Func<HttpFacade, UrlBuilder, CustomerRepository> customerApiFactory,
                 Func<HttpFacade, UrlBuilder, BankRepository> bankApiFactory,
                 Func<HttpFacade, UrlBuilder, InventoryRepository> inventoryApiFactory)
         {
+            _acumaticaHttpSettings = acumaticaHttpSettings;
             _httpClientFactory = httpClientFactory;
+
             _loggerFactory = loggerFactory;
+
             _facadeFactory = facadeFactory;
+
             _sessionApiFactory = sessionApiFactory;
             _customerApiFactory = customerApiFactory;
             _bankApiFactory = bankApiFactory;
             _inventoryApiFactory = inventoryApiFactory;
-            _acumaticaHttpSettings = acumaticaHttpSettings;
         }
 
         public HttpFacade MakeFacade(AcumaticaCredentials credentials)
@@ -60,7 +66,8 @@ namespace Monster.Acumatica.Api
         }
 
         public UrlBuilder MakeUrlBuilder(
-                AcumaticaCredentials credentials, AcumaticaHttpSettings settings)
+                    AcumaticaCredentials credentials, 
+                    AcumaticaHttpSettings settings)
         {
             return new UrlBuilder(
                     credentials.InstanceUrl, settings.VersionSegment);

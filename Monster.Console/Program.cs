@@ -12,15 +12,8 @@ namespace Monster.ConsoleApp
     {
         static void Main(string[] args)
         {
-            // DeserializeJson<BalanceTransactionList>("3duPayouts20180813.json");
-            // DeserializeJson<TransactionList>("3duPayPalTransactions.json");
-
-            // Shopify => Bridge-Over-Monsters
-            //ExecuteInLifetimeScope(scope => ShopifyHarness.RetrievePayoutData(scope));            
-
-            // Macbook Air => Acumatica Instance
-            ExecuteInLifetimeScope(scope => AcumaticaHarness.InsertImportBankTransactions(scope));            
-
+            ExecuteInLifetimeScope(scope => MonsterHarness.PullPayoutsIntoAcumatica(scope));            
+            
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }

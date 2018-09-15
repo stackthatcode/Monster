@@ -9,7 +9,7 @@ using Push.Shopify.Http.Credentials;
 
 namespace Push.Shopify.Api
 {
-    public class ApiFactory
+    public class ShopifyApiFactory
     {
         // Solicit Autofac for our specific derivation of ClientSettings
         private readonly ShopifyClientSettings _clientSettings;
@@ -31,7 +31,7 @@ namespace Push.Shopify.Api
 
 
 
-        public ApiFactory(
+        public ShopifyApiFactory(
                 ShopifyClientSettings clientSettings,
                 ShopifyHttpClientFactory httpClientFactory,
                 Func<IPushLogger> loggerFactory, 
