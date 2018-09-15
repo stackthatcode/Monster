@@ -85,7 +85,7 @@ namespace Push.Foundation
 
         private void buttonAcumaticaXml_Click(object sender, EventArgs e)
         {
-            var config = JsonConvert.DeserializeObject<AcumaticaSecuritySettings>(textAcumaticaJson.Text);
+            var config = JsonConvert.DeserializeObject<AcumaticaCredentials>(textAcumaticaJson.Text);
 
             textAcumaticaXml.Text =
                 $@"<acumaticaSecurityConfiguration 

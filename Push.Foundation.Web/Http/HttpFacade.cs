@@ -21,6 +21,8 @@ namespace Push.Foundation.Web.Http
             Dictionary<string, string> headers = null,
             string contentType = "application/json; charset=utf-8")
         {
+            _context.Logger.Debug($"HTTP GET on {url}");
+
             var response =
                 DurableExecutor.Do(
                     () => _client.GetAsync(url).Result, _context);
@@ -32,6 +34,8 @@ namespace Push.Foundation.Web.Http
 
         public virtual ResponseEnvelope Post(string url, string content)
         {
+            _context.Logger.Debug($"HTTP POST on {url}");
+
             var httpContent
                 = new StringContent(content, Encoding.UTF8, "application/json");
             
@@ -46,6 +50,8 @@ namespace Push.Foundation.Web.Http
 
         public virtual ResponseEnvelope Put(string url, string content)
         {
+            _context.Logger.Debug($"HTTP POST on {url}");
+
             var httpContent
                 = new StringContent(content, Encoding.UTF8, "application/json");
 

@@ -2,7 +2,6 @@ using System;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Http;
 using Push.Foundation.Web.Misc;
-using Push.Shopify.Api;
 using Push.Shopify.Config;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
@@ -15,7 +14,7 @@ namespace Push.Shopify.Api
         // Solicit Autofac for our specific derivation of ClientSettings
         private readonly ShopifyClientSettings _clientSettings;
         
-        // Autofac factories for  Repositories
+        // Autofac factories
         private readonly ShopifyHttpClientFactory _httpClientFactory;
         private readonly Func<IPushLogger> _loggerFactory;
 

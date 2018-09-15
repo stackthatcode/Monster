@@ -4,13 +4,13 @@ using Push.Foundation.Utilities.Security;
 
 namespace Monster.Acumatica.Config
 {
-    public class AcumaticaSecurityConfig
+    public class AcumaticaCredentialsConfig
     {
         private static readonly
                 Hashtable _settings =
                     (Hashtable)ConfigurationManager.GetSection("acumaticaSecurityConfiguration");
 
-        public static AcumaticaSecurityConfig Settings { get; } = new AcumaticaSecurityConfig();
+        public static AcumaticaCredentialsConfig Settings { get; } = new AcumaticaCredentialsConfig();
         
         
         [ConfigurationProperty("Branch", IsRequired = false)]

@@ -1,25 +1,25 @@
 ﻿using Monster.Acumatica.Config;
 using Push.Foundation.Web.Helpers;
-using Push.Foundation.Web.Misc;
+using Push.Foundation.Web.Http;
 
-namespace Monster.Acumatica.Http
+namespace Monster.Acumatica.Api
 {
     public class CustomerRepository
     {
-        private readonly Executor _clientFacade;
+        private readonly HttpFacade _clientFacade;
         private readonly AcumaticaHttpSettings _settings;
 
 
         public CustomerRepository(
-                Executor clientFacade, AcumaticaHttpSettings settings)
+            HttpFacade clientFacade, AcumaticaHttpSettings settings)
         {
             _clientFacade = clientFacade;
             _settings = settings;
         }
         
-        public void RetrieveSession(AcumaticaSecuritySettings credentials)
+        public void RetrieveSession(AcumaticaCredentials credentials)
         {
-            var path = "/entity/auth/login";
+            var path = $"{credentials.InstanceUrl}/entity/auth/login";
             var content = credentials.AuthenticationJson;
             var response = _clientFacade.Post(path, content);
         }

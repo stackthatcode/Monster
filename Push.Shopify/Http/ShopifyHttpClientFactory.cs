@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using Push.Shopify.Config;
 using Push.Shopify.Http.Credentials;
 
@@ -75,9 +76,10 @@ namespace Push.Shopify.Http
 
                 var headerValue
                     = $"{privateAppCredentials.ApiKey}:{privateAppCredentials.ApiPassword}";
+                var byteArray = Encoding.ASCII.GetBytes(headerValue);
 
                 httpClient.DefaultRequestHeaders.Authorization
-                    = new AuthenticationHeaderValue("Basic", headerValue);
+                    = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
             }
             
             return httpClient;

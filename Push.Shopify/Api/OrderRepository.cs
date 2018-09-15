@@ -1,6 +1,5 @@
 ﻿using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Http;
-using Push.Foundation.Web.Misc;
 
 
 namespace Push.Shopify.Api

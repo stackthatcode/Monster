@@ -2,7 +2,7 @@
 
 namespace Monster.Acumatica.Config
 {
-    public class AcumaticaSecuritySettings
+    public class AcumaticaCredentials
     {
         public string Branch { get; set; }
         public string CompanyName { get; set; }
@@ -10,11 +10,11 @@ namespace Monster.Acumatica.Config
         public string Password { get; set; }
         public string InstanceUrl { get; set; }
 
-        public AcumaticaSecuritySettings()
+        public AcumaticaCredentials()
         {
         }
 
-        public AcumaticaSecuritySettings(AcumaticaSecurityConfig config)
+        public AcumaticaCredentials(AcumaticaCredentialsConfig config)
         {
             Branch = config.Branch;
             CompanyName = config.CompanyName;

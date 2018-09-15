@@ -83,6 +83,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.csproj">
+      <Project>{e31f2a05-6346-48d5-b323-3d048ab0e392}</Project>
+      <Name>Monster.Acumatica</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Monster.Middle\Monster.Middle.csproj">
       <Project>{df155c7d-78c2-4d81-9af5-654725dda7b6}</Project>
       <Name>Monster.Middle</Name>

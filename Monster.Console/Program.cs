@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Monster.ConsoleApp.Acumatica;
 using Monster.ConsoleApp.Shopify;
 using Monster.ConsoleApp.TestJson;
 using Push.Foundation.Utilities.Json;
@@ -16,18 +17,10 @@ namespace Monster.ConsoleApp
             // DeserializeJson<TransactionList>("3duPayPalTransactions.json");
 
             // Shopify => Bridge-Over-Monsters
-            //ExecuteInLifetimeScope(scope => Metaplay.UpdateMetadata(scope));
-
-            ExecuteInLifetimeScope(scope => ShopifyHarness.RetrievePayoutData(scope));            
+            //ExecuteInLifetimeScope(scope => ShopifyHarness.RetrievePayoutData(scope));            
 
             // Macbook Air => Acumatica Instance
-            //ExecuteInLifetimeScope(scope => RetrieveAcumaticaItemClass(scope));
-
-            //ExecuteInLifetimeScope(scope => AcumaticaHarness.RetrievePostingClass(scope));
-
-            //ExecuteInLifetimeScope(scope => AcumaticaHarness.AddNewCustomer(scope));
-            //ExecuteInLifetimeScope(scope => AcumaticaHarness.RetrieveImportBankTransactions(scope));
-            //ExecuteInLifetimeScope(scope => AcumaticaHarness.InsertImportBankTransactions(scope));            
+            ExecuteInLifetimeScope(scope => AcumaticaHarness.InsertImportBankTransactions(scope));            
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();

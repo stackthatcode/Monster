@@ -1,6 +1,8 @@
 using System;
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
+using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Web.Http;
 using Push.Foundation.Web.Misc;
 
 namespace Monster.Acumatica.Api
@@ -9,40 +11,45 @@ namespace Monster.Acumatica.Api
     {
         private readonly AcumaticaHttpSettings _acumaticaHttpSettings;
 
-        // Autofac factory to create Request Builder with Credentials wired-in
-        private readonly 
-            Func<AcumaticaSecuritySettings, AcumaticaRequestBuilder> _requestBuilderFactory;
+        private readonly AcumaticaHttpClientFactory _httpClientFactory;
 
-        // Factory enables deliberate injection of ShopifyRequestBuilder and ShopifyClientSettings
-        private readonly Func<Executor> _clientFacadeFactory;
-        
-        // Autofac factories for API Repositories
-        private readonly Func<Executor, CustomerRepository> _spikeRepositoryFactory;
-        
+        // Autofac factories
+        private readonly Func<IPushLogger> _loggerFactory;
+        private readonly Func<HttpFacade, CustomerRepository> _repositoryFactory;
+
 
         public AcumaticaApiFactory(
-                Func<AcumaticaSecuritySettings, AcumaticaRequestBuilder> requestBuilderFactory, 
-                Func<Executor> clientFacadeFactory, 
-                Func<Executor, CustomerRepository> spikeRepositoryFactory, 
-                AcumaticaHttpSettings acumaticaHttpSettings)
+                AcumaticaHttpSettings acumaticaHttpSettings,
+                AcumaticaHttpClientFactory httpClientFactory, 
+                Func<IPushLogger> loggerFactory,
+                Func<HttpFacade, CustomerRepository> repositoryFactory)
         {
-            _requestBuilderFactory = requestBuilderFactory;
-            _clientFacadeFactory = clientFacadeFactory;
-            _spikeRepositoryFactory = spikeRepositoryFactory;
+            _repositoryFactory = repositoryFactory;
+            _httpClientFactory = httpClientFactory;
+            _loggerFactory = loggerFactory;
             _acumaticaHttpSettings = acumaticaHttpSettings;
         }
-        
-        public virtual CustomerRepository MakeSpikeRepository(
-                            AcumaticaSecuritySettings credentials)
+
+        public HttpFacade MakeFacade(AcumaticaCredentials credentials)
         {
-            var requestBuilder = _requestBuilderFactory(credentials);
+            var client = _httpClientFactory.Make(credentials);
 
-            var clientFacade =
-                _clientFacadeFactory()
-                    .InjectRequestBuilder(requestBuilder)
-                    .InjectSettings(_acumaticaHttpSettings);
+            var executionContext = new ExecutionContext()
+            {
+                NumberOfAttempts = _acumaticaHttpSettings.RetryLimit,
+                ThrottlingKey = credentials.InstanceUrl,
+                Logger = _loggerFactory(),
+            };
 
-            var repository = _spikeRepositoryFactory(clientFacade);
+            return new HttpFacade(client, executionContext);
+        }
+
+        public virtual CustomerRepository 
+                    MakeSpikeRepository(
+                        AcumaticaCredentials credentials)
+        {
+            var facade = MakeFacade(credentials);
+            var repository = _repositoryFactory(facade);
             return repository;
         }
     }
