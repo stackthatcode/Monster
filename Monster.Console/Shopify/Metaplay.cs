@@ -11,7 +11,7 @@ namespace Monster.ConsoleApp.Shopify
         public static void UpdateMetadata(ILifetimeScope scope)
         {
             var factory = scope.Resolve<ApiFactory>();
-            var credentials = ShopifyTestbed.CredentialsFactory();
+            var credentials = ShopifyHarness.CredentialsFactory();
             var productApi = factory.MakeProductApi(credentials);
 
             var products =

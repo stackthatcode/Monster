@@ -29,10 +29,13 @@ namespace Monster.Acumatica.Http
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             // Spawn the WebRequest
-            var req = requestEnvelope.MakeWebRequest(_credentials.InstanceUrl);
-            req.Timeout = _config.Timeout;
-            req.CookieContainer = _cookies;
+            var req = 
+                requestEnvelope
+                    .MakeWebRequest(_credentials.InstanceUrl, _cookies);
 
+            req.Accept = "text/json";
+            req.Timeout = _config.Timeout;
+            
             return req;
         }
     }

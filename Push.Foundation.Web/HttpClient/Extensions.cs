@@ -10,9 +10,12 @@ namespace Push.Foundation.Web.HttpClient
         {
             var byteArray = Encoding.ASCII.GetBytes(content);
             request.ContentLength = byteArray.Length;
+
             var dataStream = request.GetRequestStream();
             dataStream.Write(byteArray, 0, byteArray.Length);
             dataStream.Close();
+
+            //request.Headers["content-length"] = byteArray.Length.ToString();
         }
 
         public static HttpWebResponse GetResponseNoException(this HttpWebRequest req)

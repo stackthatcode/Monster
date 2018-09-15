@@ -5,34 +5,13 @@ namespace Monster.Middle.EF
 {
     public class Repository
     {
-        private readonly BundleDataContext _dataContext;
+        private readonly MonsterDataContext _dataContext;
 
-        public Repository(BundleDataContext dataContext)
+        public Repository(MonsterDataContext dataContext)
         {
             _dataContext = dataContext;
         }
-
-        public List<ProductType> RetrieveProductTypesOrdered()
-        {
-            return _dataContext.ProductTypes.OrderBy(x => x.DisplayOrder).ToList();
-        }
-
-        public List<ProductVariant> RetrieveProductVariants()
-        {
-            return _dataContext.ProductVariants.ToList();
-        }
-
-        public List<ExclusionConstraint> RetrieveExclusionConstraints()
-        {
-            return _dataContext.ExclusionConstraints.ToList();
-        }
-
-
-        public void InsertBundleProduct(BundleProduct input)
-        {
-            _dataContext.BundleProducts.Add(input);
-            _dataContext.SaveChanges();
-        }
+        
     }
 }
 

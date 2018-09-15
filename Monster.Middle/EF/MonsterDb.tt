@@ -14,8 +14,8 @@
     // Settings.ProviderName = "System.Data.SqlClient";
 
     Settings.Namespace = DefaultNamespace; // Override the default namespace here
-    Settings.DbContextName = "BundleDataContext"; // Note: If generating separate files, please give the db context a different name from this tt filename.
-    //Settings.DbContextInterfaceName = "IBundleDataContext"; // Defaults to "I" + DbContextName or set string empty to not implement any interface.
+    Settings.DbContextName = "MonsterDataContext"; // Note: If generating separate files, please give the db context a different name from this tt filename.
+    //Settings.DbContextInterfaceName = "IMonsterDataContext"; // Defaults to "I" + DbContextName or set string empty to not implement any interface.
     Settings.DbContextInterfaceBaseClasses = "System.IDisposable";    // Specify what the base classes are for your database context interface
     Settings.DbContextBaseClass = "System.Data.Entity.DbContext";   // Specify what the base class is for your DbContext. For ASP.NET Identity use "IdentityDbContext<ApplicationUser>"
     //Settings.DefaultConstructorArgument = "EnvironmentConnectionStrings.BundleDataContext"; //defaults to "Name=" + ConnectionStringName

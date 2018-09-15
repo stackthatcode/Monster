@@ -1,48 +1,11 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
 namespace Push.Foundation.Web.HttpClient
 {
     public class HttpWebRequestProcessor
-    {        
-        private ResponseEnvelope ProcessImageRequest(HttpWebResponse resp)
-        {
-            using (var binaryReader = new BinaryReader(resp.GetResponseStream()))
-            using (var memoryStream = new MemoryStream())
-            {
-                var buffer = binaryReader.ReadBytes(1024);
-                while (buffer.Length > 0)
-                {
-                    memoryStream.Write(buffer, 0, buffer.Length);
-                    buffer = binaryReader.ReadBytes(1024);
-                }
-
-                var numberOfBytes = (int)memoryStream.Length;
-                var byteData = new byte[numberOfBytes];
-                memoryStream.Position = 0;
-                memoryStream.Read(byteData, 0, numberOfBytes);
-
-                return new ResponseEnvelope
-                {
-                    StatusCode = resp.StatusCode,
-                    BinaryData = byteData,
-                };
-            }
-        }
-
-        private ResponseEnvelope ProcessContentRequest(HttpWebResponse resp)
-        {
-            using (var sr = new StreamReader(resp.GetResponseStream()))
-            {
-                var messageResponse = sr.ReadToEnd();
-                return new ResponseEnvelope
-                {
-                    StatusCode = resp.StatusCode,
-                    Body = messageResponse,
-                };
-            }
-        }
-        
+    {
         public virtual ResponseEnvelope Execute(HttpWebRequest request)
         {
             try
@@ -69,18 +32,61 @@ namespace Push.Foundation.Web.HttpClient
                         throw;
                     }
 
-                    using (var data = webResponse.GetResponseStream())
-                    using (var reader = new StreamReader(data))
-                    {
-                        var text = reader.ReadToEnd();
-                        return new ResponseEnvelope()
-                        {
-                            StatusCode = httpResponse.StatusCode,
-                            Body = text
-                        };
-                    }
+                    return ProcessContentRequest(httpResponse);
                 }
             }
+        }
+        
+        private ResponseEnvelope ProcessContentRequest(HttpWebResponse response)
+        {
+            var output = new ResponseEnvelope();
+
+            output.StatusCode = response.StatusCode;
+            output.Headers = new Dictionary<string, string>();
+            foreach (var key in response.Headers.AllKeys)
+            {
+                output.Headers[key] = response.Headers[key];
+            }
+
+            using (var data = response.GetResponseStream())
+            using (var reader = new StreamReader(data))
+            {
+                output.Body = reader.ReadToEnd();
+            }
+
+            return output;
+        }
+
+        private ResponseEnvelope ProcessImageRequest(HttpWebResponse response)
+        {
+            var output = new ResponseEnvelope();
+
+            output.StatusCode = response.StatusCode;
+            output.Headers = new Dictionary<string, string>();
+            foreach (var key in response.Headers.AllKeys)
+            {
+                output.Headers[key] = response.Headers[key];
+            }
+
+            using (var binaryReader = new BinaryReader(response.GetResponseStream()))
+            using (var memoryStream = new MemoryStream())
+            {
+                var buffer = binaryReader.ReadBytes(1024);
+                while (buffer.Length > 0)
+                {
+                    memoryStream.Write(buffer, 0, buffer.Length);
+                    buffer = binaryReader.ReadBytes(1024);
+                }
+
+                var numberOfBytes = (int)memoryStream.Length;
+                var byteData = new byte[numberOfBytes];
+                memoryStream.Position = 0;
+                memoryStream.Read(byteData, 0, numberOfBytes);
+
+                output.BinaryData = byteData;
+            }
+
+            return output;
         }
     }
 }

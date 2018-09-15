@@ -7,9 +7,9 @@
 // Do not make changes directly to this file - edit the template instead.
 //
 // The following connection settings were used to generate this file:
-//     Configuration file:     "BundleWizard.Middle\App.config"
+//     Configuration file:     "Monster.Middle\App.config"
 //     Connection String Name: "DefaultConnection"
-//     Connection String:      "Server=localhost;Database=Bundler;Trusted_Connection=True;"
+//     Connection String:      "Server=localhost;Database=Monster;Trusted_Connection=True;"
 // ------------------------------------------------------------------------------------------------
 // Database Edition       : Developer Edition (64-bit)
 // Database Engine Edition: Enterprise
@@ -34,14 +34,9 @@ namespace Monster.Middle.EF
 
     #region Unit of work
 
-    public interface IBundleDataContext : System.IDisposable
+    public interface IMonsterDataContext : System.IDisposable
     {
-        System.Data.Entity.DbSet<BundleProduct> BundleProducts { get; set; } // BundleProducts
-        System.Data.Entity.DbSet<BundleUnifiedVariant> BundleUnifiedVariants { get; set; } // BundleUnifiedVariants
-        System.Data.Entity.DbSet<BundleVariantReference> BundleVariantReferences { get; set; } // BundleVariantReferences
-        System.Data.Entity.DbSet<ExclusionConstraint> ExclusionConstraints { get; set; } // ExclusionConstraints
-        System.Data.Entity.DbSet<ProductType> ProductTypes { get; set; } // ProductTypes
-        System.Data.Entity.DbSet<ProductVariant> ProductVariants { get; set; } // ProductVariants
+        System.Data.Entity.DbSet<UsrShopifyPayoutToAcumaticaClearing> UsrShopifyPayoutToAcumaticaClearings { get; set; } // usrShopifyPayoutToAcumaticaClearing
 
         int SaveChanges();
         System.Threading.Tasks.Task<int> SaveChangesAsync();
@@ -62,41 +57,36 @@ namespace Monster.Middle.EF
     #region Database context
 
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class BundleDataContext : System.Data.Entity.DbContext, IBundleDataContext
+    public class MonsterDataContext : System.Data.Entity.DbContext, IMonsterDataContext
     {
-        public System.Data.Entity.DbSet<BundleProduct> BundleProducts { get; set; } // BundleProducts
-        public System.Data.Entity.DbSet<BundleUnifiedVariant> BundleUnifiedVariants { get; set; } // BundleUnifiedVariants
-        public System.Data.Entity.DbSet<BundleVariantReference> BundleVariantReferences { get; set; } // BundleVariantReferences
-        public System.Data.Entity.DbSet<ExclusionConstraint> ExclusionConstraints { get; set; } // ExclusionConstraints
-        public System.Data.Entity.DbSet<ProductType> ProductTypes { get; set; } // ProductTypes
-        public System.Data.Entity.DbSet<ProductVariant> ProductVariants { get; set; } // ProductVariants
+        public System.Data.Entity.DbSet<UsrShopifyPayoutToAcumaticaClearing> UsrShopifyPayoutToAcumaticaClearings { get; set; } // usrShopifyPayoutToAcumaticaClearing
 
-        static BundleDataContext()
+        static MonsterDataContext()
         {
-            System.Data.Entity.Database.SetInitializer<BundleDataContext>(null);
+            System.Data.Entity.Database.SetInitializer<MonsterDataContext>(null);
         }
 
-        public BundleDataContext()
+        public MonsterDataContext()
             : base("Name=DefaultConnection")
         {
         }
 
-        public BundleDataContext(string connectionString)
+        public MonsterDataContext(string connectionString)
             : base(connectionString)
         {
         }
 
-        public BundleDataContext(string connectionString, System.Data.Entity.Infrastructure.DbCompiledModel model)
+        public MonsterDataContext(string connectionString, System.Data.Entity.Infrastructure.DbCompiledModel model)
             : base(connectionString, model)
         {
         }
 
-        public BundleDataContext(System.Data.Common.DbConnection existingConnection, bool contextOwnsConnection)
+        public MonsterDataContext(System.Data.Common.DbConnection existingConnection, bool contextOwnsConnection)
             : base(existingConnection, contextOwnsConnection)
         {
         }
 
-        public BundleDataContext(System.Data.Common.DbConnection existingConnection, System.Data.Entity.Infrastructure.DbCompiledModel model, bool contextOwnsConnection)
+        public MonsterDataContext(System.Data.Common.DbConnection existingConnection, System.Data.Entity.Infrastructure.DbCompiledModel model, bool contextOwnsConnection)
             : base(existingConnection, model, contextOwnsConnection)
         {
         }
@@ -119,22 +109,12 @@ namespace Monster.Middle.EF
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Configurations.Add(new BundleProductConfiguration());
-            modelBuilder.Configurations.Add(new BundleUnifiedVariantConfiguration());
-            modelBuilder.Configurations.Add(new BundleVariantReferenceConfiguration());
-            modelBuilder.Configurations.Add(new ExclusionConstraintConfiguration());
-            modelBuilder.Configurations.Add(new ProductTypeConfiguration());
-            modelBuilder.Configurations.Add(new ProductVariantConfiguration());
+            modelBuilder.Configurations.Add(new UsrShopifyPayoutToAcumaticaClearingConfiguration());
         }
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
         {
-            modelBuilder.Configurations.Add(new BundleProductConfiguration(schema));
-            modelBuilder.Configurations.Add(new BundleUnifiedVariantConfiguration(schema));
-            modelBuilder.Configurations.Add(new BundleVariantReferenceConfiguration(schema));
-            modelBuilder.Configurations.Add(new ExclusionConstraintConfiguration(schema));
-            modelBuilder.Configurations.Add(new ProductTypeConfiguration(schema));
-            modelBuilder.Configurations.Add(new ProductVariantConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrShopifyPayoutToAcumaticaClearingConfiguration(schema));
             return modelBuilder;
         }
     }
@@ -142,11 +122,11 @@ namespace Monster.Middle.EF
 
     #region Database context factory
 
-    public class BundleDataContextFactory : System.Data.Entity.Infrastructure.IDbContextFactory<BundleDataContext>
+    public class MonsterDataContextFactory : System.Data.Entity.Infrastructure.IDbContextFactory<MonsterDataContext>
     {
-        public BundleDataContext Create()
+        public MonsterDataContext Create()
         {
-            return new BundleDataContext();
+            return new MonsterDataContext();
         }
     }
 
@@ -155,23 +135,13 @@ namespace Monster.Middle.EF
     #region Fake Database context
 
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class FakeBundleDataContext : IBundleDataContext
+    public class FakeMonsterDataContext : IMonsterDataContext
     {
-        public System.Data.Entity.DbSet<BundleProduct> BundleProducts { get; set; }
-        public System.Data.Entity.DbSet<BundleUnifiedVariant> BundleUnifiedVariants { get; set; }
-        public System.Data.Entity.DbSet<BundleVariantReference> BundleVariantReferences { get; set; }
-        public System.Data.Entity.DbSet<ExclusionConstraint> ExclusionConstraints { get; set; }
-        public System.Data.Entity.DbSet<ProductType> ProductTypes { get; set; }
-        public System.Data.Entity.DbSet<ProductVariant> ProductVariants { get; set; }
+        public System.Data.Entity.DbSet<UsrShopifyPayoutToAcumaticaClearing> UsrShopifyPayoutToAcumaticaClearings { get; set; }
 
-        public FakeBundleDataContext()
+        public FakeMonsterDataContext()
         {
-            BundleProducts = new FakeDbSet<BundleProduct>("Id");
-            BundleUnifiedVariants = new FakeDbSet<BundleUnifiedVariant>("Id");
-            BundleVariantReferences = new FakeDbSet<BundleVariantReference>("Id");
-            ExclusionConstraints = new FakeDbSet<ExclusionConstraint>("Id");
-            ProductTypes = new FakeDbSet<ProductType>("Id");
-            ProductVariants = new FakeDbSet<ProductVariant>("Id");
+            UsrShopifyPayoutToAcumaticaClearings = new FakeDbSet<UsrShopifyPayoutToAcumaticaClearing>("Id");
         }
 
         public int SaveChangesCount { get; private set; }
@@ -491,301 +461,36 @@ namespace Monster.Middle.EF
 
     #region POCO classes
 
-    // BundleProducts
+    // usrShopifyPayoutToAcumaticaClearing
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class BundleProduct
+    public class UsrShopifyPayoutToAcumaticaClearing
     {
         public int Id { get; set; } // Id (Primary key)
-        public string ProductTitle { get; set; } // ProductTitle (length: 200)
-
-        // Reverse navigation
-
-        /// <summary>
-        /// Child BundleUnifiedVariants where [BundleUnifiedVariants].[BundleProductId] point to this entity (FK_BundleUnifiedVariants_BundleProducts)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<BundleUnifiedVariant> BundleUnifiedVariants { get; set; } // BundleUnifiedVariants.FK_BundleUnifiedVariants_BundleProducts
-
-        public BundleProduct()
-        {
-            BundleUnifiedVariants = new System.Collections.Generic.List<BundleUnifiedVariant>();
-        }
-    }
-
-    // BundleUnifiedVariants
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class BundleUnifiedVariant
-    {
-        public int Id { get; set; } // Id (Primary key)
-        public int BundleProductId { get; set; } // BundleProductId
-        public string Sku { get; set; } // Sku (length: 200)
-        public string VariantTitle { get; set; } // VariantTitle (length: 200)
-        public decimal? Price { get; set; } // Price
-        public long? ShopifyProductId { get; set; } // ShopifyProductId
-        public long? ShopifyVariantId { get; set; } // ShopifyVariantId
-
-        // Reverse navigation
-
-        /// <summary>
-        /// Child BundleVariantReferences where [BundleVariantReferences].[BundleUnifiedVariantId] point to this entity (FK_BundleVariantReferences_BundleUnifiedVariants)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<BundleVariantReference> BundleVariantReferences { get; set; } // BundleVariantReferences.FK_BundleVariantReferences_BundleUnifiedVariants
-
-        // Foreign keys
-
-        /// <summary>
-        /// Parent BundleProduct pointed by [BundleUnifiedVariants].([BundleProductId]) (FK_BundleUnifiedVariants_BundleProducts)
-        /// </summary>
-        public virtual BundleProduct BundleProduct { get; set; } // FK_BundleUnifiedVariants_BundleProducts
-
-        public BundleUnifiedVariant()
-        {
-            BundleVariantReferences = new System.Collections.Generic.List<BundleVariantReference>();
-        }
-    }
-
-    // BundleVariantReferences
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class BundleVariantReference
-    {
-        public int Id { get; set; } // Id (Primary key)
-        public int BundleUnifiedVariantId { get; set; } // BundleUnifiedVariantId
-        public int ProductVariantId { get; set; } // ProductVariantId
-
-        // Foreign keys
-
-        /// <summary>
-        /// Parent BundleUnifiedVariant pointed by [BundleVariantReferences].([BundleUnifiedVariantId]) (FK_BundleVariantReferences_BundleUnifiedVariants)
-        /// </summary>
-        public virtual BundleUnifiedVariant BundleUnifiedVariant { get; set; } // FK_BundleVariantReferences_BundleUnifiedVariants
-
-        /// <summary>
-        /// Parent ProductVariant pointed by [BundleVariantReferences].([ProductVariantId]) (FK_BundleVariantReferences_ProductVariants)
-        /// </summary>
-        public virtual ProductVariant ProductVariant { get; set; } // FK_BundleVariantReferences_ProductVariants
-    }
-
-    // ExclusionConstraints
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class ExclusionConstraint
-    {
-        public int Id { get; set; } // Id (Primary key)
-        public int SourceProductVariantId { get; set; } // SourceProductVariantId
-        public int TargetProductVariantId { get; set; } // TargetProductVariantId
-
-        // Foreign keys
-
-        /// <summary>
-        /// Parent ProductVariant pointed by [ExclusionConstraints].([SourceProductVariantId]) (FK_ExclusionConstraints_ProductVariants)
-        /// </summary>
-        public virtual ProductVariant SourceProductVariant { get; set; } // FK_ExclusionConstraints_ProductVariants
-
-        /// <summary>
-        /// Parent ProductVariant pointed by [ExclusionConstraints].([TargetProductVariantId]) (FK_ExclusionConstraints_ProductVariants1)
-        /// </summary>
-        public virtual ProductVariant TargetProductVariant { get; set; } // FK_ExclusionConstraints_ProductVariants1
-    }
-
-    // ProductTypes
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class ProductType
-    {
-        public int Id { get; set; } // Id (Primary key)
-        public string Description { get; set; } // Description (length: 50)
-        public int DisplayOrder { get; set; } // DisplayOrder
-
-        // Reverse navigation
-
-        /// <summary>
-        /// Child ProductVariants where [ProductVariants].[ProductTypeId] point to this entity (FK_ProductVariant_ProductType)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<ProductVariant> ProductVariants { get; set; } // ProductVariants.FK_ProductVariant_ProductType
-
-        public ProductType()
-        {
-            ProductVariants = new System.Collections.Generic.List<ProductVariant>();
-        }
-    }
-
-    // ProductVariants
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class ProductVariant
-    {
-        public int Id { get; set; } // Id (Primary key)
-        public int ProductTypeId { get; set; } // ProductTypeId
-        public string Name { get; set; } // Name (length: 50)
-        public string ShopifyProductHandle { get; set; } // ShopifyProductHandle (length: 100)
-        public string ShopifyVariantSku { get; set; } // ShopifyVariantSku (length: 100)
-
-        // Reverse navigation
-
-        /// <summary>
-        /// Child BundleVariantReferences where [BundleVariantReferences].[ProductVariantId] point to this entity (FK_BundleVariantReferences_ProductVariants)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<BundleVariantReference> BundleVariantReferences { get; set; } // BundleVariantReferences.FK_BundleVariantReferences_ProductVariants
-        /// <summary>
-        /// Child ExclusionConstraints where [ExclusionConstraints].[SourceProductVariantId] point to this entity (FK_ExclusionConstraints_ProductVariants)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<ExclusionConstraint> ExclusionConstraints_SourceProductVariantId { get; set; } // ExclusionConstraints.FK_ExclusionConstraints_ProductVariants
-        /// <summary>
-        /// Child ExclusionConstraints where [ExclusionConstraints].[TargetProductVariantId] point to this entity (FK_ExclusionConstraints_ProductVariants1)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<ExclusionConstraint> ExclusionConstraints_TargetProductVariantId { get; set; } // ExclusionConstraints.FK_ExclusionConstraints_ProductVariants1
-
-        // Foreign keys
-
-        /// <summary>
-        /// Parent ProductType pointed by [ProductVariants].([ProductTypeId]) (FK_ProductVariant_ProductType)
-        /// </summary>
-        public virtual ProductType ProductType { get; set; } // FK_ProductVariant_ProductType
-
-        public ProductVariant()
-        {
-            ExclusionConstraints_TargetProductVariantId = new System.Collections.Generic.List<ExclusionConstraint>();
-            BundleVariantReferences = new System.Collections.Generic.List<BundleVariantReference>();
-            ExclusionConstraints_SourceProductVariantId = new System.Collections.Generic.List<ExclusionConstraint>();
-        }
+        public long? ShopifyPayoutId { get; set; } // ShopifyPayoutId
+        public long? AcumaticaClearingAcct { get; set; } // AcumaticaClearingAcct
     }
 
     #endregion
 
     #region POCO Configuration
 
-    // BundleProducts
+    // usrShopifyPayoutToAcumaticaClearing
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class BundleProductConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<BundleProduct>
+    public class UsrShopifyPayoutToAcumaticaClearingConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrShopifyPayoutToAcumaticaClearing>
     {
-        public BundleProductConfiguration()
+        public UsrShopifyPayoutToAcumaticaClearingConfiguration()
             : this("dbo")
         {
         }
 
-        public BundleProductConfiguration(string schema)
+        public UsrShopifyPayoutToAcumaticaClearingConfiguration(string schema)
         {
-            ToTable("BundleProducts", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ProductTitle).HasColumnName(@"ProductTitle").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(200);
-        }
-    }
-
-    // BundleUnifiedVariants
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class BundleUnifiedVariantConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<BundleUnifiedVariant>
-    {
-        public BundleUnifiedVariantConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public BundleUnifiedVariantConfiguration(string schema)
-        {
-            ToTable("BundleUnifiedVariants", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.BundleProductId).HasColumnName(@"BundleProductId").HasColumnType("int").IsRequired();
-            Property(x => x.Sku).HasColumnName(@"Sku").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(200);
-            Property(x => x.VariantTitle).HasColumnName(@"VariantTitle").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(200);
-            Property(x => x.Price).HasColumnName(@"Price").HasColumnType("decimal").IsOptional().HasPrecision(18,2);
-            Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsOptional();
-            Property(x => x.ShopifyVariantId).HasColumnName(@"ShopifyVariantId").HasColumnType("bigint").IsOptional();
-
-            // Foreign keys
-            HasRequired(a => a.BundleProduct).WithMany(b => b.BundleUnifiedVariants).HasForeignKey(c => c.BundleProductId).WillCascadeOnDelete(false); // FK_BundleUnifiedVariants_BundleProducts
-        }
-    }
-
-    // BundleVariantReferences
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class BundleVariantReferenceConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<BundleVariantReference>
-    {
-        public BundleVariantReferenceConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public BundleVariantReferenceConfiguration(string schema)
-        {
-            ToTable("BundleVariantReferences", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.BundleUnifiedVariantId).HasColumnName(@"BundleUnifiedVariantId").HasColumnType("int").IsRequired();
-            Property(x => x.ProductVariantId).HasColumnName(@"ProductVariantId").HasColumnType("int").IsRequired();
-
-            // Foreign keys
-            HasRequired(a => a.BundleUnifiedVariant).WithMany(b => b.BundleVariantReferences).HasForeignKey(c => c.BundleUnifiedVariantId).WillCascadeOnDelete(false); // FK_BundleVariantReferences_BundleUnifiedVariants
-            HasRequired(a => a.ProductVariant).WithMany(b => b.BundleVariantReferences).HasForeignKey(c => c.ProductVariantId).WillCascadeOnDelete(false); // FK_BundleVariantReferences_ProductVariants
-        }
-    }
-
-    // ExclusionConstraints
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class ExclusionConstraintConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ExclusionConstraint>
-    {
-        public ExclusionConstraintConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public ExclusionConstraintConfiguration(string schema)
-        {
-            ToTable("ExclusionConstraints", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.SourceProductVariantId).HasColumnName(@"SourceProductVariantId").HasColumnType("int").IsRequired();
-            Property(x => x.TargetProductVariantId).HasColumnName(@"TargetProductVariantId").HasColumnType("int").IsRequired();
-
-            // Foreign keys
-            HasRequired(a => a.SourceProductVariant).WithMany(b => b.ExclusionConstraints_SourceProductVariantId).HasForeignKey(c => c.SourceProductVariantId).WillCascadeOnDelete(false); // FK_ExclusionConstraints_ProductVariants
-            HasRequired(a => a.TargetProductVariant).WithMany(b => b.ExclusionConstraints_TargetProductVariantId).HasForeignKey(c => c.TargetProductVariantId).WillCascadeOnDelete(false); // FK_ExclusionConstraints_ProductVariants1
-        }
-    }
-
-    // ProductTypes
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class ProductTypeConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ProductType>
-    {
-        public ProductTypeConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public ProductTypeConfiguration(string schema)
-        {
-            ToTable("ProductTypes", schema);
+            ToTable("usrShopifyPayoutToAcumaticaClearing", schema);
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.Description).HasColumnName(@"Description").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.DisplayOrder).HasColumnName(@"DisplayOrder").HasColumnType("int").IsRequired();
-        }
-    }
-
-    // ProductVariants
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class ProductVariantConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ProductVariant>
-    {
-        public ProductVariantConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public ProductVariantConfiguration(string schema)
-        {
-            ToTable("ProductVariants", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ProductTypeId).HasColumnName(@"ProductTypeId").HasColumnType("int").IsRequired();
-            Property(x => x.Name).HasColumnName(@"Name").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.ShopifyProductHandle).HasColumnName(@"ShopifyProductHandle").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
-            Property(x => x.ShopifyVariantSku).HasColumnName(@"ShopifyVariantSku").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
-
-            // Foreign keys
-            HasRequired(a => a.ProductType).WithMany(b => b.ProductVariants).HasForeignKey(c => c.ProductTypeId).WillCascadeOnDelete(false); // FK_ProductVariant_ProductType
+            Property(x => x.ShopifyPayoutId).HasColumnName(@"ShopifyPayoutId").HasColumnType("bigint").IsOptional();
+            Property(x => x.AcumaticaClearingAcct).HasColumnName(@"AcumaticaClearingAcct").HasColumnType("bigint").IsOptional();
         }
     }
 

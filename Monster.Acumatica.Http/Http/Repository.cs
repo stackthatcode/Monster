@@ -1,16 +1,17 @@
 ﻿using Monster.Acumatica.Config;
+using Monster.Acumatica.Http.Cash;
 using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica.Http
 {
-    public class SpikeRepository
+    public class Repository
     {
         private readonly HttpFacade _clientFacade;
         private readonly AcumaticaHttpSettings _settings;
 
 
-        public SpikeRepository(
+        public Repository(
                 HttpFacade clientFacade, AcumaticaHttpSettings settings)
         {
             _clientFacade = clientFacade;
@@ -70,18 +71,27 @@ namespace Monster.Acumatica.Http
         }
 
 
-        public string AddNewCustomer(string input)
+        public string AddNewCustomer(string content)
         {
             var url = BuildMethodUrl("Customer");
-            var response = _clientFacade.Put(url);
+            var response = _clientFacade.Put(url, content);
             return response.Body;
         }
 
-
-        public void CreateCustomer()
+        
+        public string RetrieveImportBankTransactions()
         {
+            var url = BuildMethodUrl("ImportBankTransactions");
+            var response = _clientFacade.Get(url);
+            return response.Body;
         }
 
+        public string InsertImportBankTransaction(string content)
+        {
+            var url = BuildMethodUrl("ImportBankTransactions");
+            var response = _clientFacade.Put(url, content);
+            return response.Body;
+        }
 
 
         public string BuildMethodUrl(

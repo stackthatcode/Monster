@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Monster.Acumatica.Http.Common;
 
-namespace Monster.Acumatica.Model
+namespace Monster.Acumatica.Http.Customer
 {
     public class Contact
     {

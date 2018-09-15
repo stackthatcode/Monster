@@ -16,13 +16,13 @@ namespace Monster.Acumatica.Http
         private readonly Func<HttpFacade> _clientFacadeFactory;
         
         // Autofac factories for API Repositories
-        private readonly Func<HttpFacade, SpikeRepository> _spikeRepositoryFactory;
+        private readonly Func<HttpFacade, Repository> _spikeRepositoryFactory;
         
 
         public AcumaticaApiFactory(
                 Func<AcumaticaSecuritySettings, AcumaticaRequestBuilder> requestBuilderFactory, 
                 Func<HttpFacade> clientFacadeFactory, 
-                Func<HttpFacade, SpikeRepository> spikeRepositoryFactory, 
+                Func<HttpFacade, Repository> spikeRepositoryFactory, 
                 AcumaticaHttpSettings acumaticaHttpSettings)
         {
             _requestBuilderFactory = requestBuilderFactory;
@@ -31,7 +31,7 @@ namespace Monster.Acumatica.Http
             _acumaticaHttpSettings = acumaticaHttpSettings;
         }
         
-        public virtual SpikeRepository MakeSpikeRepository(
+        public virtual Repository MakeSpikeRepository(
                             AcumaticaSecuritySettings credentials)
         {
             var requestBuilder = _requestBuilderFactory(credentials);

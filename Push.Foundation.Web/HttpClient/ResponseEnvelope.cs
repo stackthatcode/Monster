@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Net;
 
 namespace Push.Foundation.Web.HttpClient
 {
@@ -6,13 +8,16 @@ namespace Push.Foundation.Web.HttpClient
     {
         public bool IsBinary => BinaryData != null;
         public HttpStatusCode StatusCode { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
         public string Body { get; set; }
         public byte[] BinaryData { get; set; }
+
 
         public ResponseEnvelope()
         {
             StatusCode = HttpStatusCode.Accepted;
         }
+        
 
         public virtual ResponseEnvelope ProcessStatusCodes()
         {

@@ -20,7 +20,7 @@ namespace Monster.Acumatica
 
             builder.RegisterType<AcumaticaApiFactory>();
             builder.RegisterType<AcumaticaHttpSettings>();
-            builder.RegisterType<SpikeRepository>();
+            builder.RegisterType<Repository>();
         }        
     }
 }

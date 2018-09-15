@@ -48,7 +48,7 @@ namespace Push.Foundation.Web.HttpClient
         public virtual ResponseEnvelope Get(
                 string url,
                 Dictionary<string, string> headers = null,
-                string contentType = "application/json")
+                string contentType = "application/json; charset=utf-8")
         {
             var request = 
                 new RequestEnvelope(
@@ -61,7 +61,7 @@ namespace Push.Foundation.Web.HttpClient
                 string url, 
                 string content = null,
                 Dictionary<string, string> headers = null,
-                string contentType = "application/json")
+                string contentType = "application/json; charset=utf-8")
         {
             var request = 
                 new RequestEnvelope(
@@ -78,7 +78,7 @@ namespace Push.Foundation.Web.HttpClient
                 string url, 
                 string content = null, 
                 Dictionary<string, string> headers = null,
-                string contentType = "application/json")
+                string contentType = "application/json; charset=utf-8")
         {
             var request =
                 new RequestEnvelope(

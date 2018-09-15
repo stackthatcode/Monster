@@ -7,7 +7,7 @@ namespace Monster.Middle
     {
         public static void Build(ContainerBuilder builder)
         {
-            builder.RegisterType<BundleDataContext>().InstancePerLifetimeScope();
+            builder.RegisterType<MonsterDataContext>().InstancePerLifetimeScope();
             builder.RegisterType<Repository>().InstancePerLifetimeScope();
         }
     }

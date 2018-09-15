@@ -26,12 +26,14 @@ namespace Push.Foundation.Web.HttpClient
             Headers = headers;
         }
 
-        public HttpWebRequest MakeWebRequest(string baseUrl = "")
+        public HttpWebRequest MakeWebRequest(
+                string baseUrl = "", CookieContainer cookies = null)
         {
             var completePath = $"{baseUrl}{Url}";
             var request = (HttpWebRequest)WebRequest.Create(completePath);
 
             request.Method = Method;
+            request.CookieContainer = cookies;
             request.ContentType = ContentType;
 
             if (!Content.IsNullOrEmpty())

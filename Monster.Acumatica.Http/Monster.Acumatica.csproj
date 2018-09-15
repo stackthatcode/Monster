@@ -51,11 +51,12 @@
     <Compile Include="Config\AcumaticaHttpSettings.cs" />
     <Compile Include="Http\AcumaticaRequestBuilder.cs" />
     <Compile Include="Http\AcumaticaApiFactory.cs" />
-    <Compile Include="Http\SpikeRepository.cs" />
-    <Compile Include="Model\Contact.cs" />
-    <Compile Include="Model\Customer.cs" />
-    <Compile Include="Model\ItemClass.cs" />
-    <Compile Include="Model\Values.cs" />
+    <Compile Include="Http\Cash\ImportBankTransaction.cs" />
+    <Compile Include="Http\Repository.cs" />
+    <Compile Include="Http\Customer\Contact.cs" />
+    <Compile Include="Http\Customer\Customer.cs" />
+    <Compile Include="Http\Customer\ItemClass.cs" />
+    <Compile Include="Http\Common\Values.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AcumaticaAutofac.cs" />
   </ItemGroup>
