@@ -1,7 +1,7 @@
 ﻿using Autofac;
+using Monster.Acumatica.Api;
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
-using Push.Foundation.Web.HttpClient;
 
 namespace Monster.Acumatica
 {
@@ -20,7 +20,7 @@ namespace Monster.Acumatica
 
             builder.RegisterType<AcumaticaApiFactory>();
             builder.RegisterType<AcumaticaHttpSettings>();
-            builder.RegisterType<Repository>();
+            builder.RegisterType<CustomerRepository>();
         }        
     }
 }

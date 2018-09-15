@@ -1,7 +1,7 @@
-﻿namespace Push.Shopify.HttpClient.Credentials
+﻿namespace Push.Shopify.Http.Credentials
 {
     //
-    // NOTE: use the ShopifySecuritySettings to spawn these
+    // Used by Shopify for OAuth authentication
     //
     public class ApiKeyAndSecret : IShopifyCredentials
     {

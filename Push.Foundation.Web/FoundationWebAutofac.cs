@@ -7,7 +7,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
 using Push.Foundation.Utilities.Security;
-using Push.Foundation.Web.HttpClient;
+using Push.Foundation.Web.Http;
 using Push.Foundation.Web.Identity;
 using Push.Foundation.Web.Misc;
 
@@ -29,13 +29,11 @@ namespace Push.Foundation.Web
             builder.RegisterType<HmacCryptoService>();
 
             // Http Client namespace
-            builder.RegisterType<HttpFacade>();
             builder.RegisterType<HttpSettings>();
             builder.RegisterType<HttpWebRequestProcessor>();
-            builder.RegisterType<GenericRequestBuilder>();
-
+            
             // Misc (but very important)
-            builder.RegisterType<InsistentExecutor>();
+            builder.RegisterType<ExceptionAbsorber>();
             builder.RegisterType<Throttler>();
         }
 

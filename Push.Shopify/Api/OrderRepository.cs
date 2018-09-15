@@ -1,17 +1,17 @@
 ﻿using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.HttpClient;
-using Push.Shopify.HttpClient;
+using Push.Foundation.Web.Http;
+using Push.Foundation.Web.Misc;
 
 
 namespace Push.Shopify.Api
 {
 
-    public class OrderApiRepository
+    public class OrderRepository
     {
         private readonly HttpFacade _executionFacade;
         private readonly IPushLogger _logger;
 
-        public OrderApiRepository(
+        public OrderRepository(
                 HttpFacade executionFacade, IPushLogger logger)
         {
             _executionFacade = executionFacade;            

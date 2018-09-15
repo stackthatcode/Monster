@@ -5,22 +5,20 @@ using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
-using Push.Foundation.Web.HttpClient;
+using Push.Foundation.Web.Http;
 using Push.Shopify.Api.Product;
-using Push.Shopify.Config;
-using Push.Shopify.HttpClient;
 using Push.Shopify.Model;
 
 namespace Push.Shopify.Api
 {
 
-    public class ProductApiRepository
+    public class ProductRepository
     {
         private readonly HttpFacade _client;
         private readonly IPushLogger _logger;
         
 
-        public ProductApiRepository(
+        public ProductRepository(
                 HttpFacade client, IPushLogger logger)
         {
             _client = client;
@@ -77,13 +75,7 @@ namespace Push.Shopify.Api
             _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
-
-        public virtual void DeleteMetafield(long metafieldId)
-        {
-            var path = $"/admin/metafields/{metafieldId}.json";
-            var clientResponse = _client.Delete(path);
-            _logger.Trace(clientResponse.Body);
-        }
+        
         
         public virtual void AddMetafield(long productId, MetafieldParent metafield)
         {

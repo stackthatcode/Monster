@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using NUnit.Framework;
 using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.HttpClient;
+using Push.Foundation.Web.Http;
 using Push.Foundation.Web.Misc;
 using Rhino.Mocks;
 
@@ -25,7 +25,7 @@ namespace Push.Foundation.Tests.Web
                 .Return(testWebRequest);
 
             var logger = MockRepository.GenerateStub<IPushLogger>();
-            var insistor = MockRepository.GenerateStub<InsistentExecutor>();
+            var insistor = MockRepository.GenerateStub<ExceptionAbsorber>();
 
             var response = MockRepository.GenerateMock<ResponseEnvelope>();
             response.Expect(x => x.ProcessStatusCodes());
@@ -43,7 +43,7 @@ namespace Push.Foundation.Tests.Web
             var settings = new HttpSettings();
 
             var sut =
-                new HttpFacade(requestProcessor, throttler, insistor, logger)
+                new Executor(requestProcessor, throttler, insistor, logger)
                     .InjectRequestBuilder(requestBuilder)
                     .InjectSettings(settings);
 

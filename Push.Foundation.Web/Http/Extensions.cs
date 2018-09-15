@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 
-namespace Push.Foundation.Web.HttpClient
+namespace Push.Foundation.Web.Http
 {
     public static class Extensions
     {
@@ -18,19 +20,21 @@ namespace Push.Foundation.Web.HttpClient
             //request.Headers["content-length"] = byteArray.Length.ToString();
         }
 
-        public static HttpWebResponse GetResponseNoException(this HttpWebRequest req)
+        public static ResponseEnvelope 
+                ToEnvelope(this HttpResponseMessage message)
         {
-            try
+            var output = new ResponseEnvelope();
+
+            output.Body = message.Content.ReadAsStringAsync().Result;
+            output.StatusCode = message.StatusCode;
+            output.Headers = new Dictionary<string, string>();
+
+            foreach (var header in message.Headers)
             {
-                return (HttpWebResponse)req.GetResponse();
+                output.Headers[header.Key] = string.Join("", header.Value);
             }
-            catch (WebException we)
-            {
-                var resp = we.Response as HttpWebResponse;
-                if (resp == null)
-                    throw;
-                return resp;
-            }
+
+            return output;
         }
 
         public static void AddBasicAuthentication(

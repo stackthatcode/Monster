@@ -1,4 +1,4 @@
-﻿using Push.Foundation.Web.HttpClient;
+﻿using Push.Foundation.Web.Http;
 
 namespace Push.Shopify.Config
 {

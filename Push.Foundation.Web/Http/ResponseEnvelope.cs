@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 
-namespace Push.Foundation.Web.HttpClient
+namespace Push.Foundation.Web.Http
 {
     public class ResponseEnvelope
     {
@@ -17,6 +18,7 @@ namespace Push.Foundation.Web.HttpClient
         {
             StatusCode = HttpStatusCode.Accepted;
         }
+
         
 
         public virtual ResponseEnvelope ProcessStatusCodes()

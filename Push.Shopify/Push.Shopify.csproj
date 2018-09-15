@@ -130,7 +130,7 @@
     <Compile Include="Api\Product\Product.cs" />
     <Compile Include="Api\Product\ProductFilter.cs" />
     <Compile Include="Api\Product\Variant.cs" />
-    <Compile Include="Api\PayoutApiRepository.cs" />
+    <Compile Include="Api\PayoutRepository.cs" />
     <Compile Include="Api\Transaction\Extensions.cs" />
     <Compile Include="Api\Transaction\TransactionConstants.cs" />
     <Compile Include="Api\Transaction\PaymentDetails.cs" />
@@ -142,25 +142,25 @@
     <Compile Include="Config\ShopifyClientSettings.cs" />
     <Compile Include="Config\ShopifySecurityConfiguration.cs" />
     <Compile Include="Config\ShopifySecuritySettings.cs" />
-    <Compile Include="HttpClient\Credentials\ExtensionMethods.cs" />
-    <Compile Include="HttpClient\Credentials\ApiKeyAndSecret.cs" />
+    <Compile Include="Http\Credentials\ApiKeyAndSecret.cs" />
+    <Compile Include="Http\Credentials\ExtensionMethods.cs" />
     <Compile Include="ShopifyApiAutofac.cs" />
     <Compile Include="Api\ApiFactory.cs" />
-    <Compile Include="HttpClient\Credentials\OAuthAccessToken.cs" />
-    <Compile Include="HttpClient\Credentials\IShopifyCredentials.cs" />
-    <Compile Include="HttpClient\Credentials\PrivateAppCredentials.cs" />
-    <Compile Include="HttpClient\ShopDomain.cs" />
-    <Compile Include="HttpClient\ShopifyRequestBuilder.cs" />
+    <Compile Include="Http\Credentials\OAuthAccessToken.cs" />
+    <Compile Include="Http\Credentials\IShopifyCredentials.cs" />
+    <Compile Include="Http\Credentials\PrivateAppCredentials.cs" />
+    <Compile Include="Http\ShopDomain.cs" />
+    <Compile Include="Http\ShopifyHttpClientFactory.cs" />
     <Compile Include="Api\Legacy\Event\Event.cs" />
     <Compile Include="Api\Legacy\Event\EventFilter.cs" />
     <Compile Include="Api\Legacy\Billing\RecurringApplicationCharge.cs" />
     <Compile Include="Api\Shop\ShopDto.cs" />
     <Compile Include="Api\Legacy\Event\Webhook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Api\EventApiRepository.cs" />
-    <Compile Include="Api\OrderApiRepository.cs" />
-    <Compile Include="Api\ShopApiRepository.cs" />
-    <Compile Include="Api\ProductApiRepository.cs" />
+    <Compile Include="Api\EventRepository.cs" />
+    <Compile Include="Api\OrderRepository.cs" />
+    <Compile Include="Api\ShopRepository.cs" />
+    <Compile Include="Api\ProductRepository.cs" />
     <Compile Include="Workers\PayoutsWorker.cs" />
   </ItemGroup>
   <ItemGroup>

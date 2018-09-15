@@ -1,18 +1,17 @@
 ﻿using Monster.Acumatica.Config;
-using Monster.Acumatica.Http.Cash;
 using Push.Foundation.Web.Helpers;
-using Push.Foundation.Web.HttpClient;
+using Push.Foundation.Web.Misc;
 
 namespace Monster.Acumatica.Http
 {
-    public class Repository
+    public class CustomerRepository
     {
-        private readonly HttpFacade _clientFacade;
+        private readonly Executor _clientFacade;
         private readonly AcumaticaHttpSettings _settings;
 
 
-        public Repository(
-                HttpFacade clientFacade, AcumaticaHttpSettings settings)
+        public CustomerRepository(
+                Executor clientFacade, AcumaticaHttpSettings settings)
         {
             _clientFacade = clientFacade;
             _settings = settings;

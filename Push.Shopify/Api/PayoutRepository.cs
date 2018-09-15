@@ -1,13 +1,14 @@
 ﻿using Push.Foundation.Web.Helpers;
-using Push.Foundation.Web.HttpClient;
+using Push.Foundation.Web.Http;
+using Push.Foundation.Web.Misc;
 
 namespace Push.Shopify.Api
 {
-    public class PayoutApiRepository
+    public class PayoutRepository
     {
         private readonly HttpFacade _executionFacade;
         
-        public PayoutApiRepository(HttpFacade executionFacade)
+        public PayoutRepository(HttpFacade executionFacade)
         {
             _executionFacade = executionFacade;
         }

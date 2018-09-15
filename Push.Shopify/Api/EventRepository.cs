@@ -2,19 +2,19 @@
 using Newtonsoft.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
-using Push.Foundation.Web.HttpClient;
+using Push.Foundation.Web.Http;
+using Push.Foundation.Web.Misc;
 using Push.Shopify.Api.Event;
 using Push.Shopify.Config;
-using Push.Shopify.HttpClient;
 
 namespace Push.Shopify.Api
 {
-    public class EventApiRepository
+    public class EventRepository
     {
         private readonly HttpFacade _client;
         private readonly IPushLogger _logger;
         
-        public EventApiRepository(
+        public EventRepository(
                 HttpFacade client,
                 IPushLogger logger)
         {

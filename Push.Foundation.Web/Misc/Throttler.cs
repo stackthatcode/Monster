@@ -7,41 +7,33 @@ using Push.Foundation.Utilities.Logging;
 namespace Push.Foundation.Web.Misc
 {
     public class Throttler
-    {        
-        public int TimeBetweenCallsMs;
-        private readonly IPushLogger _logger;
-
+    {                
         private static readonly 
             IDictionary<string, DateTime> 
                 LastExecutionTime = new ConcurrentDictionary<string, DateTime>();
-
         
-
-        public Throttler(IPushLogger logger)
+        public static void Process(
+                string key, 
+                int timeBetweenCallsMs = 0,
+                IPushLogger logger = null)
         {
-            _logger = logger;
-        }
+            if (logger == null)
+            {
+                logger = new ConsoleAndDebugLogger();
+            }
 
-        public Throttler()
-        {
-            _logger = new ConsoleAndDebugLogger();
-        }
-
-
-        public virtual void Process(string key)
-        {
             if (LastExecutionTime.ContainsKey(key))
             {
                 var lastExecutionTime = LastExecutionTime[key];
 
                 var timeSinceLastExecution = DateTime.UtcNow - lastExecutionTime;
-                var throttlingDelay = new TimeSpan(0, 0, 0, 0, TimeBetweenCallsMs);
+                var throttlingDelay = new TimeSpan(0, 0, 0, 0, timeBetweenCallsMs);
 
                 if (timeSinceLastExecution < throttlingDelay)
                 {
                     var remainingTimeToDelay = throttlingDelay - timeSinceLastExecution;
 
-                    _logger.Debug($"Intentional delay before next call: {remainingTimeToDelay} ms");
+                    logger.Debug($"Intentional delay before next call: {remainingTimeToDelay} ms");
 
                     Thread.Sleep(remainingTimeToDelay);
                 }

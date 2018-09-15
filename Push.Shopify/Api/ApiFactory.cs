@@ -1,9 +1,12 @@
 using System;
-using Push.Foundation.Web.HttpClient;
+using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Web.Http;
+using Push.Foundation.Web.Misc;
+using Push.Shopify.Api;
 using Push.Shopify.Config;
-// ReSharper disable once RedundantUsingDirective
-using Push.Shopify.HttpClient;
-using Push.Shopify.HttpClient.Credentials;
+using Push.Shopify.Http;
+using Push.Shopify.Http.Credentials;
+
 
 namespace Push.Shopify.Api
 {
@@ -11,96 +14,89 @@ namespace Push.Shopify.Api
     {
         // Solicit Autofac for our specific derivation of ClientSettings
         private readonly ShopifyClientSettings _clientSettings;
-
-        // Autofac factory to create Request Builder with Credentials wired-in
-        private readonly Func<IShopifyCredentials, ShopifyRequestBuilder> _requestBuilderFactory;
-
-        // Autofac factory to create Http Facade
-        private readonly Func<HttpFacade> _clientFacadeFactory;
         
-        // Autofac factories for API Repositories
+        // Autofac factories for  Repositories
+        private readonly ShopifyHttpClientFactory _httpClientFactory;
+        private readonly Func<IPushLogger> _loggerFactory;
+
         private readonly 
-            Func<HttpFacade, OrderApiRepository> _orderApiRepositoryFactory;
+            Func<HttpFacade, OrderRepository> _orderRepositoryFactory;
         private readonly 
-            Func<HttpFacade, ProductApiRepository> _productApiRepositoryFactory;
+            Func<HttpFacade, ProductRepository> _productRepositoryFactory;
         private readonly 
-            Func<HttpFacade, EventApiRepository> _eventApiRepositoryFactory;
+            Func<HttpFacade, EventRepository> _eventRepositoryFactory;
         private readonly 
-            Func<HttpFacade, ShopApiRepository> _shopApiRepositoryFactory;
+            Func<HttpFacade, ShopRepository> _shopRepositoryFactory;
         private readonly
-            Func<HttpFacade, PayoutApiRepository> _payoutApiRepositoryFactory;
+            Func<HttpFacade, PayoutRepository> _payoutRepositoryFactory;
 
 
 
         public ApiFactory(
                 ShopifyClientSettings clientSettings,
-
-                Func<IShopifyCredentials, ShopifyRequestBuilder> requestBuilderFactory,
-                Func<HttpFacade> clientFacadeFactory,
-
-                Func<HttpFacade, OrderApiRepository> orderApiRepositoryFactory,
-                Func<HttpFacade, ProductApiRepository> productApiRepositoryFactory,
-                Func<HttpFacade, EventApiRepository> eventApiRepositoryFactory,
-                Func<HttpFacade, ShopApiRepository> shopApiRepositoryFactory,
-                Func<HttpFacade, PayoutApiRepository> payoutApiRepositoryFactory)
+                ShopifyHttpClientFactory httpClientFactory,
+                Func<IPushLogger> loggerFactory, 
+                Func<HttpFacade, OrderRepository> orderRepositoryFactory,
+                Func<HttpFacade, ProductRepository> productRepositoryFactory,
+                Func<HttpFacade, EventRepository> eventRepositoryFactory,
+                Func<HttpFacade, ShopRepository> shopRepositoryFactory,
+                Func<HttpFacade, PayoutRepository> payoutRepositoryFactory)
         {
-            _requestBuilderFactory = requestBuilderFactory;
-
             _clientSettings = clientSettings;
-            _clientFacadeFactory = clientFacadeFactory;
+            _httpClientFactory = httpClientFactory;
+            _loggerFactory = loggerFactory;
 
-            _orderApiRepositoryFactory = orderApiRepositoryFactory;
-            _productApiRepositoryFactory = productApiRepositoryFactory;
-            _eventApiRepositoryFactory = eventApiRepositoryFactory;
-            _shopApiRepositoryFactory = shopApiRepositoryFactory;
-            _payoutApiRepositoryFactory = payoutApiRepositoryFactory;
+            _orderRepositoryFactory = orderRepositoryFactory;
+            _productRepositoryFactory = productRepositoryFactory;
+            _eventRepositoryFactory = eventRepositoryFactory;
+            _shopRepositoryFactory = shopRepositoryFactory;
+            _payoutRepositoryFactory = payoutRepositoryFactory;
         }
 
 
-        public HttpFacade MakeHttpFacade(IRequestBuilder requestBuilder, HttpSettings settings)
+        public HttpFacade MakeFacade(IShopifyCredentials credentials)
         {
-            return _clientFacadeFactory()
-                .InjectRequestBuilder(requestBuilder)
-                .InjectSettings(settings);
+            var client = _httpClientFactory.Make(credentials);
+            var executionContext = new ExecutionContext()
+            {
+                NumberOfAttempts = _clientSettings.RetryLimit,
+                ThrottlingKey = credentials.Domain.BaseUrl,
+                Logger = _loggerFactory(),
+            };
+
+            return new HttpFacade(client, executionContext);
         }
 
-        public virtual OrderApiRepository MakeOrderApi(IShopifyCredentials credentials)
+        public virtual OrderRepository MakeOrderApi(IShopifyCredentials credentials)
         {
-            var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
-            var repository = _orderApiRepositoryFactory(clientFacade);
-            return repository;
-        }
-        
-        public virtual ProductApiRepository MakeProductApi(IShopifyCredentials credentials)
-        {
-            var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
-            var repository = _productApiRepositoryFactory(clientFacade);
-            return repository;
+            var facade = MakeFacade(credentials);
+            return _orderRepositoryFactory(facade);
         }
         
-        public virtual EventApiRepository MakeEventApi(IShopifyCredentials credentials)
+        public virtual ProductRepository MakeProductApi(IShopifyCredentials credentials)
         {
-            var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
-            var repository = _eventApiRepositoryFactory(clientFacade);
+            var facade = MakeFacade(credentials);
+            return _productRepositoryFactory(facade);
+        }
+        
+        public virtual EventRepository MakeEvent(IShopifyCredentials credentials)
+        {
+            var facade = MakeFacade(credentials);
+            var repository = _eventRepositoryFactory(facade);
             return repository;
         }
 
-        public virtual PayoutApiRepository MakePayoutApi(IShopifyCredentials credentials)
+        public virtual PayoutRepository MakePayout(IShopifyCredentials credentials)
         {
-            var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
-            var repository = _payoutApiRepositoryFactory(clientFacade);
+            var facade = MakeFacade(credentials);
+            var repository = _payoutRepositoryFactory(facade);
             return repository;
         }
 
-        public virtual ShopApiRepository MakeShopApi(IShopifyCredentials credentials)
+        public virtual ShopRepository MakeShop(IShopifyCredentials credentials)
         {
-            var requestBuilder = _requestBuilderFactory(credentials);
-            var clientFacade = MakeHttpFacade(requestBuilder, _clientSettings);
-            var repository = _shopApiRepositoryFactory(clientFacade);
+            var facade = MakeFacade(credentials);
+            var repository = _shopRepositoryFactory(facade);
             return repository;
         }
     }

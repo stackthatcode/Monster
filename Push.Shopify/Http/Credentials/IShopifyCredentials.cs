@@ -1,4 +1,4 @@
-﻿namespace Push.Shopify.HttpClient.Credentials
+﻿namespace Push.Shopify.Http.Credentials
 {
     public interface IShopifyCredentials
     {

@@ -1,8 +1,8 @@
-﻿using Push.Foundation.Utilities.Helpers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
+using Push.Foundation.Utilities.Helpers;
 
-namespace Push.Foundation.Web.HttpClient
+namespace Push.Foundation.Web.Http
 {
     public class RequestEnvelope
     {

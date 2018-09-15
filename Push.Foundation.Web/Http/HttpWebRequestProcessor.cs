@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
-namespace Push.Foundation.Web.HttpClient
+namespace Push.Foundation.Web.Http
 {
     public class HttpWebRequestProcessor
     {

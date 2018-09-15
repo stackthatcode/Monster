@@ -22,14 +22,14 @@ namespace Push.Foundation.Tests.Web
         {
             // Assemble
             var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new InsistentExecutor(logger);
+            var sut = new ExceptionAbsorber(logger);
             sut.MaxNumberOfAttempts = 3;
 
             var mockClass = MockRepository.GenerateMock<MockClass>();
             mockClass.Expect(x => x.DoSomething()).Return(true);
 
             // Act
-            var result = sut.Execute(() => mockClass.DoSomething());
+            var result = sut.Do(() => mockClass.DoSomething());
 
             // Assert
             Assert.IsTrue(result);
@@ -41,7 +41,7 @@ namespace Push.Foundation.Tests.Web
         {
             // Assemble
             var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new InsistentExecutor(logger);
+            var sut = new ExceptionAbsorber(logger);
             sut.MaxNumberOfAttempts = 3;
 
             var mockClass = MockRepository.GenerateMock<MockClass>();
@@ -55,7 +55,7 @@ namespace Push.Foundation.Tests.Web
                 .Return(true);
 
             // Act
-            var result = sut.Execute(() => mockClass.DoSomething());
+            var result = sut.Do(() => mockClass.DoSomething());
 
             // Assert
             Assert.IsTrue(result);
@@ -67,7 +67,7 @@ namespace Push.Foundation.Tests.Web
         {
             // Assemble
             var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new InsistentExecutor(logger);
+            var sut = new ExceptionAbsorber(logger);
             sut.MaxNumberOfAttempts = 3;
 
             var mockClass = MockRepository.GenerateMock<MockClass>();
@@ -81,7 +81,7 @@ namespace Push.Foundation.Tests.Web
                 .Return(true);
 
             // Act
-            var result = sut.Execute(() => mockClass.DoSomething());
+            var result = sut.Do(() => mockClass.DoSomething());
 
             // Assert
             Assert.IsTrue(result);
@@ -93,7 +93,7 @@ namespace Push.Foundation.Tests.Web
         {
             // Assemble
             var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new InsistentExecutor(logger);
+            var sut = new ExceptionAbsorber(logger);
             sut.MaxNumberOfAttempts = 3;
 
             var mockClass = MockRepository.GenerateMock<MockClass>();
@@ -106,7 +106,7 @@ namespace Push.Foundation.Tests.Web
             Assert.Throws<Exception>(
                 () =>
                 {
-                    sut.Execute(() => mockClass.DoSomething());
+                    sut.Do(() => mockClass.DoSomething());
                 });
         }
     }

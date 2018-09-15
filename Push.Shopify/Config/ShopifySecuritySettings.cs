@@ -1,5 +1,5 @@
-﻿using Push.Shopify.HttpClient;
-using Push.Shopify.HttpClient.Credentials;
+﻿using Push.Shopify.Http;
+using Push.Shopify.Http.Credentials;
 
 namespace Push.Shopify.Config
 {

@@ -1,4 +1,4 @@
-﻿namespace Push.Shopify.HttpClient.Credentials
+﻿namespace Push.Shopify.Http.Credentials
 {
     // 
     // NOTE - relies on a service that provides secure, external storage of 

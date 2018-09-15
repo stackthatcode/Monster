@@ -1,4 +1,4 @@
-﻿namespace Push.Shopify.HttpClient
+﻿namespace Push.Shopify.Http
 {
     public class ShopDomain
     {

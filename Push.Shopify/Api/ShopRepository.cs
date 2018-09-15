@@ -1,14 +1,12 @@
-﻿using Push.Foundation.Web.HttpClient;
-using Push.Shopify.Config;
-using Push.Shopify.HttpClient;
+﻿using Push.Foundation.Web.Http;
 
 namespace Push.Shopify.Api
 {
-    public class ShopApiRepository
+    public class ShopRepository
     {
         private readonly HttpFacade _executionFacade;
         
-        public ShopApiRepository(HttpFacade executionFacade)
+        public ShopRepository(HttpFacade executionFacade)
         {
             _executionFacade = executionFacade;
         }

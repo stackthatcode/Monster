@@ -1,4 +1,4 @@
-﻿namespace Push.Foundation.Web.HttpClient
+﻿namespace Push.Foundation.Web.Http
 {
     public class HttpSettings
     {

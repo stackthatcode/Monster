@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using Monster.Acumatica.Config;
-using Push.Foundation.Web.HttpClient;
+using Push.Foundation.Web.Http;
 
 namespace Monster.Acumatica.Http
 {

@@ -10,7 +10,7 @@ using Push.Shopify.Api.Payout;
 using Push.Shopify.Api.Product;
 using Push.Shopify.Api.Transaction;
 using Push.Shopify.Config;
-using Push.Shopify.HttpClient.Credentials;
+using Push.Shopify.Http.Credentials;
 using Transaction = Push.Shopify.Api.Payout.Transaction;
 
 namespace Monster.ConsoleApp.Shopify
@@ -78,7 +78,7 @@ namespace Monster.ConsoleApp.Shopify
         {
             var factory = scope.Resolve<ApiFactory>();
             var credentials = CredentialsFactory();
-            var payoutApi = factory.MakePayoutApi(credentials);
+            var payoutApi = factory.MakePayout(credentials);
             var logger = scope.Resolve<IPushLogger>();
  
 
