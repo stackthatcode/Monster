@@ -21,7 +21,7 @@ namespace Push.Shopify.Api.Payout
     {
         public long id { get; set; }
         public string status { get; set; }
-        public string date { get; set; }
+        public DateTime date { get; set; }
         public string currency { get; set; }
         public string amount { get; set; }
         public Summary summary { get; set; }

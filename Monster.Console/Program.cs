@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using Monster.ConsoleApp.Acumatica;
+using Monster.ConsoleApp.Payouts;
 using Monster.ConsoleApp.TestJson;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -12,21 +13,13 @@ namespace Monster.ConsoleApp
     {
         static void Main(string[] args)
         {
-            ExecuteInLifetimeScope(scope => MonsterHarness.PullPayoutsIntoAcumatica(scope));            
+            ExecuteInLifetimeScope(scope => PayoutsHarness.PullPayoutsIntoAcumatica(scope));            
             
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
 
 
-        static void DeserializeJson<T>(string inputJsonFile)
-        {
-            var json = TestLoader.GimmeJson(inputJsonFile);
-            var deserializedObject = json.DeserializeFromJson<T>();
-            var reserializedJson = deserializedObject.SerializeToJson();
-            Console.WriteLine(reserializedJson);
-        }
-        
         static void ExecuteInLifetimeScope(Action<ILifetimeScope> action)
         {
             using (var container = ConsoleAutofac.Build(false))
@@ -43,6 +36,15 @@ namespace Monster.ConsoleApp
                     throw;
                 }
             }
+        }
+
+
+        static void DeserializeJson<T>(string inputJsonFile)
+        {
+            var json = TestLoader.GimmeJson(inputJsonFile);
+            var deserializedObject = json.DeserializeFromJson<T>();
+            var reserializedJson = deserializedObject.SerializeToJson();
+            Console.WriteLine(reserializedJson);
         }
     }
 }

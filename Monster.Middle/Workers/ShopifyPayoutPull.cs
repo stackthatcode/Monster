@@ -10,7 +10,7 @@ using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Workers
 {
-    public class ShopifyPayoutFetcher
+    public class ShopifyPayoutPull
     {
         private readonly PayoutImportRepository _persistRepository;
         private readonly ShopifyApiFactory _shopifyApiFactory;
@@ -18,7 +18,7 @@ namespace Monster.Middle.Workers
 
         public int PayoutTransactionPagingLimit = 50;
 
-        public ShopifyPayoutFetcher(
+        public ShopifyPayoutPull(
                 PayoutImportRepository persistRepository,
                 ShopifyApiFactory shopifyApiFactory,
                 IPushLogger logger)

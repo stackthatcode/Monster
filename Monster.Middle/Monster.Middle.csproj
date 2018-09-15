@@ -64,7 +64,8 @@
     <Compile Include="EF\PayoutImportRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Workers\ShopifyPayoutFetcher.cs" />
+    <Compile Include="Workers\AcumaticaPayoutPush.cs" />
+    <Compile Include="Workers\ShopifyPayoutPull.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -84,6 +85,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.csproj">
+      <Project>{E31F2A05-6346-48D5-B323-3D048AB0E392}</Project>
+      <Name>Monster.Acumatica</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Push.Foundation.Utilities\Push.Foundation.Utilities.csproj">
       <Project>{4e08819b-bab3-46ee-9479-141af7a4057d}</Project>
       <Name>Push.Foundation.Utilities</Name>
