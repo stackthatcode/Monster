@@ -21,15 +21,17 @@ namespace Push.Foundation.Tests.Web
         public void ExecutesOnceOnSuccess()
         {
             // Assemble
-            var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new ExceptionAbsorber(logger);
-            sut.MaxNumberOfAttempts = 3;
+            var context = new ExecutionContext()
+            {
+                NumberOfAttempts = 3
+            };
 
             var mockClass = MockRepository.GenerateMock<MockClass>();
             mockClass.Expect(x => x.DoSomething()).Return(true);
 
             // Act
-            var result = sut.Do(() => mockClass.DoSomething());
+            var result = 
+                DurableExecutor.Do(() => mockClass.DoSomething(), context);
 
             // Assert
             Assert.IsTrue(result);
@@ -40,9 +42,10 @@ namespace Push.Foundation.Tests.Web
         public void ExecutesTwiceOnFailSuccess()
         {
             // Assemble
-            var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new ExceptionAbsorber(logger);
-            sut.MaxNumberOfAttempts = 3;
+            var context = new ExecutionContext()
+            {
+                NumberOfAttempts = 3
+            };
 
             var mockClass = MockRepository.GenerateMock<MockClass>();
             mockClass
@@ -55,7 +58,8 @@ namespace Push.Foundation.Tests.Web
                 .Return(true);
 
             // Act
-            var result = sut.Do(() => mockClass.DoSomething());
+            var result =
+                DurableExecutor.Do(() => mockClass.DoSomething(), context);
 
             // Assert
             Assert.IsTrue(result);
@@ -66,9 +70,10 @@ namespace Push.Foundation.Tests.Web
         public void ExecutesThriceOnFailFailSuccess()
         {
             // Assemble
-            var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new ExceptionAbsorber(logger);
-            sut.MaxNumberOfAttempts = 3;
+            var context = new ExecutionContext()
+            {
+                NumberOfAttempts = 3
+            };
 
             var mockClass = MockRepository.GenerateMock<MockClass>();
             mockClass
@@ -81,7 +86,8 @@ namespace Push.Foundation.Tests.Web
                 .Return(true);
 
             // Act
-            var result = sut.Do(() => mockClass.DoSomething());
+            var result =
+                DurableExecutor.Do(() => mockClass.DoSomething(), context);
 
             // Assert
             Assert.IsTrue(result);
@@ -92,9 +98,10 @@ namespace Push.Foundation.Tests.Web
         public void ExecutesThriceOnFailFailFailAndThrowException()
         {
             // Assemble
-            var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new ExceptionAbsorber(logger);
-            sut.MaxNumberOfAttempts = 3;
+            var context = new ExecutionContext()
+            {
+                NumberOfAttempts = 3
+            };
 
             var mockClass = MockRepository.GenerateMock<MockClass>();
             mockClass
@@ -106,7 +113,8 @@ namespace Push.Foundation.Tests.Web
             Assert.Throws<Exception>(
                 () =>
                 {
-                    sut.Do(() => mockClass.DoSomething());
+                    var result =
+                        DurableExecutor.Do(() => mockClass.DoSomething(), context);
                 });
         }
     }

@@ -78,7 +78,7 @@ namespace Monster.ConsoleApp.Shopify
         {
             var factory = scope.Resolve<ApiFactory>();
             var credentials = CredentialsFactory();
-            var payoutApi = factory.MakePayout(credentials);
+            var payoutApi = factory.MakePayoutApi(credentials);
             var logger = scope.Resolve<IPushLogger>();
  
 

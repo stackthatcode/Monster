@@ -167,7 +167,6 @@
     <Compile Include="Mvc\RouteValueDictionaryExtensions.cs" />
     <Compile Include="Helpers\UrlExtensions.cs" />
     <Compile Include="Http\BadStatusCodeException.cs" />
-    <Compile Include="Http\HttpWebRequestProcessor.cs" />
     <Compile Include="Misc\DurableExecutor.cs" />
     <Compile Include="Http\HttpSettings.cs" />
     <Compile Include="Http\ResponseEnvelope.cs" />

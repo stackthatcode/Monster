@@ -26,15 +26,7 @@ namespace Push.Foundation.Web
             RegisterOwinIdentity(builder);
             
             // The Hmac Service will be used to validate Webhooks from Shopify
-            builder.RegisterType<HmacCryptoService>();
-
-            // Http Client namespace
-            builder.RegisterType<HttpSettings>();
-            builder.RegisterType<HttpWebRequestProcessor>();
-            
-            // Misc (but very important)
-            builder.RegisterType<ExceptionAbsorber>();
-            builder.RegisterType<Throttler>();
+            builder.RegisterType<HmacCryptoService>();            
         }
 
 

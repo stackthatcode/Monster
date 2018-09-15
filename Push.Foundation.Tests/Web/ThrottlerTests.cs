@@ -16,19 +16,17 @@ namespace Push.Foundation.Tests.Web
         {
             // Assemble
             var logger = MockRepository.GenerateStub<IPushLogger>();
-            var sut = new Throttler(logger);
-            sut.TimeBetweenCallsMs = 1000;
             var testHost = "ThrottlerCausesDelayForSameHost";
 
             // Act
-            sut.Process(testHost);
+            Throttler.Process(testHost, timeBetweenCallsMs:1000);
             var startTime = DateTime.UtcNow;
-            sut.Process(testHost);
+            Throttler.Process(testHost, timeBetweenCallsMs: 1000);
             var endTime = DateTime.UtcNow;
             
             // Assert
             var actualTimeBetween = (endTime - startTime).TotalMilliseconds;
-            Assert.IsTrue(actualTimeBetween > sut.TimeBetweenCallsMs);
+            Assert.IsTrue(actualTimeBetween > 1000);
         }
 
     }

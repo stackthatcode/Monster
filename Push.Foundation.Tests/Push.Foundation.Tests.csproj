@@ -52,7 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Web\ClientFacadeTests.cs" />
     <Compile Include="Web\ResponseEnvelopeTests.cs" />
     <Compile Include="Web\InsistentExecutorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -57,6 +57,7 @@ namespace Push.Shopify.Api
         public HttpFacade MakeFacade(IShopifyCredentials credentials)
         {
             var client = _httpClientFactory.Make(credentials);
+
             var executionContext = new ExecutionContext()
             {
                 NumberOfAttempts = _clientSettings.RetryLimit,
@@ -79,21 +80,21 @@ namespace Push.Shopify.Api
             return _productRepositoryFactory(facade);
         }
         
-        public virtual EventRepository MakeEvent(IShopifyCredentials credentials)
+        public virtual EventRepository MakeEventApi(IShopifyCredentials credentials)
         {
             var facade = MakeFacade(credentials);
             var repository = _eventRepositoryFactory(facade);
             return repository;
         }
 
-        public virtual PayoutRepository MakePayout(IShopifyCredentials credentials)
+        public virtual PayoutRepository MakePayoutApi(IShopifyCredentials credentials)
         {
             var facade = MakeFacade(credentials);
             var repository = _payoutRepositoryFactory(facade);
             return repository;
         }
 
-        public virtual ShopRepository MakeShop(IShopifyCredentials credentials)
+        public virtual ShopRepository MakeShopApi(IShopifyCredentials credentials)
         {
             var facade = MakeFacade(credentials);
             var repository = _shopRepositoryFactory(facade);

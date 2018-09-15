@@ -4,15 +4,7 @@ namespace Push.Foundation.Web.Misc
 {
     public class DurableExecutor
     {
-
-        //_pushLogger.Debug(
-        //    $"Invoking HTTP {requestEnvelope.Method} " +
-        //    $"on {requestEnvelope.Url}");
-
-        //// Create HttpWebRequest
-        //var hostname = request.RequestUri.Host;
-
-
+        
         public static T Do<T>(Func<T> task, ExecutionContext context)
         {
             if (context == null)
