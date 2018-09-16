@@ -58,7 +58,7 @@ namespace Monster.Middle.Processes.Payouts
             return transaction;
         }
 
-        public void GetBankTransactions(AcumaticaCredentials credentials)
+        public void ListBankTransactions(AcumaticaCredentials credentials)
         {
             var repository = _factory.MakeBankRepository(credentials);
             var result = repository.RetrieveImportBankTransactions();
@@ -138,25 +138,29 @@ namespace Monster.Middle.Processes.Payouts
                     continue;
                 }
 
-                var acumaticaTransaction = MakeTransactionHeader(payoutObject);
+                var acumaticaTrans 
+                    = MakeTransactionHeader(payoutObject);
                 
                 var receipt = transObject.amount > 0 ? transObject.amount : 0;
                 var disbursment = transObject.amount < 0 ? transObject.amount : 0;
                 
-                acumaticaTransaction.ReferenceNbr = payout.AcumaticaRefNumber.ToValue();
-                acumaticaTransaction.ExtTranID 
+                acumaticaTrans.ReferenceNbr = payout.AcumaticaRefNumber.ToValue();
+                acumaticaTrans.ExtTranID 
                     = $"Shopify Order Trans Id: {transObject.source_order_transaction_id}".ToValue();
 
-                acumaticaTransaction.ExtRefNbr
+                acumaticaTrans.ExtRefNbr
                     = $"Shopify Payout Trans Id: {transObject.id}".ToValue();
 
-                acumaticaTransaction.Receipt = receipt.ToValue();
-                acumaticaTransaction.Disbursement = disbursment.ToValue();
-                acumaticaTransaction.InvoiceNbr
+                acumaticaTrans.TranDesc = "Test".ToValue();
+                acumaticaTrans.TranID = "42".ToValue();
+
+                acumaticaTrans.Receipt = receipt.ToValue();
+                acumaticaTrans.Disbursement = disbursment.ToValue();
+                acumaticaTrans.InvoiceNbr
                     = $"Shopify Order Id: {transObject.source_order_id}".ToValue();
 
                 var repository = _factory.MakeBankRepository(credentials);
-                var result = repository.InsertImportBankTransaction(acumaticaTransaction.SerializeToJson());
+                var result = repository.InsertImportBankTransaction(acumaticaTrans.SerializeToJson());
 
                 var importObject = result.DeserializeFromJson<ImportBankTransaction>();
 

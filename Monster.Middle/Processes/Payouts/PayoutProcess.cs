@@ -20,15 +20,17 @@ namespace Monster.Middle.Processes.Payouts
                 IShopifyCredentials shopifyCredentials,
                 AcumaticaCredentials acumaticaCredentials)
         {
-            _shopifyPayoutPullWorker
-                .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 10);
-            _shopifyPayoutPullWorker
-                .ImportIncompletePayoutTransactions(shopifyCredentials);
-            _shopifyPayoutPullWorker
-                .GenerateBalancingSummaries(10);
+            //_shopifyPayoutPullWorker
+            //    .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 10);
+            //_shopifyPayoutPullWorker
+            //    .ImportIncompletePayoutTransactions(shopifyCredentials);
+            //_shopifyPayoutPullWorker
+            //    .GenerateBalancingSummaries(10);
 
 
             _acumaticaPayoutPushWorker.BeginSession(acumaticaCredentials);
+
+            _acumaticaPayoutPushWorker.ListBankTransactions(acumaticaCredentials);
 
             _acumaticaPayoutPushWorker
                 .WritePayoutHeaderToAcumatica(
