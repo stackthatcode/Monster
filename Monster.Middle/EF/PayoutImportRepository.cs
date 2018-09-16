@@ -114,11 +114,12 @@ namespace Monster.Middle.EF
         public void UpdatePayoutTransactionAcumaticaRecord(
                     long shopifyPayoutId, 
                     long shopifyPayoutTransId,
-                    string acumaticaRecordId)
+                    string acumaticaRecordId,
+                    DateTime acumaticaImportDate)
         {
             var transaction = RetrievePayoutTransaction(shopifyPayoutId, shopifyPayoutTransId);
             transaction.AcumaticaRecordId = acumaticaRecordId;
-            transaction.AcumaticaImportDate = DateTime.UtcNow;
+            transaction.AcumaticaImportDate = acumaticaImportDate;
             _dataContext.SaveChanges();
         }
     }

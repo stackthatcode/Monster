@@ -503,6 +503,7 @@ namespace Monster.Middle.EF
         public int Id { get; set; } // Id (Primary key)
         public long ShopifyPayoutId { get; set; } // ShopifyPayoutId
         public long ShopifyPayoutTransId { get; set; } // ShopifyPayoutTransId
+        public string Type { get; set; } // Type (length: 50)
         public string Json { get; set; } // Json (length: 2147483647)
         public System.DateTime? CreatedDate { get; set; } // CreatedDate
         public string AcumaticaRecordId { get; set; } // AcumaticaRecordId (length: 50)
@@ -575,7 +576,8 @@ namespace Monster.Middle.EF
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyPayoutId).HasColumnName(@"ShopifyPayoutId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyPayoutTransId).HasColumnName(@"ShopifyPayoutTransId").HasColumnType("bigint").IsRequired();
-            Property(x => x.Json).HasColumnName(@"Json").HasColumnType("text").IsRequired().IsUnicode(false).HasMaxLength(2147483647);
+            Property(x => x.Type).HasColumnName(@"Type").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.Json).HasColumnName(@"Json").HasColumnType("text").IsOptional().IsUnicode(false).HasMaxLength(2147483647);
             Property(x => x.CreatedDate).HasColumnName(@"CreatedDate").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaRecordId).HasColumnName(@"AcumaticaRecordId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaImportDate).HasColumnName(@"AcumaticaImportDate").HasColumnType("datetime").IsOptional();

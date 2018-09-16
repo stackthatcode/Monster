@@ -175,6 +175,7 @@ namespace Monster.Middle.Processes.Payouts
 
                 var newTransaction = new UsrShopifyPayoutTransaction()
                 {
+                    Type = transaction.type,
                     ShopifyPayoutId = transaction.payout_id.Value,
                     ShopifyPayoutTransId = transaction.id,
                     Json = transaction.SerializeToJson(),

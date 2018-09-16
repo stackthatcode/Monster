@@ -27,6 +27,44 @@ namespace Monster.Middle.Processes.Payouts
             _persistRepository = persistRepository;
         }
 
+        public void BeginSession(AcumaticaCredentials credentials)
+        {
+            var sessionRepository = _factory.MakeSessionRepository(credentials);
+            sessionRepository.RetrieveSession(credentials);
+        }
+
+        public ImportBankTransaction MakeTransactionHeader(Payout payoutObject)
+        {
+            // Notice - this is using the machine's local timezone
+            var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+
+            var preferences = _persistRepository.RetrievePayoutPreferences();
+
+            var payoutDate
+                = new DateTimeOffset(
+                    payoutObject.date.Year,
+                    payoutObject.date.Month,
+                    payoutObject.date.Day,
+                    0, 0, 0, offset);
+
+            var transaction = new ImportBankTransaction
+            {
+                CashAccount = preferences.AcumaticaCashAccount.ToValue(),
+                StatementDate = payoutDate.ToValue(),
+                StartBalanceDate = payoutDate.ToValue(),
+                EndBalanceDate = payoutDate.ToValue(),
+            };
+
+            return transaction;
+        }
+
+        public void GetBankTransactions(AcumaticaCredentials credentials)
+        {
+            var repository = _factory.MakeBankRepository(credentials);
+            var result = repository.RetrieveImportBankTransactions();
+            _logger.Info(result);
+        }
+
         public void WritePayoutHeaderToAcumatica(
                     AcumaticaCredentials credentials, 
                     long shopifyPayoutId)
@@ -43,40 +81,12 @@ namespace Monster.Middle.Processes.Payouts
 
             var payoutObject = payout.Json.DeserializeFromJson<Payout>();
 
-            // Notice - this is using the machine's local timezone
-            var offset 
-                = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+            var transaction = MakeTransactionHeader(payoutObject);
 
-            var payoutDate 
-                = new DateTimeOffset(
-                        payoutObject.date.Year,
-                        payoutObject.date.Month,
-                        payoutObject.date.Day, 
-                        0, 0, 0, offset);
-
-            var preferences = _persistRepository.RetrievePayoutPreferences();
-
-            var transaction = new ImportBankTransaction
-            {
-                CashAccount = preferences.AcumaticaCashAccount.ToValue(),
-                StatementDate = payoutDate.ToValue(),
-                StartBalanceDate = payoutDate.ToValue(),
-                EndBalanceDate = payoutDate.ToValue(),
-
-                //ExtTranID = "JONES-1111-3333".ToValue(),
-                //ExtRefNbr = "JONES-1111-3333".ToValue(),
-                //Receipt = (100.0).ToValue(),
-                //InvoiceNbr = "#5237710".ToValue(),
-            };
-
-            // Write the record to Acumatica
-            var sessionRepository = 
-                _factory.MakeSessionRepository(credentials);
-            sessionRepository.RetrieveSession(credentials);
-
-            var repository = 
-                _factory.MakeBankRepository(credentials);
+            // Write the record to Acumatica            
+            var repository = _factory.MakeBankRepository(credentials);
             var results = repository.InsertImportBankTransaction(transaction.SerializeToJson());
+
             _logger.Info(results);
 
             var acumaticaHeader
@@ -92,10 +102,11 @@ namespace Monster.Middle.Processes.Payouts
 
         public void WritePayoutTransactionsToAcumatica(
                     AcumaticaCredentials credentials,
-                    long shopifyPayoutId,
-                    long shopifyTransactionId)
+                    long shopifyPayoutId)
         {
             var payout = _persistRepository.RetrievePayout(shopifyPayoutId);
+            var payoutObject = payout.Json.DeserializeFromJson<Payout>();
+
             if (payout.AcumaticaHeaderId.IsNullOrEmpty())
             {
                 _logger.Error(
@@ -115,15 +126,52 @@ namespace Monster.Middle.Processes.Payouts
                         $"Transaction Id: {transaction.ShopifyPayoutTransId} " +
                         $"is already written to Acumatica");
                 }
-                
-                var acumaticaTransaction = new ImportBankTransaction
+
+                var transObject = transaction.Json.DeserializeFromJson<PayoutTransaction>();
+
+                if (transObject.type == "payout")
                 {
-                    id =
-                        ExtTranID = "JONES-1111-3333".ToValue(),
-                    ExtRefNbr = "JONES-1111-3333".ToValue(),
-                    Receipt = (100.0).ToValue(),
-                    InvoiceNbr = "#5237710".ToValue(),
-                };
+                    _logger.Info(
+                        $"Skipping Transaction Payout Id: {transaction.ShopifyPayoutId} - " +
+                        $"Transaction Id: {transaction.ShopifyPayoutTransId} " +
+                        $"- type = payout");
+                    continue;
+                }
+
+                var acumaticaTransaction = MakeTransactionHeader(payoutObject);
+                
+                var receipt = transObject.amount > 0 ? transObject.amount : 0;
+                var disbursment = transObject.amount < 0 ? transObject.amount : 0;
+                
+                acumaticaTransaction.ReferenceNbr = payout.AcumaticaRefNumber.ToValue();
+                acumaticaTransaction.ExtTranID 
+                    = $"Shopify Order Trans Id: {transObject.source_order_transaction_id}".ToValue();
+
+                acumaticaTransaction.ExtRefNbr
+                    = $"Shopify Payout Trans Id: {transObject.id}".ToValue();
+
+                acumaticaTransaction.Receipt = receipt.ToValue();
+                acumaticaTransaction.Disbursement = disbursment.ToValue();
+                acumaticaTransaction.InvoiceNbr
+                    = $"Shopify Order Id: {transObject.source_order_id}".ToValue();
+
+                var repository = _factory.MakeBankRepository(credentials);
+                var result = repository.InsertImportBankTransaction(acumaticaTransaction.SerializeToJson());
+
+                var importObject = result.DeserializeFromJson<ImportBankTransaction>();
+
+                _logger.Info(
+                    $"Saved Shopify Payout Id: {transaction.ShopifyPayoutId} - " +
+                    $"Transaction Id: {transaction.ShopifyPayoutTransId} - " +
+                    $"Type: {transObject.type} - " +
+                    $"to Acumatica");
+
+                _persistRepository
+                    .UpdatePayoutTransactionAcumaticaRecord(
+                        transaction.ShopifyPayoutId,
+                        transaction.ShopifyPayoutTransId,
+                        importObject.id, 
+                        DateTime.UtcNow);
             }
         }
     }
