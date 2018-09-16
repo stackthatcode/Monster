@@ -61,7 +61,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Payouts\PayoutsHarness.cs" />
     <Compile Include="Shopify\Metaplay.cs" />
     <Compile Include="Acumatica\AcumaticaHarness.cs" />
     <Compile Include="ConsoleAutofac.cs" />

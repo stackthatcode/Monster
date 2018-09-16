@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Monster.Middle.EF
@@ -12,6 +13,18 @@ namespace Monster.Middle.EF
             _dataContext = dataContext;
         }
 
+        //
+        // Preferences
+        //
+        public UsrPayoutPreference RetrievePayoutPreferences()
+        {
+            return _dataContext.UsrPayoutPreferences.FirstOrDefault();
+        }
+
+
+        //
+        // Payouts aka Payout Headers
+        //
         public List<UsrShopifyPayout> RetrievePayouts(int limit = 50)
         {
             return _dataContext
@@ -52,9 +65,27 @@ namespace Monster.Middle.EF
             _dataContext.SaveChanges();
         }
 
+        public void UpdatePayoutHeaderAcumaticaImport(
+                long shopifyPayoutId,
+                string acumaticaHeaderId,
+                string acumaticaRefNumber,
+                DateTime acumaticaImportDate)
+        {
+            var header = RetrievePayout(shopifyPayoutId);
+            header.AcumaticaHeaderId = acumaticaHeaderId;
+            header.AcumaticaRefNumber = acumaticaRefNumber;
+            header.AcumaticaImportDate = acumaticaImportDate;
+            _dataContext.SaveChanges();
+        }
 
+
+
+        //
+        // Transactions aka Payout Detail
+        //
         public UsrShopifyPayoutTransaction
-                    RetrievePayoutTransaction(long shopifyPayoutId, long shopifyTransactionId)
+                    RetrievePayoutTransaction(
+                        long shopifyPayoutId, long shopifyTransactionId)
         {
             return _dataContext
                 .UsrShopifyPayoutTransactions
@@ -78,6 +109,17 @@ namespace Monster.Middle.EF
             _dataContext.UsrShopifyPayoutTransactions.Add(transaction);
             _dataContext.SaveChanges();
             return transaction.Id;
+        }
+
+        public void UpdatePayoutTransactionAcumaticaRecord(
+                    long shopifyPayoutId, 
+                    long shopifyPayoutTransId,
+                    string acumaticaRecordId)
+        {
+            var transaction = RetrievePayoutTransaction(shopifyPayoutId, shopifyPayoutTransId);
+            transaction.AcumaticaRecordId = acumaticaRecordId;
+            transaction.AcumaticaImportDate = DateTime.UtcNow;
+            _dataContext.SaveChanges();
         }
     }
 }

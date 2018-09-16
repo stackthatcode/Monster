@@ -1,6 +1,6 @@
 ﻿using Autofac;
 using Monster.Middle.EF;
-using Monster.Middle.Workers;
+using Monster.Middle.Processes.Payouts;
 
 namespace Monster.Middle
 {
@@ -11,8 +11,9 @@ namespace Monster.Middle
             builder.RegisterType<MonsterDataContext>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutImportRepository>().InstancePerLifetimeScope();
 
-            builder.RegisterType<ShopifyPayoutPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaPayoutPush>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaPayoutPushWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
         }
     }
 }

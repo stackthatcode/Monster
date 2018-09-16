@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using Autofac;
 using Monster.Acumatica;
 using Monster.Middle;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
 using Push.Shopify;
@@ -13,7 +14,9 @@ namespace Monster.ConsoleApp
 {
     public class ConsoleAutofac
     {
-        public static IContainer Build(bool containerForHangFire = false)
+        public static IContainer Build(
+                bool containerForHangFire = false,
+                string connectionStringOverride = null)
         {
             var builder = new ContainerBuilder();
 
@@ -29,15 +32,20 @@ namespace Monster.ConsoleApp
             // .InstancePerBackgroundJobIfTrue(containerForHangFire);
 
             // Data configuration
+            var connectionString =
+                !connectionStringOverride.IsNullOrEmpty() 
+                    
+                    ? connectionStringOverride 
+                    
+                    : ConfigurationManager
+                        .ConnectionStrings["DefaultConnection"]
+                        .ConnectionString;
+            
 
             // Database connection registration
             builder
                 .Register(ctx =>
-                {
-                    var connectionString =
-                            ConfigurationManager
-                                .ConnectionStrings["DefaultConnection"].ConnectionString;
-
+                {                    
                     var connection = new SqlConnection(connectionString);
                     connection.Open();
                     return connection;

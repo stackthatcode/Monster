@@ -8,9 +8,9 @@ using Push.Shopify.Api;
 using Push.Shopify.Api.Payout;
 using Push.Shopify.Http.Credentials;
 
-namespace Monster.Middle.Workers
+namespace Monster.Middle.Processes.Payouts
 {
-    public class ShopifyPayoutPull
+    public class ShopifyPayoutPullWorker
     {
         private readonly PayoutImportRepository _persistRepository;
         private readonly ShopifyApiFactory _shopifyApiFactory;
@@ -18,7 +18,7 @@ namespace Monster.Middle.Workers
 
         public int PayoutTransactionPagingLimit = 50;
 
-        public ShopifyPayoutPull(
+        public ShopifyPayoutPullWorker(
                 PayoutImportRepository persistRepository,
                 ShopifyApiFactory shopifyApiFactory,
                 IPushLogger logger)

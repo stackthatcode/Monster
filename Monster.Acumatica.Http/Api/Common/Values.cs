@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Monster.Acumatica.Http.Common
+namespace Monster.Acumatica.Api.Common
 {
     public static class ValueExtensions
     {

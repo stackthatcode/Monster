@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Monster.Acumatica.Http.Common;
+using Monster.Acumatica.Api.Common;
 
-namespace Monster.Acumatica.Http.Customer
+namespace Monster.Acumatica.Api.Customer
 {
     public class CustomerList
     {

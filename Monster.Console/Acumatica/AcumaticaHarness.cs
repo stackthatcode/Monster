@@ -1,11 +1,11 @@
 ﻿using System;
 using Autofac;
 using Monster.Acumatica.Api;
+using Monster.Acumatica.Api.Cash;
+using Monster.Acumatica.Api.Common;
+using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
-using Monster.Acumatica.Http.Cash;
-using Monster.Acumatica.Http.Common;
-using Monster.Acumatica.Http.Customer;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
