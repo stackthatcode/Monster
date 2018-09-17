@@ -491,7 +491,6 @@ namespace Monster.Middle.EF
         public bool AllDetailRecordsCaptured { get; set; } // AllDetailRecordsCaptured
         public System.DateTime? CreatedDate { get; set; } // CreatedDate
         public System.DateTime? UpdatedDate { get; set; } // UpdatedDate
-        public string AcumaticaHeaderId { get; set; } // AcumaticaHeaderId (length: 50)
         public string AcumaticaRefNumber { get; set; } // AcumaticaRefNumber (length: 50)
         public System.DateTime? AcumaticaImportDate { get; set; } // AcumaticaImportDate
     }
@@ -506,7 +505,6 @@ namespace Monster.Middle.EF
         public string Type { get; set; } // Type (length: 50)
         public string Json { get; set; } // Json (length: 2147483647)
         public System.DateTime? CreatedDate { get; set; } // CreatedDate
-        public string AcumaticaRecordId { get; set; } // AcumaticaRecordId (length: 50)
         public System.DateTime? AcumaticaImportDate { get; set; } // AcumaticaImportDate
     }
 
@@ -553,7 +551,6 @@ namespace Monster.Middle.EF
             Property(x => x.AllDetailRecordsCaptured).HasColumnName(@"AllDetailRecordsCaptured").HasColumnType("bit").IsRequired();
             Property(x => x.CreatedDate).HasColumnName(@"CreatedDate").HasColumnType("datetime").IsOptional();
             Property(x => x.UpdatedDate).HasColumnName(@"UpdatedDate").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaHeaderId).HasColumnName(@"AcumaticaHeaderId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaRefNumber).HasColumnName(@"AcumaticaRefNumber").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaImportDate).HasColumnName(@"AcumaticaImportDate").HasColumnType("datetime").IsOptional();
         }
@@ -579,7 +576,6 @@ namespace Monster.Middle.EF
             Property(x => x.Type).HasColumnName(@"Type").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.Json).HasColumnName(@"Json").HasColumnType("text").IsOptional().IsUnicode(false).HasMaxLength(2147483647);
             Property(x => x.CreatedDate).HasColumnName(@"CreatedDate").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaRecordId).HasColumnName(@"AcumaticaRecordId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaImportDate).HasColumnName(@"AcumaticaImportDate").HasColumnType("datetime").IsOptional();
         }
     }

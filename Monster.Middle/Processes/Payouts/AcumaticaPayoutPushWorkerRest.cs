@@ -71,11 +71,11 @@ namespace Monster.Middle.Processes.Payouts
         {
             var payout = _persistRepository.RetrievePayout(shopifyPayoutId);
 
-            if (!payout.AcumaticaHeaderId.IsNullOrEmpty())
+            if (!payout.AcumaticaRefNumber.IsNullOrEmpty())
             {
                 _logger.Info(
                     $"Shopify Payout : {payout.ShopifyPayoutId} " + 
-                    $"already exists in Acumatica with Id: {payout.AcumaticaHeaderId}");
+                    $"already exists in Acumatica with RefNbr: {payout.AcumaticaRefNumber}");
                 return;
             }
 
@@ -107,7 +107,7 @@ namespace Monster.Middle.Processes.Payouts
             var payout = _persistRepository.RetrievePayout(shopifyPayoutId);
             var payoutObject = payout.Json.DeserializeFromJson<Payout>();
 
-            if (payout.AcumaticaHeaderId.IsNullOrEmpty())
+            if (payout.AcumaticaRefNumber.IsNullOrEmpty())
             {
                 _logger.Error(
                     "Attempt to write Payout Transactions without Header record " +
@@ -119,7 +119,7 @@ namespace Monster.Middle.Processes.Payouts
 
             foreach (var transaction in transactions)
             {
-                if (!transaction.AcumaticaRecordId.IsNullOrEmpty())
+                if (transaction.AcumaticaImportDate != null)
                 {
                     _logger.Info(
                         $"Transaction Payout Id: {transaction.ShopifyPayoutId} - " +
@@ -174,7 +174,6 @@ namespace Monster.Middle.Processes.Payouts
                     .UpdatePayoutTransactionAcumaticaRecord(
                         transaction.ShopifyPayoutId,
                         transaction.ShopifyPayoutTransId,
-                        importObject.id, 
                         DateTime.UtcNow);
             }
         }

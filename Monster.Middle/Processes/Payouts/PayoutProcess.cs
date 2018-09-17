@@ -23,11 +23,11 @@ namespace Monster.Middle.Processes.Payouts
                 string screenWebSerivceUrl)
         {
             _shopifyPayoutPullWorker
-                .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 10);
+                .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 5);
             _shopifyPayoutPullWorker
                 .ImportIncompletePayoutTransactions(shopifyCredentials);
             _shopifyPayoutPullWorker
-                .GenerateBalancingSummaries(10);
+                .GenerateBalancingSummaries(5);
             
             //
             // TODO - add screen to  to Autofac registration
@@ -39,6 +39,10 @@ namespace Monster.Middle.Processes.Payouts
                         screen,
                         screenWebSerivceUrl,
                         acumaticaCredentials);
+
+                _acumaticaPayoutPushWorker
+                    .WritePayoutToAcumatica(
+                        screen, 19276529764);
 
                 _acumaticaPayoutPushWorker
                     .WritePayoutToAcumatica(

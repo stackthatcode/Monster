@@ -61,16 +61,22 @@ namespace Monster.Middle.Processes.Payouts
                     .ToShortDateString();
             
             var schema = PX.Soap.Helper.GetSchema<CA306500Content>(client);
-            
+
             var commands
                 = new List<Command>()
                     .AddCommand(schema.CashAccount.CashAccount, preferences.AcumaticaCashAccount)
+                    .AddCommand(schema.Actions.Insert)
                     .AddCommand(schema.CashAccount.StartBalanceDate, payoutDate)
                     .AddCommand(schema.CashAccount.EndBalanceDate, payoutDate)
-                    .AddCommand(schema.CashAccount.StatementDate, payoutDate)
-                    .AddCommand(schema.Actions.Save)
-                    .AddCommand(schema.CashAccount.ReferenceNbr);
+                    .AddCommand(schema.CashAccount.StatementDate, payoutDate);
+                    
+            commands.AddRange(
+                PayoutTransactionsCommands(client, shopifyPayoutId));
 
+            commands
+                .AddCommand(schema.Actions.Save)
+                .AddCommand(schema.CashAccount.ReferenceNbr);
+                
             var results = client.CA306500Submit(commands.ToArray())[0];
 
             var referenceNbr = results.CashAccount.ReferenceNbr.Value;
@@ -78,44 +84,27 @@ namespace Monster.Middle.Processes.Payouts
             _persistRepository
                 .UpdatePayoutHeaderAcumaticaImport(
                         payout.ShopifyPayoutId, referenceNbr, DateTime.UtcNow);
-
-            WritePayoutTransactionsToAcumatica(client, shopifyPayoutId);
         }
 
 
-        public void WritePayoutTransactionsToAcumatica(
+        public List<Command> 
+                PayoutTransactionsCommands(
                         Screen client, long shopifyPayoutId)
         {
-            var payout = _persistRepository.RetrievePayout(shopifyPayoutId);
-            var payoutObject = payout.Json.DeserializeFromJson<Payout>();
-
-            if (payout.AcumaticaRefNumber.IsNullOrEmpty())
-            {
-                _logger.Error(
-                    "Attempt to write Payout Transactions without Header record " +
-                    $"for Shopify Payout {payout.ShopifyPayoutId}");
-                return;
-            }
-
             var transactions = _persistRepository.RetrievePayoutTranscations(shopifyPayoutId);
+            var output = new List<Command>();
 
             foreach (var transaction in transactions)
             {
-                WritePayoutTransactionToAcumatica(client, transaction);
+                output.AddRange(PayoutTransactionCommands(client, transaction));
             }
+
+            return output;
         }
 
-        public void WritePayoutTransactionToAcumatica(
+        public List<Command> PayoutTransactionCommands(
                         Screen client, UsrShopifyPayoutTransaction transaction)
         {
-            if (!transaction.AcumaticaRecordId.IsNullOrEmpty())
-            {
-                _logger.Info(
-                    $"Transaction Payout Id: {transaction.ShopifyPayoutId} - " +
-                    $"Transaction Id: {transaction.ShopifyPayoutTransId} " +
-                    $"is already written to Acumatica");
-            }
-
             var transObject = transaction.Json.DeserializeFromJson<PayoutTransaction>();
 
             if (transObject.type == "payout")
@@ -124,7 +113,7 @@ namespace Monster.Middle.Processes.Payouts
                     $"Skipping Transaction Payout Id: {transaction.ShopifyPayoutId} - " +
                     $"Transaction Id: {transaction.ShopifyPayoutTransId} " +
                     $"- type = payout");
-                return;
+                return new List<Command>();
             }
             
             var receipt = transObject.amount > 0 ? transObject.amount : 0;
@@ -137,8 +126,8 @@ namespace Monster.Middle.Processes.Payouts
 
             var schema = PX.Soap.Helper.GetSchema<CA306500Content>(client);
 
-            var commands
-                = new List<Command>()
+            return
+                new List<Command>()
                     .AddCommand(schema.Details.ServiceCommands.NewRow)
                     .AddCommand(schema.Details.ExtTranID, extTranID)
                     .AddCommand(schema.Details.ExtRefNbr, extRefNbr)
@@ -147,23 +136,7 @@ namespace Monster.Middle.Processes.Payouts
                     .AddCommand(schema.Details.Receipt, receipt.ToString())
                     .AddCommand(schema.Details.Disbursement, disbursment.ToString())
                     .AddCommand(schema.Actions.Save)
-                    .AddCommand(schema.CashAccount.ReferenceNbr);
-
-            var results = client.CA306500Submit(commands.ToArray())[0];
-            
-            _logger.Info(
-                $"Saved Shopify Payout Id: {transaction.ShopifyPayoutId} - " +
-                $"Transaction Id: {transaction.ShopifyPayoutTransId} - " +
-                $"Type: {transObject.type} - " +
-                $"to Acumatica");
-
-            //_persistRepository
-            //    .UpdatePayoutTransactionAcumaticaRecord(
-            //        transaction.ShopifyPayoutId,
-            //        transaction.ShopifyPayoutTransId,
-            //        importObject.id,
-            //        DateTime.UtcNow);
-
+                    .AddCommand(schema.Details.ExtRefNbr, extRefNbr);            
         }
     }
 }
