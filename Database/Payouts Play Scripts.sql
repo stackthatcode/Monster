@@ -1,6 +1,6 @@
 
-DELETE FROM usrShopifyPayout;
-DELETE FROM usrShopifyPayoutTransaction;
+--DELETE FROM usrShopifyPayout;
+--DELETE FROM usrShopifyPayoutTransaction;
 
 
 UPDATE usrShopifyPayout 

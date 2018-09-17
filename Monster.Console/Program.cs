@@ -37,14 +37,18 @@ namespace Monster.ConsoleApp
                 var logger = scope.Resolve<IPushLogger>();
                 try
                 {
-                    // TODO - inject your own PrivateAppCredentials 
+                    // TODO - inject your own via new PrivateAppCredentials();
                     var shopifyCredentials = ShopifyCredentialsFactory();
 
-                    // TODO - inject your own AcumaticaCredentials 
+                    // TODO - inject your own via new AcumaticaCredentials(); 
                     var acumaticaCredentials = AcumaticaCredentialsFactory();
 
+                    // TODO - inject your own Screen URL
+                    var webServiceUrl = "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx";
+
                     var process = scope.Resolve<PayoutProcess>();
-                    process.Execute(shopifyCredentials, acumaticaCredentials);
+                    process.Execute(shopifyCredentials, acumaticaCredentials, webServiceUrl);
+
                 }
                 catch (Exception ex)
                 {

@@ -8,6 +8,8 @@ namespace Monster.Acumatica.Api.Cash
         public string id { get; set; }
         public int rowNumber { get; set; }
         public string note { get; set; }
+
+        public IntegerValue LineNbr { get; set; }
         public StringValue AppliedRule { get; set; }
         public DoubleValue BeginningBalance { get; set; }
         public StringValue BusinessAccount { get; set; }

@@ -11,13 +11,13 @@ using Push.Shopify.Api.Payout;
 
 namespace Monster.Middle.Processes.Payouts
 {
-    public class AcumaticaPayoutPushWorker
+    public class AcumaticaPayoutPushWorkerRest
     {
         private readonly AcumaticaApiFactory _factory;
         private readonly IPushLogger _logger;
         private readonly PayoutImportRepository _persistRepository;
 
-        public AcumaticaPayoutPushWorker(
+        public AcumaticaPayoutPushWorkerRest(
                 AcumaticaApiFactory factory, 
                 IPushLogger logger, 
                 PayoutImportRepository persistRepository)
@@ -95,14 +95,14 @@ namespace Monster.Middle.Processes.Payouts
             _persistRepository
                 .UpdatePayoutHeaderAcumaticaImport(
                     shopifyPayoutId,
-                    acumaticaHeader.id,
                     acumaticaHeader.ReferenceNbr.value,
                     DateTime.UtcNow);
         }
+        
 
         public void WritePayoutTransactionsToAcumatica(
-                    AcumaticaCredentials credentials,
-                    long shopifyPayoutId)
+                        AcumaticaCredentials credentials,
+                        long shopifyPayoutId)
         {
             var payout = _persistRepository.RetrievePayout(shopifyPayoutId);
             var payoutObject = payout.Json.DeserializeFromJson<Payout>();
@@ -152,8 +152,8 @@ namespace Monster.Middle.Processes.Payouts
                     = $"Shopify Payout Trans Id: {transObject.id}".ToValue();
 
                 acumaticaTrans.TranDesc = "Test".ToValue();
-                acumaticaTrans.TranID = "42".ToValue();
-
+                //acumaticaTrans.TranID = "42".ToValue();
+                acumaticaTrans.LineNbr = 3.ToValue();
                 acumaticaTrans.Receipt = receipt.ToValue();
                 acumaticaTrans.Disbursement = disbursment.ToValue();
                 acumaticaTrans.InvoiceNbr

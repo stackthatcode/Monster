@@ -28,6 +28,11 @@ namespace Monster.Acumatica.Api.Common
         {
             return new DateValue(input);
         }
+
+        public static DateValue ToValue(this DateTime input)
+        {
+            return new DateValue(input);
+        }
     }
 
 

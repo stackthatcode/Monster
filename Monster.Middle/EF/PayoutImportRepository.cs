@@ -66,13 +66,9 @@ namespace Monster.Middle.EF
         }
 
         public void UpdatePayoutHeaderAcumaticaImport(
-                long shopifyPayoutId,
-                string acumaticaHeaderId,
-                string acumaticaRefNumber,
-                DateTime acumaticaImportDate)
+                long shopifyPayoutId, string acumaticaRefNumber, DateTime acumaticaImportDate)
         {
             var header = RetrievePayout(shopifyPayoutId);
-            header.AcumaticaHeaderId = acumaticaHeaderId;
             header.AcumaticaRefNumber = acumaticaRefNumber;
             header.AcumaticaImportDate = acumaticaImportDate;
             _dataContext.SaveChanges();

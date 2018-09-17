@@ -1,4 +1,5 @@
-﻿using Monster.Acumatica.Config;
+﻿using Monster.Acumatica.BankImportApi;
+using Monster.Acumatica.Config;
 using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Processes.Payouts
@@ -6,11 +7,11 @@ namespace Monster.Middle.Processes.Payouts
     public class PayoutProcess
     {
         private readonly ShopifyPayoutPullWorker _shopifyPayoutPullWorker;
-        private readonly AcumaticaPayoutPushWorker _acumaticaPayoutPushWorker;
+        private readonly AcumaticaPayoutPushWorkerScreen _acumaticaPayoutPushWorker;
 
         public PayoutProcess(
-                ShopifyPayoutPullWorker shopifyPayoutPullWorker, 
-                AcumaticaPayoutPushWorker acumaticaPayoutPushWorker)
+                ShopifyPayoutPullWorker shopifyPayoutPullWorker,
+                AcumaticaPayoutPushWorkerScreen acumaticaPayoutPushWorker)
         {
             _shopifyPayoutPullWorker = shopifyPayoutPullWorker;
             _acumaticaPayoutPushWorker = acumaticaPayoutPushWorker;
@@ -18,26 +19,33 @@ namespace Monster.Middle.Processes.Payouts
 
         public void Execute(
                 IShopifyCredentials shopifyCredentials,
-                AcumaticaCredentials acumaticaCredentials)
+                AcumaticaCredentials acumaticaCredentials,
+                string screenWebSerivceUrl)
         {
-            //_shopifyPayoutPullWorker
-            //    .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 10);
-            //_shopifyPayoutPullWorker
-            //    .ImportIncompletePayoutTransactions(shopifyCredentials);
-            //_shopifyPayoutPullWorker
-            //    .GenerateBalancingSummaries(10);
+            _shopifyPayoutPullWorker
+                .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 10);
+            _shopifyPayoutPullWorker
+                .ImportIncompletePayoutTransactions(shopifyCredentials);
+            _shopifyPayoutPullWorker
+                .GenerateBalancingSummaries(10);
+            
+            //
+            // TODO - add screen to  to Autofac registration
+            //
+            using (var screen = new Screen())
+            {
+                _acumaticaPayoutPushWorker
+                    .BeginSession(
+                        screen,
+                        screenWebSerivceUrl,
+                        acumaticaCredentials);
 
+                _acumaticaPayoutPushWorker
+                    .WritePayoutToAcumatica(
+                        screen, 19248185444);
 
-            _acumaticaPayoutPushWorker.BeginSession(acumaticaCredentials);
-
-            _acumaticaPayoutPushWorker.ListBankTransactions(acumaticaCredentials);
-
-            _acumaticaPayoutPushWorker
-                .WritePayoutHeaderToAcumatica(
-                    acumaticaCredentials, 19248185444);
-
-            _acumaticaPayoutPushWorker
-                .WritePayoutTransactionsToAcumatica(acumaticaCredentials, 19248185444);
+                screen.Logout();
+            }
         }
     }
 }
