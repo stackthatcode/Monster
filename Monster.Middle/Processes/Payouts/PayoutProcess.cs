@@ -1,5 +1,6 @@
 ﻿using Monster.Acumatica.BankImportApi;
 using Monster.Acumatica.Config;
+using Monster.Middle.EF;
 using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Processes.Payouts
@@ -8,13 +9,16 @@ namespace Monster.Middle.Processes.Payouts
     {
         private readonly ShopifyPayoutPullWorker _shopifyPayoutPullWorker;
         private readonly AcumaticaPayoutPushWorkerScreen _acumaticaPayoutPushWorker;
+        private readonly PayoutImportRepository _persistenceRepository;
 
         public PayoutProcess(
                 ShopifyPayoutPullWorker shopifyPayoutPullWorker,
-                AcumaticaPayoutPushWorkerScreen acumaticaPayoutPushWorker)
+                AcumaticaPayoutPushWorkerScreen acumaticaPayoutPushWorker, 
+                PayoutImportRepository persistenceRepository)
         {
             _shopifyPayoutPullWorker = shopifyPayoutPullWorker;
             _acumaticaPayoutPushWorker = acumaticaPayoutPushWorker;
+            _persistenceRepository = persistenceRepository;
         }
 
         public void Execute(
@@ -32,23 +36,23 @@ namespace Monster.Middle.Processes.Payouts
             //
             // TODO - add screen to  to Autofac registration
             //
-            using (var screen = new Screen())
+            foreach (var payout in
+                _persistenceRepository.RetrieveNotYetUploadedPayouts())
             {
-                _acumaticaPayoutPushWorker
-                    .BeginSession(
-                        screen,
-                        screenWebSerivceUrl,
-                        acumaticaCredentials);
+                using (var screen = new Screen())
+                {
+                    _acumaticaPayoutPushWorker
+                        .BeginSession(
+                            screen,
+                            screenWebSerivceUrl,
+                            acumaticaCredentials);
 
-                _acumaticaPayoutPushWorker
-                    .WritePayoutToAcumatica(
-                        screen, 19276529764);
+                    _acumaticaPayoutPushWorker
+                        .WritePayoutToAcumatica(
+                            screen, payout.ShopifyPayoutId);
 
-                _acumaticaPayoutPushWorker
-                    .WritePayoutToAcumatica(
-                        screen, 19248185444);
-
-                screen.Logout();
+                    screen.Logout();
+                }
             }
         }
     }

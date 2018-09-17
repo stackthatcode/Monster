@@ -81,6 +81,10 @@ namespace Monster.Middle.Processes.Payouts
 
             var referenceNbr = results.CashAccount.ReferenceNbr.Value;
 
+            _logger.Info(
+                $"Crated Shopify Payout : {payout.ShopifyPayoutId} " +
+                $"in Acumatica with Ref Number: {referenceNbr}");
+
             _persistRepository
                 .UpdatePayoutHeaderAcumaticaImport(
                         payout.ShopifyPayoutId, referenceNbr, DateTime.UtcNow);

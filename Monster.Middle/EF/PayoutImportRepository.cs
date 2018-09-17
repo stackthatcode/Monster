@@ -50,6 +50,16 @@ namespace Monster.Middle.EF
                     .ToList();
         }
 
+        public List<UsrShopifyPayout> RetrieveNotYetUploadedPayouts()
+        {
+            return _dataContext
+                .UsrShopifyPayouts
+                .Where(x => x.AcumaticaRefNumber == null)
+                .OrderBy(x => x.ShopifyPayoutId)
+                .ToList();
+        }
+
+
         public int InsertPayoutHeader(UsrShopifyPayout payout)
         {
             _dataContext.UsrShopifyPayouts.Add(payout);
@@ -107,15 +117,6 @@ namespace Monster.Middle.EF
             return transaction.Id;
         }
 
-        public void UpdatePayoutTransactionAcumaticaRecord(
-                    long shopifyPayoutId, 
-                    long shopifyPayoutTransId,
-                    DateTime acumaticaImportDate)
-        {
-            var transaction = RetrievePayoutTransaction(shopifyPayoutId, shopifyPayoutTransId);
-            transaction.AcumaticaImportDate = acumaticaImportDate;
-            _dataContext.SaveChanges();
-        }
     }
 }
 

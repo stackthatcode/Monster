@@ -119,14 +119,6 @@ namespace Monster.Middle.Processes.Payouts
 
             foreach (var transaction in transactions)
             {
-                if (transaction.AcumaticaImportDate != null)
-                {
-                    _logger.Info(
-                        $"Transaction Payout Id: {transaction.ShopifyPayoutId} - " +
-                        $"Transaction Id: {transaction.ShopifyPayoutTransId} " +
-                        $"is already written to Acumatica");
-                }
-
                 var transObject = transaction.Json.DeserializeFromJson<PayoutTransaction>();
 
                 if (transObject.type == "payout")
@@ -163,18 +155,6 @@ namespace Monster.Middle.Processes.Payouts
                 var result = repository.InsertImportBankTransaction(acumaticaTrans.SerializeToJson());
 
                 var importObject = result.DeserializeFromJson<ImportBankTransaction>();
-
-                _logger.Info(
-                    $"Saved Shopify Payout Id: {transaction.ShopifyPayoutId} - " +
-                    $"Transaction Id: {transaction.ShopifyPayoutTransId} - " +
-                    $"Type: {transObject.type} - " +
-                    $"to Acumatica");
-
-                _persistRepository
-                    .UpdatePayoutTransactionAcumaticaRecord(
-                        transaction.ShopifyPayoutId,
-                        transaction.ShopifyPayoutTransId,
-                        DateTime.UtcNow);
             }
         }
     }
