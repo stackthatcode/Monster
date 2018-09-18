@@ -1,7 +1,11 @@
+USE Monster;
 
---DELETE FROM usrShopifyPayout;
---DELETE FROM usrShopifyPayoutTransaction;
+/*
+DELETE FROM usrShopifyPayout;
+DELETE FROM usrShopifyPayoutTransaction;
+*/
 
+SELECT * FROM usrShopifyPayout
 
 UPDATE usrShopifyPayout 
 SET AcumaticaHeaderId = null, 
