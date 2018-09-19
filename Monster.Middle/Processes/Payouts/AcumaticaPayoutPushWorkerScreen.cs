@@ -130,9 +130,9 @@ namespace Monster.Middle.Processes.Payouts
             var disbursment = transObject.amount < 0 ? transObject.amount : 0;
 
             // *** Careful about juggling all of this
-            var tranDesc = $"Shopify Payout: {transObject.payout_id} - Payout Trans: {transObject.id}";
-            var invoiceNbr = $"Shopify Order Id: {transObject.source_order_id}";
-            var extTranID = $"Shopify Order Trans Id: {transObject.source_order_transaction_id}";
+            var tranDesc = $"Shopify Payout Id: {transObject.payout_id} - Payout Trans Id: {transObject.id}";
+            var invoiceNbr = $"Shopify Order Trans Id: {transObject.source_order_transaction_id}";
+            var extTranID = $"Shopify Order Id: {transObject.source_order_id}";
             var extRefNbr = $"Shopify Payout Trans Id: {transObject.id}";
 
             var schema = PX.Soap.Helper.GetSchema<CA306500Content>(client);

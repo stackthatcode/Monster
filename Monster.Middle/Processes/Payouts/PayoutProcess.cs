@@ -30,17 +30,21 @@ namespace Monster.Middle.Processes.Payouts
                 .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 5);
             _shopifyPayoutPullWorker
                 .ImportIncompletePayoutTransactions(shopifyCredentials);
+
+            // 
+            // Entirely optional self-analysis
+            //
             _shopifyPayoutPullWorker
                 .GenerateBalancingSummaries(5);
 
             //
-            // TODO - add screen to  to Autofac registration
-            //
-            //foreach (var payout in
-            //    _persistenceRepository.RetrieveNotYetUploadedPayouts())
-            //{
+            // TODO - add screen to Autofac registration
+            //  
+            foreach (var payout in
+                _persistenceRepository.RetrieveNotYetUploadedPayouts())
+            {
 
-            using (var screen = new Screen())
+                using (var screen = new Screen())
                 {
                     _acumaticaPayoutPushWorker
                         .BeginSession(
@@ -51,13 +55,11 @@ namespace Monster.Middle.Processes.Payouts
                     _acumaticaPayoutPushWorker
                         .WritePayoutToAcumatica(
                             screen, 
-                            19248185444);
-
-                            //payout.ShopifyPayoutId);
+                            payout.ShopifyPayoutId);
 
                     screen.Logout();
                 }
-            //}
+            }
         }
     }
 }

@@ -61,7 +61,10 @@ namespace Monster.Middle.Processes.Payouts
 
                 if (persistedPayout != null)
                 {
-                    _logger.Info($"Shopify Payout {payout.id} found - skipping");
+                    _persistRepository
+                        .UpdatePayoutHeaderStatus(payout.id, payout.status);
+
+                    _logger.Info($"Shopify Payout {payout.id} found - updating status and skipping!");
                     continue;
                 }
 
@@ -71,6 +74,7 @@ namespace Monster.Middle.Processes.Payouts
                 var newPayout = new UsrShopifyPayout()
                 {
                     ShopifyPayoutId = payout.id,
+                    ShopifyLastStatus = payout.status,
                     Json = payout.SerializeToJson(),
                     CreatedDate = DateTime.UtcNow,
                     UpdatedDate = DateTime.UtcNow,

@@ -487,6 +487,7 @@ namespace Monster.Middle.EF
     {
         public int Id { get; set; } // Id (Primary key)
         public long ShopifyPayoutId { get; set; } // ShopifyPayoutId
+        public string ShopifyLastStatus { get; set; } // ShopifyLastStatus (length: 50)
         public string Json { get; set; } // Json (length: 2147483647)
         public bool AllShopifyTransDownloaded { get; set; } // AllShopifyTransDownloaded
         public System.DateTime? CreatedDate { get; set; } // CreatedDate
@@ -507,7 +508,7 @@ namespace Monster.Middle.EF
         public string Json { get; set; } // Json (length: 2147483647)
         public System.DateTime? CreatedDate { get; set; } // CreatedDate
         public System.DateTime? AcumaticaImportDate { get; set; } // AcumaticaImportDate
-        public string AcumaticaExtRefNrb { get; set; } // AcumaticaExtRefNrb (length: 50)
+        public string AcumaticaExtRefNbr { get; set; } // AcumaticaExtRefNbr (length: 50)
     }
 
     #endregion
@@ -549,6 +550,7 @@ namespace Monster.Middle.EF
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyPayoutId).HasColumnName(@"ShopifyPayoutId").HasColumnType("bigint").IsRequired();
+            Property(x => x.ShopifyLastStatus).HasColumnName(@"ShopifyLastStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.Json).HasColumnName(@"Json").HasColumnType("text").IsRequired().IsUnicode(false).HasMaxLength(2147483647);
             Property(x => x.AllShopifyTransDownloaded).HasColumnName(@"AllShopifyTransDownloaded").HasColumnType("bit").IsRequired();
             Property(x => x.CreatedDate).HasColumnName(@"CreatedDate").HasColumnType("datetime").IsOptional();
@@ -580,7 +582,7 @@ namespace Monster.Middle.EF
             Property(x => x.Json).HasColumnName(@"Json").HasColumnType("text").IsOptional().IsUnicode(false).HasMaxLength(2147483647);
             Property(x => x.CreatedDate).HasColumnName(@"CreatedDate").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaImportDate).HasColumnName(@"AcumaticaImportDate").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaExtRefNrb).HasColumnName(@"AcumaticaExtRefNrb").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaExtRefNbr).HasColumnName(@"AcumaticaExtRefNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
         }
     }
 

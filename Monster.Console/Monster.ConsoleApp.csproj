@@ -63,7 +63,6 @@
   <ItemGroup>
     <Compile Include="Shopify\Metaplay.cs" />
     <Compile Include="Acumatica\AcumaticaHarness.cs" />
-    <Compile Include="ConsoleAutofac.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shopify\ShopifyHarness.cs" />

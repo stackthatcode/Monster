@@ -1,8 +1,15 @@
 ﻿using System;
+using System.Threading;
 using Autofac;
 using Monster.Acumatica.Config;
+using Monster.Middle;
+using Monster.Middle.Config;
+using Monster.Middle.EF;
 using Monster.Middle.Processes.Payouts;
+using Monster.Middle.Runners;
+using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
+using Push.Shopify.Api.Payout;
 using Push.Shopify.Config;
 using Push.Shopify.Http.Credentials;
 
@@ -13,52 +20,105 @@ namespace Monster.ConsoleApp
     {
         static void Main(string[] args)
         {
-            RunShopifyToAcumaticaPayouts();            
-            
+            //StressTestDataPopulate();
+            RunPayouts();
+
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
 
-
-        public static void RunShopifyToAcumaticaPayouts()
+        public static void RunPayouts()
         {
-            // TODO - inject Connection String override here if you're not
-            // ... going to use the config file
+            // TODO - inject your own via new PrivateAppCredentials();
+            var shopifyCredentials = ShopifyCredentialsFactory();
 
-            var connectionString = 
-                "Server=localhost;Database=Monster;Trusted_Connection=True;";
+            // TODO - inject your own via new AcumaticaCredentials(); 
+            var acumaticaCredentials = AcumaticaCredentialsFactory();
 
+            var payoutConfig = PayoutConfigFactory();
+
+            PayoutBootstrap.RunPayouts(
+                shopifyCredentials, acumaticaCredentials, payoutConfig);
+        }
+
+        public static void StressTestDataPopulate()
+        {
+            var payoutConfig = PayoutConfigFactory();
             using (var container =
-                    ConsoleAutofac.Build(
-                        connectionStringOverride: connectionString))
-
+                        MiddleAutofac.Build(
+                            connStringOverride: payoutConfig.ConnectionString,
+                            loggerName: "Monster.Payouts"))
             using (var scope = container.BeginLifetimeScope())
             {
+                var repository = scope.Resolve<PayoutImportRepository>();
                 var logger = scope.Resolve<IPushLogger>();
-                try
+
+                var shopifyPayout = new Payout()
                 {
-                    // TODO - inject your own via new PrivateAppCredentials();
-                    var shopifyCredentials = ShopifyCredentialsFactory();
+                    id = 1000000000,
+                    date = new DateTime(2018, 09, 18),
+                    currency = "USD",
+                    status = "paid"
+                };
 
-                    // TODO - inject your own via new AcumaticaCredentials(); 
-                    var acumaticaCredentials = AcumaticaCredentialsFactory();
+                var payout_id = 11111111111;
 
-                    // TODO - inject your own Screen URL
-                    var webServiceUrl = "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx";
-
-                    var process = scope.Resolve<PayoutProcess>();
-                    process.Execute(shopifyCredentials, acumaticaCredentials, webServiceUrl);
-
-                }
-                catch (Exception ex)
+                var payout = new UsrShopifyPayout()
                 {
-                    logger.Error(ex);
-                    throw;
+                    ShopifyPayoutId = 11111111111,
+                    ShopifyLastStatus = "paid",
+                    CreatedDate = DateTime.UtcNow,
+                    AllShopifyTransDownloaded = true,
+                    Json = shopifyPayout.SerializeToJson(),
+                };
+
+                repository.InsertPayoutHeader(payout);
+
+                var counter = 0;
+
+                var rand = new Random();
+
+                while (counter++ < 10000)
+                {
+                    if (counter % 100 == 0)
+                    {
+                        logger.Info($"Counter: {counter}");
+                    }
+
+                    var amount = rand.Next(100, 1000);
+                    var fee = rand.Next(10, 100);
+
+                    var shopifyTransaction = new PayoutTransaction
+                    {
+                        payout_id = payout_id,
+                        amount = amount,
+                        currency = "USD",
+                        payout_status = "paid",
+                        type = "charge",
+                        fee = fee,
+                        net = amount - fee,
+                        source_id = 200000000 + counter,
+                        id = 300000000 + counter,
+                        source_order_transaction_id = 400000000 + counter,
+                        source_order_id = 500000000 + counter,                        
+                    };
+
+                    var transaction = new UsrShopifyPayoutTransaction()
+                    {
+                        ShopifyPayoutId = payout_id,
+                        CreatedDate = DateTime.UtcNow,
+                        ShopifyPayoutTransId = shopifyTransaction.id,
+                        Type = shopifyTransaction.type,
+                        Json = shopifyTransaction.SerializeToJson(),
+                    };
+
+                    repository.InsertPayoutTransaction(transaction);
                 }
             }
         }
-        
-        public static IShopifyCredentials ShopifyCredentialsFactory()
+
+
+        public static PrivateAppCredentials ShopifyCredentialsFactory()
         {
             return ShopifySecuritySettings
                 .FromConfiguration()
@@ -71,25 +131,20 @@ namespace Monster.ConsoleApp
             return new AcumaticaCredentials(config);
         }
 
-
-        static void ExecuteInLifetimeScope(Action<ILifetimeScope> action)
+        public static PayoutConfig PayoutConfigFactory()
         {
-            using (var container = ConsoleAutofac.Build(false))
-            using (var scope = container.BeginLifetimeScope())
+            var payoutConfig = new PayoutConfig
             {
-                var logger = scope.Resolve<IPushLogger>();
-                try
-                {
-                    action(scope);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex);
-                    throw;
-                }
-            }
-        }
+                // TODO - inject your own connection string
+                ConnectionString =
+                    "Server=localhost;Database=Monster;Trusted_Connection=True;",
 
+                // TODO - inject your own Screen URL
+                ScreenApiUrl =
+                    "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx",
+            };
+            return payoutConfig;
+        }
     }
 }
 

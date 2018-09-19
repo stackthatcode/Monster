@@ -147,7 +147,7 @@
     <Compile Include="ShopifyApiAutofac.cs" />
     <Compile Include="Api\ShopifyApiFactory.cs" />
     <Compile Include="Http\Credentials\OAuthAccessToken.cs" />
-    <Compile Include="Http\Credentials\IShopifyCredentials.cs" />
+    <Compile Include="Http\Credentials\PrivateApp.cs" />
     <Compile Include="Http\Credentials\PrivateAppCredentials.cs" />
     <Compile Include="Http\ShopDomain.cs" />
     <Compile Include="Http\ShopifyHttpClientFactory.cs" />
