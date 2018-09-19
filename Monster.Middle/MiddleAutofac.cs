@@ -12,7 +12,6 @@ namespace Monster.Middle
             builder.RegisterType<PayoutImportRepository>().InstancePerLifetimeScope();
 
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaPayoutPushWorkerRest>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaPayoutPushWorkerScreen>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
         }

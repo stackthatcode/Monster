@@ -32,14 +32,15 @@ namespace Monster.Middle.Processes.Payouts
                 .ImportIncompletePayoutTransactions(shopifyCredentials);
             _shopifyPayoutPullWorker
                 .GenerateBalancingSummaries(5);
-            
+
             //
             // TODO - add screen to  to Autofac registration
             //
-            foreach (var payout in
-                _persistenceRepository.RetrieveNotYetUploadedPayouts())
-            {
-                using (var screen = new Screen())
+            //foreach (var payout in
+            //    _persistenceRepository.RetrieveNotYetUploadedPayouts())
+            //{
+
+            using (var screen = new Screen())
                 {
                     _acumaticaPayoutPushWorker
                         .BeginSession(
@@ -49,11 +50,14 @@ namespace Monster.Middle.Processes.Payouts
 
                     _acumaticaPayoutPushWorker
                         .WritePayoutToAcumatica(
-                            screen, payout.ShopifyPayoutId);
+                            screen, 
+                            19248185444);
+
+                            //payout.ShopifyPayoutId);
 
                     screen.Logout();
                 }
-            }
+            //}
         }
     }
 }

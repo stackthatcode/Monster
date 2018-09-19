@@ -74,7 +74,7 @@ namespace Monster.Middle.Processes.Payouts
                     Json = payout.SerializeToJson(),
                     CreatedDate = DateTime.UtcNow,
                     UpdatedDate = DateTime.UtcNow,
-                    AllDetailRecordsCaptured = false,
+                    AllShopifyTransDownloaded = false,
                 };
 
                 _persistRepository.InsertPayoutHeader(newPayout);
@@ -90,7 +90,7 @@ namespace Monster.Middle.Processes.Payouts
                 ImportPayoutTransactions(credentials, payout.ShopifyPayoutId);
 
                 _persistRepository
-                    .UpdatePayoutHeaderAllRecordsCaptured(
+                    .UpdatePayoutHeaderAllShopifyTransDownloaded(
                             payout.ShopifyPayoutId, true);
             }
         }
@@ -195,7 +195,7 @@ namespace Monster.Middle.Processes.Payouts
             {
                 var transactions
                     = _persistRepository
-                        .RetrievePayoutTranscations(payout.ShopifyPayoutId)
+                        .RetrieveNotYetUploadedPayoutTranscations(payout.ShopifyPayoutId)
                         .Select(x => x.Json.DeserializeFromJson<PayoutTransaction>())
                         .ToList();
 

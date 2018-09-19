@@ -71,7 +71,6 @@
     <Compile Include="Processes\Payouts\AcumaticaPayoutPushWorkerScreen.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Processes\Payouts\AcumaticaPayoutPushWorkerRest.cs" />
     <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />
   </ItemGroup>
   <ItemGroup>
