@@ -2,11 +2,14 @@
 using System.Threading;
 using Autofac;
 using Monster.Acumatica.Config;
+using Monster.ConsoleApp.Shopify;
 using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.EF;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Runners;
+using Push.Foundation.Utilities.Autofac;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Payout;
@@ -21,11 +24,45 @@ namespace Monster.ConsoleApp
         static void Main(string[] args)
         {
             //StressTestDataPopulate();
-            RunPayouts();
+            //RunPayouts();
+
+            RunMetafieldCopy();
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
+
+        public static void RunMetafieldCopy()
+        {
+            Console.WriteLine("Copy 3DU_Automation Metafields");
+            Console.WriteLine("****");
+
+            Console.WriteLine("Enter Source Product ID");
+            var sourceProductId = Console.ReadLine().ToLong();
+
+            Console.WriteLine("Enter Target Product ID");
+            var targetProductId = Console.ReadLine().ToLong();
+            
+            Console.WriteLine(Environment.NewLine + "Ok, running...");
+
+            var credentials = ShopifyCredentialsFactory();
+            
+            using (var container = MiddleAutofac.Build())
+            {
+                container.RunInLifetimeScope(
+                    scope => 
+                        MetafieldWorkers.CopyShoppingFeedMetadata(
+                            scope,
+                            credentials,
+                            sourceProductId,
+                            targetProductId,
+                            "3DU_AUTOMATION"));
+            }
+
+            Console.WriteLine("FIN");
+            Console.ReadKey();
+        }
+
 
         public static void RunPayouts()
         {
@@ -43,22 +80,23 @@ namespace Monster.ConsoleApp
             
             // #1 - this will pull from Shopify everything as specified in Payout Config
             // ... and push *every* possible Shopify transaction
-            PayoutBootstrap.RunPayoutsEndToEnd(
-                    shopifyCredentials, acumaticaCredentials, payoutConfig);
+            //PayoutBootstrap.RunPayoutsEndToEnd(
+            //        shopifyCredentials, acumaticaCredentials, payoutConfig);
 
             // #2 - this will search Shopify and pull a solitary Payout
             // ... and all its Transactions from Shopify
-            var payoutId = 1234;
-            PayoutBootstrap.PullFromShopify(
-                    shopifyCredentials, payoutConfig, payoutId);
+            //var payoutId = 1234;
+            //PayoutBootstrap.PullFromShopify(
+            //        shopifyCredentials, payoutConfig, payoutId);
 
             // #3 - this will only load the header and transactions from the
             // ... single Payout identified into Acumatica
-            var payoutId2 = 1234;
+            var payoutId2 = 11111111111;
             PayoutBootstrap.PushToAcumatica(
                 acumaticaCredentials, payoutConfig, payoutId2);
 
         }
+
 
         public static PrivateAppCredentials ShopifyCredentialsFactory()
         {

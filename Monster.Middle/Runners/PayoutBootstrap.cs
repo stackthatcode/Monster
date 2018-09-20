@@ -25,7 +25,7 @@ namespace Monster.Middle.Runners
         {
             using (var container = ContainerFactory(payoutConfig))
             {
-                container.ExecuteInLifetimeScope(
+                container.RunInLifetimeScope(
                     scope =>
                     {
                         var process = scope.Resolve<PayoutProcess>();
@@ -49,7 +49,7 @@ namespace Monster.Middle.Runners
         {
             using (var container = ContainerFactory(payoutConfig))
             {
-                container.ExecuteInLifetimeScope(
+                container.RunInLifetimeScope(
                     scope =>
                     {
                         var process = scope.Resolve<PayoutProcess>();
@@ -70,7 +70,7 @@ namespace Monster.Middle.Runners
         {
             using (var container = ContainerFactory(payoutConfig))
             {
-                container.ExecuteInLifetimeScope(
+                container.RunInLifetimeScope(
                     scope =>
                     {
                         var process = scope.Resolve<PayoutProcess>();

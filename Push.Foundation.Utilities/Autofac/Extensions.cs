@@ -7,7 +7,7 @@ namespace Push.Foundation.Utilities.Autofac
     public static class Extensions
     {
         public static void 
-                ExecuteInLifetimeScope(
+                RunInLifetimeScope(
                     this IContainer container, 
                     Action<ILifetimeScope> action)
         {

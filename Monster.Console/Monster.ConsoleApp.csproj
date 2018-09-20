@@ -61,7 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Shopify\Metaplay.cs" />
+    <Compile Include="Shopify\MetafieldWorkers.cs" />
     <Compile Include="Acumatica\AcumaticaHarness.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
