@@ -21,45 +21,79 @@ namespace Monster.Middle.Processes.Payouts
             _persistenceRepository = persistenceRepository;
         }
 
-        public void Execute(
-                IShopifyCredentials shopifyCredentials,
-                AcumaticaCredentials acumaticaCredentials,
-                string screenWebSerivceUrl)
+        public void PullShopifyPayouts(
+                        IShopifyCredentials shopifyCredentials,
+                        int recordsPerPage = 14, 
+                        int maxPages = 1,
+                        bool includeTransactions = true,
+                        long? shopifyPayoutId = null)
         {
             _shopifyPayoutPullWorker
-                .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 5);
-            _shopifyPayoutPullWorker
-                .ImportIncompletePayoutTransactions(shopifyCredentials);
+                .ImportPayoutHeaders(
+                    shopifyCredentials, 
+                    maxPages, 
+                    recordsPerPage,
+                    shopifyPayoutId);
+
+            if (includeTransactions)
+            {
+                if (shopifyPayoutId.HasValue)
+                {
+                    _shopifyPayoutPullWorker
+                        .ImportPayoutTransactions(
+                            credentials:shopifyCredentials, 
+                            payoutId:shopifyPayoutId.Value);
+                }
+                else
+                {
+                    _shopifyPayoutPullWorker
+                        .ImportIncompletePayoutTransactions(
+                            shopifyCredentials);
+                }
+            }
 
             // 
             // Entirely optional self-analysis
             //
-            _shopifyPayoutPullWorker
-                .GenerateBalancingSummaries(5);
+            //_shopifyPayoutPullWorker
+            //    .LogBalancingSummaries(5);
+        }
 
-            //
-            // TODO - add screen to Autofac registration
-            //  
+        public void PushAllAcumaticaPayouts(               
+                AcumaticaCredentials acumaticaCredentials,
+                string screenWebSerivceUrl)
+        {
+            _acumaticaPayoutPushWorker
+                .BeginSession(
+                    screenWebSerivceUrl,
+                    acumaticaCredentials);
+
             foreach (var payout in
                 _persistenceRepository.RetrieveNotYetUploadedPayouts())
             {
-
-                using (var screen = new Screen())
-                {
-                    _acumaticaPayoutPushWorker
-                        .BeginSession(
-                            screen,
-                            screenWebSerivceUrl,
-                            acumaticaCredentials);
-
-                    _acumaticaPayoutPushWorker
-                        .WritePayoutToAcumatica(
-                            screen, 
-                            payout.ShopifyPayoutId);
-
-                    screen.Logout();
-                }
+                _acumaticaPayoutPushWorker
+                    .WritePayoutToAcumatica(payout.ShopifyPayoutId);
             }
+
+            _acumaticaPayoutPushWorker.EndSession();
         }
+
+        public void PushAcumaticaPayout(
+                AcumaticaCredentials acumaticaCredentials,
+                string screenWebSerivceUrl, 
+                long shopifyPayoutId)
+        {
+            _acumaticaPayoutPushWorker
+                .BeginSession(
+                    screenWebSerivceUrl,
+                    acumaticaCredentials);
+
+            _acumaticaPayoutPushWorker
+                .WritePayoutToAcumatica(shopifyPayoutId);
+
+            _acumaticaPayoutPushWorker.EndSession();
+        }
+
     }
 }
+

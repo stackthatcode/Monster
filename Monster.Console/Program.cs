@@ -35,11 +35,60 @@ namespace Monster.ConsoleApp
             // TODO - inject your own via new AcumaticaCredentials(); 
             var acumaticaCredentials = AcumaticaCredentialsFactory();
 
+            // TODO - inject your own config values here
             var payoutConfig = PayoutConfigFactory();
+            
 
-            PayoutBootstrap.RunPayouts(
-                shopifyCredentials, acumaticaCredentials, payoutConfig);
+            // *** OPTIONS FOR RUNNING - choose one!
+            
+            // #1 - this will pull from Shopify everything as specified in Payout Config
+            // ... and push *every* possible Shopify transaction
+            PayoutBootstrap.RunPayoutsEndToEnd(
+                    shopifyCredentials, acumaticaCredentials, payoutConfig);
+
+            // #2 - this will search Shopify and pull a solitary Payout
+            // ... and all its Transactions from Shopify
+            var payoutId = 1234;
+            PayoutBootstrap.PullFromShopify(
+                    shopifyCredentials, payoutConfig, payoutId);
+
+            // #3 - this will only load the header and transactions from the
+            // ... single Payout identified into Acumatica
+            var payoutId2 = 1234;
+            PayoutBootstrap.PushToAcumatica(
+                acumaticaCredentials, payoutConfig, payoutId2);
+
         }
+
+        public static PrivateAppCredentials ShopifyCredentialsFactory()
+        {
+            return ShopifySecuritySettings
+                .FromConfiguration()
+                .MakePrivateAppCredentials();
+        }
+
+        public static AcumaticaCredentials AcumaticaCredentialsFactory()
+        {
+            var config = AcumaticaCredentialsConfig.Settings;
+            return new AcumaticaCredentials(config);
+        }
+
+        public static PayoutConfig PayoutConfigFactory()
+        {
+            var payoutConfig = new PayoutConfig
+            {
+                // TODO - inject your own connection string
+                ConnectionString =
+                    "Server=localhost;Database=Monster;Trusted_Connection=True;",
+
+                // TODO - inject your own Screen URL
+                ScreenApiUrl =
+                    "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx",
+            };
+            return payoutConfig;
+        }
+
+
 
         public static void StressTestDataPopulate()
         {
@@ -100,7 +149,7 @@ namespace Monster.ConsoleApp
                         source_id = 200000000 + counter,
                         id = 300000000 + counter,
                         source_order_transaction_id = 400000000 + counter,
-                        source_order_id = 500000000 + counter,                        
+                        source_order_id = 500000000 + counter,
                     };
 
                     var transaction = new UsrShopifyPayoutTransaction()
@@ -115,35 +164,6 @@ namespace Monster.ConsoleApp
                     repository.InsertPayoutTransaction(transaction);
                 }
             }
-        }
-
-
-        public static PrivateAppCredentials ShopifyCredentialsFactory()
-        {
-            return ShopifySecuritySettings
-                .FromConfiguration()
-                .MakePrivateAppCredentials();
-        }
-
-        public static AcumaticaCredentials AcumaticaCredentialsFactory()
-        {
-            var config = AcumaticaCredentialsConfig.Settings;
-            return new AcumaticaCredentials(config);
-        }
-
-        public static PayoutConfig PayoutConfigFactory()
-        {
-            var payoutConfig = new PayoutConfig
-            {
-                // TODO - inject your own connection string
-                ConnectionString =
-                    "Server=localhost;Database=Monster;Trusted_Connection=True;",
-
-                // TODO - inject your own Screen URL
-                ScreenApiUrl =
-                    "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx",
-            };
-            return payoutConfig;
         }
     }
 }

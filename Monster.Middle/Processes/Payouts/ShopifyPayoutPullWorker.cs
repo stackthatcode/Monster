@@ -31,9 +31,10 @@ namespace Monster.Middle.Processes.Payouts
         //
         // TODO - add option to use cutoff date
         //
-        public void ImportPayoutHeaders(
-                IShopifyCredentials credentials, 
-                int maxPages = 1, int recordsPerPage = 50)
+        public void ImportPayoutHeaders(IShopifyCredentials credentials,
+                    int maxPages = 1, 
+                    int recordsPerPage = 50, 
+                    long? shopifyPayoutId = null)
         {
             var payoutApi = _shopifyApiFactory.MakePayoutApi(credentials);
             var currentPage = 1;
@@ -45,19 +46,24 @@ namespace Monster.Middle.Processes.Payouts
                     payoutApi
                         .RetrievePayouts(recordsPerPage, maxPages)
                         .DeserializeFromJson<PayoutList>();
-
-                SavePayoutHeaders(payouts);
+                
+                SavePayoutHeaders(payouts, shopifyPayoutId);
 
                 currentPage++;
             }
         }
 
-        public void SavePayoutHeaders(PayoutList payouts)
+        public void SavePayoutHeaders(PayoutList payouts, long? shopifyPayoutId)
         {
             foreach (var payout in payouts.payouts)
             {
                 var persistedPayout =
                     _persistRepository.RetrievePayout(payout.id);
+
+                if (shopifyPayoutId.HasValue && payout.id != shopifyPayoutId.Value)
+                {
+                    continue;
+                }
 
                 if (persistedPayout != null)
                 {
@@ -191,7 +197,7 @@ namespace Monster.Middle.Processes.Payouts
         }
 
 
-        public void GenerateBalancingSummaries(int limitHowFarBack = 10)
+        public void LogBalancingSummaries(int limitHowFarBack = 10)
         {
             var payouts = _persistRepository.RetrievePayouts(limitHowFarBack);
 

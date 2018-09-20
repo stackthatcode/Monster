@@ -152,8 +152,8 @@ namespace Monster.Middle.EF
         public FakeMonsterDataContext()
         {
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
-            UsrShopifyPayouts = new FakeDbSet<UsrShopifyPayout>("Id");
-            UsrShopifyPayoutTransactions = new FakeDbSet<UsrShopifyPayoutTransaction>("Id");
+            UsrShopifyPayouts = new FakeDbSet<UsrShopifyPayout>("ShopifyPayoutId");
+            UsrShopifyPayoutTransactions = new FakeDbSet<UsrShopifyPayoutTransaction>("ShopifyPayoutId", "ShopifyPayoutTransId");
         }
 
         public int SaveChangesCount { get; private set; }
@@ -485,8 +485,7 @@ namespace Monster.Middle.EF
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
     public class UsrShopifyPayout
     {
-        public int Id { get; set; } // Id (Primary key)
-        public long ShopifyPayoutId { get; set; } // ShopifyPayoutId
+        public long ShopifyPayoutId { get; set; } // ShopifyPayoutId (Primary key)
         public string ShopifyLastStatus { get; set; } // ShopifyLastStatus (length: 50)
         public string Json { get; set; } // Json (length: 2147483647)
         public bool AllShopifyTransDownloaded { get; set; } // AllShopifyTransDownloaded
@@ -495,20 +494,38 @@ namespace Monster.Middle.EF
         public string AcumaticaCashAccount { get; set; } // AcumaticaCashAccount (length: 50)
         public string AcumaticaRefNumber { get; set; } // AcumaticaRefNumber (length: 50)
         public System.DateTime? AcumaticaImportDate { get; set; } // AcumaticaImportDate
+
+        // Reverse navigation
+
+        /// <summary>
+        /// Child UsrShopifyPayoutTransactions where [usrShopifyPayoutTransaction].[ShopifyPayoutId] point to this entity (FK_usrShopifyPayoutTransaction_usrShopifyPayout)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrShopifyPayoutTransaction> UsrShopifyPayoutTransactions { get; set; } // usrShopifyPayoutTransaction.FK_usrShopifyPayoutTransaction_usrShopifyPayout
+
+        public UsrShopifyPayout()
+        {
+            UsrShopifyPayoutTransactions = new System.Collections.Generic.List<UsrShopifyPayoutTransaction>();
+        }
     }
 
     // usrShopifyPayoutTransaction
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
     public class UsrShopifyPayoutTransaction
     {
-        public int Id { get; set; } // Id (Primary key)
-        public long ShopifyPayoutId { get; set; } // ShopifyPayoutId
-        public long ShopifyPayoutTransId { get; set; } // ShopifyPayoutTransId
+        public long ShopifyPayoutId { get; set; } // ShopifyPayoutId (Primary key)
+        public long ShopifyPayoutTransId { get; set; } // ShopifyPayoutTransId (Primary key)
         public string Type { get; set; } // Type (length: 50)
         public string Json { get; set; } // Json (length: 2147483647)
         public System.DateTime? CreatedDate { get; set; } // CreatedDate
         public System.DateTime? AcumaticaImportDate { get; set; } // AcumaticaImportDate
         public string AcumaticaExtRefNbr { get; set; } // AcumaticaExtRefNbr (length: 50)
+
+        // Foreign keys
+
+        /// <summary>
+        /// Parent UsrShopifyPayout pointed by [usrShopifyPayoutTransaction].([ShopifyPayoutId]) (FK_usrShopifyPayoutTransaction_usrShopifyPayout)
+        /// </summary>
+        public virtual UsrShopifyPayout UsrShopifyPayout { get; set; } // FK_usrShopifyPayoutTransaction_usrShopifyPayout
     }
 
     #endregion
@@ -546,10 +563,9 @@ namespace Monster.Middle.EF
         public UsrShopifyPayoutConfiguration(string schema)
         {
             ToTable("usrShopifyPayout", schema);
-            HasKey(x => x.Id);
+            HasKey(x => x.ShopifyPayoutId);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyPayoutId).HasColumnName(@"ShopifyPayoutId").HasColumnType("bigint").IsRequired();
+            Property(x => x.ShopifyPayoutId).HasColumnName(@"ShopifyPayoutId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyLastStatus).HasColumnName(@"ShopifyLastStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.Json).HasColumnName(@"Json").HasColumnType("text").IsRequired().IsUnicode(false).HasMaxLength(2147483647);
             Property(x => x.AllShopifyTransDownloaded).HasColumnName(@"AllShopifyTransDownloaded").HasColumnType("bit").IsRequired();
@@ -573,16 +589,18 @@ namespace Monster.Middle.EF
         public UsrShopifyPayoutTransactionConfiguration(string schema)
         {
             ToTable("usrShopifyPayoutTransaction", schema);
-            HasKey(x => x.Id);
+            HasKey(x => new { x.ShopifyPayoutId, x.ShopifyPayoutTransId });
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyPayoutId).HasColumnName(@"ShopifyPayoutId").HasColumnType("bigint").IsRequired();
-            Property(x => x.ShopifyPayoutTransId).HasColumnName(@"ShopifyPayoutTransId").HasColumnType("bigint").IsRequired();
+            Property(x => x.ShopifyPayoutId).HasColumnName(@"ShopifyPayoutId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyPayoutTransId).HasColumnName(@"ShopifyPayoutTransId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.Type).HasColumnName(@"Type").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.Json).HasColumnName(@"Json").HasColumnType("text").IsOptional().IsUnicode(false).HasMaxLength(2147483647);
             Property(x => x.CreatedDate).HasColumnName(@"CreatedDate").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaImportDate).HasColumnName(@"AcumaticaImportDate").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaExtRefNbr).HasColumnName(@"AcumaticaExtRefNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+
+            // Foreign keys
+            HasRequired(a => a.UsrShopifyPayout).WithMany(b => b.UsrShopifyPayoutTransactions).HasForeignKey(c => c.ShopifyPayoutId).WillCascadeOnDelete(false); // FK_usrShopifyPayoutTransaction_usrShopifyPayout
         }
     }
 

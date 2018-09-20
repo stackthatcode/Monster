@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Autofac;
 using Monster.Acumatica;
+using Monster.Acumatica.BankImportApi;
 using Monster.Middle.EF;
 using Monster.Middle.Processes.Payouts;
 using Push.Foundation.Utilities.Logging;
@@ -62,6 +63,9 @@ namespace Monster.Middle
 
             builder.RegisterType<MonsterDataContext>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutImportRepository>().InstancePerLifetimeScope();
+
+            // Acumatica Bank Import API screen
+            builder.RegisterType<Screen>().InstancePerLifetimeScope();
 
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaPayoutPushWorkerScreen>().InstancePerLifetimeScope();

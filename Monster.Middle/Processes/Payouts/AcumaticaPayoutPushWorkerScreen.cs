@@ -11,33 +11,41 @@ using Push.Shopify.Api.Payout;
 
 namespace Monster.Middle.Processes.Payouts
 {
-    public class AcumaticaPayoutPushWorkerScreen
+    public class AcumaticaPayoutPushWorkerScreen : IDisposable
     {
         private readonly IPushLogger _logger;
         private readonly PayoutImportRepository _persistRepository;
+        private readonly Screen _screen;
 
         public AcumaticaPayoutPushWorkerScreen(
+                
                 IPushLogger logger,
-                PayoutImportRepository persistRepository)
+                PayoutImportRepository persistRepository, 
+                Screen screen)
         {
             _logger = logger;
             _persistRepository = persistRepository;
+            _screen = screen;
         }
 
         public void BeginSession(
-                        Screen client, 
                         string screenWebSerivceUrl,
                         AcumaticaCredentials credentials)
         {
-            client.CookieContainer = new System.Net.CookieContainer();
-            client.Url = screenWebSerivceUrl;
-            client.Login(credentials.Username, credentials.Password);
+            _screen.CookieContainer = new System.Net.CookieContainer();
+            _screen.Url = screenWebSerivceUrl;
+            _screen.Login(credentials.Username, credentials.Password);
         }
 
-        public void WritePayoutToAcumatica(Screen client, long shopifyPayoutId)
+        public void EndSession()
+        {
+            _screen.Logout();
+        }
+
+        public void WritePayoutToAcumatica(long shopifyPayoutId)
         {
             var persistedPayout = _persistRepository.RetrievePayout(shopifyPayoutId);
-            var schema = PX.Soap.Helper.GetSchema<CA306500Content>(client);
+            var schema = PX.Soap.Helper.GetSchema<CA306500Content>(_screen);
 
             if (persistedPayout.AcumaticaRefNumber.IsNullOrEmpty())
             {
@@ -64,7 +72,7 @@ namespace Monster.Middle.Processes.Payouts
                         .AddCommand(schema.CashAccount.CashAccount)
                         .AddCommand(schema.CashAccount.ReferenceNbr);
 
-                var results = client.CA306500Submit(commands.ToArray())[0];
+                var results = _screen.CA306500Submit(commands.ToArray())[0];
 
                 var cashAccount = results.CashAccount.CashAccount.Value;
                 var referenceNbr = results.CashAccount.ReferenceNbr.Value;
@@ -93,14 +101,13 @@ namespace Monster.Middle.Processes.Payouts
                         .AddCommand(schema.CashAccount.ReferenceNbr, persistedPayout.AcumaticaRefNumber)
                         .AddCommand(schema.Actions.Cancel);
 
-            var resultnavs = client.CA306500Submit(navigateCommands.ToArray());
+            var resultnavs = _screen.CA306500Submit(navigateCommands.ToArray());
 
-            WritePayoutTransactions(client, shopifyPayoutId);
+            WritePayoutTransactions(shopifyPayoutId);
         }
 
 
-        public void WritePayoutTransactions(
-                        Screen client, long shopifyPayoutId)
+        public void WritePayoutTransactions(long shopifyPayoutId)
         {
             var transactions = 
                 _persistRepository
@@ -108,12 +115,12 @@ namespace Monster.Middle.Processes.Payouts
             
             foreach (var transaction in transactions)
             {
-                WritePayoutTransaction(client, transaction);
+                WritePayoutTransaction(transaction);
             }
         }
 
         public void WritePayoutTransaction(
-                        Screen client, UsrShopifyPayoutTransaction transaction)
+                        UsrShopifyPayoutTransaction transaction)
         {
             var transObject = transaction.Json.DeserializeFromJson<PayoutTransaction>();
 
@@ -135,7 +142,7 @@ namespace Monster.Middle.Processes.Payouts
             var extTranID = $"Shopify Order Id: {transObject.source_order_id}";
             var extRefNbr = $"Shopify Payout Trans Id: {transObject.id}";
 
-            var schema = PX.Soap.Helper.GetSchema<CA306500Content>(client);
+            var schema = PX.Soap.Helper.GetSchema<CA306500Content>(_screen);
 
             var commands 
                 = new List<Command>()
@@ -148,7 +155,7 @@ namespace Monster.Middle.Processes.Payouts
                     .AddCommand(schema.Details.Disbursement, disbursment.ToString())
                     .AddCommand(schema.Actions.Save);
 
-            var results = client.CA306500Submit(commands.ToArray());
+            var results = _screen.CA306500Submit(commands.ToArray());
 
             _persistRepository
                 .UpdatePayoutHeaderAcumaticaImport(
@@ -161,6 +168,11 @@ namespace Monster.Middle.Processes.Payouts
                 $"Created Transaction Payout Id: {transaction.ShopifyPayoutId} - " +
                 $"Transaction Id: {transaction.ShopifyPayoutTransId} " +
                 $" in Acumatica");
+        }
+
+        public void Dispose()
+        {
+            _screen?.Dispose();
         }
     }
 }
