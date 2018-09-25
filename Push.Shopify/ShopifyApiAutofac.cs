@@ -20,7 +20,8 @@ namespace Push.Shopify
             builder.RegisterType<ProductRepository>();
             builder.RegisterType<EventRepository>();
             builder.RegisterType<PayoutRepository>();
-        }        
+            builder.RegisterType<InventoryRepository>();
+        }
     }
 }
 

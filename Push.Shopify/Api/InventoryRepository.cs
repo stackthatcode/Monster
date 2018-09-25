@@ -14,6 +14,11 @@ namespace Push.Shopify.Api
             _logger = logger;
         }
 
-
+        public string RetrieveLocations()
+        {
+            var path = $"/admin/locations.json";
+            var response = _executionFacade.Get(path);
+            return response.Body;
+        }
     }
 }

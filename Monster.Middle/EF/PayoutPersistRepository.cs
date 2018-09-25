@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace Monster.Middle.EF
 {
-    public class PayoutImportRepository
+    public class PayoutPersistRepository
     {
         private readonly MonsterDataContext _dataContext;
 
-        public PayoutImportRepository(MonsterDataContext dataContext)
+        public PayoutPersistRepository(MonsterDataContext dataContext)
         {
             _dataContext = dataContext;
         }

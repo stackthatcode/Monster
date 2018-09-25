@@ -8,12 +8,12 @@ namespace Monster.Middle.Processes.Payouts
     {
         private readonly ShopifyPayoutPullWorker _shopifyPayoutPullWorker;
         private readonly AcumaticaPayoutPushWorkerScreen _acumaticaPayoutPushWorker;
-        private readonly PayoutImportRepository _persistenceRepository;
+        private readonly PayoutPersistRepository _persistenceRepository;
 
         public PayoutProcess(
                 ShopifyPayoutPullWorker shopifyPayoutPullWorker,
                 AcumaticaPayoutPushWorkerScreen acumaticaPayoutPushWorker, 
-                PayoutImportRepository persistenceRepository)
+                PayoutPersistRepository persistenceRepository)
         {
             _shopifyPayoutPullWorker = shopifyPayoutPullWorker;
             _acumaticaPayoutPushWorker = acumaticaPayoutPushWorker;

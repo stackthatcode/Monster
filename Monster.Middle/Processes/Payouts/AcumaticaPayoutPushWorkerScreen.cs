@@ -14,13 +14,13 @@ namespace Monster.Middle.Processes.Payouts
     public class AcumaticaPayoutPushWorkerScreen : IDisposable
     {
         private readonly IPushLogger _logger;
-        private readonly PayoutImportRepository _persistRepository;
+        private readonly PayoutPersistRepository _persistRepository;
         private readonly Screen _screen;
 
         public AcumaticaPayoutPushWorkerScreen(
                 
                 IPushLogger logger,
-                PayoutImportRepository persistRepository, 
+                PayoutPersistRepository persistRepository, 
                 Screen screen)
         {
             _logger = logger;

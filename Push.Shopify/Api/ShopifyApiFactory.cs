@@ -29,6 +29,7 @@ namespace Push.Shopify.Api
         private readonly
             Func<HttpFacade, PayoutRepository> _payoutRepositoryFactory;
 
+        private readonly Func<HttpFacade, InventoryRepository> _inventoryRepositoryFactory;
 
 
         public ShopifyApiFactory(
@@ -39,7 +40,8 @@ namespace Push.Shopify.Api
                 Func<HttpFacade, ProductRepository> productRepositoryFactory,
                 Func<HttpFacade, EventRepository> eventRepositoryFactory,
                 Func<HttpFacade, ShopRepository> shopRepositoryFactory,
-                Func<HttpFacade, PayoutRepository> payoutRepositoryFactory)
+                Func<HttpFacade, PayoutRepository> payoutRepositoryFactory,
+                Func<HttpFacade, InventoryRepository> inventoryRepositoryFactory)
         {
             _clientSettings = clientSettings;
             _httpClientFactory = httpClientFactory;
@@ -50,6 +52,7 @@ namespace Push.Shopify.Api
             _eventRepositoryFactory = eventRepositoryFactory;
             _shopRepositoryFactory = shopRepositoryFactory;
             _payoutRepositoryFactory = payoutRepositoryFactory;
+            _inventoryRepositoryFactory = inventoryRepositoryFactory;
         }
 
 
@@ -97,6 +100,14 @@ namespace Push.Shopify.Api
         {
             var facade = MakeFacade(credentials);
             var repository = _shopRepositoryFactory(facade);
+            return repository;
+        }
+
+        public virtual InventoryRepository 
+                MakeInventoryApi(IShopifyCredentials credentials)
+        {
+            var facade = MakeFacade(credentials);
+            var repository = _inventoryRepositoryFactory(facade);
             return repository;
         }
     }

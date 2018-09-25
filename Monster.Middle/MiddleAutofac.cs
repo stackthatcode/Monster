@@ -59,10 +59,14 @@ namespace Monster.Middle
                 .As<SqlConnection>()
                 .As<DbConnection>()
                 .As<IDbConnection>();
+
+            // TODO *** Need to implement this!!
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
 
+            // SQL Persistence Repositories
             builder.RegisterType<MonsterDataContext>().InstancePerLifetimeScope();
-            builder.RegisterType<PayoutImportRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<PayoutPersistRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<InventoryPersistRepository>().InstancePerLifetimeScope();
 
             // Acumatica Bank Import API screen
             builder.RegisterType<Screen>().InstancePerLifetimeScope();

@@ -12,14 +12,14 @@ namespace Monster.Middle.Processes.Payouts
 {
     public class ShopifyPayoutPullWorker
     {
-        private readonly PayoutImportRepository _persistRepository;
+        private readonly PayoutPersistRepository _persistRepository;
         private readonly ShopifyApiFactory _shopifyApiFactory;
         private readonly IPushLogger _logger;
 
         public int PayoutTransactionPagingLimit = 50;
 
         public ShopifyPayoutPullWorker(
-                    PayoutImportRepository persistRepository,
+                    PayoutPersistRepository persistRepository,
                     ShopifyApiFactory shopifyApiFactory,
                     IPushLogger logger)
         {

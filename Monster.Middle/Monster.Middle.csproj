@@ -61,14 +61,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Config\PayoutConfig.cs" />
+    <Compile Include="EF\InventoryPersistRepository.cs" />
     <Compile Include="EF\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="EF\PayoutImportRepository.cs" />
+    <Compile Include="EF\PayoutPersistRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
+    <Compile Include="Processes\Inventory\InventoryWorker.cs" />
+    <Compile Include="Runners\MonsterBootstrap.cs" />
     <Compile Include="Runners\PayoutBootstrap.cs" />
     <Compile Include="Processes\Payouts\AcumaticaPayoutPushWorkerScreen.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />

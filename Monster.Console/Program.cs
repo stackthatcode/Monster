@@ -140,7 +140,7 @@ namespace Monster.ConsoleApp
                             loggerName: "Monster.Payouts"))
             using (var scope = container.BeginLifetimeScope())
             {
-                var repository = scope.Resolve<PayoutImportRepository>();
+                var repository = scope.Resolve<PayoutPersistRepository>();
                 var logger = scope.Resolve<IPushLogger>();
 
                 var shopifyPayout = new Payout()
