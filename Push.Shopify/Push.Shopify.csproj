@@ -89,6 +89,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\InventoryRepository.cs" />
+    <Compile Include="Api\Inventory\Location.cs" />
     <Compile Include="Api\Order\BillingAddress.cs" />
     <Compile Include="Api\Order\ClientDetails.cs" />
     <Compile Include="Api\Order\Customer.cs" />

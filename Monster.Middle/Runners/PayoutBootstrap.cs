@@ -9,13 +9,13 @@ namespace Monster.Middle.Runners
 {
     public class PayoutBootstrap
     {
-        public const string LoggerName = "Monster.Payouts";
+        public const string DefaultLoggerName = "Monster.Payouts";
 
         public static IContainer ContainerFactory(PayoutConfig payoutConfig)
         {
             return MiddleAutofac.Build(
                 connStringOverride: payoutConfig.ConnectionString,
-                loggerName: LoggerName);
+                loggerName: DefaultLoggerName);
         }
 
         public static void RunPayoutsEndToEnd(

@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Threading;
 using Autofac;
 using Monster.Acumatica.Config;
 using Monster.ConsoleApp.Shopify;
 using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.EF;
-using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Runners;
 using Push.Foundation.Utilities.Autofac;
 using Push.Foundation.Utilities.Helpers;
@@ -14,6 +12,7 @@ using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Payout;
 using Push.Shopify.Config;
+using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
 
 
@@ -67,11 +66,15 @@ namespace Monster.ConsoleApp
         public static void RunPayouts()
         {
             // TODO - inject your own via new PrivateAppCredentials();
-            var shopifyCredentials = ShopifyCredentialsFactory();
-
+            var shopifyCredentials =
+                new PrivateAppCredentials(
+                    "API KEY HERE",
+                    "API PASSWORD HERE",
+                    new ShopDomain("3duniverse.myshopify.com"));
+            
             // TODO - inject your own via new AcumaticaCredentials(); 
-            var acumaticaCredentials = AcumaticaCredentialsFactory();
-
+            var acumaticaCredentials = new AcumaticaCredentials();
+            
             // TODO - inject your own config values here
             var payoutConfig = PayoutConfigFactory();
             
