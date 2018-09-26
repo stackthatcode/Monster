@@ -27,39 +27,40 @@ namespace Monster.Middle.Processes.Payouts
                 string screenWebSerivceUrl)
         {
             _shopifyPayoutPullWorker
-                .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 5);
+                .ImportPayoutHeaders(shopifyCredentials, maxPages: 1, recordsPerPage: 25);
+
             _shopifyPayoutPullWorker
-                .ImportIncompletePayoutTransactions(shopifyCredentials);
+                .ImportPayoutTransactions(shopifyCredentials, 18629787731);
+
 
             // 
             // Entirely optional self-analysis
             //
-            _shopifyPayoutPullWorker
-                .GenerateBalancingSummaries(5);
+            _shopifyPayoutPullWorker.GenerateBalancingSummary(18629787731);
 
             //
             // TODO - add screen to Autofac registration
             //  
-            foreach (var payout in
-                _persistenceRepository.RetrieveNotYetUploadedPayouts())
-            {
+            //foreach (var payout in
+            //    _persistenceRepository.RetrieveNotYetUploadedPayouts())
+            //{
 
-                using (var screen = new Screen())
-                {
-                    _acumaticaPayoutPushWorker
-                        .BeginSession(
-                            screen,
-                            screenWebSerivceUrl,
-                            acumaticaCredentials);
+            //    using (var screen = new Screen())
+            //    {
+            //        _acumaticaPayoutPushWorker
+            //            .BeginSession(
+            //                screen,
+            //                screenWebSerivceUrl,
+            //                acumaticaCredentials);
 
-                    _acumaticaPayoutPushWorker
-                        .WritePayoutToAcumatica(
-                            screen, 
-                            payout.ShopifyPayoutId);
+            //        _acumaticaPayoutPushWorker
+            //            .WritePayoutToAcumatica(
+            //                screen, 
+            //                payout.ShopifyPayoutId);
 
-                    screen.Logout();
-                }
-            }
+            //        screen.Logout();
+            //    }
+            //}
         }
     }
 }

@@ -68,11 +68,10 @@ namespace Monster.Middle.EF
                 .ToList();
         }
 
-        public int InsertPayoutHeader(UsrShopifyPayout payout)
+        public void InsertPayoutHeader(UsrShopifyPayout payout)
         {
             _dataContext.UsrShopifyPayouts.Add(payout);
             _dataContext.SaveChanges();
-            return payout.Id;
         }
 
         public void UpdatePayoutHeaderStatus(
@@ -131,12 +130,11 @@ namespace Monster.Middle.EF
                 .ToList();
         }
 
-        public int InsertPayoutTransaction(
+        public void InsertPayoutTransaction(
                         UsrShopifyPayoutTransaction transaction)
         {
             _dataContext.UsrShopifyPayoutTransactions.Add(transaction);
             _dataContext.SaveChanges();
-            return transaction.Id;
         }
 
         public void UpdatePayoutHeaderAcumaticaImport(
