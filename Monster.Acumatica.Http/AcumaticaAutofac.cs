@@ -9,7 +9,7 @@ namespace Monster.Acumatica
     {
         public static void Build(ContainerBuilder builder)
         {
-            builder.RegisterType<AcumaticaHttpSettings>();
+
             builder.RegisterType<AcumaticaApiFactory>();
             builder.RegisterType<AcumaticaHttpClientFactory>();
             builder.RegisterType<SessionContainer>()

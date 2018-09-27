@@ -4,15 +4,15 @@ using Push.Foundation.Utilities.Security;
 
 namespace Push.Shopify.Config
 {
-    public class ShopifySecurityConfiguration : ConfigurationSection
+    public class ShopifyCredentialsConfig : ConfigurationSection
     {
         private static readonly
             Hashtable _settings =
-                (Hashtable) ConfigurationManager.GetSection("shopifySecurityConfiguration") ?? new Hashtable();
+                (Hashtable) ConfigurationManager.GetSection("shopifyCredentials") ?? new Hashtable();
 
         public static 
-            ShopifySecurityConfiguration Settings
-                { get; } = new ShopifySecurityConfiguration();
+            ShopifyCredentialsConfig Settings
+                { get; } = new ShopifyCredentialsConfig();
 
 
         [ConfigurationProperty("ApiKey", IsRequired = true)]
@@ -41,11 +41,11 @@ namespace Push.Shopify.Config
         // 
         // Only needs to be set for Private Apps
         //  
-        [ConfigurationProperty("PrivateAppDomain", IsRequired = false)]
+        [ConfigurationProperty("Domain", IsRequired = false)]
         public string PrivateAppDomain
         {
-            get { return (string)_settings["PrivateAppDomain"]; }
-            set { this["PrivateAppDomain"] = value; }
+            get { return (string)_settings["Domain"]; }
+            set { this["Domain"] = value; }
         }
         
         // 

@@ -5,6 +5,8 @@ using Monster.ConsoleApp.Shopify;
 using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.EF;
+using Monster.Middle.Persist;
+using Monster.Middle.Persist.Payouts;
 using Monster.Middle.Runners;
 using Push.Foundation.Utilities.Autofac;
 using Push.Foundation.Utilities.Helpers;
@@ -103,7 +105,7 @@ namespace Monster.ConsoleApp
 
         public static PrivateAppCredentials ShopifyCredentialsFactory()
         {
-            return ShopifySecuritySettings
+            return ShopifyCredentials
                 .FromConfiguration()
                 .MakePrivateAppCredentials();
         }

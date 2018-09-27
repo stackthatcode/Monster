@@ -5,7 +5,7 @@ namespace Push.Foundation
 {
     public class RootObject
     {
-        public ShopifySecuritySettings Configuration { get; set; }
+        public ShopifyCredentials Configuration { get; set; }
 
         public static RootObject FromJson(string json) => JsonConvert.DeserializeObject<RootObject>(json);
     }

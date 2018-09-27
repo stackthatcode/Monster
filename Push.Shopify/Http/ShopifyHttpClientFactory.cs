@@ -10,9 +10,9 @@ namespace Push.Shopify.Http
 {
     public class ShopifyHttpClientFactory
     {
-        private readonly ShopifyClientSettings _config;
+        private readonly ShopifyHttpSettings _config;
 
-        public ShopifyHttpClientFactory(ShopifyClientSettings config)
+        public ShopifyHttpClientFactory(ShopifyHttpSettings config)
         {
             _config = config;
         }

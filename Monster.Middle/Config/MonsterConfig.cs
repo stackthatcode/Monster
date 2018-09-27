@@ -1,15 +1,32 @@
-﻿namespace Monster.Middle.Config
-{
-    public class MonsterConfig
-    {
-        public string ConnectionString { get; set; }
-        public int ShopifyRecordsPerPage { get; set; }
-        public int ShopifyMaxPages { get; set; }
+﻿using System.Collections;
+using System.Configuration;
+using Push.Foundation.Utilities.Security;
 
-        public MonsterConfig()
+namespace Monster.Middle.Config
+{    
+    public class MonsterConfig : ConfigurationSection
+    {
+        private static readonly
+            Hashtable _settings =
+                (Hashtable)ConfigurationManager
+                    .GetSection("monsterConfig") ?? new Hashtable();
+
+        public static
+            MonsterConfig Settings { get; } = new MonsterConfig();
+
+        
+        [ConfigurationProperty("EncryptKey", IsRequired = false)]
+        public string EncryptKey
         {
-            ShopifyRecordsPerPage = 10;
-            ShopifyMaxPages = 1;
+            get { return ((string)_settings["EncryptKey"]).DpApiDecryptString().ToInsecureString(); }
+            set { this["EncryptKey"] = value; }
+        }
+
+        [ConfigurationProperty("EncryptIv", IsRequired = false)]
+        public string EncryptIv
+        {
+            get { return ((string)_settings["EncryptIv"]).DpApiDecryptString().ToInsecureString(); }
+            set { this["EncryptIv"] = value; }
         }
     }
 }

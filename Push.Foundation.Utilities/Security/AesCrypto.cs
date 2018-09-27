@@ -4,33 +4,33 @@ namespace Push.Foundation.Utilities.Security
 {
     public class AesCrypto : ICryptoService
     {
-        public string Key { get; set; }
-        public string IV { get; set; }
-
+        private readonly string _key;
+        private readonly string _iv;
+        
         public AesCrypto(string key, string iv)
         {
-            Key = key;
-            IV = iv;
+            _key = key;
+            _iv = iv;
         }
 
         public string Encrypt(string input)
         {
-            if (Key == null)
+            if (_key == null)
                 throw new InvalidOperationException("You must set the EncryptionService.Key to function properly");
-            if (IV == null)
+            if (_iv == null)
                 throw new InvalidOperationException("You must set the EncryptionService.IV to function properly");
 
-            return input.AesEncryptString(Key, IV);
+            return input.AesEncryptString(_key, _iv);
         }
 
         public string Decrypt(string input)
         {
-            if (Key == null)
+            if (_key == null)
                 throw new InvalidOperationException("You must set the EncryptionService.Key to function properly");
-            if (IV == null)
+            if (_iv == null)
                 throw new InvalidOperationException("You must set the EncryptionService.IV to function properly");
 
-            return input.AesDecryptString(Key, IV);
+            return input.AesDecryptString(_key, _iv);
         }
     }
 }

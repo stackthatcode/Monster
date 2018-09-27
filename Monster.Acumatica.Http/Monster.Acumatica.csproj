@@ -57,6 +57,7 @@
     <Compile Include="Api\Common\Values.cs" />
     <Compile Include="Api\InventoryRepository.cs" />
     <Compile Include="Api\SessionRepository.cs" />
+    <Compile Include="Config\AcumaticaHttpConfig.cs" />
     <Compile Include="Http\SessionContainer.cs" />
     <Compile Include="Http\UrlBuilder.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />

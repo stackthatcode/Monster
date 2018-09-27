@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Monster.Middle.EF
+namespace Monster.Middle.Persist.Payouts
 {
     public class PayoutPersistRepository
     {

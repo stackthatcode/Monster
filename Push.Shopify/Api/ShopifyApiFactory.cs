@@ -12,7 +12,7 @@ namespace Push.Shopify.Api
     public class ShopifyApiFactory
     {
         // Solicit Autofac for our specific derivation of ClientSettings
-        private readonly ShopifyClientSettings _clientSettings;
+        private readonly ShopifyHttpSettings _httpSettings;
         
         // Autofac factories
         private readonly ShopifyHttpClientFactory _httpClientFactory;
@@ -33,7 +33,7 @@ namespace Push.Shopify.Api
 
 
         public ShopifyApiFactory(
-                ShopifyClientSettings clientSettings,
+                ShopifyHttpSettings httpSettings,
                 ShopifyHttpClientFactory httpClientFactory,
                 Func<IPushLogger> loggerFactory, 
                 Func<HttpFacade, OrderRepository> orderRepositoryFactory,
@@ -43,7 +43,7 @@ namespace Push.Shopify.Api
                 Func<HttpFacade, PayoutRepository> payoutRepositoryFactory,
                 Func<HttpFacade, InventoryRepository> inventoryRepositoryFactory)
         {
-            _clientSettings = clientSettings;
+            _httpSettings = httpSettings;
             _httpClientFactory = httpClientFactory;
             _loggerFactory = loggerFactory;
 
@@ -62,7 +62,7 @@ namespace Push.Shopify.Api
 
             var executionContext = new ExecutionContext()
             {
-                NumberOfAttempts = _clientSettings.RetryLimit,
+                NumberOfAttempts = _httpSettings.RetryLimit,
                 ThrottlingKey = credentials.Domain.BaseUrl,
                 Logger = _loggerFactory(),
             };

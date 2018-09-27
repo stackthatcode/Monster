@@ -28,7 +28,7 @@
 #pragma warning disable 1591    //  Ignore "Missing XML Comment" warning
 
 
-namespace Monster.Middle.EF
+namespace Monster.Middle.Persist
 {
     using System.Linq;
 
@@ -36,6 +36,7 @@ namespace Monster.Middle.EF
 
     public interface IMonsterDataContext : System.IDisposable
     {
+        System.Data.Entity.DbSet<UsrAccountContext> UsrAccountContexts { get; set; } // usrAccountContext
         System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
         System.Data.Entity.DbSet<UsrShopifyLocation> UsrShopifyLocations { get; set; } // usrShopifyLocation
         System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; } // usrShopifyPayout
@@ -64,6 +65,7 @@ namespace Monster.Middle.EF
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
     public class MonsterDataContext : System.Data.Entity.DbContext, IMonsterDataContext
     {
+        public System.Data.Entity.DbSet<UsrAccountContext> UsrAccountContexts { get; set; } // usrAccountContext
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
         public System.Data.Entity.DbSet<UsrShopifyLocation> UsrShopifyLocations { get; set; } // usrShopifyLocation
         public System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; } // usrShopifyPayout
@@ -119,6 +121,7 @@ namespace Monster.Middle.EF
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Configurations.Add(new UsrAccountContextConfiguration());
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyLocationConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyPayoutConfiguration());
@@ -129,6 +132,7 @@ namespace Monster.Middle.EF
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
         {
+            modelBuilder.Configurations.Add(new UsrAccountContextConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyLocationConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyPayoutConfiguration(schema));
@@ -157,6 +161,7 @@ namespace Monster.Middle.EF
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
     public class FakeMonsterDataContext : IMonsterDataContext
     {
+        public System.Data.Entity.DbSet<UsrAccountContext> UsrAccountContexts { get; set; }
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyLocation> UsrShopifyLocations { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; }
@@ -166,6 +171,7 @@ namespace Monster.Middle.EF
 
         public FakeMonsterDataContext()
         {
+            UsrAccountContexts = new FakeDbSet<UsrAccountContext>("CompanyId");
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
             UsrShopifyLocations = new FakeDbSet<UsrShopifyLocation>("ShopifyLocationId");
             UsrShopifyPayouts = new FakeDbSet<UsrShopifyPayout>("ShopifyPayoutId");
@@ -491,13 +497,20 @@ namespace Monster.Middle.EF
 
     #region POCO classes
 
-    // The table 'usrAccount' is not usable by entity framework because it
-    // does not have a primary key. It is listed here for completeness.
-    // usrAccount
+    // usrAccountContext
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
-    public class UsrAccount
+    public class UsrAccountContext
     {
-        public long? CompanyId { get; set; } // CompanyID
+        public long CompanyId { get; set; } // CompanyID (Primary key)
+        public string ShopifyDomain { get; set; } // ShopifyDomain (length: 500)
+        public string ShopifyApiKey { get; set; } // ShopifyApiKey (length: 500)
+        public string ShopifyApiPassword { get; set; } // ShopifyApiPassword (length: 500)
+        public string ShopifyApiSecret { get; set; } // ShopifyApiSecret (length: 500)
+        public string AcumaticaInstanceUrl { get; set; } // AcumaticaInstanceUrl (length: 500)
+        public string AcumaticaBranch { get; set; } // AcumaticaBranch (length: 500)
+        public string AcumaticaCompanyName { get; set; } // AcumaticaCompanyName (length: 500)
+        public string AcumaticaUsername { get; set; } // AcumaticaUsername (length: 500)
+        public string AcumaticaPassword { get; set; } // AcumaticaPassword (length: 500)
     }
 
     // usrPayoutPreferences
@@ -618,6 +631,33 @@ namespace Monster.Middle.EF
     #endregion
 
     #region POCO Configuration
+
+    // usrAccountContext
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]
+    public class UsrAccountContextConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAccountContext>
+    {
+        public UsrAccountContextConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrAccountContextConfiguration(string schema)
+        {
+            ToTable("usrAccountContext", schema);
+            HasKey(x => x.CompanyId);
+
+            Property(x => x.CompanyId).HasColumnName(@"CompanyID").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyDomain).HasColumnName(@"ShopifyDomain").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyApiKey).HasColumnName(@"ShopifyApiKey").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyApiPassword).HasColumnName(@"ShopifyApiPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyApiSecret).HasColumnName(@"ShopifyApiSecret").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaInstanceUrl).HasColumnName(@"AcumaticaInstanceUrl").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaBranch).HasColumnName(@"AcumaticaBranch").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaCompanyName).HasColumnName(@"AcumaticaCompanyName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaUsername).HasColumnName(@"AcumaticaUsername").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaPassword).HasColumnName(@"AcumaticaPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+        }
+    }
 
     // usrPayoutPreferences
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.36.1.0")]

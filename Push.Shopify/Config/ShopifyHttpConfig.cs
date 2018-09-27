@@ -4,13 +4,13 @@ using Push.Foundation.Utilities.Helpers;
 
 namespace Push.Shopify.Config
 {
-    public class ShopifyClientConfig
+    public class ShopifyHttpConfig
     {
         private static readonly
                 Hashtable _settings =
-                    (Hashtable)ConfigurationManager.GetSection("shopifyClientConfig");
+                    (Hashtable)ConfigurationManager.GetSection("shopifyHttpConfig");
 
-        public static ShopifyClientConfig Settings { get; } = new ShopifyClientConfig();
+        public static ShopifyHttpConfig Settings { get; } = new ShopifyHttpConfig();
         
 
         [ConfigurationProperty("RetryLimit", IsRequired = true)]

@@ -11,7 +11,7 @@ namespace Push.Shopify
         public static void Build(ContainerBuilder builder)
         {            
             builder.RegisterType<ShopifyHttpClientFactory>();
-            builder.RegisterType<ShopifyClientSettings>();
+            builder.RegisterType<ShopifyHttpSettings>();
 
             builder.RegisterType<ShopifyApiFactory>();     
                    

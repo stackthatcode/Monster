@@ -38,14 +38,14 @@ namespace Monster.Middle.Runners
                     {
                         var process = scope.Resolve<InventoryWorker>();
 
-                        process.PullShopifyPayouts(
-                            shopifyCredentials,
-                            recordsPerPage: payoutConfig.ShopifyRecordsPerPage,
-                            maxPages: payoutConfig.ShopifyMaxPages);
+                        //process.PullShopifyPayouts(
+                        //    shopifyCredentials,
+                        //    recordsPerPage: payoutConfig.ShopifyRecordsPerPage,
+                        //    maxPages: payoutConfig.ShopifyMaxPages);
 
-                        process.PushAllAcumaticaPayouts(
-                            acumaticaCredentials,
-                            payoutConfig.ScreenApiUrl);
+                        //process.PushAllAcumaticaPayouts(
+                        //    acumaticaCredentials,
+                        //    payoutConfig.ScreenApiUrl);
                     });
             }
         }

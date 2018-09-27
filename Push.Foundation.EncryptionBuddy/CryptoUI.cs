@@ -24,17 +24,15 @@ namespace Push.Foundation
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var config = JsonConvert.DeserializeObject<ShopifySecuritySettings>(textJson.Text);
+            var config = JsonConvert.DeserializeObject<ShopifyCredentials>(textJson.Text);
 
             textXML.Text =
-                $@"<shopifySecurityConfiguration 
+                $@"<shopifyCredentials 
     xdt:Transform=""Replace""
     ApiKey=""{config.ApiKey.ToSecureString().DpApiEncryptString()}"" 
     ApiPassword=""{config.ApiPassword.ToSecureString().DpApiEncryptString()}"" 
     ApiSecret=""{config.ApiSecret.ToSecureString().DpApiEncryptString()}"" 
-    PrivateAppDomain=""{config.PrivateAppDomain}""                        
-    EncryptKey=""{config.EncryptKey.ToSecureString().DpApiEncryptString()}""                        
-    EncryptIv=""{config.EncryptIv.ToSecureString().DpApiEncryptString()}""                                                
+    Domain=""{config.Domain}""                        
 />";
 
             Clipboard.SetText(textXML.Text);
@@ -98,6 +96,21 @@ namespace Push.Foundation
 />";
 
             Clipboard.SetText(textAcumaticaXml.Text);
+        }
+
+        private void textAcumaticaXml_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonMonsterSettings_Click(object sender, EventArgs e)
+        {
+            textMonsterConfig.Text =
+                $@"<monsterConfig 
+    xdt:Transform=""Replace""
+    EncryptKey=""{this.textMonsterAesKey.Text.ToSecureString().DpApiEncryptString()}"" 
+    EncryptIv=""{this.textMonsterAesIv.Text.ToSecureString().DpApiEncryptString()}"" 
+/>";
         }
     }        
 }

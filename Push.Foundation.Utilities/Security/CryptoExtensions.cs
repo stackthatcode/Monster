@@ -8,10 +8,16 @@ namespace Push.Foundation.Utilities.Security
 {
     public static class CryptoExtensions
     {
+        //
         // WARNING *** Do not change (!!!) ***
-        //static readonly byte[] PermanentSalt = Encoding.Unicode.GetBytes("Salt This, Baby!");
-        static byte[] PermanentSalt = System.Text.Encoding.Unicode.GetBytes("Salt My Boomba, Baby!");
+        //
+        // static readonly byte[] PermanentSalt = Encoding.Unicode.GetBytes("Salt This, Baby!");
+        //
+        private static readonly 
+                byte[] PermanentSalt = 
+                    Encoding.Unicode.GetBytes("Salt My Boomba, Baby!");
         
+
         public static string DpApiEncryptString(this SecureString input)
         {
             byte[] encryptedData = 
@@ -69,9 +75,9 @@ namespace Push.Foundation.Utilities.Security
 
                 byte[] cipherText = null;
 
-                using (MemoryStream ms = new MemoryStream())
+                using (var ms = new MemoryStream())
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                    using (var cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
                     {
                         cs.Write(rawPlaintext, 0, rawPlaintext.Length);
                     }
@@ -98,16 +104,17 @@ namespace Push.Foundation.Utilities.Security
                 aes.Key = Key;
                 aes.IV = IV;
 
-                using (MemoryStream ms = new MemoryStream())
+                using (var ms = new MemoryStream())
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
+                    using (var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
                     {
                         cs.Write(cipherText, 0, cipherText.Length);
                     }
 
                     plainText = ms.ToArray();
                 }
-                string s = Encoding.Unicode.GetString(plainText);
+
+                var s = Encoding.Unicode.GetString(plainText);
                 return s;
             }
         }

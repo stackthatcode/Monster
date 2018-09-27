@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Persist;
 
-namespace Monster.Middle.EF
+namespace Monster.Middle.EF.Inventory
 {
     public class InventoryPersistRepository
     {

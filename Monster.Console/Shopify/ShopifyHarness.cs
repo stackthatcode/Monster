@@ -18,7 +18,7 @@ namespace Monster.ConsoleApp.Shopify
     {
         public static IShopifyCredentials CredentialsFactory()
         {
-            return ShopifySecuritySettings
+            return ShopifyCredentials
                 .FromConfiguration()
                 .MakePrivateAppCredentials();
         }

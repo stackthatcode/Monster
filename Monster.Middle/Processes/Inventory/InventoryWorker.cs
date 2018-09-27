@@ -1,4 +1,5 @@
 ﻿using Monster.Middle.EF;
+using Monster.Middle.EF.Inventory;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Http.Credentials;

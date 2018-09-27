@@ -140,10 +140,10 @@
     <Compile Include="Api\Transaction\Receipt.cs" />
     <Compile Include="Api\Transaction\SellerDetails.cs" />
     <Compile Include="Api\Transaction\Transaction.cs" />
-    <Compile Include="Config\ShopifyClientConfig.cs" />
-    <Compile Include="Config\ShopifyClientSettings.cs" />
-    <Compile Include="Config\ShopifySecurityConfiguration.cs" />
-    <Compile Include="Config\ShopifySecuritySettings.cs" />
+    <Compile Include="Config\ShopifyHttpConfig.cs" />
+    <Compile Include="Config\ShopifyHttpSettings.cs" />
+    <Compile Include="Config\ShopifyCredentialsConfig.cs" />
+    <Compile Include="Config\ShopifyCredentials.cs" />
     <Compile Include="Http\Credentials\ApiKeyAndSecret.cs" />
     <Compile Include="Http\Credentials\ExtensionMethods.cs" />
     <Compile Include="ShopifyApiAutofac.cs" />

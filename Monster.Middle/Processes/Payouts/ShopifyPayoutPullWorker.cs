@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.EF;
+using Monster.Middle.Persist;
+using Monster.Middle.Persist.Payouts;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;

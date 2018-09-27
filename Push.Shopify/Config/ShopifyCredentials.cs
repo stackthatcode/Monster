@@ -3,32 +3,27 @@ using Push.Shopify.Http.Credentials;
 
 namespace Push.Shopify.Config
 {
-    public class ShopifySecuritySettings
+    public class ShopifyCredentials
     {
         public string ApiKey { get; set; }
         public string ApiPassword { get; set; }
         public string ApiSecret { get; set; }
-        public string PrivateAppDomain { get; set; }
-        public string EncryptKey { get; set; }
-        public string EncryptIv { get; set; }
-
+        public string Domain { get; set; }
 
         // DO NOT REMOVE - need this for serialization functions
-        public ShopifySecuritySettings()
+        public ShopifyCredentials()
         {     
         }
 
-        public static ShopifySecuritySettings FromConfiguration()
+        public static ShopifyCredentials FromConfiguration()
         {
-            var config = ShopifySecurityConfiguration.Settings;
-            var output = new ShopifySecuritySettings()
+            var config = ShopifyCredentialsConfig.Settings;
+            var output = new ShopifyCredentials()
             {
                 ApiKey = config.ApiKey,
                 ApiPassword = config.ApiPassword,
                 ApiSecret = config.ApiSecret,
-                EncryptKey = config.EncryptKey,
-                EncryptIv = config.EncryptIv,
-                PrivateAppDomain = config.PrivateAppDomain,
+                Domain = config.PrivateAppDomain,
             };
             return output;
         }
@@ -40,7 +35,7 @@ namespace Push.Shopify.Config
 
         public PrivateAppCredentials MakePrivateAppCredentials()
         {
-            var domain = new ShopDomain(PrivateAppDomain);
+            var domain = new ShopDomain(Domain);
             return new PrivateAppCredentials(ApiKey, ApiPassword, domain);
         }
     }
