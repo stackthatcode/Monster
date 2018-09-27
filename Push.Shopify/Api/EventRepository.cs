@@ -3,9 +3,8 @@ using Newtonsoft.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.Http;
-using Push.Foundation.Web.Misc;
 using Push.Shopify.Api.Event;
-using Push.Shopify.Config;
+
 
 namespace Push.Shopify.Api
 {

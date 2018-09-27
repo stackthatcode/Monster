@@ -64,14 +64,15 @@
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Config\PayoutConfig.cs" />
     <Compile Include="Persist\ConnectionFactory.cs" />
-    <Compile Include="Persist\Inventory\InventoryPersistRepository.cs" />
+    <Compile Include="Persist\Multitenant\InventoryPersistRepository.cs" />
     <Compile Include="Persist\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Persist\Payouts\PayoutPersistRepository.cs" />
+    <Compile Include="Persist\Multitenant\PayoutPersistRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
+    <Compile Include="Persist\System\TenantEntryService.cs" />
     <Compile Include="Processes\Inventory\InventoryWorker.cs" />
     <Compile Include="Runners\MonsterBootstrap.cs" />
     <Compile Include="Runners\PayoutBootstrap.cs" />
@@ -79,7 +80,7 @@
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />
-    <Compile Include="Persist\Account\AccountService.cs" />
+    <Compile Include="Persist\Multitenant\TenantContextService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

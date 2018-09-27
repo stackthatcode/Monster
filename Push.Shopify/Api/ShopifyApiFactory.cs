@@ -34,8 +34,11 @@ namespace Push.Shopify.Api
 
         public ShopifyApiFactory(
                 ShopifyHttpSettings httpSettings,
+
                 ShopifyHttpClientFactory httpClientFactory,
+
                 Func<IPushLogger> loggerFactory, 
+
                 Func<HttpFacade, OrderRepository> orderRepositoryFactory,
                 Func<HttpFacade, ProductRepository> productRepositoryFactory,
                 Func<HttpFacade, EventRepository> eventRepositoryFactory,
@@ -55,60 +58,61 @@ namespace Push.Shopify.Api
             _inventoryRepositoryFactory = inventoryRepositoryFactory;
         }
 
+        public IShopifyCredentials Credentials { get; private set; }
 
-        public HttpFacade MakeFacade(IShopifyCredentials credentials)
+        public void SetCredentials(IShopifyCredentials credentials)
         {
-            var client = _httpClientFactory.Make(credentials);
+            Credentials = credentials;
+        }
 
-            var executionContext = new ExecutionContext()
+        public HttpFacade MakeFacade()
+        {
+            var httpClient = _httpClientFactory.Make(Credentials);
+
+            var executionContext = new DurableExecContext()
             {
                 NumberOfAttempts = _httpSettings.RetryLimit,
-                ThrottlingKey = credentials.Domain.BaseUrl,
+                ThrottlingKey = Credentials.Domain.BaseUrl,
                 Logger = _loggerFactory(),
             };
 
-            return new HttpFacade(client, executionContext);
+            return new HttpFacade(httpClient, executionContext);
         }
 
-        public virtual OrderRepository MakeOrderApi(IShopifyCredentials credentials)
+        public virtual OrderRepository MakeOrderApi()
         {
-            var facade = MakeFacade(credentials);
+            var facade = MakeFacade();
             return _orderRepositoryFactory(facade);
         }
         
-        public virtual ProductRepository MakeProductApi(IShopifyCredentials credentials)
+        public virtual ProductRepository MakeProductApi()
         {
-            var facade = MakeFacade(credentials);
+            var facade = MakeFacade();
             return _productRepositoryFactory(facade);
         }
         
-        public virtual EventRepository MakeEventApi(IShopifyCredentials credentials)
+        public virtual EventRepository MakeEventApi()
         {
-            var facade = MakeFacade(credentials);
-            var repository = _eventRepositoryFactory(facade);
-            return repository;
+            var facade = MakeFacade();
+            return _eventRepositoryFactory(facade);
         }
 
-        public virtual PayoutRepository MakePayoutApi(IShopifyCredentials credentials)
+        public virtual PayoutRepository MakePayoutApi()
         {
-            var facade = MakeFacade(credentials);
-            var repository = _payoutRepositoryFactory(facade);
-            return repository;
+            var facade = MakeFacade();
+            return _payoutRepositoryFactory(facade);
         }
 
-        public virtual ShopRepository MakeShopApi(IShopifyCredentials credentials)
+        public virtual ShopRepository MakeShopApi()
         {
-            var facade = MakeFacade(credentials);
-            var repository = _shopRepositoryFactory(facade);
-            return repository;
+            var facade = MakeFacade();
+            return _shopRepositoryFactory(facade);
         }
 
-        public virtual InventoryRepository 
-                MakeInventoryApi(IShopifyCredentials credentials)
+        public virtual InventoryRepository MakeInventoryApi()
         {
-            var facade = MakeFacade(credentials);
-            var repository = _inventoryRepositoryFactory(facade);
-            return repository;
+            var facade = MakeFacade();
+            return _inventoryRepositoryFactory(facade);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Push.Foundation.Tests.Web
         public void ExecutesOnceOnSuccess()
         {
             // Assemble
-            var context = new ExecutionContext()
+            var context = new DurableExecContext()
             {
                 NumberOfAttempts = 3
             };
@@ -31,7 +31,7 @@ namespace Push.Foundation.Tests.Web
 
             // Act
             var result = 
-                DurableExecutor.Do(() => mockClass.DoSomething(), context);
+                DurableExec.Do(() => mockClass.DoSomething(), context);
 
             // Assert
             Assert.IsTrue(result);
@@ -42,7 +42,7 @@ namespace Push.Foundation.Tests.Web
         public void ExecutesTwiceOnFailSuccess()
         {
             // Assemble
-            var context = new ExecutionContext()
+            var context = new DurableExecContext()
             {
                 NumberOfAttempts = 3
             };
@@ -59,7 +59,7 @@ namespace Push.Foundation.Tests.Web
 
             // Act
             var result =
-                DurableExecutor.Do(() => mockClass.DoSomething(), context);
+                DurableExec.Do(() => mockClass.DoSomething(), context);
 
             // Assert
             Assert.IsTrue(result);
@@ -70,7 +70,7 @@ namespace Push.Foundation.Tests.Web
         public void ExecutesThriceOnFailFailSuccess()
         {
             // Assemble
-            var context = new ExecutionContext()
+            var context = new DurableExecContext()
             {
                 NumberOfAttempts = 3
             };
@@ -87,7 +87,7 @@ namespace Push.Foundation.Tests.Web
 
             // Act
             var result =
-                DurableExecutor.Do(() => mockClass.DoSomething(), context);
+                DurableExec.Do(() => mockClass.DoSomething(), context);
 
             // Assert
             Assert.IsTrue(result);
@@ -98,7 +98,7 @@ namespace Push.Foundation.Tests.Web
         public void ExecutesThriceOnFailFailFailAndThrowException()
         {
             // Assemble
-            var context = new ExecutionContext()
+            var context = new DurableExecContext()
             {
                 NumberOfAttempts = 3
             };
@@ -114,7 +114,7 @@ namespace Push.Foundation.Tests.Web
                 () =>
                 {
                     var result =
-                        DurableExecutor.Do(() => mockClass.DoSomething(), context);
+                        DurableExec.Do(() => mockClass.DoSomething(), context);
                 });
         }
     }

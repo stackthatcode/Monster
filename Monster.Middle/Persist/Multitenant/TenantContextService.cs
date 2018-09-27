@@ -1,17 +1,15 @@
-﻿using System.Linq;
-using Monster.Acumatica.Config;
-using Monster.Middle.Persist;
+﻿using Monster.Acumatica.Config;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Config;
 
-namespace Monster.Middle.EF.Account
+namespace Monster.Middle.Persist.Multitenant
 {
-    public class AccountService
+    public class TenantContextService
     {
         private readonly MonsterDataContext _dataContext;
         private readonly ICryptoService _cryptoService;
 
-        public AccountService(
+        public TenantContextService(
                 MonsterDataContext dataContext,
                 ICryptoService cryptoService)
         {
