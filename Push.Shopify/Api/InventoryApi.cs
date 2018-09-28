@@ -3,12 +3,12 @@ using Push.Shopify.Http;
 
 namespace Push.Shopify.Api
 {
-    public class InventoryRepository
+    public class InventoryApi
     {
         private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
 
-        public InventoryRepository(IPushLogger logger, ShopifyHttpContext httpClient)
+        public InventoryApi(IPushLogger logger, ShopifyHttpContext httpClient)
         {
             _logger = logger;
             _httpClient = httpClient;

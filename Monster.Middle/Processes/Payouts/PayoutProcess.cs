@@ -21,7 +21,6 @@ namespace Monster.Middle.Processes.Payouts
         }
 
         public void PullShopifyPayouts(
-                        IShopifyCredentials shopifyCredentials,
                         int recordsPerPage = 14, 
                         int maxPages = 1,
                         bool includeTransactions = true,
@@ -29,7 +28,6 @@ namespace Monster.Middle.Processes.Payouts
         {
             _shopifyPayoutPullWorker
                 .ImportPayoutHeaders(
-                    shopifyCredentials, 
                     maxPages, 
                     recordsPerPage,
                     shopifyPayoutId);
@@ -40,14 +38,12 @@ namespace Monster.Middle.Processes.Payouts
                 {
                     _shopifyPayoutPullWorker
                         .ImportPayoutTransactions(
-                            credentials:shopifyCredentials, 
                             payoutId:shopifyPayoutId.Value);
                 }
                 else
                 {
                     _shopifyPayoutPullWorker
-                        .ImportIncompletePayoutTransactions(
-                            shopifyCredentials);
+                        .ImportIncompletePayoutTransactions();
                 }
             }
 

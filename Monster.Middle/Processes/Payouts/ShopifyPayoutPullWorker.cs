@@ -14,14 +14,14 @@ namespace Monster.Middle.Processes.Payouts
     public class ShopifyPayoutPullWorker
     {
         private readonly PayoutPersistRepository _persistRepository;
-        private readonly PayoutRepository _payoutRepository;
+        private readonly PayoutApi _payoutRepository;
         private readonly IPushLogger _logger;
 
         public int PayoutTransactionPagingLimit = 50;
 
         public ShopifyPayoutPullWorker(
                     PayoutPersistRepository persistRepository,
-                    PayoutRepository payoutRepository,
+                    PayoutApi payoutRepository,
                     IPushLogger logger)
         {
             _persistRepository = persistRepository;
@@ -32,7 +32,7 @@ namespace Monster.Middle.Processes.Payouts
         //
         // TODO - add option to use cutoff date
         //
-        public void ImportPayoutHeaders(IShopifyCredentials credentials,
+        public void ImportPayoutHeaders(
                     int maxPages = 1, 
                     int recordsPerPage = 50, 
                     long? shopifyPayoutId = null)
@@ -53,7 +53,8 @@ namespace Monster.Middle.Processes.Payouts
             }
         }
 
-        public void SavePayoutHeaders(PayoutList payouts, long? shopifyPayoutId)
+        public void SavePayoutHeaders(
+                PayoutList payouts, long? shopifyPayoutId)
         {
             foreach (var payout in payouts.payouts)
             {
@@ -91,13 +92,13 @@ namespace Monster.Middle.Processes.Payouts
             }
         }
         
-        public void ImportIncompletePayoutTransactions(IShopifyCredentials credentials)
+        public void ImportIncompletePayoutTransactions()
         {
             var payouts = _persistRepository.RetrieveIncompletePayoutImports();
 
             foreach (var payout in payouts)
             {
-                ImportPayoutTransactions(credentials, payout.ShopifyPayoutId);
+                ImportPayoutTransactions(payout.ShopifyPayoutId);
 
                 _persistRepository
                     .UpdatePayoutHeaderAllShopifyTransDownloaded(
@@ -105,13 +106,13 @@ namespace Monster.Middle.Processes.Payouts
             }
         }
         
-        public void ImportPayoutTransactions(
-                        IShopifyCredentials credentials, long payoutId)
+        public void ImportPayoutTransactions(long payoutId)
         {
             _logger.Info($"Importing Transactions for Shopify Payout: {payoutId}");
 
             // Read first batch
-            var firstBatch = payoutApi
+            var firstBatch = 
+                _payoutRepository
                     .RetrievePayoutDetail(
                             payout_id: payoutId, 
                             limit: PayoutTransactionPagingLimit)
@@ -125,7 +126,8 @@ namespace Monster.Middle.Processes.Payouts
             while (true)
             {
                 // Grab the next Batch
-                var nextBatch = payoutApi
+                var nextBatch = 
+                    _payoutRepository
                         .RetrievePayoutDetail(
                                 since_id: lastTranscationId, limit: PayoutTransactionPagingLimit)
                         .DeserializeFromJson<PayoutDetail>();

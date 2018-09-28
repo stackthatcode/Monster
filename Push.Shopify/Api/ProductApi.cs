@@ -13,13 +13,13 @@ using Push.Shopify.Model;
 namespace Push.Shopify.Api
 {
 
-    public class ProductRepository
+    public class ProductApi
     {
         private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
         
 
-        public ProductRepository(
+        public ProductApi(
                 ShopifyHttpContext client, IPushLogger logger)
         {
             _httpClient = client;

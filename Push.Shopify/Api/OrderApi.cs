@@ -6,12 +6,12 @@ using Push.Shopify.Http;
 namespace Push.Shopify.Api
 {
 
-    public class OrderRepository
+    public class OrderApi
     {
         private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
 
-        public OrderRepository(
+        public OrderApi(
                     IPushLogger logger, ShopifyHttpContext httpClient)
         {
             _logger = logger;

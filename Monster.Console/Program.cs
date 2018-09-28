@@ -2,12 +2,11 @@
 using Autofac;
 using Monster.Acumatica.Config;
 using Monster.ConsoleApp.Shopify;
-using Monster.Middleware;
-using Monster.Middleware.Config;
-using Monster.Middleware.EF;
-using Monster.Middleware.Persist;
-using Monster.Middleware.Persist.Payouts;
-using Monster.Middleware.Runners;
+using Monster.Middle;
+using Monster.Middle.Config;
+using Monster.Middle.Persistence;
+using Monster.Middle.Persistence.Multitenant;
+using Monster.Middle.Runners;
 using Push.Foundation.Utilities.Autofac;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
@@ -35,6 +34,9 @@ namespace Monster.ConsoleApp
 
         public static void RunMetafieldCopy()
         {
+            var credentials = ShopifyPrivateAppCredentialsFromConfig();
+
+
             Console.WriteLine("Copy 3DU_Automation Metafields");
             Console.WriteLine("****");
 
@@ -45,14 +47,12 @@ namespace Monster.ConsoleApp
             var targetProductId = Console.ReadLine().ToLong();
             
             Console.WriteLine(Environment.NewLine + "Ok, running...");
-
-            var credentials = ShopifyCredentialsFactory();
             
             using (var container = MiddleAutofac.Build())
             {
                 container.RunInLifetimeScope(
                     scope => 
-                        MetafieldWorkers.CopyShoppingFeedMetadata(
+                        MetafieldHarness.CopyShoppingFeedMetadata(
                             scope,
                             credentials,
                             sourceProductId,
@@ -103,14 +103,16 @@ namespace Monster.ConsoleApp
         }
 
 
-        public static PrivateAppCredentials ShopifyCredentialsFactory()
+        public static PrivateAppCredentials 
+                        ShopifyPrivateAppCredentialsFromConfig()
         {
             return ShopifyCredentials
                 .FromConfiguration()
                 .MakePrivateAppCredentials();
         }
 
-        public static AcumaticaCredentials AcumaticaCredentialsFactory()
+        public static AcumaticaCredentials 
+                        AcumaticaCredentialsFromConfig()
         {
             var config = AcumaticaCredentialsConfig.Settings;
             return new AcumaticaCredentials(config);

@@ -2,11 +2,11 @@
 
 namespace Push.Shopify.Api
 {
-    public class ShopRepository
+    public class ShopApi
     {
         private readonly ShopifyHttpContext _httpClient;
         
-        public ShopRepository(ShopifyHttpContext httpClient)
+        public ShopApi(ShopifyHttpContext httpClient)
         {
             _httpClient = httpClient;
         }

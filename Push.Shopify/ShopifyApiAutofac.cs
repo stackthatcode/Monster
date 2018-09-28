@@ -14,12 +14,12 @@ namespace Push.Shopify
 
             builder.RegisterType<ShopifyHttpContext>();
                    
-            builder.RegisterType<ShopRepository>();
-            builder.RegisterType<OrderRepository>();
-            builder.RegisterType<ProductRepository>();
-            builder.RegisterType<EventRepository>();
-            builder.RegisterType<PayoutRepository>();
-            builder.RegisterType<InventoryRepository>();
+            builder.RegisterType<ShopApi>();
+            builder.RegisterType<OrderApi>();
+            builder.RegisterType<ProductApi>();
+            builder.RegisterType<EventApi>();
+            builder.RegisterType<PayoutApi>();
+            builder.RegisterType<InventoryApi>();
         }
     }
 }

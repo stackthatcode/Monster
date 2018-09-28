@@ -8,7 +8,7 @@ namespace Monster.Middle.Processes.Inventory
     public class InventoryWorker
     {
         private readonly InventoryPersistRepository _persistRepository;
-        private readonly InventoryRepository _inventoryRepository;
+        private readonly InventoryApi _inventoryRepository;
         private readonly IPushLogger _logger;
 
         public void PullFromShopify()

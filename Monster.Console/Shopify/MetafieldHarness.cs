@@ -4,18 +4,22 @@ using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Product;
+using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
 
 namespace Monster.ConsoleApp.Shopify
 {
-    public class MetafieldWorkers
+    public class MetafieldHarness
     {
-        public static void UpdateMetadata(ILifetimeScope scope)
+        public static void UpdateMetadata(
+                ILifetimeScope scope,
+                IShopifyCredentials credentials)
         {
-            var factory = scope.Resolve<ShopifyApiFactory>();
-            var credentials = ShopifyHarness.CredentialsFactory();
-            var productApi = factory.MakeProductApi(credentials);
+            var shopifyHttpContext = scope.Resolve<ShopifyHttpContext>();
+            shopifyHttpContext.Initialize(credentials);
 
+            var productApi = scope.Resolve<ProductApi>();
+                
             var products =
                 productApi
                     .RetrieveByCollection(56819023972)
@@ -57,18 +61,18 @@ namespace Monster.ConsoleApp.Shopify
 
         }
 
-        public static 
-                void CopyShoppingFeedMetadata(
+        public static void CopyShoppingFeedMetadata(
                     ILifetimeScope scope,
                     IShopifyCredentials credentials,
                     long sourceProductId,
                     long targetProductId,
                     string @namespace)
         {
-            var factory = scope.Resolve<ShopifyApiFactory>();
-            var logger = scope.Resolve<IPushLogger>();
+            var shopifyHttpContext = scope.Resolve<ShopifyHttpContext>();
+            shopifyHttpContext.Initialize(credentials);
 
-            var productApi = factory.MakeProductApi(credentials);
+            var logger = scope.Resolve<IPushLogger>();
+            var productApi = scope.Resolve<ProductApi>();
             
             var sourceMetafields =
                 productApi

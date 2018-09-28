@@ -31,7 +31,6 @@ namespace Monster.Middle.Runners
                         var process = scope.Resolve<PayoutProcess>();
 
                         process.PullShopifyPayouts(
-                            shopifyCredentials,
                             recordsPerPage: payoutConfig.ShopifyRecordsPerPage,
                             maxPages: payoutConfig.ShopifyMaxPages);
 
@@ -55,7 +54,6 @@ namespace Monster.Middle.Runners
                         var process = scope.Resolve<PayoutProcess>();
 
                         process.PullShopifyPayouts(
-                            shopifyCredentials,
                             recordsPerPage: payoutConfig.ShopifyRecordsPerPage,
                             maxPages: payoutConfig.ShopifyMaxPages,
                             shopifyPayoutId: shopifyPayoutId);                        

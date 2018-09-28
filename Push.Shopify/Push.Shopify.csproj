@@ -89,7 +89,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\InventoryRepository.cs" />
+    <Compile Include="Api\InventoryApi.cs" />
     <Compile Include="Api\Inventory\Location.cs" />
     <Compile Include="Api\Order\BillingAddress.cs" />
     <Compile Include="Api\Order\ClientDetails.cs" />
@@ -132,7 +132,7 @@
     <Compile Include="Api\Product\Product.cs" />
     <Compile Include="Api\Product\ProductFilter.cs" />
     <Compile Include="Api\Product\Variant.cs" />
-    <Compile Include="Api\PayoutRepository.cs" />
+    <Compile Include="Api\PayoutApi.cs" />
     <Compile Include="Api\Transaction\Extensions.cs" />
     <Compile Include="Api\Transaction\TransactionConstants.cs" />
     <Compile Include="Api\Transaction\PaymentDetails.cs" />
@@ -158,10 +158,10 @@
     <Compile Include="Api\Shop\ShopDto.cs" />
     <Compile Include="Api\Legacy\Event\Webhook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Api\EventRepository.cs" />
-    <Compile Include="Api\OrderRepository.cs" />
-    <Compile Include="Api\ShopRepository.cs" />
-    <Compile Include="Api\ProductRepository.cs" />
+    <Compile Include="Api\EventApi.cs" />
+    <Compile Include="Api\OrderApi.cs" />
+    <Compile Include="Api\ShopApi.cs" />
+    <Compile Include="Api\ProductApi.cs" />
     <Compile Include="Workers\PayoutsWorker.cs" />
   </ItemGroup>
   <ItemGroup>

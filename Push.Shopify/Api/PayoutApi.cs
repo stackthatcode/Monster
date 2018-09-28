@@ -5,12 +5,12 @@ using Push.Shopify.Http;
 
 namespace Push.Shopify.Api
 {
-    public class PayoutRepository
+    public class PayoutApi
     {
         private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
 
-        public PayoutRepository(
+        public PayoutApi(
                 IPushLogger logger, 
                 ShopifyHttpContext httpClient)
         {

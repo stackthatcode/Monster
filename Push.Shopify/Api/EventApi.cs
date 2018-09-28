@@ -9,12 +9,12 @@ using Push.Shopify.Http;
 
 namespace Push.Shopify.Api
 {
-    public class EventRepository
+    public class EventApi
     {
         private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
         
-        public EventRepository(
+        public EventApi(
                 IPushLogger logger, ShopifyHttpContext httpClient)
         {
             _logger = logger;
