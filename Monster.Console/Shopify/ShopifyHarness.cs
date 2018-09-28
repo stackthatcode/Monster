@@ -25,10 +25,9 @@ namespace Monster.ConsoleApp.Shopify
 
         public static void RetrieveOrderData(ILifetimeScope scope, long orderId)
         {
-            var factory = scope.Resolve<ShopifyApiFactory>();
             var credentials = CredentialsFactory();
 
-            var orderApi = factory.MakeOrderApi(credentials);
+            var orderApi = scope.Resolve<OrderRepository>();
             var shopifyOrderJson = orderApi.Retrieve(orderId);
 
             var orderParent = shopifyOrderJson.DeserializeFromJson<OrderParent>();
@@ -44,10 +43,9 @@ namespace Monster.ConsoleApp.Shopify
 
         public static void RetrieveProductData(ILifetimeScope scope, long productId)
         {
-            var factory = scope.Resolve<ShopifyApiFactory>();
             var credentials = CredentialsFactory();
 
-            var productApi = factory.MakeProductApi(credentials);
+            var productApi = scope.Resolve<ProductRepository>();
             var shopifyOrderJson = productApi.Retrieve(productId);
 
             var productParent = shopifyOrderJson.DeserializeFromJson<ProductParent>();
@@ -60,10 +58,8 @@ namespace Monster.ConsoleApp.Shopify
 
         public static void RetrieveLocations(ILifetimeScope scope)
         {
-            var factory = scope.Resolve<ShopifyApiFactory>();
             var credentials = CredentialsFactory();
-
-            var productApi = factory.MakeProductApi(credentials);
+            var productApi = scope.Resolve<InventoryRepository>();
             var shopifyLocationJson = productApi.RetrieveLocations();
 
             var locations =

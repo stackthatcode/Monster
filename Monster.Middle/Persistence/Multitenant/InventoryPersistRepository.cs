@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Monster.Middle.Persist;
 
-namespace Monster.Middle.EF.Inventory
+namespace Monster.Middle.Persistence.Multitenant
 {
     public class InventoryPersistRepository
     {

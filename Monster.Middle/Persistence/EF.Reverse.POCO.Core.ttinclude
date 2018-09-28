@@ -1,6 +1,6 @@
 <#
 // Copyright (C) Simon Hughes 2012
-// v2.36.1
+// v2.37.1
 #>
 <#@ template debug="true" hostspecific="true" language="C#" #>
 <#@ include file="EF6.Utility.CS.ttinclude"#>
@@ -67,6 +67,7 @@
         public static string DbContextInterfaceBaseClasses;
         public static string DbContextBaseClass;
 
+        public static bool AddParameterlessConstructorToDbContext = true;
         private static string _defaultConstructorArgument;
         public static string DefaultConstructorArgument
         {
@@ -79,9 +80,27 @@
         public static string CollectionType = "System.Collections.Generic.List";
         public static bool NullableShortHand;
         public static bool UseDataAnnotations;
-        public static bool MakeClassesPartial;
-        public static bool MakeClassesInternal;
-        public static bool MakeDbContextInterfacePartial;
+        public static bool UseDataAnnotationsWithFluent;
+        public static string EntityClassesModifiers = "public partial";
+        public static string ConfigurationClassesModifiers = "internal";
+        public static string DbContextClassModifiers = "public partial";
+        public static string DbContextInterfaceModifiers = "public partial";
+        public static string MigrationClassModifiers = "internal sealed";
+        public static string ResultClassModifiers = "public partial";
+        public static bool DbContextClassIsPartial()
+        {
+            return DbContextClassModifiers != null && DbContextClassModifiers.Contains("partial");
+        }
+
+        public static bool EntityClassesArePartial()
+        {
+            return EntityClassesModifiers != null && EntityClassesModifiers.Contains("partial");
+        }
+
+        public static bool ConfigurationClassesArePartial()
+        {
+            return ConfigurationClassesModifiers != null && ConfigurationClassesModifiers.Contains("partial");
+        }
         public static bool GenerateSeparateFiles;
         public static bool UseMappingTables;
         public static bool UsePropertyInitializers;
@@ -122,6 +141,8 @@
         public static Func<Table, Table, string, string[]> ForeignKeyAnnotationsProcessing;
         public static Func<ForeignKey, ForeignKey> ForeignKeyFilter;
         public static Func<string, ForeignKey, string, Relationship, short, string> ForeignKeyName;
+        public static Action<Table> ViewProcessing;
+        public static Action<List<ForeignKey>, Tables> AddForeignKeys;
         public static string MigrationConfigurationFileName;
         public static string MigrationStrategy = "MigrateDatabaseToLatestVersion";
         public static string ContextKey;
@@ -129,6 +150,7 @@
         public static bool AutomaticMigrationDataLossAllowed;
         public static List<EnumDefinition> EnumDefinitions = new List<EnumDefinition>();
         public static Dictionary<string, string> ColumnNameToDataAnnotation;
+        public static Dictionary<string, string> ColumnTypeToDataAnnotation;
         public static bool IncludeCodeGeneratedAttribute;
         public static Tables Tables;
         public static List<StoredProcedure> StoredProcs;
@@ -145,7 +167,7 @@
         };
     };
 
-    const string CodeGeneratedAttribute = "[System.CodeDom.Compiler.GeneratedCode(\"EF.Reverse.POCO.Generator\", \"2.36.1.0\")]";
+    const string CodeGeneratedAttribute = "[System.CodeDom.Compiler.GeneratedCode(\"EF.Reverse.POCO.Generator\", \"2.37.1.0\")]";
     const string DataDirectory = "|DataDirectory|";
 
     static readonly List<string> NotNullable = new List<string>
@@ -318,11 +340,67 @@
         Settings.ConnectionString = Settings.ConnectionString.Replace(DataDirectory, dataFilePath);
     }
 
+    public new void WriteLine(string format, params object[] args)
+    {
+        WriteLine(string.Format(CultureInfo.CurrentCulture, format, args));
+    }
+
+    public new void WriteLine(string message)
+    {
+        LogToOutput(message);
+        base.WriteLine(message);
+    }
+
+    public new void Warning(string message)
+    {
+        LogToOutput(string.Format(CultureInfo.CurrentCulture, "Warning: {0}", message));
+        base.Warning(message);
+    }
+    public new void Error(string message)
+    {
+        LogToOutput(string.Format(CultureInfo.CurrentCulture, "Error: {0}", message));
+        base.Error(message);
+    }
+    private object GetCOMService(IServiceProvider provider, Type type)
+    {
+        object result = provider.GetService(type);
+        if (result == null)
+        {
+            return result;
+        }
+        try
+        {
+            return System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(
+                System.Runtime.InteropServices.Marshal.GetIUnknownForObject(result));
+        }
+        catch (Exception)
+        {
+            return result;
+        }
+    }
+
+    private void LogToOutput(string message)
+    {
+        var serviceProvider = GetServiceProvider();
+        var dte = (DTE)GetCOMService(serviceProvider, typeof(DTE));
+        var window = dte.Windows.Item(Constants.vsWindowKindOutput);
+        var outputWindow = (OutputWindow) window.Object;
+        outputWindow.ActivePane.Activate();
+        outputWindow.ActivePane.OutputString(message);
+        outputWindow.ActivePane.OutputString("\n");
+    }
+
+    private IServiceProvider GetServiceProvider()
+    {
+        var serviceProvider = (IServiceProvider) Host;
+        if (serviceProvider == null)
+            throw new Exception("Host property returned unexpected value (null)");
+        return serviceProvider;
+    }
+
     public DTE GetDTE()
     {
-        var serviceProvider = (IServiceProvider)Host;
-        if(serviceProvider == null)
-            throw new Exception("Host property returned unexpected value (null)");
+        var serviceProvider = GetServiceProvider();
 
         var dte = (DTE)serviceProvider.GetService(typeof(DTE));
         if(dte == null)
@@ -522,6 +600,28 @@
         return rx.Replace(Settings.ConnectionString, "password=**zapped**;");
     }
 
+    public void PrintError(String message, Exception ex)
+    {
+        StringBuilder sb = new StringBuilder();
+        while( ex != null )
+        {
+            sb.AppendLine( ex.Message );
+            sb.AppendLine( ex.GetType().FullName );
+            sb.AppendLine( ex.StackTrace );
+            sb.AppendLine();
+            ex = ex.InnerException;
+        }
+        String report = sb.ToString();
+
+        Warning( message + " " + report );
+        WriteLine("");
+        WriteLine("// -----------------------------------------------------------------------------------------");
+        WriteLine("// " + message );
+        WriteLine("// -----------------------------------------------------------------------------------------");
+        WriteLine( report );
+        WriteLine("");
+    }
+
     private DbProviderFactory GetDbProviderFactory()
     {
         if (Settings.TargetFrameworkVersion < 1.0f)
@@ -561,13 +661,7 @@
             }
             catch (Exception x)
             {
-                var error = x.Message.Replace("\r\n", "\n").Replace("\n", " ");
-                Warning(string.Format("Failed to load provider \"{0}\" - {1}", Settings.ProviderName, error));
-                WriteLine("");
-                WriteLine("// ------------------------------------------------------------------------------------------------");
-                WriteLine("// Failed to load provider \"{0}\" - {1}", Settings.ProviderName, error);
-                WriteLine("// ------------------------------------------------------------------------------------------------");
-                WriteLine("");
+                PrintError( "Failed to load provider \"" + Settings.ProviderName + "\".", x );
             }
         }
         else
@@ -631,10 +725,12 @@
 
                 foreach (var t in tables)
                 {
-                    if(Settings.UseDataAnnotations)
+                    if(Settings.UseDataAnnotations || Settings.UseDataAnnotationsWithFluent)
                         t.SetupDataAnnotations();
                     t.Suffix = Settings.TableSuffix;
                 }
+
+                if(Settings.AddForeignKeys != null) Settings.AddForeignKeys(fkList, tables);
 
                 // Work out if there are any foreign key relationship naming clashes
                 reader.ProcessForeignKeys(fkList, tables, true);
@@ -655,17 +751,63 @@
         }
         catch(Exception x)
         {
-            string error = x.Message.Replace("\r\n", "\n").Replace("\n", " ");
-            Warning(string.Format("Failed to read database schema - {0}", error));
-            WriteLine("");
-            WriteLine("// -----------------------------------------------------------------------------------------");
-            WriteLine("// Failed to read database schema in LoadTables() - {0}", error);
-            WriteLine("// -----------------------------------------------------------------------------------------");
-            WriteLine("");
+            PrintError( "Failed to read database schema in LoadTables().", x );
             return new Tables();
         }
     }
 
+    /// <summary>AddRelationship overload for single-column foreign-keys.</summary>
+    public static void AddRelationship(List<ForeignKey> fkList, Tables tablesAndViews, String name, String pkSchema, String pkTable, String pkColumn, String fkSchema, String fkTable, String fkColumn)
+    {
+        AddRelationship( fkList, tablesAndViews, name, pkSchema, pkTable, new String[] { pkColumn }, fkSchema, fkTable, new String[] { fkColumn } );
+    }
+
+    public static void AddRelationship(List<ForeignKey> fkList, Tables tablesAndViews, String relationshipName, String pkSchema, String pkTableName, String[] pkColumns, String fkSchema, String fkTableName, String[] fkColumns)
+    {
+        // Argument validation:
+        if( fkList == null ) throw new ArgumentNullException(nameof(fkList));
+        if( tablesAndViews == null ) throw new ArgumentNullException(nameof(tablesAndViews));
+        if( String.IsNullOrEmpty(relationshipName) ) throw new ArgumentNullException(nameof(relationshipName));
+        if( String.IsNullOrEmpty(pkSchema) ) throw new ArgumentNullException(nameof(pkSchema));
+        if( String.IsNullOrEmpty(pkTableName) ) throw new ArgumentNullException(nameof(pkTableName));
+        if( pkColumns == null ) throw new ArgumentNullException(nameof(pkColumns));
+        if( pkColumns.Length == 0 || pkColumns.Any( s => String.IsNullOrEmpty(s) ) ) throw new ArgumentException(nameof(pkColumns));
+        if( String.IsNullOrEmpty(fkSchema) ) throw new ArgumentNullException(nameof(fkSchema));
+        if( String.IsNullOrEmpty(fkTableName) ) throw new ArgumentNullException(nameof(fkTableName));
+        if( fkColumns == null ) throw new ArgumentNullException(nameof(fkColumns));
+        if( fkColumns.Length != pkColumns.Length || fkColumns.Any( s => String.IsNullOrEmpty(s) ) ) throw new ArgumentException(nameof(fkColumns));
+
+        //////////////////
+
+        Table pkTable = tablesAndViews.GetTable(pkTableName, pkSchema);
+        Table fkTable = tablesAndViews.GetTable(fkTableName, fkSchema);
+
+        for( int i = 0; i < pkColumns.Length; i++ )
+        {
+            String pkc = pkColumns[i];
+            String fkc = fkColumns[i];
+
+            String pkTableNameFiltered = Settings.TableRename( pkTableName, pkSchema, pkTable.IsView ); // TODO: This can probably be done-away with. Is `AddRelationship` called before or after table.NameFiltered is set?
+
+            ForeignKey fk = new ForeignKey(
+                fkTableName        : fkTable.Name,
+                fkSchema           : fkSchema,
+                pkTableName        : pkTable.Name,
+                pkSchema           : pkSchema,
+                fkColumn           : fkc,
+                pkColumn           : pkc,
+                constraintName     : "AddRelationship: " + relationshipName,
+                pkTableNameFiltered: pkTableNameFiltered,
+                ordinal            : Int32.MaxValue,
+                cascadeOnDelete    : false,
+                isNotEnforced      : false
+            );
+            fk.IncludeReverseNavigation = true;
+
+            fkList.Add( fk );
+            fkTable.HasForeignKey = true;
+        }
+    }
 
     private List<StoredProcedure> LoadStoredProcs(DbProviderFactory factory)
     {
@@ -737,15 +879,9 @@
                 return validStoredProcedures;
             }
         }
-        catch(Exception x)
+        catch(Exception ex)
         {
-            var error = x.Message.Replace("\r\n", "\n").Replace("\n", " ");
-            Warning(string.Format("Failed to read database schema for stored procedures - {0}", error));
-            WriteLine("");
-            WriteLine("// -----------------------------------------------------------------------------------------");
-            WriteLine("// Failed to read database schema for stored procedures - {0}", error);
-            WriteLine("// -----------------------------------------------------------------------------------------");
-            WriteLine("");
+            PrintError( "Failed to read database schema for stored procedures.", ex );
             return new List<StoredProcedure>();
         }
     }
@@ -834,8 +970,12 @@
         public string ExtendedProperty;
         public string SummaryComments;
         public string UniqueIndexName;
+        public bool AllowEmptyStrings = true;
 
         public bool IsIdentity;
+        public bool IsRowGuid;
+        public bool IsComputed;
+        public ColumnGeneratedAlwaysType GeneratedAlwaysType;
         public bool IsNullable;
         public bool IsPrimaryKey;
         public bool IsUniqueConstraint;
@@ -906,7 +1046,10 @@
                     inlineComments += ". " + ExtendedProperty;
             }
             var initialization = Settings.UsePropertyInitializers ? (Default == string.Empty ? "" : string.Format(" = {0};", Default)) : "";
-            Entity = string.Format("public {0}{1} {2} {{ get; {3}set; }}{4}{5}", (OverrideModifier ? "override " : ""), WrapIfNullable(PropertyType, this), NameHumanCase, Settings.UsePrivateSetterForComputedColumns && IsComputed() ? "private " : string.Empty, initialization, inlineComments);
+            Entity = string.Format(
+                "public {0}{1} {2} {{ get; {3}set; }}{4}{5}",
+                (OverrideModifier ? "override " : ""), WrapIfNullable(PropertyType, this), NameHumanCase, Settings.UsePrivateSetterForComputedColumns && IsComputed ? "private " : string.Empty, initialization, inlineComments
+            );
         }
 
         private string WrapIfNullable(string propType, Column col)
@@ -914,11 +1057,6 @@
             if(!IsNullable(col))
                 return propType;
             return string.Format(Settings.NullableShortHand ? "{0}?" : "System.Nullable<{0}>",propType);
-        }
-
-        private bool IsComputed()
-        {
-            return IsStoreGenerated && !IsIdentity;
         }
 
         private void SetupConfig()
@@ -930,15 +1068,16 @@
                 : "System.ComponentModel.DataAnnotations.Schema.";
 
             bool isNewSequentialId = !string.IsNullOrEmpty(Default)  && Default.ToLower().Contains("newsequentialid");
+            bool isTemporalColumn = this.GeneratedAlwaysType != ColumnGeneratedAlwaysType.NotApplicable;
 
-            if (IsIdentity || isNewSequentialId)
+            if (IsIdentity || isNewSequentialId || isTemporalColumn) // Identity, instead of Computed, seems the best for Temporal `GENERATED ALWAYS` columns: https://stackoverflow.com/questions/40742142/entity-framework-not-working-with-temporal-table
             {
                 if(Settings.UseDataAnnotations || isNewSequentialId)
                     DataAnnotations.Add("DatabaseGenerated(DatabaseGeneratedOption.Identity)");
                 else
                     databaseGeneratedOption = string.Format(".HasDatabaseGeneratedOption({0}DatabaseGeneratedOption.Identity)", schemaReference);
             }
-            else if(IsComputed())
+            else if(IsComputed)
             {
                 if(Settings.UseDataAnnotations)
                     DataAnnotations.Add("DatabaseGenerated(DatabaseGeneratedOption.Computed)");
@@ -978,13 +1117,22 @@
             }
             else
             {
-                if (Settings.UseDataAnnotations)
+                if (!IsComputed && (Settings.UseDataAnnotations || Settings.UseDataAnnotationsWithFluent))
                 {
-                    if(!IsComputed())
+                    if (PropertyType.Equals("string", StringComparison.InvariantCultureIgnoreCase) && this.AllowEmptyStrings)
+                    {
+                        DataAnnotations.Add("Required(AllowEmptyStrings = true)");
+                    }
+                    else
+                    {
                         DataAnnotations.Add("Required");
+                    }
                 }
-                else
+
+                if (!Settings.UseDataAnnotations)
+                {
                     sb.Append(".IsRequired()");
+                }
             }
 
             if (IsFixedLength || IsRowVersion)
@@ -1003,28 +1151,38 @@
             {
                 var doNotSpecifySize = (Settings.IsSqlCe && MaxLength > 4000); // Issue #179
 
-                if (Settings.UseDataAnnotations)
+                if (Settings.UseDataAnnotations || Settings.UseDataAnnotationsWithFluent)
                 {
                     DataAnnotations.Add(doNotSpecifySize ? "MaxLength" : string.Format("MaxLength({0})", MaxLength));
 
                     if (PropertyType.Equals("string", StringComparison.InvariantCultureIgnoreCase))
                         DataAnnotations.Add(string.Format("StringLength({0})", MaxLength));
                 }
-                else
+
+                if (!Settings.UseDataAnnotations)
                 {
                     if (doNotSpecifySize)
+                    {
                         sb.Append(".HasMaxLength(null)");
+                    }
                     else
+                    {
                         sb.AppendFormat(".HasMaxLength({0})", MaxLength);
+                    }
                 }
             }
 
             if (IsMaxLength)
             {
-                if (Settings.UseDataAnnotations)
+                if (Settings.UseDataAnnotations || Settings.UseDataAnnotationsWithFluent)
+                {
                     DataAnnotations.Add("MaxLength");
-                else
+                }
+
+                if (!Settings.UseDataAnnotations)
+                {
                     sb.Append(".IsMaxLength()");
+                }
             }
 
             if ((Precision > 0 || Scale > 0) && PropertyType == "decimal")
@@ -1054,15 +1212,18 @@
             if(!string.IsNullOrEmpty(config))
                 Config = string.Format("Property(x => x.{0}){1};", NameHumanCase, config);
 
-            if (!Settings.UseDataAnnotations)
-                return; // Only data annotations below this point
-
-            if (IsPrimaryKey)
+            if (IsPrimaryKey && Settings.UseDataAnnotations)
                 DataAnnotations.Add("Key");
 
-            string value;
-            if(Settings.ColumnNameToDataAnnotation.TryGetValue(NameHumanCase.ToLowerInvariant(), out value))
-                DataAnnotations.Add(value);
+            string valueFromName, valueFromType;
+            if (Settings.ColumnNameToDataAnnotation.TryGetValue(NameHumanCase.ToLowerInvariant(), out valueFromName))
+            {
+                DataAnnotations.Add(valueFromName);
+            }
+            else if (Settings.ColumnTypeToDataAnnotation.TryGetValue(SqlPropertyType.ToLowerInvariant(), out valueFromType))
+            {
+                DataAnnotations.Add(valueFromType);
+            }
 
             DataAnnotations.Add(string.Format("Display(Name = \"{0}\")", DisplayName));
         }
@@ -1278,7 +1439,9 @@
 
         public static bool IsNullable(DataColumn col)
         {
-            return col.AllowDBNull && !NotNullable.Contains(col.DataType.Name.ToLower());
+            return col.AllowDBNull &&
+                   !(NotNullable.Contains(col.DataType.Name.ToLower())
+                   || NotNullable.Contains(col.DataType.Namespace.ToLower() + "." + col.DataType.Name.ToLower()));
         }
 
         public static string WrapTypeIfNullable(string propertyType, DataColumn col) {
@@ -1509,7 +1672,7 @@
         public abstract void ProcessForeignKeys(List<ForeignKey> fkList, Tables tables, bool checkForFkNameClashes);
         public abstract void IdentifyForeignKeys(List<ForeignKey> fkList, Tables tables);
         public abstract void ReadIndexes(Tables tables);
-        public abstract void ReadExtendedProperties(Tables tables, bool includeConnectionSettingComments, bool commentsInSummaryBlock);
+        public abstract void ReadExtendedProperties(Tables tables, bool commentsInSummaryBlock);
 
         protected void WriteLine(string o)
         {
@@ -1530,7 +1693,8 @@
 
     private class SqlServerSchemaReader : SchemaReader
     {
-        private static string _sqlDatabaseEdition, _sqlDatabaseEngineEdition;
+        private static string _sqlDatabaseEdition, _sqlDatabaseEngineEdition, _sqlDatabaseProductVersion;
+        private static int _sqlDatabaseProductMajorVersion;
 
         private const string TableSQL = @"
 SET NOCOUNT ON;
@@ -1538,93 +1702,154 @@ IF OBJECT_ID('tempdb..#Columns')     IS NOT NULL DROP TABLE #Columns;
 IF OBJECT_ID('tempdb..#PrimaryKeys') IS NOT NULL DROP TABLE #PrimaryKeys;
 IF OBJECT_ID('tempdb..#ForeignKeys') IS NOT NULL DROP TABLE #ForeignKeys;
 
-SELECT  C.TABLE_SCHEMA,
-        C.TABLE_NAME,
-        C.COLUMN_NAME,
-        C.ORDINAL_POSITION,
-        C.COLUMN_DEFAULT,
-        C.IS_NULLABLE,
-        C.DATA_TYPE,
-        C.CHARACTER_MAXIMUM_LENGTH,
-        C.NUMERIC_PRECISION,
-        C.NUMERIC_SCALE,
-        C.DATETIME_PRECISION
-INTO    #Columns
-FROM    INFORMATION_SCHEMA.COLUMNS C
-WHERE   C.TABLE_NAME NOT IN ('EdmMetadata', '__MigrationHistory')
-        AND C.TABLE_NAME NOT LIKE 'sysdiagram%';
+SELECT
+    c.TABLE_SCHEMA,
+    c.TABLE_NAME,
+    c.COLUMN_NAME,
+    c.ORDINAL_POSITION,
+    c.COLUMN_DEFAULT,
+    sc.is_nullable,
+    c.DATA_TYPE,
+    c.CHARACTER_MAXIMUM_LENGTH,
+    c.NUMERIC_PRECISION,
+    c.NUMERIC_SCALE,
+    c.DATETIME_PRECISION,
+
+    ss.schema_id,
+    st.object_id AS table_object_id,
+    sv.object_id AS view_object_id,
+
+    sc.is_identity,
+    sc.is_rowguidcol,
+    sc.is_computed, -- Computed columns are read-only, do not confuse it with a column with a DEFAULT expression (which can be re-assigned). See the IsStoreGenerated attribute.
+    CONVERT( tinyint, [sc].[generated_always_type] ) AS generated_always_type -- SQL Server 2016 (13.x) or later. 0 = Not generated, 1 = AS_ROW_START, 2 = AS_ROW_END
+
+INTO
+    #Columns
+FROM
+    INFORMATION_SCHEMA.COLUMNS c
+
+    INNER JOIN sys.schemas AS ss ON c.TABLE_SCHEMA = ss.[name]
+    LEFT OUTER JOIN sys.tables AS st ON st.schema_id = ss.schema_id AND st.[name] = c.TABLE_NAME
+    LEFT OUTER JOIN sys.views AS sv ON sv.schema_id = ss.schema_id AND sv.[name] = c.TABLE_NAME
+    INNER JOIN sys.all_columns AS sc ON sc.object_id = COALESCE( st.object_id, sv.object_id ) AND c.COLUMN_NAME = sc.[name]
+
+WHERE
+    C.TABLE_NAME NOT IN ('EdmMetadata', '__MigrationHistory', '__RefactorLog', 'sysdiagrams')
+
 
 CREATE NONCLUSTERED INDEX IX_EfPoco_Columns
-ON dbo.#Columns (TABLE_NAME)
-INCLUDE (TABLE_SCHEMA,COLUMN_NAME,ORDINAL_POSITION,COLUMN_DEFAULT,IS_NULLABLE,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE,DATETIME_PRECISION);
+    ON dbo.#Columns (TABLE_NAME)
+    INCLUDE (
+        TABLE_SCHEMA,COLUMN_NAME,ORDINAL_POSITION,COLUMN_DEFAULT,IS_NULLABLE,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE,DATETIME_PRECISION,
+        schema_id, table_object_id, view_object_id,
+        is_identity,is_rowguidcol,is_computed,generated_always_type
+    );
 
-SELECT  u.TABLE_SCHEMA,
-        u.TABLE_NAME,
-        u.COLUMN_NAME,
-        u.ORDINAL_POSITION
-INTO    #PrimaryKeys
-FROM    INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
-        INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-            ON u.TABLE_SCHEMA COLLATE DATABASE_DEFAULT = tc.CONSTRAINT_SCHEMA COLLATE DATABASE_DEFAULT
-               AND u.TABLE_NAME = tc.TABLE_NAME
-               AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
-WHERE   CONSTRAINT_TYPE = 'PRIMARY KEY';
+-----------
+
+SELECT
+    u.TABLE_SCHEMA,
+    u.TABLE_NAME,
+    u.COLUMN_NAME,
+    u.ORDINAL_POSITION
+INTO
+    #PrimaryKeys
+FROM
+    INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
+    INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc ON
+        u.TABLE_SCHEMA COLLATE DATABASE_DEFAULT = tc.CONSTRAINT_SCHEMA COLLATE DATABASE_DEFAULT
+        AND
+        u.TABLE_NAME = tc.TABLE_NAME
+        AND
+        u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+WHERE
+    CONSTRAINT_TYPE = 'PRIMARY KEY';
 
 SELECT DISTINCT
-        u.TABLE_SCHEMA,
-        u.TABLE_NAME,
-        u.COLUMN_NAME
-INTO    #ForeignKeys
-FROM    INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
-        INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-            ON u.TABLE_SCHEMA COLLATE DATABASE_DEFAULT = tc.CONSTRAINT_SCHEMA COLLATE DATABASE_DEFAULT
-               AND u.TABLE_NAME = tc.TABLE_NAME
-               AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
-WHERE   CONSTRAINT_TYPE = 'FOREIGN KEY';
+    u.TABLE_SCHEMA,
+    u.TABLE_NAME,
+    u.COLUMN_NAME
+INTO
+    #ForeignKeys
+FROM
+    INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
+    INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc ON
+        u.TABLE_SCHEMA COLLATE DATABASE_DEFAULT = tc.CONSTRAINT_SCHEMA COLLATE DATABASE_DEFAULT
+        AND
+        u.TABLE_NAME = tc.TABLE_NAME
+        AND
+        u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+WHERE
+    CONSTRAINT_TYPE = 'FOREIGN KEY';
 
-SELECT  c.TABLE_SCHEMA AS SchemaName,
-        c.TABLE_NAME AS TableName,
-        t.TABLE_TYPE AS TableType,
-        c.ORDINAL_POSITION AS Ordinal,
-        c.COLUMN_NAME AS ColumnName,
-        CAST(CASE WHEN IS_NULLABLE = 'YES' THEN 1
-                  ELSE 0
-             END AS BIT) AS IsNullable,
-        DATA_TYPE AS TypeName,
-        ISNULL(CHARACTER_MAXIMUM_LENGTH, 0) AS MaxLength,
-        CAST(ISNULL(NUMERIC_PRECISION, 0) AS INT) AS Precision,
-        ISNULL(COLUMN_DEFAULT, '') AS [Default],
-        CAST(ISNULL(DATETIME_PRECISION, 0) AS INT) AS DateTimePrecision,
-        ISNULL(NUMERIC_SCALE, 0) AS Scale,
-        CAST(COLUMNPROPERTY(OBJECT_ID(QUOTENAME(c.TABLE_SCHEMA) + '.' + QUOTENAME(c.TABLE_NAME)), c.COLUMN_NAME, 'IsIdentity') AS BIT) AS IsIdentity,
-        CAST(CASE WHEN COLUMNPROPERTY(OBJECT_ID(QUOTENAME(c.TABLE_SCHEMA) + '.' + QUOTENAME(c.TABLE_NAME)), c.COLUMN_NAME, 'IsIdentity') = 1 THEN 1
-                  WHEN COLUMNPROPERTY(OBJECT_ID(QUOTENAME(c.TABLE_SCHEMA) + '.' + QUOTENAME(c.TABLE_NAME)), c.COLUMN_NAME, 'IsComputed') = 1 THEN 1
-                  WHEN DATA_TYPE = 'TIMESTAMP' THEN 1
-                  WHEN DATA_TYPE = 'UNIQUEIDENTIFIER'
-                       AND LOWER(ISNULL(COLUMN_DEFAULT, '')) LIKE '%newsequentialid%' THEN 1
-                  ELSE 0
-             END AS BIT) AS IsStoreGenerated,
-        CAST(CASE WHEN pk.ORDINAL_POSITION IS NULL THEN 0
-                  ELSE 1
-             END AS BIT) AS PrimaryKey,
-        ISNULL(pk.ORDINAL_POSITION, 0) PrimaryKeyOrdinal,
-        CAST(CASE WHEN fk.COLUMN_NAME IS NULL THEN 0
-                  ELSE 1
-             END AS BIT) AS IsForeignKey
-FROM    #Columns c
-        LEFT OUTER JOIN #PrimaryKeys pk
-            ON c.TABLE_SCHEMA = pk.TABLE_SCHEMA
-               AND c.TABLE_NAME = pk.TABLE_NAME
-               AND c.COLUMN_NAME = pk.COLUMN_NAME
-        LEFT OUTER JOIN #ForeignKeys fk
-            ON c.TABLE_SCHEMA = fk.TABLE_SCHEMA
-               AND c.TABLE_NAME = fk.TABLE_NAME
-               AND c.COLUMN_NAME = fk.COLUMN_NAME
-        INNER JOIN INFORMATION_SCHEMA.TABLES t
-            ON c.TABLE_SCHEMA COLLATE DATABASE_DEFAULT = t.TABLE_SCHEMA COLLATE DATABASE_DEFAULT
-               AND c.TABLE_NAME COLLATE DATABASE_DEFAULT = t.TABLE_NAME COLLATE DATABASE_DEFAULT
-WHERE   c.TABLE_NAME NOT IN ('EdmMetadata', '__MigrationHistory')
-        AND c.TABLE_NAME NOT LIKE 'sysdiagram%' ";
+--------------------------
+
+SELECT
+    c.TABLE_SCHEMA AS SchemaName,
+    c.TABLE_NAME AS TableName,
+    t.TABLE_TYPE AS TableType,
+    CONVERT( tinyint, ISNULL( tt.temporal_type, 0 ) ) AS TableTemporalType,
+
+    c.ORDINAL_POSITION AS Ordinal,
+    c.COLUMN_NAME AS ColumnName,
+    c.is_nullable AS IsNullable,
+    DATA_TYPE AS TypeName,
+    ISNULL(CHARACTER_MAXIMUM_LENGTH, 0) AS [MaxLength],
+    CAST(ISNULL(NUMERIC_PRECISION, 0) AS INT) AS [Precision],
+    ISNULL(COLUMN_DEFAULT, '') AS [Default],
+    CAST(ISNULL(DATETIME_PRECISION, 0) AS INT) AS DateTimePrecision,
+    ISNULL(NUMERIC_SCALE, 0) AS Scale,
+
+    c.is_identity AS IsIdentity,
+    c.is_rowguidcol AS IsRowGuid,
+    c.is_computed AS IsComputed,
+    c.generated_always_type AS GeneratedAlwaysType,
+
+    CONVERT( bit,
+        CASE WHEN
+            c.is_identity = 1 OR
+            c.is_rowguidcol = 1 OR
+            c.is_computed = 1 OR
+            c.generated_always_type <> 0 OR
+            c.DATA_TYPE IN ( 'rowversion', 'timestamp' ) OR
+            ( c.DATA_TYPE = 'uniqueidentifier' AND c.COLUMN_DEFAULT LIKE '%newsequentialid%' )
+            THEN 1
+        ELSE
+            0
+        END
+    ) AS IsStoreGenerated,
+
+    CONVERT( bit, ISNULL( pk.ORDINAL_POSITION, 0 ) ) AS PrimaryKey,
+    ISNULL(pk.ORDINAL_POSITION, 0) PrimaryKeyOrdinal,
+    CONVERT( bit, CASE WHEN fk.COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END ) AS IsForeignKey
+
+FROM
+    #Columns c
+
+    LEFT OUTER JOIN #PrimaryKeys pk ON
+        c.TABLE_SCHEMA = pk.TABLE_SCHEMA AND
+        c.TABLE_NAME   = pk.TABLE_NAME AND
+        c.COLUMN_NAME  = pk.COLUMN_NAME
+
+    LEFT OUTER JOIN #ForeignKeys fk ON
+        c.TABLE_SCHEMA = fk.TABLE_SCHEMA AND
+        c.TABLE_NAME   = fk.TABLE_NAME AND
+        c.COLUMN_NAME  = fk.COLUMN_NAME
+
+    INNER JOIN INFORMATION_SCHEMA.TABLES t ON
+        c.TABLE_SCHEMA COLLATE DATABASE_DEFAULT = t.TABLE_SCHEMA COLLATE DATABASE_DEFAULT AND
+        c.TABLE_NAME   COLLATE DATABASE_DEFAULT = t.TABLE_NAME   COLLATE DATABASE_DEFAULT
+
+    LEFT OUTER JOIN
+    (
+        SELECT
+            st.object_id,
+            [st].[temporal_type] AS temporal_type
+        FROM
+            sys.tables AS st
+    ) AS tt ON c.table_object_id = tt.object_id
+";
 
         private const string SynonymTableSQLSetup = @"
 SET NOCOUNT ON;
@@ -1634,175 +1859,203 @@ IF OBJECT_ID('tempdb..#SynonymTargets') IS NOT NULL DROP TABLE #SynonymTargets;
 -- Synonyms
 -- Create the #SynonymDetails temp table structure for later use
 SELECT TOP (0)
-        sc.name AS SchemaName,
-        sn.name AS TableName,
-        'SN' AS TableType,
-        COLUMNPROPERTY(c.object_id, c.name, 'ordinal') AS Ordinal,
-        c.name AS ColumnName,
-        c.is_nullable AS IsNullable,
-        ISNULL(TYPE_NAME(c.system_type_id), t.name) AS TypeName,
-        ISNULL(COLUMNPROPERTY(c.object_id, c.name, 'charmaxlen'), 0) AS MaxLength,
-        CAST(ISNULL(CONVERT(TINYINT, CASE WHEN c.system_type_id IN (48, 52, 56, 59, 60, 62, 106, 108, 122, 127) THEN c.precision
-                                     END), 0) AS INT) AS Precision,
-        ISNULL(CONVERT(NVARCHAR(4000), OBJECT_DEFINITION(c.default_object_id)), '') AS [Default],
-        CAST(ISNULL(CONVERT(SMALLINT, CASE WHEN c.system_type_id IN (40, 41, 42, 43, 58, 61) THEN ODBCSCALE(c.system_type_id, c.scale)
-                                      END), 0) AS INT) AS DateTimePrecision,
-        ISNULL(CONVERT(INT, CASE WHEN c.system_type_id IN (40, 41, 42, 43, 58, 61) THEN NULL
-                                 ELSE ODBCSCALE(c.system_type_id, c.scale)
-                            END), 0) AS Scale,
-        CAST(COLUMNPROPERTY(OBJECT_ID(sn.base_object_name), c.NAME, 'IsIdentity') AS BIT) AS IsIdentity,
-        CAST(CASE WHEN COLUMNPROPERTY(OBJECT_ID(QUOTENAME(sc.NAME) + '.' + QUOTENAME(o.NAME)), c.NAME, 'IsIdentity') = 1 THEN 1
-                  WHEN COLUMNPROPERTY(OBJECT_ID(QUOTENAME(sc.NAME) + '.' + QUOTENAME(o.NAME)), c.NAME, 'IsComputed') = 1 THEN 1
-                  WHEN COLUMNPROPERTY(OBJECT_ID(QUOTENAME(sc.NAME) + '.' + QUOTENAME(o.NAME)), c.NAME, 'GeneratedAlwaysType') > 0 THEN 1
-                  WHEN ISNULL(TYPE_NAME(c.system_type_id), t.NAME) = 'TIMESTAMP' THEN 1
-                  WHEN ISNULL(TYPE_NAME(c.system_type_id), t.NAME) = 'UNIQUEIDENTIFIER'
-                       AND LOWER(ISNULL(CONVERT(NVARCHAR(4000), OBJECT_DEFINITION(c.default_object_id)), '')) LIKE '%newsequentialid%' THEN 1
-                  ELSE 0
-             END AS BIT) AS IsStoreGenerated,
-        CAST(CASE WHEN pk.ORDINAL_POSITION IS NULL THEN 0
-                  ELSE 1
-             END AS BIT) AS PrimaryKey,
-        ISNULL(pk.ORDINAL_POSITION, 0) PrimaryKeyOrdinal,
-        CAST(CASE WHEN fk.COLUMN_NAME IS NULL THEN 0
-                  ELSE 1
-             END AS BIT) AS IsForeignKey
-INTO    #SynonymDetails
-FROM    sys.synonyms sn
-        INNER JOIN sys.COLUMNS c
-            ON c.[object_id] = OBJECT_ID(sn.base_object_name)
-        INNER JOIN sys.schemas sc
-            ON sc.[schema_id] = sn.[schema_id]
-        LEFT JOIN sys.types t
-            ON c.user_type_id = t.user_type_id
-        INNER JOIN sys.objects o
-            ON c.[object_id] = o.[object_id]
-        LEFT OUTER JOIN (SELECT u.TABLE_SCHEMA,
-                                u.TABLE_NAME,
-                                u.COLUMN_NAME,
-                                u.ORDINAL_POSITION
-                         FROM   INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
-                                INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-                                    ON u.TABLE_SCHEMA = tc.CONSTRAINT_SCHEMA
-                                       AND u.TABLE_NAME = tc.TABLE_NAME
-                                       AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
-                         WHERE  CONSTRAINT_TYPE = 'PRIMARY KEY') pk
-            ON sc.NAME = pk.TABLE_SCHEMA
-               AND sn.name = pk.TABLE_NAME
-               AND c.name = pk.COLUMN_NAME
-        LEFT OUTER JOIN (SELECT DISTINCT
-                                u.TABLE_SCHEMA,
-                                u.TABLE_NAME,
-                                u.COLUMN_NAME
-                         FROM   INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
-                                INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-                                    ON u.TABLE_SCHEMA = tc.CONSTRAINT_SCHEMA
-                                       AND u.TABLE_NAME = tc.TABLE_NAME
-                                       AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
-                         WHERE  CONSTRAINT_TYPE = 'FOREIGN KEY') fk
-            ON sc.NAME = fk.TABLE_SCHEMA
-               AND sn.name = fk.TABLE_NAME
-               AND c.name = fk.COLUMN_NAME;
+    sc.name AS SchemaName,
+    sn.name AS TableName,
+    'SN' AS TableType,
+    CONVERT( tinyint, 0 ) AS TableTemporalType,
+    COLUMNPROPERTY(c.object_id, c.name, 'ordinal') AS Ordinal,
+    c.name AS ColumnName,
+    c.is_nullable AS IsNullable,
+    ISNULL(TYPE_NAME(c.system_type_id), t.name) AS TypeName,
+    ISNULL(COLUMNPROPERTY(c.object_id, c.name, 'charmaxlen'), 0) AS MaxLength,
+    CAST(ISNULL(CONVERT(TINYINT, CASE WHEN c.system_type_id IN (48, 52, 56, 59, 60, 62, 106, 108, 122, 127) THEN c.precision END), 0) AS INT) AS Precision,
+    ISNULL(CONVERT(NVARCHAR(4000), OBJECT_DEFINITION(c.default_object_id)), '') AS [Default],
+    CAST(ISNULL(CONVERT(SMALLINT, CASE WHEN c.system_type_id IN (40, 41, 42, 43, 58, 61) THEN ODBCSCALE(c.system_type_id, c.scale) END), 0) AS INT) AS DateTimePrecision,
+    ISNULL(CONVERT(INT, CASE WHEN c.system_type_id IN (40, 41, 42, 43, 58, 61) THEN NULL ELSE ODBCSCALE(c.system_type_id, c.scale) END), 0) AS Scale,
+    c.is_identity AS IsIdentity,
+    c.is_rowguidcol AS IsRowGuid,
+    c.is_computed AS IsComputed,
+    CONVERT( tinyint, [c].[generated_always_type] ) AS GeneratedAlwaysType,
+    CAST(CASE
+        WHEN COLUMNPROPERTY(OBJECT_ID(QUOTENAME(sc.NAME) + '.' + QUOTENAME(o.NAME)), c.NAME, 'IsIdentity') = 1 THEN 1
+        WHEN COLUMNPROPERTY(OBJECT_ID(QUOTENAME(sc.NAME) + '.' + QUOTENAME(o.NAME)), c.NAME, 'IsComputed') = 1 THEN 1
+        WHEN COLUMNPROPERTY(OBJECT_ID(QUOTENAME(sc.NAME) + '.' + QUOTENAME(o.NAME)), c.NAME, 'GeneratedAlwaysType') > 0 THEN 1
+        WHEN ISNULL(TYPE_NAME(c.system_type_id), t.NAME) = 'TIMESTAMP' THEN 1
+        WHEN ISNULL(TYPE_NAME(c.system_type_id), t.NAME) = 'UNIQUEIDENTIFIER' AND LOWER(ISNULL(CONVERT(NVARCHAR(4000), OBJECT_DEFINITION(c.default_object_id)), '')) LIKE '%newsequentialid%' THEN 1
+        ELSE 0
+    END AS BIT) AS IsStoreGenerated,
+    CAST(CASE WHEN pk.ORDINAL_POSITION IS NULL THEN 0 ELSE 1 END AS BIT) AS PrimaryKey,
+    ISNULL(pk.ORDINAL_POSITION, 0) PrimaryKeyOrdinal,
+    CAST(CASE WHEN fk.COLUMN_NAME IS NULL THEN 0 ELSE 1 END AS BIT) AS IsForeignKey
+INTO
+    #SynonymDetails
+FROM
+    sys.synonyms sn
+    INNER JOIN sys.COLUMNS c ON c.[object_id] = OBJECT_ID(sn.base_object_name)
+    INNER JOIN sys.schemas sc ON sc.[schema_id] = sn.[schema_id]
+    LEFT JOIN sys.types t ON c.user_type_id = t.user_type_id
+    INNER JOIN sys.objects o ON c.[object_id] = o.[object_id]
+    LEFT OUTER JOIN
+    (
+        SELECT
+            u.TABLE_SCHEMA,
+            u.TABLE_NAME,
+            u.COLUMN_NAME,
+            u.ORDINAL_POSITION
+        FROM
+            INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
+            INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc ON u.TABLE_SCHEMA = tc.CONSTRAINT_SCHEMA AND u.TABLE_NAME = tc.TABLE_NAME AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+        WHERE
+            CONSTRAINT_TYPE = 'PRIMARY KEY'
+    ) pk
+        ON sc.NAME = pk.TABLE_SCHEMA AND sn.name = pk.TABLE_NAME AND c.name = pk.COLUMN_NAME
+
+    LEFT OUTER JOIN
+    (
+        SELECT DISTINCT
+            u.TABLE_SCHEMA,
+            u.TABLE_NAME,
+            u.COLUMN_NAME
+        FROM
+            INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
+            INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc ON u.TABLE_SCHEMA = tc.CONSTRAINT_SCHEMA AND u.TABLE_NAME = tc.TABLE_NAME AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+        WHERE
+            CONSTRAINT_TYPE = 'FOREIGN KEY'
+    ) fk
+        ON sc.NAME = fk.TABLE_SCHEMA AND sn.name = fk.TABLE_NAME AND c.name = fk.COLUMN_NAME;
 
 DECLARE @synonymDetailsQueryTemplate nvarchar(max) = 'USE [@synonmymDatabaseName];
-INSERT INTO #SynonymDetails (SchemaName, TableName, TableType, Ordinal, ColumnName, IsNullable, TypeName, [MaxLength], [Precision],
-                            [Default], DateTimePrecision, Scale, IsIdentity, IsStoreGenerated, PrimaryKey, PrimaryKeyOrdinal, IsForeignKey)
-SELECT st.SynonymSchemaName AS SchemaName,
+INSERT INTO #SynonymDetails (
+    SchemaName, TableName, TableType, TableTemporalType, Ordinal, ColumnName, IsNullable, TypeName, [MaxLength], [Precision], [Default], DateTimePrecision, Scale,
+    IsIdentity, IsRowGuid, IsComputed, GeneratedAlwaysType, IsStoreGenerated, PrimaryKey, PrimaryKeyOrdinal, IsForeignKey
+)
+SELECT
+    st.SynonymSchemaName AS SchemaName,
     st.SynonymName AS TableName,
     ''SN'' AS TableType,
+    CONVERT( tinyint, ISNULL( tt.temporal_type, 0 ) ) AS TableTemporalType,
+
     COLUMNPROPERTY(c.object_id, c.name, ''ordinal'') AS Ordinal,
     c.name AS ColumnName,
     c.is_nullable AS IsNullable,
     ISNULL(TYPE_NAME(c.system_type_id), t.name) AS TypeName,
     ISNULL(COLUMNPROPERTY(c.object_id, c.name, ''charmaxlen''), 0) AS [MaxLength],
-    CAST(ISNULL(CONVERT(TINYINT, CASE WHEN c.system_type_id IN (48, 52, 56, 59, 60, 62, 106, 108, 122, 127) THEN c.precision
-                                    END), 0) AS INT) AS [Precision],
+    CAST(ISNULL(CONVERT(TINYINT, CASE WHEN c.system_type_id IN (48, 52, 56, 59, 60, 62, 106, 108, 122, 127) THEN c.precision END), 0) AS INT) AS [Precision],
     ISNULL(CONVERT(NVARCHAR(4000), OBJECT_DEFINITION(c.default_object_id)), '''') AS [Default],
-    CAST(ISNULL(CONVERT(SMALLINT, CASE WHEN c.system_type_id IN (40, 41, 42, 43, 58, 61) THEN ODBCSCALE(c.system_type_id, c.scale)
-                                    END), 0) AS INT) AS DateTimePrecision,
-    ISNULL(CONVERT(INT, CASE WHEN c.system_type_id IN (40, 41, 42, 43, 58, 61) THEN NULL
-                                ELSE ODBCSCALE(c.system_type_id, c.scale)
-                        END), 0) AS Scale,
-    CAST(COLUMNPROPERTY(st.base_object_id, c.name, ''IsIdentity'') AS BIT) AS IsIdentity,
-    CAST(CASE WHEN COLUMNPROPERTY(st.base_object_id, c.NAME, ''IsIdentity'') = 1 THEN 1
-                WHEN COLUMNPROPERTY(st.base_object_id, c.NAME, ''IsComputed'') = 1 THEN 1
-                WHEN ISNULL(TYPE_NAME(c.system_type_id), t.NAME) = ''TIMESTAMP'' THEN 1
-                WHEN ISNULL(TYPE_NAME(c.system_type_id), t.NAME) = ''UNIQUEIDENTIFIER''
-                    AND LOWER(ISNULL(CONVERT(NVARCHAR(4000), OBJECT_DEFINITION(c.default_object_id)), '''')) LIKE ''%newsequentialid%'' THEN 1
-                ELSE 0
-            END AS BIT) AS IsStoreGenerated,
-    CAST(CASE WHEN pk.ORDINAL_POSITION IS NULL THEN 0
-                ELSE 1
-            END AS BIT) AS PrimaryKey,
+    CAST(ISNULL(CONVERT(SMALLINT, CASE WHEN c.system_type_id IN (40, 41, 42, 43, 58, 61) THEN ODBCSCALE(c.system_type_id, c.scale) END), 0) AS INT) AS DateTimePrecision,
+    ISNULL(CONVERT(INT, CASE WHEN c.system_type_id IN (40, 41, 42, 43, 58, 61) THEN NULL ELSE ODBCSCALE(c.system_type_id, c.scale) END), 0) AS Scale,
+
+    c.is_identity AS IsIdentity,
+    c.is_rowguidcol AS IsRowGuid,
+    c.is_computed AS IsComputed,
+    CONVERT( tinyint, [c].[generated_always_type] ) AS GeneratedAlwaysType,
+
+    CONVERT( bit,
+        CASE
+            WHEN
+                c.is_identity = 1 OR
+                c.is_rowguidcol = 1 OR
+                c.is_computed = 1 OR
+                [c].[generated_always_type] <> 0 OR
+                t.name IN ( ''rowversion'', ''timestamp'' ) OR
+                ( t.name = ''uniqueidentifier'' AND sd.definition LIKE ''%newsequentialid%'' )
+                THEN 1
+            ELSE 0
+        END
+    ) AS IsStoreGenerated,
+
+    CAST(CASE WHEN pk.ORDINAL_POSITION IS NULL THEN 0  ELSE 1 END AS BIT) AS PrimaryKey,
     ISNULL(pk.ORDINAL_POSITION, 0) PrimaryKeyOrdinal,
-    CAST(CASE WHEN fk.COLUMN_NAME IS NULL THEN 0
-                ELSE 1
-            END AS BIT) AS IsForeignKey
-FROM    #SynonymTargets st
-    INNER JOIN sys.columns c
-        ON c.[object_id] = st.base_object_id
-    LEFT JOIN sys.types t
-        ON c.user_type_id = t.user_type_id
-    INNER JOIN sys.objects o
-        ON c.[object_id] = o.[object_id]
-    LEFT OUTER JOIN (
-                        SELECT u.TABLE_SCHEMA,
-                            u.TABLE_NAME,
-                            u.COLUMN_NAME,
-                            u.ORDINAL_POSITION
-                        FROM   INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
-                            INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-                                ON u.TABLE_SCHEMA = tc.CONSTRAINT_SCHEMA
-                                    AND u.TABLE_NAME = tc.TABLE_NAME
-                                    AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
-                        WHERE  CONSTRAINT_TYPE = ''PRIMARY KEY''
-                    ) pk
-        ON st.SchemaName = pk.TABLE_SCHEMA
-            AND st.ObjectName = pk.TABLE_NAME
-            AND c.name = pk.COLUMN_NAME
-    LEFT OUTER JOIN (
-                        SELECT DISTINCT
-                            u.TABLE_SCHEMA,
-                            u.TABLE_NAME,
-                            u.COLUMN_NAME
-                        FROM   INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
-                            INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-                                ON u.TABLE_SCHEMA = tc.CONSTRAINT_SCHEMA
-                                    AND u.TABLE_NAME = tc.TABLE_NAME
-                                    AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
-                        WHERE  CONSTRAINT_TYPE = ''FOREIGN KEY''
-                    ) fk
-        ON st.SchemaName = fk.TABLE_SCHEMA
-            AND st.ObjectName = fk.TABLE_NAME
-            AND c.name = fk.COLUMN_NAME
-WHERE st.DatabaseName = @synonmymDatabaseName;
+    CAST(CASE WHEN fk.COLUMN_NAME IS NULL THEN 0 ELSE 1 END AS BIT) AS IsForeignKey
+FROM
+    #SynonymTargets st
+    
+    INNER JOIN sys.columns c ON c.[object_id] = st.base_object_id
+    
+    LEFT JOIN sys.types t ON c.user_type_id = t.user_type_id
+
+    LEFT OUTER JOIN sys.default_constraints sd ON c.default_object_id = sd.object_id
+    
+    INNER JOIN sys.objects o ON c.[object_id] = o.[object_id]
+    
+    LEFT OUTER JOIN
+    (
+        SELECT
+            u.TABLE_SCHEMA,
+            u.TABLE_NAME,
+            u.COLUMN_NAME,
+            u.ORDINAL_POSITION
+        FROM
+            INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
+            INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc ON u.TABLE_SCHEMA = tc.CONSTRAINT_SCHEMA AND u.TABLE_NAME = tc.TABLE_NAME AND u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+        WHERE
+            CONSTRAINT_TYPE = ''PRIMARY KEY''
+    ) AS pk ON
+        st.SchemaName = pk.TABLE_SCHEMA AND
+        st.ObjectName = pk.TABLE_NAME AND
+        c.name        = pk.COLUMN_NAME
+    
+    LEFT OUTER JOIN
+    (
+        SELECT DISTINCT
+            u.TABLE_SCHEMA,
+            u.TABLE_NAME,
+            u.COLUMN_NAME
+        FROM
+            INFORMATION_SCHEMA.KEY_COLUMN_USAGE u
+            INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc ON
+                u.TABLE_SCHEMA = tc.CONSTRAINT_SCHEMA AND
+                u.TABLE_NAME = tc.TABLE_NAME AND
+                u.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+        WHERE
+            CONSTRAINT_TYPE = ''FOREIGN KEY''
+    ) AS fk ON
+        st.SchemaName = fk.TABLE_SCHEMA AND
+        st.ObjectName = fk.TABLE_NAME AND
+        c.name = fk.COLUMN_NAME
+
+    LEFT OUTER JOIN
+    (
+        SELECT
+            st.object_id,
+            [st].[temporal_type] AS temporal_type
+        FROM
+            sys.tables AS st
+    ) AS tt ON c.object_id = tt.object_id
+
+WHERE
+    st.DatabaseName = @synonmymDatabaseName;
 '
 
 -- Pull details about the synonym target from each database being referenced
-SELECT  sc.name AS SynonymSchemaName,
-        sn.name AS SynonymName,
-        sn.object_id,
-        sn.base_object_name,
-        OBJECT_ID(sn.base_object_name) AS base_object_id,
-        PARSENAME(sn.base_object_name, 1) AS ObjectName,
-        ISNULL(PARSENAME(sn.base_object_name, 2), sc.name) AS SchemaName,
-        ISNULL(PARSENAME(sn.base_object_name, 3), DB_NAME()) AS DatabaseName,
-        PARSENAME(sn.base_object_name, 4) AS ServerName
-INTO    #SynonymTargets
-FROM    sys.synonyms sn
-        INNER JOIN sys.schemas sc
-            ON sc.schema_id = sn.schema_id
-WHERE   ISNULL(PARSENAME(sn.base_object_name, 4), @@SERVERNAME) = @@SERVERNAME; -- Only populate info from current server
+SELECT
+    sc.name AS SynonymSchemaName,
+    sn.name AS SynonymName,
+    sn.object_id,
+    sn.base_object_name,
+    OBJECT_ID(sn.base_object_name) AS base_object_id,
+    PARSENAME(sn.base_object_name, 1) AS ObjectName,
+    ISNULL(PARSENAME(sn.base_object_name, 2), sc.name) AS SchemaName,
+    ISNULL(PARSENAME(sn.base_object_name, 3), DB_NAME()) AS DatabaseName,
+    PARSENAME(sn.base_object_name, 4) AS ServerName
+INTO
+    #SynonymTargets
+FROM
+    sys.synonyms sn
+    INNER JOIN sys.schemas sc ON sc.schema_id = sn.schema_id
+WHERE
+    ISNULL(PARSENAME(sn.base_object_name, 4), @@SERVERNAME) = @@SERVERNAME; -- Only populate info from current server
 
 -- Loop through synonyms and populate #SynonymDetails
 DECLARE @synonmymDatabaseName sysname = (SELECT TOP (1) DatabaseName FROM #SynonymTargets)
 DECLARE @synonmymDetailsSelect nvarchar(max)
-WHILE (@synonmymDatabaseName IS NOT NULL)
+WHILE ( @synonmymDatabaseName IS NOT NULL)
 BEGIN
-SET @synonmymDetailsSelect = REPLACE(@synonymDetailsQueryTemplate, '[@synonmymDatabaseName]', '[' + @synonmymDatabaseName + ']')
---SELECT @synonmymDetailsSelect
-EXEC sp_executesql @stmt=@synonmymDetailsSelect, @params=N'@synonmymDatabaseName sysname', @synonmymDatabaseName=@synonmymDatabaseName
-DELETE FROM #SynonymTargets WHERE DatabaseName = @synonmymDatabaseName
-SET @synonmymDatabaseName = (SELECT TOP (1) DatabaseName FROM #SynonymTargets)
+    SET @synonmymDetailsSelect = REPLACE(@synonymDetailsQueryTemplate, '[@synonmymDatabaseName]', '[' + @synonmymDatabaseName + ']')
+    --SELECT @synonmymDetailsSelect
+    EXEC sp_executesql @stmt=@synonmymDetailsSelect, @params=N'@synonmymDatabaseName sysname', @synonmymDatabaseName=@synonmymDatabaseName
+    DELETE FROM #SynonymTargets WHERE DatabaseName = @synonmymDatabaseName
+    SET @synonmymDatabaseName = (SELECT TOP (1) DatabaseName FROM #SynonymTargets)
 END
 SET NOCOUNT OFF;
 ";
@@ -1810,37 +2063,77 @@ SET NOCOUNT OFF;
         private const string SynonymTableSQL = @"
 UNION
 -- Synonyms
-SELECT SchemaName, TableName, TableType, Ordinal, ColumnName, IsNullable, TypeName, [MaxLength], [Precision],
-    [Default], DateTimePrecision, Scale, IsIdentity, IsStoreGenerated, PrimaryKey, PrimaryKeyOrdinal, IsForeignKey FROM #SynonymDetails";
+SELECT
+    SchemaName,
+    TableName,
+    TableType,
+    CONVERT( tinyint, 0 ) AS TableTemporalType,
+
+    Ordinal,
+    ColumnName,
+    IsNullable,
+    TypeName,
+    [MaxLength],
+    [Precision],
+    [Default],
+    DateTimePrecision,
+    Scale,
+
+    IsIdentity,
+    IsRowGuid,
+    IsComputed,
+    GeneratedAlwaysType,
+
+    IsStoreGenerated,
+    PrimaryKey,
+    PrimaryKeyOrdinal,
+    IsForeignKey
+FROM
+    #SynonymDetails";
 
             private const string ForeignKeySQL = @"
-SELECT  FK.name AS FK_Table,
-        FkCol.name AS FK_Column,
-        PK.name AS PK_Table,
-        PkCol.name AS PK_Column,
-        OBJECT_NAME(f.object_id) AS Constraint_Name,
-        SCHEMA_NAME(FK.schema_id) AS fkSchema,
-        SCHEMA_NAME(PK.schema_id) AS pkSchema,
-        PkCol.name AS primarykey,
-        k.constraint_column_id AS ORDINAL_POSITION,
-        CASE WHEN f.delete_referential_action = 1 THEN 1 ELSE 0 END as CascadeOnDelete,
-        f.is_disabled AS IsNotEnforced
-FROM    sys.objects AS PK
-        INNER JOIN sys.foreign_keys AS f
-            INNER JOIN sys.foreign_key_columns AS k
-                ON k.constraint_object_id = f.object_id
-            INNER JOIN sys.indexes AS i
-                ON f.referenced_object_id = i.object_id
-                   AND f.key_index_id = i.index_id
-            ON PK.object_id = f.referenced_object_id
-        INNER JOIN sys.objects AS FK
-            ON f.parent_object_id = FK.object_id
-        INNER JOIN sys.columns AS PkCol
-            ON f.referenced_object_id = PkCol.object_id
-               AND k.referenced_column_id = PkCol.column_id
-        INNER JOIN sys.columns AS FkCol
-            ON f.parent_object_id = FkCol.object_id
-               AND k.parent_column_id = FkCol.column_id";
+SELECT  fkData.FK_Table,
+        fkData.FK_Column,
+        fkData.PK_Table,
+        fkData.PK_Column,
+        fkData.Constraint_Name,
+        fkData.fkSchema,
+        fkData.pkSchema,
+        fkData.primarykey,
+        fkData.ORDINAL_POSITION,
+        fkData.CascadeOnDelete,
+        fkData.IsNotEnforced
+FROM    (SELECT FK.name AS FK_Table,
+                FkCol.name AS FK_Column,
+                PK.name AS PK_Table,
+                PkCol.name AS PK_Column,
+                OBJECT_NAME(f.object_id) AS Constraint_Name,
+                SCHEMA_NAME(FK.schema_id) AS fkSchema,
+                SCHEMA_NAME(PK.schema_id) AS pkSchema,
+                PkCol.name AS primarykey,
+                k.constraint_column_id AS ORDINAL_POSITION,
+                CASE WHEN f.delete_referential_action = 1 THEN 1
+                     ELSE 0
+                END AS CascadeOnDelete,
+                f.is_disabled AS IsNotEnforced,
+                ROW_NUMBER() OVER (PARTITION BY FK.name, FkCol.name, PK.name, PkCol.name, SCHEMA_NAME(FK.schema_id), SCHEMA_NAME(PK.schema_id) ORDER BY f.object_id) AS n
+         FROM   sys.objects AS PK
+                INNER JOIN sys.foreign_keys AS f
+                    INNER JOIN sys.foreign_key_columns AS k
+                        ON k.constraint_object_id = f.object_id
+                    INNER JOIN sys.indexes AS i
+                        ON f.referenced_object_id = i.object_id
+                           AND f.key_index_id = i.index_id
+                    ON PK.object_id = f.referenced_object_id
+                INNER JOIN sys.objects AS FK
+                    ON f.parent_object_id = FK.object_id
+                INNER JOIN sys.columns AS PkCol
+                    ON f.referenced_object_id = PkCol.object_id
+                       AND k.referenced_column_id = PkCol.column_id
+                INNER JOIN sys.columns AS FkCol
+                    ON f.parent_object_id = FkCol.object_id
+                       AND k.parent_column_id = FkCol.column_id) fkData
+WHERE   fkData.n = 1 -- Remove duplicate FK's";
 
             private const string SynonymForeignKeySQLSetup = @"
 SET NOCOUNT ON;
@@ -1859,7 +2152,7 @@ SELECT  FK.name AS FK_Table,
         k.constraint_column_id AS ORDINAL_POSITION,
         CASE WHEN f.delete_referential_action = 1 THEN 1 ELSE 0 END as CascadeOnDelete,
         f.is_disabled AS IsNotEnforced
-INTO	#SynonymFkDetails
+INTO    #SynonymFkDetails
 FROM    sys.objects AS PK
         INNER JOIN sys.foreign_keys AS f
             INNER JOIN sys.foreign_key_columns AS k
@@ -1926,7 +2219,7 @@ DECLARE @synonmymDatabaseName sysname = (SELECT TOP (1) DatabaseName FROM #Synon
 DECLARE @synonymFkDetailsQueryWithDb nvarchar(max)
 WHILE (@synonmymDatabaseName IS NOT NULL)
 BEGIN
-	SET @synonymFkDetailsQueryWithDb = 'USE [' + @synonmymDatabaseName + '] ' + @synonymFkDetailsQuery
+    SET @synonymFkDetailsQueryWithDb = 'USE [' + @synonmymDatabaseName + '] ' + @synonymFkDetailsQuery
     EXEC sp_executesql @stmt=@synonymFkDetailsQueryWithDb
     DELETE FROM #SynonymTargets WHERE DatabaseName = @synonmymDatabaseName
     SET @synonmymDatabaseName = (SELECT TOP (1) DatabaseName FROM #SynonymTargets)
@@ -1973,51 +2266,38 @@ FROM    [__ExtendedProperties]";
 SELECT  '' AS SchemaName,
     c.TABLE_NAME AS TableName,
     'BASE TABLE' AS TableType,
+    CONVERT( tinyint, 0 ) AS TableTemporalType,
     c.ORDINAL_POSITION AS Ordinal,
     c.COLUMN_NAME AS ColumnName,
-    CAST(CASE WHEN c.IS_NULLABLE = N'YES' THEN 1
-                ELSE 0
-            END AS BIT) AS IsNullable,
-    CASE WHEN c.DATA_TYPE = N'rowversion' THEN 'timestamp'
-            ELSE c.DATA_TYPE
-    END AS TypeName,
-    CASE WHEN c.CHARACTER_MAXIMUM_LENGTH IS NOT NULL THEN c.CHARACTER_MAXIMUM_LENGTH
-            ELSE 0
-    END AS MaxLength,
-    CASE WHEN c.NUMERIC_PRECISION IS NOT NULL THEN c.NUMERIC_PRECISION
-            ELSE 0
-    END AS Precision,
+    CAST(CASE WHEN c.IS_NULLABLE = N'YES' THEN 1 ELSE 0 END AS BIT) AS IsNullable,
+    CASE WHEN c.DATA_TYPE = N'rowversion' THEN 'timestamp' ELSE c.DATA_TYPE END AS TypeName,
+    CASE WHEN c.CHARACTER_MAXIMUM_LENGTH IS NOT NULL THEN c.CHARACTER_MAXIMUM_LENGTH ELSE 0 END AS MaxLength,
+    CASE WHEN c.NUMERIC_PRECISION IS NOT NULL THEN c.NUMERIC_PRECISION ELSE 0 END AS Precision,
     c.COLUMN_DEFAULT AS [Default],
-    CASE WHEN c.DATA_TYPE = N'datetime' THEN 0
-            ELSE 0
-    END AS DateTimePrecision,
-    CASE WHEN c.DATA_TYPE = N'datetime' THEN 0
-            WHEN c.NUMERIC_SCALE IS NOT NULL THEN c.NUMERIC_SCALE
-            ELSE 0
-    END AS Scale,
-    CAST(CASE WHEN c.AUTOINC_INCREMENT > 0 THEN 1
-                ELSE 0
-            END AS BIT) AS IsIdentity,
-    CAST(CASE WHEN c.DATA_TYPE = N'rowversion' THEN 1
-                ELSE 0
-            END AS BIT) AS IsStoreGenerated,
-    CAST(CASE WHEN u.TABLE_NAME IS NULL THEN 0
-                ELSE 1
-            END AS BIT) AS PrimaryKey,
+    CASE WHEN c.DATA_TYPE = N'datetime' THEN 0 ELSE 0 END AS DateTimePrecision,
+    CASE WHEN c.DATA_TYPE = N'datetime' THEN 0 WHEN c.NUMERIC_SCALE IS NOT NULL THEN c.NUMERIC_SCALE ELSE 0 END AS Scale,
+
+    CAST(CASE WHEN c.AUTOINC_INCREMENT > 0 THEN 1 ELSE 0 END AS BIT) AS IsIdentity,
+    CONVERT( bit, 0 ) as IsComputed,
+    CONVERT( bit, 0 ) as IsRowGuid,
+    CONVERT( tinyint, 0 ) AS GeneratedAlwaysType,
+    CAST(CASE WHEN c.DATA_TYPE = N'rowversion' THEN 1 ELSE 0 END AS BIT) AS IsStoreGenerated,
     0 AS PrimaryKeyOrdinal,
-    0 as IsForeignKey
-FROM    INFORMATION_SCHEMA.COLUMNS c
-    INNER JOIN INFORMATION_SCHEMA.TABLES t
-        ON c.TABLE_NAME = t.TABLE_NAME
-    LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS cons
-        ON cons.TABLE_NAME = c.TABLE_NAME
-    LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS u
-        ON cons.CONSTRAINT_NAME = u.CONSTRAINT_NAME
-            AND u.TABLE_NAME = c.TABLE_NAME
-            AND u.COLUMN_NAME = c.COLUMN_NAME
-WHERE   t.TABLE_TYPE <> N'SYSTEM TABLE'
-    AND cons.CONSTRAINT_TYPE = 'PRIMARY KEY'
-ORDER BY c.TABLE_NAME,
+    CAST(CASE WHEN u.TABLE_NAME IS NULL THEN 0 ELSE 1 END AS BIT) AS PrimaryKey,
+    CONVERT( bit, 0 ) as IsForeignKey
+FROM
+    INFORMATION_SCHEMA.COLUMNS c
+    INNER JOIN INFORMATION_SCHEMA.TABLES t ON c.TABLE_NAME = t.TABLE_NAME
+    LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS cons ON cons.TABLE_NAME = c.TABLE_NAME
+    LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS u ON
+        cons.CONSTRAINT_NAME = u.CONSTRAINT_NAME AND
+        u.TABLE_NAME = c.TABLE_NAME AND
+        u.COLUMN_NAME = c.COLUMN_NAME
+WHERE
+    t.TABLE_TYPE <> N'SYSTEM TABLE' AND
+    cons.CONSTRAINT_TYPE = 'PRIMARY KEY'
+ORDER BY
+    c.TABLE_NAME,
     c.COLUMN_NAME,
     c.ORDINAL_POSITION";
 
@@ -2182,7 +2462,7 @@ SELECT  TOP (0) R.SPECIFIC_SCHEMA,
         ISNULL(P.NUMERIC_SCALE, 0) AS NUMERIC_SCALE,
         ISNULL(P.DATETIME_PRECISION, 0) AS DATETIME_PRECISION,
         P.USER_DEFINED_TYPE_SCHEMA + '.' + P.USER_DEFINED_TYPE_NAME AS USER_DEFINED_TYPE
-INTO	#SynonymStoredProcedureDetails
+INTO    #SynonymStoredProcedureDetails
 FROM    INFORMATION_SCHEMA.ROUTINES R
         LEFT OUTER JOIN INFORMATION_SCHEMA.PARAMETERS P
             ON P.SPECIFIC_SCHEMA = R.SPECIFIC_SCHEMA
@@ -2222,7 +2502,7 @@ ORDER BY PARSENAME(sn.base_object_name, 3)
 DECLARE @synonymStoredProcedureDetailsQuery nvarchar(max) =
 '
 INSERT INTO #SynonymStoredProcedureDetails (SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_TYPE, ORDINAL_POSITION, PARAMETER_MODE, PARAMETER_NAME, DATA_TYPE
-											, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION, USER_DEFINED_TYPE)
+                                            , CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION, USER_DEFINED_TYPE)
 SELECT  R.SPECIFIC_SCHEMA,
         R.SPECIFIC_NAME,
         R.ROUTINE_TYPE,
@@ -2291,7 +2571,7 @@ DECLARE @synonmymDatabaseName sysname = (SELECT TOP (1) DatabaseName FROM #Synon
 DECLARE @synonymStoredProcedureDetailsQueryWithDb nvarchar(max)
 WHILE (@synonmymDatabaseName IS NOT NULL)
 BEGIN
-	SET @synonymStoredProcedureDetailsQueryWithDb = 'USE [' + @synonmymDatabaseName + '] ' + @synonymStoredProcedureDetailsQuery
+    SET @synonymStoredProcedureDetailsQueryWithDb = 'USE [' + @synonmymDatabaseName + '] ' + @synonymStoredProcedureDetailsQuery
     EXEC sp_executesql @stmt=@synonymStoredProcedureDetailsQueryWithDb
     DELETE FROM #SynonymTargets WHERE DatabaseName = @synonmymDatabaseName
     SET @synonmymDatabaseName = (SELECT TOP (1) DatabaseName FROM #SynonymTargets)
@@ -2304,7 +2584,7 @@ SET NOCOUNT OFF;
 UNION
 -- Synonyms
 SELECT SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_TYPE, ORDINAL_POSITION, PARAMETER_MODE, PARAMETER_NAME, DATA_TYPE
-	, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION, USER_DEFINED_TYPE FROM #SynonymStoredProcedureDetails";
+    , CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION, USER_DEFINED_TYPE FROM #SynonymStoredProcedureDetails";
 
         private const string IndexSQL = @"
 SELECT  SCHEMA_NAME(t.schema_id) AS TableSchema,
@@ -2349,60 +2629,106 @@ OPTION (QUERYTRACEON 9481)";
             return string.Empty;
         }
 
-        private bool IsAzure(bool includeConnectionSettingComments)
+        private void ReadDatabaseEdition()
         {
-            if (string.IsNullOrEmpty(_sqlDatabaseEdition))
-            {
-                if (Cmd == null)
-                    return false;
+            if (Settings.IsSqlCe || !string.IsNullOrEmpty(_sqlDatabaseEdition))
+                return;
 
-                Cmd.CommandText = @"
+            if (Cmd == null)
+                return;
+
+            Cmd.CommandText = @"
 SELECT  SERVERPROPERTY('Edition') AS Edition,
-    CASE SERVERPROPERTY('EngineEdition')
-        WHEN 1 THEN 'Personal'
-        WHEN 2 THEN 'Standard'
-        WHEN 3 THEN 'Enterprise'
-        WHEN 4 THEN 'Express'
-        WHEN 5 THEN 'Azure'
-        ELSE 'Unknown'
-    END AS EngineEdition";
+        CASE SERVERPROPERTY('EngineEdition')
+          WHEN 1 THEN 'Personal'
+          WHEN 2 THEN 'Standard'
+          WHEN 3 THEN 'Enterprise'
+          WHEN 4 THEN 'Express'
+          WHEN 5 THEN 'Azure'
+          ELSE 'Unknown'
+        END AS EngineEdition,
+        SERVERPROPERTY('productversion') AS ProductVersion;";
 
-                Cmd.CommandTimeout = Settings.CommandTimeout;
+            Cmd.CommandTimeout = Settings.CommandTimeout;
 
-                using (DbDataReader rdr = Cmd.ExecuteReader())
+            using (DbDataReader rdr = Cmd.ExecuteReader())
+            {
+                if (rdr.Read())
                 {
-                    if (rdr.Read())
-                    {
-                        _sqlDatabaseEdition = rdr["Edition"].ToString();
-                        _sqlDatabaseEngineEdition = rdr["EngineEdition"].ToString();
-                        if (includeConnectionSettingComments)
-                        {
-                            WriteLine("// Database Edition       : " + _sqlDatabaseEdition);
-                            WriteLine("// Database Engine Edition: " + _sqlDatabaseEngineEdition);
-                            WriteLine("");
-                        }
-                    }
+                    _sqlDatabaseEdition = rdr["Edition"].ToString();
+                    _sqlDatabaseEngineEdition = rdr["EngineEdition"].ToString();
+                    _sqlDatabaseProductVersion = rdr["ProductVersion"].ToString();
+                    _sqlDatabaseProductMajorVersion = int.Parse(_sqlDatabaseProductVersion.Substring(0, 2).Replace(".",string.Empty));
                 }
             }
+        }
 
+        private void WriteConnectionSettingComments()
+        {
+            if (Settings.IncludeConnectionSettingComments)
+            {
+                if (Settings.IsSqlCe)
+                {
+                    WriteLine("// Database Edition : SqlCE");
+                }
+                else
+                {
+                    WriteLine("// Database Edition        : " + _sqlDatabaseEdition);
+                    WriteLine("// Database Engine Edition : " + _sqlDatabaseEngineEdition);
+                    WriteLine("// Database Version        : " + _sqlDatabaseProductVersion);
+                }
+                WriteLine("");
+            }
+        }
+
+        private bool IsAzure()
+        {
             return _sqlDatabaseEngineEdition == "Azure";
+        }
+
+        private String GetReadSchemaSql()
+        {
+            if( Settings.IsSqlCe )
+            {
+                return TableSQLCE;
+            }
+
+            String sql;
+            if( Settings.IncludeSynonyms )
+            {
+                sql = SynonymTableSQLSetup + TableSQL + SynonymTableSQL + IncludeQueryTraceOn9481();
+            }
+            else
+            {
+                sql = TableSQL + IncludeQueryTraceOn9481();
+            }
+
+            ReadDatabaseEdition();
+            var temporalTableSupport = _sqlDatabaseProductMajorVersion >= 13;
+            if (!temporalTableSupport)
+            {
+                // Replace the column names (only present in SQL Server 2016 or later) with literal constants so the query works with older versions of SQL Server.
+                sql = sql
+                    .Replace("[sc].[generated_always_type]", "0" )
+                    .Replace("[c].[generated_always_type]", "0" )
+                    .Replace("[st].[temporal_type]", "0" );
+            }
+
+            return sql;
         }
 
         public override Tables ReadSchema()
         {
+            ReadDatabaseEdition();
+            WriteConnectionSettingComments();
+
             var result = new Tables();
-            if(Cmd == null)
+            if (Cmd == null)
                 return result;
 
-            if(Settings.IncludeSynonyms)
-                Cmd.CommandText = SynonymTableSQLSetup + TableSQL + SynonymTableSQL + IncludeQueryTraceOn9481();
-            else
-                Cmd.CommandText = TableSQL + IncludeQueryTraceOn9481();
+            Cmd.CommandText = this.GetReadSchemaSql();
 
-            if (Settings.IsSqlCe)
-                Cmd.CommandText = TableSQLCE;
-            else
-                Cmd.CommandTimeout = Settings.CommandTimeout;
+            if (!Settings.IsSqlCe) Cmd.CommandTimeout = Settings.CommandTimeout;
 
             using(var rdr = Cmd.ExecuteReader())
             {
@@ -2425,11 +2751,15 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
                         table = result.Find(x => x.Name == tableName && x.Schema == schema);
                         if(table == null)
                         {
+                            String tableType = ((String)rdr["TableType"]).Trim();
+                            TableTemporalType tableTemporalType = (TableTemporalType)(Byte)rdr["TableTemporalType"];
+
                             table = new Table
                             {
                                 Name = tableName,
                                 Schema = schema,
-                                IsView = string.Compare(rdr["TableType"].ToString().Trim(), "View", StringComparison.OrdinalIgnoreCase) == 0,
+                                IsView = string.Compare(tableType, "View", StringComparison.OrdinalIgnoreCase) == 0,
+                                TemporalType = tableTemporalType,
 
                                 // Will be set later
                                 HasForeignKey = false,
@@ -2483,12 +2813,13 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
             }
 
             if (Settings.IncludeExtendedPropertyComments != CommentsStyle.None)
-                ReadExtendedProperties(result, Settings.IncludeConnectionSettingComments, Settings.IncludeExtendedPropertyComments == CommentsStyle.InSummaryBlock);
+                ReadExtendedProperties(result, Settings.IncludeExtendedPropertyComments == CommentsStyle.InSummaryBlock);
 
             ReadIndexes(result);
 
             foreach(Table tbl in result)
             {
+                if (tbl.IsView && Settings.ViewProcessing != null) Settings.ViewProcessing(tbl);
                 tbl.SetPrimaryKeys();
                 foreach (Column c in tbl.Columns)
                     Settings.UpdateColumn(c, tbl);
@@ -2529,11 +2860,9 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
                     bool cascadeOnDelete = ((int) rdr["CascadeOnDelete"]) == 1;
                     bool isNotEnforced = (bool) rdr["IsNotEnforced"];
 
-                    string fkTableNameFiltered = Settings.TableRename(fkTableName, fkSchema, false);
                     string pkTableNameFiltered = Settings.TableRename(pkTableName, pkSchema, false);
 
-                    var fk = new ForeignKey(fkTableName, fkSchema, pkTableName, pkSchema, fkColumn, pkColumn,
-                        constraintName, fkTableNameFiltered, pkTableNameFiltered, ordinal, cascadeOnDelete, isNotEnforced);
+                    var fk = new ForeignKey(fkTableName, fkSchema, pkTableName, pkSchema, fkColumn, pkColumn, constraintName, pkTableNameFiltered, ordinal, cascadeOnDelete, isNotEnforced);
 
                     var filteredFk = Settings.ForeignKeyFilter(fk);
                     if(filteredFk != null)
@@ -2647,7 +2976,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
             }
         }
 
-        public override void ReadExtendedProperties(Tables tables, bool includeConnectionSettingComments, bool commentsInSummaryBlock)
+        public override void ReadExtendedProperties(Tables tables, bool commentsInSummaryBlock)
         {
             if(Cmd == null)
                 return;
@@ -2663,7 +2992,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
             }
             else
             {
-                if (IsAzure(includeConnectionSettingComments))
+                if (IsAzure())
                     return;
 
                 Cmd.CommandText = ExtendedPropertySQL + IncludeQueryTraceOn9481();
@@ -2719,7 +3048,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
             if (Cmd.GetType().Name == "SqlCeCommand")
                 return result;
 
-            if (IsAzure(Settings.IncludeConnectionSettingComments))
+            if (IsAzure())
                 Cmd.CommandText = StoredProcedureSQLAzure + IncludeQueryTraceOn9481();
             else if (Settings.IncludeSynonyms)
                 Cmd.CommandText = SynonymStoredProcedureSQLSetup + StoredProcedureSQL + SynonymStoredProcedureSQL + IncludeQueryTraceOn9481();
@@ -2821,7 +3150,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
 
                     sb.Append(string.Format("SELECT * FROM [{0}].[{1}](", proc.Schema, proc.Name));
                     foreach (var param in proc.Parameters)
-                        sb.Append(string.Format("{0}, ", param.SqlDbType.Equals(structured, StringComparison.InvariantCultureIgnoreCase) ? param.Name : "null"));
+                        sb.Append(string.Format("{0}, ", param.SqlDbType.Equals(structured, StringComparison.InvariantCultureIgnoreCase) ? param.Name : "default"));
 
                     if(proc.Parameters.Count > 0)
                         sb.Length -= 2;
@@ -2992,12 +3321,15 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
 
                 if (!Settings.UseDataAnnotations)
                 {
-                    fkCol.col.ConfigFk.Add(string.Format("{0};{1}", GetRelationship(relationship, fkCol.col, pkCol, pkPropName, fkPropName, manyToManyMapping, mapKey, foreignKey.CascadeOnDelete, foreignKey.IncludeReverseNavigation, foreignKey.IsNotEnforced),
-                        Settings.IncludeComments != CommentsStyle.None ? " // " + foreignKey.ConstraintName : string.Empty));
+                    string rel = GetRelationship(relationship, fkCol.col, pkCol, pkPropName, fkPropName, manyToManyMapping, mapKey, foreignKey.CascadeOnDelete, foreignKey.IncludeReverseNavigation, foreignKey.IsNotEnforced);
+                    string com = Settings.IncludeComments != CommentsStyle.None ? " // " + foreignKey.ConstraintName : string.Empty;
+                    fkCol.col.ConfigFk.Add(string.Format("{0};{1}", rel, com));
                 }
 
                 if(foreignKey.IncludeReverseNavigation)
+                {
                     pkTable.AddReverseNavigation(relationship, pkTableHumanCase, fkTable, fkPropName, string.Format("{0}.{1}", fkTable.Name, foreignKey.ConstraintName), foreignKeys);
+                }
             }
         }
 
@@ -3088,28 +3420,44 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
             if(rdr == null)
                 throw new ArgumentNullException("rdr");
 
-            string typename = rdr["TypeName"].ToString().Trim().ToLower();
-            var scale = (int) rdr["Scale"];
-            var precision = (int) rdr["Precision"];
+            string typename    = rdr["TypeName"].ToString().Trim().ToLower();
+            int  rdrScale      = (int)rdr["Scale"];
+            bool rdrIsNullable = (bool)rdr["IsNullable"];
+            int  rdrMaxLength  = (int)rdr["MaxLength"];
+            int  rdrDtp        = (int)rdr["DateTimePrecision"];
+            int  rdrPrecision  = (int)rdr["Precision"];
+            bool rdrIsIdentity = (bool)rdr["IsIdentity"];
+            bool rdrIsComputed = (bool)rdr["IsComputed"];
+            bool rdrIsRowGuid  = (bool)rdr["IsRowGuid"];
+            byte rdrGat        = (byte)rdr["GeneratedAlwaysType"];
+            bool rdrIsg        = (bool)rdr["IsStoreGenerated"];
+            int  rdrPko        = (int)rdr["PrimaryKeyOrdinal"];
+            bool rdrIsPk       = (bool)rdr["PrimaryKey"];
+            bool rdrIsFk       = (bool)rdr["IsForeignKey"];
 
             var col = new Column
             {
-                Name = rdr["ColumnName"].ToString().Trim(),
-                SqlPropertyType = typename,
-                PropertyType = GetPropertyType(typename),
-                MaxLength = (int)rdr["MaxLength"],
-                Precision = precision,
-                Default = rdr["Default"].ToString().Trim(),
-                DateTimePrecision = (int)rdr["DateTimePrecision"],
-                Scale = scale,
-                Ordinal = (int)rdr["Ordinal"],
-                IsIdentity = rdr["IsIdentity"].ToString().Trim().ToLower() == "true",
-                IsNullable = rdr["IsNullable"].ToString().Trim().ToLower() == "true",
-                IsStoreGenerated = rdr["IsStoreGenerated"].ToString().Trim().ToLower() == "true",
-                IsPrimaryKey = rdr["PrimaryKey"].ToString().Trim().ToLower() == "true",
-                PrimaryKeyOrdinal = (int)rdr["PrimaryKeyOrdinal"],
-                IsForeignKey = rdr["IsForeignKey"].ToString().Trim().ToLower() == "true",
-                ParentTable = table
+                Ordinal             = (int)rdr["Ordinal"],
+                Name                = rdr["ColumnName"].ToString().Trim(),
+                IsNullable          = rdrIsNullable,
+                PropertyType        = GetPropertyType(typename),
+                SqlPropertyType     = typename,
+                MaxLength           = rdrMaxLength,
+                Precision           = rdrPrecision,
+                Default             = rdr["Default"].ToString().Trim(),
+                DateTimePrecision   = rdrDtp,
+                Scale               = rdrScale,
+
+                IsIdentity          = rdrIsIdentity,
+                IsRowGuid           = rdrIsRowGuid,
+                IsComputed          = rdrIsComputed,
+                GeneratedAlwaysType = (ColumnGeneratedAlwaysType)rdrGat,
+                IsStoreGenerated    = rdrIsg,
+
+                IsPrimaryKey        = rdrIsPk,
+                PrimaryKeyOrdinal   = rdrPko,
+                IsForeignKey        = rdrIsFk,
+                ParentTable         = table
             };
 
             if (col.MaxLength == -1 && (col.SqlPropertyType.EndsWith("varchar", StringComparison.InvariantCultureIgnoreCase) || col.SqlPropertyType.EndsWith("varbinary", StringComparison.InvariantCultureIgnoreCase)))
@@ -3195,6 +3543,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
                     break;
 
                 case "decimal":
+                case "numeric":
                     sysType = "Decimal";
                     break;
 
@@ -3375,24 +3724,24 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
 
     public class ForeignKey
     {
-        public string FkTableName { get; private set; }
-        public string FkTableNameFiltered { get; private set; }
-        public string FkSchema { get; private set; }
-        public string PkTableName { get; private set; }
+        public string FkTableName         { get; private set; }
+        public string FkSchema            { get; private set; }
+        public string PkTableName         { get; private set; }
         public string PkTableNameFiltered { get; private set; }
-        public string PkSchema { get; private set; }
-        public string FkColumn { get; private set; }
-        public string PkColumn { get; private set; }
-        public string ConstraintName { get; private set; }
-        public int Ordinal { get; private set; }
-        public bool CascadeOnDelete { get; private set; }
-        public bool IsNotEnforced { get; private set; }
+        public string PkSchema            { get; private set; }
+        public string FkColumn            { get; private set; }
+        public string PkColumn            { get; private set; }
+        public string ConstraintName      { get; private set; }
+        public int    Ordinal             { get; private set; }
+        public bool   CascadeOnDelete     { get; private set; }
+        public bool   IsNotEnforced       { get; private set; }
 
         // User settable via ForeignKeyFilter callback
-        public bool IncludeReverseNavigation { get; set; }
-        public bool IncludeRequiredAttribute { get; set; }
+        public string AccessModifier           { get; set; }
+        public bool   IncludeReverseNavigation { get; set; }
+        public bool   IncludeRequiredAttribute { get; set; }
 
-        public ForeignKey(string fkTableName, string fkSchema, string pkTableName, string pkSchema, string fkColumn, string pkColumn, string constraintName, string fkTableNameFiltered, string pkTableNameFiltered, int ordinal, bool cascadeOnDelete, bool isNotEnforced)
+        public ForeignKey(string fkTableName, string fkSchema, string pkTableName, string pkSchema, string fkColumn, string pkColumn, string constraintName, string pkTableNameFiltered, int ordinal, bool cascadeOnDelete, bool isNotEnforced)
         {
             ConstraintName = constraintName;
             PkColumn = pkColumn;
@@ -3401,7 +3750,6 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
             PkTableName = pkTableName;
             FkSchema = fkSchema;
             FkTableName = fkTableName;
-            FkTableNameFiltered = fkTableNameFiltered;
             PkTableNameFiltered = pkTableNameFiltered;
             Ordinal = ordinal;
             CascadeOnDelete = cascadeOnDelete;
@@ -3435,6 +3783,20 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
         public bool IsClustered;
     }
 
+    public enum TableTemporalType
+    {
+        None,
+        Verioned,
+        History
+    }
+
+    public enum ColumnGeneratedAlwaysType
+    {
+        NotApplicable = 0,
+        AsRowStart = 1,
+        AsRowEnd = 2
+    }
+
     public class Table
     {
         public string Name;
@@ -3449,6 +3811,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
         public bool HasForeignKey;
         public bool HasNullableColumns;
         public bool HasPrimaryKey;
+        public TableTemporalType TemporalType;
 
         public List<Column> Columns;
         public List<PropertyAndComments> ReverseNavigationProperty;
@@ -3537,7 +3900,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
 
         public string GetUniqueColumnName(string tableNameHumanCase, ForeignKey foreignKey, bool checkForFkNameClashes, bool makeSingular, Relationship relationship)
         {
-            var addReverseNavigationUniquePropName = (Name == foreignKey.FkTableName || (Name == foreignKey.PkTableName && foreignKey.IncludeReverseNavigation));
+            var addReverseNavigationUniquePropName = (checkForFkNameClashes || Name == foreignKey.FkTableName || (Name == foreignKey.PkTableName && foreignKey.IncludeReverseNavigation));
             if (ReverseNavigationUniquePropName.Count == 0)
             {
                 ReverseNavigationUniquePropName.Add(NameHumanCase);
@@ -3652,6 +4015,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
                 case Relationship.ManyToMany:
                     break;
             }
+            string accessModifier = fks != null && fks.FirstOrDefault() != null ? (fks.FirstOrDefault().AccessModifier ?? "public") : "public";
             switch (relationship)
             {
                 case Relationship.OneToOne:
@@ -3659,7 +4023,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
                         new PropertyAndComments()
                         {
                             AdditionalDataAnnotations = Settings.ForeignKeyAnnotationsProcessing(fkTable, this, propName),
-                            Definition = string.Format("public {0}{1} {2} {{ get; set; }}{3}", GetLazyLoadingMarker(), fkTable.NameHumanCaseWithSuffix(), propName, Settings.IncludeComments != CommentsStyle.None ? " // " + constraint : string.Empty),
+                            Definition = string.Format("{0} {1}{2} {3} {{ get; set; }}{4}", accessModifier, GetLazyLoadingMarker(), fkTable.NameHumanCaseWithSuffix(), propName, Settings.IncludeComments != CommentsStyle.None ? " // " + constraint : string.Empty),
                             Comments = string.Format("Parent (One-to-One) {0} pointed by [{1}].{2} ({3})", NameHumanCaseWithSuffix(), fkTable.Name, fkNames, fks.First().ConstraintName)
                         }
                     );
@@ -3670,7 +4034,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
                         new PropertyAndComments()
                         {
                             AdditionalDataAnnotations = Settings.ForeignKeyAnnotationsProcessing(fkTable, this, propName),
-                            Definition = string.Format("public {0}{1} {2} {{ get; set; }}{3}", GetLazyLoadingMarker(), fkTable.NameHumanCaseWithSuffix(), propName, Settings.IncludeComments != CommentsStyle.None ? " // " + constraint : string.Empty),
+                            Definition = string.Format("{0} {1}{2} {3} {{ get; set; }}{4}", accessModifier, GetLazyLoadingMarker(), fkTable.NameHumanCaseWithSuffix(), propName, Settings.IncludeComments != CommentsStyle.None ? " // " + constraint : string.Empty),
                             Comments = string.Format("Parent {0} pointed by [{1}].{2} ({3})", NameHumanCaseWithSuffix(), fkTable.Name, fkNames, fks.First().ConstraintName)
                         }
                     );
@@ -3684,7 +4048,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
                         new PropertyAndComments()
                         {
                             AdditionalDataAnnotations = Settings.ForeignKeyAnnotationsProcessing(fkTable, this, propName),
-                            Definition = string.Format("public {0}{1}<{2}> {3} {{ get; set; }}{4}{5}", GetLazyLoadingMarker(), Settings.CollectionInterfaceType, fkTable.NameHumanCaseWithSuffix(), propName, initialization1, Settings.IncludeComments != CommentsStyle.None ? " // " + constraint : string.Empty),
+                            Definition = string.Format("{0} {1}{2}<{3}> {4} {{ get; set; }}{5}{6}", accessModifier, GetLazyLoadingMarker(), Settings.CollectionInterfaceType, fkTable.NameHumanCaseWithSuffix(), propName, initialization1, Settings.IncludeComments != CommentsStyle.None ? " // " + constraint : string.Empty),
                             Comments = string.Format("Child {0} where [{1}].{2} point to this entity ({3})", Inflector.MakePlural(fkTable.NameHumanCase), fkTable.Name, fkNames, fks.First().ConstraintName)
                         }
                     );
@@ -3699,7 +4063,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
                         new PropertyAndComments()
                         {
                             AdditionalDataAnnotations = Settings.ForeignKeyAnnotationsProcessing(fkTable, this, propName),
-                            Definition = string.Format("public {0}{1}<{2}> {3} {{ get; set; }}{4}{5}", GetLazyLoadingMarker(), Settings.CollectionInterfaceType, fkTable.NameHumanCaseWithSuffix(), propName, initialization2, Settings.IncludeComments != CommentsStyle.None ? " // Many to many mapping" : string.Empty),
+                            Definition = string.Format("{0} {1}{2}<{3}> {4} {{ get; set; }}{5}{6}", accessModifier, GetLazyLoadingMarker(), Settings.CollectionInterfaceType, fkTable.NameHumanCaseWithSuffix(), propName, initialization2, Settings.IncludeComments != CommentsStyle.None ? " // Many to many mapping" : string.Empty),
                             Comments = string.Format("Child {0} (Many-to-Many) mapped by table [{1}]", Inflector.MakePlural(fkTable.NameHumanCase), mappingTable == null ? string.Empty : mappingTable.Name)
                         }
                     );
@@ -3774,10 +4138,13 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
 
         public void SetupDataAnnotations()
         {
+            var schema = String.Empty;
+            if(!Settings.IsSqlCe)
+                schema = String.Format(", Schema = \"{0}\"", Schema);
             DataAnnotations = new List<string>
             {
                 HasPrimaryKey
-                    ? string.Format("Table(\"{0}\", Schema = \"{1}\")", Name, Schema)
+                    ? string.Format("Table(\"{0}\"{1})", Name, schema)
                     : "NotMapped"
             };
 
@@ -3884,16 +4251,23 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
         {
             var isNullable = !NotNullable.Contains(p.PropertyType.ToLower());
             var getValueOrDefault = isNullable ? ".GetValueOrDefault()" : string.Empty;
+            var isGeography = p.PropertyType == "System.Data.Entity.Spatial.DbGeography";
 
-            sb.AppendLine(string.Format("            var {0} = new System.Data.SqlClient.SqlParameter {{ ParameterName = \"{1}\", SqlDbType = System.Data.SqlDbType.{2}, Direction = System.Data.ParameterDirection.{3}{4}{5}{6}{7} }};",
-                WriteStoredProcSqlParameterName(p),
-                p.Name,
-                p.SqlDbType,
-                p.Mode == StoredProcedureParameterMode.In ? "Input" : "Output",
-                p.Mode == StoredProcedureParameterMode.In ? ", Value = " + p.NameHumanCase + getValueOrDefault : string.Empty,
-                p.MaxLength != 0 ? ", Size = " + p.MaxLength : string.Empty,
-                (p.Precision > 0 || p.Scale > 0) ? ", Precision = " + p.Precision + ", Scale = " + p.Scale : string.Empty,
-                p.PropertyType.ToLower().Contains("datatable") ? ", TypeName = \"" + p.UserDefinedTypeName + "\"" : string.Empty));
+            sb.AppendLine(
+                $"            var {WriteStoredProcSqlParameterName(p)} = new System.Data.SqlClient.SqlParameter"
+                + $" {{ ParameterName = \"{p.Name}\", "
+                + (isGeography ? "UdtTypeName = \"geography\"" : $"SqlDbType = System.Data.SqlDbType.{p.SqlDbType}")
+                + ", Direction = System.Data.ParameterDirection."
+                + (p.Mode == StoredProcedureParameterMode.In ? "Input" : "Output")
+                + (p.Mode == StoredProcedureParameterMode.In
+                    ? ", Value = " + (isGeography
+                        ? $"Microsoft.SqlServer.Types.SqlGeography.Parse({p.NameHumanCase}.AsText())"
+                        : p.NameHumanCase + getValueOrDefault)
+                    : string.Empty)
+                + (p.MaxLength != 0 ? ", Size = " + p.MaxLength : string.Empty)
+                + ((p.Precision > 0 || p.Scale > 0) ? ", Precision = " + p.Precision + ", Scale = " + p.Scale : string.Empty)
+                + (p.PropertyType.ToLower().Contains("datatable") ? ", TypeName = \"" + p.UserDefinedTypeName + "\"" : string.Empty)
+                + " };");
 
                 if (p.Mode == StoredProcedureParameterMode.In)
                 {
@@ -3996,7 +4370,7 @@ SELECT  SERVERPROPERTY('Edition') AS Edition,
 
         return string.Format("public {0} {1} {{ get; set; }}",
             StoredProcedure.WrapTypeIfNullable(
-                (col.DataType.Name.Equals("SqlHierarchyId") ? "Microsoft.SqlServer.Types." : "System.") +
+                (col.DataType.Name.Equals("SqlHierarchyId") ? "Microsoft.SqlServer.Types." : col.DataType.Namespace + ".") +
                 col.DataType.Name, col),
             columnName);
     };

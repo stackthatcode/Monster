@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.EF;
-using Monster.Middle.Persist;
-using Monster.Middle.Persist.Payouts;
+using Monster.Middle.Persistence;
+using Monster.Middle.Persistence.Multitenant;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -110,8 +109,6 @@ namespace Monster.Middle.Processes.Payouts
                         IShopifyCredentials credentials, long payoutId)
         {
             _logger.Info($"Importing Transactions for Shopify Payout: {payoutId}");
-
-            var payoutApi = _shopifyApiFactory.MakePayoutApi(credentials);
 
             // Read first batch
             var firstBatch = payoutApi

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Push.Foundation.Utilities", "Push.Foundation.Utilities\Push.Foundation.Utilities.csproj", "{4E08819B-BAB3-46EE-9479-141AF7A4057D}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.ConsoleApp", "Monster.Console\Monster.ConsoleApp.csproj", "{E92C70F6-9712-42CC-A5E6-02ED5CEF8D0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.Acumatica", "Monster.Acumatica.Http\Monster.Acumatica.csproj", "{E31F2A05-6346-48D5-B323-3D048AB0E392}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.Middleware", "Monster.Middleware\Monster.Middleware.csproj", "{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -125,6 +127,18 @@ Global
 		{E31F2A05-6346-48D5-B323-3D048AB0E392}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E31F2A05-6346-48D5-B323-3D048AB0E392}.ReleaseAzure|Any CPU.ActiveCfg = Release|Any CPU
 		{E31F2A05-6346-48D5-B323-3D048AB0E392}.ReleaseAzure|Any CPU.Build.0 = Release|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Debug Aleks|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Debug Aleks|Any CPU.Build.0 = Debug|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Debug Jeremy|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Debug Jeremy|Any CPU.Build.0 = Debug|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Release Standalone|Any CPU.ActiveCfg = Release|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Release Standalone|Any CPU.Build.0 = Release|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.ReleaseAzure|Any CPU.ActiveCfg = Release|Any CPU
+		{FF5A5194-4CE4-49B3-AA1C-5D50B06C3601}.ReleaseAzure|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
