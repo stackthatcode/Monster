@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Autofac\Extensions.cs" />
+    <Compile Include="Autofac\ServiceLocator.cs" />
     <Compile Include="General\BoolExtensions.cs" />
     <Compile Include="General\DirectoryHelpers.cs" />
     <Compile Include="General\EnumExtensions.cs" />

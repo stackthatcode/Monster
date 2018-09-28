@@ -9,14 +9,12 @@ namespace Monster.Middle.Processes.Inventory
     public class InventoryWorker
     {
         private readonly InventoryPersistRepository _persistRepository;
-        private readonly ShopifyApiFactory _shopifyApiFactory;
+        private readonly InventoryRepository _inventoryRepository;
         private readonly IPushLogger _logger;
 
-        public void PullFromShopify(IShopifyCredentials credentials)
+        public void PullFromShopify()
         {
-            var shopifyRepository = _shopifyApiFactory.MakeInventoryApi(credentials);
-
-            var locations = shopifyRepository.RetrieveLocations();
+            var locations = _inventoryRepository.RetrieveLocations();
         }
     }
 }

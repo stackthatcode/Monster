@@ -1,23 +1,23 @@
 ﻿using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.Http;
+using Push.Shopify.Http;
 
 namespace Push.Shopify.Api
 {
     public class InventoryRepository
     {
-        private readonly HttpFacade _executionFacade;
+        private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
 
-        public InventoryRepository(HttpFacade executionFacade, IPushLogger logger)
+        public InventoryRepository(IPushLogger logger, ShopifyHttpContext httpClient)
         {
-            _executionFacade = executionFacade;
             _logger = logger;
+            _httpClient = httpClient;
         }
 
         public string RetrieveLocations()
         {
             var path = $"/admin/locations.json";
-            var response = _executionFacade.Get(path);
+            var response = _httpClient.Get(path);
             return response.Body;
         }
     }

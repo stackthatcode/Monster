@@ -15,18 +15,18 @@ namespace Monster.Middle.Processes.Payouts
     public class ShopifyPayoutPullWorker
     {
         private readonly PayoutPersistRepository _persistRepository;
-        private readonly ShopifyApiFactory _shopifyApiFactory;
+        private readonly PayoutRepository _payoutRepository;
         private readonly IPushLogger _logger;
 
         public int PayoutTransactionPagingLimit = 50;
 
         public ShopifyPayoutPullWorker(
                     PayoutPersistRepository persistRepository,
-                    ShopifyApiFactory shopifyApiFactory,
+                    PayoutRepository payoutRepository,
                     IPushLogger logger)
         {
             _persistRepository = persistRepository;
-            _shopifyApiFactory = shopifyApiFactory;
+            _payoutRepository = payoutRepository;
             _logger = logger;
         }
 
@@ -38,14 +38,13 @@ namespace Monster.Middle.Processes.Payouts
                     int recordsPerPage = 50, 
                     long? shopifyPayoutId = null)
         {
-            var payoutApi = _shopifyApiFactory.MakePayoutApi(credentials);
             var currentPage = 1;
 
             while (currentPage <= maxPages)
             {
                 // Get current list of Payouts
                 var payouts =
-                    payoutApi
+                    _payoutRepository
                         .RetrievePayouts(recordsPerPage, currentPage)
                         .DeserializeFromJson<PayoutList>();
                 

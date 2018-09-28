@@ -9,9 +9,9 @@ namespace Push.Foundation.Web.Http
     public class HttpFacade : IDisposable
     {
         private readonly HttpClient _client;
-        private readonly DurableExecContext _context;
+        private readonly ExecutorContext _context;
 
-        public HttpFacade(HttpClient client, DurableExecContext context)
+        public HttpFacade(HttpClient client, ExecutorContext context)
         {
             _client = client;
             _context = context;
@@ -25,7 +25,7 @@ namespace Push.Foundation.Web.Http
             _context.Logger.Debug($"HTTP GET on {url}");
 
             var response =
-                DurableExec.Do(
+                DurableExecutor.Do(
                     () => _client.GetAsync(url).Result, _context);
 
             return response
@@ -41,7 +41,7 @@ namespace Push.Foundation.Web.Http
                 = new StringContent(content, Encoding.UTF8, "application/json");
             
             var response =
-                DurableExec.Do(
+                DurableExecutor.Do(
                     () => _client.PostAsync(url, httpContent).Result, _context);
 
             return response
@@ -57,7 +57,7 @@ namespace Push.Foundation.Web.Http
                 = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response =
-                DurableExec.Do(
+                DurableExecutor.Do(
                     () => _client.PutAsync(url, httpContent).Result, _context);
 
             return response

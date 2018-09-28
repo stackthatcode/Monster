@@ -1,20 +1,20 @@
-﻿using Push.Foundation.Web.Http;
+﻿using Push.Shopify.Http;
 
 namespace Push.Shopify.Api
 {
     public class ShopRepository
     {
-        private readonly HttpFacade _executionFacade;
+        private readonly ShopifyHttpContext _httpClient;
         
-        public ShopRepository(HttpFacade executionFacade)
+        public ShopRepository(ShopifyHttpContext httpClient)
         {
-            _executionFacade = executionFacade;
+            _httpClient = httpClient;
         }
 
         public virtual string Retrieve()
         {
             var path = "/admin/shop.json";                       
-            var clientResponse = _executionFacade.Get(path);
+            var clientResponse = _httpClient.Get(path);
 
             var output = clientResponse.Body;
             return output;

@@ -1,5 +1,6 @@
 ﻿using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Http;
+using Push.Shopify.Http;
 
 
 namespace Push.Shopify.Api
@@ -7,14 +8,14 @@ namespace Push.Shopify.Api
 
     public class OrderRepository
     {
-        private readonly HttpFacade _executionFacade;
+        private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
 
         public OrderRepository(
-                HttpFacade executionFacade, IPushLogger logger)
+                    IPushLogger logger, ShopifyHttpContext httpClient)
         {
-            _executionFacade = executionFacade;            
             _logger = logger;
+            _httpClient = httpClient;
         }
 
 
@@ -23,7 +24,7 @@ namespace Push.Shopify.Api
         //{
         //    var url = "/admin/orders/count.json?" + filter.ToQueryStringBuilder();
         //    var request = _requestFactory.HttpGet(url);
-        //    var clientResponse = _executionFacade.ExecuteRequestWithInsistence(request);
+        //    var clientResponse = _httpClient.ExecuteRequestWithInsistence(request);
 
         //    dynamic parent = JsonConvert.DeserializeObject(clientResponse.Body);
         //    var count = parent.count;
@@ -43,7 +44,7 @@ namespace Push.Shopify.Api
         //    var path = string.Format("/admin/orders.json?" + querystring);
 
         //    var request = _requestFactory.HttpGet(path);
-        //    var clientResponse = _executionFacade.ExecuteRequestWithInsistence(request);
+        //    var clientResponse = _httpClient.ExecuteRequestWithInsistence(request);
         //    return clientResponse.Body;
         //}
 
@@ -52,14 +53,14 @@ namespace Push.Shopify.Api
         public virtual string Retrieve(long orderId)
         {
             var path = $"/admin/orders/{orderId}.json";
-            var response = _executionFacade.Get(path);
+            var response = _httpClient.Get(path);
             return response.Body;
         }
 
         public virtual string RetrieveTransactions(long orderId)
         {
             var path = $"/admin/orders/{orderId}/transactions.json";
-            var response = _executionFacade.Get(path);
+            var response = _httpClient.Get(path);
 
             return response.Body;
         }
@@ -68,7 +69,7 @@ namespace Push.Shopify.Api
         public void Insert(string orderJson)
         {
             var path = "/admin/orders.json";
-            var clientResponse = _executionFacade.Get(path);
+            var clientResponse = _httpClient.Get(path);
         }
 
     }

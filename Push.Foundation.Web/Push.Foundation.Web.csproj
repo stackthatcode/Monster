@@ -158,7 +158,7 @@
     <Compile Include="Helpers\NetworkUtilities.cs" />
     <Compile Include="Http\HttpFacade.cs" />
     <Compile Include="Http\RequestEnvelope.cs" />
-    <Compile Include="Misc\DurableExecContext.cs" />
+    <Compile Include="Misc\ExecutorContext.cs" />
     <Compile Include="Mvc\RequestActivityId.cs" />
     <Compile Include="Mvc\RequestActivityIdLogFormatter.cs" />
     <Compile Include="Helpers\ControllerHelpers.cs" />
@@ -167,7 +167,7 @@
     <Compile Include="Mvc\RouteValueDictionaryExtensions.cs" />
     <Compile Include="Helpers\UrlExtensions.cs" />
     <Compile Include="Http\BadStatusCodeException.cs" />
-    <Compile Include="Misc\DurableExec.cs" />
+    <Compile Include="Misc\DurableExecutor.cs" />
     <Compile Include="Http\HttpSettings.cs" />
     <Compile Include="Http\ResponseEnvelope.cs" />
     <Compile Include="Http\Extensions.cs" />

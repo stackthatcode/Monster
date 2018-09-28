@@ -7,7 +7,8 @@ namespace Push.Foundation.Web.Misc
     public class ExceptionAbsorber
     {        
         public static T Do<T>(
-                Func<T> function, int maxNumberOfAttempts = 1, 
+                Func<T> function, 
+                int maxNumberOfAttempts = 1, 
                 IPushLogger logger = null)
         {
             var counter = 1;

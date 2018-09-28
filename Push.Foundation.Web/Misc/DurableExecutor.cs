@@ -2,16 +2,10 @@
 
 namespace Push.Foundation.Web.Misc
 {
-    public class DurableExec
-    {
-        
-        public static T Do<T>(Func<T> task, DurableExecContext context)
+    public class DurableExecutor
+    {        
+        public static T Do<T>(Func<T> task, ExecutorContext context)
         {
-            if (context == null)
-            {
-                context = new DurableExecContext();
-            }
-            
             // Invoke the Throttler
             Throttler.Process(context.ThrottlingKey);
             
@@ -29,5 +23,4 @@ namespace Push.Foundation.Web.Misc
         }        
     }
 }
-
 

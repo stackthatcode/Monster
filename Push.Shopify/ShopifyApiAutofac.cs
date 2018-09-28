@@ -9,11 +9,10 @@ namespace Push.Shopify
     public class ShopifyApiAutofac
     {
         public static void Build(ContainerBuilder builder)
-        {            
-            builder.RegisterType<ShopifyHttpClientFactory>();
+        {
             builder.RegisterType<ShopifyHttpSettings>();
 
-            builder.RegisterType<ShopifyApiFactory>();     
+            builder.RegisterType<ShopifyHttpContext>();
                    
             builder.RegisterType<ShopRepository>();
             builder.RegisterType<OrderRepository>();

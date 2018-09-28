@@ -29,7 +29,7 @@ namespace Monster.ConsoleApp.Acumatica
             // Spawn or constructor inject this factory
             var factory = scope.Resolve<AcumaticaApiFactory>();
 
-            // Make repository - done!
+            // Initialize repository - done!
             var sessionRepository = factory.MakeSessionRepository(credentials);
             sessionRepository.RetrieveSession(credentials);
 

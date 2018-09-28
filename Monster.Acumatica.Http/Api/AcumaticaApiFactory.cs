@@ -16,7 +16,7 @@ namespace Monster.Acumatica.Api
         // Autofac factories
         private readonly Func<IPushLogger> _loggerFactory;
 
-        private readonly Func<HttpClient, DurableExecContext, HttpFacade> _facadeFactory;
+        private readonly Func<HttpClient, ExecutorContext, HttpFacade> _facadeFactory;
 
         private readonly Func<HttpFacade, SessionRepository> _sessionApiFactory;
         private readonly Func<HttpFacade, UrlBuilder, CustomerRepository> _customerApiFactory;
@@ -30,7 +30,7 @@ namespace Monster.Acumatica.Api
                 
                 Func<IPushLogger> loggerFactory,
                 
-                Func<HttpClient, DurableExecContext, HttpFacade> facadeFactory,
+                Func<HttpClient, ExecutorContext, HttpFacade> facadeFactory,
                 
                 Func<HttpFacade, SessionRepository> sessionApiFactory,
                 Func<HttpFacade, UrlBuilder, CustomerRepository> customerApiFactory,
@@ -54,7 +54,7 @@ namespace Monster.Acumatica.Api
         {
             var client = _httpClientFactory.Make(credentials);
 
-            var executionContext = new DurableExecContext()
+            var executionContext = new ExecutorContext()
             {
                 NumberOfAttempts = _acumaticaHttpSettings.RetryLimit,
                 ThrottlingKey = credentials.InstanceUrl,

@@ -4,27 +4,27 @@ using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.Http;
 using Push.Shopify.Api.Event;
+using Push.Shopify.Http;
 
 
 namespace Push.Shopify.Api
 {
     public class EventRepository
     {
-        private readonly HttpFacade _client;
+        private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
         
         public EventRepository(
-                HttpFacade client,
-                IPushLogger logger)
+                IPushLogger logger, ShopifyHttpContext httpClient)
         {
-            _client = client;
             _logger = logger;
+            _httpClient = httpClient;
         }
         
         public virtual int RetrieveCount(EventFilter filter)
         {
             var url = "/admin/events/count.json?" + filter.ToQueryStringBuilder();
-            var clientResponse = _client.Get(url);
+            var clientResponse = _httpClient.Get(url);
 
             dynamic parent = JsonConvert.DeserializeObject(clientResponse.Body);
             var count = parent.count;
@@ -42,7 +42,7 @@ namespace Push.Shopify.Api
                     .ToString();
 
             var url = "/admin/events.json?" + querystring;
-            var clientResponse = _client.Get(url);
+            var clientResponse = _httpClient.Get(url);
 
             _logger.Info(clientResponse.Body);
 
