@@ -9,7 +9,7 @@ namespace Monster.Middle.Services
 {
     public class TenantContextLoader
     {
-        private readonly AccountRepository _accountRepository;
+        private readonly SystemRepository _accountRepository;
         private readonly TenantContextRepository _tenantContextRepository;
         private readonly PersistContext _persistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
@@ -18,7 +18,7 @@ namespace Monster.Middle.Services
 
         public TenantContextLoader(
                 TenantContextRepository tenantContextRepository, 
-                AccountRepository accountRepository, 
+                SystemRepository accountRepository, 
                 PersistContext persistContext, 
                 ShopifyHttpContext shopifyHttpContext,
                 AcumaticaHttpContext acumaticaHttpContext)

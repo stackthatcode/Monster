@@ -5,11 +5,11 @@ using Dapper;
 
 namespace Monster.Middle.Persist.Sys
 {
-    public class AccountRepository
+    public class SystemRepository
     {
         private readonly IDbConnection _connection;
 
-        public AccountRepository(string connectionString)
+        public SystemRepository(string connectionString)
         {
             _connection = new SqlConnection(connectionString);
             _connection.Open();

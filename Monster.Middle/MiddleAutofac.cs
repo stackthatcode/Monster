@@ -2,6 +2,7 @@
 using Monster.Acumatica;
 using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Logging;
@@ -50,16 +51,20 @@ namespace Monster.Middle
                 .As<IPushLogger>()
                 .InstancePerLifetimeScope();
 
-
-            // Database connectivity      
-            builder.RegisterType<PersistContext>()
-                .InstancePerLifetimeScope();
-
-
+            
             // TODO *** Need to implement this!!
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
 
-            // Persistence Repositories
+            // System-level Persistence                 
+            builder.Register<SystemRepository>(x =>
+            {
+                var connectionString 
+                    = MonsterConfig.Settings.SystemDatabaseConnection;
+                return new SystemRepository(connectionString);
+            });
+
+            // Multitenant Persistence
+            builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutPersistRepository>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryPersistRepository>().InstancePerLifetimeScope();
             builder.RegisterType<TenantContextRepository>().InstancePerLifetimeScope();

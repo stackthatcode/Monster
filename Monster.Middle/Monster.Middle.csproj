@@ -74,7 +74,7 @@
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Services\TenantContextLoader.cs" />
-    <Compile Include="Persist\Sys\AccountRepository.cs" />
+    <Compile Include="Persist\Sys\SystemRepository.cs" />
     <Compile Include="Persist\Sys\Tenant.cs" />
     <Compile Include="Persist\Multitenant\MonsterDb.cs">
       <AutoGen>True</AutoGen>

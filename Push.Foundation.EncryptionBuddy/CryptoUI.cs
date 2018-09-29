@@ -85,25 +85,20 @@ namespace Push.Foundation
 
         private void buttonAcumaticaXml_Click(object sender, EventArgs e)
         {
-            var config = JsonConvert.DeserializeObject<AcumaticaCredentials>(textAcumaticaJson.Text);
-
+            
             textAcumaticaXml.Text =
                 $@"<acumaticaSecurityConfiguration 
     xdt:Transform=""Replace""
-    Branch=""{config.Branch}"" 
-    CompanyName=""{config.CompanyName}"" 
     InstanceUrl=""{config.InstanceUrl}"" 
+    CompanyName=""{config.CompanyName}"" 
+    Branch=""{config.Branch}"" 
     Username=""{config.Username.ToSecureString().DpApiEncryptString()}"" 
     Password=""{config.Password.ToSecureString().DpApiEncryptString()}""                                               
 />";
 
             Clipboard.SetText(textAcumaticaXml.Text);
         }
-
-        private void textAcumaticaXml_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void buttonMonsterSettings_Click(object sender, EventArgs e)
         {
@@ -112,8 +107,10 @@ namespace Push.Foundation
     xdt:Transform=""Replace""
     EncryptKey=""{this.textMonsterAesKey.Text.ToSecureString().DpApiEncryptString()}"" 
     EncryptIv=""{this.textMonsterAesIv.Text.ToSecureString().DpApiEncryptString()}"" 
+    SystemConnectionString=""{this.textMonsterSystemConnstr.Text}""
 />";
         }
+        
     }        
 }
 
