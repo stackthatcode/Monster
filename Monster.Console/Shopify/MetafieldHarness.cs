@@ -12,17 +12,13 @@ namespace Monster.ConsoleApp.Shopify
     public class MetafieldHarness
     {
         public static void UpdateMetadata(
-                ILifetimeScope scope,
-                IShopifyCredentials credentials)
+                    ILifetimeScope scope, long collectionId)
         {
-            var shopifyHttpContext = scope.Resolve<ShopifyHttpContext>();
-            shopifyHttpContext.Initialize(credentials);
-
             var productApi = scope.Resolve<ProductApi>();
                 
             var products =
                 productApi
-                    .RetrieveByCollection(56819023972)
+                    .RetrieveByCollection(collectionId)
                     .DeserializeFromJson<ProductList>();
 
             foreach (var product in products.products)
@@ -63,14 +59,10 @@ namespace Monster.ConsoleApp.Shopify
 
         public static void CopyShoppingFeedMetadata(
                     ILifetimeScope scope,
-                    IShopifyCredentials credentials,
                     long sourceProductId,
                     long targetProductId,
                     string @namespace)
         {
-            var shopifyHttpContext = scope.Resolve<ShopifyHttpContext>();
-            shopifyHttpContext.Initialize(credentials);
-
             var logger = scope.Resolve<IPushLogger>();
             var productApi = scope.Resolve<ProductApi>();
             
@@ -123,6 +115,6 @@ namespace Monster.ConsoleApp.Shopify
                 }
             }
         }
-
     }
 }
+

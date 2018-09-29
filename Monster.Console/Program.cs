@@ -1,15 +1,10 @@
 ﻿using System;
 using Autofac;
-using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Shopify;
 using Monster.Middle;
 using Monster.Middle.Config;
-using Monster.Middle.Persist;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Sql;
-using Monster.Middle.Sql.Multitenant;
-using Push.Foundation.Utilities.Autofac;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -35,11 +30,30 @@ namespace Monster.ConsoleApp
             Console.ReadKey();
         }
 
+        public static void RunShopifyProcess(
+                    IContainer container, Action<ILifetimeScope> action)
+        {
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var credentials = ShopifyCredentialsConfig.Settings.ToPrivateAppCredentials();
+                var shopifyHttpContext = scope.Resolve<ShopifyHttpContext>();
+                shopifyHttpContext.Initialize(credentials);
+
+                var logger = scope.Resolve<IPushLogger>();
+                try
+                {
+                    action(scope);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex);
+                    throw;
+                }
+            }
+        }
+
         public static void RunMetafieldCopy()
         {
-            var credentials = ShopifyPrivateAppCredentialsFromConfig();
-
-
             Console.WriteLine("Copy 3DU_Automation Metafields");
             Console.WriteLine("****");
 
@@ -50,17 +64,19 @@ namespace Monster.ConsoleApp
             var targetProductId = Console.ReadLine().ToLong();
             
             Console.WriteLine(Environment.NewLine + "Ok, running...");
-            
+
             using (var container = MiddleAutofac.Build())
             {
-                container.RunInLifetimeScope(
-                    scope => 
+                RunShopifyProcess(container,
+                    scope =>
+                    {
                         MetafieldHarness.CopyShoppingFeedMetadata(
                             scope,
-                            credentials,
                             sourceProductId,
                             targetProductId,
-                            "3DU_AUTOMATION"));
+                            "3DU_AUTOMATION");
+                    });
+
             }
 
             Console.WriteLine("FIN");
@@ -68,6 +84,8 @@ namespace Monster.ConsoleApp
         }
 
 
+
+        [Obsolete("This is essentially legacy code now - use TenantContext for future apps")]
         public static void RunPayouts()
         {
             // TODO - inject your own via new PrivateAppCredentials();
@@ -105,13 +123,7 @@ namespace Monster.ConsoleApp
 
         }
 
-
-        public static PrivateAppCredentials 
-                        ShopifyPrivateAppCredentialsFromConfig()
-        {
-            return ShopifyCredentialsConfig.Settings.ToPrivateAppCredentials();
-        }
-
+        
 
         public static PayoutConfig PayoutConfigFactory()
         {
@@ -127,9 +139,7 @@ namespace Monster.ConsoleApp
             };
             return payoutConfig;
         }
-
-
-
+        
         public static void StressTestDataPopulate()
         {
             var payoutConfig = PayoutConfigFactory();

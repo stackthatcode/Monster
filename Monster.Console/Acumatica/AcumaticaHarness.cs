@@ -16,7 +16,7 @@ namespace Monster.ConsoleApp.Acumatica
         public static void BeginSession(ILifetimeScope scope)
         {
             var credentials = 
-                    AcumaticaCredentialsConfig.Settings;
+                    AcumaticaCredentialsConfig.Settings.ToCredentials();
 
             // Load the Acumatica Context with our Credentials
             var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
@@ -31,8 +31,6 @@ namespace Monster.ConsoleApp.Acumatica
         // Acumatica 
         public static void RetrieveItemClass(ILifetimeScope scope)
         {
-
-
             // Start doing things!
             var inventoryRepository = scope.Resolve<InventoryRepository>();
 
@@ -41,14 +39,7 @@ namespace Monster.ConsoleApp.Acumatica
         }
         
         public static void RetrieveAndAddNewCustomer(ILifetimeScope scope)
-        {
-            // Pull these from secure storage
-            var credentials = CredentialsFactory();
-
-            // Load the Acumatica Context with our Credentials
-            var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
-            acumaticaContext.Initialize(credentials);
-
+        {            
             // Start doing things...
             var customerRepository = scope.Resolve<CustomerRepository>();                
             var results = customerRepository.RetrieveCustomer("C000000001");
@@ -92,64 +83,5 @@ namespace Monster.ConsoleApp.Acumatica
             return entityAsString;
         }
         
-        public static void RetrieveImportBankTransactions(ILifetimeScope scope)
-        {
-            // Pull these from secure storage
-            var credentials = CredentialsFactory();
-
-            // Load the Acumatica Context with our Credentials
-            var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
-            acumaticaContext.Initialize(credentials);
-
-            // Begin our Session
-            var sessionRepository = scope.Resolve<SessionRepository>();
-            sessionRepository.RetrieveSession(credentials);
-
-
-            // Get the Bank Transactions
-            var bankRepository = scope.Resolve<BankRepository>();
-            var results = bankRepository.RetrieveImportBankTransactions();
-
-            var logger = scope.Resolve<IPushLogger>();
-            logger.Info(results);
-        }
-
-        public static void InsertImportBankTransactions(ILifetimeScope scope)
-        {
-            // Object instancing
-            var factory = scope.Resolve<AcumaticaApiFactory>();
-            var logger = scope.Resolve<IPushLogger>();
-
-            // Pull these from secure storage
-            var credentials = CredentialsFactory();
-
-            // Create the repository passing the credentials and create session
-            var sessionRepository = factory.MakeSessionRepository(credentials);
-            sessionRepository.RetrieveSession(credentials);
-
-            var repository = factory.MakeBankRepository(credentials);
-            
-            // Get the Bank Transactions
-            // TODO - create simple UTC wrapper
-            var testDate = new DateTimeOffset(2018, 09, 14, 0, 0, 0, TimeSpan.Zero);
-
-            var transaction = new ImportBankTransaction
-            {
-                CashAccount = "102000".ToValue(),
-                StatementDate = testDate.ToValue(),
-                StartBalanceDate = testDate.ToValue(),
-                EndBalanceDate = testDate.ToValue(),
-
-                ExtTranID = "JONES-1111-3333".ToValue(),
-                ExtRefNbr = "JONES-1111-3333".ToValue(),
-                Receipt = (100.0).ToValue(),
-                InvoiceNbr = "#5237710".ToValue(),
-            };
-
-            var results = repository.InsertImportBankTransaction(transaction.SerializeToJson());
-
-            logger.Info(results);
-
-        }
     }
 }

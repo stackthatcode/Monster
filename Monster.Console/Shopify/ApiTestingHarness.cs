@@ -48,8 +48,8 @@ namespace Monster.ConsoleApp.Shopify
         }
 
         public static void RetrieveLocations(
-            ILifetimeScope scope,
-            IShopifyCredentials credentials)
+                ILifetimeScope scope,
+                IShopifyCredentials credentials)
         {
             var productApi = scope.Resolve<InventoryApi>();
             var shopifyLocationJson = productApi.RetrieveLocations();
