@@ -35,11 +35,13 @@ namespace Monster.Middle.Processes.Payouts
         }
 
 
-        public void BeginSession(AcumaticaCredentials credentials)
+        public void BeginSession()
         {
             _screen.CookieContainer = new System.Net.CookieContainer();
             _screen.Url = _payoutConfig.ScreenApiUrl;
-            _screen.Login(credentials.Username, credentials.Password);
+            _screen.Login(
+                _payoutConfig.Credentials.Username,
+                _payoutConfig.Credentials.Password);
         }
 
         public void EndSession()

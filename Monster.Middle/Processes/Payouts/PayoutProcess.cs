@@ -24,33 +24,26 @@ namespace Monster.Middle.Processes.Payouts
             _persistenceRepository = persistenceRepository;
         }
 
-        public void BeginSession(AcumaticaCredentials credentials)
-        {
-            _bankImportService.BeginSession(credentials);
-        }
 
-        public void EndSession()
-        {
-            _bankImportService.EndSession();
-        }
 
-        public void PullShopifyPayouts(
-                        long? shopifyPayoutId = null,
-                        bool includeTransactions = true)
+        public void PullShopifyPayout(
+                long shopifyPayoutId, bool includeTransactions = true)
         {
-            _shopifyPayoutPullWorker.ImportPayoutHeaders(shopifyPayoutId);
+            _shopifyPayoutPullWorker.ImportPayoutHeader(shopifyPayoutId);
 
             if (includeTransactions)
             {
-                if (shopifyPayoutId.HasValue)
-                {
-                    _shopifyPayoutPullWorker
-                        .ImportPayoutTransactions(shopifyPayoutId.Value);
-                }
-                else
-                {
-                    _shopifyPayoutPullWorker.ImportIncompletePayoutTransactions();
-                }
+                _shopifyPayoutPullWorker.ImportPayoutTransactions(shopifyPayoutId);
+            }
+        }
+
+        public void PullShopifyPayouts(bool includeTransactions = true)
+        {
+            _shopifyPayoutPullWorker.ImportPayoutHeaders();
+
+            if (includeTransactions)
+            {
+                _shopifyPayoutPullWorker.ImportIncompletePayoutTransactions();
             }
 
             // 
@@ -58,6 +51,17 @@ namespace Monster.Middle.Processes.Payouts
             //
             //_shopifyPayoutPullWorker
             //    .LogBalancingSummaries(5);
+        }
+
+
+        public void BeginAcumaticaSession()
+        {
+            _bankImportService.BeginSession();
+        }
+
+        public void EndAcumaticaSession()
+        {
+            _bankImportService.EndSession();
         }
 
         public void PushAllAcumaticaPayouts()

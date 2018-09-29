@@ -18,15 +18,24 @@ namespace Push.Shopify.Api
             _httpClient = httpClient;
         }
 
-        public virtual string RetrievePayouts(int limit = 50, int page = 1)
+        public virtual string RetrievePayoutsHeaders(int limit = 50)
         {
             var queryString 
                 = new QueryStringBuilder()
                     .Add("limit", limit)
-                    .Add("page", page)
                     .ToString();
 
             var path = $"/admin/shopify_payments/payouts.json?{queryString}";
+            var clientResponse = _httpClient.Get(path);
+
+            var output = clientResponse.Body;
+            return output;
+        }
+
+        public virtual string RetrievePayoutHeader(long payout_id)
+        {
+
+            var path = $"/admin/shopify_payments/payouts/{payout_id}.json";
             var clientResponse = _httpClient.Get(path);
 
             var output = clientResponse.Body;

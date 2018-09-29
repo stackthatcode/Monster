@@ -31,66 +31,62 @@ namespace Monster.Middle.Processes.Payouts
             _logger = logger;
         }
 
-        //
-        // TODO - add option to use cutoff date
-        //
-        public void ImportPayoutHeaders(long? shopifyPayoutId = null)
+        public void ImportPayoutHeader(long shopifyPayoutId)
         {
-            var currentPage = 1;
+            var payout =
+                _payoutRepository
+                    .RetrievePayoutHeader(shopifyPayoutId)
+                    .DeserializeFromJson<PayoutSingle>();
 
-            while (currentPage <= _payoutConfig.ShopifyMaxPages)
-            {
-                // Get current list of Payouts
-                var payouts =
-                    _payoutRepository
-                        .RetrievePayouts(_payoutConfig.ShopifyRecordsPerPage, currentPage)
-                        .DeserializeFromJson<PayoutList>();
-                
-                SavePayoutHeaders(payouts, shopifyPayoutId);
-
-                currentPage++;
-            }
+            SavePayout(payout.payout);
         }
 
-        public void SavePayoutHeaders(
-                PayoutList payouts, long? shopifyPayoutId)
+        //
+        // TODO - add option to use cutoff date...?
+        //
+        public void ImportPayoutHeaders()
         {
+            // Get current list of Payouts
+            var payouts =
+                _payoutRepository
+                    .RetrievePayoutsHeaders(_payoutConfig.NumberOfHeadersToImport)
+                    .DeserializeFromJson<PayoutList>();
+            
             foreach (var payout in payouts.payouts)
             {
-                var persistedPayout =
-                    _persistRepository.RetrievePayout(payout.id);
-
-                if (shopifyPayoutId.HasValue && payout.id != shopifyPayoutId.Value)
-                {
-                    continue;
-                }
-
-                if (persistedPayout != null)
-                {
-                    _persistRepository
-                        .UpdatePayoutHeaderStatus(payout.id, payout.status);
-
-                    _logger.Info($"Shopify Payout {payout.id} found - updating status and skipping!");
-                    continue;
-                }
-
-                _logger.Info(
-                    $"Creating Header for Shopify Payout {payout.id}");
-                
-                var newPayout = new UsrShopifyPayout()
-                {
-                    ShopifyPayoutId = payout.id,
-                    ShopifyLastStatus = payout.status,
-                    Json = payout.SerializeToJson(),
-                    CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow,
-                    AllShopifyTransDownloaded = false,
-                };
-
-                _persistRepository.InsertPayoutHeader(newPayout);
+                SavePayout(payout);
             }
         }
-        
+
+        public void SavePayout(Payout payout)
+        {
+            var persistedPayout = _persistRepository.RetrievePayout(payout.id);
+
+            if (persistedPayout != null)
+            {
+                _persistRepository
+                    .UpdatePayoutHeaderStatus(payout.id, payout.status);
+
+                _logger.Info($"Shopify Payout {payout.id} found - updating status and skipping!");
+                return;
+            }
+
+            _logger.Info(
+                $"Creating Header for Shopify Payout {payout.id}");
+
+            var newPayout = new UsrShopifyPayout()
+            {
+                ShopifyPayoutId = payout.id,
+                ShopifyLastStatus = payout.status,
+                Json = payout.SerializeToJson(),
+                CreatedDate = DateTime.UtcNow,
+                UpdatedDate = DateTime.UtcNow,
+                AllShopifyTransDownloaded = false,
+            };
+
+            _persistRepository.InsertPayoutHeader(newPayout);
+        }
+
         public void ImportIncompletePayoutTransactions()
         {
             var payouts = _persistRepository.RetrieveIncompletePayoutImports();

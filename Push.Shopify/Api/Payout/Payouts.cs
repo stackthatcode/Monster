@@ -31,4 +31,9 @@ namespace Push.Shopify.Api.Payout
     {
         public List<Payout> payouts { get; set; }
     }
+    
+    public class PayoutSingle
+    {
+        public Payout payout { get; set; }
+    }
 }

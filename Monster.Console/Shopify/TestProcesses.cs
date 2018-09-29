@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Order;
@@ -15,7 +10,7 @@ namespace Monster.ConsoleApp.Shopify
     public class TestProcesses
     {
         public static void RetrieveOrderData(
-            ILifetimeScope scope, long orderId)
+                ILifetimeScope scope, long orderId)
         {
             var orderApi = scope.Resolve<OrderApi>();
             var shopifyOrderJson = orderApi.Retrieve(orderId);
@@ -41,7 +36,8 @@ namespace Monster.ConsoleApp.Shopify
             var monsterProductJson = productParent.SerializeToJson();
 
             var inventoryItemIDs = productParent.product.InventoryItemIds;
-            var shopifyInventoryLevels = productApi.RetrieveInventoryLevels(inventoryItemIDs);
+            var shopifyInventoryLevels 
+                    = productApi.RetrieveInventoryLevels(inventoryItemIDs);
         }
 
         public static void RetrieveLocations(ILifetimeScope scope)
