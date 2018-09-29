@@ -7,7 +7,7 @@ namespace Monster.Middle.Persistence.System
 {
     public class AccountService
     {
-        private IDbConnection _connection;
+        private readonly IDbConnection _connection;
 
         public AccountService(string connectionString)
         {

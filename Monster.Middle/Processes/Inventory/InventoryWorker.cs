@@ -1,4 +1,4 @@
-﻿using Monster.Middle.Persistence.Multitenant;
+﻿using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Http.Credentials;

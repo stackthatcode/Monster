@@ -1,18 +1,20 @@
-﻿using Monster.Acumatica.Config;
+﻿using System.Linq;
+using Monster.Acumatica.Config;
+using Monster.Middle.Persistence.Multitenant;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Config;
 
-namespace Monster.Middle.Persistence.Multitenant
+namespace Monster.Middle.Sql.Multitenant
 {
     public class TenantContextService
     {
-        private readonly MonsterDataContext _dataContext;
+        private readonly PersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
         private readonly ICryptoService _cryptoService;
 
         public TenantContextService(
-                MonsterDataContext dataContext,
+                PersistContext dataContext,
                 ICryptoService cryptoService)
         {
             _dataContext = dataContext;
@@ -22,9 +24,9 @@ namespace Monster.Middle.Persistence.Multitenant
 
         // TODO => implement this https://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string-in-c/10366194#10366194
 
-        public UsrAccountContext RetrieveRawContext()
+        public UsrTenantContext RetrieveRawContext()
         {
-            return _dataContext.UsrAccountContexts.FirstOrDefault();
+            return Entities.UsrTenantContexts.FirstOrDefault();
         }
 
         public AcumaticaCredentials RetrieveAcumaticaCredentials()
@@ -57,13 +59,13 @@ namespace Monster.Middle.Persistence.Multitenant
 
         public bool ContextExists()
         {
-            return _dataContext.UsrAccountContexts.Any();
+            return Entities.UsrTenantContexts.Any();
         }
 
-        public void InsertContext(UsrAccountContext context)
+        public void InsertContext(UsrTenantContext context)
         {
-            _dataContext.UsrAccountContexts.Add(context);
-            _dataContext.SaveChanges();
+            Entities.UsrTenantContexts.Add(context);
+            Entities.SaveChanges();
         }
 
         public void UpdateContextShopify(
@@ -83,7 +85,7 @@ namespace Monster.Middle.Persistence.Multitenant
             context.ShopifyApiPassword = encryptedPassword;
             context.ShopifyApiSecret = encryptedSecret;
 
-            _dataContext.SaveChanges();
+            Entities.SaveChanges();
         }
 
         public void UpdateContextAcumatica(
@@ -104,7 +106,7 @@ namespace Monster.Middle.Persistence.Multitenant
             context.AcumaticaUsername = encryptedUsername;
             context.AcumaticaPassword = encryptedPassword;
 
-            _dataContext.SaveChanges();
+            Entities.SaveChanges();
         }
     }
 }

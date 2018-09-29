@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Monster.Middle.Persistence.Multitenant;
 
-namespace Monster.Middle.Persistence.Multitenant
+namespace Monster.Middle.Sql.Multitenant
 {
     public class PayoutPersistRepository
     {
-        private readonly PersistContext Entities;
-        public MonsterDataContext Entities => Entities.Entities;
+        private readonly PersistContext _persistContext;
+        public MonsterDataContext Entities => _persistContext.Entities;
 
         public PayoutPersistRepository(PersistContext dataContext)
         {
-            Entities = dataContext;
+            _persistContext = dataContext;
         }
 
         //

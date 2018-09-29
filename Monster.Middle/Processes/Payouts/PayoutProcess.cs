@@ -1,5 +1,5 @@
 ﻿using Monster.Acumatica.Config;
-using Monster.Middle.Persistence.Multitenant;
+using Monster.Middle.Sql.Multitenant;
 
 namespace Monster.Middle.Processes.Payouts
 {

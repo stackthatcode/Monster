@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.Persistence;
 using Monster.Middle.Persistence.Multitenant;
+using Monster.Middle.Sql;
+using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;

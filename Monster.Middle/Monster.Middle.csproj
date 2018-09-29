@@ -69,23 +69,23 @@
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Config\PayoutConfig.cs" />
-    <Compile Include="Persistence\MonsterDb.cs">
+    <Compile Include="Sql\MonsterDb.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>MonsterDb.tt</DependentUpon>
     </Compile>
-    <Compile Include="Persistence\Multitenant\InventoryPersistRepository.cs" />
-    <Compile Include="Persistence\Multitenant\PayoutPersistRepository.cs" />
+    <Compile Include="Sql\Multitenant\InventoryPersistRepository.cs" />
+    <Compile Include="Sql\Multitenant\PayoutPersistRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
-    <Compile Include="Persistence\Multitenant\PersistContext.cs" />
-    <Compile Include="Persistence\System\AccountService.cs" />
-    <Compile Include="Persistence\System\Tenant.cs" />
+    <Compile Include="Sql\Multitenant\PersistContext.cs" />
+    <Compile Include="Sql\System\AccountService.cs" />
+    <Compile Include="Sql\System\Tenant.cs" />
     <Compile Include="Processes\Inventory\InventoryWorker.cs" />
     <Compile Include="Processes\Payouts\AcumaticaPayoutPushWorkerScreen.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />
-    <Compile Include="Persistence\Multitenant\TenantContextService.cs" />
+    <Compile Include="Sql\Multitenant\TenantContextService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -94,8 +94,8 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Persistence\EF.Reverse.POCO.Core.ttinclude" />
-    <None Include="Persistence\EF.Reverse.POCO.ttinclude" />
+    <None Include="Sql\EF.Reverse.POCO.Core.ttinclude" />
+    <None Include="Sql\EF.Reverse.POCO.ttinclude" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -118,7 +118,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Persistence\MonsterDb.tt">
+    <Content Include="Sql\MonsterDb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MonsterDb.cs</LastGenOutput>
     </Content>
