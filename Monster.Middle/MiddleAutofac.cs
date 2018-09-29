@@ -14,10 +14,9 @@ namespace Monster.Middle
 {
     public class MiddleAutofac
     {
-        public static 
-                IContainer Build(
-                    string connStringOverride = null,
-                    string loggerName = "Monster.System")
+        public static string LoggerName = "Monster.System";
+
+        public static IContainer Build()
         {
             var builder = new ContainerBuilder();
 
@@ -47,7 +46,7 @@ namespace Monster.Middle
                 .As<ILogFormatter>()
                 .InstancePerLifetimeScope();
 
-            builder.Register(x => new NLogger(loggerName, x.Resolve<ILogFormatter>()))
+            builder.Register(x => new NLogger(LoggerName, x.Resolve<ILogFormatter>()))
                 .As<IPushLogger>()
                 .InstancePerLifetimeScope();
 
@@ -65,9 +64,9 @@ namespace Monster.Middle
             builder.RegisterType<InventoryPersistRepository>().InstancePerLifetimeScope();
             builder.RegisterType<TenantContextRepository>().InstancePerLifetimeScope();
 
-            // Processes and Workers
+            // Payout Processes
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaPayoutPushWorkerScreen>().InstancePerLifetimeScope();
+            builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
 
             return builder.Build();

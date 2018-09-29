@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.Persist;
+using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Sql;
-using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Payout;
-using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Processes.Payouts
 {
@@ -17,36 +14,36 @@ namespace Monster.Middle.Processes.Payouts
     {
         private readonly PayoutPersistRepository _persistRepository;
         private readonly PayoutApi _payoutRepository;
+        private readonly PayoutConfig _payoutConfig;
         private readonly IPushLogger _logger;
 
-        public int PayoutTransactionPagingLimit = 50;
+        public int PayoutTransactionPagingLimit = 250;
 
         public ShopifyPayoutPullWorker(
                     PayoutPersistRepository persistRepository,
                     PayoutApi payoutRepository,
+                    PayoutConfig payoutConfig,
                     IPushLogger logger)
         {
             _persistRepository = persistRepository;
             _payoutRepository = payoutRepository;
+            _payoutConfig = payoutConfig;
             _logger = logger;
         }
 
         //
         // TODO - add option to use cutoff date
         //
-        public void ImportPayoutHeaders(
-                    int maxPages = 1, 
-                    int recordsPerPage = 50, 
-                    long? shopifyPayoutId = null)
+        public void ImportPayoutHeaders(long? shopifyPayoutId = null)
         {
             var currentPage = 1;
 
-            while (currentPage <= maxPages)
+            while (currentPage <= _payoutConfig.ShopifyMaxPages)
             {
                 // Get current list of Payouts
                 var payouts =
                     _payoutRepository
-                        .RetrievePayouts(recordsPerPage, currentPage)
+                        .RetrievePayouts(_payoutConfig.ShopifyRecordsPerPage, currentPage)
                         .DeserializeFromJson<PayoutList>();
                 
                 SavePayoutHeaders(payouts, shopifyPayoutId);

@@ -68,9 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
-    <Compile Include="Config\PayoutConfig.cs" />
+    <Compile Include="Processes\Payouts\PayoutConfig.cs" />
     <Compile Include="Processes\Inventory\InventoryWorker.cs" />
-    <Compile Include="Processes\Payouts\AcumaticaPayoutPushWorkerScreen.cs" />
+    <Compile Include="Processes\Payouts\BankImportService.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Services\TenantContextLoader.cs" />

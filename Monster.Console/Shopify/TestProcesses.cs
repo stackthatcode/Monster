@@ -1,22 +1,22 @@
-﻿using Autofac;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Autofac;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Order;
 using Push.Shopify.Api.Product;
 using Push.Shopify.Api.Transaction;
-using Push.Shopify.Config;
-using Push.Shopify.Http.Credentials;
 
 namespace Monster.ConsoleApp.Shopify
 {
-    public class ApiTestingHarness
-    {       
+    public class TestProcesses
+    {
         public static void RetrieveOrderData(
-                ILifetimeScope scope, 
-                IShopifyCredentials credentials,
-                long orderId)
+            ILifetimeScope scope, long orderId)
         {
-
             var orderApi = scope.Resolve<OrderApi>();
             var shopifyOrderJson = orderApi.Retrieve(orderId);
 
@@ -26,15 +26,12 @@ namespace Monster.ConsoleApp.Shopify
 
             var shopifyTransactionJson = orderApi.RetrieveTransactions(orderId);
             var transactionParent =
-                    shopifyTransactionJson.DeserializeFromJson<TransactionList>();
+                shopifyTransactionJson.DeserializeFromJson<TransactionList>();
 
             var monsterTransactionJson = transactionParent.SerializeToJson();
         }
 
-        public static void RetrieveProductData(
-                ILifetimeScope scope,
-                IShopifyCredentials credentials,
-                long productId)
+        public static void RetrieveProductData(ILifetimeScope scope, long productId)
         {
             var productApi = scope.Resolve<ProductApi>();
             var shopifyOrderJson = productApi.Retrieve(productId);
@@ -47,9 +44,7 @@ namespace Monster.ConsoleApp.Shopify
             var shopifyInventoryLevels = productApi.RetrieveInventoryLevels(inventoryItemIDs);
         }
 
-        public static void RetrieveLocations(
-                ILifetimeScope scope,
-                IShopifyCredentials credentials)
+        public static void RetrieveLocations(ILifetimeScope scope)
         {
             var productApi = scope.Resolve<InventoryApi>();
             var shopifyLocationJson = productApi.RetrieveLocations();
@@ -59,7 +54,6 @@ namespace Monster.ConsoleApp.Shopify
                     .DeserializeFromJson<LocationList>();
 
             var monsterLocationJson = locations.SerializeToJson();
-        }        
+        }
     }
 }
-

@@ -4,12 +4,10 @@ using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Product;
-using Push.Shopify.Http;
-using Push.Shopify.Http.Credentials;
 
 namespace Monster.ConsoleApp.Shopify
 {
-    public class MetafieldHarness
+    public class MetafieldProcesses
     {
         public static void UpdateMetadata(
                     ILifetimeScope scope, long collectionId)

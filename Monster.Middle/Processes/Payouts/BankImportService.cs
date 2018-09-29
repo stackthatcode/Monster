@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Monster.Acumatica.BankImportApi;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.ScreenApi;
+using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
@@ -12,29 +13,32 @@ using Push.Shopify.Api.Payout;
 
 namespace Monster.Middle.Processes.Payouts
 {
-    public class AcumaticaPayoutPushWorkerScreen : IDisposable
+    public class BankImportService : IDisposable
     {
         private readonly IPushLogger _logger;
         private readonly PayoutPersistRepository _persistRepository;
+        private readonly PayoutConfig _payoutConfig;
         private readonly Screen _screen;
 
-        public AcumaticaPayoutPushWorkerScreen(
-                
+        // NOTE - entirely separate objects from the Acumatica HTTP
+
+        public BankImportService(                
                 IPushLogger logger,
                 PayoutPersistRepository persistRepository, 
+                PayoutConfig payoutConfig,
                 Screen screen)
         {
             _logger = logger;
             _persistRepository = persistRepository;
+            _payoutConfig = payoutConfig;
             _screen = screen;
         }
 
-        public void BeginSession(
-                        string screenWebSerivceUrl,
-                        AcumaticaCredentials credentials)
+
+        public void BeginSession(AcumaticaCredentials credentials)
         {
             _screen.CookieContainer = new System.Net.CookieContainer();
-            _screen.Url = screenWebSerivceUrl;
+            _screen.Url = _payoutConfig.ScreenApiUrl;
             _screen.Login(credentials.Username, credentials.Password);
         }
 
@@ -43,7 +47,7 @@ namespace Monster.Middle.Processes.Payouts
             _screen.Logout();
         }
 
-        public void WritePayoutToAcumatica(long shopifyPayoutId)
+        public void WritePayoutHeaderToAcumatica(long shopifyPayoutId)
         {
             var persistedPayout = _persistRepository.RetrievePayout(shopifyPayoutId);
             var schema = PX.Soap.Helper.GetSchema<CA306500Content>(_screen);
@@ -106,8 +110,7 @@ namespace Monster.Middle.Processes.Payouts
 
             WritePayoutTransactions(shopifyPayoutId);
         }
-
-
+        
         public void WritePayoutTransactions(long shopifyPayoutId)
         {
             var transactions = 

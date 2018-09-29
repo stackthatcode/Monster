@@ -3,7 +3,7 @@ using Monster.Acumatica.Http;
 using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.Processes.Payouts;
-using Push.Foundation.Utilities.Autofac;
+using Monster.Middle.Services;
 using Push.Shopify.Http.Credentials;
 
 
@@ -11,76 +11,48 @@ namespace Monster.ConsoleApp.Monster
 {
     public class PayoutHarness
     {
-        public const string DefaultLoggerName = "Monster.Payouts";
-
-        public static IContainer ContainerFactory(PayoutConfig payoutConfig)
+        // If you're going to customize Shopify's behavior, it goes here
+        public static void Initialize(
+                ILifetimeScope scope,
+                PrivateAppCredentials shopifyCredentials,
+                AcumaticaCredentials acumaticaCredentials,
+                string connectionString,
+                string screenUrl)
         {
-            return MiddleAutofac.Build(
-                connStringOverride: payoutConfig.ConnectionString,
-                loggerName: DefaultLoggerName);
+            var tenantContextLoader = scope.Resolve<TenantContextLoader>();
+            const int dummyCompanyId = 1;
+
+            tenantContextLoader.Initialize(
+                connectionString, 
+                dummyCompanyId,
+                shopifyCredentials,
+                acumaticaCredentials);
+
+            var payoutConfig = scope.Resolve<PayoutConfig>();
+            payoutConfig.ScreenApiUrl = screenUrl;
         }
 
+
         public static void RunPayoutsEndToEnd(
-                    PrivateAppCredentials shopifyCredentials,
-                    AcumaticaCredentials acumaticaCredentials,
-                    PayoutConfig payoutConfig)
+                ILifetimeScope scope, PayoutConfig payoutConfig)
         {
-            using (var container = ContainerFactory(payoutConfig))
-            {
-                container.RunInLifetimeScope(
-                    scope =>
-                    {
-                        var process = scope.Resolve<PayoutProcess>();
-
-                        process.PullShopifyPayouts(
-                            recordsPerPage: payoutConfig.ShopifyRecordsPerPage,
-                            maxPages: payoutConfig.ShopifyMaxPages);
-
-                        process.PushAllAcumaticaPayouts(
-                            acumaticaCredentials,
-                            payoutConfig.ScreenApiUrl);
-                    });
-            }
+            var process = scope.Resolve<PayoutProcess>();
+            process.PullShopifyPayouts();
+            process.PushAllAcumaticaPayouts();
         }
 
         public static void PullFromShopify(
-                PrivateAppCredentials shopifyCredentials,
-                PayoutConfig payoutConfig, 
-                long shopifyPayoutId)
+                ILifetimeScope scope, long shopifyPayoutId)
         {
-            using (var container = ContainerFactory(payoutConfig))
-            {
-                container.RunInLifetimeScope(
-                    scope =>
-                    {
-                        var process = scope.Resolve<PayoutProcess>();
-
-                        process.PullShopifyPayouts(
-                            recordsPerPage: payoutConfig.ShopifyRecordsPerPage,
-                            maxPages: payoutConfig.ShopifyMaxPages,
-                            shopifyPayoutId: shopifyPayoutId);                        
-                    });
-            }
+            var process = scope.Resolve<PayoutProcess>();
+            process.PullShopifyPayouts(shopifyPayoutId);                        
         }
 
         public static void PushToAcumatica(
-                    AcumaticaCredentials acumaticaCredentials,
-                    PayoutConfig payoutConfig,
-                    long shopifyPayoutId)
+                ILifetimeScope scope, long shopifyPayoutId)
         {
-            using (var container = ContainerFactory(payoutConfig))
-            {
-                container.RunInLifetimeScope(
-                    scope =>
-                    {
-                        var process = scope.Resolve<PayoutProcess>();
-                        
-                        process.PushAcumaticaPayout(
-                                    acumaticaCredentials,
-                                    payoutConfig.ScreenApiUrl,
-                                    shopifyPayoutId);
-                    });
-            }
+            var process = scope.Resolve<PayoutProcess>();
+            process.PushAcumaticaPayout(shopifyPayoutId);
         }
     }
 }

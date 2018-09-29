@@ -3,8 +3,8 @@ using Autofac;
 using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Shopify;
 using Monster.Middle;
-using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Payouts;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -30,47 +30,27 @@ namespace Monster.ConsoleApp
             Console.ReadKey();
         }
 
-        public static void RunShopifyProcess(
-                    IContainer container, Action<ILifetimeScope> action)
-        {
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var credentials = ShopifyCredentialsConfig.Settings.ToPrivateAppCredentials();
-                var shopifyHttpContext = scope.Resolve<ShopifyHttpContext>();
-                shopifyHttpContext.Initialize(credentials);
-
-                var logger = scope.Resolve<IPushLogger>();
-                try
-                {
-                    action(scope);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex);
-                    throw;
-                }
-            }
-        }
-
         public static void RunMetafieldCopy()
         {
-            Console.WriteLine("Copy 3DU_Automation Metafields");
-            Console.WriteLine("****");
-
-            Console.WriteLine("Enter Source Product ID");
+            // Solicit information from user
+            Console.WriteLine("Copy 3DU_Automation Metafields" + Environment.NewLine);
+            Console.WriteLine("Enter Source Product ID:");
             var sourceProductId = Console.ReadLine().ToLong();
-
-            Console.WriteLine("Enter Target Product ID");
+            Console.WriteLine("Enter Target Product ID:");
             var targetProductId = Console.ReadLine().ToLong();
-            
             Console.WriteLine(Environment.NewLine + "Ok, running...");
 
+            // Get credentials from config file
+            var credentials 
+                = ShopifyCredentialsConfig.Settings.ToPrivateAppCredentials();
+            
+            // Create containtainer
             using (var container = MiddleAutofac.Build())
             {
-                RunShopifyProcess(container,
-                    scope =>
+                ShopifyHarness.InjectCredentialAndExecute(
+                    container, credentials, scope =>
                     {
-                        MetafieldHarness.CopyShoppingFeedMetadata(
+                        MetafieldProcesses.CopyShoppingFeedMetadata(
                             scope,
                             sourceProductId,
                             targetProductId,
@@ -82,7 +62,6 @@ namespace Monster.ConsoleApp
             Console.WriteLine("FIN");
             Console.ReadKey();
         }
-
 
 
         [Obsolete("This is essentially legacy code now - use TenantContext for future apps")]
@@ -123,32 +102,21 @@ namespace Monster.ConsoleApp
 
         }
 
-        
 
-        public static PayoutConfig PayoutConfigFactory()
-        {
-            var payoutConfig = new PayoutConfig
-            {
-                // TODO - inject your own connection string
-                ConnectionString =
-                    "Server=localhost;Database=Monster;Trusted_Connection=True;",
-
-                // TODO - inject your own Screen URL
-                ScreenApiUrl =
-                    "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx",
-            };
-            return payoutConfig;
-        }
-        
+        [Obsolete("This is essentially legacy code now - use TenantContext for future apps")]
         public static void StressTestDataPopulate()
         {
             var payoutConfig = PayoutConfigFactory();
+
             using (var container =
                         MiddleAutofac.Build(
                             connStringOverride: payoutConfig.ConnectionString,
                             loggerName: "Monster.Payouts"))
             using (var scope = container.BeginLifetimeScope())
             {
+                var persistsContext = scope.Resolve<PersistContext>();
+                persistsContext.Initialize(payoutConfig.ConnectionString, 0);
+
                 var repository = scope.Resolve<PayoutPersistRepository>();
                 var logger = scope.Resolve<IPushLogger>();
 
@@ -215,6 +183,19 @@ namespace Monster.ConsoleApp
                 }
             }
         }
+        
+        public static PayoutConfig PayoutConfigFactory()
+        {
+            return new PayoutConfig
+            {
+                // TODO - inject your own connection string
+                ConnectionString = "Server=localhost;Database=Monster;Trusted_Connection=True;",
+
+                // TODO - inject your own Screen URL
+                ScreenApiUrl = "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx",
+            };
+        }
+
     }
 }
 

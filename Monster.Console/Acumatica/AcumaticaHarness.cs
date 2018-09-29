@@ -15,8 +15,7 @@ namespace Monster.ConsoleApp.Acumatica
     {
         public static void BeginSession(ILifetimeScope scope)
         {
-            var credentials = 
-                    AcumaticaCredentialsConfig.Settings.ToCredentials();
+            var credentials = AcumaticaCredentialsConfig.Settings.ToCredentials();
 
             // Load the Acumatica Context with our Credentials
             var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
