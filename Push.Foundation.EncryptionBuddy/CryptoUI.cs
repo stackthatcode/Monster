@@ -86,17 +86,17 @@ namespace Push.Foundation
         private void buttonAcumaticaXml_Click(object sender, EventArgs e)
         {
             
-            textAcumaticaXml.Text =
-                $@"<acumaticaSecurityConfiguration 
-    xdt:Transform=""Replace""
-    InstanceUrl=""{config.InstanceUrl}"" 
-    CompanyName=""{config.CompanyName}"" 
-    Branch=""{config.Branch}"" 
-    Username=""{config.Username.ToSecureString().DpApiEncryptString()}"" 
-    Password=""{config.Password.ToSecureString().DpApiEncryptString()}""                                               
-/>";
+//            textAcumaticaXml.Text =
+//                $@"<acumaticaSecurityConfiguration 
+//    xdt:Transform=""Replace""
+//    InstanceUrl=""{config.InstanceUrl}"" 
+//    CompanyName=""{config.CompanyName}"" 
+//    Branch=""{config.Branch}"" 
+//    Username=""{config.Username.ToSecureString().DpApiEncryptString()}"" 
+//    Password=""{config.Password.ToSecureString().DpApiEncryptString()}""                                               
+///>";
 
-            Clipboard.SetText(textAcumaticaXml.Text);
+//            Clipboard.SetText(textAcumaticaXml.Text);
         }
         
 
@@ -110,7 +110,11 @@ namespace Push.Foundation
     SystemConnectionString=""{this.textMonsterSystemConnstr.Text}""
 />";
         }
-        
+
+        private void label28_Click(object sender, EventArgs e)
+        {
+
+        }
     }        
 }
 

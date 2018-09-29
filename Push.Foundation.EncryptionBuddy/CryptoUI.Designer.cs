@@ -32,10 +32,8 @@ namespace Push.Foundation
         {
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.textXML = new System.Windows.Forms.TextBox();
-            this.textJson = new System.Windows.Forms.TextBox();
             this.label28 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.label27 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.textMonsterSystemConnstr = new System.Windows.Forms.TextBox();
@@ -88,6 +86,14 @@ namespace Push.Foundation
             this.textHMACSecret = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.label24 = new System.Windows.Forms.Label();
             this.tabPage5.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage6.SuspendLayout();
@@ -99,11 +105,17 @@ namespace Push.Foundation
             // 
             // tabPage5
             // 
+            this.tabPage5.Controls.Add(this.textBox4);
+            this.tabPage5.Controls.Add(this.label24);
+            this.tabPage5.Controls.Add(this.textBox3);
+            this.tabPage5.Controls.Add(this.label23);
+            this.tabPage5.Controls.Add(this.textBox2);
+            this.tabPage5.Controls.Add(this.label22);
+            this.tabPage5.Controls.Add(this.textBox1);
+            this.tabPage5.Controls.Add(this.label21);
             this.tabPage5.Controls.Add(this.textXML);
-            this.tabPage5.Controls.Add(this.textJson);
             this.tabPage5.Controls.Add(this.label28);
             this.tabPage5.Controls.Add(this.button1);
-            this.tabPage5.Controls.Add(this.label27);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage5.Name = "tabPage5";
@@ -116,51 +128,33 @@ namespace Push.Foundation
             // textXML
             // 
             this.textXML.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textXML.Location = new System.Drawing.Point(152, 191);
+            this.textXML.Location = new System.Drawing.Point(152, 246);
             this.textXML.Multiline = true;
             this.textXML.Name = "textXML";
-            this.textXML.Size = new System.Drawing.Size(332, 101);
+            this.textXML.Size = new System.Drawing.Size(424, 69);
             this.textXML.TabIndex = 59;
-            // 
-            // textJson
-            // 
-            this.textJson.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textJson.Location = new System.Drawing.Point(152, 50);
-            this.textJson.Multiline = true;
-            this.textJson.Name = "textJson";
-            this.textJson.Size = new System.Drawing.Size(332, 101);
-            this.textJson.TabIndex = 50;
             // 
             // label28
             // 
             this.label28.AutoSize = true;
             this.label28.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label28.Location = new System.Drawing.Point(40, 192);
+            this.label28.Location = new System.Drawing.Point(27, 249);
             this.label28.Name = "label28";
             this.label28.Size = new System.Drawing.Size(86, 18);
             this.label28.TabIndex = 58;
             this.label28.Text = "Config XML";
+            this.label28.Click += new System.EventHandler(this.label28_Click);
             // 
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(42, 330);
+            this.button1.Location = new System.Drawing.Point(152, 340);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(445, 46);
+            this.button1.Size = new System.Drawing.Size(427, 46);
             this.button1.TabIndex = 57;
             this.button1.Text = "Generate XML config settings and CTRL+C all of it!";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // label27
-            // 
-            this.label27.AutoSize = true;
-            this.label27.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label27.Location = new System.Drawing.Point(40, 52);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(96, 18);
-            this.label27.TabIndex = 49;
-            this.label27.Text = "Config JSON";
             // 
             // tabControl1
             // 
@@ -199,7 +193,7 @@ namespace Push.Foundation
             // textMonsterSystemConnstr
             // 
             this.textMonsterSystemConnstr.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F);
-            this.textMonsterSystemConnstr.Location = new System.Drawing.Point(277, 149);
+            this.textMonsterSystemConnstr.Location = new System.Drawing.Point(238, 144);
             this.textMonsterSystemConnstr.Name = "textMonsterSystemConnstr";
             this.textMonsterSystemConnstr.Size = new System.Drawing.Size(427, 27);
             this.textMonsterSystemConnstr.TabIndex = 83;
@@ -210,7 +204,7 @@ namespace Push.Foundation
             // 
             this.label20.AutoSize = true;
             this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label20.Location = new System.Drawing.Point(48, 149);
+            this.label20.Location = new System.Drawing.Point(24, 149);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(180, 18);
             this.label20.TabIndex = 82;
@@ -219,7 +213,7 @@ namespace Push.Foundation
             // textMonsterConfig
             // 
             this.textMonsterConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textMonsterConfig.Location = new System.Drawing.Point(277, 211);
+            this.textMonsterConfig.Location = new System.Drawing.Point(238, 206);
             this.textMonsterConfig.Multiline = true;
             this.textMonsterConfig.Name = "textMonsterConfig";
             this.textMonsterConfig.Size = new System.Drawing.Size(427, 101);
@@ -229,7 +223,7 @@ namespace Push.Foundation
             // 
             this.label19.AutoSize = true;
             this.label19.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label19.Location = new System.Drawing.Point(48, 211);
+            this.label19.Location = new System.Drawing.Point(118, 214);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(86, 18);
             this.label19.TabIndex = 80;
@@ -238,9 +232,9 @@ namespace Push.Foundation
             // buttonMonsterSettings
             // 
             this.buttonMonsterSettings.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonMonsterSettings.Location = new System.Drawing.Point(259, 348);
+            this.buttonMonsterSettings.Location = new System.Drawing.Point(238, 338);
             this.buttonMonsterSettings.Name = "buttonMonsterSettings";
-            this.buttonMonsterSettings.Size = new System.Drawing.Size(445, 46);
+            this.buttonMonsterSettings.Size = new System.Drawing.Size(427, 46);
             this.buttonMonsterSettings.TabIndex = 79;
             this.buttonMonsterSettings.Text = "Generate XML config settings and CTRL+C all of it!";
             this.buttonMonsterSettings.UseVisualStyleBackColor = true;
@@ -249,7 +243,7 @@ namespace Push.Foundation
             // textMonsterAesIv
             // 
             this.textMonsterAesIv.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F);
-            this.textMonsterAesIv.Location = new System.Drawing.Point(277, 103);
+            this.textMonsterAesIv.Location = new System.Drawing.Point(238, 98);
             this.textMonsterAesIv.Name = "textMonsterAesIv";
             this.textMonsterAesIv.Size = new System.Drawing.Size(427, 27);
             this.textMonsterAesIv.TabIndex = 78;
@@ -260,7 +254,7 @@ namespace Push.Foundation
             // 
             this.label17.AutoSize = true;
             this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label17.Location = new System.Drawing.Point(44, 103);
+            this.label17.Location = new System.Drawing.Point(81, 107);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(123, 18);
             this.label17.TabIndex = 77;
@@ -269,7 +263,7 @@ namespace Push.Foundation
             // textMonsterAesKey
             // 
             this.textMonsterAesKey.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textMonsterAesKey.Location = new System.Drawing.Point(277, 56);
+            this.textMonsterAesKey.Location = new System.Drawing.Point(238, 51);
             this.textMonsterAesKey.Name = "textMonsterAesKey";
             this.textMonsterAesKey.Size = new System.Drawing.Size(427, 27);
             this.textMonsterAesKey.TabIndex = 76;
@@ -280,7 +274,7 @@ namespace Push.Foundation
             // 
             this.label18.AutoSize = true;
             this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label18.Location = new System.Drawing.Point(45, 60);
+            this.label18.Location = new System.Drawing.Point(68, 56);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(136, 18);
             this.label18.TabIndex = 75;
@@ -733,13 +727,93 @@ namespace Push.Foundation
             this.label12.TabIndex = 62;
             this.label12.Text = "Payload";
             // 
+            // textBox1
+            // 
+            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.Location = new System.Drawing.Point(152, 41);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(427, 27);
+            this.textBox1.TabIndex = 78;
+            this.textBox1.Text = "12345678901234567890123456789012";
+            this.textBox1.WordWrap = false;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label21.Location = new System.Drawing.Point(27, 45);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(59, 18);
+            this.label21.TabIndex = 77;
+            this.label21.Text = "API Key";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox2.Location = new System.Drawing.Point(152, 86);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(427, 27);
+            this.textBox2.TabIndex = 80;
+            this.textBox2.Text = "12345678901234567890123456789012";
+            this.textBox2.WordWrap = false;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label22.Location = new System.Drawing.Point(27, 90);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(101, 18);
+            this.label22.TabIndex = 79;
+            this.label22.Text = "API Password";
+            // 
+            // textBox3
+            // 
+            this.textBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox3.Location = new System.Drawing.Point(152, 133);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(427, 27);
+            this.textBox3.TabIndex = 82;
+            this.textBox3.Text = "12345678901234567890123456789012";
+            this.textBox3.WordWrap = false;
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label23.Location = new System.Drawing.Point(27, 137);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(77, 18);
+            this.label23.TabIndex = 81;
+            this.label23.Text = "API Secret";
+            // 
+            // textBox4
+            // 
+            this.textBox4.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox4.Location = new System.Drawing.Point(152, 181);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(427, 27);
+            this.textBox4.TabIndex = 84;
+            this.textBox4.Text = "12345678901234567890123456789012";
+            this.textBox4.WordWrap = false;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label24.Location = new System.Drawing.Point(27, 181);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(60, 18);
+            this.label24.TabIndex = 83;
+            this.label24.Text = "Domain";
+            // 
             // CryptoUi
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(889, 519);
+            this.ClientSize = new System.Drawing.Size(1184, 661);
             this.Controls.Add(this.tabControl1);
             this.Name = "CryptoUi";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
@@ -766,10 +840,8 @@ namespace Push.Foundation
 
         private System.Windows.Forms.TabPage tabPage5;
         private System.Windows.Forms.TextBox textXML;
-        private System.Windows.Forms.TextBox textJson;
         private System.Windows.Forms.Label label28;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label label27;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TextBox textEncryptedInput;
@@ -822,6 +894,14 @@ namespace Push.Foundation
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TextBox textMonsterSystemConnstr;
         private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.Label label24;
     }
 }
 
