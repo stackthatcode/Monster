@@ -1,7 +1,4 @@
-﻿using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
-using Autofac;
+﻿using Autofac;
 using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Acumatica.Config;
@@ -74,7 +71,7 @@ namespace Monster.Middle
             // Persistence Repositories
             builder.RegisterType<PayoutPersistRepository>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryPersistRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<TenantContextService>().InstancePerLifetimeScope();
+            builder.RegisterType<TenantContextRepository>().InstancePerLifetimeScope();
 
             // Processes and Workers
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();

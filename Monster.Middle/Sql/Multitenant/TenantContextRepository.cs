@@ -6,14 +6,14 @@ using Push.Shopify.Config;
 
 namespace Monster.Middle.Sql.Multitenant
 {
-    public class TenantContextService
+    public class TenantContextRepository
     {
         private readonly PersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
         private readonly ICryptoService _cryptoService;
 
-        public TenantContextService(
+        public TenantContextRepository(
                 PersistContext dataContext,
                 ICryptoService cryptoService)
         {
@@ -55,11 +55,6 @@ namespace Monster.Middle.Sql.Multitenant
             output.ApiSecret = _cryptoService.Decrypt(context.ShopifyApiSecret);
 
             return output;
-        }
-
-        public bool ContextExists()
-        {
-            return Entities.UsrTenantContexts.Any();
         }
 
         public void InsertContext(UsrTenantContext context)
@@ -106,7 +101,7 @@ namespace Monster.Middle.Sql.Multitenant
             context.AcumaticaUsername = encryptedUsername;
             context.AcumaticaPassword = encryptedPassword;
 
-            Entities.SaveChanges();
+            this.Entities.SaveChanges();
         }
     }
 }

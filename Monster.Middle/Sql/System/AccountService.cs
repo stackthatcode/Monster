@@ -2,8 +2,9 @@
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
+using Monster.Middle.Persistence.System;
 
-namespace Monster.Middle.Persistence.System
+namespace Monster.Middle.Sql.System
 {
     public class AccountService
     {
