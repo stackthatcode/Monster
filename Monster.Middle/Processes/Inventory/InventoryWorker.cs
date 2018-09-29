@@ -20,7 +20,7 @@ namespace Monster.Middle.Processes.Inventory
             _logger = logger;
         }
 
-        public void PullFromShopify()
+        public void PullLocationFromShopify()
         {
             var locations = _inventoryRepository.RetrieveLocations();
         }
