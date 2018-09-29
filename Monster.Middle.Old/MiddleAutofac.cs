@@ -3,7 +3,7 @@ using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Acumatica.Config;
 using Monster.Middle.Config;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persistence.Multitenant;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Logging;

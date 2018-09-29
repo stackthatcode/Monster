@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.Persist;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persistence.Multitenant;
 using Monster.Middle.Sql;
 using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Json;

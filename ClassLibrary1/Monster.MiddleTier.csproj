@@ -4,20 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E92C70F6-9712-42CC-A5E6-02ED5CEF8D0D}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{573D59BE-1BEA-4CDA-B4B9-6CD9BA05B7AB}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Monster.ConsoleApp</RootNamespace>
-    <AssemblyName>Monster.ConsoleApp</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <RootNamespace>Monster.MiddleTier</RootNamespace>
+    <AssemblyName>Monster.MiddleTier</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -27,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -36,14 +31,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=4.8.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.8.0\lib\net45\Autofac.dll</HintPath>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,37 +50,45 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Shopify\MetafieldHarness.cs" />
-    <Compile Include="Acumatica\AcumaticaHarness.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Config\MonsterConfig.cs" />
+    <Compile Include="Config\PayoutConfig.cs" />
+    <Compile Include="MiddleAutofac.cs" />
+    <Compile Include="Persist\MonsterDb.cs">
+      <DependentUpon>MonsterDb.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Persist\Multitenant\InventoryPersistRepository.cs" />
+    <Compile Include="Persist\Multitenant\PayoutPersistRepository.cs" />
+    <Compile Include="Persist\Multitenant\PersistContext.cs" />
+    <Compile Include="Persist\Multitenant\TenantContextRepository.cs" />
+    <Compile Include="Persist\System\AccountRepository.cs" />
+    <Compile Include="Persist\System\Tenant.cs" />
+    <Compile Include="Processes\Inventory\InventoryWorker.cs" />
+    <Compile Include="Processes\Payouts\AcumaticaPayoutPushWorkerScreen.cs" />
+    <Compile Include="Processes\Payouts\PayoutProcess.cs" />
+    <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Shopify\ApiTestingHarness.cs" />
-    <Compile Include="Monster\MonsterHarness.cs" />
-    <Compile Include="Monster\PayoutHarness.cs" />
-    <Compile Include="TestJson\TestLoader.cs" />
+    <Compile Include="Services\MultitenantService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Persist\EF.Reverse.POCO.Core.ttinclude" />
+    <None Include="Persist\EF.Reverse.POCO.ttinclude" />
     <None Include="packages.config" />
-    <None Include="TestJson\3duPayPalTransactions.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestJson\3duPayouts20180813.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.csproj">
-      <Project>{e31f2a05-6346-48d5-b323-3d048ab0e392}</Project>
-      <Name>Monster.Acumatica</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Monster.Middle\Monster.Middle.csproj">
-      <Project>{df155c7d-78c2-4d81-9af5-654725dda7b6}</Project>
-      <Name>Monster.Middle</Name>
-    </ProjectReference>
+    <Content Include="Persist\MonsterDb.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MonsterDb.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Push.Foundation.Utilities\Push.Foundation.Utilities.csproj">
       <Project>{4e08819b-bab3-46ee-9479-141af7a4057d}</Project>
       <Name>Push.Foundation.Utilities</Name>
@@ -96,9 +101,6 @@
       <Project>{98704840-5bbd-4175-ae04-45a40cd48adb}</Project>
       <Name>Push.Shopify</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

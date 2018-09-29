@@ -4,6 +4,8 @@ using Monster.Acumatica.Config;
 using Monster.ConsoleApp.Shopify;
 using Monster.Middle;
 using Monster.Middle.Config;
+using Monster.Middle.Persist;
+using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Sql;
 using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Autofac;
