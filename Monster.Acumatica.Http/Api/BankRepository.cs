@@ -9,19 +9,16 @@ namespace Monster.Acumatica.Api
     {
         private readonly HttpFacade _clientFacade;
         private readonly UrlBuilder _urlBuilder;
-        private readonly AcumaticaHttpSettings _settings;
         private readonly IPushLogger _logger;
 
 
         public BankRepository(
                     HttpFacade clientFacade,
                     UrlBuilder urlBuilder,
-                    AcumaticaHttpSettings settings, 
                     IPushLogger logger)
         {
             _clientFacade = clientFacade;
             _urlBuilder = urlBuilder;
-            _settings = settings;
             _logger = logger;
         }
         

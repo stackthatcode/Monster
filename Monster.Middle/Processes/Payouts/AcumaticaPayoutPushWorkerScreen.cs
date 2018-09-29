@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Monster.Acumatica.BankImportApi;
-using Monster.Acumatica.Config;
+using Monster.Acumatica.Http;
 using Monster.Acumatica.ScreenApi;
-using Monster.Middle.Persist;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Sql;
-using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Payout;
+
 
 namespace Monster.Middle.Processes.Payouts
 {

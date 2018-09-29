@@ -9,16 +9,16 @@ namespace Monster.Acumatica
     {
         public static void Build(ContainerBuilder builder)
         {
+            builder.RegisterType<AcumaticaHttpConfig>();
+            builder.RegisterType<AcumaticaCredentialsConfig>();
 
-            builder.RegisterType<AcumaticaApiFactory>();
-            builder.RegisterType<AcumaticaHttpClientFactory>();
-            builder.RegisterType<SessionContainer>()
-                    .InstancePerLifetimeScope();
+            builder.RegisterType<UrlBuilder>();
+            builder.RegisterType<AcumaticaHttpContext>().InstancePerLifetimeScope();
 
-            builder.RegisterType<SessionRepository>();
-            builder.RegisterType<CustomerRepository>();
-            builder.RegisterType<InventoryRepository>();
-            builder.RegisterType<BankRepository>();
+            builder.RegisterType<SessionRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomerRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<InventoryRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<BankRepository>().InstancePerLifetimeScope();
         }
     }
 }

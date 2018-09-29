@@ -58,18 +58,15 @@
     <Compile Include="Api\InventoryRepository.cs" />
     <Compile Include="Api\SessionRepository.cs" />
     <Compile Include="Config\AcumaticaHttpConfig.cs" />
-    <Compile Include="Http\SessionContainer.cs" />
     <Compile Include="Http\UrlBuilder.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />
-    <Compile Include="Config\AcumaticaCredentials.cs" />
-    <Compile Include="Config\AcumaticaHttpSettings.cs" />
-    <Compile Include="Api\AcumaticaApiFactory.cs" />
+    <Compile Include="Http\AcumaticaCredentials.cs" />
     <Compile Include="Api\Cash\ImportBankTransaction.cs" />
     <Compile Include="Api\CustomerRepository.cs" />
     <Compile Include="Api\Customer\Contact.cs" />
     <Compile Include="Api\Customer\Customer.cs" />
     <Compile Include="Api\Customer\ItemClass.cs" />
-    <Compile Include="Http\AcumaticaHttpClientFactory.cs" />
+    <Compile Include="Http\AcumaticaHttpContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AcumaticaAutofac.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -78,11 +75,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="ScreenApi\CommandExtensions.cs" />
-    <Compile Include="Service References\TestSoap\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Web References\BankImportApi\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -95,19 +87,6 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Service References\TestSoap\17.wsdl" />
-    <None Include="Service References\TestSoap\Monster.Acumatica.TestSoap.Entity.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\TestSoap\Monster.Acumatica.TestSoap.File.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\TestSoap\Monster.Acumatica.TestSoap.InvokeResult.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\TestSoap\Monster.Acumatica.TestSoap.ProcessResult.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Web References\BankImportApi\BANKIMPORT.wsdl" />
     <None Include="Web References\BankImportApi\CA306500Content.datasource">
@@ -142,21 +121,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\TestSoap\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\TestSoap\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\TestSoap\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\TestSoap\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />

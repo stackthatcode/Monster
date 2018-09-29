@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Configuration;
 using Push.Foundation.Utilities.Security;
+using Push.Shopify.Http;
+using Push.Shopify.Http.Credentials;
 
 namespace Push.Shopify.Config
 {
@@ -35,9 +37,7 @@ namespace Push.Shopify.Config
             get { return ((string)_settings["ApiSecret"]).DpApiDecryptString().ToInsecureString(); }
             set { this["ApiSecret"] = value; }
         }
-
-
-
+        
         // 
         // Only needs to be set for Private Apps
         //  
@@ -48,22 +48,13 @@ namespace Push.Shopify.Config
             set { this["Domain"] = value; }
         }
         
-        // 
-        // Convenience properties for storing encryption key and IV, 
-        // ... ostensibly for safely storing OAuth Access Tokens
-        //
-        [ConfigurationProperty("EncryptKey", IsRequired = false)]
-        public string EncryptKey
-        {
-            get { return ((string)_settings["EncryptKey"]).DpApiDecryptString().ToInsecureString(); }
-            set { this["EncryptKey"] = value; }
-        }
 
-        [ConfigurationProperty("EncryptIv", IsRequired = false)]
-        public string EncryptIv
+
+        // Functions for translating...
+        public PrivateAppCredentials ToPrivateAppCredentials()
         {
-            get { return ((string)_settings["EncryptIv"]).DpApiDecryptString().ToInsecureString(); }
-            set { this["EncryptIv"] = value; }
+            var domain = new ShopDomain(PrivateAppDomain);
+            return new PrivateAppCredentials(ApiKey, ApiPassword, domain);
         }
     }
 }

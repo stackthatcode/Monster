@@ -10,16 +10,17 @@ namespace Push.Shopify
     {
         public static void Build(ContainerBuilder builder)
         {
-            builder.RegisterType<ShopifyHttpSettings>();
+            builder.RegisterType<ShopifyHttpConfig>();
+            builder.RegisterType<ShopifyCredentialsConfig>();
 
-            builder.RegisterType<ShopifyHttpContext>();
-                   
-            builder.RegisterType<ShopApi>();
-            builder.RegisterType<OrderApi>();
-            builder.RegisterType<ProductApi>();
-            builder.RegisterType<EventApi>();
-            builder.RegisterType<PayoutApi>();
-            builder.RegisterType<InventoryApi>();
+            builder.RegisterType<ShopifyHttpContext>().InstancePerLifetimeScope(); 
+
+            builder.RegisterType<ShopApi>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderApi>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductApi>().InstancePerLifetimeScope();
+            builder.RegisterType<EventApi>().InstancePerLifetimeScope();
+            builder.RegisterType<PayoutApi>().InstancePerLifetimeScope();
+            builder.RegisterType<InventoryApi>().InstancePerLifetimeScope();
         }
     }
 }

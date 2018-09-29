@@ -141,14 +141,11 @@
     <Compile Include="Api\Transaction\SellerDetails.cs" />
     <Compile Include="Api\Transaction\Transaction.cs" />
     <Compile Include="Config\ShopifyHttpConfig.cs" />
-    <Compile Include="Config\ShopifyHttpSettings.cs" />
     <Compile Include="Config\ShopifyCredentialsConfig.cs" />
-    <Compile Include="Config\ShopifyCredentials.cs" />
     <Compile Include="Http\Credentials\ApiKeyAndSecret.cs" />
-    <Compile Include="Http\Credentials\ExtensionMethods.cs" />
     <Compile Include="ShopifyApiAutofac.cs" />
     <Compile Include="Http\Credentials\OAuthAccessToken.cs" />
-    <Compile Include="Http\Credentials\PrivateApp.cs" />
+    <Compile Include="Http\Credentials\IShopifyCredentials.cs" />
     <Compile Include="Http\Credentials\PrivateAppCredentials.cs" />
     <Compile Include="Http\ShopDomain.cs" />
     <Compile Include="Http\ShopifyHttpContext.cs" />
@@ -162,7 +159,6 @@
     <Compile Include="Api\OrderApi.cs" />
     <Compile Include="Api\ShopApi.cs" />
     <Compile Include="Api\ProductApi.cs" />
-    <Compile Include="Workers\PayoutsWorker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

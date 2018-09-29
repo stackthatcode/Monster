@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Configuration;
+using Monster.Acumatica.Http;
 using Push.Foundation.Utilities.Security;
 
 namespace Monster.Acumatica.Config
@@ -48,13 +49,18 @@ namespace Monster.Acumatica.Config
 
             set { _settings["Password"] = value; }
         }
-
-
+        
         [ConfigurationProperty("InstanceUrl", IsRequired = false)]
         public string InstanceUrl
         {
             get { return ((string) _settings["InstanceUrl"]); }
             set { _settings["InstanceUrl"] = value; }
+        }
+
+
+        public AcumaticaCredentials ToCredentials()
+        {
+            return new AcumaticaCredentials(this);
         }
     }
 }

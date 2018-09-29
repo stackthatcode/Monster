@@ -13,27 +13,29 @@ namespace Monster.ConsoleApp.Acumatica
 {
     public class AcumaticaHarness
     {
-        public static AcumaticaCredentials CredentialsFactory()
+        public static void BeginSession(ILifetimeScope scope)
         {
-            var config = AcumaticaCredentialsConfig.Settings;
-            return new AcumaticaCredentials(config);
+            var credentials = 
+                    AcumaticaCredentialsConfig.Settings;
+
+            // Load the Acumatica Context with our Credentials
+            var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+            acumaticaContext.Initialize(credentials);
+
+            // Begin our Session
+            var sessionRepository = scope.Resolve<SessionRepository>();
+            sessionRepository.RetrieveSession(credentials);
         }
 
 
         // Acumatica 
         public static void RetrieveItemClass(ILifetimeScope scope)
         {
-            // Pull these from secure storage
-            var credentials = CredentialsFactory();
 
-            // Spawn or constructor inject this factory
-            var factory = scope.Resolve<AcumaticaApiFactory>();
 
-            // Initialize repository - done!
-            var sessionRepository = factory.MakeSessionRepository(credentials);
-            sessionRepository.RetrieveSession(credentials);
+            // Start doing things!
+            var inventoryRepository = scope.Resolve<InventoryRepository>();
 
-            var inventoryRepository = factory.MakeInventoryRepository(credentials);
             var results = inventoryRepository.RetrieveItemClass();
             var results2 = inventoryRepository.RetrievePostingClasses();
         }
@@ -43,14 +45,12 @@ namespace Monster.ConsoleApp.Acumatica
             // Pull these from secure storage
             var credentials = CredentialsFactory();
 
-            // Spawn or constructor inject this factory
-            var factory = scope.Resolve<AcumaticaApiFactory>();
+            // Load the Acumatica Context with our Credentials
+            var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+            acumaticaContext.Initialize(credentials);
 
-            // Create the repository passing the credentials and invoke!
-            var sessionRepository = factory.MakeSessionRepository(credentials);
-            sessionRepository.RetrieveSession(credentials);
-
-            var customerRepository = factory.MakeCustomerRepository(credentials);
+            // Start doing things...
+            var customerRepository = scope.Resolve<CustomerRepository>();                
             var results = customerRepository.RetrieveCustomer("C000000001");
 
             var customer = results.DeserializeFromJson<Customer>();
@@ -94,20 +94,23 @@ namespace Monster.ConsoleApp.Acumatica
         
         public static void RetrieveImportBankTransactions(ILifetimeScope scope)
         {
-            // Object instancing
-            var factory = scope.Resolve<AcumaticaApiFactory>();
-            var logger = scope.Resolve<IPushLogger>();
-
             // Pull these from secure storage
             var credentials = CredentialsFactory();
 
-            // Create the repository passing the credentials and create session
-            var repository = factory.MakeSessionRepository(credentials);
-            repository.RetrieveSession(credentials);
+            // Load the Acumatica Context with our Credentials
+            var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+            acumaticaContext.Initialize(credentials);
+
+            // Begin our Session
+            var sessionRepository = scope.Resolve<SessionRepository>();
+            sessionRepository.RetrieveSession(credentials);
+
 
             // Get the Bank Transactions
-            var bankRepository = factory.MakeBankRepository(credentials);
+            var bankRepository = scope.Resolve<BankRepository>();
             var results = bankRepository.RetrieveImportBankTransactions();
+
+            var logger = scope.Resolve<IPushLogger>();
             logger.Info(results);
         }
 
@@ -144,7 +147,9 @@ namespace Monster.ConsoleApp.Acumatica
             };
 
             var results = repository.InsertImportBankTransaction(transaction.SerializeToJson());
+
             logger.Info(results);
+
         }
     }
 }

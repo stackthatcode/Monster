@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using Monster.Acumatica.Config;
+using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Shopify;
 using Monster.Middle;
 using Monster.Middle.Config;
@@ -108,17 +109,9 @@ namespace Monster.ConsoleApp
         public static PrivateAppCredentials 
                         ShopifyPrivateAppCredentialsFromConfig()
         {
-            return ShopifyCredentials
-                .FromConfiguration()
-                .MakePrivateAppCredentials();
+            return ShopifyCredentialsConfig.Settings.ToPrivateAppCredentials();
         }
 
-        public static AcumaticaCredentials 
-                        AcumaticaCredentialsFromConfig()
-        {
-            var config = AcumaticaCredentialsConfig.Settings;
-            return new AcumaticaCredentials(config);
-        }
 
         public static PayoutConfig PayoutConfigFactory()
         {

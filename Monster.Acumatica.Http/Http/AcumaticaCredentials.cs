@@ -1,6 +1,7 @@
-﻿using Push.Foundation.Utilities.Json;
+﻿using Monster.Acumatica.Config;
+using Push.Foundation.Utilities.Json;
 
-namespace Monster.Acumatica.Config
+namespace Monster.Acumatica.Http
 {
     public class AcumaticaCredentials
     {
@@ -22,8 +23,8 @@ namespace Monster.Acumatica.Config
             Password = config.Password;
             InstanceUrl = config.InstanceUrl;
         }
-
-
+        
+        // Payload gets sent to Acumatica
         public string AuthenticationJson
         {
             get

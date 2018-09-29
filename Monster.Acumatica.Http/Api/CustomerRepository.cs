@@ -1,25 +1,20 @@
-﻿using Monster.Acumatica.Config;
-using Monster.Acumatica.Http;
+﻿using Monster.Acumatica.Http;
 using Push.Foundation.Web.Helpers;
-using Push.Foundation.Web.Http;
+
 
 namespace Monster.Acumatica.Api
 {
     public class CustomerRepository
     {
-        private readonly HttpFacade _clientFacade;
         private readonly UrlBuilder _urlBuilder;
-        private readonly AcumaticaHttpSettings _settings;
-
+        private readonly AcumaticaHttpContext _httpContext;
 
         public CustomerRepository(
-                    HttpFacade clientFacade, 
-                    UrlBuilder urlBuilder,
-                    AcumaticaHttpSettings settings)
+                UrlBuilder urlBuilder, 
+                AcumaticaHttpContext httpContext)
         {
-            _clientFacade = clientFacade;
             _urlBuilder = urlBuilder;
-            _settings = settings;
+            _httpContext = httpContext;
         }
         
         public string RetrieveCustomers()
@@ -30,7 +25,7 @@ namespace Monster.Acumatica.Api
                     .ToString();
 
             var url = _urlBuilder.Make("Customer");
-            var response = _clientFacade.Get(url);
+            var response = _httpContext.Get(url);
             return response.Body;
         }
 
@@ -42,16 +37,15 @@ namespace Monster.Acumatica.Api
                     .ToString();
 
             var url = _urlBuilder.Make($"Customer/{customerId}", queryString);
-            var response = _clientFacade.Get(url);
+            var response = _httpContext.Get(url);
             return response.Body;
         }
         
         public string AddNewCustomer(string content)
         {
             var url = _urlBuilder.Make("Customer");
-            var response = _clientFacade.Put(url, content);
+            var response = _httpContext.Put(url, content);
             return response.Body;
-        }
-        
+        }        
     }
 }

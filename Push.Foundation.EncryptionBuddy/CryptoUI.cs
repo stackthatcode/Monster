@@ -24,16 +24,18 @@ namespace Push.Foundation
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var config = JsonConvert.DeserializeObject<ShopifyCredentials>(textJson.Text);
+            // *** COME ON, PUT THE TEXT IN SEPARATE FIELDS
 
-            textXML.Text =
-                $@"<shopifyCredentials 
-    xdt:Transform=""Replace""
-    ApiKey=""{config.ApiKey.ToSecureString().DpApiEncryptString()}"" 
-    ApiPassword=""{config.ApiPassword.ToSecureString().DpApiEncryptString()}"" 
-    ApiSecret=""{config.ApiSecret.ToSecureString().DpApiEncryptString()}"" 
-    Domain=""{config.Domain}""                        
-/>";
+//            var config = JsonConvert.DeserializeObject<Extensions>(textJson.Text);
+
+//            textXML.Text =
+//                $@"<shopifyCredentials 
+//    xdt:Transform=""Replace""
+//    ApiKey=""{config.ApiKey.ToSecureString().DpApiEncryptString()}"" 
+//    ApiPassword=""{config.ApiPassword.ToSecureString().DpApiEncryptString()}"" 
+//    ApiSecret=""{config.ApiSecret.ToSecureString().DpApiEncryptString()}"" 
+//    Domain=""{config.Domain}""                        
+///>";
 
             Clipboard.SetText(textXML.Text);
         }

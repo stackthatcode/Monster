@@ -1,44 +1,38 @@
-﻿using Monster.Acumatica.Config;
-using Monster.Acumatica.Http;
-using Push.Foundation.Web.Http;
+﻿using Monster.Acumatica.Http;
 
 namespace Monster.Acumatica.Api
 {
     public class InventoryRepository
     {
-        private readonly HttpFacade _clientFacade;
         private readonly UrlBuilder _urlBuilder;
-        private readonly AcumaticaHttpSettings _settings;
+        private readonly AcumaticaHttpContext _httpContext;
 
 
         public InventoryRepository(
-                    HttpFacade clientFacade,
-                    UrlBuilder urlBuilder,
-                    AcumaticaHttpSettings settings)
+                UrlBuilder urlBuilder, AcumaticaHttpContext httpContext)
         {
-            _clientFacade = clientFacade;
             _urlBuilder = urlBuilder;
-            _settings = settings;
+            _httpContext = httpContext;
         }
 
         public string RetrieveItemClass()
         {
             var url = _urlBuilder.Make("ItemClass");
-            var response = _clientFacade.Get(url);
+            var response = _httpContext.Get(url);
             return response.Body;
         }
 
         public string RetrieveStockItems()
         {
             var url = _urlBuilder.Make("StockItem");
-            var response = _clientFacade.Get(url);
+            var response = _httpContext.Get(url);
             return response.Body;
         }
 
         public string RetrievePostingClasses()
         {
             var url = _urlBuilder.Make("PostingClass");
-            var response = _clientFacade.Get(url);
+            var response = _httpContext.Get(url);
             return response.Body;
         }        
     }

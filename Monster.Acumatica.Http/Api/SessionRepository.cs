@@ -1,35 +1,39 @@
 ﻿using Monster.Acumatica.Config;
+using Monster.Acumatica.Http;
 using Push.Foundation.Web.Http;
 
 namespace Monster.Acumatica.Api
 {
     public class SessionRepository
     {
-        private readonly HttpFacade _clientFacade;
-        private readonly AcumaticaHttpSettings _settings;
-
+        private readonly UrlBuilder _urlBuilder;
+        private readonly AcumaticaHttpContext _httpContext;
+        private readonly AcumaticaHttpConfig _httpConfig;
 
         public SessionRepository(
-                    HttpFacade clientFacade, 
-                    AcumaticaHttpSettings settings)
+                UrlBuilder urlBuilder, 
+                AcumaticaHttpContext httpContext, 
+                AcumaticaHttpConfig httpConfig)
         {
-            _clientFacade = clientFacade;
-            _settings = settings;
+            _urlBuilder = urlBuilder;
+            _httpContext = httpContext;
+            _httpConfig = httpConfig;
         }
         
         public void RetrieveSession(AcumaticaCredentials credentials)
         {
             var path = $"{credentials.InstanceUrl}/entity/auth/login";
             var content = credentials.AuthenticationJson;
-            var response = _clientFacade.Post(path, content);
+            var response = _httpContext.Post(path, content);
         }
         
-        public string BuildMethodUrl(
-                string path, string queryString = null)
+        public string BuildMethodUrl(string path, string queryString = null)
         {
             return queryString == null
-                ? $"{_settings.VersionSegment}{path}"
-                : $"{_settings.VersionSegment}{path}?{queryString}";
+                ? $"{_httpConfig.VersionSegment}{path}"
+                : $"{_httpConfig.VersionSegment}{path}?{queryString}";
         }
+
+        // TODO - add method to End Session / Logout
     }
 }

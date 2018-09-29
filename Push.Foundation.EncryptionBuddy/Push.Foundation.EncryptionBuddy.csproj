@@ -93,7 +93,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingsModel.cs" />
     <EmbeddedResource Include="CryptoUI.resx">
       <DependentUpon>CryptoUI.cs</DependentUpon>
     </EmbeddedResource>

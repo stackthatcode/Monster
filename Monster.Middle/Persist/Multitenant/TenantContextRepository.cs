@@ -1,8 +1,9 @@
 ﻿using System.Linq;
-using Monster.Acumatica.Config;
-using Monster.Middle.Sql.Multitenant;
+using Monster.Acumatica.Http;
 using Push.Foundation.Utilities.Security;
-using Push.Shopify.Config;
+using Push.Shopify.Http;
+using Push.Shopify.Http.Credentials;
+
 
 namespace Monster.Middle.Persist.Multitenant
 {
@@ -44,16 +45,17 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
 
-        public ShopifyCredentials RetrieveShopifyCredentials()
+        public PrivateAppCredentials RetrieveShopifyCredentials()
         {
             var context = RetrieveRawContext();
 
-            var output = new ShopifyCredentials();
-            output.Domain = context.ShopifyDomain;
-            output.ApiKey = _cryptoService.Decrypt(context.ShopifyApiKey);
-            output.ApiPassword = _cryptoService.Decrypt(context.ShopifyApiPassword);
-            output.ApiSecret = _cryptoService.Decrypt(context.ShopifyApiSecret);
+            var apiKey = _cryptoService.Decrypt(context.ShopifyApiKey);
+            var apiPassword = _cryptoService.Decrypt(context.ShopifyApiPassword);
+            var domain = new ShopDomain(context.ShopifyDomain);
 
+            var output = 
+                new PrivateAppCredentials(apiKey, apiPassword, domain);
+            
             return output;
         }
 

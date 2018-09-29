@@ -1,7 +1,5 @@
 ﻿using Autofac;
 using Monster.Acumatica;
-using Monster.Acumatica.BankImportApi;
-using Monster.Acumatica.Config;
 using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Payouts;
@@ -10,7 +8,7 @@ using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
 using Push.Shopify;
 using Push.Foundation.Utilities.Security;
-using Push.Shopify.Config;
+
 
 namespace Monster.Middle
 {
@@ -29,17 +27,11 @@ namespace Monster.Middle
 
             // Register Acumatica library and inject settings
             AcumaticaHttpAutofac.Build(builder);
-            builder.Register<AcumaticaHttpSettings>(
-                        x => AcumaticaHttpSettings.FromConfig());
-
-            // Acumatica Bank Import API screen
-            builder.RegisterType<Screen>().InstancePerLifetimeScope();
-
+            
 
             // Register Shopify library and inject settings
             ShopifyApiAutofac.Build(builder);
-            builder.Register<ShopifyHttpSettings>(
-                        x => ShopifyHttpSettings.FromConfig());
+            
 
             // Cryptographic
             builder.Register<ICryptoService>(
