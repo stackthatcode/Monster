@@ -15,6 +15,7 @@ using Push.Shopify.Api.Payout;
 using Push.Shopify.Config;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
+using PayoutHarness = Monster.ConsoleApp.Monster.PayoutHarness;
 
 
 namespace Monster.ConsoleApp
@@ -97,7 +98,7 @@ namespace Monster.ConsoleApp
             // #3 - this will only load the header and transactions from the
             // ... single Payout identified into Acumatica
             var payoutId2 = 11111111111;
-            PayoutBootstrap.PushToAcumatica(
+            PayoutHarness.PushToAcumatica(
                 acumaticaCredentials, payoutConfig, payoutId2);
 
         }

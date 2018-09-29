@@ -5,22 +5,23 @@ namespace Monster.Middle.Persistence.Multitenant
 {
     public class InventoryPersistRepository
     {
-        private readonly MonsterDataContext _dataContext;
+        private readonly PersistContext _dataContext;
+        public MonsterDataContext Entities => _dataContext.Entities;
 
-        public InventoryPersistRepository(MonsterDataContext dataContext)
+        public InventoryPersistRepository(PersistContext dataContext)
         {
             _dataContext = dataContext;
         }
 
         public void InsertLocation(UsrShopifyLocation location)
         {
-            _dataContext.UsrShopifyLocations.Add(location);
-            _dataContext.SaveChanges();
+            Entities.UsrShopifyLocations.Add(location);
+            Entities.SaveChanges();
         }
 
         public IList<UsrShopifyLocation> RetreiveLocations()
         {
-            return _dataContext.UsrShopifyLocations.ToList();
+            return Entities.UsrShopifyLocations.ToList();
         }
     }
 }

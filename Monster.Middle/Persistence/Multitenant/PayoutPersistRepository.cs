@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Monster.Middle.Persistence.Multitenant
 {
     public class PayoutPersistRepository
     {
-        private readonly MonsterDataContext _dataContext;
+        private readonly PersistContext Entities;
+        public MonsterDataContext Entities => Entities.Entities;
 
-        public PayoutPersistRepository(MonsterDataContext dataContext)
+        public PayoutPersistRepository(PersistContext dataContext)
         {
-            _dataContext = dataContext;
+            Entities = dataContext;
         }
 
         //
@@ -18,7 +18,7 @@ namespace Monster.Middle.Persistence.Multitenant
         //
         public UsrPayoutPreference RetrievePayoutPreferences()
         {
-            return _dataContext.UsrPayoutPreferences.FirstOrDefault();
+            return Entities.UsrPayoutPreferences.FirstOrDefault();
         }
 
 
@@ -27,7 +27,7 @@ namespace Monster.Middle.Persistence.Multitenant
         //
         public List<UsrShopifyPayout> RetrievePayouts(int limit = 50)
         {
-            return _dataContext
+            return Entities
                     .UsrShopifyPayouts
                     .OrderByDescending(x => x.ShopifyPayoutId)
                     .Take(limit)
@@ -36,14 +36,14 @@ namespace Monster.Middle.Persistence.Multitenant
 
         public UsrShopifyPayout RetrievePayout(long shopifyPayoutId)
         {
-            return _dataContext
+            return Entities
                     .UsrShopifyPayouts
                     .FirstOrDefault(x => x.ShopifyPayoutId == shopifyPayoutId);
         }
 
         public List<UsrShopifyPayout> RetrieveIncompletePayoutImports()
         {
-            return _dataContext
+            return Entities
                     .UsrShopifyPayouts
                     .Where(x => x.AllShopifyTransDownloaded == false)
                     .OrderBy(x => x.ShopifyPayoutId)
@@ -52,26 +52,26 @@ namespace Monster.Middle.Persistence.Multitenant
 
         public List<UsrShopifyPayout> RetrievePayouts()
         {
-            return _dataContext
-                .UsrShopifyPayouts
-                .OrderBy(x => x.ShopifyPayoutId)
-                .ToList();
+            return Entities
+                    .UsrShopifyPayouts
+                    .OrderBy(x => x.ShopifyPayoutId)
+                    .ToList();
         }
 
         public List<UsrShopifyPayout> RetrieveNotYetUploadedPayouts()
         {
-            return _dataContext
-                .UsrShopifyPayouts
-                .Where(x => x.UsrShopifyPayoutTransactions.Any(y => y.AcumaticaImportDate == null)
-                            && x.ShopifyLastStatus != "in_transit")
-                .OrderBy(x => x.ShopifyPayoutId)
-                .ToList();
+            return Entities
+                    .UsrShopifyPayouts
+                    .Where(x => x.UsrShopifyPayoutTransactions.Any(y => y.AcumaticaImportDate == null)
+                                && x.ShopifyLastStatus != "in_transit")
+                    .OrderBy(x => x.ShopifyPayoutId)
+                    .ToList();
         }
 
         public void InsertPayoutHeader(UsrShopifyPayout payout)
         {
-            _dataContext.UsrShopifyPayouts.Add(payout);
-            _dataContext.SaveChanges();
+            Entities.UsrShopifyPayouts.Add(payout);
+            Entities.SaveChanges();
         }
 
         public void UpdatePayoutHeaderStatus(
@@ -79,7 +79,7 @@ namespace Monster.Middle.Persistence.Multitenant
         {
             var payout = RetrievePayout(shopifyPayoutId);
             payout.ShopifyLastStatus = status;
-            _dataContext.SaveChanges();
+            Entities.SaveChanges();
         }
 
         public void UpdatePayoutHeaderAllShopifyTransDownloaded(
@@ -87,7 +87,7 @@ namespace Monster.Middle.Persistence.Multitenant
         {
             var header = RetrievePayout(shopifyPayoutId);
             header.AllShopifyTransDownloaded = captured;
-            _dataContext.SaveChanges();
+            Entities.SaveChanges();
         }
 
         public void UpdatePayoutHeaderAcumaticaImport(
@@ -100,7 +100,7 @@ namespace Monster.Middle.Persistence.Multitenant
             header.AcumaticaCashAccount = acumaticaCashAccount;
             header.AcumaticaRefNumber = acumaticaRefNumber;
             header.AcumaticaImportDate = acumaticaImportDate;
-            _dataContext.SaveChanges();
+            Entities.SaveChanges();
         }
 
 
@@ -112,17 +112,17 @@ namespace Monster.Middle.Persistence.Multitenant
                     RetrievePayoutTransaction(
                         long shopifyPayoutId, long shopifyTransactionId)
         {
-            return _dataContext
-                .UsrShopifyPayoutTransactions
-                .FirstOrDefault(
-                    x => x.ShopifyPayoutId == shopifyPayoutId &&
-                         x.ShopifyPayoutTransId == shopifyTransactionId);
+            return Entities
+                    .UsrShopifyPayoutTransactions
+                    .FirstOrDefault(
+                        x => x.ShopifyPayoutId == shopifyPayoutId &&
+                             x.ShopifyPayoutTransId == shopifyTransactionId);
         }
 
         public List<UsrShopifyPayoutTransaction>
                     RetrieveNotYetUploadedPayoutTranscations(long shopifyPayoutId)
         {
-            return _dataContext
+            return Entities
                 .UsrShopifyPayoutTransactions
                 .Where(x => 
                         x.ShopifyPayoutId == shopifyPayoutId && 
@@ -133,8 +133,8 @@ namespace Monster.Middle.Persistence.Multitenant
         public void InsertPayoutTransaction(
                         UsrShopifyPayoutTransaction transaction)
         {
-            _dataContext.UsrShopifyPayoutTransactions.Add(transaction);
-            _dataContext.SaveChanges();
+            Entities.UsrShopifyPayoutTransactions.Add(transaction);
+            Entities.SaveChanges();
         }
 
         public void UpdatePayoutHeaderAcumaticaImport(
@@ -146,7 +146,7 @@ namespace Monster.Middle.Persistence.Multitenant
             var transaction = RetrievePayoutTransaction(shopifyPayoutId, shopifyPayoutTransId);
             transaction.AcumaticaImportDate = acumaticaImportDate;
             transaction.AcumaticaExtRefNbr = acumaticaExtRefNbr;
-            _dataContext.SaveChanges();
+            Entities.SaveChanges();
         }
 
     }

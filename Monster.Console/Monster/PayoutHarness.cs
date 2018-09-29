@@ -1,13 +1,14 @@
 ﻿using Autofac;
 using Monster.Acumatica.Config;
+using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.Processes.Payouts;
 using Push.Foundation.Utilities.Autofac;
 using Push.Shopify.Http.Credentials;
 
-namespace Monster.Middle.Runners
+namespace Monster.ConsoleApp.Monster
 {
-    public class PayoutBootstrap
+    public class PayoutHarness
     {
         public const string DefaultLoggerName = "Monster.Payouts";
 

@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using Autofac;
@@ -7,14 +6,12 @@ using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Acumatica.Config;
 using Monster.Middle.Config;
-using Monster.Middle.Persist;
 using Monster.Middle.Persistence;
 using Monster.Middle.Persistence.Multitenant;
 using Monster.Middle.Processes.Payouts;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
 using Push.Shopify;
-using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Config;
 
@@ -66,36 +63,20 @@ namespace Monster.Middle
                 .InstancePerLifetimeScope();
 
 
-            // Database connectivity
-            builder
-                .RegisterType<ConnectionFactory>()
-                .InstancePerLifetimeScope();
-            
-            builder
-                .Register(ctx =>
-                {
-                    var factory = ctx.Resolve<ConnectionFactory>();
-                    var connection = factory.Make();
-                    connection.Open();
-                    return connection;
-                })
-                .As<SqlConnection>()
-                .As<DbConnection>()
-                .As<IDbConnection>()
-                .InstancePerLifetimeScope();
-            
-            builder.RegisterType<MonsterDataContext>()
+            // Database connectivity      
+            builder.RegisterType<PersistContext>()
                 .InstancePerLifetimeScope();
 
 
             // TODO *** Need to implement this!!
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
 
-            // SQL Persistence Repositories
+            // Persistence Repositories
             builder.RegisterType<PayoutPersistRepository>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryPersistRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<TenantContextService>().InstancePerLifetimeScope();
 
-
+            // Processes and Workers
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaPayoutPushWorkerScreen>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();

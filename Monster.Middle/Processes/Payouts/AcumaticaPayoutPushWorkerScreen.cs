@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Monster.Acumatica.BankImportApi;
 using Monster.Acumatica.Config;
 using Monster.Acumatica.ScreenApi;
-using Monster.Middle.Persist;
 using Monster.Middle.Persistence;
 using Monster.Middle.Persistence.Multitenant;
 using Push.Foundation.Utilities.Helpers;

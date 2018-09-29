@@ -128,7 +128,7 @@
     <Compile Include="Logging\IPushLogger.cs" />
     <Compile Include="Logging\LoggerSingleton.cs" />
     <Compile Include="Logging\NLogger.cs" />
-    <Compile Include="Logging\BackgroundJobTraceFormatter.cs" />
+    <Compile Include="Logging\ScopedTraceFormatter.cs" />
     <Compile Include="Logging\TypeAndMethodNameFormatter.cs" />
     <Compile Include="Logging\UtilityExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -11,8 +11,7 @@ namespace Monster.Middle.Config
                 (Hashtable)ConfigurationManager
                     .GetSection("monsterConfig") ?? new Hashtable();
 
-        public static
-            MonsterConfig Settings { get; } = new MonsterConfig();
+        public static MonsterConfig Settings { get; } = new MonsterConfig();
 
         
         [ConfigurationProperty("EncryptKey", IsRequired = false)]
@@ -27,6 +26,13 @@ namespace Monster.Middle.Config
         {
             get { return ((string)_settings["EncryptIv"]).DpApiDecryptString().ToInsecureString(); }
             set { this["EncryptIv"] = value; }
+        }
+        
+        [ConfigurationProperty("SystemDatabaseConnection", IsRequired = false)]
+        public string SystemDatabaseConnection
+        {
+            get { return ((string) _settings["SystemDatabaseConnection"]); }
+            set { this["SystemDatabaseConnection"] = value; }
         }
     }
 }

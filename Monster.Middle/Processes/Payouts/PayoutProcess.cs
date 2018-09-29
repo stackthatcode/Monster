@@ -1,6 +1,5 @@
 ﻿using Monster.Acumatica.Config;
 using Monster.Middle.Persistence.Multitenant;
-using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Processes.Payouts
 {
