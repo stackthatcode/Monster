@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Monster.Acumatica.Http;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
@@ -38,19 +39,41 @@ namespace Monster.Middle.Persist.Multitenant
             output.InstanceUrl = context.AcumaticaInstanceUrl;
             output.Branch = context.AcumaticaBranch;
             output.CompanyName = context.AcumaticaCompanyName;
-            output.Username = _cryptoService.Decrypt(context.AcumaticaUsername);
-            output.Password = _cryptoService.Decrypt(context.AcumaticaPassword);
+
+            output.Username = 
+                context.AcumaticaUsername.IsNullOrEmpty() 
+                    ? "" : _cryptoService.Decrypt(context.AcumaticaUsername);
+
+            output.Password = 
+                context.AcumaticaPassword.IsNullOrEmpty()
+                    ? "" : _cryptoService.Decrypt(context.AcumaticaPassword);
 
             return output;
         }
 
+        public void CreateIfMissingContext()
+        {
+            if (!Entities.UsrTenantContexts.Any())
+            {
+                this.InsertContext(new UsrTenantContext()
+                {
+                    CompanyId = _dataContext.CompanyId
+                });
+            }
+        }
 
         public PrivateAppCredentials RetrieveShopifyCredentials()
         {
             var context = RetrieveRawContext();
 
-            var apiKey = _cryptoService.Decrypt(context.ShopifyApiKey);
-            var apiPassword = _cryptoService.Decrypt(context.ShopifyApiPassword);
+            var apiKey =
+                context.ShopifyApiKey.IsNullOrEmpty() 
+                    ? "" : _cryptoService.Decrypt(context.ShopifyApiKey);
+
+            var apiPassword = 
+                context.ShopifyApiPassword.IsNullOrEmpty()
+                    ? "" : _cryptoService.Decrypt(context.ShopifyApiPassword);
+
             var domain = new ShopDomain(context.ShopifyDomain);
 
             var output = 

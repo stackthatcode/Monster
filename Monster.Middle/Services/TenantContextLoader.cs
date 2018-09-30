@@ -49,6 +49,16 @@ namespace Monster.Middle.Services
             _acumaticaHttpContext.Initialize(acumaticaCredentials);
         }
 
+        public void InitializePersistOnly(Guid tenantId)
+        {
+            var tenant = _accountRepository.RetrieveTenant(tenantId);
+
+            // Load the Tenant into Persist 
+            _persistContext.Initialize(
+                tenant.ConnectionString, tenant.CompanyId);
+
+        }
+
         public void Initialize(
                 string connectionString, 
                 long companyId,

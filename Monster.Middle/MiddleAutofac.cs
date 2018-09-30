@@ -4,6 +4,7 @@ using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Payouts;
+using Monster.Middle.Services;
 using Monster.Middle.Sql.Multitenant;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
@@ -58,10 +59,12 @@ namespace Monster.Middle
             // System-level Persistence                 
             builder.Register<SystemRepository>(x =>
             {
-                var connectionString 
+                var connectionString
                     = MonsterConfig.Settings.SystemDatabaseConnection;
+
                 return new SystemRepository(connectionString);
-            });
+
+            }).SingleInstance();
 
             // Multitenant Persistence
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
@@ -69,11 +72,15 @@ namespace Monster.Middle
             builder.RegisterType<InventoryPersistRepository>().InstancePerLifetimeScope();
             builder.RegisterType<TenantContextRepository>().InstancePerLifetimeScope();
 
-            // Payout Processes
-            builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
-            builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
-            builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
 
+            // Services
+            builder.RegisterType<TenantContextLoader>().InstancePerLifetimeScope();
+
+            // Payout Processes
+            builder.RegisterType<ShopifyPayoutPullWorker>();
+            builder.RegisterType<BankImportService>();
+            builder.RegisterType<PayoutProcess>();
+                
             return builder.Build();
         }
     }

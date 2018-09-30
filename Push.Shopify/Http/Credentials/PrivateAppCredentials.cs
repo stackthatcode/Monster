@@ -7,6 +7,9 @@
         public string ApiPassword { get; set; }
         public ShopDomain Domain { get; set; }
 
+        public PrivateAppCredentials()
+        {
+        }
 
         public PrivateAppCredentials(string apiKey, string apiPassword, ShopDomain domain)
         {

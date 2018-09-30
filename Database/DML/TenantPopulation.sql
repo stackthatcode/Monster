@@ -1,5 +1,9 @@
 USE Monster;
 
+--
+-- This is a DEV setup where MonsterSys piggybacks on the Monster Instance
+--
+
 IF NOT EXISTS ( SELECT * FROM usrTenant WHERE Nickname = 'DEV Testing')
 BEGIN
 INSERT INTO usrTenant VALUES ( 
@@ -8,4 +12,9 @@ INSERT INTO usrTenant VALUES (
 	1, 'DEV Testing' );
 END
 
-SELECT * FROM usrTenant;
+IF NOT EXISTS ( SELECT * FROM usrTenantContext WHERE CompanyID = 1 )
+BEGIN
+
+	INSERT INTO usrTenantContext 
+		VALUES ( 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL );
+END

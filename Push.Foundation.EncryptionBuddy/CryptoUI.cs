@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Windows.Forms;
+using Autofac;
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
+using Monster.Middle;
+using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Inventory;
+using Monster.Middle.Services;
 using Newtonsoft.Json;
+using Push.Foundation.Utilities.Helpers;
+using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Config;
 
@@ -26,18 +33,17 @@ namespace Push.Foundation
         {
             // *** COME ON, PUT THE TEXT IN SEPARATE FIELDS
 
-//            var config = JsonConvert.DeserializeObject<Extensions>(textJson.Text);
 
-//            textXML.Text =
-//                $@"<shopifyCredentials 
-//    xdt:Transform=""Replace""
-//    ApiKey=""{config.ApiKey.ToSecureString().DpApiEncryptString()}"" 
-//    ApiPassword=""{config.ApiPassword.ToSecureString().DpApiEncryptString()}"" 
-//    ApiSecret=""{config.ApiSecret.ToSecureString().DpApiEncryptString()}"" 
-//    Domain=""{config.Domain}""                        
-///>";
+            textShopifyXml.Text =
+                $@"<shopifyCredentials 
+    xdt:Transform=""Replace""
+    ApiKey=""{textShopifyApiKey.Text.ToSecureString().DpApiEncryptString()}"" 
+    ApiPassword=""{textShopifyApiPwd.Text.ToSecureString().DpApiEncryptString()}"" 
+    ApiSecret=""{textShopifyApiSecret.Text.ToSecureString().DpApiEncryptString()}"" 
+    Domain=""{textShopifyDomain.Text}""                        
+/>";
 
-            Clipboard.SetText(textXML.Text);
+            Clipboard.SetText(textShopifyXml.Text);
         }
 
         private void buttonEncrypt_Click(object sender, EventArgs e)
@@ -85,18 +91,18 @@ namespace Push.Foundation
 
         private void buttonAcumaticaXml_Click(object sender, EventArgs e)
         {
-            
-//            textAcumaticaXml.Text =
-//                $@"<acumaticaSecurityConfiguration 
-//    xdt:Transform=""Replace""
-//    InstanceUrl=""{config.InstanceUrl}"" 
-//    CompanyName=""{config.CompanyName}"" 
-//    Branch=""{config.Branch}"" 
-//    Username=""{config.Username.ToSecureString().DpApiEncryptString()}"" 
-//    Password=""{config.Password.ToSecureString().DpApiEncryptString()}""                                               
-///>";
 
-//            Clipboard.SetText(textAcumaticaXml.Text);
+            textAcumaticaXml.Text =
+                $@"<acumaticaSecurityConfiguration 
+    xdt:Transform=""Replace""
+    InstanceUrl=""{textAcumaticaUrl.Text}"" 
+    CompanyName=""{textAcumaticaCompany.Text}"" 
+    Branch=""{textAcumaticaBranch.Text}"" 
+    Username=""{textAcumaticaUsername.Text.ToSecureString().DpApiEncryptString()}"" 
+    Password=""{textAcumaticaPassword.Text.ToSecureString().DpApiEncryptString()}""                                               
+/>";
+
+            Clipboard.SetText(textAcumaticaXml.Text);
         }
         
 
@@ -107,13 +113,72 @@ namespace Push.Foundation
     xdt:Transform=""Replace""
     EncryptKey=""{this.textMonsterAesKey.Text.ToSecureString().DpApiEncryptString()}"" 
     EncryptIv=""{this.textMonsterAesIv.Text.ToSecureString().DpApiEncryptString()}"" 
-    SystemConnectionString=""{this.textMonsterSystemConnstr.Text}""
+    SystemDatabaseConnection=""{this.textMonsterSystemConnstr.Text}""
 />";
         }
+        
 
-        private void label28_Click(object sender, EventArgs e)
+        private void buttonShopifyLoadContext_Click(object sender, EventArgs e)
         {
+            using (var container = MiddleAutofac.Build())
+            using (var scope = container.BeginLifetimeScope())
+            {                
+                var logger = scope.Resolve<IPushLogger>();
 
+                try
+                {
+                    var tenantId = Guid.Parse(this.textTenantId.Text);
+
+                    var contextLoader = scope.Resolve<TenantContextLoader>();
+                    contextLoader.InitializePersistOnly(tenantId);
+
+                    var repository = scope.Resolve<TenantContextRepository>();
+
+                    repository.CreateIfMissingContext();
+                    repository.UpdateContextShopify(
+                            this.textShopifyDomain.Text,
+                            this.textShopifyApiKey.Text,
+                            this.textShopifyApiPwd.Text,
+                            this.textShopifyApiSecret.Text);
+                }
+                catch (Exception ex)
+                {
+                   logger.Error(ex);
+                    throw;
+                }
+            }
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            using (var container = MiddleAutofac.Build())
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var logger = scope.Resolve<IPushLogger>();
+
+                try
+                {
+                    var tenantId = Guid.Parse(this.textTenantId.Text);
+
+                    var contextLoader = scope.Resolve<TenantContextLoader>();
+                    contextLoader.InitializePersistOnly(tenantId);
+
+                    var repository = scope.Resolve<TenantContextRepository>();
+
+                    repository.CreateIfMissingContext();
+                    repository.UpdateContextAcumatica(                        
+                        this.textAcumaticaUrl.Text,
+                        this.textAcumaticaCompany.Text,
+                        this.textAcumaticaBranch.Text,
+                        this.textAcumaticaUsername.Text,
+                        this.textAcumaticaPassword.Text);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex);
+                    throw;
+                }
+            }
         }
     }        
 }
