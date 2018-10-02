@@ -8,7 +8,8 @@ namespace Push.Shopify.Config
     {
         private static readonly
                 Hashtable _settings =
-                    (Hashtable)ConfigurationManager.GetSection("shopifyHttpConfig");
+                    (Hashtable)ConfigurationManager
+                        .GetSection("shopifyHttp");
 
         public static ShopifyHttpConfig Settings { get; } = new ShopifyHttpConfig();
         

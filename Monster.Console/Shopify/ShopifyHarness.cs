@@ -45,10 +45,18 @@ namespace Monster.ConsoleApp.Shopify
         {
             // Solicit information from user
             Console.WriteLine("Copy 3DU_Automation Metafields" + Environment.NewLine);
-            Console.WriteLine("Enter Source Product ID:");
-            var sourceProductId = Console.ReadLine().ToLong();
-            Console.WriteLine("Enter Target Product ID:");
-            var targetProductId = Console.ReadLine().ToLong();
+            Console.WriteLine("Enter Source Product ID: (1596278571106)");
+            var sourceProductId 
+                = Console.ReadLine()
+                        .IsNullOrEmptyAlt("1596278571106")
+                        .ToLong();
+
+            Console.WriteLine("Enter Target Product ID: (1403130544226)");
+            var targetProductId 
+                = Console.ReadLine()
+                        .IsNullOrEmptyAlt("1403130544226")
+                        .ToLong();
+
             Console.WriteLine(Environment.NewLine + "Ok, running...");
 
 
@@ -57,7 +65,8 @@ namespace Monster.ConsoleApp.Shopify
             {
                 // TODO - Get credentials from config file
                 var credentials
-                    = ShopifyCredentialsConfig.Settings.ToPrivateAppCredentials();
+                    = ShopifyCredentialsConfig
+                        .Settings.ToPrivateAppCredentials();
 
                 ShopifyHarness
                     .SetCredentialsAndExecute(

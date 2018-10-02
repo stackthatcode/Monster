@@ -9,7 +9,7 @@ namespace Monster.Acumatica.Config
         private static readonly
                 Hashtable _settings =
                     (Hashtable)ConfigurationManager
-                        .GetSection("acumaticaHttpConfig");
+                        .GetSection("acumaticaHttp");
 
         public static AcumaticaHttpConfig
                 Settings { get; } = new AcumaticaHttpConfig();

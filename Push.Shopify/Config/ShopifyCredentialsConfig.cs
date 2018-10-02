@@ -10,7 +10,8 @@ namespace Push.Shopify.Config
     {
         private static readonly
             Hashtable _settings =
-                (Hashtable) ConfigurationManager.GetSection("shopifyCredentials") ?? new Hashtable();
+                (Hashtable) ConfigurationManager
+                    .GetSection("shopifyCredentials") ?? new Hashtable();
 
         public static 
             ShopifyCredentialsConfig Settings
@@ -41,11 +42,11 @@ namespace Push.Shopify.Config
         // 
         // Only needs to be set for Private Apps
         //  
-        [ConfigurationProperty("Domain", IsRequired = false)]
+        [ConfigurationProperty("PrivateAppDomain", IsRequired = false)]
         public string PrivateAppDomain
         {
-            get { return (string)_settings["Domain"]; }
-            set { this["Domain"] = value; }
+            get { return (string)_settings["PrivateAppDomain"]; }
+            set { this["PrivateAppDomain"] = value; }
         }
         
 

@@ -9,9 +9,11 @@ namespace Monster.Acumatica.Config
     {
         private static readonly
                 Hashtable _settings =
-                    (Hashtable)ConfigurationManager.GetSection("acumaticaSecurityConfiguration");
+                    (Hashtable)ConfigurationManager
+                        .GetSection("acumaticaCredentials");
 
-        public static AcumaticaCredentialsConfig Settings { get; } = new AcumaticaCredentialsConfig();
+        public static AcumaticaCredentialsConfig 
+            Settings { get; } = new AcumaticaCredentialsConfig();
         
         
         [ConfigurationProperty("Branch", IsRequired = false)]

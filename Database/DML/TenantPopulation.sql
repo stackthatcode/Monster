@@ -18,3 +18,7 @@ BEGIN
 	INSERT INTO usrTenantContext 
 		VALUES ( 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL );
 END
+
+SELECT * FROM usrTenant;
+
+SELECT * FROM usrTenantContext;
