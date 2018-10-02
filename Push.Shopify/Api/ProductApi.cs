@@ -75,17 +75,18 @@ namespace Push.Shopify.Api
         
         
         public virtual void AddMetafield(
-                long productId, MetafieldSingle metafield)
+                long productId, MetafieldRead metafield)
         {
             var json = metafield.SerializeToJson();
             var path = $"/admin/products/{productId}/metafields.json";
             var clientResponse = _httpClient.Post(path, json);
         }
         
-        public virtual void UpdateMetafield(MetafieldSingle metafield)
+        public virtual void UpdateMetafield(
+                    long product_id, MetafieldUpdateParent metafield)
         {
             var json = metafield.SerializeToJson();
-            var path = $"/admin/metafields/{metafield.metafield.id}.json";
+            var path = $"/admin/products/{product_id}/metafields/{metafield.metafield.id}.json";
             var clientResponse = _httpClient.Put(path, json);
         }
 

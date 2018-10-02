@@ -32,16 +32,16 @@ namespace Monster.ConsoleApp.Shopify
                 if (existingMeta != null)
                 {
                     var updateMeteParent =
-                        MetafieldSingle.MakeForUpdate(
+                        MetafieldUpdateParent.Make(
                             existingMeta.id, 
                             "string", 
                             "1 to 2 weeks from time of placing order");
 
-                    productApi.UpdateMetafield(updateMeteParent);
+                    productApi.UpdateMetafield(product.id, updateMeteParent);
                 }
                 else
                 {
-                    var newMetaParent = new MetafieldSingle()
+                    var newMetaParent = new MetafieldRead()
                     {
                         metafield = new Metafield()
                         {
@@ -93,15 +93,15 @@ namespace Monster.ConsoleApp.Shopify
                     logger.Info($"Updating Metafield => {existing.ToString()} ");
 
                     var update =
-                        MetafieldSingle.MakeForUpdate(
+                        MetafieldUpdateParent.Make(
                             existing.id, existing.value_type, existing.value);
 
-                    productApi.UpdateMetafield(update);
+                    productApi.UpdateMetafield(targetProductId, update);
                 }
                 else
                 {
                     var newMeta = 
-                        MetafieldSingle.MakeForInsert(
+                        MetafieldRead.MakeForInsert(
                             source.@namespace,
                             source.key,
                             source.value_type,

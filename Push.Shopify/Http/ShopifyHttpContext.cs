@@ -124,7 +124,9 @@ namespace Push.Shopify.Http
         public ResponseEnvelope Post(string url, string content)
         {
             _logger.Debug($"HTTP POST on {url}");
+            _logger.Trace(content);
 
+            // Warning - change this at your own risk
             var httpContent
                 = new StringContent(content, Encoding.UTF8, "application/json");
 
@@ -142,9 +144,11 @@ namespace Push.Shopify.Http
         public ResponseEnvelope Put(string url, string content)
         {
             _logger.Debug($"HTTP PUT on {url}");
+            _logger.Trace(content);
 
+            // Warning - change this at your own risk
             var httpContent
-                = new StringContent(content, Encoding.UTF8, "text/json");
+                = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response =
                 DurableExecutor.Do(
