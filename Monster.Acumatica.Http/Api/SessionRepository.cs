@@ -11,15 +11,18 @@ namespace Monster.Acumatica.Api
         private readonly AcumaticaHttpConfig _httpConfig;
 
         public SessionRepository(
-                UrlBuilder urlBuilder, 
                 AcumaticaHttpContext httpContext, 
                 AcumaticaHttpConfig httpConfig)
         {
-            _urlBuilder = urlBuilder;
             _httpContext = httpContext;
             _httpConfig = httpConfig;
+
+            // NOTE - I don't think we need the Base URL, since it's
+            // ... baked into the HttpContext
+            _urlBuilder = new UrlBuilder("FIX THIS", _httpConfig.VersionSegment);
+
         }
-        
+
         public void RetrieveSession(AcumaticaCredentials credentials)
         {
             var path = $"{credentials.InstanceUrl}/entity/auth/login";

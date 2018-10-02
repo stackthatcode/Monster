@@ -33,7 +33,7 @@ namespace Monster.ConsoleApp.Acumatica
             var results2 = inventoryRepository.RetrievePostingClasses();
         }
         
-        public static void RetrieveAndAddNewCustomer(ILifetimeScope scope)
+        public static void RetrieveCustomer(ILifetimeScope scope)
         {            
             // Start doing things...
             var customerRepository = scope.Resolve<CustomerRepository>();                

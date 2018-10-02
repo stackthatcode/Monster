@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Acumatica\AcumaticaProcess.cs" />
     <Compile Include="Payouts\PayoutsHarness.cs" />
     <Compile Include="Shopify\MetafieldProcesses.cs" />
     <Compile Include="Acumatica\AcumaticaHarness.cs" />

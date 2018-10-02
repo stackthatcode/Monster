@@ -1,4 +1,5 @@
 ﻿using System;
+using Monster.ConsoleApp.Acumatica;
 using Monster.ConsoleApp.Shopify;
 
 
@@ -13,10 +14,15 @@ namespace Monster.ConsoleApp
             // Payouts runs
             //PayoutsRunner.RunPayoutsWithInjectionOfSettings();
             //PayoutsRunner.StressTestDataPopulate();
-            
+
+
+            // Acumatica test runs
+            AcumaticaProcess.Execute();
+
 
             // Shopify test runs
-            ShopifyHarness.RunShopifyMetafieldCopy();
+            // ShopifyHarness.RunShopifyMetafieldCopy();
+            // TODO - Product, Orders, Locations
 
 
             // Monster test runs

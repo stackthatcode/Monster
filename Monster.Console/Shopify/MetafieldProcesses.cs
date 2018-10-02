@@ -94,7 +94,7 @@ namespace Monster.ConsoleApp.Shopify
 
                     var update =
                         MetafieldUpdateParent.Make(
-                            existing.id, existing.value_type, existing.value);
+                            existing.id, source.value_type, source.value);
 
                     productApi.UpdateMetafield(targetProductId, update);
                 }
