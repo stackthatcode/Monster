@@ -11,18 +11,19 @@ namespace Monster.ConsoleApp
         {
             // *** Uncomment a process flow to execute...
 
-            // Payouts runs
-            //PayoutsRunner.RunPayoutsWithInjectionOfSettings();
-            //PayoutsRunner.StressTestDataPopulate();
-
 
             // Acumatica test runs
-            AcumaticaProcess.Execute();
+            //AcumaticaProcess.Execute();
 
 
             // Shopify test runs
             // ShopifyHarness.RunShopifyMetafieldCopy();
             // TODO - Product, Orders, Locations
+
+
+            // Payouts runs
+            //PayoutsRunner.RunPayoutsWithInjectionOfSettings();
+            //PayoutsRunner.StressTestDataPopulate();
 
 
             // Monster test runs

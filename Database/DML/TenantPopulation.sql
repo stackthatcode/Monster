@@ -1,24 +1,35 @@
-USE Monster;
+USE MonsterSys;
 
---
--- This is a DEV setup where MonsterSys piggybacks on the Monster Instance
---
+DELETE FROM MonsterSys..usrTenant;
+DELETE FROM Monster0001..usrTenantContext;
+DELETE FROM Monster0002..usrTenantContext;
 
-IF NOT EXISTS ( SELECT * FROM usrTenant WHERE Nickname = 'DEV Testing')
+
+DECLARE @nickName1 varchar(100) = 'Bridge Over Monsters';
+DECLARE @connString1 varchar(250) = 'Server=localhost; Database=Monster0001; Trusted_Connection=True;';
+
+IF NOT EXISTS ( SELECT * FROM usrTenant WHERE Nickname = @nickName1)
 BEGIN
 INSERT INTO usrTenant VALUES ( 
-	'51aa413d-e679-4f38-ba47-68129b3f9212', 
-	'Server=localhost; Database=Monster; Trusted_Connection=True;',
-	1, 'DEV Testing' );
+	'51aa413d-e679-4f38-ba47-68129b3f9212', @connString1, 1, @nickName1 );
 END
 
-IF NOT EXISTS ( SELECT * FROM usrTenantContext WHERE CompanyID = 1 )
+
+DECLARE @nickName2 varchar(100) = '3D Universe';
+DECLARE @connString2 varchar(250) = 'Server=localhost; Database=Monster0002; Trusted_Connection=True;';
+
+IF NOT EXISTS ( SELECT * FROM usrTenant WHERE Nickname = @nickName2)
 BEGIN
-
-	INSERT INTO usrTenantContext 
-		VALUES ( 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL );
+INSERT INTO usrTenant VALUES ( 
+	'1adacc65-43eb-4083-9a14-1d3601f52328', @connString2, 1, @nickName2 );
 END
 
-SELECT * FROM usrTenant;
 
-SELECT * FROM usrTenantContext;
+SELECT * FROM MonsterSys..usrTenant;
+SELECT * FROM Monster0001..usrTenantContext;
+SELECT * FROM Monster0002..usrTenantContext;
+
+--DELETE FROM usrTenant;
+
+
+
