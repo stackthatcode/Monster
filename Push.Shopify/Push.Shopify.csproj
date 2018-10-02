@@ -127,7 +127,6 @@
     <Compile Include="Api\Product\InventoryLevel.cs" />
     <Compile Include="Api\Product\Location.cs" />
     <Compile Include="Api\Product\Metafield.cs" />
-    <Compile Include="Api\Product\MetafieldRead.cs" />
     <Compile Include="Api\Product\Option.cs" />
     <Compile Include="Api\Product\Product.cs" />
     <Compile Include="Api\Product\ProductFilter.cs" />

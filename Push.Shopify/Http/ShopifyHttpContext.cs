@@ -54,10 +54,11 @@ namespace Push.Shopify.Http
                         {
                             Accept =
                             {
-                                MediaTypeWithQualityHeaderValue.Parse("text/json")
+                                MediaTypeWithQualityHeaderValue
+                                    .Parse("application/json")
                             }
                         }
-                    };
+                };
 
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -114,9 +115,10 @@ namespace Push.Shopify.Http
                 DurableExecutor.Do(
                     () => _httpClient.GetAsync(url).Result, _executorContext);
 
-            return response
-                .ToEnvelope()
-                .ProcessStatusCodes();
+            var output = response.ToEnvelope();
+            _logger.Trace(output.Body);
+            output.ProcessStatusCodes();
+            return output;
         }
 
         public ResponseEnvelope Post(string url, string content)
@@ -131,9 +133,10 @@ namespace Push.Shopify.Http
                     () => _httpClient.PostAsync(url, httpContent).Result, 
                            _executorContext);
 
-            return response
-                .ToEnvelope()
-                .ProcessStatusCodes();
+            var output = response.ToEnvelope();
+            _logger.Trace(output.Body);
+            output.ProcessStatusCodes();
+            return output;
         }
 
         public ResponseEnvelope Put(string url, string content)
@@ -141,16 +144,17 @@ namespace Push.Shopify.Http
             _logger.Debug($"HTTP PUT on {url}");
 
             var httpContent
-                = new StringContent(content, Encoding.UTF8, "application/json");
+                = new StringContent(content, Encoding.UTF8, "text/json");
 
             var response =
                 DurableExecutor.Do(
                     () => _httpClient.PutAsync(url, httpContent).Result, 
                             _executorContext);
 
-            return response
-                .ToEnvelope()
-                .ProcessStatusCodes();
+            var output = response.ToEnvelope();
+            _logger.Trace(output.Body);
+            output.ProcessStatusCodes();
+            return output;
         }
 
         public void Dispose()

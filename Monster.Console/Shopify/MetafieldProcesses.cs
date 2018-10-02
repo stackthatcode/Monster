@@ -24,31 +24,34 @@ namespace Monster.ConsoleApp.Shopify
                 var metafields =
                     productApi
                         .RetrieveProductMetafields(product.id)
-                        .DeserializeFromJson<MetafieldReadList>()
+                        .DeserializeFromJson<MetafieldList>()
                         .metafields;
 
-                var existingMeta =
-                    metafields.FirstOrDefault(
-                        x => x.@namespace == "global" && x.key == "lead_time");
-
-                var newMeta = new Metafield()
-                {
-                    @namespace = "global",
-                    key = "lead_time",
-                    value_type = "string",
-                    value = "1 to 2 weeks from time of placing order",
-                };
-                var newMetaParent = new MetafieldParent()
-                {
-                    metafield = newMeta
-                };
-
+                var existingMeta = metafields.Find("global", "lead_time");
+                
                 if (existingMeta != null)
                 {
-                    productApi.UpdateMetafield(product.id, newMetaParent);
+                    var updateMeteParent =
+                        MetafieldSingle.MakeForUpdate(
+                            existingMeta.id, 
+                            "string", 
+                            "1 to 2 weeks from time of placing order");
+
+                    productApi.UpdateMetafield(updateMeteParent);
                 }
                 else
                 {
+                    var newMetaParent = new MetafieldSingle()
+                    {
+                        metafield = new Metafield()
+                        {
+                            @namespace = "global",
+                            key = "lead_time",
+                            value_type = "string",
+                            value = "1 to 2 weeks from time of placing order",
+                        }
+                    };
+
                     productApi.AddMetafield(product.id, newMetaParent);
                 }
             }
@@ -67,7 +70,7 @@ namespace Monster.ConsoleApp.Shopify
             var sourceMetafields =
                 productApi
                     .RetrieveProductMetafields(sourceProductId)
-                    .DeserializeFromJson<MetafieldReadList>()
+                    .DeserializeFromJson<MetafieldList>()
                     .metafields;
 
             var filteredSourceMetafields =
@@ -78,38 +81,34 @@ namespace Monster.ConsoleApp.Shopify
             var targetMetafields =
                 productApi
                     .RetrieveProductMetafields(targetProductId)
-                    .DeserializeFromJson<MetafieldReadList>()
+                    .DeserializeFromJson<MetafieldList>()
                     .metafields;
 
-            foreach (var sourceMetaField in filteredSourceMetafields)
-            {
-                var newMeta = new Metafield()
-                {
-                    @namespace = sourceMetaField.@namespace,
-                    key = sourceMetaField.key,
-                    value_type = sourceMetaField.value_type,
-                    value = sourceMetaField.value,
-                };
+            foreach (var source in filteredSourceMetafields)
+            {                
+                var existing = targetMetafields.Find(source.@namespace, source.key);
 
-                var newMetaParent = new MetafieldParent()
+                if (existing != null)
                 {
-                    metafield = newMeta
-                };
+                    logger.Info($"Updating Metafield => {existing.ToString()} ");
 
-                var exists =
-                    targetMetafields
-                        .Any(x => x.@namespace == sourceMetaField.@namespace
-                                  && x.key == sourceMetaField.key);
+                    var update =
+                        MetafieldSingle.MakeForUpdate(
+                            existing.id, existing.value_type, existing.value);
 
-                if (exists)
-                {
-                    logger.Info($"Updating Metafield => {newMeta.ToString()} ");
-                    productApi.UpdateMetafield(targetProductId, newMetaParent);
+                    productApi.UpdateMetafield(update);
                 }
                 else
                 {
-                    logger.Info($"Add Metafield => {newMeta.ToString()} ");
-                    productApi.AddMetafield(targetProductId, newMetaParent);
+                    var newMeta = 
+                        MetafieldSingle.MakeForInsert(
+                            source.@namespace,
+                            source.key,
+                            source.value_type,
+                            source.value);
+
+                    logger.Info($"Add Metafield => {newMeta.metafield} ");
+                    productApi.AddMetafield(targetProductId, newMeta);
                 }
             }
         }

@@ -57,6 +57,11 @@ namespace Monster.ConsoleApp.Shopify
                         .IsNullOrEmptyAlt("1403130544226")
                         .ToLong();
 
+            Console.WriteLine("Enter Namespace: (TestNamespace1)");
+            var nameSpace
+                = Console.ReadLine()
+                    .IsNullOrEmptyAlt("TestNamespace1");
+
             Console.WriteLine(Environment.NewLine + "Ok, running...");
 
 
@@ -78,7 +83,7 @@ namespace Monster.ConsoleApp.Shopify
                                 scope,
                                 sourceProductId,
                                 targetProductId,
-                                "3DU_AUTOMATION");
+                                nameSpace);
                         });
             }
 

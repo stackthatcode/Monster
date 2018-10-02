@@ -49,7 +49,6 @@ namespace Push.Shopify.Api
             var path = "/admin/products.json?" + querystring;
 
             var clientResponse = _httpClient.Get(path);
-            _logger.Trace(clientResponse.Body);            
             return clientResponse.Body;
         }
 
@@ -57,7 +56,6 @@ namespace Push.Shopify.Api
         {
             var path = $"/admin/products/{id}.json";
             var clientResponse = _httpClient.Get(path);
-            _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
 
@@ -65,7 +63,6 @@ namespace Push.Shopify.Api
         {
             var path = $"/admin/products.json?collection_id={id}";
             var clientResponse = _httpClient.Get(path);
-            _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
 
@@ -73,32 +70,29 @@ namespace Push.Shopify.Api
         {
             var path = $"/admin/products/{product_id}/metafields.json";
             var clientResponse = _httpClient.Get(path);
-            _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
         
         
-        public virtual void AddMetafield(long productId, MetafieldParent metafield)
+        public virtual void AddMetafield(
+                long productId, MetafieldSingle metafield)
         {
             var json = metafield.SerializeToJson();
             var path = $"/admin/products/{productId}/metafields.json";
             var clientResponse = _httpClient.Post(path, json);
-            _logger.Trace(clientResponse.Body);            
         }
         
-        public virtual void UpdateMetafield(long productId, MetafieldParent metafield)
+        public virtual void UpdateMetafield(MetafieldSingle metafield)
         {
             var json = metafield.SerializeToJson();
-            var path = $"/admin/products/#{productId}/metafields.json";
+            var path = $"/admin/metafields/{metafield.metafield.id}.json";
             var clientResponse = _httpClient.Put(path, json);
-            _logger.Trace(clientResponse.Body);
         }
 
         public virtual string RetrieveLocations()
         {
             var path = $"/admin/locations.json";
             var clientResponse = _httpClient.Get(path);
-            _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
 
