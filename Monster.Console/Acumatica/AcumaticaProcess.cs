@@ -10,7 +10,7 @@ namespace Monster.ConsoleApp.Acumatica
             using (var scope = container.BeginLifetimeScope())
             {
                 AcumaticaHarness.BeginSession(scope);
-                AcumaticaHarness.RetrieveItemClass(scope);
+                AcumaticaHarness.RetrieveItemAndPostingClass(scope);
                 AcumaticaHarness.RetrieveCustomer(scope);
                 //AcumaticaHarness.NewCustomerRecord(scope);
             }

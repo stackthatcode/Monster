@@ -58,7 +58,6 @@
     <Compile Include="Api\InventoryRepository.cs" />
     <Compile Include="Api\SessionRepository.cs" />
     <Compile Include="Config\AcumaticaHttpConfig.cs" />
-    <Compile Include="Http\UrlBuilder.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />
     <Compile Include="Http\AcumaticaCredentials.cs" />
     <Compile Include="Api\Cash\ImportBankTransaction.cs" />

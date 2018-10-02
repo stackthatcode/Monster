@@ -12,7 +12,6 @@ namespace Monster.Acumatica
             builder.RegisterType<AcumaticaHttpConfig>();
             builder.RegisterType<AcumaticaCredentialsConfig>();
 
-            builder.RegisterType<UrlBuilder>();
             builder.RegisterType<AcumaticaHttpContext>().InstancePerLifetimeScope();
 
             builder.RegisterType<SessionRepository>().InstancePerLifetimeScope();

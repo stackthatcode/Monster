@@ -6,14 +6,10 @@ namespace Monster.Acumatica.Api
 {
     public class CustomerRepository
     {
-        private readonly UrlBuilder _urlBuilder;
         private readonly AcumaticaHttpContext _httpContext;
 
-        public CustomerRepository(
-                UrlBuilder urlBuilder, 
-                AcumaticaHttpContext httpContext)
+        public CustomerRepository(AcumaticaHttpContext httpContext)
         {
-            _urlBuilder = urlBuilder;
             _httpContext = httpContext;
         }
         
@@ -24,8 +20,7 @@ namespace Monster.Acumatica.Api
                     .Add("expand", "MainContact,BillingContact,ShippingContact")
                     .ToString();
 
-            var url = _urlBuilder.Make("Customer");
-            var response = _httpContext.Get(url);
+            var response = _httpContext.Get("Customer");
             return response.Body;
         }
 
@@ -36,15 +31,14 @@ namespace Monster.Acumatica.Api
                     .Add("$expand", "MainContact,BillingContact,ShippingContact")
                     .ToString();
 
-            var url = _urlBuilder.Make($"Customer/{customerId}", queryString);
-            var response = _httpContext.Get(url);
+            var path = $"Customer/{customerId}?{queryString}";
+            var response = _httpContext.Get(path);
             return response.Body;
         }
         
         public string AddNewCustomer(string content)
         {
-            var url = _urlBuilder.Make("Customer");
-            var response = _httpContext.Put(url, content);
+            var response = _httpContext.Put("Customer", content);
             return response.Body;
         }        
     }

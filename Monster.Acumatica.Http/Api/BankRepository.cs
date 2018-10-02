@@ -1,6 +1,4 @@
-﻿using Monster.Acumatica.Config;
-using Monster.Acumatica.Http;
-using Push.Foundation.Utilities.Logging;
+﻿using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Http;
 
 namespace Monster.Acumatica.Api
@@ -8,31 +6,24 @@ namespace Monster.Acumatica.Api
     public class BankRepository
     {
         private readonly HttpFacade _clientFacade;
-        private readonly UrlBuilder _urlBuilder;
         private readonly IPushLogger _logger;
 
 
-        public BankRepository(
-                    HttpFacade clientFacade,
-                    UrlBuilder urlBuilder,
-                    IPushLogger logger)
+        public BankRepository(HttpFacade clientFacade, IPushLogger logger)
         {
             _clientFacade = clientFacade;
-            _urlBuilder = urlBuilder;
             _logger = logger;
         }
         
         public string RetrieveImportBankTransactions()
         {
-            var url = _urlBuilder.Make("ImportBankTransactions");
-            var response = _clientFacade.Get(url);
+            var response = _clientFacade.Get("ImportBankTransactions");
             return response.Body;
         }
 
         public string InsertImportBankTransaction(string content)
         {
-            var url = _urlBuilder.Make("ImportBankTransactions");
-            var response = _clientFacade.Put(url, content);
+            var response = _clientFacade.Put("ImportBankTransactions", content);
             _logger.Debug(content);
             return response.Body;
         }

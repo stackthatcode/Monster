@@ -19,9 +19,10 @@ namespace Monster.Acumatica.Http
         private readonly IPushLogger _logger;
 
         // These are set by the Initialize method
-        private string _instanceUrl;
+        private string _instanceUrl;        
         private HttpClient _httpClient;
         private ExecutorContext _executorContext;
+
 
         public AcumaticaHttpContext(
                 AcumaticaHttpConfig settings, 
@@ -70,31 +71,45 @@ namespace Monster.Acumatica.Http
         }
 
 
-        public ResponseEnvelope Get(
-            string url,
-            Dictionary<string, string> headers = null)
+        public string MakePath(string path, bool excludeVersion = false)
         {
-            _logger.Debug($"HTTP GET on {url}");
+            return !excludeVersion
+                ? $"{_instanceUrl}{_settings.VersionSegment}/{path}" 
+                : $"{_instanceUrl}{path}";
+        }
+
+        public ResponseEnvelope Get(
+                    string path,
+                    Dictionary<string, string> headers = null,
+                    bool excludeVersion = false)
+        {
+            var address = MakePath(path, excludeVersion);
+            _logger.Debug($"HTTP GET on {address}");
 
             var response =
                 DurableExecutor.Do(
-                    () => _httpClient.GetAsync(url).Result, _executorContext);
+                    () => _httpClient.GetAsync(address).Result, _executorContext);
 
             return response
                 .ToEnvelope()
                 .ProcessStatusCodes();
         }
 
-        public ResponseEnvelope Post(string url, string content)
+        public ResponseEnvelope Post(
+                    string path, 
+                    string content,
+                    Dictionary<string, string> headers = null,
+                    bool excludeVersion = false)
         {
-            _logger.Debug($"HTTP POST on {url}");
+            _logger.Debug($"HTTP POST on {path}");
 
             var httpContent
                 = new StringContent(content, Encoding.UTF8, "application/json");
 
+            var address = MakePath(path, excludeVersion);
             var response =
                 DurableExecutor.Do(
-                    () => _httpClient.PostAsync(url, httpContent).Result,
+                    () => _httpClient.PostAsync(address, httpContent).Result,
                     _executorContext);
 
             return response
@@ -102,16 +117,21 @@ namespace Monster.Acumatica.Http
                 .ProcessStatusCodes();
         }
 
-        public ResponseEnvelope Put(string url, string content)
+        public ResponseEnvelope Put(
+                    string path, 
+                    string content,
+                    Dictionary<string, string> headers = null,
+                    bool excludeVersion = false)
         {
-            _logger.Debug($"HTTP PUT on {url}");
+            _logger.Debug($"HTTP PUT on {path}");
+            var address = MakePath(path, excludeVersion);
 
             var httpContent
                 = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response =
                 DurableExecutor.Do(
-                    () => _httpClient.PutAsync(url, httpContent).Result,
+                    () => _httpClient.PutAsync(address, httpContent).Result,
                     _executorContext);
 
             return response
