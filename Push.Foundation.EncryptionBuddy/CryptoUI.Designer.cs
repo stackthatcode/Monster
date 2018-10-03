@@ -32,7 +32,6 @@ namespace Push.Foundation
         {
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.buttonShopifyLoadContext = new System.Windows.Forms.Button();
-            this.textTenantId = new System.Windows.Forms.TextBox();
             this.label25 = new System.Windows.Forms.Label();
             this.textShopifyDomain = new System.Windows.Forms.TextBox();
             this.label24 = new System.Windows.Forms.Label();
@@ -57,6 +56,18 @@ namespace Push.Foundation
             this.textMonsterAesKey = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label31 = new System.Windows.Forms.Label();
+            this.textAcumaticaPassword = new System.Windows.Forms.TextBox();
+            this.label30 = new System.Windows.Forms.Label();
+            this.textAcumaticaUsername = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.textAcumaticaBranch = new System.Windows.Forms.TextBox();
+            this.label26 = new System.Windows.Forms.Label();
+            this.textAcumaticaCompany = new System.Windows.Forms.TextBox();
+            this.label27 = new System.Windows.Forms.Label();
+            this.textAcumaticaUrl = new System.Windows.Forms.TextBox();
+            this.label29 = new System.Windows.Forms.Label();
             this.textAcumaticaXml = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.buttonAcumaticaXml = new System.Windows.Forms.Button();
@@ -95,19 +106,17 @@ namespace Push.Foundation
             this.textHMACSecret = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
-            this.textAcumaticaUsername = new System.Windows.Forms.TextBox();
-            this.label16 = new System.Windows.Forms.Label();
-            this.textAcumaticaBranch = new System.Windows.Forms.TextBox();
-            this.label26 = new System.Windows.Forms.Label();
-            this.textAcumaticaCompany = new System.Windows.Forms.TextBox();
-            this.label27 = new System.Windows.Forms.Label();
-            this.textAcumaticaUrl = new System.Windows.Forms.TextBox();
-            this.label29 = new System.Windows.Forms.Label();
-            this.textAcumaticaPassword = new System.Windows.Forms.TextBox();
-            this.label30 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.textAcumaticaTenantId = new System.Windows.Forms.TextBox();
-            this.label31 = new System.Windows.Forms.Label();
+            this.comboShopifyTenantId = new System.Windows.Forms.ComboBox();
+            this.buttonShopifyGetTenants = new System.Windows.Forms.Button();
+            this.buttonAcumaticaRefresh = new System.Windows.Forms.Button();
+            this.comboAcumaticaTenantId = new System.Windows.Forms.ComboBox();
+            this.tabPage7 = new System.Windows.Forms.TabPage();
+            this.textSummary = new System.Windows.Forms.TextBox();
+            this.label32 = new System.Windows.Forms.Label();
+            this.buttonSummaryGetCurrent = new System.Windows.Forms.Button();
+            this.buttonSummaryRefreshTenant = new System.Windows.Forms.Button();
+            this.comboSummaryTenantId = new System.Windows.Forms.ComboBox();
+            this.label33 = new System.Windows.Forms.Label();
             this.tabPage5.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage6.SuspendLayout();
@@ -115,12 +124,14 @@ namespace Push.Foundation
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage7.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabPage5
             // 
+            this.tabPage5.Controls.Add(this.buttonShopifyGetTenants);
+            this.tabPage5.Controls.Add(this.comboShopifyTenantId);
             this.tabPage5.Controls.Add(this.buttonShopifyLoadContext);
-            this.tabPage5.Controls.Add(this.textTenantId);
             this.tabPage5.Controls.Add(this.label25);
             this.tabPage5.Controls.Add(this.textShopifyDomain);
             this.tabPage5.Controls.Add(this.label24);
@@ -152,16 +163,6 @@ namespace Push.Foundation
             this.buttonShopifyLoadContext.Text = "Load into Tenant Context Persistence";
             this.buttonShopifyLoadContext.UseVisualStyleBackColor = true;
             this.buttonShopifyLoadContext.Click += new System.EventHandler(this.buttonShopifyLoadContext_Click);
-            // 
-            // textTenantId
-            // 
-            this.textTenantId.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textTenantId.Location = new System.Drawing.Point(152, 425);
-            this.textTenantId.Name = "textTenantId";
-            this.textTenantId.Size = new System.Drawing.Size(427, 27);
-            this.textTenantId.TabIndex = 86;
-            this.textTenantId.Text = "51aa413d-e679-4f38-ba47-68129b3f9212";
-            this.textTenantId.WordWrap = false;
             // 
             // label25
             // 
@@ -288,6 +289,7 @@ namespace Push.Foundation
             this.tabControl1.Controls.Add(this.tabPage6);
             this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage7);
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
@@ -295,7 +297,7 @@ namespace Push.Foundation
             this.tabControl1.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(801, 566);
+            this.tabControl1.Size = new System.Drawing.Size(853, 566);
             this.tabControl1.TabIndex = 30;
             // 
             // tabPage6
@@ -409,8 +411,9 @@ namespace Push.Foundation
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.buttonAcumaticaRefresh);
+            this.tabPage4.Controls.Add(this.comboAcumaticaTenantId);
             this.tabPage4.Controls.Add(this.button1);
-            this.tabPage4.Controls.Add(this.textAcumaticaTenantId);
             this.tabPage4.Controls.Add(this.label31);
             this.tabPage4.Controls.Add(this.textAcumaticaPassword);
             this.tabPage4.Controls.Add(this.label30);
@@ -432,6 +435,127 @@ namespace Push.Foundation
             this.tabPage4.TabIndex = 8;
             this.tabPage4.Text = "Acumatica Config";
             this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(156, 467);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(427, 46);
+            this.button1.TabIndex = 97;
+            this.button1.Text = "Load into Tenant Context Persistence";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label31.Location = new System.Drawing.Point(31, 421);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(68, 18);
+            this.label31.TabIndex = 95;
+            this.label31.Text = "Tenant Id";
+            // 
+            // textAcumaticaPassword
+            // 
+            this.textAcumaticaPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textAcumaticaPassword.Location = new System.Drawing.Point(156, 208);
+            this.textAcumaticaPassword.Name = "textAcumaticaPassword";
+            this.textAcumaticaPassword.Size = new System.Drawing.Size(427, 27);
+            this.textAcumaticaPassword.TabIndex = 94;
+            this.textAcumaticaPassword.Text = "l0c4lInstance";
+            this.textAcumaticaPassword.WordWrap = false;
+            // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label30.Location = new System.Drawing.Point(31, 208);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(75, 18);
+            this.label30.TabIndex = 93;
+            this.label30.Text = "Password";
+            // 
+            // textAcumaticaUsername
+            // 
+            this.textAcumaticaUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textAcumaticaUsername.Location = new System.Drawing.Point(156, 169);
+            this.textAcumaticaUsername.Name = "textAcumaticaUsername";
+            this.textAcumaticaUsername.Size = new System.Drawing.Size(427, 27);
+            this.textAcumaticaUsername.TabIndex = 92;
+            this.textAcumaticaUsername.Text = "admin";
+            this.textAcumaticaUsername.WordWrap = false;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.Location = new System.Drawing.Point(31, 169);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(77, 18);
+            this.label16.TabIndex = 91;
+            this.label16.Text = "Username";
+            // 
+            // textAcumaticaBranch
+            // 
+            this.textAcumaticaBranch.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textAcumaticaBranch.Location = new System.Drawing.Point(156, 121);
+            this.textAcumaticaBranch.Name = "textAcumaticaBranch";
+            this.textAcumaticaBranch.Size = new System.Drawing.Size(427, 27);
+            this.textAcumaticaBranch.TabIndex = 90;
+            this.textAcumaticaBranch.Text = "MYCOMPANY";
+            this.textAcumaticaBranch.WordWrap = false;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label26.Location = new System.Drawing.Point(31, 125);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(55, 18);
+            this.label26.TabIndex = 89;
+            this.label26.Text = "Branch";
+            // 
+            // textAcumaticaCompany
+            // 
+            this.textAcumaticaCompany.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textAcumaticaCompany.Location = new System.Drawing.Point(156, 74);
+            this.textAcumaticaCompany.Name = "textAcumaticaCompany";
+            this.textAcumaticaCompany.Size = new System.Drawing.Size(427, 27);
+            this.textAcumaticaCompany.TabIndex = 88;
+            this.textAcumaticaCompany.Text = "MyCompany";
+            this.textAcumaticaCompany.WordWrap = false;
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label27.Location = new System.Drawing.Point(31, 78);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(72, 18);
+            this.label27.TabIndex = 87;
+            this.label27.Text = "Company";
+            // 
+            // textAcumaticaUrl
+            // 
+            this.textAcumaticaUrl.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textAcumaticaUrl.Location = new System.Drawing.Point(156, 29);
+            this.textAcumaticaUrl.Name = "textAcumaticaUrl";
+            this.textAcumaticaUrl.Size = new System.Drawing.Size(427, 27);
+            this.textAcumaticaUrl.TabIndex = 86;
+            this.textAcumaticaUrl.Text = "http://localhost/AcuInst2";
+            this.textAcumaticaUrl.WordWrap = false;
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label29.Location = new System.Drawing.Point(31, 33);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(97, 18);
+            this.label29.TabIndex = 85;
+            this.label29.Text = "Instance URL";
             // 
             // textAcumaticaXml
             // 
@@ -846,136 +970,118 @@ namespace Push.Foundation
             this.label12.TabIndex = 62;
             this.label12.Text = "Payload";
             // 
-            // textAcumaticaUsername
+            // comboShopifyTenantId
             // 
-            this.textAcumaticaUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textAcumaticaUsername.Location = new System.Drawing.Point(156, 169);
-            this.textAcumaticaUsername.Name = "textAcumaticaUsername";
-            this.textAcumaticaUsername.Size = new System.Drawing.Size(427, 27);
-            this.textAcumaticaUsername.TabIndex = 92;
-            this.textAcumaticaUsername.Text = "admin";
-            this.textAcumaticaUsername.WordWrap = false;
+            this.comboShopifyTenantId.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboShopifyTenantId.FormattingEnabled = true;
+            this.comboShopifyTenantId.Location = new System.Drawing.Point(152, 422);
+            this.comboShopifyTenantId.Name = "comboShopifyTenantId";
+            this.comboShopifyTenantId.Size = new System.Drawing.Size(424, 28);
+            this.comboShopifyTenantId.TabIndex = 88;
             // 
-            // label16
+            // buttonShopifyGetTenants
             // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.Location = new System.Drawing.Point(31, 169);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(77, 18);
-            this.label16.TabIndex = 91;
-            this.label16.Text = "Username";
+            this.buttonShopifyGetTenants.Location = new System.Drawing.Point(582, 414);
+            this.buttonShopifyGetTenants.Name = "buttonShopifyGetTenants";
+            this.buttonShopifyGetTenants.Size = new System.Drawing.Size(79, 36);
+            this.buttonShopifyGetTenants.TabIndex = 89;
+            this.buttonShopifyGetTenants.Text = "Refresh ";
+            this.buttonShopifyGetTenants.UseVisualStyleBackColor = true;
+            this.buttonShopifyGetTenants.Click += new System.EventHandler(this.buttonShopifyGetTenants_Click);
             // 
-            // textAcumaticaBranch
+            // buttonAcumaticaRefresh
             // 
-            this.textAcumaticaBranch.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textAcumaticaBranch.Location = new System.Drawing.Point(156, 121);
-            this.textAcumaticaBranch.Name = "textAcumaticaBranch";
-            this.textAcumaticaBranch.Size = new System.Drawing.Size(427, 27);
-            this.textAcumaticaBranch.TabIndex = 90;
-            this.textAcumaticaBranch.Text = "MYCOMPANY";
-            this.textAcumaticaBranch.WordWrap = false;
+            this.buttonAcumaticaRefresh.Location = new System.Drawing.Point(586, 417);
+            this.buttonAcumaticaRefresh.Name = "buttonAcumaticaRefresh";
+            this.buttonAcumaticaRefresh.Size = new System.Drawing.Size(79, 36);
+            this.buttonAcumaticaRefresh.TabIndex = 99;
+            this.buttonAcumaticaRefresh.Text = "Refresh ";
+            this.buttonAcumaticaRefresh.UseVisualStyleBackColor = true;
+            this.buttonAcumaticaRefresh.Click += new System.EventHandler(this.buttonAcumaticaRefresh_Click);
             // 
-            // label26
+            // comboAcumaticaTenantId
             // 
-            this.label26.AutoSize = true;
-            this.label26.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label26.Location = new System.Drawing.Point(31, 125);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(55, 18);
-            this.label26.TabIndex = 89;
-            this.label26.Text = "Branch";
+            this.comboAcumaticaTenantId.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboAcumaticaTenantId.FormattingEnabled = true;
+            this.comboAcumaticaTenantId.Location = new System.Drawing.Point(156, 421);
+            this.comboAcumaticaTenantId.Name = "comboAcumaticaTenantId";
+            this.comboAcumaticaTenantId.Size = new System.Drawing.Size(424, 28);
+            this.comboAcumaticaTenantId.TabIndex = 98;
             // 
-            // textAcumaticaCompany
+            // tabPage7
             // 
-            this.textAcumaticaCompany.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textAcumaticaCompany.Location = new System.Drawing.Point(156, 74);
-            this.textAcumaticaCompany.Name = "textAcumaticaCompany";
-            this.textAcumaticaCompany.Size = new System.Drawing.Size(427, 27);
-            this.textAcumaticaCompany.TabIndex = 88;
-            this.textAcumaticaCompany.Text = "MyCompany";
-            this.textAcumaticaCompany.WordWrap = false;
+            this.tabPage7.Controls.Add(this.buttonSummaryRefreshTenant);
+            this.tabPage7.Controls.Add(this.comboSummaryTenantId);
+            this.tabPage7.Controls.Add(this.label33);
+            this.tabPage7.Controls.Add(this.textSummary);
+            this.tabPage7.Controls.Add(this.label32);
+            this.tabPage7.Controls.Add(this.buttonSummaryGetCurrent);
+            this.tabPage7.Location = new System.Drawing.Point(4, 22);
+            this.tabPage7.Name = "tabPage7";
+            this.tabPage7.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage7.Size = new System.Drawing.Size(845, 540);
+            this.tabPage7.TabIndex = 10;
+            this.tabPage7.Text = "Config Summary";
+            this.tabPage7.UseVisualStyleBackColor = true;
             // 
-            // label27
+            // textSummary
             // 
-            this.label27.AutoSize = true;
-            this.label27.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label27.Location = new System.Drawing.Point(31, 78);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(72, 18);
-            this.label27.TabIndex = 87;
-            this.label27.Text = "Company";
+            this.textSummary.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textSummary.Location = new System.Drawing.Point(148, 76);
+            this.textSummary.Multiline = true;
+            this.textSummary.Name = "textSummary";
+            this.textSummary.Size = new System.Drawing.Size(654, 191);
+            this.textSummary.TabIndex = 67;
             // 
-            // textAcumaticaUrl
+            // label32
             // 
-            this.textAcumaticaUrl.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textAcumaticaUrl.Location = new System.Drawing.Point(156, 29);
-            this.textAcumaticaUrl.Name = "textAcumaticaUrl";
-            this.textAcumaticaUrl.Size = new System.Drawing.Size(427, 27);
-            this.textAcumaticaUrl.TabIndex = 86;
-            this.textAcumaticaUrl.Text = "http://localhost/AcuInst2";
-            this.textAcumaticaUrl.WordWrap = false;
+            this.label32.AutoSize = true;
+            this.label32.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label32.Location = new System.Drawing.Point(19, 94);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(104, 18);
+            this.label32.TabIndex = 66;
+            this.label32.Text = "Current Config";
             // 
-            // label29
+            // buttonSummaryGetCurrent
             // 
-            this.label29.AutoSize = true;
-            this.label29.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label29.Location = new System.Drawing.Point(31, 33);
-            this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(97, 18);
-            this.label29.TabIndex = 85;
-            this.label29.Text = "Instance URL";
+            this.buttonSummaryGetCurrent.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonSummaryGetCurrent.Location = new System.Drawing.Point(148, 292);
+            this.buttonSummaryGetCurrent.Name = "buttonSummaryGetCurrent";
+            this.buttonSummaryGetCurrent.Size = new System.Drawing.Size(654, 46);
+            this.buttonSummaryGetCurrent.TabIndex = 65;
+            this.buttonSummaryGetCurrent.Text = "Retrieve Current Config";
+            this.buttonSummaryGetCurrent.UseVisualStyleBackColor = true;
+            this.buttonSummaryGetCurrent.Click += new System.EventHandler(this.buttonSummaryGetCurrent_Click);
             // 
-            // textAcumaticaPassword
+            // buttonSummaryRefreshTenant
             // 
-            this.textAcumaticaPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textAcumaticaPassword.Location = new System.Drawing.Point(156, 208);
-            this.textAcumaticaPassword.Name = "textAcumaticaPassword";
-            this.textAcumaticaPassword.Size = new System.Drawing.Size(427, 27);
-            this.textAcumaticaPassword.TabIndex = 94;
-            this.textAcumaticaPassword.Text = "l0c4lInstance";
-            this.textAcumaticaPassword.WordWrap = false;
+            this.buttonSummaryRefreshTenant.Location = new System.Drawing.Point(723, 30);
+            this.buttonSummaryRefreshTenant.Name = "buttonSummaryRefreshTenant";
+            this.buttonSummaryRefreshTenant.Size = new System.Drawing.Size(79, 36);
+            this.buttonSummaryRefreshTenant.TabIndex = 102;
+            this.buttonSummaryRefreshTenant.Text = "Refresh ";
+            this.buttonSummaryRefreshTenant.UseVisualStyleBackColor = true;
+            this.buttonSummaryRefreshTenant.Click += new System.EventHandler(this.buttonSummaryRefreshTenant_Click);
             // 
-            // label30
+            // comboSummaryTenantId
             // 
-            this.label30.AutoSize = true;
-            this.label30.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label30.Location = new System.Drawing.Point(31, 208);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(75, 18);
-            this.label30.TabIndex = 93;
-            this.label30.Text = "Password";
+            this.comboSummaryTenantId.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboSummaryTenantId.FormattingEnabled = true;
+            this.comboSummaryTenantId.Location = new System.Drawing.Point(148, 38);
+            this.comboSummaryTenantId.Name = "comboSummaryTenantId";
+            this.comboSummaryTenantId.Size = new System.Drawing.Size(559, 28);
+            this.comboSummaryTenantId.TabIndex = 101;
             // 
-            // button1
+            // label33
             // 
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(156, 467);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(427, 46);
-            this.button1.TabIndex = 97;
-            this.button1.Text = "Load into Tenant Context Persistence";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
-            // 
-            // textAcumaticaTenantId
-            // 
-            this.textAcumaticaTenantId.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textAcumaticaTenantId.Location = new System.Drawing.Point(156, 421);
-            this.textAcumaticaTenantId.Name = "textAcumaticaTenantId";
-            this.textAcumaticaTenantId.Size = new System.Drawing.Size(427, 27);
-            this.textAcumaticaTenantId.TabIndex = 96;
-            this.textAcumaticaTenantId.Text = "51aa413d-e679-4f38-ba47-68129b3f9212";
-            this.textAcumaticaTenantId.WordWrap = false;
-            // 
-            // label31
-            // 
-            this.label31.AutoSize = true;
-            this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label31.Location = new System.Drawing.Point(31, 421);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(68, 18);
-            this.label31.TabIndex = 95;
-            this.label31.Text = "Tenant Id";
+            this.label33.AutoSize = true;
+            this.label33.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label33.Location = new System.Drawing.Point(19, 38);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(68, 18);
+            this.label33.TabIndex = 100;
+            this.label33.Text = "Tenant Id";
             // 
             // CryptoUi
             // 
@@ -988,6 +1094,7 @@ namespace Push.Foundation
             this.Name = "CryptoUi";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.Text = "Who\'s Your Best Encryption Buddy?  I am!";
+            this.Load += new System.EventHandler(this.CryptoUi_Load);
             this.tabPage5.ResumeLayout(false);
             this.tabPage5.PerformLayout();
             this.tabControl1.ResumeLayout(false);
@@ -1001,6 +1108,8 @@ namespace Push.Foundation
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage7.ResumeLayout(false);
+            this.tabPage7.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1070,7 +1179,6 @@ namespace Push.Foundation
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.TextBox textShopifyDomain;
         private System.Windows.Forms.Label label24;
-        private System.Windows.Forms.TextBox textTenantId;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Button buttonShopifyLoadContext;
         private System.Windows.Forms.TextBox textAcumaticaPassword;
@@ -1084,8 +1192,18 @@ namespace Push.Foundation
         private System.Windows.Forms.TextBox textAcumaticaUrl;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TextBox textAcumaticaTenantId;
         private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.Button buttonShopifyGetTenants;
+        private System.Windows.Forms.ComboBox comboShopifyTenantId;
+        private System.Windows.Forms.Button buttonAcumaticaRefresh;
+        private System.Windows.Forms.ComboBox comboAcumaticaTenantId;
+        private System.Windows.Forms.TabPage tabPage7;
+        private System.Windows.Forms.Button buttonSummaryRefreshTenant;
+        private System.Windows.Forms.ComboBox comboSummaryTenantId;
+        private System.Windows.Forms.Label label33;
+        private System.Windows.Forms.TextBox textSummary;
+        private System.Windows.Forms.Label label32;
+        private System.Windows.Forms.Button buttonSummaryGetCurrent;
     }
 }
 

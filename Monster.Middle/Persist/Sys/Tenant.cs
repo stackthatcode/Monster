@@ -7,5 +7,6 @@ namespace Monster.Middle.Persist.Sys
         public Guid TenantId { get; set; }
         public string ConnectionString { get; set; }
         public long CompanyId { get; set; }
+        public string Nickname { get; set; }
     }
 }

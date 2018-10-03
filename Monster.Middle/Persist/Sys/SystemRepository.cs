@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using Dapper;
 
 namespace Monster.Middle.Persist.Sys
@@ -13,6 +15,12 @@ namespace Monster.Middle.Persist.Sys
         {
             _connection = new SqlConnection(connectionString);
             _connection.Open();
+        }
+
+        public IList<Tenant> RetrieveTenants()
+        {
+            var sql = @"SELECT * FROM usrTenant;";
+            return _connection.Query<Tenant>(sql).ToList();
         }
 
         public Tenant RetrieveTenant(Guid tenantID)

@@ -56,7 +56,8 @@ namespace Monster.Middle
             // TODO *** Need to implement this!!
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
 
-            // System-level Persistence                 
+            // System-level Persistence always uses the MonsterConfig 
+            // ... for its Connection String
             builder.Register<SystemRepository>(x =>
             {
                 var connectionString

@@ -4,7 +4,9 @@ using Autofac;
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Middle;
+using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Services;
 using Newtonsoft.Json;
@@ -127,7 +129,8 @@ namespace Push.Foundation
 
                 try
                 {
-                    var tenantId = Guid.Parse(this.textTenantId.Text);
+                    var item = this.comboShopifyTenantId.SelectedItem as ComboboxItem;
+                    var tenantId = Guid.Parse(item.Value.ToString());
 
                     var contextLoader = scope.Resolve<TenantContextLoader>();
                     contextLoader.InitializePersistOnly(tenantId);
@@ -158,7 +161,8 @@ namespace Push.Foundation
 
                 try
                 {
-                    var tenantId = Guid.Parse(this.textTenantId.Text);
+                    var item = this.comboAcumaticaTenantId.SelectedItem as ComboboxItem;
+                    var tenantId = Guid.Parse(item.Value.ToString());
 
                     var contextLoader = scope.Resolve<TenantContextLoader>();
                     contextLoader.InitializePersistOnly(tenantId);
@@ -179,6 +183,83 @@ namespace Push.Foundation
                     throw;
                 }
             }
+        }
+
+
+        private void GetTenants(ComboBox comboBox)
+        {
+            Helper.RunInLifetimeScope((scope) =>
+            {
+                var repository = scope.Resolve<SystemRepository>();
+                var tenants = repository.RetrieveTenants();
+                comboBox.Items.Clear();
+
+                foreach (var t in tenants)
+                {
+                    var item = new ComboboxItem()
+                    {
+                        Text = t.Nickname,
+                        Value = t.TenantId,
+                    };
+
+                    comboBox.Items.Add(item);
+                }
+            });
+
+        }
+
+        private void buttonShopifyGetTenants_Click(object sender, EventArgs e)
+        {
+            GetTenants(this.comboShopifyTenantId);
+        }
+
+        private void buttonAcumaticaRefresh_Click(object sender, EventArgs e)
+        {
+            GetTenants(this.comboAcumaticaTenantId);
+        }
+
+        private void CryptoUi_Load(object sender, EventArgs e)
+        {
+            GetTenants(this.comboShopifyTenantId);
+            GetTenants(this.comboAcumaticaTenantId);
+            GetTenants(this.comboSummaryTenantId);
+        }
+
+        private void buttonSummaryRefreshTenant_Click(object sender, EventArgs e)
+        {
+            GetTenants(this.comboSummaryTenantId);
+        }
+
+        private void buttonSummaryGetCurrent_Click(object sender, EventArgs e)
+        {
+            Helper.RunInLifetimeScope((scope) =>
+            {
+                var item = this.comboSummaryTenantId.SelectedItem as ComboboxItem;
+                var tenantId = Guid.Parse(item.Value.ToString());
+
+                var systemRepository = scope.Resolve<SystemRepository>();
+                var tenant = systemRepository.RetrieveTenant(tenantId);
+
+                var tenantContextLoader = scope.Resolve<TenantContextLoader>();
+                tenantContextLoader.InitializePersistOnly(tenantId);
+
+                var persistContext = scope.Resolve<PersistContext>();
+
+                var repository = scope.Resolve<TenantContextRepository>();
+                var tenantContext = repository.RetrieveRawContext();
+
+                var output =
+                    $"System Connection = {MonsterConfig.Settings.SystemDatabaseConnection}" + Environment.NewLine +
+                    $"Nickname = {tenant.Nickname}" + Environment.NewLine +
+                    $"Instance Connection = {persistContext.ConnectionString}" + Environment.NewLine +
+                    $"Acumatica URL = {tenantContext.AcumaticaInstanceUrl}" + Environment.NewLine +
+                    $"Acumatica Company = {tenantContext.AcumaticaCompanyName}" + Environment.NewLine +
+                    $"Acumatica Branch = {tenantContext.AcumaticaBranch}" + Environment.NewLine +
+                    $"Shopify URL = {tenantContext.ShopifyDomain}" + Environment.NewLine;
+
+                this.textSummary.Text = output;
+            });
+
         }
     }        
 }
