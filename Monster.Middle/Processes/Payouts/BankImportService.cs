@@ -17,23 +17,28 @@ namespace Monster.Middle.Processes.Payouts
     {
         private readonly IPushLogger _logger;
         private readonly PayoutPersistRepository _persistRepository;
-        private readonly PayoutConfig _payoutConfig;
-        private readonly Screen _screen;
 
         // NOTE - entirely separate objects from the Acumatica HTTP
+        private readonly Screen _screen;
+
+        // Set by the Initialization method
+        private PayoutConfig _payoutConfig;
+
 
         public BankImportService(                
                 IPushLogger logger,
                 PayoutPersistRepository persistRepository, 
-                PayoutConfig payoutConfig,
                 Screen screen)
         {
             _logger = logger;
             _persistRepository = persistRepository;
-            _payoutConfig = payoutConfig;
             _screen = screen;
         }
 
+        public void Initialize(PayoutConfig config)
+        {
+            this._payoutConfig = config;
+        }
 
         public void BeginSession()
         {

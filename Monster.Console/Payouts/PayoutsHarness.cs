@@ -4,6 +4,7 @@ using Monster.Acumatica.Http;
 using Monster.Middle;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Payouts;
+using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Payout;
@@ -14,6 +15,55 @@ namespace Monster.ConsoleApp.Payouts
 {
     public class PayoutsHarness
     {
+        public static void RunPayoutsByTenant()
+        {
+            using (var container = MiddleAutofac.Build())
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var logger = scope.Resolve<IPushLogger>();
+                try
+                {
+                    // TODO - enter your Payout Id here
+                    var shopifyPayoutId = 123456;
+
+                    var tenantId = new Guid("1ADACC65-43EB-4083-9A14-1D3601F52328");
+
+                    // Get load the Tenant
+                    var tenantContext = scope.Resolve<TenantContextLoader>();
+                    tenantContext.Initialize(tenantId);
+
+                    // Get the Tenant's 
+                    var tenantContextRepository = scope.Resolve<TenantContextRepository>();
+                    var credentials = tenantContextRepository.RetrieveAcumaticaCredentials();
+
+                    // Load Payout configuration into Bank Import Service
+                    var payoutConfig = new PayoutConfig
+                    {
+                        Credentials = credentials,
+                        ScreenApiUrl = "http://localhost/AcuInst2/Soap/BANKIMPORT.asmx"
+                    };
+                    var bankImportService = scope.Resolve<BankImportService>();
+                    bankImportService.Initialize(payoutConfig);
+
+                    // Get the Payouts process
+                    var process = scope.Resolve<PayoutProcess>();
+
+                    // TODO - use these to control the actual activity
+                    process.PullShopifyPayouts(3);
+                    process.PushAllAcumaticaPayouts();
+
+                    //process.PullShopifyPayout(shopifyPayoutId);
+                    //process.PushAcumaticaPayout(shopifyPayoutId);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex);
+                    throw;
+                }
+            }
+        }
+
+
         //
         // Payouts - with manual injection of settings
         // (suggested) => this can be run from Console App, or installed to 
@@ -21,33 +71,6 @@ namespace Monster.ConsoleApp.Payouts
         // 
         public static void RunPayoutsWithInjectionOfSettings()
         {
-            // TODO - inject your own connection string
-            var connectionString = "Server=localhost;Database=Monster;Trusted_Connection=True;";
-
-            // TODO - inject your own Shopify settings
-            var shopifyCredentials =
-                new PrivateAppCredentials(
-                    "ADD API KEY HERE",
-                    "ADD API PASSWORD HERE",
-                    new ShopDomain("3duniverse.myshopify.com"));
-
-            // TODO - inject your own via new AcumaticaCredentials(); 
-            var acumaticaCredentials = new AcumaticaCredentials()
-            {
-                Username = "ADD USERNAME",
-                Password = "ADD PASSWORD",
-                CompanyName = "ADD COMPANY NAME",
-                InstanceUrl = "ADD URL HERE",
-                Branch = "ADD BRANCH HERE",
-            };
-
-            // TODO - inject your own config values here            
-            var screenApiUrl = "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx";
-            var numberOfHeadersToImport = 21; // e.g. 3 weeks
-
-            // TODO - enter your Payout Id here
-            var shopifyPayoutId = 123456;
-
 
             using (var container = MiddleAutofac.Build())
             using (var scope = container.BeginLifetimeScope())
@@ -56,18 +79,55 @@ namespace Monster.ConsoleApp.Payouts
                 var logger = scope.Resolve<IPushLogger>();
                 try
                 {
-                    var process = scope.Resolve<PayoutProcess>();
+                    // TODO - inject your own connection string
+                    var connectionString = "Server=localhost;Database=MonsterSys;Trusted_Connection=True;";
+
+
+                    var persistContext = scope.Resolve<PersistContext>();
+                    persistContext.Initialize(connectionString, 1);
+
+                    // TODO - inject your own Shopify settings
+                    var shopifyCredentials =
+                        new PrivateAppCredentials(
+                            "ADD API KEY HERE",
+                            "ADD API PASSWORD HERE",
+                            new ShopDomain("3duniverse.myshopify.com"));
+
+                    var shopifyHttpContext = scope.Resolve<ShopifyHttpContext>();
+                    shopifyHttpContext.Initialize(shopifyCredentials);
+
+
+                    // TODO - inject your own via new AcumaticaCredentials(); 
+                    var acumaticaCredentials = new AcumaticaCredentials()
+                    {
+                        Username = "ADD USERNAME",
+                        Password = "ADD PASSWORD",
+                        CompanyName = "ADD COMPANY NAME",
+                        InstanceUrl = "ADD URL HERE",
+                        Branch = "ADD BRANCH HERE",
+                    };
+
+                    var screenApiUrl = "http://localhost/AcuInst2/(W(3))/Soap/BANKIMPORT.asmx";
                     
-                    process.Initialize(
-                        connectionString,
-                        shopifyCredentials,
-                        acumaticaCredentials,
-                        screenApiUrl);
+                    // TODO - inject your own config values here            
+                    var payoutConfig = new PayoutConfig
+                    {
+                        Credentials = acumaticaCredentials,
+                        ScreenApiUrl = screenApiUrl,
+                    };
+                    
+                    var bankImportService = scope.Resolve<BankImportService>();
+                    bankImportService.Initialize(payoutConfig);
+
 
                     // TODO - use these to control the actual activity
+                    var process = scope.Resolve<PayoutProcess>();
+
                     process.PullShopifyPayouts();
                     process.PushAllAcumaticaPayouts();
 
+                    // TODO - enter your Payout Id here
+                    var shopifyPayoutId = 123456;
                     process.PullShopifyPayout(shopifyPayoutId);
                     process.PushAcumaticaPayout(shopifyPayoutId);
 

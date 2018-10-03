@@ -22,12 +22,10 @@ namespace Monster.Middle.Processes.Payouts
         public ShopifyPayoutPullWorker(
                     PayoutPersistRepository persistRepository,
                     PayoutApi payoutRepository,
-                    PayoutConfig payoutConfig,
                     IPushLogger logger)
         {
             _persistRepository = persistRepository;
             _payoutRepository = payoutRepository;
-            _payoutConfig = payoutConfig;
             _logger = logger;
         }
 
@@ -44,12 +42,12 @@ namespace Monster.Middle.Processes.Payouts
         //
         // TODO - add option to use cutoff date...?
         //
-        public void ImportPayoutHeaders()
+        public void ImportPayoutHeaders(int numberOfHeadersToImport)
         {
             // Get current list of Payouts
             var payouts =
                 _payoutRepository
-                    .RetrievePayoutsHeaders(_payoutConfig.NumberOfHeadersToImport)
+                    .RetrievePayoutsHeaders(numberOfHeadersToImport)
                     .DeserializeFromJson<PayoutList>();
             
             foreach (var payout in payouts.payouts)

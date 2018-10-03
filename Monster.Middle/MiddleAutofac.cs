@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Monster.Acumatica;
+using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Sys;
@@ -78,10 +79,11 @@ namespace Monster.Middle
             builder.RegisterType<TenantContextLoader>().InstancePerLifetimeScope();
 
             // Payout Processes
-            builder.RegisterType<ShopifyPayoutPullWorker>();
-            builder.RegisterType<BankImportService>();
-            builder.RegisterType<PayoutProcess>();
-                
+            builder.RegisterType<Screen>().InstancePerLifetimeScope();
+            builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
+
             return builder.Build();
         }
     }

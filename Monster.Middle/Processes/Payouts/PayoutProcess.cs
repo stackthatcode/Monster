@@ -8,10 +8,6 @@ namespace Monster.Middle.Processes.Payouts
 {
     public class PayoutProcess
     {
-        private readonly PersistContext _persistContext;
-        private readonly ShopifyHttpContext _shopifyContext;
-        private readonly AcumaticaHttpContext _acumaticaHttpContext;
-        private readonly PayoutConfig _payoutConfig;
         private readonly ShopifyPayoutPullWorker _shopifyPayoutPullWorker;
         private readonly BankImportService _bankImportService;
         private readonly PayoutPersistRepository _persistenceRepository;
@@ -20,39 +16,16 @@ namespace Monster.Middle.Processes.Payouts
 
 
         public PayoutProcess(
-                PersistContext persistContext,
-                ShopifyHttpContext shopifyContext,
-                AcumaticaHttpContext acumaticaHttpContext,
-                PayoutConfig payoutConfig,
-
                 ShopifyPayoutPullWorker shopifyPayoutPullWorker,
                 BankImportService bankImportService, 
                 PayoutPersistRepository persistenceRepository)
         {
-            _persistContext = persistContext;
-            _shopifyContext = shopifyContext;
-            _acumaticaHttpContext = acumaticaHttpContext;
-            _payoutConfig = payoutConfig;
             _shopifyPayoutPullWorker = shopifyPayoutPullWorker;
             _bankImportService = bankImportService;
             _persistenceRepository = persistenceRepository;
         }
 
-
-        // This is slightly uncommon - the explicit injection credentials
-        public void Initialize(
-                    string connectionString,
-                    PrivateAppCredentials shopifyCredentials,
-                    AcumaticaCredentials acumaticaCredentials,
-                    string bankImportScreenUrl)
-        {
-            _persistContext.Initialize(connectionString, DummyCompanyId);
-            _shopifyContext.Initialize(shopifyCredentials);
-            _acumaticaHttpContext.Initialize(acumaticaCredentials);
-            _payoutConfig.ScreenApiUrl = bankImportScreenUrl;
-        }
-
-
+        
         public void PullShopifyPayout(
                 long shopifyPayoutId, bool includeTransactions = true)
         {
@@ -64,9 +37,10 @@ namespace Monster.Middle.Processes.Payouts
             }
         }
 
-        public void PullShopifyPayouts(bool includeTransactions = true)
+        public void PullShopifyPayouts(
+                int numberOfHeaders = 1, bool includeTransactions = true)
         {
-            _shopifyPayoutPullWorker.ImportPayoutHeaders();
+            _shopifyPayoutPullWorker.ImportPayoutHeaders(numberOfHeaders);
 
             if (includeTransactions)
             {

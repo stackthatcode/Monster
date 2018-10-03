@@ -1,6 +1,5 @@
 ﻿using System;
-using Monster.ConsoleApp.Acumatica;
-using Monster.ConsoleApp.Shopify;
+using Monster.ConsoleApp.Payouts;
 
 
 namespace Monster.ConsoleApp
@@ -22,7 +21,7 @@ namespace Monster.ConsoleApp
 
 
             // Payouts runs
-            //PayoutsRunner.RunPayoutsWithInjectionOfSettings();
+            PayoutsHarness.RunPayoutsByTenant();
             //PayoutsRunner.StressTestDataPopulate();
 
 
