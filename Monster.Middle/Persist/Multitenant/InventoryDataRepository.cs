@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.Persist;
-using Monster.Middle.Persist.Multitenant;
 
-namespace Monster.Middle.Sql.Multitenant
+namespace Monster.Middle.Persist.Multitenant
 {
     public class InventoryPersistRepository
     {

@@ -10,7 +10,7 @@ namespace Monster.Middle.Processes.Payouts
     {
         private readonly ShopifyPayoutPullWorker _shopifyPayoutPullWorker;
         private readonly BankImportService _bankImportService;
-        private readonly PayoutPersistRepository _persistenceRepository;
+        private readonly PayoutDataRepository _persistenceRepository;
 
         public const int DummyCompanyId = 1;
 
@@ -18,7 +18,7 @@ namespace Monster.Middle.Processes.Payouts
         public PayoutProcess(
                 ShopifyPayoutPullWorker shopifyPayoutPullWorker,
                 BankImportService bankImportService, 
-                PayoutPersistRepository persistenceRepository)
+                PayoutDataRepository persistenceRepository)
         {
             _shopifyPayoutPullWorker = shopifyPayoutPullWorker;
             _bankImportService = bankImportService;

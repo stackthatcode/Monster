@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace Monster.Middle.Persist.Multitenant
 {
-    public class PayoutPersistRepository
+    public class PayoutDataRepository
     {
         private readonly PersistContext _persistContext;
         public MonsterDataContext Entities => _persistContext.Entities;
 
-        public PayoutPersistRepository(PersistContext dataContext)
+        public PayoutDataRepository(PersistContext dataContext)
         {
             _persistContext = dataContext;
         }

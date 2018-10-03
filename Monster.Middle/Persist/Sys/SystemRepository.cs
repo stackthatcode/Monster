@@ -19,14 +19,14 @@ namespace Monster.Middle.Persist.Sys
 
         public IList<Tenant> RetrieveTenants()
         {
-            var sql = @"SELECT * FROM usrTenant;";
+            var sql = @"SELECT * FROM usrInstallation;";
             return _connection.Query<Tenant>(sql).ToList();
         }
 
-        public Tenant RetrieveTenant(Guid tenantID)
+        public Tenant RetrieveInstallation(Guid installationId)
         {
-            var sql = @"SELECT * FROM usrTenant WHERE TenantId = @tenantID";
-            return _connection.QueryFirstOrDefault<Tenant>(sql, new { tenantID });
+            var sql = @"SELECT * FROM usrInstallation WHERE InstallationId = @installationId";
+            return _connection.QueryFirstOrDefault<Tenant>(sql, new { tenantID = installationId });
         }
 
         public Tenant InsertTenant(

@@ -132,10 +132,10 @@ namespace Push.Foundation
                     var item = this.comboShopifyTenantId.SelectedItem as ComboboxItem;
                     var tenantId = Guid.Parse(item.Value.ToString());
 
-                    var contextLoader = scope.Resolve<TenantContextLoader>();
+                    var contextLoader = scope.Resolve<TenantContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<TenantContextRepository>();
+                    var repository = scope.Resolve<TenantDataRepository>();
 
                     repository.CreateIfMissingContext();
                     repository.UpdateContextShopify(
@@ -164,10 +164,10 @@ namespace Push.Foundation
                     var item = this.comboAcumaticaTenantId.SelectedItem as ComboboxItem;
                     var tenantId = Guid.Parse(item.Value.ToString());
 
-                    var contextLoader = scope.Resolve<TenantContextLoader>();
+                    var contextLoader = scope.Resolve<TenantContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<TenantContextRepository>();
+                    var repository = scope.Resolve<TenantDataRepository>();
 
                     repository.CreateIfMissingContext();
                     repository.UpdateContextAcumatica(                        
@@ -235,17 +235,17 @@ namespace Push.Foundation
             Helper.RunInLifetimeScope((scope) =>
             {
                 var item = this.comboSummaryTenantId.SelectedItem as ComboboxItem;
-                var tenantId = Guid.Parse(item.Value.ToString());
+                var installationId = Guid.Parse(item.Value.ToString());
 
                 var systemRepository = scope.Resolve<SystemRepository>();
-                var tenant = systemRepository.RetrieveTenant(tenantId);
+                var tenant = systemRepository.RetrieveInstallation(installationId);
 
-                var tenantContextLoader = scope.Resolve<TenantContextLoader>();
-                tenantContextLoader.InitializePersistOnly(tenantId);
+                var tenantContextLoader = scope.Resolve<TenantContext>();
+                tenantContextLoader.InitializePersistOnly(installationId);
 
                 var persistContext = scope.Resolve<PersistContext>();
 
-                var repository = scope.Resolve<TenantContextRepository>();
+                var repository = scope.Resolve<TenantDataRepository>();
                 var tenantContext = repository.RetrieveRawContext();
 
                 var output =

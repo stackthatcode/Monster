@@ -25,7 +25,7 @@ INSERT INTO usrTenant VALUES (
 END
 
 
-SELECT * FROM MonsterSys..usrTenant;
+SELECT * FROM MonsterSys..usrInstallation;
 SELECT * FROM Monster0001..usrTenantContext;
 SELECT * FROM Monster0002..usrTenantContext;
 

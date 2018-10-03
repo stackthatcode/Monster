@@ -19,7 +19,7 @@ namespace Monster.ConsoleApp.Monster
 
                 try
                 {
-                    var contextLoader = scope.Resolve<TenantContextLoader>();
+                    var contextLoader = scope.Resolve<TenantContext>();
                     contextLoader.Initialize(tenantId);
 
                     var worker = scope.Resolve<InventoryWorker>();

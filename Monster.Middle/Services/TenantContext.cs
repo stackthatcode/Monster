@@ -7,17 +7,17 @@ using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Services
 {
-    public class TenantContextLoader
+    public class TenantContext
     {
         private readonly SystemRepository _accountRepository;
-        private readonly TenantContextRepository _tenantContextRepository;
+        private readonly TenantDataRepository _tenantContextRepository;
         private readonly PersistContext _persistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
 
 
-        public TenantContextLoader(
-                TenantContextRepository tenantContextRepository, 
+        public TenantContext(
+                TenantDataRepository tenantContextRepository, 
                 SystemRepository accountRepository, 
                 PersistContext persistContext, 
                 ShopifyHttpContext shopifyHttpContext,
@@ -30,13 +30,15 @@ namespace Monster.Middle.Services
             _acumaticaHttpContext = acumaticaHttpContext;
         }
 
-        public void Initialize(Guid tenantId)
+        public void Initialize(Guid installationId)
         {
-            var tenant = _accountRepository.RetrieveTenant(tenantId);
+            var installation = 
+                    _accountRepository
+                        .RetrieveInstallation(installationId);
 
             // Load the Tenant into Persist 
             _persistContext.Initialize(
-                    tenant.ConnectionString, tenant.CompanyId);
+                    installation.ConnectionString, installation.CompanyId);
 
             // Shopify
             var shopifyCredentials
@@ -49,13 +51,14 @@ namespace Monster.Middle.Services
             _acumaticaHttpContext.Initialize(acumaticaCredentials);
         }
 
-        public void InitializePersistOnly(Guid tenantId)
+        public void InitializePersistOnly(Guid installationId)
         {
-            var tenant = _accountRepository.RetrieveTenant(tenantId);
+            var installation = 
+                    _accountRepository.RetrieveInstallation(installationId);
 
             // Load the Tenant into Persist 
             _persistContext.Initialize(
-                tenant.ConnectionString, tenant.CompanyId);
+                installation.ConnectionString, installation.CompanyId);
 
         }
 
