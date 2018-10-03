@@ -16,12 +16,6 @@ namespace Monster.Acumatica.Api
             _httpConfig = httpConfig;
         }
 
-        public void RetrieveSession(AcumaticaCredentials credentials)
-        {
-            var path = $"/entity/auth/login";
-            var content = credentials.AuthenticationJson;
-            var response = _httpContext.Post(path, content);
-        }
 
 
         // TODO - add method to End Session / Logout

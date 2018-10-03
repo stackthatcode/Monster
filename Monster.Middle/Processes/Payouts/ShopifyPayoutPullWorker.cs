@@ -12,7 +12,7 @@ namespace Monster.Middle.Processes.Payouts
 {
     public class ShopifyPayoutPullWorker
     {
-        private readonly PayoutDataRepository _persistRepository;
+        private readonly PayoutRepository _persistRepository;
         private readonly PayoutApi _payoutRepository;
         private readonly PayoutConfig _payoutConfig;
         private readonly IPushLogger _logger;
@@ -20,7 +20,7 @@ namespace Monster.Middle.Processes.Payouts
         public int PayoutTransactionPagingLimit = 250;
 
         public ShopifyPayoutPullWorker(
-                    PayoutDataRepository persistRepository,
+                    PayoutRepository persistRepository,
                     PayoutApi payoutRepository,
                     IPushLogger logger)
         {

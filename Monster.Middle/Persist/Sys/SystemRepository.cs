@@ -17,31 +17,36 @@ namespace Monster.Middle.Persist.Sys
             _connection.Open();
         }
 
-        public IList<Tenant> RetrieveTenants()
+        public IList<Installation> RetrieveTenants()
         {
             var sql = @"SELECT * FROM usrInstallation;";
-            return _connection.Query<Tenant>(sql).ToList();
+            return _connection.Query<Installation>(sql).ToList();
         }
 
-        public Tenant RetrieveInstallation(Guid installationId)
+        public Installation RetrieveInstallation(Guid installationId)
         {
-            var sql = @"SELECT * FROM usrInstallation WHERE InstallationId = @installationId";
-            return _connection.QueryFirstOrDefault<Tenant>(sql, new { tenantID = installationId });
+            var sql = 
+                @"SELECT * FROM usrInstallation 
+                WHERE InstallationId = @installationId";
+
+            return _connection
+                    .QueryFirstOrDefault<Installation>(
+                        sql, new { installationId = installationId });
         }
 
-        public Tenant InsertTenant(
+        public Installation InsertTenant(
                         string connectionString, long companyId)
         {
-            var tenant = new Tenant()
+            var tenant = new Installation()
             {
-                TenantId = Guid.NewGuid(),
+                InstallationId = Guid.NewGuid(),
                 ConnectionString = connectionString,
                 CompanyId = companyId
             };
 
             var sql =
-                @"INSERT INTO usrTenant VALUES ( " +
-                @"@TenantId, @ConnectionString, @CompanyId )";
+                @"INSERT INTO usrInstallation VALUES ( " +
+                @"@InstallationId, @ConnectionString, @CompanyId )";
 
             _connection.Execute(sql, tenant);
             return tenant;

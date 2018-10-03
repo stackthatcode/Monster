@@ -28,12 +28,12 @@ namespace Monster.ConsoleApp.Payouts
 
                     var tenantId = new Guid("1ADACC65-43EB-4083-9A14-1D3601F52328");
 
-                    // Get load the Tenant
+                    // Get load the Installation
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
 
-                    // Get the Tenant's 
-                    var tenantContextRepository = scope.Resolve<TenantDataRepository>();
+                    // Get the Installation's 
+                    var tenantContextRepository = scope.Resolve<TenantRepository>();
                     var credentials = tenantContextRepository.RetrieveAcumaticaCredentials();
 
                     // Load Payout configuration into Bank Import Service
@@ -152,7 +152,7 @@ namespace Monster.ConsoleApp.Payouts
                 var persistsContext = scope.Resolve<PersistContext>();
                 persistsContext.Initialize(connectionString, 0);
 
-                var repository = scope.Resolve<PayoutDataRepository>();
+                var repository = scope.Resolve<PayoutRepository>();
                 var logger = scope.Resolve<IPushLogger>();
 
                 var shopifyPayout = new Payout()

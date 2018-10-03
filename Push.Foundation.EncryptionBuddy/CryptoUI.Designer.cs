@@ -160,7 +160,7 @@ namespace Push.Foundation
             this.buttonShopifyLoadContext.Name = "buttonShopifyLoadContext";
             this.buttonShopifyLoadContext.Size = new System.Drawing.Size(427, 46);
             this.buttonShopifyLoadContext.TabIndex = 87;
-            this.buttonShopifyLoadContext.Text = "Load into Tenant Context Persistence";
+            this.buttonShopifyLoadContext.Text = "Load into Installation Context Persistence";
             this.buttonShopifyLoadContext.UseVisualStyleBackColor = true;
             this.buttonShopifyLoadContext.Click += new System.EventHandler(this.buttonShopifyLoadContext_Click);
             // 
@@ -172,7 +172,7 @@ namespace Push.Foundation
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(68, 18);
             this.label25.TabIndex = 85;
-            this.label25.Text = "Tenant Id";
+            this.label25.Text = "Installation Id";
             // 
             // textShopifyDomain
             // 
@@ -443,7 +443,7 @@ namespace Push.Foundation
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(427, 46);
             this.button1.TabIndex = 97;
-            this.button1.Text = "Load into Tenant Context Persistence";
+            this.button1.Text = "Load into Installation Context Persistence";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
@@ -455,7 +455,7 @@ namespace Push.Foundation
             this.label31.Name = "label31";
             this.label31.Size = new System.Drawing.Size(68, 18);
             this.label31.TabIndex = 95;
-            this.label31.Text = "Tenant Id";
+            this.label31.Text = "Installation Id";
             // 
             // textAcumaticaPassword
             // 
@@ -1081,7 +1081,7 @@ namespace Push.Foundation
             this.label33.Name = "label33";
             this.label33.Size = new System.Drawing.Size(68, 18);
             this.label33.TabIndex = 100;
-            this.label33.Text = "Tenant Id";
+            this.label33.Text = "Installation Id";
             // 
             // CryptoUi
             // 

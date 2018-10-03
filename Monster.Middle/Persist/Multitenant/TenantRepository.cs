@@ -8,14 +8,14 @@ using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Persist.Multitenant
 {
-    public class TenantDataRepository
+    public class TenantRepository
     {
         private readonly PersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
         private readonly ICryptoService _cryptoService;
 
-        public TenantDataRepository(
+        public TenantRepository(
                 PersistContext dataContext,
                 ICryptoService cryptoService)
         {
@@ -26,14 +26,14 @@ namespace Monster.Middle.Persist.Multitenant
 
         // TODO => implement this https://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string-in-c/10366194#10366194
 
-        public UsrTenantContext RetrieveRawContext()
+        public UsrTenant RetrieveRawTenant()
         {
-            return Entities.UsrTenantContexts.FirstOrDefault();
+            return Entities.UsrTenants.FirstOrDefault();
         }
 
         public AcumaticaCredentials RetrieveAcumaticaCredentials()
         {
-            var context = RetrieveRawContext();
+            var context = RetrieveRawTenant();
 
             var output = new AcumaticaCredentials();
             output.InstanceUrl = context.AcumaticaInstanceUrl;
@@ -53,9 +53,9 @@ namespace Monster.Middle.Persist.Multitenant
 
         public void CreateIfMissingContext()
         {
-            if (!Entities.UsrTenantContexts.Any())
+            if (!Entities.UsrTenants.Any())
             {
-                this.InsertContext(new UsrTenantContext()
+                this.InsertContext(new UsrTenant()
                 {
                     CompanyId = _dataContext.CompanyId
                 });
@@ -64,7 +64,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         public PrivateAppCredentials RetrieveShopifyCredentials()
         {
-            var context = RetrieveRawContext();
+            var context = RetrieveRawTenant();
 
             var apiKey =
                 context.ShopifyApiKey.IsNullOrEmpty() 
@@ -82,9 +82,9 @@ namespace Monster.Middle.Persist.Multitenant
             return output;
         }
 
-        public void InsertContext(UsrTenantContext context)
+        public void InsertContext(UsrTenant context)
         {
-            Entities.UsrTenantContexts.Add(context);
+            Entities.UsrTenants.Add(context);
             Entities.SaveChanges();
         }
 
@@ -94,7 +94,7 @@ namespace Monster.Middle.Persist.Multitenant
             string shopifyApiPassword,
             string shopifyApiSecret)
         {
-            var context = RetrieveRawContext();
+            var context = RetrieveRawTenant();
 
             var encryptedKey = _cryptoService.Encrypt(shopifyApiKey);
             var encryptedPassword = _cryptoService.Encrypt(shopifyApiPassword);
@@ -115,7 +115,7 @@ namespace Monster.Middle.Persist.Multitenant
             string acumaticaUsername,
             string acumaticaPassword)
         {
-            var context = RetrieveRawContext();
+            var context = RetrieveRawTenant();
 
             var encryptedUsername = _cryptoService.Encrypt(acumaticaUsername);
             var encryptedPassword = _cryptoService.Encrypt(acumaticaPassword);

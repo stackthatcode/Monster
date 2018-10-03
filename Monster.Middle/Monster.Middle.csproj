@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
+    <Compile Include="Persist\Multitenant\Extensions\InventoryExtensions.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />
     <Compile Include="Processes\Inventory\InventoryWorker.cs" />
     <Compile Include="Processes\Payouts\BankImportService.cs" />
@@ -75,18 +76,18 @@
     <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Services\TenantContext.cs" />
     <Compile Include="Persist\Sys\SystemRepository.cs" />
-    <Compile Include="Persist\Sys\Tenant.cs" />
+    <Compile Include="Persist\Sys\Installation.cs" />
     <Compile Include="Persist\Multitenant\MonsterDb.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>MonsterDb.tt</DependentUpon>
     </Compile>
-    <Compile Include="Persist\Multitenant\InventoryDataRepository.cs" />
-    <Compile Include="Persist\Multitenant\PayoutDataRepository.cs" />
+    <Compile Include="Persist\Multitenant\InventoryRepository.cs" />
+    <Compile Include="Persist\Multitenant\PayoutRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
     <Compile Include="Persist\Multitenant\PersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Persist\Multitenant\TenantDataRepository.cs" />
+    <Compile Include="Persist\Multitenant\TenantRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

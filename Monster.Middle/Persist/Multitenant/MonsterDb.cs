@@ -9,7 +9,7 @@
 // The following connection settings were used to generate this file:
 //     Configuration file:     "Monster.Middle\App.config"
 //     Connection String Name: "MonsterSystemConnection"
-//     Connection String:      "Server=localhost;Database=Monster;Trusted_Connection=True;"
+//     Connection String:      "Server=localhost;Database=Monster0001;Trusted_Connection=True;"
 // ------------------------------------------------------------------------------------------------
 // Database Edition        : Developer Edition (64-bit)
 // Database Engine Edition : Enterprise
@@ -43,7 +43,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopifyPayoutTransaction> UsrShopifyPayoutTransactions { get; set; } // usrShopifyPayoutTransaction
         System.Data.Entity.DbSet<UsrShopifyProduct> UsrShopifyProducts { get; set; } // usrShopifyProduct
         System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
-        System.Data.Entity.DbSet<UsrTenantContext> UsrTenantContexts { get; set; } // usrTenantContext
+        System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
 
         int SaveChanges();
         System.Threading.Tasks.Task<int> SaveChangesAsync();
@@ -72,7 +72,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyPayoutTransaction> UsrShopifyPayoutTransactions { get; set; } // usrShopifyPayoutTransaction
         public System.Data.Entity.DbSet<UsrShopifyProduct> UsrShopifyProducts { get; set; } // usrShopifyProduct
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
-        public System.Data.Entity.DbSet<UsrTenantContext> UsrTenantContexts { get; set; } // usrTenantContext
+        public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
 
         static MonsterDataContext()
         {
@@ -128,7 +128,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyPayoutTransactionConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyProductConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration());
-            modelBuilder.Configurations.Add(new UsrTenantContextConfiguration());
+            modelBuilder.Configurations.Add(new UsrTenantConfiguration());
         }
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
@@ -139,7 +139,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyPayoutTransactionConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyProductConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration(schema));
-            modelBuilder.Configurations.Add(new UsrTenantContextConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrTenantConfiguration(schema));
             return modelBuilder;
         }
     }
@@ -168,7 +168,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyPayoutTransaction> UsrShopifyPayoutTransactions { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyProduct> UsrShopifyProducts { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; }
-        public System.Data.Entity.DbSet<UsrTenantContext> UsrTenantContexts { get; set; }
+        public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; }
 
         public FakeMonsterDataContext()
         {
@@ -177,12 +177,12 @@ namespace Monster.Middle.Persist.Multitenant
             _database = null;
 
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
-            UsrShopifyLocations = new FakeDbSet<UsrShopifyLocation>("ShopifyLocationId");
+            UsrShopifyLocations = new FakeDbSet<UsrShopifyLocation>("Id");
             UsrShopifyPayouts = new FakeDbSet<UsrShopifyPayout>("ShopifyPayoutId");
             UsrShopifyPayoutTransactions = new FakeDbSet<UsrShopifyPayoutTransaction>("ShopifyPayoutId", "ShopifyPayoutTransId");
-            UsrShopifyProducts = new FakeDbSet<UsrShopifyProduct>("ShopifyProductId");
-            UsrShopifyVariants = new FakeDbSet<UsrShopifyVariant>("ShopifyVariantId");
-            UsrTenantContexts = new FakeDbSet<UsrTenantContext>("CompanyId");
+            UsrShopifyProducts = new FakeDbSet<UsrShopifyProduct>("Id");
+            UsrShopifyVariants = new FakeDbSet<UsrShopifyVariant>("Id");
+            UsrTenants = new FakeDbSet<UsrTenant>("CompanyId");
         }
 
         public int SaveChangesCount { get; private set; }
@@ -519,20 +519,12 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaCashAccount { get; set; } // AcumaticaCashAccount (length: 50)
     }
 
-    // The table 'usrPreferences' is not usable by entity framework because it
-    // does not have a primary key. It is listed here for completeness.
-    // usrPreferences
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrPreference
-    {
-        public string DefaultItemClass { get; set; } // DefaultItemClass (length: 50)
-    }
-
     // usrShopifyLocation
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrShopifyLocation
     {
-        public long ShopifyLocationId { get; set; } // ShopifyLocationId (Primary key)
+        public long Id { get; set; } // Id (Primary key)
+        public long ShopifyLocationId { get; set; } // ShopifyLocationId
         public string ShopifyJson { get; set; } // ShopifyJson
         public System.DateTime? DateCreated { get; set; } // DateCreated
         public System.DateTime? LastUpdated { get; set; } // LastUpdated
@@ -589,56 +581,29 @@ namespace Monster.Middle.Persist.Multitenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrShopifyProduct
     {
-        public long ShopifyProductId { get; set; } // ShopifyProductId (Primary key)
+        public string Id { get; set; } // Id (Primary key) (length: 10)
+        public long ShopifyProductId { get; set; } // ShopifyProductId
         public string ShopifyJson { get; set; } // ShopifyJson
         public System.DateTime? DateCreated { get; set; } // DateCreated
         public System.DateTime? LastUpdated { get; set; } // LastUpdated
-
-        // Reverse navigation
-
-        /// <summary>
-        /// Child UsrShopifyVariants where [usrShopifyVariant].[ShopifyProductId] point to this entity (FK_usrShopifyVariant_usrShopifyProduct)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant.FK_usrShopifyVariant_usrShopifyProduct
-
-        public UsrShopifyProduct()
-        {
-            UsrShopifyVariants = new System.Collections.Generic.List<UsrShopifyVariant>();
-        }
     }
 
     // usrShopifyVariant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrShopifyVariant
     {
-        public long ShopifyVariantId { get; set; } // ShopifyVariantId (Primary key)
+        public string Id { get; set; } // Id (Primary key) (length: 10)
+        public long ShopifyVariantId { get; set; } // ShopifyVariantId
         public long? ShopifyProductId { get; set; } // ShopifyProductId
         public string ShopifyJson { get; set; } // ShopifyJson
         public string ShopifySku { get; set; } // ShopifySku (length: 100)
         public System.DateTime? DateCreated { get; set; } // DateCreated
         public System.DateTime? LastUpdated { get; set; } // LastUpdated
-
-        // Foreign keys
-
-        /// <summary>
-        /// Parent UsrShopifyProduct pointed by [usrShopifyVariant].([ShopifyProductId]) (FK_usrShopifyVariant_usrShopifyProduct)
-        /// </summary>
-        public virtual UsrShopifyProduct UsrShopifyProduct { get; set; } // FK_usrShopifyVariant_usrShopifyProduct
     }
 
-    // The table 'usrTenant' is not usable by entity framework because it
-    // does not have a primary key. It is listed here for completeness.
     // usrTenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrTenant
-    {
-        public string ConnectionString { get; set; } // ConnectionString (length: 500)
-        public long? CompanyId { get; set; } // CompanyID
-    }
-
-    // usrTenantContext
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrTenantContext
     {
         public long CompanyId { get; set; } // CompanyID (Primary key)
         public string ShopifyDomain { get; set; } // ShopifyDomain (length: 500)
@@ -687,9 +652,10 @@ namespace Monster.Middle.Persist.Multitenant
         public UsrShopifyLocationConfiguration(string schema)
         {
             ToTable("usrShopifyLocation", schema);
-            HasKey(x => x.ShopifyLocationId);
+            HasKey(x => x.Id);
 
-            Property(x => x.ShopifyLocationId).HasColumnName(@"ShopifyLocationId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.ShopifyLocationId).HasColumnName(@"ShopifyLocationId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
@@ -761,9 +727,10 @@ namespace Monster.Middle.Persist.Multitenant
         public UsrShopifyProductConfiguration(string schema)
         {
             ToTable("usrShopifyProduct", schema);
-            HasKey(x => x.ShopifyProductId);
+            HasKey(x => x.Id);
 
-            Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
@@ -782,32 +749,30 @@ namespace Monster.Middle.Persist.Multitenant
         public UsrShopifyVariantConfiguration(string schema)
         {
             ToTable("usrShopifyVariant", schema);
-            HasKey(x => x.ShopifyVariantId);
+            HasKey(x => x.Id);
 
-            Property(x => x.ShopifyVariantId).HasColumnName(@"ShopifyVariantId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyVariantId).HasColumnName(@"ShopifyVariantId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsOptional();
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.ShopifySku).HasColumnName(@"ShopifySku").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
-
-            // Foreign keys
-            HasOptional(a => a.UsrShopifyProduct).WithMany(b => b.UsrShopifyVariants).HasForeignKey(c => c.ShopifyProductId).WillCascadeOnDelete(false); // FK_usrShopifyVariant_usrShopifyProduct
         }
     }
 
-    // usrTenantContext
+    // usrTenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrTenantContextConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrTenantContext>
+    public class UsrTenantConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrTenant>
     {
-        public UsrTenantContextConfiguration()
+        public UsrTenantConfiguration()
             : this("dbo")
         {
         }
 
-        public UsrTenantContextConfiguration(string schema)
+        public UsrTenantConfiguration(string schema)
         {
-            ToTable("usrTenantContext", schema);
+            ToTable("usrTenant", schema);
             HasKey(x => x.CompanyId);
 
             Property(x => x.CompanyId).HasColumnName(@"CompanyID").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);

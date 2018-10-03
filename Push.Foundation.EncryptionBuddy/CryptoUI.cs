@@ -135,7 +135,7 @@ namespace Push.Foundation
                     var contextLoader = scope.Resolve<TenantContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<TenantDataRepository>();
+                    var repository = scope.Resolve<TenantRepository>();
 
                     repository.CreateIfMissingContext();
                     repository.UpdateContextShopify(
@@ -167,7 +167,7 @@ namespace Push.Foundation
                     var contextLoader = scope.Resolve<TenantContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<TenantDataRepository>();
+                    var repository = scope.Resolve<TenantRepository>();
 
                     repository.CreateIfMissingContext();
                     repository.UpdateContextAcumatica(                        
@@ -199,7 +199,7 @@ namespace Push.Foundation
                     var item = new ComboboxItem()
                     {
                         Text = t.Nickname,
-                        Value = t.TenantId,
+                        Value = t.InstallationId,
                     };
 
                     comboBox.Items.Add(item);
@@ -245,8 +245,8 @@ namespace Push.Foundation
 
                 var persistContext = scope.Resolve<PersistContext>();
 
-                var repository = scope.Resolve<TenantDataRepository>();
-                var tenantContext = repository.RetrieveRawContext();
+                var repository = scope.Resolve<TenantRepository>();
+                var tenantContext = repository.RetrieveRawTenant();
 
                 var output =
                     $"System Connection = {MonsterConfig.Settings.SystemDatabaseConnection}" + Environment.NewLine +

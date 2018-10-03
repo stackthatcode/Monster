@@ -16,7 +16,7 @@ namespace Monster.Middle.Processes.Payouts
     public class BankImportService : IDisposable
     {
         private readonly IPushLogger _logger;
-        private readonly PayoutDataRepository _persistRepository;
+        private readonly PayoutRepository _persistRepository;
 
         // NOTE - entirely separate objects from the Acumatica HTTP
         private readonly Screen _screen;
@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Payouts
 
         public BankImportService(                
                 IPushLogger logger,
-                PayoutDataRepository persistRepository, 
+                PayoutRepository persistRepository, 
                 Screen screen)
         {
             _logger = logger;

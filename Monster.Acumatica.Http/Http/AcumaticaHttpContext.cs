@@ -22,7 +22,7 @@ namespace Monster.Acumatica.Http
         private string _instanceUrl;        
         private HttpClient _httpClient;
         private ExecutorContext _executorContext;
-
+        private AcumaticaCredentials _credentials;
 
         public AcumaticaHttpContext(
                 AcumaticaHttpConfig settings, 
@@ -34,6 +34,8 @@ namespace Monster.Acumatica.Http
         
         public void Initialize(AcumaticaCredentials credentials)
         {
+            _credentials = credentials;
+
             var baseAddress = new Uri(credentials.InstanceUrl);
             _instanceUrl = credentials.InstanceUrl;
 
@@ -70,6 +72,13 @@ namespace Monster.Acumatica.Http
             _httpClient.Timeout = new TimeSpan(0, 0, 0, _settings.Timeout);
         }
 
+
+        public void Begin()
+        {
+            var path = $"/entity/auth/login";
+            var content = _credentials.AuthenticationJson;
+            var response = Post(path, content, excludeVersion:true);
+        }
 
         public string MakePath(string path, bool excludeVersion = false)
         {

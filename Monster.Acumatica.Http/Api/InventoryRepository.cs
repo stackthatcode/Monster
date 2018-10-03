@@ -28,6 +28,12 @@ namespace Monster.Acumatica.Api
         {
             var response = _httpContext.Get("PostingClass");
             return response.Body;
-        }        
+        }
+
+        public string RetrieveWarehouses()
+        {
+            var response = _httpContext.Get("Warehouse");
+            return response.Body;
+        }
     }
 }

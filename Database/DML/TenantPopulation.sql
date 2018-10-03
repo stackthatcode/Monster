@@ -26,8 +26,8 @@ END
 
 
 SELECT * FROM MonsterSys..usrInstallation;
-SELECT * FROM Monster0001..usrTenantContext;
-SELECT * FROM Monster0002..usrTenantContext;
+SELECT * FROM Monster0001..usrTenant;
+SELECT * FROM Monster0002..usrTenant;
 
 --DELETE FROM usrTenant;
 

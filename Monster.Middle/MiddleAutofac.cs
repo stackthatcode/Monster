@@ -4,6 +4,7 @@ using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Sys;
+using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
@@ -69,12 +70,11 @@ namespace Monster.Middle
 
             // Multitenant Persistence
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
-            builder.RegisterType<PayoutDataRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<InventoryPersistRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<TenantDataRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<PayoutRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<InventoryRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
 
-
-            // Services
+            // Tenant Context
             builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
 
             // Payout Processes
@@ -82,6 +82,10 @@ namespace Monster.Middle
             builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
+
+            // Connectors
+            builder.RegisterType<InventoryWorker>().InstancePerLifetimeScope();
+
 
             return builder.Build();
         }

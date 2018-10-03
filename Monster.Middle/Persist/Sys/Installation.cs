@@ -2,9 +2,9 @@
 
 namespace Monster.Middle.Persist.Sys
 {
-    public class Tenant
+    public class Installation
     {
-        public Guid TenantId { get; set; }
+        public Guid InstallationId { get; set; }
         public string ConnectionString { get; set; }
         public long CompanyId { get; set; }
         public string Nickname { get; set; }

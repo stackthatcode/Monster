@@ -9,6 +9,7 @@ namespace Monster.ConsoleApp.Acumatica
 {
     public class AcumaticaHarness
     {
+        // Use configuration for Credentials
         public static void BeginSession(ILifetimeScope scope)
         {
             var credentials = AcumaticaCredentialsConfig.Settings.ToCredentials();
@@ -18,8 +19,7 @@ namespace Monster.ConsoleApp.Acumatica
             acumaticaContext.Initialize(credentials);
 
             // Begin our Session
-            var sessionRepository = scope.Resolve<SessionRepository>();
-            sessionRepository.RetrieveSession(credentials);
+            acumaticaContext.Begin();
         }
 
 
