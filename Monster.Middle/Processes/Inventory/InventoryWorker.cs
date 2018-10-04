@@ -92,7 +92,7 @@ namespace Monster.Middle.Processes.Inventory
                         LastUpdated = DateTime.UtcNow,
                     };
 
-                    _dataRepository.InsertAcumaticaWarehouse(dataWarehouse);
+                    _dataRepository.InsertAcumaticaWarehouse(newDataWarehouse);
                 }
                 else
                 {
