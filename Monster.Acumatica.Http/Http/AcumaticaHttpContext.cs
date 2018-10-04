@@ -99,9 +99,10 @@ namespace Monster.Acumatica.Http
                 DurableExecutor.Do(
                     () => _httpClient.GetAsync(address).Result, _executorContext);
 
-            return response
-                .ToEnvelope()
-                .ProcessStatusCodes();
+            var output = response.ToEnvelope();
+            _logger.Trace(output.Body);
+            output.ProcessStatusCodes();
+            return output;
         }
 
         public ResponseEnvelope Post(
@@ -121,9 +122,10 @@ namespace Monster.Acumatica.Http
                     () => _httpClient.PostAsync(address, httpContent).Result,
                     _executorContext);
 
-            return response
-                .ToEnvelope()
-                .ProcessStatusCodes();
+            var output = response.ToEnvelope();
+            _logger.Trace(output.Body);
+            output.ProcessStatusCodes();
+            return output;
         }
 
         public ResponseEnvelope Put(
@@ -143,9 +145,10 @@ namespace Monster.Acumatica.Http
                     () => _httpClient.PutAsync(address, httpContent).Result,
                     _executorContext);
 
-            return response
-                .ToEnvelope()
-                .ProcessStatusCodes();
+            var output = response.ToEnvelope();
+            _logger.Trace(output.Body);
+            output.ProcessStatusCodes();
+            return output;
         }
 
         public void Dispose()

@@ -13,15 +13,34 @@ namespace Monster.Middle.Persist.Multitenant
             _dataContext = dataContext;
         }
 
-        public void InsertLocation(UsrShopifyLocation location)
+
+        public void InsertShopifyLocation(UsrShopifyLocation location)
         {
             Entities.UsrShopifyLocations.Add(location);
             Entities.SaveChanges();
         }
 
-        public IList<UsrShopifyLocation> RetreiveLocations()
+        public IList<UsrShopifyLocation> RetreiveShopifyLocations()
         {
             return Entities.UsrShopifyLocations.ToList();
         }
+
+
+        public void InsertAcumaticaWarehouse(UsrAcumaticaWarehouse warehouse)
+        {
+            Entities.UsrAcumaticaWarehouses.Add(warehouse);
+            Entities.SaveChanges();
+        }
+
+        public IList<UsrAcumaticaWarehouse> RetreiveAcumaticaWarehouses()
+        {
+            return Entities.UsrAcumaticaWarehouses.ToList();
+        }
+
+        public void SaveChanges()
+        {
+            Entities.SaveChanges();
+        }
+
     }
 }

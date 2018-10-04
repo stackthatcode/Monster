@@ -1,4 +1,5 @@
 ﻿using Monster.Acumatica.Http;
+using Push.Foundation.Web.Helpers;
 
 namespace Monster.Acumatica.Api
 {
@@ -32,7 +33,12 @@ namespace Monster.Acumatica.Api
 
         public string RetrieveWarehouses()
         {
-            var response = _httpContext.Get("Warehouse");
+            var queryString =
+                    new QueryStringBuilder()
+                        .Add("expand", "Locations")
+                        .ToString();
+
+            var response = _httpContext.Get($"Warehouse?{queryString}");
             return response.Body;
         }
     }
