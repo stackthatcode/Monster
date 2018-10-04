@@ -22,5 +22,18 @@ namespace Monster.Middle.Persist.Multitenant.Extensions
             return persistWarehouses
                 .FirstOrDefault(x => x.AcumaticaWarehouseId == warehouse.WarehouseID.value);
         }
+
+        public static bool Matches(
+                this UsrAcumaticaWarehouse warehouse,
+                UsrShopifyLocation location)
+        {
+            return warehouse.AcumaticaWarehouseId == location.ShopifyLocationName;
+        }
+        public static bool Matches(
+            this UsrShopifyLocation location,
+            UsrAcumaticaWarehouse warehouse)
+        {
+            return warehouse.AcumaticaWarehouseId == location.ShopifyLocationName;
+        }
     }
 }

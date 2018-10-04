@@ -41,5 +41,11 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get($"Warehouse?{queryString}");
             return response.Body;
         }
+
+        public string AddNewWarehouse(string content)
+        {
+            var response = _httpContext.Put("Warehouse", content);
+            return response.Body;
+        }
     }
 }

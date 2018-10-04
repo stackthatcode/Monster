@@ -32,6 +32,8 @@ namespace Monster.ConsoleApp.Monster
 
                     worker.PullWarehousesFromAcumatica();
 
+                    worker.FlagDifferencesAndExceptions();
+
                     // Next Pull Posting Class from Acumatica
 
                     // Next Create Locations in Acumatica
