@@ -24,7 +24,7 @@ namespace Monster.ConsoleApp.Monster
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
 
-                    var worker = scope.Resolve<InventoryWorker>();
+                    var worker = scope.Resolve<LocationWorker>();
                     worker.PullLocationsFromShopify();
 
                     var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();

@@ -68,9 +68,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
+    <Compile Include="Misc\ProductFetcher.cs" />
     <Compile Include="Persist\Multitenant\Extensions\InventoryExtensions.cs" />
+    <Compile Include="Processes\Inventory\ProductWorker.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />
-    <Compile Include="Processes\Inventory\InventoryWorker.cs" />
+    <Compile Include="Processes\Inventory\LocationWorker.cs" />
     <Compile Include="Processes\Payouts\BankImportService.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />

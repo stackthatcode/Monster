@@ -1,4 +1,5 @@
-﻿using Monster.Acumatica.Http;
+﻿using System;
+using Monster.Acumatica.Http;
 using Push.Foundation.Web.Helpers;
 
 namespace Monster.Acumatica.Api
@@ -46,6 +47,11 @@ namespace Monster.Acumatica.Api
         {
             var response = _httpContext.Put("Warehouse", content);
             return response.Body;
+        }
+
+        public string AddNewStockItem(string content)
+        {
+            throw new NotImplementedException();
         }
     }
 }

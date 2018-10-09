@@ -8,7 +8,6 @@ using Push.Foundation.Web.Helpers;
 using Push.Foundation.Web.Http;
 using Push.Shopify.Api.Product;
 using Push.Shopify.Http;
-using Push.Shopify.Model;
 
 namespace Push.Shopify.Api
 {
@@ -36,16 +35,9 @@ namespace Push.Shopify.Api
             return count;
         }
 
-        public virtual string Retrieve(
-                    ProductFilter filter, int page = 1, int limit = 250)
+        public virtual string Retrieve(ProductFilter filter)
         {
-            var querystring
-                = new QueryStringBuilder()
-                    .Add("page", page)
-                    .Add("limit", limit)
-                    .Add(filter.ToQueryStringBuilder())
-                    .ToString();
-
+            var querystring = filter.ToQueryString();                
             var path = "/admin/products.json?" + querystring;
 
             var clientResponse = _httpClient.Get(path);

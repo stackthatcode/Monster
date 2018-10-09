@@ -13,14 +13,14 @@ using InventoryRepository = Monster.Middle.Persist.Multitenant.InventoryReposito
 
 namespace Monster.Middle.Processes.Inventory
 {
-    public class InventoryWorker
+    public class LocationWorker
     {
         private readonly InventoryRepository _dataRepository;
         private readonly InventoryApi _shopifyInventoryApi;
         private readonly Acumatica.Api.InventoryRepository _acumaticaInventoryApi;
         private readonly IPushLogger _logger;
 
-        public InventoryWorker(
+        public LocationWorker(
                 IPushLogger logger,
                 InventoryRepository dataRepository, 
                 InventoryApi shopifyInventoryApi, 

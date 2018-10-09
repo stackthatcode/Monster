@@ -84,7 +84,7 @@ namespace Monster.Middle
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
 
             // Connectors
-            builder.RegisterType<InventoryWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<LocationWorker>().InstancePerLifetimeScope();
 
 
             return builder.Build();

@@ -37,6 +37,22 @@ namespace Monster.Middle.Persist.Multitenant
             return Entities.UsrAcumaticaWarehouses.ToList();
         }
 
+
+        public UsrShopifyProduct 
+                RetrieveShopifyProduct(long shopifyProductId)
+        {
+            return Entities
+                .UsrShopifyProducts
+                .FirstOrDefault(
+                        x => x.ShopifyProductId == shopifyProductId);
+        }
+
+        public void InsertShopifyProduct(UsrShopifyProduct product)
+        {
+            Entities.UsrShopifyProducts.Add(product);
+            Entities.SaveChanges();
+        }
+
         public void SaveChanges()
         {
             Entities.SaveChanges();
