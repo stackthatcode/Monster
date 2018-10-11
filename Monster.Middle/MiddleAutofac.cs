@@ -82,11 +82,12 @@ namespace Monster.Middle
             builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
-
-            // Connectors
+            
+            // Inventory
             builder.RegisterType<LocationWorker>().InstancePerLifetimeScope();
-
-
+            builder.RegisterType<ShopifyProductWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaProductWorker>().InstancePerLifetimeScope();
+            
             return builder.Build();
         }
     }

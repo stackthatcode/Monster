@@ -83,7 +83,7 @@ namespace Monster.Acumatica.Http
         public string MakePath(string path, bool excludeVersion = false)
         {
             return !excludeVersion
-                ? $"{_instanceUrl}{_settings.VersionSegment}/{path}" 
+                ? $"{_instanceUrl}{_settings.VersionSegment}{path}" 
                 : $"{_instanceUrl}{path}";
         }
 

@@ -524,8 +524,8 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public string AcumaticaWarehouseId { get; set; } // AcumaticaWarehouseId (length: 50)
         public string AcumaticaJson { get; set; } // AcumaticaJson
-        public System.DateTime? DateCreated { get; set; } // DateCreated
-        public System.DateTime? LastUpdated { get; set; } // LastUpdated
+        public System.DateTime DateCreated { get; set; } // DateCreated
+        public System.DateTime LastUpdated { get; set; } // LastUpdated
     }
 
     // usrPayoutPreferences
@@ -599,24 +599,44 @@ namespace Monster.Middle.Persist.Multitenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrShopifyProduct
     {
-        public string Id { get; set; } // Id (Primary key) (length: 10)
+        public long Id { get; set; } // Id (Primary key)
         public long ShopifyProductId { get; set; } // ShopifyProductId
         public string ShopifyJson { get; set; } // ShopifyJson
         public System.DateTime? DateCreated { get; set; } // DateCreated
         public System.DateTime? LastUpdated { get; set; } // LastUpdated
+
+        // Reverse navigation
+
+        /// <summary>
+        /// Child UsrShopifyVariants where [usrShopifyVariant].[ParentProductId] point to this entity (FK_usrShopifyVariant_usrShopifyProduct)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant.FK_usrShopifyVariant_usrShopifyProduct
+
+        public UsrShopifyProduct()
+        {
+            UsrShopifyVariants = new System.Collections.Generic.List<UsrShopifyVariant>();
+        }
     }
 
     // usrShopifyVariant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrShopifyVariant
     {
-        public string Id { get; set; } // Id (Primary key) (length: 10)
-        public long ShopifyVariantId { get; set; } // ShopifyVariantId
-        public long? ShopifyProductId { get; set; } // ShopifyProductId
+        public long Id { get; set; } // Id (Primary key)
+        public long? ParentProductId { get; set; } // ParentProductId
+        public long? ShopifyVariantId { get; set; } // ShopifyVariantId
         public string ShopifyJson { get; set; } // ShopifyJson
         public string ShopifySku { get; set; } // ShopifySku (length: 100)
+        public string AcumaticaStockItemId { get; set; } // AcumaticaStockItemId (length: 100)
         public System.DateTime? DateCreated { get; set; } // DateCreated
         public System.DateTime? LastUpdated { get; set; } // LastUpdated
+
+        // Foreign keys
+
+        /// <summary>
+        /// Parent UsrShopifyProduct pointed by [usrShopifyVariant].([ParentProductId]) (FK_usrShopifyVariant_usrShopifyProduct)
+        /// </summary>
+        public virtual UsrShopifyProduct UsrShopifyProduct { get; set; } // FK_usrShopifyVariant_usrShopifyProduct
     }
 
     // usrTenant
@@ -654,10 +674,10 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.AcumaticaWarehouseId).HasColumnName(@"AcumaticaWarehouseId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsOptional();
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaWarehouseId).HasColumnName(@"AcumaticaWarehouseId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }
     }
 
@@ -696,7 +716,7 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyLocationId).HasColumnName(@"ShopifyLocationId").HasColumnType("bigint").IsRequired();
-            Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsOptional();
+            Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyLocationName).HasColumnName(@"ShopifyLocationName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
@@ -770,7 +790,7 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrShopifyProduct", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
@@ -792,13 +812,17 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrShopifyVariant", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ShopifyVariantId).HasColumnName(@"ShopifyVariantId").HasColumnType("bigint").IsRequired();
-            Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsOptional();
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ParentProductId).HasColumnName(@"ParentProductId").HasColumnType("bigint").IsOptional();
+            Property(x => x.ShopifyVariantId).HasColumnName(@"ShopifyVariantId").HasColumnType("bigint").IsOptional();
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.ShopifySku).HasColumnName(@"ShopifySku").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.AcumaticaStockItemId).HasColumnName(@"AcumaticaStockItemId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
+
+            // Foreign keys
+            HasOptional(a => a.UsrShopifyProduct).WithMany(b => b.UsrShopifyVariants).HasForeignKey(c => c.ParentProductId).WillCascadeOnDelete(false); // FK_usrShopifyVariant_usrShopifyProduct
         }
     }
 

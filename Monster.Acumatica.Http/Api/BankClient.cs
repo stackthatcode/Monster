@@ -3,13 +3,13 @@ using Push.Foundation.Web.Http;
 
 namespace Monster.Acumatica.Api
 {
-    public class BankRepository
+    public class BankClient
     {
         private readonly HttpFacade _clientFacade;
         private readonly IPushLogger _logger;
 
 
-        public BankRepository(HttpFacade clientFacade, IPushLogger logger)
+        public BankClient(HttpFacade clientFacade, IPushLogger logger)
         {
             _clientFacade = clientFacade;
             _logger = logger;

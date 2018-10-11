@@ -53,6 +53,23 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
+        public UsrShopifyVariant 
+                    RetrieveShopifyVariants(
+                        long shopifyVariantId, string sku)
+        {
+            return Entities
+                .UsrShopifyVariants
+                .FirstOrDefault(
+                    x => x.ShopifyVariantId == shopifyVariantId &&
+                         x.ShopifySku == sku);
+        }
+
+        public void InsertShopifyVariant(UsrShopifyVariant variant)
+        {
+            Entities.UsrShopifyVariants.Add(variant);
+            Entities.SaveChanges();
+        }
+
         public void SaveChanges()
         {
             Entities.SaveChanges();

@@ -27,7 +27,7 @@ namespace Monster.ConsoleApp.Acumatica
         public static void RetrieveItemAndPostingClass(ILifetimeScope scope)
         {
             // Start doing things!
-            var inventoryRepository = scope.Resolve<InventoryRepository>();
+            var inventoryRepository = scope.Resolve<InventoryClient>();
 
             var results = inventoryRepository.RetrieveItemClass();
             var results2 = inventoryRepository.RetrievePostingClasses();
@@ -36,7 +36,7 @@ namespace Monster.ConsoleApp.Acumatica
         public static void RetrieveCustomer(ILifetimeScope scope)
         {            
             // Start doing things...
-            var customerRepository = scope.Resolve<CustomerRepository>();                
+            var customerRepository = scope.Resolve<CustomerClient>();                
             var results = customerRepository.RetrieveCustomer("C000000001");
 
             var customer = results.DeserializeFromJson<Customer>();

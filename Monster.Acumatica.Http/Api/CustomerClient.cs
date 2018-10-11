@@ -4,11 +4,11 @@ using Push.Foundation.Web.Helpers;
 
 namespace Monster.Acumatica.Api
 {
-    public class CustomerRepository
+    public class CustomerClient
     {
         private readonly AcumaticaHttpContext _httpContext;
 
-        public CustomerRepository(AcumaticaHttpContext httpContext)
+        public CustomerClient(AcumaticaHttpContext httpContext)
         {
             _httpContext = httpContext;
         }

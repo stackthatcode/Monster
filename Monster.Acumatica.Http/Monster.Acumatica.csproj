@@ -53,15 +53,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\BankRepository.cs" />
+    <Compile Include="Api\BankClient.cs" />
     <Compile Include="Api\Common\Values.cs" />
+    <Compile Include="Api\Distribution\StockItem.cs" />
     <Compile Include="Api\Distribution\Warehouse.cs" />
-    <Compile Include="Api\InventoryRepository.cs" />
+    <Compile Include="Api\InventoryClient.cs" />
     <Compile Include="Config\AcumaticaHttpConfig.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />
     <Compile Include="Http\AcumaticaCredentials.cs" />
     <Compile Include="Api\Cash\ImportBankTransaction.cs" />
-    <Compile Include="Api\CustomerRepository.cs" />
+    <Compile Include="Api\CustomerClient.cs" />
     <Compile Include="Api\Customer\Contact.cs" />
     <Compile Include="Api\Customer\Customer.cs" />
     <Compile Include="Api\Customer\ItemClass.cs" />

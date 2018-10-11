@@ -17,14 +17,14 @@ namespace Monster.Middle.Processes.Inventory
     {
         private readonly InventoryRepository _dataRepository;
         private readonly InventoryApi _shopifyInventoryApi;
-        private readonly Acumatica.Api.InventoryRepository _acumaticaInventoryApi;
+        private readonly Acumatica.Api.InventoryClient _acumaticaInventoryApi;
         private readonly IPushLogger _logger;
 
         public LocationWorker(
                 IPushLogger logger,
                 InventoryRepository dataRepository, 
                 InventoryApi shopifyInventoryApi, 
-                Acumatica.Api.InventoryRepository acumaticaInventoryApi)
+                Acumatica.Api.InventoryClient acumaticaInventoryApi)
         {
             _dataRepository = dataRepository;
             _shopifyInventoryApi = shopifyInventoryApi;

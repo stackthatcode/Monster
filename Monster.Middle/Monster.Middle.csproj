@@ -68,9 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
-    <Compile Include="Misc\ProductFetcher.cs" />
+    <Compile Include="Processes\Inventory\AcumaticaProductWorker.cs" />
+    <Compile Include="Processes\Inventory\ShopifyProductWorker.cs" />
     <Compile Include="Persist\Multitenant\Extensions\InventoryExtensions.cs" />
-    <Compile Include="Processes\Inventory\ProductWorker.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />
     <Compile Include="Processes\Inventory\LocationWorker.cs" />
     <Compile Include="Processes\Payouts\BankImportService.cs" />
@@ -120,7 +120,9 @@
       <Name>Push.Shopify</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Misc\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Persist\Multitenant\MonsterDb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

@@ -24,15 +24,20 @@ namespace Monster.ConsoleApp.Monster
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
 
-                    var worker = scope.Resolve<LocationWorker>();
-                    worker.PullLocationsFromShopify();
+                    //var locationWorker = scope.Resolve<LocationWorker>();
+                    //locationWorker.PullLocationsFromShopify();
+
+                    //var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+                    //acumaticaContext.Begin();
+
+                    //locationWorker.PullWarehousesFromAcumatica();
+                    //locationWorker.FlagDifferencesAndExceptions();
 
                     var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
                     acumaticaContext.Begin();
 
-                    worker.PullWarehousesFromAcumatica();
-
-                    worker.FlagDifferencesAndExceptions();
+                    var acumaticaProductWorker = scope.Resolve<AcumaticaProductWorker>();
+                    acumaticaProductWorker.PullStockItems();
 
                     // Next Pull Posting Class from Acumatica
 

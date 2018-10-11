@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Net;
 using Monster.Acumatica.Http;
 using Push.Foundation.Web.Helpers;
 
 namespace Monster.Acumatica.Api
 {
-    public class InventoryRepository
+    public class InventoryClient
     {
         private readonly AcumaticaHttpContext _httpContext;
 
 
-        public InventoryRepository(AcumaticaHttpContext httpContext)
+        public InventoryClient(AcumaticaHttpContext httpContext)
         {
             _httpContext = httpContext;
         }
@@ -19,13 +20,7 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get("ItemClass");
             return response.Body;
         }
-
-        public string RetrieveStockItems()
-        {
-            var response = _httpContext.Get("StockItem");
-            return response.Body;
-        }
-
+        
         public string RetrievePostingClasses()
         {
             var response = _httpContext.Get("PostingClass");
@@ -51,7 +46,19 @@ namespace Monster.Acumatica.Api
 
         public string AddNewStockItem(string content)
         {
-            throw new NotImplementedException();
+            var response = _httpContext.Put("StockItems", content);
+            return response.Body;
+        }
+
+        public string RetreiveStockItems()
+        {
+            //var queryString = "$filter=ItemStatus eq 'Active' and LastModified gt datetimeoffset'" +
+            var queryString = "$filter=ItemStatus eq 'Active'";
+            
+                               // WebUtility.UrlEncode(new DateTimeOffset(new DateTime(2016, 2, 1).AddMonths(-1)).ToString("yyyy-MM-ddTHH:mm:ss.fffK")) + "'";
+
+            var response = _httpContext.Get($"StockItem?{queryString}");
+            return response.Body;
         }
     }
 }
