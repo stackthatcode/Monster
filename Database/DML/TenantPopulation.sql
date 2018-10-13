@@ -1,8 +1,8 @@
 USE MonsterSys;
 
-DELETE FROM MonsterSys..usrTenant;
-DELETE FROM Monster0001..usrTenantContext;
-DELETE FROM Monster0002..usrTenantContext;
+DELETE FROM MonsterSys..usrInstallation;
+DELETE FROM Monster0001..usrTenant;
+DELETE FROM Monster0002..usrTenant;
 
 
 DECLARE @nickName1 varchar(100) = 'Bridge Over Monsters';

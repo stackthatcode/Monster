@@ -53,6 +53,7 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
+
         public UsrShopifyVariant 
                     RetrieveShopifyVariants(
                         long shopifyVariantId, string sku)
@@ -69,6 +70,22 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.UsrShopifyVariants.Add(variant);
             Entities.SaveChanges();
         }
+
+
+        public UsrAcumaticaStockItem
+                    RetreiveAcumaticaStockItems(string itemId)
+        {
+            return Entities
+                    .UsrAcumaticaStockItems
+                    .FirstOrDefault(x => x.ItemId == itemId);
+        }
+
+        public void InsertAcumaticaStockItems(UsrAcumaticaStockItem item)
+        {
+            Entities.UsrAcumaticaStockItems.Add(item);
+            Entities.SaveChanges();
+        }
+
 
         public void SaveChanges()
         {

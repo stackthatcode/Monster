@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
+using Push.Shopify.Api.Inventory;
 using Push.Shopify.Api.Order;
 using Push.Shopify.Api.Product;
 using Push.Shopify.Api.Transaction;

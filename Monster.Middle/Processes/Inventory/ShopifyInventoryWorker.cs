@@ -1,19 +1,21 @@
 ﻿using System;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Extensions;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Product;
+using Push.Shopify.Api.Inventory;
 
 namespace Monster.Middle.Processes.Inventory
 {
-    public class ShopifyProductWorker
+    public class ShopifyInventoryWorker
     {
         private readonly ProductApi _productApi;
         private readonly InventoryRepository _inventoryRepository;
         private readonly IPushLogger _logger;
 
-        public ShopifyProductWorker(
+        public ShopifyInventoryWorker(
                 ProductApi productApi, 
                 InventoryRepository inventoryRepository, 
                 IPushLogger logger)
@@ -24,9 +26,47 @@ namespace Monster.Middle.Processes.Inventory
         }
 
 
+        public void PullLocationsFromShopify()
+        {
+            var dataLocations = _inventoryRepository.RetreiveShopifyLocations();
+
+            var shopifyLocations
+                = _productApi
+                    .RetrieveLocations()
+                    .DeserializeFromJson<LocationList>();
+
+            foreach (var shopifyLoc in shopifyLocations.locations)
+            {
+                var dataLocation = dataLocations.FindByShopifyId(shopifyLoc);
+
+                if (dataLocation == null)
+                {
+                    var newDataLocation = new UsrShopifyLocation
+                    {
+                        ShopifyLocationId = shopifyLoc.id,
+                        ShopifyJson = shopifyLoc.SerializeToJson(),
+                        ShopifyLocationName = shopifyLoc.name,
+                        DateCreated = DateTime.UtcNow,
+                        LastUpdated = DateTime.UtcNow,
+                    };
+
+                    _inventoryRepository.InsertShopifyLocation(newDataLocation);
+                }
+                else
+                {
+                    dataLocation.LastUpdated = DateTime.UtcNow;
+                    dataLocation.ShopifyJson = shopifyLoc.SerializeToJson();
+                    dataLocation.ShopifyLocationName = shopifyLoc.name;
+
+                    _inventoryRepository.SaveChanges();
+                }
+            }
+        }
+
+
         // TODO - add Debug logging
         //
-        public void PullFromShopify(ProductFilter filter)
+        public void PullProducts(ProductFilter filter)
         {
             var firstFilter = filter.Clone();
             firstFilter.Page = 1;
@@ -41,7 +81,7 @@ namespace Monster.Middle.Processes.Inventory
             while (true)
             {
                 var currentFilter = filter.Clone();
-                firstFilter.Page = currentPage;
+                currentFilter.Page = currentPage;
                 
                 var currentJson = _productApi.Retrieve(currentFilter);
                 var currentProducts = currentJson
@@ -62,7 +102,7 @@ namespace Monster.Middle.Processes.Inventory
             var existing =
                 _inventoryRepository.RetrieveShopifyProduct(product.id);
 
-            var shopifyProductId = (long?) null;
+            var parentId = (long?) null;
 
             if (existing == null)
             {
@@ -77,19 +117,20 @@ namespace Monster.Middle.Processes.Inventory
                 _inventoryRepository.InsertShopifyProduct(data);
                 _inventoryRepository.SaveChanges();
 
-                shopifyProductId = data.ShopifyProductId;
+                parentId = data.Id;
             }
             else
             {
                 existing.ShopifyJson = product.SerializeToJson();
                 existing.LastUpdated = DateTime.UtcNow;
+                _inventoryRepository.SaveChanges();
 
-                shopifyProductId = existing.ShopifyProductId;
+                parentId = existing.Id;
             }
 
             foreach (var variant in product.variants)
             {
-                UpsertVariant(shopifyProductId.Value, variant);
+                UpsertVariant(parentId.Value, variant);
             }
         }
 
@@ -99,7 +140,7 @@ namespace Monster.Middle.Processes.Inventory
                 _inventoryRepository
                     .RetrieveShopifyVariants(variant.id, variant.sku);
             
-            if (existing != null)
+            if (existing == null)
             {
                 var data = new UsrShopifyVariant
                 {
@@ -117,6 +158,8 @@ namespace Monster.Middle.Processes.Inventory
             {
                 existing.ShopifyJson = variant.SerializeToJson();
                 existing.LastUpdated = DateTime.UtcNow;
+
+                _inventoryRepository.SaveChanges();
             }
         }
 

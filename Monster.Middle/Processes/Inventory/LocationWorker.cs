@@ -32,43 +32,6 @@ namespace Monster.Middle.Processes.Inventory
             _logger = logger;
         }
 
-        public void PullLocationsFromShopify()
-        {
-            var dataLocations = _dataRepository.RetreiveShopifyLocations();
-
-            var shopifyLocations
-                = _shopifyInventoryApi
-                        .RetrieveLocations()
-                        .DeserializeFromJson<LocationList>();
-
-            foreach (var shopifyLoc in shopifyLocations.locations)
-            {
-                var dataLocation = dataLocations.FindByShopifyId(shopifyLoc);
-
-                if (dataLocation == null)
-                {
-                    var newDataLocation = new UsrShopifyLocation
-                    {
-                        ShopifyLocationId = shopifyLoc.id,
-                        ShopifyJson = shopifyLoc.SerializeToJson(),
-                        ShopifyLocationName = shopifyLoc.name,
-                        DateCreated = DateTime.UtcNow,
-                        LastUpdated = DateTime.UtcNow,
-                    };
-                    
-                    _dataRepository.InsertShopifyLocation(newDataLocation);
-                }
-                else
-                {
-                    dataLocation.LastUpdated = DateTime.UtcNow;
-                    dataLocation.ShopifyJson = shopifyLoc.SerializeToJson();
-                    dataLocation.ShopifyLocationName = shopifyLoc.name;
-
-                    _dataRepository.SaveChanges();
-                }
-            }
-        }
-
         public void PullWarehousesFromAcumatica()
         {
             var warehouses =

@@ -68,8 +68,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
+    <Compile Include="Persist\Multitenant\BatchStateRepository.cs" />
     <Compile Include="Processes\Inventory\AcumaticaProductWorker.cs" />
-    <Compile Include="Processes\Inventory\ShopifyProductWorker.cs" />
+    <Compile Include="Processes\Inventory\InventoryManager.cs" />
+    <Compile Include="Processes\Inventory\ShopifyInventoryWorker.cs" />
     <Compile Include="Persist\Multitenant\Extensions\InventoryExtensions.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />
     <Compile Include="Processes\Inventory\LocationWorker.cs" />

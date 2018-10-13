@@ -1,7 +1,5 @@
 ﻿using System;
 using Autofac;
-using Monster.Acumatica.Api;
-using Monster.Acumatica.Http;
 using Monster.Middle;
 using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Services;
@@ -24,20 +22,8 @@ namespace Monster.ConsoleApp.Monster
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
 
-                    //var locationWorker = scope.Resolve<LocationWorker>();
-                    //locationWorker.PullLocationsFromShopify();
-
-                    //var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
-                    //acumaticaContext.Begin();
-
-                    //locationWorker.PullWarehousesFromAcumatica();
-                    //locationWorker.FlagDifferencesAndExceptions();
-
-                    var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
-                    acumaticaContext.Begin();
-
-                    var acumaticaProductWorker = scope.Resolve<AcumaticaProductWorker>();
-                    acumaticaProductWorker.PullStockItems();
+                    var manager = scope.Resolve<InventoryManager>();
+                    manager.BaselineSync();
 
                     // Next Pull Posting Class from Acumatica
 
