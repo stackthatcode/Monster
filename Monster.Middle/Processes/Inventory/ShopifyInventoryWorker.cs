@@ -64,16 +64,18 @@ namespace Monster.Middle.Processes.Inventory
         }
 
 
+        //
         // TODO - add Debug logging
         //
-        public void PullProducts(ProductFilter filter)
+        public void BaselinePullProducts()
         {
-            var firstFilter = filter.Clone();
+            var firstFilter = new ProductFilter();
             firstFilter.Page = 1;
 
             var firstJson = _productApi.Retrieve(firstFilter);
-            var firstProducts = firstJson
-                    .DeserializeFromJson<ProductList>().products;
+
+            var firstProducts 
+                = firstJson.DeserializeFromJson<ProductList>().products;
             firstProducts.ForEach(UpsertProduct);
 
             var currentPage = 2;
@@ -117,7 +119,7 @@ namespace Monster.Middle.Processes.Inventory
                 _inventoryRepository.InsertShopifyProduct(data);
                 _inventoryRepository.SaveChanges();
 
-                parentId = data.Id;
+                parentId = data.MonsterId;
             }
             else
             {
@@ -125,7 +127,7 @@ namespace Monster.Middle.Processes.Inventory
                 existing.LastUpdated = DateTime.UtcNow;
                 _inventoryRepository.SaveChanges();
 
-                parentId = existing.Id;
+                parentId = existing.MonsterId;
             }
 
             foreach (var variant in product.variants)
@@ -144,7 +146,7 @@ namespace Monster.Middle.Processes.Inventory
             {
                 var data = new UsrShopifyVariant
                 {
-                    ParentProductId = parentProductId,
+                    ParentMonsterId = parentProductId,
                     ShopifyVariantId = variant.id,
                     ShopifySku = variant.sku,
                     ShopifyJson = variant.SerializeToJson(),

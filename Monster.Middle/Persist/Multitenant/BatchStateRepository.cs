@@ -7,51 +7,46 @@ namespace Monster.Middle.Persist.Multitenant
     {
         private readonly PersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
-
-        public int FudgeFactorSeconds = 180;
-
+        
         public BatchStateRepository(PersistContext dataContext)
         {
             _dataContext = dataContext;
         }
-
-        public DateTime ComputeEndTimeStamp()
-        {
-            return DateTime.UtcNow.AddSeconds(-FudgeFactorSeconds);
-        }
+        
 
         public void ResetShopifyBatchState()
         {
-            var existingState = Entities.UsrShopifyBatchStates.FirstOrDefault();
+            var existingState = Entities.UsrBatchStates.FirstOrDefault();
 
             if (existingState == null)
             {
-                var newState = new UsrShopifyBatchState()
+                var newState = new UsrBatchState()
                 {
-                    ProductsEndDate = null,
-                    OrdersStartDate = null,
-                    OrdersEndDate = null,
+                    ShopifyProductsEndDate = null,
+                    ShopifyOrdersStartDate = null,
+                    ShopifyOrdersEndDate = null,
                 };
-                Entities.UsrShopifyBatchStates.Add(newState);
+
+                Entities.UsrBatchStates.Add(newState);
             }
             else
             {
-                existingState.ProductsEndDate = null;
-                existingState.OrdersStartDate = null;
-                existingState.OrdersEndDate = null;
+                existingState.ShopifyProductsEndDate = null;
+                existingState.ShopifyOrdersStartDate = null;
+                existingState.ShopifyOrdersEndDate = null;
             }
 
             Entities.SaveChanges();
         }
 
-        public void UpdateShopifyProductsEndToNow()
+        public void UpdateShopifyProductsEnd(DateTime endTimeUtc)
         {
-            var existingState = Entities.UsrShopifyBatchStates.First();
-            existingState.ProductsEndDate = ComputeEndTimeStamp();
+            var existingState = Entities.UsrBatchStates.First();
+            existingState.ShopifyProductsEndDate = endTimeUtc;
             Entities.SaveChanges();
         }
 
-        public void UpdateForShopifyOrdersBaseline()
+        public void UpdateForShopifyOrdersStart()
         {
 
         }

@@ -10,7 +10,10 @@ namespace Push.Shopify.Api.Product
         public int? Limit { get; set; }
         public long? SinceId { get; set; }
         public DateTime? CreatedAtMinUtc { get; set; }
+        public DateTime? CreatedAtMaxUtc { get; set; }
         public DateTime? UpdatedAtMinUtc { get; set; }
+        public DateTime? UpdatedAtMaxUtc { get; set; }
+
 
         public ProductFilter()
         {
@@ -26,7 +29,9 @@ namespace Push.Shopify.Api.Product
                 Limit = this.Limit,
                 SinceId = this.SinceId,
                 CreatedAtMinUtc = this.CreatedAtMinUtc,
+                CreatedAtMaxUtc = this.CreatedAtMaxUtc,
                 UpdatedAtMinUtc = this.UpdatedAtMinUtc,
+                UpdatedAtMaxUtc = this.UpdatedAtMaxUtc,
             };
         }
 
@@ -50,9 +55,17 @@ namespace Push.Shopify.Api.Product
             {
                 builder.Add("created_at_min", CreatedAtMinUtc.Value);
             }
+            if (CreatedAtMaxUtc != null)
+            {
+                builder.Add("created_at_max", CreatedAtMinUtc.Value);
+            }
             if (UpdatedAtMinUtc != null)
             {
                 builder.Add("updated_at_min", UpdatedAtMinUtc.Value);
+            }
+            if (UpdatedAtMaxUtc != null)
+            {
+                builder.Add("updated_at_max", UpdatedAtMaxUtc.Value);
             }
 
             return builder;

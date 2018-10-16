@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Inventory
 
         public void BaselineSync()
         {
-            // Shopify Pull
+            // Pull all possible Products from Shopify
             _shopifyProductWorker.PullLocationsFromShopify();
             var filter = new ProductFilter();
             _shopifyProductWorker.PullProducts(filter);
@@ -36,6 +36,11 @@ namespace Monster.Middle.Processes.Inventory
             _acumaticaContext.Begin();
             _locationWorker.PullWarehousesFromAcumatica();
             _acumaticaProductWorker.PullStockItems();
+        }
+
+        public void DiffSync()
+        {
+
         }
     }
 }
