@@ -14,18 +14,13 @@ namespace Monster.Middle.Persist.Multitenant
         }
         
 
-        public void ResetShopifyBatchState()
+        public void ResetBatchState()
         {
             var existingState = Entities.UsrBatchStates.FirstOrDefault();
 
             if (existingState == null)
             {
-                var newState = new UsrBatchState()
-                {
-                    ShopifyProductsEndDate = null,
-                    ShopifyOrdersStartDate = null,
-                    ShopifyOrdersEndDate = null,
-                };
+                var newState = new UsrBatchState();
 
                 Entities.UsrBatchStates.Add(newState);
             }
@@ -34,6 +29,7 @@ namespace Monster.Middle.Persist.Multitenant
                 existingState.ShopifyProductsEndDate = null;
                 existingState.ShopifyOrdersStartDate = null;
                 existingState.ShopifyOrdersEndDate = null;
+                existingState.AcumaticaProductsEndDate = null;
             }
 
             Entities.SaveChanges();
@@ -49,6 +45,18 @@ namespace Monster.Middle.Persist.Multitenant
         public void UpdateForShopifyOrdersStart()
         {
 
+        }
+
+        public void UpdateAcumaticaProductsEnd(DateTime endTimeUtc)
+        {
+            var existingState = Entities.UsrBatchStates.First();
+            existingState.AcumaticaProductsEndDate = endTimeUtc;
+            Entities.SaveChanges();
+        }
+
+        public UsrBatchState RetrieveBatchState()
+        {
+            return _dataContext.Entities.UsrBatchStates.First();
         }
     }
 }

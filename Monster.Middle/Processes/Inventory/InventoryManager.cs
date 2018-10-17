@@ -28,14 +28,13 @@ namespace Monster.Middle.Processes.Inventory
         public void BaselineSync()
         {
             // Pull all possible Products from Shopify
-            _shopifyProductWorker.PullLocationsFromShopify();
-            var filter = new ProductFilter();
-            _shopifyProductWorker.PullProducts(filter);
+            _shopifyProductWorker.BaselinePullLocations();
+            _shopifyProductWorker.BaselinePullProducts();
 
             // Acumatica Pull
             _acumaticaContext.Begin();
-            _locationWorker.PullWarehousesFromAcumatica();
-            _acumaticaProductWorker.PullStockItems();
+            _locationWorker.BaselinePullWarehouses();
+            _acumaticaProductWorker.BaselinePullStockItems();
         }
 
         public void DiffSync()

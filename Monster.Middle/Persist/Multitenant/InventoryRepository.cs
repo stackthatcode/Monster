@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Monster.Middle.Persist.Multitenant
@@ -14,6 +15,9 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
 
+
+        // Maaaybe we'll move this Location stuff elsewhere...
+
         public void InsertShopifyLocation(UsrShopifyLocation location)
         {
             Entities.UsrShopifyLocations.Add(location);
@@ -24,7 +28,6 @@ namespace Monster.Middle.Persist.Multitenant
         {
             return Entities.UsrShopifyLocations.ToList();
         }
-
 
         public void InsertAcumaticaWarehouse(UsrAcumaticaWarehouse warehouse)
         {
@@ -38,6 +41,7 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
 
+
         public UsrShopifyProduct 
                 RetrieveShopifyProduct(long shopifyProductId)
         {
@@ -46,7 +50,21 @@ namespace Monster.Middle.Persist.Multitenant
                 .FirstOrDefault(
                         x => x.ShopifyProductId == shopifyProductId);
         }
-
+        
+        public DateTime? RetrieveShopifyProductMaxUpdatedDate()
+        {
+            if (Entities.UsrShopifyPayouts.Any())
+            {
+                return Entities.UsrShopifyProducts
+                            .Select(x => x.LastUpdated)
+                            .Max();
+            }
+            else
+            {
+                return (DateTime?) null;
+            }
+        }
+        
         public void InsertShopifyProduct(UsrShopifyProduct product)
         {
             Entities.UsrShopifyProducts.Add(product);
@@ -86,6 +104,19 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
+        public DateTime? RetrieveAcumaticaStockItemsMaxUpdatedDate()
+        {
+            if (Entities.UsrShopifyPayouts.Any())
+            {
+                return Entities.UsrAcumaticaStockItems
+                    .Select(x => x.LastUpdated)
+                    .Max();
+            }
+            else
+            {
+                return (DateTime?)null;
+            }
+        }
 
         public void SaveChanges()
         {

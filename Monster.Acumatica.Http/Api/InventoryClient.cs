@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using Monster.Acumatica.Http;
+using Monster.Acumatica.Utility;
 using Push.Foundation.Web.Helpers;
 
 namespace Monster.Acumatica.Api
@@ -50,12 +51,15 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string RetreiveStockItems()
-        {
-            //var queryString = "$filter=ItemStatus eq 'Active' and LastModified gt datetimeoffset'" +
+        public string RetreiveStockItems(DateTime? lastModified = null)
+        {               
             var queryString = "$filter=ItemStatus eq 'Active'";
-            
-                               // WebUtility.UrlEncode(new DateTimeOffset(new DateTime(2016, 2, 1).AddMonths(-1)).ToString("yyyy-MM-ddTHH:mm:ss.fffK")) + "'";
+
+            if (lastModified.HasValue)
+            {
+                var restDate = lastModified.Value.ToAcumaticaRestDate();
+                queryString += $" LastModified gt datetimeoffset'{restDate}'";
+            }
 
             var response = _httpContext.Get($"StockItem?{queryString}");
             return response.Body;

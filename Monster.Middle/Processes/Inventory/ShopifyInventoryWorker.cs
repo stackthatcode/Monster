@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Extensions;
+using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -13,20 +15,25 @@ namespace Monster.Middle.Processes.Inventory
     {
         private readonly ProductApi _productApi;
         private readonly InventoryRepository _inventoryRepository;
+        private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
+
+        public const int InitialBatchStateFudgeMin = -15;
+
 
         public ShopifyInventoryWorker(
                 ProductApi productApi, 
                 InventoryRepository inventoryRepository, 
+                BatchStateRepository batchStateRepository,
                 IPushLogger logger)
         {
             _productApi = productApi;
             _inventoryRepository = inventoryRepository;
+            _batchStateRepository = batchStateRepository;
             _logger = logger;
         }
 
-
-        public void PullLocationsFromShopify()
+        public void BaselinePullLocations()
         {
             var dataLocations = _inventoryRepository.RetreiveShopifyLocations();
 
@@ -62,33 +69,28 @@ namespace Monster.Middle.Processes.Inventory
                 }
             }
         }
-
-
-        //
-        // TODO - add Debug logging
-        //
+        
         public void BaselinePullProducts()
         {
+            _logger.Debug("Baseline Pull Products");
+
             var firstFilter = new ProductFilter();
             firstFilter.Page = 1;
 
             var firstJson = _productApi.Retrieve(firstFilter);
-
-            var firstProducts 
-                = firstJson.DeserializeFromJson<ProductList>().products;
-            firstProducts.ForEach(UpsertProduct);
+            var firstProducts = firstJson.DeserializeFromJson<ProductList>().products;
+            UpsertProducts(firstProducts);
 
             var currentPage = 2;
 
             while (true)
             {
-                var currentFilter = filter.Clone();
+                var currentFilter = firstFilter.Clone();
                 currentFilter.Page = currentPage;
                 
                 var currentJson = _productApi.Retrieve(currentFilter);
-                var currentProducts = currentJson
-                        .DeserializeFromJson<ProductList>().products;
-                currentProducts.ForEach(UpsertProduct);
+                var currentProducts = currentJson.DeserializeFromJson<ProductList>().products;
+                UpsertProducts(currentProducts);
 
                 if (currentProducts.Count == 0)
                 {
@@ -97,6 +99,66 @@ namespace Monster.Middle.Processes.Inventory
 
                 currentPage++;
             }
+            
+            var maxUpdatedDate = 
+                _inventoryRepository.RetrieveShopifyProductMaxUpdatedDate();
+
+            var productBatchEnd
+                = maxUpdatedDate
+                  ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
+
+            _batchStateRepository.UpdateShopifyProductsEnd(productBatchEnd);            
+        }
+
+        public void DiffSyncPullProducts()
+        {
+            var batchState = _batchStateRepository.RetrieveBatchState();
+
+            if (!batchState.ShopifyProductsEndDate.HasValue)
+            {
+                throw new Exception(
+                    "ShopifyProductsEndDate not set - must run Baseline Pull first");
+            }
+
+            var filterMinUpdated = batchState.ShopifyProductsEndDate.Value;
+            var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
+
+            var firstFilter = new ProductFilter();
+            firstFilter.Page = 1;
+            firstFilter.UpdatedAtMinUtc = filterMinUpdated;
+
+            // Pull from Shopify
+            var firstJson = _productApi.Retrieve(firstFilter);
+            var firstProducts = firstJson.DeserializeFromJson<ProductList>().products;
+            UpsertProducts(firstProducts);
+
+            var currentPage = 2;
+
+            while (true)
+            {
+                var currentFilter = firstFilter.Clone();
+                currentFilter.Page = currentPage;
+
+                // Pull from Shopify
+                var currentJson = _productApi.Retrieve(currentFilter);
+                var currentProducts = currentJson.DeserializeFromJson<ProductList>().products;
+                UpsertProducts(currentProducts);
+
+                if (currentProducts.Count == 0)
+                {
+                    break;
+                }
+
+                currentPage++;
+            }
+            
+            _batchStateRepository.UpdateShopifyProductsEnd(startOfPullRun);
+        }
+
+
+        public void UpsertProducts(IEnumerable<Product> products)
+        {
+            products.ForEach(x => UpsertProduct(x));
         }
 
         public void UpsertProduct(Product product)

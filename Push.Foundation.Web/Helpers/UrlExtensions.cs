@@ -33,5 +33,10 @@ namespace Push.Foundation.Web.Helpers
                 return queryStringCollection[name];
             }
         }
+
+        public static string UrlEncode(this string input)
+        {
+            return HttpUtility.UrlEncode(input);
+        }
     }
 }

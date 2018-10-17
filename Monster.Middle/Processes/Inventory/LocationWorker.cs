@@ -32,7 +32,7 @@ namespace Monster.Middle.Processes.Inventory
             _logger = logger;
         }
 
-        public void PullWarehousesFromAcumatica()
+        public void BaselinePullWarehouses()
         {
             var warehouses =
                 _acumaticaInventoryApi
