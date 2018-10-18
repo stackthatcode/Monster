@@ -41,6 +41,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         System.Data.Entity.DbSet<UsrBatchState> UsrBatchStates { get; set; } // usrBatchState
         System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
+        System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; } // usrPreferences
         System.Data.Entity.DbSet<UsrProductMatch> UsrProductMatches { get; set; } // usrProductMatch
         System.Data.Entity.DbSet<UsrShopifyLocation> UsrShopifyLocations { get; set; } // usrShopifyLocation
         System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; } // usrShopifyPayout
@@ -74,6 +75,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         public System.Data.Entity.DbSet<UsrBatchState> UsrBatchStates { get; set; } // usrBatchState
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
+        public System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; } // usrPreferences
         public System.Data.Entity.DbSet<UsrProductMatch> UsrProductMatches { get; set; } // usrProductMatch
         public System.Data.Entity.DbSet<UsrShopifyLocation> UsrShopifyLocations { get; set; } // usrShopifyLocation
         public System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; } // usrShopifyPayout
@@ -134,6 +136,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration());
             modelBuilder.Configurations.Add(new UsrBatchStateConfiguration());
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration());
+            modelBuilder.Configurations.Add(new UsrPreferenceConfiguration());
             modelBuilder.Configurations.Add(new UsrProductMatchConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyLocationConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyPayoutConfiguration());
@@ -149,6 +152,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrBatchStateConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrPreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrProductMatchConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyLocationConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyPayoutConfiguration(schema));
@@ -182,6 +186,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; }
         public System.Data.Entity.DbSet<UsrBatchState> UsrBatchStates { get; set; }
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; }
+        public System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; }
         public System.Data.Entity.DbSet<UsrProductMatch> UsrProductMatches { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyLocation> UsrShopifyLocations { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; }
@@ -200,6 +205,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaWarehouses = new FakeDbSet<UsrAcumaticaWarehouse>("Id");
             UsrBatchStates = new FakeDbSet<UsrBatchState>("Id");
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
+            UsrPreferences = new FakeDbSet<UsrPreference>("Id");
             UsrProductMatches = new FakeDbSet<UsrProductMatch>("MonsterId");
             UsrShopifyLocations = new FakeDbSet<UsrShopifyLocation>("Id");
             UsrShopifyPayouts = new FakeDbSet<UsrShopifyPayout>("ShopifyPayoutId");
@@ -574,10 +580,9 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrBatchState
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? ShopifyProductsEndDate { get; set; } // ShopifyProductsEndDate
-        public System.DateTime? ShopifyOrdersStartDate { get; set; } // ShopifyOrdersStartDate
-        public System.DateTime? ShopifyOrdersEndDate { get; set; } // ShopifyOrdersEndDate
-        public System.DateTime? AcumaticaProductsEndDate { get; set; } // AcumaticaProductsEndDate
+        public System.DateTime? ShopifyProductsPullEnd { get; set; } // ShopifyProductsPullEnd
+        public System.DateTime? ShopifyOrdersPullEnd { get; set; } // ShopifyOrdersPullEnd
+        public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
     }
 
     // usrPayoutPreferences
@@ -586,6 +591,14 @@ namespace Monster.Middle.Persist.Multitenant
     {
         public int Id { get; set; } // Id (Primary key)
         public string AcumaticaCashAccount { get; set; } // AcumaticaCashAccount (length: 50)
+    }
+
+    // usrPreferences
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrPreference
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public System.DateTime ShopifyOrderPullStart { get; set; } // ShopifyOrderPullStart
     }
 
     // usrProductMatch
@@ -803,10 +816,9 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ShopifyProductsEndDate).HasColumnName(@"ShopifyProductsEndDate").HasColumnType("datetime").IsOptional();
-            Property(x => x.ShopifyOrdersStartDate).HasColumnName(@"ShopifyOrdersStartDate").HasColumnType("datetime").IsOptional();
-            Property(x => x.ShopifyOrdersEndDate).HasColumnName(@"ShopifyOrdersEndDate").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaProductsEndDate).HasColumnName(@"AcumaticaProductsEndDate").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyProductsPullEnd).HasColumnName(@"ShopifyProductsPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyOrdersPullEnd).HasColumnName(@"ShopifyOrdersPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
         }
     }
 
@@ -826,6 +838,25 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaCashAccount).HasColumnName(@"AcumaticaCashAccount").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+        }
+    }
+
+    // usrPreferences
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrPreferenceConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrPreference>
+    {
+        public UsrPreferenceConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrPreferenceConfiguration(string schema)
+        {
+            ToTable("usrPreferences", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.ShopifyOrderPullStart).HasColumnName(@"ShopifyOrderPullStart").HasColumnType("datetime").IsRequired();
         }
     }
 

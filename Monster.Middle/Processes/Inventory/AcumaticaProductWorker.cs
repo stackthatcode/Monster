@@ -36,7 +36,7 @@ namespace Monster.Middle.Processes.Inventory
         {
             var json = _inventoryClient.RetreiveStockItems();
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
-            UpsertStockItems(stockItems);
+            UpsertToPersist(stockItems);
 
             var maxProductDate = 
                 _inventoryRepository
@@ -52,24 +52,24 @@ namespace Monster.Middle.Processes.Inventory
         public void DiffPullStockItems()
         {
             var batchState = _batchStateRepository.RetrieveBatchState();
-            if (!batchState.AcumaticaProductsEndDate.HasValue)
+            if (!batchState.AcumaticaProductsPullEnd.HasValue)
             {
                 throw new Exception(
-                    "AcumaticaProductsEndDate is null - run Acumatica Baseline Pull first");
+                    "AcumaticaProductsPullEnd is null - run Acumatica Baseline Pull first");
             }
 
-            var productUpdateMin = batchState.AcumaticaProductsEndDate;
+            var productUpdateMin = batchState.AcumaticaProductsPullEnd;
             var pullRunStartTime = DateTime.UtcNow;
 
             var json = _inventoryClient.RetreiveStockItems(productUpdateMin);
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
 
-            UpsertStockItems(stockItems);
+            UpsertToPersist(stockItems);
 
             _batchStateRepository.UpdateAcumaticaProductsEnd(pullRunStartTime);
         }
 
-        public void UpsertStockItems(List<StockItem> items)
+        public void UpsertToPersist(List<StockItem> items)
         {
             foreach (var item in items)
             {

@@ -69,12 +69,15 @@
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Persist\Multitenant\BatchStateRepository.cs" />
+    <Compile Include="Persist\Multitenant\LocationRepository.cs" />
+    <Compile Include="Persist\Multitenant\MatchRepository.cs" />
     <Compile Include="Processes\Inventory\AcumaticaProductWorker.cs" />
     <Compile Include="Processes\Inventory\InventoryManager.cs" />
     <Compile Include="Processes\Inventory\ShopifyInventoryWorker.cs" />
     <Compile Include="Persist\Multitenant\Extensions\InventoryExtensions.cs" />
+    <Compile Include="Processes\Inventory\ShopifyLocationWorker.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />
-    <Compile Include="Processes\Inventory\LocationWorker.cs" />
+    <Compile Include="Processes\Inventory\AcumaticaWarehouseWorker.cs" />
     <Compile Include="Processes\Payouts\BankImportService.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />

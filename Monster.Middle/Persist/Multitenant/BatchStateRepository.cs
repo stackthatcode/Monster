@@ -26,31 +26,25 @@ namespace Monster.Middle.Persist.Multitenant
             }
             else
             {
-                existingState.ShopifyProductsEndDate = null;
-                existingState.ShopifyOrdersStartDate = null;
-                existingState.ShopifyOrdersEndDate = null;
-                existingState.AcumaticaProductsEndDate = null;
+                existingState.ShopifyProductsPullEnd= null;
+                existingState.ShopifyOrdersPullEnd = null;
+                existingState.AcumaticaProductsPullEnd = null;
             }
 
             Entities.SaveChanges();
         }
 
-        public void UpdateShopifyProductsEnd(DateTime endTimeUtc)
+        public void UpdateShopifyProductsPullEnd(DateTime endTimeUtc)
         {
             var existingState = Entities.UsrBatchStates.First();
-            existingState.ShopifyProductsEndDate = endTimeUtc;
+            existingState.ShopifyProductsPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
-
-        public void UpdateForShopifyOrdersStart()
-        {
-
-        }
-
+        
         public void UpdateAcumaticaProductsEnd(DateTime endTimeUtc)
         {
             var existingState = Entities.UsrBatchStates.First();
-            existingState.AcumaticaProductsEndDate = endTimeUtc;
+            existingState.AcumaticaProductsPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 

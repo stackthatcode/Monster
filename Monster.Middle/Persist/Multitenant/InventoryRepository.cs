@@ -16,32 +16,8 @@ namespace Monster.Middle.Persist.Multitenant
 
 
 
-        // Maaaybe we'll move this Location stuff elsewhere...
-
-        public void InsertShopifyLocation(UsrShopifyLocation location)
-        {
-            Entities.UsrShopifyLocations.Add(location);
-            Entities.SaveChanges();
-        }
-
-        public IList<UsrShopifyLocation> RetreiveShopifyLocations()
-        {
-            return Entities.UsrShopifyLocations.ToList();
-        }
-
-        public void InsertAcumaticaWarehouse(UsrAcumaticaWarehouse warehouse)
-        {
-            Entities.UsrAcumaticaWarehouses.Add(warehouse);
-            Entities.SaveChanges();
-        }
-
-        public IList<UsrAcumaticaWarehouse> RetreiveAcumaticaWarehouses()
-        {
-            return Entities.UsrAcumaticaWarehouses.ToList();
-        }
-
-
-
+        // Shopify persistence
+        //
         public UsrShopifyProduct 
                 RetrieveShopifyProduct(long shopifyProductId)
         {
@@ -51,6 +27,16 @@ namespace Monster.Middle.Persist.Multitenant
                         x => x.ShopifyProductId == shopifyProductId);
         }
         
+        public UsrShopifyVariant
+                RetrieveShopifyVariants(long shopifyVariantId, string sku)
+        {
+            return Entities
+                .UsrShopifyVariants
+                .FirstOrDefault(
+                    x => x.ShopifyVariantId == shopifyVariantId &&
+                         x.ShopifySku == sku);
+        }
+
         public DateTime? RetrieveShopifyProductMaxUpdatedDate()
         {
             if (Entities.UsrShopifyPayouts.Any())
@@ -71,18 +57,6 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
-
-        public UsrShopifyVariant 
-                    RetrieveShopifyVariants(
-                        long shopifyVariantId, string sku)
-        {
-            return Entities
-                .UsrShopifyVariants
-                .FirstOrDefault(
-                    x => x.ShopifyVariantId == shopifyVariantId &&
-                         x.ShopifySku == sku);
-        }
-
         public void InsertShopifyVariant(UsrShopifyVariant variant)
         {
             Entities.UsrShopifyVariants.Add(variant);
@@ -90,18 +64,16 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
 
+
+
+        // Acumatica persistence
+        //
         public UsrAcumaticaStockItem
                     RetreiveAcumaticaStockItems(string itemId)
         {
             return Entities
                     .UsrAcumaticaStockItems
                     .FirstOrDefault(x => x.ItemId == itemId);
-        }
-
-        public void InsertAcumaticaStockItems(UsrAcumaticaStockItem item)
-        {
-            Entities.UsrAcumaticaStockItems.Add(item);
-            Entities.SaveChanges();
         }
 
         public DateTime? RetrieveAcumaticaStockItemsMaxUpdatedDate()
@@ -116,6 +88,49 @@ namespace Monster.Middle.Persist.Multitenant
             {
                 return (DateTime?)null;
             }
+        }
+
+        public void InsertAcumaticaStockItems(UsrAcumaticaStockItem item)
+        {
+            Entities.UsrAcumaticaStockItems.Add(item);
+            Entities.SaveChanges();
+        }
+
+
+
+        // Product to Stock Item matching 
+        //
+        public List<UsrShopifyVariant> RetrieveUnmatchedVariants()
+        {
+            return Entities
+                    .UsrShopifyVariants
+                    .Where(x => !x.UsrProductMatches.Any())
+                    .ToList();
+        }
+
+        public List<UsrShopifyVariant> RetrieveShopifyVariants(string sku)
+        {
+            return Entities
+                    .UsrShopifyVariants
+                    .Where(x => x.ShopifySku == sku)
+                    .ToList();
+        }
+
+
+        // Matching data
+        //
+        public void InsertMatch(
+            long shopifyVariantMonsterId,
+            long acumaticaStockItemMonsterId)
+        {
+            var match = new UsrProductMatch()
+            {
+                ShopifyVariantMonsterId = shopifyVariantMonsterId,
+                AcumaticaStockItemMonsterId = acumaticaStockItemMonsterId,
+            };
+
+            Entities.UsrProductMatches.Add(match);
+            Entities.SaveChanges();
         }
 
         public void SaveChanges()

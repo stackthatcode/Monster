@@ -6,29 +6,32 @@ namespace Monster.Middle.Processes.Inventory
 {
     public class InventoryManager
     {
-        private readonly LocationWorker _locationWorker;
         private readonly AcumaticaHttpContext _acumaticaContext;
-        private readonly ShopifyInventoryWorker _shopifyProductWorker;
+        private readonly AcumaticaWarehouseWorker _locationWorker;
         private readonly AcumaticaProductWorker _acumaticaProductWorker;
+
+        private readonly ShopifyLocationWorker _shopifyLocationWorker;
+        private readonly ShopifyInventoryWorker _shopifyProductWorker;
         private readonly IPushLogger _logger;
 
         public InventoryManager(
                 AcumaticaHttpContext acumaticaContext,
                 ShopifyInventoryWorker shopifyProductWorker, 
                 AcumaticaProductWorker acumaticaProductWorker, 
-                LocationWorker locationWorker, IPushLogger logger)
+                AcumaticaWarehouseWorker locationWorker, IPushLogger logger, ShopifyLocationWorker shopifyLocationWorker)
         {
             _acumaticaContext = acumaticaContext;
             _shopifyProductWorker = shopifyProductWorker;
             _acumaticaProductWorker = acumaticaProductWorker;
             _locationWorker = locationWorker;
             _logger = logger;
+            _shopifyLocationWorker = shopifyLocationWorker;
         }
 
         public void BaselineSync()
         {
-            // Pull all possible Products from Shopify
-            _shopifyProductWorker.BaselinePullLocations();
+            // Shopify Pull
+            _shopifyLocationWorker.BaselinePullLocations();
             _shopifyProductWorker.BaselinePullProducts();
 
             // Acumatica Pull

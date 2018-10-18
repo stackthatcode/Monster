@@ -33,43 +33,6 @@ namespace Monster.Middle.Processes.Inventory
             _logger = logger;
         }
 
-        public void BaselinePullLocations()
-        {
-            var dataLocations = _inventoryRepository.RetreiveShopifyLocations();
-
-            var shopifyLocations
-                = _productApi
-                    .RetrieveLocations()
-                    .DeserializeFromJson<LocationList>();
-
-            foreach (var shopifyLoc in shopifyLocations.locations)
-            {
-                var dataLocation = dataLocations.FindByShopifyId(shopifyLoc);
-
-                if (dataLocation == null)
-                {
-                    var newDataLocation = new UsrShopifyLocation
-                    {
-                        ShopifyLocationId = shopifyLoc.id,
-                        ShopifyJson = shopifyLoc.SerializeToJson(),
-                        ShopifyLocationName = shopifyLoc.name,
-                        DateCreated = DateTime.UtcNow,
-                        LastUpdated = DateTime.UtcNow,
-                    };
-
-                    _inventoryRepository.InsertShopifyLocation(newDataLocation);
-                }
-                else
-                {
-                    dataLocation.LastUpdated = DateTime.UtcNow;
-                    dataLocation.ShopifyJson = shopifyLoc.SerializeToJson();
-                    dataLocation.ShopifyLocationName = shopifyLoc.name;
-
-                    _inventoryRepository.SaveChanges();
-                }
-            }
-        }
-        
         public void BaselinePullProducts()
         {
             _logger.Debug("Baseline Pull Products");
@@ -107,20 +70,20 @@ namespace Monster.Middle.Processes.Inventory
                 = maxUpdatedDate
                   ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
 
-            _batchStateRepository.UpdateShopifyProductsEnd(productBatchEnd);            
+            _batchStateRepository.UpdateShopifyProductsPullEnd(productBatchEnd);            
         }
 
         public void DiffSyncPullProducts()
         {
             var batchState = _batchStateRepository.RetrieveBatchState();
 
-            if (!batchState.ShopifyProductsEndDate.HasValue)
+            if (!batchState.ShopifyProductsPullEnd.HasValue)
             {
                 throw new Exception(
                     "ShopifyProductsEndDate not set - must run Baseline Pull first");
             }
 
-            var filterMinUpdated = batchState.ShopifyProductsEndDate.Value;
+            var filterMinUpdated = batchState.ShopifyProductsPullEnd.Value;
             var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
 
             var firstFilter = new ProductFilter();
@@ -152,7 +115,7 @@ namespace Monster.Middle.Processes.Inventory
                 currentPage++;
             }
             
-            _batchStateRepository.UpdateShopifyProductsEnd(startOfPullRun);
+            _batchStateRepository.UpdateShopifyProductsPullEnd(startOfPullRun);
         }
 
 
