@@ -598,7 +598,8 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrPreference
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime ShopifyOrderPullStart { get; set; } // ShopifyOrderPullStart
+        public System.DateTime? ShopifyOrderPullStart { get; set; } // ShopifyOrderPullStart
+        public string AcumaticaDefaultItemClass { get; set; } // AcumaticaDefaultItemClass (length: 50)
     }
 
     // usrProductMatch
@@ -713,7 +714,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long? ShopifyVariantId { get; set; } // ShopifyVariantId
         public string ShopifyJson { get; set; } // ShopifyJson
         public string ShopifySku { get; set; } // ShopifySku (length: 100)
-        public string AcumaticaStockItemId { get; set; } // AcumaticaStockItemId (length: 100)
+        public short? Status { get; set; } // Status
         public System.DateTime? DateCreated { get; set; } // DateCreated
         public System.DateTime? LastUpdated { get; set; } // LastUpdated
 
@@ -856,7 +857,8 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyOrderPullStart).HasColumnName(@"ShopifyOrderPullStart").HasColumnType("datetime").IsRequired();
+            Property(x => x.ShopifyOrderPullStart).HasColumnName(@"ShopifyOrderPullStart").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaDefaultItemClass).HasColumnName(@"AcumaticaDefaultItemClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
         }
     }
 
@@ -1001,7 +1003,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.ShopifyVariantId).HasColumnName(@"ShopifyVariantId").HasColumnType("bigint").IsOptional();
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.ShopifySku).HasColumnName(@"ShopifySku").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
-            Property(x => x.AcumaticaStockItemId).HasColumnName(@"AcumaticaStockItemId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.Status).HasColumnName(@"Status").HasColumnType("smallint").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
 

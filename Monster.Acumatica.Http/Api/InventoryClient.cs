@@ -9,12 +9,12 @@ namespace Monster.Acumatica.Api
     public class InventoryClient
     {
         private readonly AcumaticaHttpContext _httpContext;
-
-
+        
         public InventoryClient(AcumaticaHttpContext httpContext)
         {
             _httpContext = httpContext;
         }
+
 
         public string RetrieveItemClass()
         {

@@ -74,7 +74,7 @@ namespace Monster.Middle.Processes.Inventory
             foreach (var item in items)
             {
                 var existingData
-                    = _inventoryRepository.RetreiveAcumaticaStockItems(item.id);
+                    = _inventoryRepository.RetreiveAcumaticaStockItem(item.id);
 
                 if (existingData == null)
                 {

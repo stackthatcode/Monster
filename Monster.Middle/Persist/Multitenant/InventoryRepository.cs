@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -69,11 +70,20 @@ namespace Monster.Middle.Persist.Multitenant
         // Acumatica persistence
         //
         public UsrAcumaticaStockItem
-                    RetreiveAcumaticaStockItems(string itemId)
+                    RetreiveAcumaticaStockItem(string itemId)
         {
             return Entities
                     .UsrAcumaticaStockItems
                     .FirstOrDefault(x => x.ItemId == itemId);
+        }
+
+        public UsrAcumaticaStockItem
+                    RetreiveAcumaticaUnmatchedStockItem(string itemId)
+        {
+            return Entities
+                .UsrAcumaticaStockItems
+                .FirstOrDefault(
+                    x => x.ItemId == itemId && !x.UsrProductMatches.Any());
         }
 
         public DateTime? RetrieveAcumaticaStockItemsMaxUpdatedDate()
@@ -100,10 +110,11 @@ namespace Monster.Middle.Persist.Multitenant
 
         // Product to Stock Item matching 
         //
-        public List<UsrShopifyVariant> RetrieveUnmatchedVariants()
+        public List<UsrShopifyVariant> RetrieveUnmatchedShopifyVariants()
         {
             return Entities
                     .UsrShopifyVariants
+                    .Include(x => x.UsrShopifyProduct)
                     .Where(x => !x.UsrProductMatches.Any())
                     .ToList();
         }
@@ -120,8 +131,7 @@ namespace Monster.Middle.Persist.Multitenant
         // Matching data
         //
         public void InsertMatch(
-            long shopifyVariantMonsterId,
-            long acumaticaStockItemMonsterId)
+                long shopifyVariantMonsterId, long acumaticaStockItemMonsterId)
         {
             var match = new UsrProductMatch()
             {

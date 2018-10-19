@@ -18,7 +18,9 @@ namespace Monster.Middle.Processes.Inventory
                 AcumaticaHttpContext acumaticaContext,
                 ShopifyInventoryWorker shopifyProductWorker, 
                 AcumaticaProductWorker acumaticaProductWorker, 
-                AcumaticaWarehouseWorker locationWorker, IPushLogger logger, ShopifyLocationWorker shopifyLocationWorker)
+                AcumaticaWarehouseWorker locationWorker, 
+                ShopifyLocationWorker shopifyLocationWorker,
+                IPushLogger logger)
         {
             _acumaticaContext = acumaticaContext;
             _shopifyProductWorker = shopifyProductWorker;
@@ -38,6 +40,8 @@ namespace Monster.Middle.Processes.Inventory
             _acumaticaContext.Begin();
             _locationWorker.BaselinePullWarehouses();
             _acumaticaProductWorker.BaselinePullStockItems();
+
+            
         }
 
         public void DiffSync()
