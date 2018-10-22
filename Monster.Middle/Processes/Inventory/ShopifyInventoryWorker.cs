@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Extensions;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Product;
-using Push.Shopify.Api.Inventory;
+
 
 namespace Monster.Middle.Processes.Inventory
 {
@@ -155,17 +155,25 @@ namespace Monster.Middle.Processes.Inventory
                 parentId = existing.MonsterId;
             }
 
+            // Write the Product Variants
+            UpsertVariants(parentId.Value, product);
+
+            // Flags the missing Variants
+            FlagMissingVariants(parentId.Value, product);
+        }
+
+        public void UpsertVariants(long parentMonsterId, Product product)
+        {
             foreach (var variant in product.variants)
             {
-                UpsertVariant(parentId.Value, variant);
+                UpsertVariant(parentMonsterId, variant);
             }
         }
 
         public void UpsertVariant(long parentProductId, Variant variant)
         {
             var existing = 
-                _inventoryRepository
-                    .RetrieveShopifyVariants(variant.id, variant.sku);
+                _inventoryRepository.RetrieveShopifyVariant(variant.id, variant.sku);
             
             if (existing == null)
             {
@@ -174,7 +182,8 @@ namespace Monster.Middle.Processes.Inventory
                     ParentMonsterId = parentProductId,
                     ShopifyVariantId = variant.id,
                     ShopifySku = variant.sku,
-                    ShopifyJson = variant.SerializeToJson(),
+                    ShopifyVariantJson = variant.SerializeToJson(),
+                    ShopifyInventoryItemId = variant.inventory_item_id,
                     DateCreated = DateTime.UtcNow,
                     LastUpdated = DateTime.UtcNow,
                 };
@@ -183,18 +192,32 @@ namespace Monster.Middle.Processes.Inventory
             }
             else
             {
-                existing.ShopifyJson = variant.SerializeToJson();
+                existing.ShopifyVariantJson = variant.SerializeToJson();
                 existing.LastUpdated = DateTime.UtcNow;
 
                 _inventoryRepository.SaveChanges();
             }
         }
 
-        public void PushFromShopifyToAcumatica()
+        public void FlagMissingVariants(long parentMonsterId, Product product)
         {
-            // For each Product
+            var variants = 
+                _inventoryRepository.RetrieveShopifyVariantsByParent(parentMonsterId);
 
+            foreach (var variant in variants)
+            {
+                if (product.variants.Any(x => x.id == variant.ShopifyVariantId))
+                {
+                    break;
+                }
+
+                _logger.Info($"Shopify Variant {variant.ShopifyVariantId}/{variant.ShopifySku} " +
+                             "appears to be missing - flagged");
+
+                variant.IsMissing = true;
+                _inventoryRepository.SaveChanges();
+            }
         }
-
+        
     }
 }

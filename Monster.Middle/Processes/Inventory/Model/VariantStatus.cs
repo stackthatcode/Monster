@@ -3,6 +3,7 @@
     public class VariantStatus
     {
         public const int Ok = 1;
-        public const int ExceptionDuplicate = 2;
+        public const int ExceptionUnmatchedDuplicate = 2;
+        public const int ExceptionMissing = 3;
     }
 }

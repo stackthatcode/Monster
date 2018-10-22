@@ -29,7 +29,7 @@ namespace Monster.Middle.Persist.Multitenant
         }
         
         public UsrShopifyVariant
-                RetrieveShopifyVariants(long shopifyVariantId, string sku)
+                RetrieveShopifyVariant(long shopifyVariantId, string sku)
         {
             return Entities
                 .UsrShopifyVariants
@@ -70,21 +70,31 @@ namespace Monster.Middle.Persist.Multitenant
         // Acumatica persistence
         //
         public UsrAcumaticaStockItem
-                    RetreiveAcumaticaStockItem(string itemId)
+                    RetreiveAcumaticaStockItem(string itemId, bool? isMatched = null)
         {
-            return Entities
+            if (isMatched.HasValue)
+            {
+                return Entities
+                    .UsrAcumaticaStockItems
+                    .FirstOrDefault(x => x.ShopifyVariantMonsterId.HasValue == isMatched
+                                    && x.ItemId == itemId);
+            }
+            else
+            {
+                return Entities
                     .UsrAcumaticaStockItems
                     .FirstOrDefault(x => x.ItemId == itemId);
+            }
         }
 
         public UsrAcumaticaStockItem
-                    RetreiveAcumaticaUnmatchedStockItem(string itemId)
+                    RetreiveAcumaticaStockItem(long monsterId)
         {
             return Entities
-                .UsrAcumaticaStockItems
-                .FirstOrDefault(
-                    x => x.ItemId == itemId && !x.UsrProductMatches.Any());
+                    .UsrAcumaticaStockItems
+                    .FirstOrDefault(x => x.MonsterId == monsterId);
         }
+
 
         public DateTime? RetrieveAcumaticaStockItemsMaxUpdatedDate()
         {
@@ -110,38 +120,39 @@ namespace Monster.Middle.Persist.Multitenant
 
         // Product to Stock Item matching 
         //
-        public List<UsrShopifyVariant> RetrieveUnmatchedShopifyVariants()
+        public List<UsrShopifyVariant> RetrieveShopifyVariants(bool? isMatched = null)
         {
-            return Entities
+            var output = 
+                Entities
                     .UsrShopifyVariants
                     .Include(x => x.UsrShopifyProduct)
-                    .Where(x => !x.UsrProductMatches.Any())
-                    .ToList();
+                    .Include(x => x.UsrAcumaticaStockItems);
+
+            if (isMatched.HasValue)
+            {
+                output = output.Where(x => x.UsrAcumaticaStockItems.Any() == isMatched);
+            }
+
+            return output.ToList();
         }
 
         public List<UsrShopifyVariant> RetrieveShopifyVariants(string sku)
         {
             return Entities
                     .UsrShopifyVariants
+                    .Include(x => x.UsrAcumaticaStockItems)
                     .Where(x => x.ShopifySku == sku)
                     .ToList();
         }
 
-
-        // Matching data
-        //
-        public void InsertMatch(
-                long shopifyVariantMonsterId, long acumaticaStockItemMonsterId)
+        public List<UsrShopifyVariant> 
+                        RetrieveShopifyVariantsByParent(long parentMonsterId)
         {
-            var match = new UsrProductMatch()
-            {
-                ShopifyVariantMonsterId = shopifyVariantMonsterId,
-                AcumaticaStockItemMonsterId = acumaticaStockItemMonsterId,
-            };
-
-            Entities.UsrProductMatches.Add(match);
-            Entities.SaveChanges();
+            return Entities.UsrShopifyVariants
+                    .Where(x => x.ParentMonsterId == parentMonsterId)
+                    .ToList();
         }
+        
 
         public void SaveChanges()
         {

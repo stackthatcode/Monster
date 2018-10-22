@@ -39,61 +39,82 @@ namespace Monster.Middle.Processes.Inventory
 
         public void BaselineSync()
         {
-            var preferences = _tenantRepository.RetrievePreferences();
-            var defaultItemClass = preferences.AcumaticaDefaultItemClass;
+            var variants = _inventoryRepository.RetrieveShopifyVariants();
 
-            var unmatchedVariants 
-                = _inventoryRepository
-                        .RetrieveUnmatchedShopifyVariants();
-
-            foreach (var variant in unmatchedVariants)
+            foreach (var variant in variants)
             {
+                // Attempt to identify duplicates
                 var matchingShopifySkus =
                     _inventoryRepository
-                        .RetrieveShopifyVariants(variant.ShopifySku);
-                        
+                        .RetrieveShopifyVariants(variant.StandardizedSku())
+                        .ExcludeMissing()
+                        .ExcludeMatched();
+                
                 if (matchingShopifySkus.Count > 1)
                 {
-                    variant.Status = VariantStatus.ExceptionDuplicate;
-                    _inventoryRepository.SaveChanges();
+                    _logger.Info("Shopify Variant: " + 
+                        $"{variant.ShopifyVariantId}/{variant.ShopifySku} has duplicates");
                     break;
                 }
 
-                var standarizedSku = variant.StandardizedSku();
-
+                // Attempt to Auto-match
                 var stockItem =
                     _inventoryRepository
-                        .RetreiveAcumaticaUnmatchedStockItem(standarizedSku);
+                        .RetreiveAcumaticaStockItem(variant.StandardizedSku());
 
                 if (stockItem != null)
                 {
-                    _inventoryRepository.InsertMatch(
-                        variant.MonsterId, stockItem.MonsterId);
-                    break;
+                    if (stockItem.IsMatchedToShopifyVariant())
+                    {
+                        _logger.Info(
+                            $"Acumatica Stock Item {stockItem.ItemId} " +
+                            $"is already matched to Shopify Variant " +
+                            $"{stockItem.UsrShopifyVariant.ShopifyVariantId}");
+                        break;
+                    }
+                    else
+                    {
+                        _logger.Info(
+                            $"Auto-matching Stock Item {stockItem.ItemId} " +
+                            $"to Shopify Variant {variant.ShopifyVariantId}");
+
+                        stockItem.ShopifyVariantMonsterId = variant.MonsterId;
+                        _inventoryRepository.SaveChanges();
+                        break;
+                    }
                 }
 
-                // Create Stock Item in Acumatica
-
-                var shopifyVariant 
-                    = variant.ShopifyJson.DeserializeFromJson<Variant>();
-
-                var shopifyProduct 
-                    = variant
-                        .UsrShopifyProduct
-                        .ShopifyJson
-                        .DeserializeFromJson<Product>();
-
-                var newStockItem = new StockItem();
-                newStockItem.InventoryID = standarizedSku.ToValue();
-                newStockItem.Description =
-                    Standardize.StockItemTitle(
-                            shopifyProduct, shopifyVariant).ToValue();
-
-                newStockItem.ItemClass = defaultItemClass.ToValue();
-                
-                var newStockItemJson = newStockItem.SerializeToJson();
-                _inventoryClient.AddNewStockItem(newStockItemJson);
+                // With neither duplicates or Auto-matching having succeeded,
+                // ... we'll create a new Stock Item in Acumatica
+                PushAcumaticaStockItem(variant);
             }
+        }
+
+
+        public void PushAcumaticaStockItem(UsrShopifyVariant variant)
+        {
+            var preferences = _tenantRepository.RetrievePreferences();
+            var defaultItemClass = preferences.AcumaticaDefaultItemClass;
+            
+            var shopifyVariant
+                = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
+
+            var shopifyProduct
+                = variant
+                    .UsrShopifyProduct
+                    .ShopifyJson
+                    .DeserializeFromJson<Product>();
+
+            var newStockItem = new StockItem();
+            newStockItem.InventoryID = variant.StandardizedSku().ToValue();
+            newStockItem.Description =
+                Standardize.StockItemTitle(
+                    shopifyProduct, shopifyVariant).ToValue();
+
+            newStockItem.ItemClass = defaultItemClass.ToValue();
+
+            var newStockItemJson = newStockItem.SerializeToJson();
+            _inventoryClient.AddNewStockItem(newStockItemJson);
         }
     }
 }
