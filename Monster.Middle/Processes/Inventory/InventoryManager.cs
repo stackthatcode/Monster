@@ -11,12 +11,12 @@ namespace Monster.Middle.Processes.Inventory
         private readonly AcumaticaProductWorker _acumaticaProductWorker;
 
         private readonly ShopifyLocationWorker _shopifyLocationWorker;
-        private readonly ShopifyInventoryWorker _shopifyProductWorker;
+        private readonly ShopifyInventoryPullWorker _shopifyProductWorker;
         private readonly IPushLogger _logger;
 
         public InventoryManager(
                 AcumaticaHttpContext acumaticaContext,
-                ShopifyInventoryWorker shopifyProductWorker, 
+                ShopifyInventoryPullWorker shopifyProductWorker, 
                 AcumaticaProductWorker acumaticaProductWorker, 
                 AcumaticaWarehouseWorker locationWorker, 
                 ShopifyLocationWorker shopifyLocationWorker,

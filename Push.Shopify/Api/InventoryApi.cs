@@ -1,4 +1,6 @@
-﻿using Push.Foundation.Utilities.Logging;
+﻿using System.Collections.Generic;
+using Push.Foundation.Utilities.General;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Http;
 
 namespace Push.Shopify.Api
@@ -17,6 +19,15 @@ namespace Push.Shopify.Api
         public string RetrieveLocations()
         {
             var path = $"/admin/locations.json";
+            var response = _httpClient.Get(path);
+            return response.Body;
+        }
+
+        public string RetrieveInventoryItems(IList<long> itemIds)
+        {
+            var path = 
+                $"/admin/inventory_levels.json?" +
+                $"inventory_item_ids={itemIds.ToCommaSeparatedList()}";
             var response = _httpClient.Get(path);
             return response.Body;
         }

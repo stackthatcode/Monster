@@ -64,7 +64,20 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
+        public List<UsrShopifyInventoryLevel> 
+                    RetrieveShopifyInventoryLevels(long shopifyInventoryItemId)
+        {
+            return Entities
+                    .UsrShopifyInventoryLevels
+                    .Where(x => x.ShopifyInventoryItemId == shopifyInventoryItemId)
+                    .ToList();
+        }
 
+        public void InsertShopifyInventoryLevel(UsrShopifyInventoryLevel level)
+        {
+            Entities.UsrShopifyInventoryLevels.Add(level);
+            Entities.SaveChanges();
+        }
 
 
         // Acumatica persistence

@@ -75,7 +75,7 @@
     <Compile Include="Processes\Inventory\AcumaticaProductWorker.cs" />
     <Compile Include="Processes\Inventory\InventoryManager.cs" />
     <Compile Include="Processes\Inventory\Model\VariantStatus.cs" />
-    <Compile Include="Processes\Inventory\ShopifyInventoryWorker.cs" />
+    <Compile Include="Processes\Inventory\ShopifyInventoryPullWorker.cs" />
     <Compile Include="Persist\Multitenant\Extensions\InventoryExtensions.cs" />
     <Compile Include="Processes\Inventory\ShopifyLocationWorker.cs" />
     <Compile Include="Processes\Inventory\AcumaticaSyncWorker.cs" />
