@@ -7,11 +7,11 @@ using Monster.Middle.Persist.Multitenant;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.Processes.Inventory
+namespace Monster.Middle.Processes.Inventory.Workers
 {
-    public class AcumaticaInventoryPullWorker
+    public class AcumaticaInventoryPull
     {
-        private readonly InventoryClient _inventoryClient;
+        private readonly DistributionClient _inventoryClient;
         private readonly InventoryRepository _inventoryRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
@@ -19,8 +19,8 @@ namespace Monster.Middle.Processes.Inventory
         public const int InitialBatchStateFudgeMin = -15;
 
 
-        public AcumaticaInventoryPullWorker(
-                    InventoryClient inventoryClient, 
+        public AcumaticaInventoryPull(
+                    DistributionClient inventoryClient, 
                     InventoryRepository inventoryRepository,
                     BatchStateRepository batchStateRepository,
                     IPushLogger logger)
@@ -38,6 +38,7 @@ namespace Monster.Middle.Processes.Inventory
         {
             var json = _inventoryClient.RetreiveStockItems();
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
+
             UpsertStockItemToPersist(stockItems);
 
             var maxProductDate = 

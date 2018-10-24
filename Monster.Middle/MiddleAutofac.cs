@@ -5,12 +5,14 @@ using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Inventory;
+using Monster.Middle.Processes.Inventory.Workers;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
 using Push.Shopify;
 using Push.Foundation.Utilities.Security;
+using AcumaticaWarehousePull = Monster.Middle.Processes.Inventory.AcumaticaWarehousePull;
 
 
 namespace Monster.Middle
@@ -86,8 +88,8 @@ namespace Monster.Middle
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
             
             // Inventory
-            builder.RegisterType<AcumaticaWarehouseWorker>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaInventoryPullWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaWarehousePull>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaInventoryPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyLocationWorker>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();

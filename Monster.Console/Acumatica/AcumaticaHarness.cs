@@ -27,7 +27,7 @@ namespace Monster.ConsoleApp.Acumatica
         public static void RetrieveItemAndPostingClass(ILifetimeScope scope)
         {
             // Start doing things!
-            var inventoryRepository = scope.Resolve<InventoryClient>();
+            var inventoryRepository = scope.Resolve<DistributionClient>();
 
             var results = inventoryRepository.RetrieveItemClass();
             var results2 = inventoryRepository.RetrievePostingClasses();

@@ -8,23 +8,21 @@ using Monster.Middle.Persist.Multitenant.Extensions;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
-using Push.Shopify.Api.Inventory;
-using InventoryRepository = Monster.Middle.Persist.Multitenant.InventoryRepository;
 
-namespace Monster.Middle.Processes.Inventory
+namespace Monster.Middle.Processes.Inventory.Workers
 {
-    public class AcumaticaWarehouseWorker
+    public class AcumaticaWarehousePull
     {
         private readonly LocationRepository _dataRepository;
         private readonly InventoryApi _shopifyInventoryApi;
-        private readonly Acumatica.Api.InventoryClient _acumaticaInventoryApi;
+        private readonly Acumatica.Api.DistributionClient _acumaticaInventoryApi;
         private readonly IPushLogger _logger;
 
-        public AcumaticaWarehouseWorker(
+        public AcumaticaWarehousePull(
                 IPushLogger logger,
                 LocationRepository dataRepository, 
                 InventoryApi shopifyInventoryApi, 
-                Acumatica.Api.InventoryClient acumaticaInventoryApi)
+                Acumatica.Api.DistributionClient acumaticaInventoryApi)
         {
             _dataRepository = dataRepository;
             _shopifyInventoryApi = shopifyInventoryApi;
@@ -98,7 +96,7 @@ namespace Monster.Middle.Processes.Inventory
         }
 
 
-        // This is on-hold pending API fixes
+        
         public void CreateWarehouseInAcumatica(UsrShopifyLocation location)
         {
             var newAcuWarehouse = new Warehouse

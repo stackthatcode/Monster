@@ -585,8 +585,16 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public string AcumaticaWarehouseId { get; set; } // AcumaticaWarehouseId (length: 50)
         public string AcumaticaJson { get; set; } // AcumaticaJson
+        public long? ShopifyLocationMonsterId { get; set; } // ShopifyLocationMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
+
+        // Foreign keys
+
+        /// <summary>
+        /// Parent UsrShopifyLocation pointed by [usrAcumaticaWarehouse].([ShopifyLocationMonsterId]) (FK_usrAcumaticaWarehouse_usrShopifyLocation)
+        /// </summary>
+        public virtual UsrShopifyLocation UsrShopifyLocation { get; set; } // FK_usrAcumaticaWarehouse_usrShopifyLocation
     }
 
     // usrAcumaticaWarehouseDetails
@@ -614,9 +622,12 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrBatchState
     {
         public long Id { get; set; } // Id (Primary key)
+        public System.DateTime? ShopifyLocationsPullEnd { get; set; } // ShopifyLocationsPullEnd
         public System.DateTime? ShopifyProductsPullEnd { get; set; } // ShopifyProductsPullEnd
         public System.DateTime? ShopifyOrdersPullEnd { get; set; } // ShopifyOrdersPullEnd
+        public System.DateTime? AcumaticaWarehousePullEnd { get; set; } // AcumaticaWarehousePullEnd
         public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
+        public System.DateTime? AcumaticaWarehouseSyncEnd { get; set; } // AcumaticaWarehouseSyncEnd
     }
 
     // usrPayoutPreferences
@@ -666,6 +677,18 @@ namespace Monster.Middle.Persist.Multitenant
         public string ShopifyLocationName { get; set; } // ShopifyLocationName (length: 50)
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
+
+        // Reverse navigation
+
+        /// <summary>
+        /// Child UsrAcumaticaWarehouses where [usrAcumaticaWarehouse].[ShopifyLocationMonsterId] point to this entity (FK_usrAcumaticaWarehouse_usrShopifyLocation)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse.FK_usrAcumaticaWarehouse_usrShopifyLocation
+
+        public UsrShopifyLocation()
+        {
+            UsrAcumaticaWarehouses = new System.Collections.Generic.List<UsrAcumaticaWarehouse>();
+        }
     }
 
     // usrShopifyPayout
@@ -841,8 +864,12 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaWarehouseId).HasColumnName(@"AcumaticaWarehouseId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
+            Property(x => x.ShopifyLocationMonsterId).HasColumnName(@"ShopifyLocationMonsterId").HasColumnType("bigint").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+
+            // Foreign keys
+            HasOptional(a => a.UsrShopifyLocation).WithMany(b => b.UsrAcumaticaWarehouses).HasForeignKey(c => c.ShopifyLocationMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaWarehouse_usrShopifyLocation
         }
     }
 
@@ -888,9 +915,12 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyLocationsPullEnd).HasColumnName(@"ShopifyLocationsPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.ShopifyProductsPullEnd).HasColumnName(@"ShopifyProductsPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.ShopifyOrdersPullEnd).HasColumnName(@"ShopifyOrdersPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaWarehousePullEnd).HasColumnName(@"AcumaticaWarehousePullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaWarehouseSyncEnd).HasColumnName(@"AcumaticaWarehouseSyncEnd").HasColumnType("datetime").IsOptional();
         }
     }
 

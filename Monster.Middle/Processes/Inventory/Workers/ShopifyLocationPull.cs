@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Extensions;
 using Push.Foundation.Utilities.Json;
@@ -33,12 +29,13 @@ namespace Monster.Middle.Processes.Inventory
 
         public void BaselinePull()
         {
-            var dataLocations = _locationRepository.RetreiveShopifyLocations();
+            var dataLocations 
+                    = _locationRepository.RetreiveShopifyLocations();
 
             var shopifyLocations
-                = _productApi
-                    .RetrieveLocations()
-                    .DeserializeFromJson<LocationList>();
+                    = _productApi
+                        .RetrieveLocations()
+                        .DeserializeFromJson<LocationList>();
 
             foreach (var shopifyLoc in shopifyLocations.locations)
             {

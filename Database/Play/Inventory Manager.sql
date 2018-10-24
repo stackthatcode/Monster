@@ -17,4 +17,6 @@ DELETE FROM usrAcumaticaStockItem;
 
 SELECT * FROM usrAcumaticaWarehouse;
 SELECT * FROM usrAcumaticaStockItem;
+SELECT * FROM usrAcumaticaWarehouseDetails;
+
 

@@ -1,32 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Monster.Acumatica.Api;
+﻿using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Extensions;
-using Monster.Middle.Processes.Inventory.Model;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Product;
 
-namespace Monster.Middle.Processes.Inventory
+
+namespace Monster.Middle.Processes.Inventory.Workers
 {
-    public class AcumaticaSyncWorker
+    public class AcumaticaInventorySync
     {
         private readonly InventoryRepository _inventoryRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly TenantRepository _tenantRepository;
-        private readonly InventoryClient _inventoryClient;
+        private readonly DistributionClient _inventoryClient;
         private readonly IPushLogger _logger;
 
-        public AcumaticaSyncWorker(
+        public AcumaticaInventorySync(
                     InventoryRepository inventoryRepository, 
                     BatchStateRepository batchStateRepository, 
-                    InventoryClient inventoryClient, 
+                    DistributionClient inventoryClient, 
                     TenantRepository tenantRepository,
                     IPushLogger logger)
         {
@@ -54,7 +49,7 @@ namespace Monster.Middle.Processes.Inventory
                 {
                     _logger.Info("Shopify Variant: " + 
                         $"{variant.ShopifyVariantId}/{variant.ShopifySku} has duplicates");
-                    break;
+                    continue;
                 }
 
                 // Attempt to Auto-match
@@ -70,7 +65,7 @@ namespace Monster.Middle.Processes.Inventory
                             $"Acumatica Stock Item {stockItem.ItemId} " +
                             $"is already matched to Shopify Variant " +
                             $"{stockItem.UsrShopifyVariant.ShopifyVariantId}");
-                        break;
+                        continue;
                     }
                     else
                     {
@@ -80,7 +75,7 @@ namespace Monster.Middle.Processes.Inventory
 
                         stockItem.ShopifyVariantMonsterId = variant.MonsterId;
                         _inventoryRepository.SaveChanges();
-                        break;
+                        continue;
                     }
                 }
 
@@ -89,7 +84,12 @@ namespace Monster.Middle.Processes.Inventory
                 PushAcumaticaStockItem(variant);
             }
         }
-        
+
+        public void DifferentialSync()
+        {
+
+        }
+
         public void PushAcumaticaStockItem(UsrShopifyVariant variant)
         {
             var preferences = _tenantRepository.RetrievePreferences();

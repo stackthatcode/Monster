@@ -28,6 +28,8 @@ namespace Monster.Acumatica.Api.Distribution
         public StringValue StandardCostVarianceAccount { get; set; }
         public StringValue WarehouseID { get; set; }
         public StringValue custom { get; set; }
+
+        public List<WarehouseLocation> Locations { get; set; }
     }
 
 }

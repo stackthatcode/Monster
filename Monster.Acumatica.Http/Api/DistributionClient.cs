@@ -6,11 +6,11 @@ using Push.Foundation.Web.Helpers;
 
 namespace Monster.Acumatica.Api
 {
-    public class InventoryClient
+    public class DistributionClient
     {
         private readonly AcumaticaHttpContext _httpContext;
         
-        public InventoryClient(AcumaticaHttpContext httpContext)
+        public DistributionClient(AcumaticaHttpContext httpContext)
         {
             _httpContext = httpContext;
         }
@@ -32,7 +32,7 @@ namespace Monster.Acumatica.Api
         {
             var queryString =
                     new QueryStringBuilder()
-                        .Add("expand", "Locations")
+                        .Add("$expand", "Locations")
                         .ToString();
 
             var response = _httpContext.Get($"Warehouse?{queryString}");

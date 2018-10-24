@@ -77,7 +77,8 @@ namespace Monster.Middle.Processes.Inventory
                 = maxUpdatedDate
                   ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
 
-            _batchStateRepository.UpdateShopifyProductsPullEnd(productBatchEnd);            
+            _batchStateRepository
+                .UpdateShopifyProductsPullEnd(productBatchEnd);            
         }
 
         public void DifferentialPull()
@@ -290,5 +291,7 @@ namespace Monster.Middle.Processes.Inventory
                 }
             }
         }
+
+
     }
 }

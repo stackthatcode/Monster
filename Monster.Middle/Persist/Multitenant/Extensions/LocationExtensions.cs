@@ -36,5 +36,16 @@ namespace Monster.Middle.Persist.Multitenant.Extensions
         {
             return warehouse.AcumaticaWarehouseId == location.ShopifyLocationName;
         }
+
+
+        public static bool IsMatched(this UsrShopifyLocation location)
+        {
+            return location.UsrAcumaticaWarehouses.Any();
+        }
+
+        public static bool IsUnmatched(this UsrShopifyLocation location)
+        {
+            return !location.IsMatched();
+        }
     }
 }
