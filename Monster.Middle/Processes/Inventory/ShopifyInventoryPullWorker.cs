@@ -20,24 +20,29 @@ namespace Monster.Middle.Processes.Inventory
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
+        // Possibly expand - this is a one-time thing...
         public const int InitialBatchStateFudgeMin = -15;
 
 
         public ShopifyInventoryPullWorker(
-                ProductApi productApi, 
+                ProductApi productApi,
+                InventoryApi inventoryApi,
                 InventoryRepository inventoryRepository, 
                 BatchStateRepository batchStateRepository,
                 IPushLogger logger)
         {
             _productApi = productApi;
+            _inventoryApi = inventoryApi;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
             _logger = logger;
         }
 
-        public void BaselinePullProducts()
+        public void BaselinePull()
         {
             _logger.Debug("Baseline Pull Products");
+
+            _batchStateRepository.ResetBatchState();
 
             var firstFilter = new ProductFilter();
             firstFilter.Page = 1;
@@ -75,7 +80,7 @@ namespace Monster.Middle.Processes.Inventory
             _batchStateRepository.UpdateShopifyProductsPullEnd(productBatchEnd);            
         }
 
-        public void DiffSyncPullProducts()
+        public void DifferentialPull()
         {
             var batchState = _batchStateRepository.RetrieveBatchState();
 
@@ -131,8 +136,8 @@ namespace Monster.Middle.Processes.Inventory
             var existing =
                 _inventoryRepository.RetrieveShopifyProduct(product.id);
 
-            var parentId = (long?) null;
-
+            long productMonsterId;
+                
             if (existing == null)
             {
                 var data = new UsrShopifyProduct
@@ -146,7 +151,7 @@ namespace Monster.Middle.Processes.Inventory
                 _inventoryRepository.InsertShopifyProduct(data);
                 _inventoryRepository.SaveChanges();
 
-                parentId = data.MonsterId;
+                productMonsterId = data.MonsterId;
             }
             else
             {
@@ -154,17 +159,17 @@ namespace Monster.Middle.Processes.Inventory
                 existing.LastUpdated = DateTime.UtcNow;
                 _inventoryRepository.SaveChanges();
 
-                parentId = existing.MonsterId;
+                productMonsterId = existing.MonsterId;
             }
 
             // Write the Product Variants
-            UpsertVariants(parentId.Value, product);
+            UpsertVariants(productMonsterId, product);
 
             // Flags the missing Variants
-            FlagMissingVariants(parentId.Value, product);
+            FlagMissingVariants(productMonsterId, product);
 
             // Pull and write the Inventory
-            PullAndUpsertInventory(parentId.Value);
+            PullAndUpsertInventory(productMonsterId);
         }
 
         public void UpsertVariants(long parentMonsterId, Product product)
@@ -187,6 +192,7 @@ namespace Monster.Middle.Processes.Inventory
                     ParentMonsterId = parentProductId,
                     ShopifyVariantId = variant.id,
                     ShopifySku = variant.sku,
+                    ShopifyInventoryItemId = variant.inventory_item_id,
                     ShopifyVariantJson = variant.SerializeToJson(),
                     IsMissing = false,
                     DateCreated = DateTime.UtcNow,
@@ -271,13 +277,15 @@ namespace Monster.Middle.Processes.Inventory
                     newLevel.ParentMonsterId = variant.MonsterId;
                     newLevel.ShopifyInventoryItemId = shopifyLevel.inventory_item_id;
                     newLevel.ShopifyLocationId = shopifyLevel.location_id;
-                    newLevel.ShopifyAvailableQuantity = shopifyLevel.available;
+                    newLevel.ShopifyAvailableQuantity = shopifyLevel.available ?? 0;
                     newLevel.DateCreated = DateTime.UtcNow;
                     newLevel.LastUpdated = DateTime.UtcNow;
+
+                    _inventoryRepository.InsertShopifyInventoryLevel(newLevel);
                 }
                 else
                 {
-                    existingLevel.ShopifyAvailableQuantity = shopifyLevel.available;
+                    existingLevel.ShopifyAvailableQuantity = shopifyLevel.available ?? 0;
                     existingLevel.LastUpdated = DateTime.UtcNow;
                 }
             }

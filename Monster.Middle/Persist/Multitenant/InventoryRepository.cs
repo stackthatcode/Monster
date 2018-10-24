@@ -108,6 +108,22 @@ namespace Monster.Middle.Persist.Multitenant
                     .FirstOrDefault(x => x.MonsterId == monsterId);
         }
 
+        public List<UsrAcumaticaWarehouseDetail> 
+                    RetrieveAcumaticaWarehouseDetails(long stockItemMonstedId)
+        {
+            return Entities
+                .UsrAcumaticaWarehouseDetails
+                .Where(x => x.ParentMonsterId == stockItemMonstedId)
+                .ToList();
+        }
+
+        public void InsertAcumaticaWarehouseDetails(UsrAcumaticaWarehouseDetail details)
+        {
+            Entities.UsrAcumaticaWarehouseDetails.Add(details);
+            Entities.SaveChanges();
+        }
+
+
 
         public DateTime? RetrieveAcumaticaStockItemsMaxUpdatedDate()
         {

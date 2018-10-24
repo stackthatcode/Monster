@@ -52,15 +52,19 @@ namespace Monster.Acumatica.Api
         }
 
         public string RetreiveStockItems(DateTime? lastModified = null)
-        {               
-            var queryString = "$filter=ItemStatus eq 'Active'";
-
+        {
+            var filter = "ItemStatus eq 'Active'";
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();
-                queryString += $" LastModified gt datetimeoffset'{restDate}'";
+                filter += $" LastModified gt datetimeoffset'{restDate}'";
             }
 
+            var queryString
+                = new QueryStringBuilder()
+                    .Add("filter", filter)
+                    .Add("$expand", "WarehouseDetails")
+                    .ToString();
             var response = _httpContext.Get($"StockItem?{queryString}");
             return response.Body;
         }

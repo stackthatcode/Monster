@@ -72,7 +72,12 @@
     <Compile Include="Persist\Multitenant\Extensions\LocationExtensions.cs" />
     <Compile Include="Persist\Multitenant\LocationRepository.cs" />
     <Compile Include="Persist\Multitenant\MatchRepository.cs" />
-    <Compile Include="Processes\Inventory\AcumaticaProductWorker.cs" />
+    <Compile Include="Persist\Multitenant\MonsterDb.cs">
+      <DependentUpon>MonsterDb.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Processes\Inventory\AcumaticaInventoryPullWorker.cs" />
     <Compile Include="Processes\Inventory\InventoryManager.cs" />
     <Compile Include="Processes\Inventory\Model\VariantStatus.cs" />
     <Compile Include="Processes\Inventory\ShopifyInventoryPullWorker.cs" />
@@ -88,11 +93,6 @@
     <Compile Include="Services\TenantContext.cs" />
     <Compile Include="Persist\Sys\SystemRepository.cs" />
     <Compile Include="Persist\Sys\Installation.cs" />
-    <Compile Include="Persist\Multitenant\MonsterDb.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MonsterDb.tt</DependentUpon>
-    </Compile>
     <Compile Include="Persist\Multitenant\InventoryRepository.cs" />
     <Compile Include="Persist\Multitenant\PayoutRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />

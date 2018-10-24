@@ -58,6 +58,7 @@
     <Compile Include="Api\Common\Values.cs" />
     <Compile Include="Api\Distribution\StockItem.cs" />
     <Compile Include="Api\Distribution\Warehouse.cs" />
+    <Compile Include="Api\Distribution\WarehouseDetail.cs" />
     <Compile Include="Api\InventoryClient.cs" />
     <Compile Include="Config\AcumaticaHttpConfig.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />

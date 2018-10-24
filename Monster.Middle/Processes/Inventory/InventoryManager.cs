@@ -7,8 +7,8 @@ namespace Monster.Middle.Processes.Inventory
     public class InventoryManager
     {
         private readonly AcumaticaHttpContext _acumaticaContext;
-        private readonly AcumaticaWarehouseWorker _locationWorker;
-        private readonly AcumaticaProductWorker _acumaticaProductWorker;
+        private readonly AcumaticaWarehouseWorker _acumaticaLocationWorker;
+        private readonly AcumaticaInventoryPullWorker _acumaticaProductWorker;
 
         private readonly ShopifyLocationWorker _shopifyLocationWorker;
         private readonly ShopifyInventoryPullWorker _shopifyProductWorker;
@@ -17,15 +17,15 @@ namespace Monster.Middle.Processes.Inventory
         public InventoryManager(
                 AcumaticaHttpContext acumaticaContext,
                 ShopifyInventoryPullWorker shopifyProductWorker, 
-                AcumaticaProductWorker acumaticaProductWorker, 
-                AcumaticaWarehouseWorker locationWorker, 
+                AcumaticaInventoryPullWorker acumaticaProductWorker, 
+                AcumaticaWarehouseWorker acumaticaLocationWorker, 
                 ShopifyLocationWorker shopifyLocationWorker,
                 IPushLogger logger)
         {
             _acumaticaContext = acumaticaContext;
             _shopifyProductWorker = shopifyProductWorker;
             _acumaticaProductWorker = acumaticaProductWorker;
-            _locationWorker = locationWorker;
+            _acumaticaLocationWorker = acumaticaLocationWorker;
             _logger = logger;
             _shopifyLocationWorker = shopifyLocationWorker;
         }
@@ -33,15 +33,16 @@ namespace Monster.Middle.Processes.Inventory
         public void BaselineSync()
         {
             // Shopify Pull
-            _shopifyLocationWorker.BaselinePullLocations();
-            _shopifyProductWorker.BaselinePullProducts();
+            _shopifyLocationWorker.BaselinePull();
+            _shopifyProductWorker.BaselinePull();
 
             // Acumatica Pull
             _acumaticaContext.Begin();
-            _locationWorker.BaselinePullWarehouses();
-            _acumaticaProductWorker.BaselinePullStockItems();
+            _acumaticaLocationWorker.BaselinePull();
+            _acumaticaProductWorker.BaselinePull();
 
-            
+            // Acumatica Sync
+            // TODO - Acumatica Sync Worker
         }
 
         public void DiffSync()

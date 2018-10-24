@@ -72,6 +72,7 @@ namespace Monster.Middle
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutRepository>().InstancePerLifetimeScope();
             builder.RegisterType<BatchStateRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<LocationRepository>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryRepository>().InstancePerLifetimeScope();
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
 
@@ -86,7 +87,7 @@ namespace Monster.Middle
             
             // Inventory
             builder.RegisterType<AcumaticaWarehouseWorker>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaProductWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaInventoryPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyLocationWorker>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();

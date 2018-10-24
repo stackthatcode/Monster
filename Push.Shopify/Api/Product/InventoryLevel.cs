@@ -7,7 +7,7 @@ namespace Push.Shopify.Api.Product
     {
         public long inventory_item_id { get; set; }
         public long location_id { get; set; }
-        public int available { get; set; }
+        public int? available { get; set; }
         public DateTimeOffset updated_at { get; set; }
         public string admin_graphql_api_id { get; set; }
     }

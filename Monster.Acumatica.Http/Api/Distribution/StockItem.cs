@@ -56,6 +56,8 @@ namespace Monster.Acumatica.Api.Distribution
         public StringValue VolumeUOM { get; set; }
         public StringValue WeightUOM { get; set; }
         public StringValue custom { get; set; }
+
+        public List<WarehouseDetail> WarehouseDetails { get; set; }
         public List<object> files { get; set; }
     }
 }

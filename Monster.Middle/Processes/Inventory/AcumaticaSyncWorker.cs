@@ -89,8 +89,7 @@ namespace Monster.Middle.Processes.Inventory
                 PushAcumaticaStockItem(variant);
             }
         }
-
-
+        
         public void PushAcumaticaStockItem(UsrShopifyVariant variant)
         {
             var preferences = _tenantRepository.RetrievePreferences();
