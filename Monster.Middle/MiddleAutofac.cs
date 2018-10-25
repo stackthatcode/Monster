@@ -12,7 +12,6 @@ using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
 using Push.Shopify;
 using Push.Foundation.Utilities.Security;
-using AcumaticaWarehousePull = Monster.Middle.Processes.Inventory.AcumaticaWarehousePull;
 
 
 namespace Monster.Middle
@@ -25,27 +24,24 @@ namespace Monster.Middle
         {
             var builder = new ContainerBuilder();
 
-            // Register external assemblies
+            // Register Push Foundation stuff
             FoundationWebAutofac.Build(builder);
-
-
+            
             // Register Acumatica library and inject settings
             AcumaticaHttpAutofac.Build(builder);
             
-
             // Register Shopify library and inject settings
             ShopifyApiAutofac.Build(builder);
             
 
-            // Cryptographic
+            // Crypto faculties
             builder.Register<ICryptoService>(
                 x =>
                 {
                     var settings = MonsterConfig.Settings;
                     return new AesCrypto(settings.EncryptKey, settings.EncryptIv);
                 });
-
-
+            
             // Logging registrations
             builder.RegisterType<DefaultFormatter>()
                 .As<ILogFormatter>()
@@ -54,7 +50,6 @@ namespace Monster.Middle
             builder.Register(x => new NLogger(LoggerName, x.Resolve<ILogFormatter>()))
                 .As<IPushLogger>()
                 .InstancePerLifetimeScope();
-
             
             // TODO *** Need to implement this!!
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
@@ -86,12 +81,17 @@ namespace Monster.Middle
             builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
-            
+
             // Inventory
-            builder.RegisterType<AcumaticaWarehousePull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventoryPull>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyLocationWorker>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyInventoryPullWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaWarehousePull>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaWarehouseSync>().InstancePerLifetimeScope();
+
+            builder.RegisterType<ShopifyLocationPull>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyInventoryPull>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyWarehouseSync>().InstancePerLifetimeScope();
+            
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
 
             return builder.Build();

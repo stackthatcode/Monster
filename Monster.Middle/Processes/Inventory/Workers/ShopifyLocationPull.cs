@@ -6,16 +6,16 @@ using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
 
-namespace Monster.Middle.Processes.Inventory
+namespace Monster.Middle.Processes.Inventory.Workers
 {
-    public class ShopifyLocationWorker
+    public class ShopifyLocationPull
     {
         private readonly ProductApi _productApi;
         private readonly LocationRepository _locationRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
-        public ShopifyLocationWorker(
+        public ShopifyLocationPull(
                 ProductApi productApi, 
                 LocationRepository locationRepository, 
                 BatchStateRepository batchStateRepository, 

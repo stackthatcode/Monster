@@ -107,7 +107,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             var newStockItem = new StockItem();
             newStockItem.InventoryID = variant.StandardizedSku().ToValue();
             newStockItem.Description =
-                Standardize.StockItemTitle(
+                Standards.StockItemTitle(
                     shopifyProduct, shopifyVariant).ToValue();
 
             newStockItem.ItemClass = defaultItemClass.ToValue();

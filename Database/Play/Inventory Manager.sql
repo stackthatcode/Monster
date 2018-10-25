@@ -5,15 +5,15 @@ DELETE FROM usrShopifyVariant;
 DELETE FROM usrShopifyProduct;
 DELETE FROM usrShopifyLocation;
 
-
 SELECT * FROM usrShopifyLocation;
 SELECT * FROM usrShopifyProduct;
 SELECT * FROM usrShopifyVariant;
 SELECT * FROM usrShopifyInventoryLevels;
 
 
-DELETE FROM usrAcumaticaWarehouse;
+DELETE FROM usrAcumaticaWarehouseDetails;
 DELETE FROM usrAcumaticaStockItem;
+DELETE FROM usrAcumaticaWarehouse;
 
 SELECT * FROM usrAcumaticaWarehouse;
 SELECT * FROM usrAcumaticaStockItem;

@@ -29,7 +29,10 @@ namespace Monster.Acumatica.Api.Distribution
         public StringValue WarehouseID { get; set; }
         public StringValue custom { get; set; }
 
+        public WarehouseAddress Address { get; set; }
+
         public List<WarehouseLocation> Locations { get; set; }
+        public StringValue Country { get; set; }
     }
 
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
 using Push.Foundation.Web.Helpers;
@@ -45,12 +44,6 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string AddNewStockItem(string content)
-        {
-            var response = _httpContext.Put("StockItems", content);
-            return response.Body;
-        }
-
         public string RetreiveStockItems(DateTime? lastModified = null)
         {
             var filter = "ItemStatus eq 'Active'";
@@ -66,6 +59,12 @@ namespace Monster.Acumatica.Api
                     .Add("$expand", "WarehouseDetails")
                     .ToString();
             var response = _httpContext.Get($"StockItem?{queryString}");
+            return response.Body;
+        }
+
+        public string AddNewStockItem(string content)
+        {
+            var response = _httpContext.Put("StockItems", content);
             return response.Body;
         }
     }

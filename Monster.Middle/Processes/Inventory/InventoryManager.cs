@@ -10,33 +10,44 @@ namespace Monster.Middle.Processes.Inventory
         private readonly AcumaticaHttpContext _acumaticaContext;
         private readonly AcumaticaWarehousePull _acumaticaLocationWorker;
         private readonly AcumaticaInventoryPull _acumaticaProductWorker;
+        private readonly AcumaticaWarehouseSync _acumaticaWarehouseSync;
 
-        private readonly ShopifyLocationWorker _shopifyLocationWorker;
-        private readonly ShopifyInventoryPullWorker _shopifyProductWorker;
+        private readonly ShopifyLocationPull _shopifyLocationPull;
+        private readonly ShopifyWarehouseSync _shopifyWarehouseSync;
+        private readonly ShopifyInventoryPull _shopifyInventoryPull;
 
 
         private readonly IPushLogger _logger;
 
         public InventoryManager(
                 AcumaticaHttpContext acumaticaContext,
-                ShopifyInventoryPullWorker shopifyProductWorker, 
                 AcumaticaInventoryPull acumaticaProductWorker, 
-                AcumaticaWarehousePull acumaticaLocationWorker, 
-                ShopifyLocationWorker shopifyLocationWorker,
+                AcumaticaWarehousePull acumaticaLocationWorker,
+                AcumaticaWarehouseSync acumaticaWarehouseSync,
+                
+                ShopifyInventoryPull shopifyInventoryPull,
+                ShopifyLocationPull shopifyLocationPull,
+                ShopifyWarehouseSync shopifyWarehouseSync,
+
                 IPushLogger logger)
         {
             _acumaticaContext = acumaticaContext;
-            _shopifyProductWorker = shopifyProductWorker;
             _acumaticaProductWorker = acumaticaProductWorker;
             _acumaticaLocationWorker = acumaticaLocationWorker;
+            _acumaticaWarehouseSync = acumaticaWarehouseSync;
+
+            _shopifyInventoryPull = shopifyInventoryPull;
+            _shopifyLocationPull = shopifyLocationPull;
+            _shopifyWarehouseSync = shopifyWarehouseSync;
+
             _logger = logger;
-            _shopifyLocationWorker = shopifyLocationWorker;
         }
+
 
         public void BaselineSync()
         {
             // Shopify Pull
-            //_shopifyLocationWorker.BaselinePull();
+            _shopifyLocationPull.BaselinePull();
             //_shopifyProductWorker.BaselinePull();
 
             // Acumatica Pull
@@ -44,10 +55,12 @@ namespace Monster.Middle.Processes.Inventory
             _acumaticaLocationWorker.BaselinePull();
             //_acumaticaProductWorker.BaselinePull();
 
-            // Acumatica Sync
-            // TODO - Sync Warehouses
-            
+            // Warehouse and Location Sync
+            _acumaticaWarehouseSync.Synchronize();
+            _shopifyWarehouseSync.Synchronize();
+
         }
+
 
         public void DiffSync()
         {

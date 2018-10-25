@@ -586,6 +586,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaWarehouseId { get; set; } // AcumaticaWarehouseId (length: 50)
         public string AcumaticaJson { get; set; } // AcumaticaJson
         public long? ShopifyLocationMonsterId { get; set; } // ShopifyLocationMonsterId
+        public bool? IsNameMismatched { get; set; } // IsNameMismatched
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -865,6 +866,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaWarehouseId).HasColumnName(@"AcumaticaWarehouseId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyLocationMonsterId).HasColumnName(@"ShopifyLocationMonsterId").HasColumnType("bigint").IsOptional();
+            Property(x => x.IsNameMismatched).HasColumnName(@"IsNameMismatched").HasColumnType("bit").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 

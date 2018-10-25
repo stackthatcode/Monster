@@ -59,6 +59,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 else
                 {
                     dataWarehouse.AcumaticaJson = warehouse.SerializeToJson();
+                    dataWarehouse.LastUpdated = DateTime.UtcNow;
                     _dataRepository.SaveChanges();
                 }
             }
@@ -74,7 +75,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
             foreach (var location in shopifyLocations)
             {
-                if (!acumaticaWarehouses.Any(x => x.Matches(location)))
+                if (!acumaticaWarehouses.Any(x => x.AutoMatches(location)))
                 {
                     var message =
                         $"Shopify Location {location.ShopifyLocationName} " +
@@ -85,7 +86,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
             foreach (var warehouse in acumaticaWarehouses)
             {
-                if (!shopifyLocations.Any(x => x.Matches(warehouse)))
+                if (!shopifyLocations.Any(x => x.MatchesIdWithName(warehouse)))
                 {
                     var message =
                         $"Acumatica Warehouse {warehouse.AcumaticaWarehouseId} " +
@@ -94,33 +95,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 }
             }
         }
-
-
         
-        public void CreateWarehouseInAcumatica(UsrShopifyLocation location)
-        {
-            var newAcuWarehouse = new Warehouse
-            {
-                Active = true.ToValue(),
-                WarehouseID = location.ShopifyLocationName.ToValue(),
-            };
-
-            var warehouseJson =
-                _acumaticaInventoryApi.AddNewWarehouse(
-                    newAcuWarehouse.SerializeToJson());
-
-            var newAcumaticaWarehouse = warehouseJson.DeserializeFromJson<Warehouse>();
-
-            var newDataRecord = new UsrAcumaticaWarehouse
-            {
-                AcumaticaWarehouseId
-                    = newAcumaticaWarehouse.WarehouseID.value,
-                AcumaticaJson = warehouseJson,
-                DateCreated = DateTime.UtcNow,
-                LastUpdated = DateTime.UtcNow,
-            };
-
-            _dataRepository.InsertAcumaticaWarehouse(newDataRecord);
-        }
     }
 }
+

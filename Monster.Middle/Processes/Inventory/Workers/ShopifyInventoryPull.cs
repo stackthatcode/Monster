@@ -12,7 +12,7 @@ using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Inventory
 {
-    public class ShopifyInventoryPullWorker
+    public class ShopifyInventoryPull
     {
         private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Inventory
         public const int InitialBatchStateFudgeMin = -15;
 
 
-        public ShopifyInventoryPullWorker(
+        public ShopifyInventoryPull(
                 ProductApi productApi,
                 InventoryApi inventoryApi,
                 InventoryRepository inventoryRepository, 

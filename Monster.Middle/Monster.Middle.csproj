@@ -79,12 +79,13 @@
     </Compile>
     <Compile Include="Processes\Inventory\Workers\AcumaticaInventoryPull.cs" />
     <Compile Include="Processes\Inventory\InventoryManager.cs" />
+    <Compile Include="Processes\Inventory\Workers\ShopifyWarehouseSync.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaWarehouseSync.cs" />
     <Compile Include="Processes\Inventory\Workers\ShopifyInventoryPull.cs" />
     <Compile Include="Persist\Multitenant\Extensions\InventoryExtensions.cs" />
     <Compile Include="Processes\Inventory\Workers\ShopifyLocationPull.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaInventorySync.cs" />
-    <Compile Include="Processes\Inventory\Standardize.cs" />
+    <Compile Include="Processes\Inventory\Standards.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaWarehousePull.cs" />
     <Compile Include="Processes\Payouts\BankImportService.cs" />
