@@ -9,8 +9,9 @@ namespace Monster.Middle.Processes.Inventory
     public class InventoryManager
     {
         private readonly AcumaticaHttpContext _acumaticaContext;
-        private readonly AcumaticaWarehousePull _acumaticaLocationWorker;
+        private readonly AcumaticaWarehousePull _acumaticaWarehousePull;
         private readonly AcumaticaInventoryPull _acumaticaProductWorker;
+        private readonly AcumaticaInventorySync _acumaticaInventorySync;
         private readonly AcumaticaWarehouseSync _acumaticaWarehouseSync;
 
         private readonly ShopifyLocationPull _shopifyLocationPull;
@@ -23,8 +24,9 @@ namespace Monster.Middle.Processes.Inventory
 
         public InventoryManager(
                 AcumaticaHttpContext acumaticaContext,
-                AcumaticaInventoryPull acumaticaProductWorker, 
-                AcumaticaWarehousePull acumaticaLocationWorker,
+                AcumaticaInventoryPull acumaticaProductWorker,
+                AcumaticaInventorySync acumaticaInventorySync,
+                AcumaticaWarehousePull acumaticaWarehousePull,
                 AcumaticaWarehouseSync acumaticaWarehouseSync,
                 
                 ShopifyInventoryPull shopifyInventoryPull,
@@ -37,7 +39,8 @@ namespace Monster.Middle.Processes.Inventory
         {
             _acumaticaContext = acumaticaContext;
             _acumaticaProductWorker = acumaticaProductWorker;
-            _acumaticaLocationWorker = acumaticaLocationWorker;
+            _acumaticaInventorySync = acumaticaInventorySync;
+            _acumaticaWarehousePull = acumaticaWarehousePull;
             _acumaticaWarehouseSync = acumaticaWarehouseSync;
 
             _shopifyInventoryPull = shopifyInventoryPull;
@@ -54,25 +57,27 @@ namespace Monster.Middle.Processes.Inventory
             _logger.Info("Inventory -> Baseline running...");
 
             // Warehouse and Location Pull
-            _shopifyLocationPull.BaselinePull();
+            _shopifyLocationPull.Pull();
             _acumaticaContext.Begin();
-            _acumaticaLocationWorker.BaselinePull();
+            _acumaticaWarehousePull.Pull();
 
             // Warehouse and Location Sync
             _acumaticaWarehouseSync.Synchronize();
             _shopifyLocationSync.Synchronize();
 
             var status = _inventoryStatusService.GetCurrentLocationStatus();
-            if (!status.OK)
-            {
-                _logger.Info("Aborting Inventory -> Baseline:");
-                _logger.Info(status.GetSynopsis());
-                return;
-            }
+            //if (!status.OK)
+            //{
+            //    _logger.Info("Aborting Inventory -> Baseline:");
+            //    _logger.Info(status.GetSynopsis());
+            //    return;
+            //}
             
-            // Products and Inventory
+            // Products and Inventory Pull
             _shopifyInventoryPull.BaselinePull();
             _acumaticaProductWorker.BaselinePull();
+
+            _acumaticaInventorySync.BaselineSync();
         }
         
         public void RunDifferential()

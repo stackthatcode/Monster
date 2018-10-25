@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _logger = logger;
         }
 
-        public void BaselinePull()
+        public void Pull()
         {
             var dataLocations 
                     = _locationRepository.RetreiveShopifyLocations();

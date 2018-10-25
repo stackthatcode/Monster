@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _logger = logger;
         }
 
-        public void BaselinePull()
+        public void Pull()
         {
             var warehouses =
                 _acumaticaInventoryApi
@@ -64,37 +64,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 }
             }
         }
-
-        public void FlagDifferencesAndExceptions()
-        {
-            var acumaticaWarehouses 
-                    = _dataRepository.RetreiveAcumaticaWarehouses();
-
-            var shopifyLocations 
-                    = _dataRepository.RetreiveShopifyLocations();
-
-            foreach (var location in shopifyLocations)
-            {
-                if (!acumaticaWarehouses.Any(x => x.AutoMatches(location)))
-                {
-                    var message =
-                        $"Shopify Location {location.ShopifyLocationName} " +
-                        $"does not have a matching Acumatica Warehouse";
-                    _logger.Info(message);
-                }
-            }
-
-            foreach (var warehouse in acumaticaWarehouses)
-            {
-                if (!shopifyLocations.Any(x => x.MatchesIdWithName(warehouse)))
-                {
-                    var message =
-                        $"Acumatica Warehouse {warehouse.AcumaticaWarehouseId} " +
-                        $"does not have a matching Shopify Location";
-                    _logger.Info(message);
-                }
-            }
-        }
+        
         
     }
 }

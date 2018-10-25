@@ -64,7 +64,7 @@ namespace Monster.Acumatica.Api
 
         public string AddNewStockItem(string content)
         {
-            var response = _httpContext.Put("StockItems", content);
+            var response = _httpContext.Put("StockItem", content);
             return response.Body;
         }
     }

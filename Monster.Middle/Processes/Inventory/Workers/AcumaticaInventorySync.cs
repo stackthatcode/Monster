@@ -1,4 +1,5 @@
-﻿using Monster.Acumatica.Api;
+﻿using System;
+using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
@@ -94,7 +95,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
         {
             var preferences = _tenantRepository.RetrievePreferences();
             var defaultItemClass = preferences.AcumaticaDefaultItemClass;
-            
+            var defaultPostingClass = preferences.AcumaticaDefaultPostingClass;
+
             var shopifyVariant
                 = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
 
@@ -103,17 +105,32 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     .UsrShopifyProduct
                     .ShopifyJson
                     .DeserializeFromJson<Product>();
-
+            
             var newStockItem = new StockItem();
             newStockItem.InventoryID = variant.StandardizedSku().ToValue();
             newStockItem.Description =
                 Standards.StockItemTitle(
                     shopifyProduct, shopifyVariant).ToValue();
 
+            newStockItem.DefaultPrice = ((double)shopifyVariant.price).ToValue();
+
             newStockItem.ItemClass = defaultItemClass.ToValue();
+            newStockItem.PostingClass = defaultPostingClass.ToValue();
 
             var newStockItemJson = newStockItem.SerializeToJson();
-            _inventoryClient.AddNewStockItem(newStockItemJson);
+            var result = _inventoryClient.AddNewStockItem(newStockItemJson);
+
+            var item = result.DeserializeFromJson<StockItem>();
+            var newData = new UsrAcumaticaStockItem()
+            {
+                ItemId = item.InventoryID.value,
+                AcumaticaJson = item.SerializeToJson(),
+                DateCreated = DateTime.UtcNow,
+                LastUpdated = DateTime.UtcNow,
+            };
+
+            _inventoryRepository.InsertAcumaticaStockItems(newData);
+
         }
     }
 }
