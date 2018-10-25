@@ -77,6 +77,8 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Processes\Inventory\Model\LocationStatus.cs" />
+    <Compile Include="Processes\Inventory\Services\InventoryStatusService.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaInventoryPull.cs" />
     <Compile Include="Processes\Inventory\InventoryManager.cs" />
     <Compile Include="Processes\Inventory\Workers\ShopifyWarehouseSync.cs" />

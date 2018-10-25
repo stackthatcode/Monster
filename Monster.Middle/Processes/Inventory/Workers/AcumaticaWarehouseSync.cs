@@ -62,6 +62,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 {
                     automatch.ShopifyLocationMonsterId = shopifyLocation.MonsterId;
                     automatch.LastUpdated = DateTime.UtcNow;
+                    _locationRepository.SaveChanges();
                     continue;
                 }
 

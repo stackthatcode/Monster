@@ -35,7 +35,7 @@ namespace Monster.Middle.Persist.Multitenant
         {
             return Entities.UsrAcumaticaWarehouses.ToList();
         }
-
+        
         public void SaveChanges()
         {
             Entities.SaveChanges();

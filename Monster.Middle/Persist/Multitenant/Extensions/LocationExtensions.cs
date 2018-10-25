@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Processes.Inventory;
 using Push.Shopify.Api.Inventory;
@@ -49,6 +46,32 @@ namespace Monster.Middle.Persist.Multitenant.Extensions
         public static bool IsUnmatched(this UsrShopifyLocation location)
         {
             return !location.IsMatched();
+        }
+
+
+        public static IList<UsrAcumaticaWarehouse> 
+                Unmatched(this IEnumerable<UsrAcumaticaWarehouse> input)
+        {
+            return input
+                .Where(x => x.ShopifyLocationMonsterId == null)
+                .ToList();
+        }
+
+        public static IList<UsrAcumaticaWarehouse>
+                Mismatched(this IEnumerable<UsrAcumaticaWarehouse> input)
+        {
+            return input
+                .Where(x => x.IsNameMismatched)
+                .ToList();
+        }
+
+
+        public static IList<UsrShopifyLocation>
+            Unmatched(this IEnumerable<UsrShopifyLocation> input)
+        {
+            return input
+                .Where(x => x.IsUnmatched())
+                .ToList();
         }
     }
 }

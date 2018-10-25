@@ -586,7 +586,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaWarehouseId { get; set; } // AcumaticaWarehouseId (length: 50)
         public string AcumaticaJson { get; set; } // AcumaticaJson
         public long? ShopifyLocationMonsterId { get; set; } // ShopifyLocationMonsterId
-        public bool? IsNameMismatched { get; set; } // IsNameMismatched
+        public bool IsNameMismatched { get; set; } // IsNameMismatched
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -623,12 +623,9 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrBatchState
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? ShopifyLocationsPullEnd { get; set; } // ShopifyLocationsPullEnd
         public System.DateTime? ShopifyProductsPullEnd { get; set; } // ShopifyProductsPullEnd
         public System.DateTime? ShopifyOrdersPullEnd { get; set; } // ShopifyOrdersPullEnd
-        public System.DateTime? AcumaticaWarehousePullEnd { get; set; } // AcumaticaWarehousePullEnd
         public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
-        public System.DateTime? AcumaticaWarehouseSyncEnd { get; set; } // AcumaticaWarehouseSyncEnd
     }
 
     // usrPayoutPreferences
@@ -866,7 +863,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaWarehouseId).HasColumnName(@"AcumaticaWarehouseId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyLocationMonsterId).HasColumnName(@"ShopifyLocationMonsterId").HasColumnType("bigint").IsOptional();
-            Property(x => x.IsNameMismatched).HasColumnName(@"IsNameMismatched").HasColumnType("bit").IsOptional();
+            Property(x => x.IsNameMismatched).HasColumnName(@"IsNameMismatched").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
@@ -917,12 +914,9 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ShopifyLocationsPullEnd).HasColumnName(@"ShopifyLocationsPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.ShopifyProductsPullEnd).HasColumnName(@"ShopifyProductsPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.ShopifyOrdersPullEnd).HasColumnName(@"ShopifyOrdersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaWarehousePullEnd).HasColumnName(@"AcumaticaWarehousePullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaWarehouseSyncEnd).HasColumnName(@"AcumaticaWarehouseSyncEnd").HasColumnType("datetime").IsOptional();
         }
     }
 

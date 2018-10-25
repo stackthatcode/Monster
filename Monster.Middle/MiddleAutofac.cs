@@ -5,6 +5,7 @@ using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Inventory;
+using Monster.Middle.Processes.Inventory.Services;
 using Monster.Middle.Processes.Inventory.Workers;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Services;
@@ -91,7 +92,8 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyLocationPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyWarehouseSync>().InstancePerLifetimeScope();
-            
+
+            builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
 
             return builder.Build();

@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using Monster.Acumatica.Api;
-using Monster.Acumatica.Api.Common;
-using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Extensions;
-using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 
@@ -47,21 +42,21 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                     // Flag if the names mismatch, now
                     warehouse.IsNameMismatched =
-                        !matchedLocation.MatchesIdWithName(warehouse);
-
+                            !matchedLocation.MatchesIdWithName(warehouse);
                     warehouse.LastUpdated = DateTime.UtcNow;
                     _locationRepository.SaveChanges();                    
                     continue;
                 }
 
                 // Attempt to automatically match
-                var automatch = shopifyLocations
-                        .FirstOrDefault(x => warehouse.AutoMatches(x));
+                var automatch = 
+                    shopifyLocations.FirstOrDefault(x => warehouse.AutoMatches(x));
 
                 if (automatch != null)
                 {
                     warehouse.ShopifyLocationMonsterId = automatch.MonsterId;
                     warehouse.LastUpdated = DateTime.UtcNow;
+                    _locationRepository.SaveChanges();
                     continue;
                 }
                 
