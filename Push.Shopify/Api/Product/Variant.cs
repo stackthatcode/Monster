@@ -10,8 +10,8 @@ namespace Push.Shopify.Api.Product
 
         public string sku { get; set; }
         public string title { get; set; }
-        public decimal price { get; set; }
-        public decimal? compare_at_price { get; set; }
+        public double price { get; set; }
+        public double? compare_at_price { get; set; }
         
         public int position { get; set; }
         public string fulfillment_service { get; set; }

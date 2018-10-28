@@ -79,6 +79,21 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
+        public List<UsrShopifyInventoryLevel> 
+                        RetrieveShopifyInventoryLevelsMatchedButNotLoaded()
+        {
+            return Entities
+                    .UsrShopifyInventoryLevels
+                    .Include(x => x.UsrShopifyVariant)
+                    .Include(x => x.UsrShopifyVariant.UsrAcumaticaStockItems)
+                    .Include(x => x.UsrShopifyVariant.UsrShopifyProduct)
+                    .Include(x => x.UsrShopifyLocation)
+                    .Where(x => x.UsrAcumaticaInventoryReceipt == null
+                                && x.UsrShopifyVariant.UsrAcumaticaStockItems.Any()
+                                && x.ShopifyAvailableQuantity > 0)
+                    .ToList();
+        }
+
 
         // Acumatica persistence
         //
@@ -146,6 +161,29 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
 
+        public void InsertAcumaticaInventoryReceipt(UsrAcumaticaInventoryReceipt receipt)
+        {
+            Entities.UsrAcumaticaInventoryReceipts.Add(receipt);
+            Entities.SaveChanges();
+        }
+
+        public void UpdateAcumaticaInventoryReceipt(
+                        List<UsrShopifyInventoryLevel> levels,
+                        UsrAcumaticaInventoryReceipt receipt)
+        {
+            levels.ForEach(x => x.InventoryReceiptMonsterId = receipt.MonsterId);
+            Entities.SaveChanges();
+        }
+
+        public List<UsrAcumaticaInventoryReceipt> 
+                        RetrieveNonReleasedAcumaticaInventoryReceipts()
+        {
+            return Entities
+                    .UsrAcumaticaInventoryReceipts
+                    .Where(x => x.IsReleased == false)
+                    .ToList();
+        }
+
 
         // Product to Stock Item matching 
         //
@@ -187,6 +225,5 @@ namespace Monster.Middle.Persist.Multitenant
         {
             Entities.SaveChanges();
         }
-
     }
 }

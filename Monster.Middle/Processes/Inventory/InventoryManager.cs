@@ -57,27 +57,35 @@ namespace Monster.Middle.Processes.Inventory
             _logger.Info("Inventory -> Baseline running...");
 
             // Warehouse and Location Pull
-            _shopifyLocationPull.Pull();
+            _shopifyLocationPull.Run();
             _acumaticaContext.Begin();
-            _acumaticaWarehousePull.Pull();
+            _acumaticaWarehousePull.Run();
 
             // Warehouse and Location Sync
             _acumaticaWarehouseSync.Synchronize();
             _shopifyLocationSync.Synchronize();
 
+            // Status checkpoint
             var status = _inventoryStatusService.GetCurrentLocationStatus();
-            //if (!status.OK)
-            //{
-            //    _logger.Info("Aborting Inventory -> Baseline:");
-            //    _logger.Info(status.GetSynopsis());
-            //    return;
-            //}
-            
+            if (!status.OK)
+            {
+                _logger.Info("Aborting Inventory -> Baseline:");
+                _logger.Info(status.GetSynopsis());
+                return;
+            }
+
             // Products and Inventory Pull
             _shopifyInventoryPull.BaselinePull();
             _acumaticaProductWorker.BaselinePull();
 
-            _acumaticaInventorySync.BaselineSync();
+
+            // TODO - control this via a Preference
+            // Synchronize Shopify Inventory to Acumatica
+            _acumaticaInventorySync.RunBaselineStockitems();
+            _acumaticaInventorySync.RunBaselineInventory();
+
+            // TODO - control this via a Preference
+            _acumaticaInventorySync.RunBaselineInventoryRelease();
         }
         
         public void RunDifferential()

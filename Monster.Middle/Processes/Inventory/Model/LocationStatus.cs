@@ -13,9 +13,9 @@ namespace Monster.Middle.Processes.Inventory.Model
         public string GetSynopsis(string delimiter = null)
         {
             var output = new List<string>();
-            output.Add($"{UnmatchedLocations.Count} unmatched Shopify Locations");
-            output.Add($"{UnmatchedWarehouses.Count} unmatched Acumatica Warehouses");
-            output.Add($"{MismatchedWarehouses.Count} unmatched Shopify Locations");
+            output.Add($"{UnmatchedLocations.Count} unmatched Shopify Location(s)");
+            output.Add($"{UnmatchedWarehouses.Count} unmatched Acumatica Warehouse(s)");
+            output.Add($"{MismatchedWarehouses.Count} mismatched Warehouse to Location pair(s)");
             return output.ToDelimited(delimiter ?? Environment.NewLine);
         }
         

@@ -9,14 +9,14 @@ using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Product;
 
-
-namespace Monster.Middle.Processes.Inventory
+namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class ShopifyInventoryPull
     {
         private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
         private readonly InventoryRepository _inventoryRepository;
+        private readonly LocationRepository _locationRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
@@ -25,17 +25,19 @@ namespace Monster.Middle.Processes.Inventory
 
 
         public ShopifyInventoryPull(
+                IPushLogger logger,
                 ProductApi productApi,
                 InventoryApi inventoryApi,
                 InventoryRepository inventoryRepository, 
                 BatchStateRepository batchStateRepository,
-                IPushLogger logger)
+                LocationRepository locationRepository)
         {
             _productApi = productApi;
             _inventoryApi = inventoryApi;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
             _logger = logger;
+            _locationRepository = locationRepository;
         }
 
         public void BaselinePull()
@@ -261,16 +263,23 @@ namespace Monster.Middle.Processes.Inventory
         }
 
         public void UpsertInventory(
-                    UsrShopifyVariant variant, List<InventoryLevel> shopifyLevels)
+                    UsrShopifyVariant variant, 
+                    List<InventoryLevel> shopifyLevels)
         {
             var existingLevels =
                 _inventoryRepository
                     .RetrieveShopifyInventoryLevels(variant.ShopifyInventoryItemId);
 
+            var locations =
+                _locationRepository.RetreiveShopifyLocations();
+
             foreach (var shopifyLevel in shopifyLevels)
             {
                 var existingLevel =
                     existingLevels.FirstOrDefault(x => x.ShopifyLocationId == shopifyLevel.location_id);
+
+                var location 
+                    = locations.First(x => x.ShopifyLocationId == shopifyLevel.location_id);
 
                 if (existingLevel == null)
                 {
@@ -279,6 +288,7 @@ namespace Monster.Middle.Processes.Inventory
                     newLevel.ShopifyInventoryItemId = shopifyLevel.inventory_item_id;
                     newLevel.ShopifyLocationId = shopifyLevel.location_id;
                     newLevel.ShopifyAvailableQuantity = shopifyLevel.available ?? 0;
+                    newLevel.LocationMonsterId = location.MonsterId;
                     newLevel.DateCreated = DateTime.UtcNow;
                     newLevel.LastUpdated = DateTime.UtcNow;
 
@@ -288,6 +298,8 @@ namespace Monster.Middle.Processes.Inventory
                 {
                     existingLevel.ShopifyAvailableQuantity = shopifyLevel.available ?? 0;
                     existingLevel.LastUpdated = DateTime.UtcNow;
+
+                    _inventoryRepository.SaveChanges();
                 }
             }
         }

@@ -111,12 +111,12 @@ namespace Monster.Acumatica.Http
                     Dictionary<string, string> headers = null,
                     bool excludeVersion = false)
         {
-            _logger.Debug($"HTTP POST on {path}");
-
             var httpContent
                 = new StringContent(content, Encoding.UTF8, "application/json");
 
             var address = MakePath(path, excludeVersion);
+            _logger.Debug($"HTTP POST on {address}");
+            _logger.Trace(content);
             var response =
                 DurableExecutor.Do(
                     () => _httpClient.PostAsync(address, httpContent).Result,

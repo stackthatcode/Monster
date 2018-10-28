@@ -31,7 +31,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _batchStateRepository = batchStateRepository;
         }
 
-        //
+
         // TODO - log run start and end times
         //
         public void BaselinePull()

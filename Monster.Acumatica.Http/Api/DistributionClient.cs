@@ -67,5 +67,25 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Put("StockItem", content);
             return response.Body;
         }
+
+        public string RetreiveInventoryReceipts()
+        {
+            var response = _httpContext.Get("InventoryReceipt?$expand=Details");
+            return response.Body;
+        }
+
+        public string AddInventoryReceipt(string content)
+        {
+            var response = _httpContext.Put("InventoryReceipt", content);
+            return response.Body;
+        }
+
+        public string ReleaseInventoryReceipt(string content)
+        {
+            var response 
+                = _httpContext.Post(
+                    "InventoryReceipt/ReleaseInventoryReceipt", content);
+            return response.Body;
+        }
     }
 }

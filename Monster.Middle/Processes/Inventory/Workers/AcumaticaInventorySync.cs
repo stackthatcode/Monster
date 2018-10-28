@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Distribution;
@@ -14,32 +16,30 @@ namespace Monster.Middle.Processes.Inventory.Workers
     public class AcumaticaInventorySync
     {
         private readonly InventoryRepository _inventoryRepository;
-        private readonly BatchStateRepository _batchStateRepository;
         private readonly TenantRepository _tenantRepository;
-        private readonly DistributionClient _inventoryClient;
+        private readonly DistributionClient _distributionClient;
         private readonly IPushLogger _logger;
 
         public AcumaticaInventorySync(
                     InventoryRepository inventoryRepository, 
-                    BatchStateRepository batchStateRepository, 
-                    DistributionClient inventoryClient, 
+                    DistributionClient distributionClient, 
                     TenantRepository tenantRepository,
                     IPushLogger logger)
         {
             _inventoryRepository = inventoryRepository;
-            _batchStateRepository = batchStateRepository;
-            _inventoryClient = inventoryClient;
+            _distributionClient = distributionClient;
             _tenantRepository = tenantRepository;
             _logger = logger;
         }
 
-        public void BaselineSync()
+        public void RunBaselineStockitems()
         {
             var variants = _inventoryRepository.RetrieveShopifyVariants();
 
             foreach (var variant in variants)
             {
                 // Attempt to identify duplicates
+                // TODO - refactor this into 
                 var matchingShopifySkus =
                     _inventoryRepository
                         .RetrieveShopifyVariants(variant.StandardizedSku())
@@ -82,16 +82,11 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                 // With neither duplicates or Auto-matching having succeeded,
                 // ... we'll create a new Stock Item in Acumatica
-                PushAcumaticaStockItem(variant);
+                PushStockItem(variant);
             }
         }
 
-        public void DifferentialSync()
-        {
-
-        }
-
-        public void PushAcumaticaStockItem(UsrShopifyVariant variant)
+        public void PushStockItem(UsrShopifyVariant variant)
         {
             var preferences = _tenantRepository.RetrievePreferences();
             var defaultItemClass = preferences.AcumaticaDefaultItemClass;
@@ -112,24 +107,148 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 Standards.StockItemTitle(
                     shopifyProduct, shopifyVariant).ToValue();
 
-            newStockItem.DefaultPrice = ((double)shopifyVariant.price).ToValue();
+            newStockItem.DefaultPrice 
+                    = ((double)shopifyVariant.price).ToValue();
 
             newStockItem.ItemClass = defaultItemClass.ToValue();
             newStockItem.PostingClass = defaultPostingClass.ToValue();
 
             var newStockItemJson = newStockItem.SerializeToJson();
-            var result = _inventoryClient.AddNewStockItem(newStockItemJson);
+            var result = _distributionClient.AddNewStockItem(newStockItemJson);
 
             var item = result.DeserializeFromJson<StockItem>();
             var newData = new UsrAcumaticaStockItem()
             {
                 ItemId = item.InventoryID.value,
                 AcumaticaJson = item.SerializeToJson(),
+                ShopifyVariantMonsterId = variant.MonsterId,
                 DateCreated = DateTime.UtcNow,
                 LastUpdated = DateTime.UtcNow,
             };
 
             _inventoryRepository.InsertAcumaticaStockItems(newData);
+        }
+
+        public void RunBaselineInventory()
+        {            
+            var preferences = _tenantRepository.RetrievePreferences();
+
+            if (preferences.AcumaticaPostingDate == null)
+                throw new ArgumentException(
+                    "Preferences -> AcumaticaPostDate is not set");
+
+            if (preferences.DefaultCoGsMargin == null)
+                throw new ArgumentException(
+                    "Preferences -> DefaultCoGsMargin is not set");
+
+            var inventory =
+                _inventoryRepository
+                    .RetrieveShopifyInventoryLevelsMatchedButNotLoaded();
+
+            var productParentMonsterIds =
+                inventory
+                    .Select(x => x.UsrShopifyVariant.ParentMonsterId)
+                    .Distinct()
+                    .ToList();
+
+            foreach (var parentMonsterId in productParentMonsterIds)
+            {
+                var inventoryByProduct = inventory.ByParentId(parentMonsterId);
+
+                // Push to Acumatica
+                //
+                var receipt = BuildReceipt(inventoryByProduct);
+
+                var resultJson =
+                    _distributionClient
+                        .AddInventoryReceipt(receipt.SerializeToJson());
+
+                var resultObject
+                    = resultJson.DeserializeFromJson<InventoryReceipt>();
+
+
+                // Save to persistence
+                //
+                var monsterReceipt = new UsrAcumaticaInventoryReceipt();
+                monsterReceipt.AcumaticaRefNumber = resultObject.ReferenceNbr.value;
+                monsterReceipt.AcumaticaJson = resultJson;
+                monsterReceipt.IsReleased = false;
+                monsterReceipt.DateCreated = DateTime.UtcNow;
+                monsterReceipt.LastUpdate = DateTime.UtcNow;
+
+                // TODO - add logging in case this blows us during persistence
+
+                _inventoryRepository.InsertAcumaticaInventoryReceipt(monsterReceipt);
+                _inventoryRepository
+                    .UpdateAcumaticaInventoryReceipt(
+                        inventoryByProduct, monsterReceipt);
+            }
+        }
+
+        public void RunBaselineInventoryRelease()
+        {
+            var receipts = _inventoryRepository.RetrieveNonReleasedAcumaticaInventoryReceipts();
+
+            foreach (var receipt in receipts)
+            {
+                var releaseEntity
+                    = ReleaseInventoryReceipt.Build(receipt.AcumaticaRefNumber);
+
+                // Finally, Release the Inventory Receipt
+                _distributionClient.ReleaseInventoryReceipt(releaseEntity.SerializeToJson());
+
+                receipt.IsReleased = true;
+                _inventoryRepository.SaveChanges();
+            }
+        }
+
+        private InventoryReceipt BuildReceipt(List<UsrShopifyInventoryLevel> inventory)
+        {
+            var preferences = _tenantRepository.RetrievePreferences();
+            var postingDate = preferences.AcumaticaPostingDate.Value;
+            var defaultCogs = preferences.DefaultCoGsMargin.Value;
+
+            var controlQty
+                = inventory.Sum(x => x.ShopifyAvailableQuantity);
+
+            // TODO - move to extension method
+            var controlCost
+                = inventory.Sum(
+                    x => 
+                        x.UsrShopifyVariant.CogsByMarginPercent(defaultCogs) 
+                        * x.ShopifyAvailableQuantity);
+
+            var receipt = new InventoryReceipt();
+            receipt.Date = postingDate.ToValue();
+            receipt.ControlCost = controlCost.ToValue();
+            receipt.ControlQty = ((double)controlQty).ToValue();
+            receipt.Details = new List<InventoryReceiptDetails>();
+            receipt.Hold = false.ToValue();
+
+            foreach (var inventoryLevel in inventory)
+            {
+                var stockItemId = inventoryLevel.AcumaticaStockItemId();
+                var unitCogs =
+                    inventoryLevel.UsrShopifyVariant.CogsByMarginPercent(defaultCogs);
+
+                var qty = (double) inventoryLevel.ShopifyAvailableQuantity;
+                var warehouseId = inventoryLevel.AcumaticaWarehouseId();
+
+
+                var detail = new InventoryReceiptDetails();
+                detail.InventoryID = stockItemId.ToValue();
+                detail.UnitCost = unitCogs.ToValue();
+                detail.Qty = qty.ToValue();
+                detail.WarehouseID = warehouseId.ToValue();
+
+                receipt.Details.Add(detail);
+            }
+
+            return receipt;
+        }
+
+        public void RunDifferential()
+        {
 
         }
     }

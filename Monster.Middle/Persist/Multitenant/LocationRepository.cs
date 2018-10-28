@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 
 
@@ -22,7 +23,10 @@ namespace Monster.Middle.Persist.Multitenant
 
         public IList<UsrShopifyLocation> RetreiveShopifyLocations()
         {
-            return Entities.UsrShopifyLocations.ToList();
+            return Entities
+                    .UsrShopifyLocations
+                    .Include(x => x.UsrAcumaticaWarehouses)
+                    .ToList();
         }
 
         public void InsertAcumaticaWarehouse(UsrAcumaticaWarehouse warehouse)
@@ -33,7 +37,10 @@ namespace Monster.Middle.Persist.Multitenant
 
         public IList<UsrAcumaticaWarehouse> RetreiveAcumaticaWarehouses()
         {
-            return Entities.UsrAcumaticaWarehouses.ToList();
+            return Entities
+                    .UsrAcumaticaWarehouses
+                    .Include(x => x.UsrShopifyLocation)
+                    .ToList();
         }
         
         public void SaveChanges()
