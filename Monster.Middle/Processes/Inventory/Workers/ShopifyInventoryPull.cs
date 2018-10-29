@@ -7,6 +7,7 @@ using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
+using Push.Shopify.Api.Inventory;
 using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Inventory.Workers
@@ -40,7 +41,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _locationRepository = locationRepository;
         }
 
-        public void BaselinePull()
+        public void RunAll()
         {
             _logger.Debug("Baseline Pull Products");
 
@@ -83,7 +84,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 .UpdateShopifyProductsPullEnd(productBatchEnd);            
         }
 
-        public void DifferentialPull()
+        public void RunUpdated()
         {
             var batchState = _batchStateRepository.RetrieveBatchState();
 
@@ -244,7 +245,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 = variants.Select(x => x.ShopifyInventoryItemId).ToList();
 
             var inventoryJson =
-                _inventoryApi.RetrieveInventoryItems(inventoryItemIds);
+                _inventoryApi.RetrieveInventoryLevels(inventoryItemIds);
 
             var inventoryLevels
                 = inventoryJson

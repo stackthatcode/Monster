@@ -10,13 +10,14 @@ namespace Monster.Middle.Processes.Inventory
     {
         private readonly AcumaticaHttpContext _acumaticaContext;
         private readonly AcumaticaWarehousePull _acumaticaWarehousePull;
-        private readonly AcumaticaInventoryPull _acumaticaProductWorker;
-        private readonly AcumaticaInventorySync _acumaticaInventorySync;
         private readonly AcumaticaWarehouseSync _acumaticaWarehouseSync;
-
+        private readonly AcumaticaInventoryPull _acumaticaInventoryPull;
+        private readonly AcumaticaInventorySync _acumaticaInventorySync;
+        
         private readonly ShopifyLocationPull _shopifyLocationPull;
-        private readonly ShopifyWarehouseSync _shopifyLocationSync;
+        private readonly ShopifyLocationSync _shopifyLocationSync;
         private readonly ShopifyInventoryPull _shopifyInventoryPull;
+        private readonly ShopifyInventorySync _shopifyInventorySync;
 
         private readonly InventoryStatusService _inventoryStatusService;
 
@@ -24,21 +25,24 @@ namespace Monster.Middle.Processes.Inventory
 
         public InventoryManager(
                 AcumaticaHttpContext acumaticaContext,
-                AcumaticaInventoryPull acumaticaProductWorker,
+
+                AcumaticaInventoryPull acumaticaInventoryPull,
                 AcumaticaInventorySync acumaticaInventorySync,
                 AcumaticaWarehousePull acumaticaWarehousePull,
                 AcumaticaWarehouseSync acumaticaWarehouseSync,
                 
                 ShopifyInventoryPull shopifyInventoryPull,
+                ShopifyInventorySync shopifyInventorySync,
                 ShopifyLocationPull shopifyLocationPull,
-                ShopifyWarehouseSync shopifyLocationSync,
+                ShopifyLocationSync shopifyLocationSync,
 
                 InventoryStatusService inventoryStatusService,
 
                 IPushLogger logger)
         {
             _acumaticaContext = acumaticaContext;
-            _acumaticaProductWorker = acumaticaProductWorker;
+
+            _acumaticaInventoryPull = acumaticaInventoryPull;
             _acumaticaInventorySync = acumaticaInventorySync;
             _acumaticaWarehousePull = acumaticaWarehousePull;
             _acumaticaWarehouseSync = acumaticaWarehouseSync;
@@ -46,13 +50,15 @@ namespace Monster.Middle.Processes.Inventory
             _shopifyInventoryPull = shopifyInventoryPull;
             _shopifyLocationPull = shopifyLocationPull;
             _shopifyLocationSync = shopifyLocationSync;
+            _shopifyInventorySync = shopifyInventorySync;
+
             _inventoryStatusService = inventoryStatusService;
 
             _logger = logger;
         }
 
 
-        public void RunBaseline()
+        public void InitialLoad()
         {
             _logger.Info("Inventory -> Baseline running...");
 
@@ -62,8 +68,8 @@ namespace Monster.Middle.Processes.Inventory
             _acumaticaWarehousePull.Run();
 
             // Warehouse and Location Sync
-            _acumaticaWarehouseSync.Synchronize();
-            _shopifyLocationSync.Synchronize();
+            _acumaticaWarehouseSync.Run();
+            _shopifyLocationSync.Run();
 
             // Status checkpoint
             var status = _inventoryStatusService.GetCurrentLocationStatus();
@@ -75,20 +81,26 @@ namespace Monster.Middle.Processes.Inventory
             }
 
             // Products and Inventory Pull
-            _shopifyInventoryPull.BaselinePull();
-            _acumaticaProductWorker.BaselinePull();
-
-
+            _shopifyInventoryPull.RunAll();
+            _acumaticaInventoryPull.RunAll();
+            
             // TODO - control this via a Preference
-            // Synchronize Shopify Inventory to Acumatica
-            _acumaticaInventorySync.RunBaselineStockitems();
-            _acumaticaInventorySync.RunBaselineInventory();
-
-            // TODO - control this via a Preference
-            _acumaticaInventorySync.RunBaselineInventoryRelease();
+            LoadShopifyInventoryIntoAcumatica();
         }
         
-        public void RunDifferential()
+        public void LoadShopifyInventoryIntoAcumatica()
+        {
+            // Synchronize Shopify Inventory to Acumatica
+            _acumaticaInventorySync.Run();
+            _acumaticaInventorySync.RunInventoryReceipts();
+
+            // TODO - control this via a Preference
+            _acumaticaInventorySync.RunInventoryReceiptsRelease();
+
+            _acumaticaInventoryPull.RunUpdated();
+        }
+
+        public void UpdateLoad()
         {
 
         }

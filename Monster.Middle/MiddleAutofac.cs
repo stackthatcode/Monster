@@ -90,8 +90,9 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaWarehouseSync>().InstancePerLifetimeScope();
 
             builder.RegisterType<ShopifyLocationPull>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyLocationSync>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPull>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyWarehouseSync>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyInventorySync>().InstancePerLifetimeScope();
 
             builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();

@@ -13,6 +13,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
     {
         private readonly DistributionClient _inventoryClient;
         private readonly InventoryRepository _inventoryRepository;
+        private readonly LocationRepository _locationRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
@@ -22,19 +23,21 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public AcumaticaInventoryPull(
                     DistributionClient inventoryClient, 
                     InventoryRepository inventoryRepository,
+                    LocationRepository locationRepository,
                     BatchStateRepository batchStateRepository,
                     IPushLogger logger)
         {
             _inventoryClient = inventoryClient;
             _inventoryRepository = inventoryRepository;
-            _logger = logger;
+            _locationRepository = locationRepository;
             _batchStateRepository = batchStateRepository;
+            _logger = logger;
         }
 
 
         // TODO - log run start and end times
         //
-        public void BaselinePull()
+        public void RunAll()
         {
             var json = _inventoryClient.RetreiveStockItems();
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
@@ -53,7 +56,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     .UpdateAcumaticaProductsEnd(batchStateEnd);
         }
         
-        public void DifferentialPull()
+        public void RunUpdated()
         {
             var batchState = _batchStateRepository.RetrieveBatchState();
             if (!batchState.AcumaticaProductsPullEnd.HasValue)
@@ -117,9 +120,14 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 _inventoryRepository
                     .RetrieveAcumaticaWarehouseDetails(stockItemMonsterId);
 
+            var warehouses = _locationRepository.RetreiveAcumaticaWarehouses();
+
             foreach (var acumaticaDetail in stockItem.WarehouseDetails)
             {
                 var acumaticaWarehouseId = acumaticaDetail.WarehouseID.value;
+                var monsterWarehouse
+                    = warehouses.First(x => x.AcumaticaWarehouseId == acumaticaWarehouseId);
+
                 var existingDetail
                     = existingDetails.FirstOrDefault(
                         x => x.AcumaticaWarehouseId == acumaticaWarehouseId);
@@ -131,6 +139,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     newDetail.AcumaticaJson = acumaticaDetail.SerializeToJson();
                     newDetail.AcumaticaWarehouseId = acumaticaDetail.WarehouseID.value;
                     newDetail.AcumaticaQtyOnHand = acumaticaDetail.QtyOnHand.value;
+                    newDetail.WarehouseMonsterId = monsterWarehouse.Id;
+                    newDetail.ShopifyIsSynced = false;
                     newDetail.DateCreated = DateTime.UtcNow;
                     newDetail.LastUpdated = DateTime.UtcNow;
 
@@ -140,6 +150,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 {
                     existingDetail.AcumaticaQtyOnHand = acumaticaDetail.QtyOnHand.value;
                     existingDetail.AcumaticaJson = acumaticaDetail.SerializeToJson();
+                    existingDetail.ShopifyIsSynced = false;
                     existingDetail.LastUpdated = DateTime.UtcNow;
                     _inventoryRepository.SaveChanges();
                 }

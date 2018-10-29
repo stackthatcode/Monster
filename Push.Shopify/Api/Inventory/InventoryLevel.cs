@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Push.Shopify.Api.Product
+namespace Push.Shopify.Api.Inventory
 {
     public class InventoryLevel
     {

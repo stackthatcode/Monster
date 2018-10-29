@@ -8,13 +8,13 @@ using Push.Shopify.Api;
 
 namespace Monster.Middle.Processes.Inventory.Workers
 {
-    public class ShopifyWarehouseSync
+    public class ShopifyLocationSync
     {
         private readonly LocationRepository _locationRepository;
         private readonly InventoryApi  _inventoryApi;
         private readonly IPushLogger _logger;
 
-        public ShopifyWarehouseSync(
+        public ShopifyLocationSync(
                     LocationRepository locationRepository,
                     InventoryApi inventoryApi,
                     IPushLogger logger)
@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _logger = logger;
         }
 
-        public void Synchronize()
+        public void Run()
         {
             var shopifyLocations 
                     = _locationRepository.RetreiveShopifyLocations();

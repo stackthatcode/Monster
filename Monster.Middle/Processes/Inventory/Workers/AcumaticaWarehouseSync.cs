@@ -28,7 +28,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _logger = logger;
         }
 
-        public void Synchronize()
+        public void Run()
         {
             var shopifyLocations 
                     = _locationRepository.RetreiveShopifyLocations();

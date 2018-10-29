@@ -132,6 +132,19 @@ namespace Monster.Middle.Persist.Multitenant
                 .ToList();
         }
 
+        public List<UsrAcumaticaWarehouseDetail>
+                        RetrieveAcumaticaWarehouseDetailsNotSynced()
+        {
+            return Entities
+                    .UsrAcumaticaWarehouseDetails
+                    .Include(x => x.UsrAcumaticaStockItem)
+                    .Include(x => x.UsrAcumaticaStockItem.UsrShopifyVariant)
+                    .Include(x => x.UsrAcumaticaStockItem.UsrShopifyVariant.UsrAcumaticaStockItems)
+                    .Where(x => x.ShopifyIsSynced == false && 
+                                x.UsrAcumaticaStockItem.UsrShopifyVariant != null)
+                    .ToList();
+        }
+
         public void InsertAcumaticaWarehouseDetails(UsrAcumaticaWarehouseDetail details)
         {
             Entities.UsrAcumaticaWarehouseDetails.Add(details);

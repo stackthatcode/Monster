@@ -32,7 +32,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _logger = logger;
         }
 
-        public void RunBaselineStockitems()
+        public void Run()
         {
             var variants = _inventoryRepository.RetrieveShopifyVariants();
 
@@ -129,7 +129,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _inventoryRepository.InsertAcumaticaStockItems(newData);
         }
 
-        public void RunBaselineInventory()
+        public void RunInventoryReceipts()
         {            
             var preferences = _tenantRepository.RetrievePreferences();
 
@@ -185,7 +185,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             }
         }
 
-        public void RunBaselineInventoryRelease()
+        public void RunInventoryReceiptsRelease()
         {
             var receipts = _inventoryRepository.RetrieveNonReleasedAcumaticaInventoryReceipts();
 
