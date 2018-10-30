@@ -140,8 +140,10 @@ namespace Monster.Middle.Persist.Multitenant
                     .Include(x => x.UsrAcumaticaStockItem)
                     .Include(x => x.UsrAcumaticaStockItem.UsrShopifyVariant)
                     .Include(x => x.UsrAcumaticaStockItem.UsrShopifyVariant.UsrAcumaticaStockItems)
-                    .Where(x => x.ShopifyIsSynced == false && 
-                                x.UsrAcumaticaStockItem.UsrShopifyVariant != null)
+                    .Where(x => x.ShopifyIsSynced == false &&
+                                x.UsrAcumaticaStockItem != null &&
+                                x.UsrAcumaticaStockItem.UsrShopifyVariant != null &&
+                                x.UsrAcumaticaStockItem.UsrShopifyVariant.ShopifyIsTracked)
                     .ToList();
         }
 

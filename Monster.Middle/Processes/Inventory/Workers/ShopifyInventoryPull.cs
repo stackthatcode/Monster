@@ -191,23 +191,24 @@ namespace Monster.Middle.Processes.Inventory.Workers
             
             if (existing == null)
             {
-                var data = new UsrShopifyVariant
-                {
-                    ParentMonsterId = parentProductId,
-                    ShopifyVariantId = variant.id,
-                    ShopifySku = variant.sku,
-                    ShopifyInventoryItemId = variant.inventory_item_id,
-                    ShopifyVariantJson = variant.SerializeToJson(),
-                    IsMissing = false,
-                    DateCreated = DateTime.UtcNow,
-                    LastUpdated = DateTime.UtcNow,
-                };
+                var data = new UsrShopifyVariant();
+
+                data.ParentMonsterId = parentProductId;
+                data.ShopifyVariantId = variant.id;
+                data.ShopifySku = variant.sku;
+                data.ShopifyInventoryItemId = variant.inventory_item_id;
+                data.ShopifyVariantJson = variant.SerializeToJson();
+                data.ShopifyIsTracked = variant.IsTracked;
+                data.IsMissing = false;
+                data.DateCreated = DateTime.UtcNow;
+                data.LastUpdated = DateTime.UtcNow;
                 
                 _inventoryRepository.InsertShopifyVariant(data);
             }
             else
             {
                 existing.ShopifyVariantJson = variant.SerializeToJson();
+                existing.ShopifyIsTracked = variant.IsTracked;
                 existing.LastUpdated = DateTime.UtcNow;
 
                 _inventoryRepository.SaveChanges();

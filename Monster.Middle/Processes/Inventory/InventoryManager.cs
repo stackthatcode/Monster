@@ -25,7 +25,6 @@ namespace Monster.Middle.Processes.Inventory
 
         public InventoryManager(
                 AcumaticaHttpContext acumaticaContext,
-
                 AcumaticaInventoryPull acumaticaInventoryPull,
                 AcumaticaInventorySync acumaticaInventorySync,
                 AcumaticaWarehousePull acumaticaWarehousePull,
@@ -86,6 +85,8 @@ namespace Monster.Middle.Processes.Inventory
             
             // TODO - control this via a Preference
             LoadShopifyInventoryIntoAcumatica();
+
+            _shopifyInventorySync.Run();
         }
         
         public void LoadShopifyInventoryIntoAcumatica()

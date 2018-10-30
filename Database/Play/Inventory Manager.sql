@@ -23,7 +23,7 @@ DELETE FROM usrShopifyLocation;
 
 
 SELECT * FROM usrShopifyProduct;
-SELECT * FROM usrShopifyVariant;
+SELECT * FROM usrShopifyVariant --WHERE ShopifyInventoryItemId = 13936416260194;
 SELECT * FROM usrShopifyInventoryLevels;
 SELECT * FROM usrShopifyLocation;
 

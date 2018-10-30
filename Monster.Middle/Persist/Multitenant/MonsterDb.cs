@@ -839,6 +839,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long ShopifyInventoryItemId { get; set; } // ShopifyInventoryItemId
         public string ShopifyVariantJson { get; set; } // ShopifyVariantJson
         public string ShopifySku { get; set; } // ShopifySku (length: 100)
+        public bool ShopifyIsTracked { get; set; } // ShopifyIsTracked
         public bool IsMissing { get; set; } // IsMissing
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -1207,6 +1208,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.ShopifyInventoryItemId).HasColumnName(@"ShopifyInventoryItemId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyVariantJson).HasColumnName(@"ShopifyVariantJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifySku).HasColumnName(@"ShopifySku").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.ShopifyIsTracked).HasColumnName(@"ShopifyIsTracked").HasColumnType("bit").IsRequired();
             Property(x => x.IsMissing).HasColumnName(@"IsMissing").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
