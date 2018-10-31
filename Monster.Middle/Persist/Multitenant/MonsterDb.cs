@@ -673,6 +673,7 @@ namespace Monster.Middle.Persist.Multitenant
     {
         public long Id { get; set; } // Id (Primary key)
         public System.DateTime? ShopifyProductsPullEnd { get; set; } // ShopifyProductsPullEnd
+        public System.DateTime? ShopifyProductsDeletedEnd { get; set; } // ShopifyProductsDeletedEnd
         public System.DateTime? ShopifyOrdersPullEnd { get; set; } // ShopifyOrdersPullEnd
         public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
     }
@@ -1011,6 +1012,7 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyProductsPullEnd).HasColumnName(@"ShopifyProductsPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyProductsDeletedEnd).HasColumnName(@"ShopifyProductsDeletedEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.ShopifyOrdersPullEnd).HasColumnName(@"ShopifyOrdersPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
         }

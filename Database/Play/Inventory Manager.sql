@@ -23,7 +23,7 @@ DELETE FROM usrShopifyLocation;
 
 
 SELECT * FROM usrShopifyProduct;
-SELECT * FROM usrShopifyVariant --WHERE ShopifyInventoryItemId = 13936416260194;
+SELECT * FROM usrShopifyVariant;	 --WHERE ShopifyInventoryItemId = 13936416260194;
 SELECT * FROM usrShopifyInventoryLevels;
 SELECT * FROM usrShopifyLocation;
 
@@ -32,4 +32,6 @@ SELECT * FROM usrAcumaticaStockItem;
 SELECT * FROM usrAcumaticaWarehouseDetails;
 SELECT * FROM usrAcumaticaInventoryReceipt;
 
+
+SELECT * FROM usrBatchState;
 

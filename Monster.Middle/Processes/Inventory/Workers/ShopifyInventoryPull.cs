@@ -7,8 +7,10 @@ using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
+using Push.Shopify.Api.Event;
 using Push.Shopify.Api.Inventory;
 using Push.Shopify.Api.Product;
+
 
 namespace Monster.Middle.Processes.Inventory.Workers
 {
@@ -16,6 +18,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
     {
         private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
+        private readonly EventApi _eventApi;
         private readonly InventoryRepository _inventoryRepository;
         private readonly LocationRepository _locationRepository;
         private readonly BatchStateRepository _batchStateRepository;
@@ -29,16 +32,18 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 IPushLogger logger,
                 ProductApi productApi,
                 InventoryApi inventoryApi,
+                EventApi eventApi,
                 InventoryRepository inventoryRepository, 
                 BatchStateRepository batchStateRepository,
                 LocationRepository locationRepository)
         {
             _productApi = productApi;
             _inventoryApi = inventoryApi;
+            _eventApi = eventApi;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
-            _logger = logger;
             _locationRepository = locationRepository;
+            _logger = logger;
         }
 
         public void RunAll()
@@ -46,6 +51,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _logger.Debug("Baseline Pull Products");
 
             _batchStateRepository.ResetBatchState();
+
+            var startOfPullRun = DateTime.UtcNow;
 
             var firstFilter = new ProductFilter();
             firstFilter.Page = 1;
@@ -72,7 +79,11 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                 currentPage++;
             }
-            
+
+            // Process Delete Events
+            PullDeletedEventsAndUpsert(startOfPullRun);
+
+            // Compute the Batch State end marker
             var maxUpdatedDate = 
                 _inventoryRepository.RetrieveShopifyProductMaxUpdatedDate();
 
@@ -94,12 +105,12 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     "ShopifyProductsEndDate not set - must run Baseline Pull first");
             }
 
-            var filterMinUpdated = batchState.ShopifyProductsPullEnd.Value;
+            var lastBatchStateEnd = batchState.ShopifyProductsPullEnd.Value;
             var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
 
             var firstFilter = new ProductFilter();
             firstFilter.Page = 1;
-            firstFilter.UpdatedAtMinUtc = filterMinUpdated;
+            firstFilter.UpdatedAtMinUtc = lastBatchStateEnd;
 
             // Pull from Shopify
             var firstJson = _productApi.Retrieve(firstFilter);
@@ -125,7 +136,10 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                 currentPage++;
             }
-            
+
+            // Get all of the Delete Events
+            PullDeletedEventsAndUpsert(lastBatchStateEnd);
+
             _batchStateRepository.UpdateShopifyProductsPullEnd(startOfPullRun);
         }
 
@@ -215,6 +229,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
             }
         }
 
+
+
         public void FlagMissingVariants(long parentMonsterId, Product product)
         {
             var variants = 
@@ -303,6 +319,69 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                     _inventoryRepository.SaveChanges();
                 }
+            }
+        }
+
+
+        public void PullDeletedEventsAndUpsert(DateTime filterMinCreated)
+        {
+            var firstFilter = new EventFilter();
+            firstFilter.Page = 1;
+            firstFilter.Filter = "product";
+            firstFilter.Verb = "destroy";
+            firstFilter.CreatedAtMinUtc = filterMinCreated;
+
+            // Pull from Shopify
+            var firstJson = _eventApi.Retrieve(firstFilter);
+            var firstEvents = firstJson.DeserializeFromJson<EventList>().events;
+
+            UpdateDeleteProductsByEvents(firstEvents);
+
+            var currentPage = 2;
+
+            while (true)
+            {
+                var currentFilter = firstFilter.Clone();
+                currentFilter.Page = currentPage;
+
+                // Pull from Shopify
+                var currentJson = _eventApi.Retrieve(currentFilter);
+                var currentEvents
+                    = currentJson.DeserializeFromJson<EventList>().events;
+
+                UpdateDeleteProductsByEvents(currentEvents);
+
+                if (currentEvents.Count == 0)
+                {
+                    break;
+                }
+
+                currentPage++;
+            }
+        }
+
+        public void UpdateDeleteProductsByEvents(List<Event> currentEvents)
+        {
+            foreach (var _event in currentEvents)
+            {
+                if (_event.verb.ToUpper() != "DESTROY" ||
+                    _event.subject_type.ToUpper() != "PRODUCT")
+                {
+                    continue;
+                }
+
+                var product
+                    = _inventoryRepository
+                        .RetrieveShopifyProduct(_event.subject_id);
+
+                product.IsDeleted = true;
+
+                foreach (var variant in product.UsrShopifyVariants)
+                {
+                    variant.IsMissing = true;
+                }
+
+                _inventoryRepository.SaveChanges();
             }
         }
 

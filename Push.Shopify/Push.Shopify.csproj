@@ -89,6 +89,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Event\Event.cs" />
     <Compile Include="Api\InventoryApi.cs" />
     <Compile Include="Api\Inventory\Location.cs" />
     <Compile Include="Api\Order\BillingAddress.cs" />
@@ -148,7 +149,7 @@
     <Compile Include="Http\ShopDomain.cs" />
     <Compile Include="Http\ShopifyHttpContext.cs" />
     <Compile Include="Api\Legacy\Event\Event.cs" />
-    <Compile Include="Api\Legacy\Event\EventFilter.cs" />
+    <Compile Include="Api\Event\EventFilter.cs" />
     <Compile Include="Api\Legacy\Billing\RecurringApplicationCharge.cs" />
     <Compile Include="Api\Shop\ShopDto.cs" />
     <Compile Include="Api\Legacy\Event\Webhook.cs" />

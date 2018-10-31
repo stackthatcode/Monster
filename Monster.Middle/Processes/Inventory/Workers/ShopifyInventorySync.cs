@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Extensions;
-using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
-using Push.Shopify.Api.Product;
+
 
 namespace Monster.Middle.Processes.Inventory.Workers
 {

@@ -57,10 +57,49 @@ namespace Monster.Middle.Processes.Inventory
         }
 
 
-        public void InitialLoad()
+        public void RunInventoryBaseline()
         {
             _logger.Info("Inventory -> Baseline running...");
 
+            RunLocationSync();
+
+            if (!IsInventoryStatusOk())
+            {
+                return;
+            }
+
+            // Products and Inventory Pull
+            _shopifyInventoryPull.RunAll();
+            _acumaticaInventoryPull.RunAll();
+            
+            // This is a one-time operation that will create Warehouse Receipts
+            // TODO - control this via a Preference
+            RunShopifyToAcumaticaInventorySync();
+
+            // Push Acumatica Inventory into Shopify
+            _shopifyInventorySync.Run();
+        }
+        
+        public void RunInventoryUpdated()
+        {
+            RunLocationSync();
+
+            if (!IsInventoryStatusOk())
+            {
+                return;
+            }
+
+            _shopifyInventoryPull.RunUpdated();
+            _acumaticaInventoryPull.RunUpdated();
+
+            // TODO - control this via a Preference
+            RunShopifyToAcumaticaInventorySync();
+
+            _shopifyInventorySync.Run();
+        }
+
+        public void RunLocationSync()
+        {
             // Warehouse and Location Pull
             _shopifyLocationPull.Run();
             _acumaticaContext.Begin();
@@ -69,30 +108,14 @@ namespace Monster.Middle.Processes.Inventory
             // Warehouse and Location Sync
             _acumaticaWarehouseSync.Run();
             _shopifyLocationSync.Run();
-
-            // Status checkpoint
-            var status = _inventoryStatusService.GetCurrentLocationStatus();
-            if (!status.OK)
-            {
-                _logger.Info("Aborting Inventory -> Baseline:");
-                _logger.Info(status.GetSynopsis());
-                return;
-            }
-
-            // Products and Inventory Pull
-            _shopifyInventoryPull.RunAll();
-            _acumaticaInventoryPull.RunAll();
-            
-            // TODO - control this via a Preference
-            LoadShopifyInventoryIntoAcumatica();
-
-            _shopifyInventorySync.Run();
         }
-        
-        public void LoadShopifyInventoryIntoAcumatica()
+
+        public void RunShopifyToAcumaticaInventorySync()
         {
             // Synchronize Shopify Inventory to Acumatica
             _acumaticaInventorySync.Run();
+            
+            // TODO - control this via a Preference
             _acumaticaInventorySync.RunInventoryReceipts();
 
             // TODO - control this via a Preference
@@ -101,9 +124,20 @@ namespace Monster.Middle.Processes.Inventory
             _acumaticaInventoryPull.RunUpdated();
         }
 
-        public void UpdateLoad()
+        public bool IsInventoryStatusOk()
         {
-
+            // Status checkpoint
+            var status = _inventoryStatusService.GetCurrentLocationStatus();
+            if (!status.OK)
+            {
+                _logger.Info("Aborting Inventory -> Baseline:");
+                _logger.Info(status.GetSynopsis());
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }

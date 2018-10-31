@@ -23,14 +23,10 @@ namespace Monster.ConsoleApp.Monster
                     tenantContext.Initialize(tenantId);
 
                     var manager = scope.Resolve<InventoryManager>();
-                    manager.InitialLoad();
 
-                    // Next Pull Posting Class from Acumatica
+                    // manager.RunInventoryBaseline();
 
-                    // Next Create Locations in Acumatica
-
-                    // Next Pull Locations from Acumatica
-
+                    manager.RunInventoryUpdated();
                 }
                 catch (Exception ex)
                 {
