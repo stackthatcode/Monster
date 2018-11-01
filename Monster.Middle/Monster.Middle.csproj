@@ -91,6 +91,7 @@
     <Compile Include="Processes\Inventory\Workers\AcumaticaInventorySync.cs" />
     <Compile Include="Processes\Inventory\Standards.cs" />
     <Compile Include="Processes\Orders\OrderManager.cs" />
+    <Compile Include="Processes\Orders\Workers\AcumaticaCustomerPull.cs" />
     <Compile Include="Processes\Orders\Workers\ShopifyCustomerPull.cs" />
     <Compile Include="Processes\Orders\Workers\ShopifyOrderPull.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />

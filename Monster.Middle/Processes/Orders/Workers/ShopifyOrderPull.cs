@@ -5,7 +5,7 @@ using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Order;
-using Push.Shopify.Api.Product;
+
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
@@ -17,6 +17,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly IPushLogger _logger;
 
         // Possibly expand - this is a one-time thing...
+        //
         public const int InitialBatchStateFudgeMin = -15;
 
         public ShopifyOrderPull(
@@ -33,7 +34,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         public void RunAll()
         {
-            _logger.Debug("Baseline Pull Orders");
+            _logger.Debug("Baseline Pull Shopify Orders");
 
             _batchStateRepository.ResetBatchState();
 

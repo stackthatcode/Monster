@@ -36,21 +36,28 @@ namespace Monster.Middle.Persist.Multitenant
 
         public void UpdateShopifyProductsPullEnd(DateTime endTimeUtc)
         {
-            var existingState = Entities.UsrBatchStates.First();
+            var existingState = RetrieveBatchState();
             existingState.ShopifyProductsPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
         public void UpdateShopifyOrdersPullEnd(DateTime endTimeUtc)
         {
-            var existingState = Entities.UsrBatchStates.First();
+            var existingState = RetrieveBatchState();
             existingState.ShopifyOrdersPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
         public void UpdateAcumaticaProductsEnd(DateTime endTimeUtc)
         {
-            var existingState = Entities.UsrBatchStates.First();
+            var existingState = RetrieveBatchState();
             existingState.AcumaticaProductsPullEnd = endTimeUtc;
+            Entities.SaveChanges();
+        }
+
+        public void UpdateAcumaticaCustomersPullEnd(DateTime endTimeUtc)
+        {
+            var existingState = RetrieveBatchState();
+            existingState.AcumaticaCustomersPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 

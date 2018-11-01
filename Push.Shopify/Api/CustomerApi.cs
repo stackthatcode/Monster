@@ -4,7 +4,6 @@ using Push.Shopify.Http;
 
 namespace Push.Shopify.Api
 {
-
     public class CustomerApi
     {
         private readonly ShopifyHttpContext _httpClient;

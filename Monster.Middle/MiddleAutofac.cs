@@ -7,12 +7,14 @@ using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Processes.Inventory.Services;
 using Monster.Middle.Processes.Inventory.Workers;
+using Monster.Middle.Processes.Orders;
+using Monster.Middle.Processes.Orders.Workers;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
-using Push.Shopify;
 using Push.Foundation.Utilities.Security;
+using Push.Shopify;
 
 
 namespace Monster.Middle
@@ -72,6 +74,7 @@ namespace Monster.Middle
             builder.RegisterType<BatchStateRepository>().InstancePerLifetimeScope();
             builder.RegisterType<LocationRepository>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
 
             // Tenant Context
@@ -83,12 +86,12 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
 
-            // Inventory
+
+            // Inventory synchronization workers
             builder.RegisterType<AcumaticaInventoryPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaWarehousePull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaWarehouseSync>().InstancePerLifetimeScope();
-
             builder.RegisterType<ShopifyLocationPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyLocationSync>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPull>().InstancePerLifetimeScope();
@@ -96,6 +99,14 @@ namespace Monster.Middle
 
             builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
+
+
+            // Order synchronization works
+            builder.RegisterType<ShopifyCustomerPull>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyOrderPull>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaCustomerPull>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
+
 
             return builder.Build();
         }

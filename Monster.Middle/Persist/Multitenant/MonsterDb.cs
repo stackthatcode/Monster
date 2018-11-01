@@ -37,6 +37,7 @@ namespace Monster.Middle.Persist.Multitenant
 
     public interface IMonsterDataContext : System.IDisposable
     {
+        System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; } // usrAcumaticaCustomer
         System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; } // usrAcumaticaInventoryReceipt
         System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; } // usrAcumaticaStockItem
         System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
@@ -76,6 +77,7 @@ namespace Monster.Middle.Persist.Multitenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class MonsterDataContext : System.Data.Entity.DbContext, IMonsterDataContext
     {
+        public System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; } // usrAcumaticaCustomer
         public System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; } // usrAcumaticaInventoryReceipt
         public System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; } // usrAcumaticaStockItem
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
@@ -142,6 +144,7 @@ namespace Monster.Middle.Persist.Multitenant
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Configurations.Add(new UsrAcumaticaCustomerConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaInventoryReceiptConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaStockItemConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration());
@@ -163,6 +166,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
         {
+            modelBuilder.Configurations.Add(new UsrAcumaticaCustomerConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaInventoryReceiptConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaStockItemConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration(schema));
@@ -202,6 +206,7 @@ namespace Monster.Middle.Persist.Multitenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class FakeMonsterDataContext : IMonsterDataContext
     {
+        public System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; }
@@ -226,6 +231,7 @@ namespace Monster.Middle.Persist.Multitenant
             _configuration = null;
             _database = null;
 
+            UsrAcumaticaCustomers = new FakeDbSet<UsrAcumaticaCustomer>("Id");
             UsrAcumaticaInventoryReceipts = new FakeDbSet<UsrAcumaticaInventoryReceipt>("MonsterId");
             UsrAcumaticaStockItems = new FakeDbSet<UsrAcumaticaStockItem>("MonsterId");
             UsrAcumaticaWarehouses = new FakeDbSet<UsrAcumaticaWarehouse>("Id");
@@ -571,6 +577,17 @@ namespace Monster.Middle.Persist.Multitenant
 
     #region POCO classes
 
+    // usrAcumaticaCustomer
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrAcumaticaCustomer
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public string AcumaticaCustomerId { get; set; } // AcumaticaCustomerId (length: 50)
+        public string AcumaticaJson { get; set; } // AcumaticaJson
+        public System.DateTime DateCreated { get; set; } // DateCreated
+        public System.DateTime LastUpdated { get; set; } // LastUpdated
+    }
+
     // usrAcumaticaInventoryReceipt
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrAcumaticaInventoryReceipt
@@ -693,7 +710,9 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime? ShopifyProductsPullEnd { get; set; } // ShopifyProductsPullEnd
         public System.DateTime? ShopifyProductsDeletedEnd { get; set; } // ShopifyProductsDeletedEnd
         public System.DateTime? ShopifyOrdersPullEnd { get; set; } // ShopifyOrdersPullEnd
+        public System.DateTime? ShopifyCustomersPullEnd { get; set; } // ShopifyCustomersPullEnd
         public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
+        public System.DateTime? AcumaticaCustomersPullEnd { get; set; } // AcumaticaCustomersPullEnd
     }
 
     // usrPayoutPreferences
@@ -976,6 +995,28 @@ namespace Monster.Middle.Persist.Multitenant
 
     #region POCO Configuration
 
+    // usrAcumaticaCustomer
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrAcumaticaCustomerConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAcumaticaCustomer>
+    {
+        public UsrAcumaticaCustomerConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrAcumaticaCustomerConfiguration(string schema)
+        {
+            ToTable("usrAcumaticaCustomer", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.AcumaticaCustomerId).HasColumnName(@"AcumaticaCustomerId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+        }
+    }
+
     // usrAcumaticaInventoryReceipt
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrAcumaticaInventoryReceiptConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAcumaticaInventoryReceipt>
@@ -1100,7 +1141,9 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.ShopifyProductsPullEnd).HasColumnName(@"ShopifyProductsPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.ShopifyProductsDeletedEnd).HasColumnName(@"ShopifyProductsDeletedEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.ShopifyOrdersPullEnd).HasColumnName(@"ShopifyOrdersPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyCustomersPullEnd).HasColumnName(@"ShopifyCustomersPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaCustomersPullEnd).HasColumnName(@"AcumaticaCustomersPullEnd").HasColumnType("datetime").IsOptional();
         }
     }
 

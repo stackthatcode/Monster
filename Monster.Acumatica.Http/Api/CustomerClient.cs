@@ -1,4 +1,6 @@
-﻿using Monster.Acumatica.Http;
+﻿using System;
+using Monster.Acumatica.Http;
+using Monster.Acumatica.Utility;
 using Push.Foundation.Web.Helpers;
 
 
@@ -13,14 +15,17 @@ namespace Monster.Acumatica.Api
             _httpContext = httpContext;
         }
         
-        public string RetrieveCustomers()
+        public string RetrieveCustomers(DateTime? lastModified = null)
         {
-            var queryString =
-                new QueryStringBuilder()
-                    .Add("expand", "MainContact,BillingContact,ShippingContact")
-                    .ToString();
+            var queryString
+                = "$expand=MainContact,BillingContact,ShippingContact";
+            if (lastModified.HasValue)
+            {
+                var restDate = lastModified.Value.ToAcumaticaRestDate();
+                queryString += $"$filter=LastModified gt datetimeoffset'{restDate}'";
+            }
 
-            var response = _httpContext.Get("Customer");
+            var response = _httpContext.Get($"Customer?{queryString}");
             return response.Body;
         }
 
