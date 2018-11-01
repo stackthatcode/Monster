@@ -1,10 +1,10 @@
 ﻿using System;
 using Push.Foundation.Web.Helpers;
 
-namespace Push.Shopify.Api.Product
+namespace Push.Shopify.Api
 {
 
-    public class ProductFilter
+    public class SearchFilter
     {
         public int? Page { get; set; }
         public int? Limit { get; set; }
@@ -15,15 +15,15 @@ namespace Push.Shopify.Api.Product
         public DateTime? UpdatedAtMaxUtc { get; set; }
 
 
-        public ProductFilter()
+        public SearchFilter()
         {
             Page = 1;
             Limit = 250;
         }
 
-        public ProductFilter Clone()
+        public SearchFilter Clone()
         {
-            return new ProductFilter
+            return new SearchFilter
             {
                 Page = this.Page,
                 Limit = this.Limit,

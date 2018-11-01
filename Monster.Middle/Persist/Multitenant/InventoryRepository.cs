@@ -40,7 +40,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         public DateTime? RetrieveShopifyProductMaxUpdatedDate()
         {
-            if (Entities.UsrShopifyPayouts.Any())
+            if (Entities.UsrShopifyProducts.Any())
             {
                 return Entities.UsrShopifyProducts
                             .Select(x => x.LastUpdated)

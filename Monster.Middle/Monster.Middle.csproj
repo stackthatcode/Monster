@@ -70,6 +70,7 @@
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Persist\Multitenant\BatchStateRepository.cs" />
     <Compile Include="Persist\Multitenant\Extensions\LocationExtensions.cs" />
+    <Compile Include="Persist\Multitenant\OrderRepository.cs" />
     <Compile Include="Persist\Multitenant\LocationRepository.cs" />
     <Compile Include="Persist\Multitenant\MatchRepository.cs" />
     <Compile Include="Persist\Multitenant\MonsterDb.cs">
@@ -89,6 +90,9 @@
     <Compile Include="Processes\Inventory\Workers\ShopifyLocationPull.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaInventorySync.cs" />
     <Compile Include="Processes\Inventory\Standards.cs" />
+    <Compile Include="Processes\Orders\OrderManager.cs" />
+    <Compile Include="Processes\Orders\Workers\ShopifyCustomerPull.cs" />
+    <Compile Include="Processes\Orders\Workers\ShopifyOrderPull.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaWarehousePull.cs" />
     <Compile Include="Processes\Payouts\BankImportService.cs" />

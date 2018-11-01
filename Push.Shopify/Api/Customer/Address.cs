@@ -1,6 +1,6 @@
-namespace Push.Shopify.Api.Order
+namespace Push.Shopify.Api.Customer
 {
-    public class DefaultAddress
+    public class Address
     {
         public long id { get; set; }
         public long customer_id { get; set; }

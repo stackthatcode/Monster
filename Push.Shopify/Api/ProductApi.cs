@@ -25,7 +25,9 @@ namespace Push.Shopify.Api
             _logger = logger;
         }
 
-        public virtual int RetrieveCount(ProductFilter filter)
+
+        [Obsolete]
+        public virtual int RetrieveCount(SearchFilter filter)
         {
             var path = "/admin/products/count.json?" + filter.ToQueryStringBuilder();
             var clientResponse = _httpClient.Get(path);
@@ -35,7 +37,7 @@ namespace Push.Shopify.Api
             return count;
         }
 
-        public virtual string Retrieve(ProductFilter filter)
+        public virtual string Retrieve(SearchFilter filter)
         {
             var querystring = filter.ToQueryString();                
             var path = "/admin/products.json?" + querystring;

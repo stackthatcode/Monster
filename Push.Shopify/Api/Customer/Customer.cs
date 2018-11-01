@@ -1,4 +1,5 @@
 using System;
+using Push.Shopify.Api.Customer;
 
 namespace Push.Shopify.Api.Order
 {
@@ -22,6 +23,6 @@ namespace Push.Shopify.Api.Order
         public object phone { get; set; }
         public string tags { get; set; }
         public object last_order_name { get; set; }
-        public DefaultAddress default_address { get; set; }
+        public Address default_address { get; set; }
     }
 }

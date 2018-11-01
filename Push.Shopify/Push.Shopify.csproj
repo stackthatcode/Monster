@@ -92,10 +92,11 @@
     <Compile Include="Api\Event\Event.cs" />
     <Compile Include="Api\InventoryApi.cs" />
     <Compile Include="Api\Inventory\Location.cs" />
+    <Compile Include="Api\CustomerApi.cs" />
     <Compile Include="Api\Order\BillingAddress.cs" />
     <Compile Include="Api\Order\ClientDetails.cs" />
-    <Compile Include="Api\Order\Customer.cs" />
-    <Compile Include="Api\Order\DefaultAddress.cs" />
+    <Compile Include="Api\Customer\Customer.cs" />
+    <Compile Include="Api\Customer\Address.cs" />
     <Compile Include="Api\Order\DestinationLocation.cs" />
     <Compile Include="Api\Order\DiscountAllocation.cs" />
     <Compile Include="Api\Order\DiscountAllocationMethod.cs" />
@@ -129,7 +130,7 @@
     <Compile Include="Api\Product\Metafield.cs" />
     <Compile Include="Api\Product\Option.cs" />
     <Compile Include="Api\Product\Product.cs" />
-    <Compile Include="Api\Product\ProductFilter.cs" />
+    <Compile Include="Api\SearchFilter.cs" />
     <Compile Include="Api\Product\Variant.cs" />
     <Compile Include="Api\PayoutApi.cs" />
     <Compile Include="Api\Transaction\Extensions.cs" />

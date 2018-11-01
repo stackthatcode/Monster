@@ -1,6 +1,5 @@
 ﻿using System;
 using Monster.ConsoleApp.Monster;
-using Monster.ConsoleApp.Payouts;
 
 
 namespace Monster.ConsoleApp

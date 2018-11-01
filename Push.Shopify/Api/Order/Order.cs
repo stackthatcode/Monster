@@ -124,5 +124,10 @@ namespace Push.Shopify.Api.Order
                     $"Unrecognized target_type {application.target_type}");
         }
     }
+
+    public class OrderList
+    {
+        public List<Order> orders { get; set; }
+    }
 }
 

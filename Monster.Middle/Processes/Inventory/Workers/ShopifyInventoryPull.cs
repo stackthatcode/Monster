@@ -54,7 +54,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
             var startOfPullRun = DateTime.UtcNow;
 
-            var firstFilter = new ProductFilter();
+            var firstFilter = new SearchFilter();
             firstFilter.Page = 1;
 
             var firstJson = _productApi.Retrieve(firstFilter);
@@ -108,7 +108,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             var lastBatchStateEnd = batchState.ShopifyProductsPullEnd.Value;
             var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
 
-            var firstFilter = new ProductFilter();
+            var firstFilter = new SearchFilter();
             firstFilter.Page = 1;
             firstFilter.UpdatedAtMinUtc = lastBatchStateEnd;
 
@@ -335,7 +335,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             var firstJson = _eventApi.Retrieve(firstFilter);
             var firstEvents = firstJson.DeserializeFromJson<EventList>().events;
 
-            UpdateDeleteProductsByEvents(firstEvents);
+            UpdateProductsByDeleteEvents(firstEvents);
 
             var currentPage = 2;
 
@@ -349,7 +349,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 var currentEvents
                     = currentJson.DeserializeFromJson<EventList>().events;
 
-                UpdateDeleteProductsByEvents(currentEvents);
+                UpdateProductsByDeleteEvents(currentEvents);
 
                 if (currentEvents.Count == 0)
                 {
@@ -360,7 +360,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             }
         }
 
-        public void UpdateDeleteProductsByEvents(List<Event> currentEvents)
+        public void UpdateProductsByDeleteEvents(List<Event> currentEvents)
         {
             foreach (var _event in currentEvents)
             {
@@ -384,7 +384,6 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 _inventoryRepository.SaveChanges();
             }
         }
-
 
     }
 }

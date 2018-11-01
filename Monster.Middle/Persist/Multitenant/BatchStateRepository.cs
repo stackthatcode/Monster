@@ -40,7 +40,13 @@ namespace Monster.Middle.Persist.Multitenant
             existingState.ShopifyProductsPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
-        
+
+        public void UpdateShopifyOrdersPullEnd(DateTime endTimeUtc)
+        {
+            var existingState = Entities.UsrBatchStates.First();
+            existingState.ShopifyOrdersPullEnd = endTimeUtc;
+            Entities.SaveChanges();
+        }
         public void UpdateAcumaticaProductsEnd(DateTime endTimeUtc)
         {
             var existingState = Entities.UsrBatchStates.First();
