@@ -2,6 +2,7 @@
 using Autofac;
 using Monster.Middle;
 using Monster.Middle.Processes.Inventory;
+using Monster.Middle.Processes.Orders;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 
@@ -22,11 +23,12 @@ namespace Monster.ConsoleApp.Monster
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
 
-                    var manager = scope.Resolve<InventoryManager>();
+                    //var invmanager = scope.Resolve<InventoryManager>();
+                    // invmanager.RunInventoryBaseline();
+                    // invmanager.RunUpdate();
 
-                    // manager.RunInventoryBaseline();
-
-                    manager.RunUpdate();
+                    var orderManager = scope.Resolve<OrderManager>();
+                    orderManager.RunBaseline();
                 }
                 catch (Exception ex)
                 {

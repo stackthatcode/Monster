@@ -1,4 +1,5 @@
-﻿using Monster.Middle.Persist.Multitenant;
+﻿using Monster.Acumatica.Http;
+using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Orders.Workers;
 
 namespace Monster.Middle.Processes.Orders
@@ -8,6 +9,7 @@ namespace Monster.Middle.Processes.Orders
         private readonly BatchStateRepository _batchStateRepository;
         private readonly ShopifyCustomerPull _shopifyCustomerPull;
         private readonly ShopifyOrderPull _shopifyOrderPull;
+        private readonly AcumaticaHttpContext _acumaticaContext;
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
 
@@ -16,22 +18,25 @@ namespace Monster.Middle.Processes.Orders
                 ShopifyCustomerPull shopifyCustomerPull, 
                 ShopifyOrderPull shopifyOrderPull, 
                 AcumaticaCustomerPull acumaticaCustomerPull,
-                AcumaticaOrderPull acumaticaOrderPull)
+                AcumaticaOrderPull acumaticaOrderPull, 
+                AcumaticaHttpContext acumaticaContext)
         {
             _batchStateRepository = batchStateRepository;
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyOrderPull = shopifyOrderPull;
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _acumaticaOrderPull = acumaticaOrderPull;
+            _acumaticaContext = acumaticaContext;
         }
 
         public void RunBaseline()
         {
             _batchStateRepository.ResetOrderBatchState();
 
-            _shopifyCustomerPull.RunAll();
-            _shopifyOrderPull.RunAll();
-
+            //_shopifyCustomerPull.RunAll();
+            //_shopifyOrderPull.RunAll();
+            
+            _acumaticaContext.Begin();
             _acumaticaCustomerPull.RunAll();
             _acumaticaOrderPull.RunAll();
         }
@@ -41,6 +46,7 @@ namespace Monster.Middle.Processes.Orders
             _shopifyCustomerPull.RunUpdated();
             _shopifyOrderPull.RunUpdated();
 
+            _acumaticaContext.Begin();
             _acumaticaCustomerPull.RunUpdated();
             _acumaticaOrderPull.RunUpdated();
         }

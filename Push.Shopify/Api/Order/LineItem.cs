@@ -15,7 +15,7 @@ namespace Push.Shopify.Api.Order
         public string variant_title { get; set; }
         public string vendor { get; set; }
         public string fulfillment_service { get; set; }
-        public long product_id { get; set; }
+        public long? product_id { get; set; }
         public bool requires_shipping { get; set; }
         public bool taxable { get; set; }
         public bool gift_card { get; set; }

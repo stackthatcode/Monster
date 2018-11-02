@@ -68,7 +68,7 @@ namespace Monster.Middle.Processes.Inventory
             _logger.Info("Inventory -> Baseline running...");
 
             _batchStateRepository.ResetInventoryBatchState();
-
+            _acumaticaContext.Begin();
             RunLocationSync();
 
             if (!IsInventoryStatusOk())
@@ -110,7 +110,6 @@ namespace Monster.Middle.Processes.Inventory
         {
             // Warehouse and Location Pull
             _shopifyLocationPull.Run();
-            _acumaticaContext.Begin();
             _acumaticaWarehousePull.Run();
 
             // Warehouse and Location Sync

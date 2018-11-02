@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Push.Foundation.Utilities.Json;
 
 namespace Push.Shopify.Api.Order
 {
@@ -128,6 +129,27 @@ namespace Push.Shopify.Api.Order
     public class OrderList
     {
         public List<Order> orders { get; set; }
+    }
+
+    public static class OrderExtensions
+    {
+        public static OrderList DeserializeToOrderList(this string input)
+        {
+            var output = input.DeserializeFromJson<OrderList>();
+            foreach (var order in output.orders)
+            {
+                order.Initialize();
+            }
+
+            return output;
+        }
+
+        public static OrderParent DeserializeToOrder(this string input)
+        {
+            var output = input.DeserializeFromJson<OrderParent>();
+            output.order.Initialize();
+            return output;
+        }
     }
 }
 

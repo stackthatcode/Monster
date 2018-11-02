@@ -26,7 +26,7 @@ namespace Monster.Acumatica.Api
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();
-                queryString += $"$filter=LastModified gt datetimeoffset'{restDate}'";
+                queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
             }
 
             var response = _httpContext.Get($"SalesOrder?{queryString}");

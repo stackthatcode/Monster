@@ -20,6 +20,7 @@ DELETE FROM usrAcumaticaWarehouse;
 DELETE FROM usrShopifyVariant;
 DELETE FROM usrShopifyProduct;
 DELETE FROM usrShopifyLocation;
+
 */
 
 
@@ -32,7 +33,6 @@ SELECT * FROM usrAcumaticaWarehouse;
 SELECT * FROM usrAcumaticaStockItem;
 SELECT * FROM usrAcumaticaWarehouseDetails;
 SELECT * FROM usrAcumaticaInventoryReceipt;
-
 
 SELECT * FROM usrPreferences;
 SELECT * FROM usrBatchState;

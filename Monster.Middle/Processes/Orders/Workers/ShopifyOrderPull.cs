@@ -53,7 +53,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             var firstJson = _orderApi.Retrieve(firstFilter);
             var firstOrders 
-                = firstJson.DeserializeFromJson<OrderList>().orders;
+                = firstJson.DeserializeToOrderList().orders;
 
             UpsertOrders(firstOrders);
 
@@ -65,7 +65,9 @@ namespace Monster.Middle.Processes.Orders.Workers
                 currentFilter.Page = currentPage;
 
                 var currentJson = _orderApi.Retrieve(currentFilter);
-                var currentOrders = currentJson.DeserializeFromJson<OrderList>().orders;
+                var currentOrders 
+                        = currentJson.DeserializeToOrderList().orders;
+
                 UpsertOrders(currentOrders);
 
                 if (currentOrders.Count == 0)
