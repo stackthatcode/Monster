@@ -17,28 +17,14 @@ namespace Monster.Acumatica.Api
         
         public string RetrieveCustomers(DateTime? lastModified = null)
         {
-            //var queryString
-            //    = "$expand=MainContact,BillingContact,ShippingContact";
-            //if (lastModified.HasValue)
-            //{
-            //    var restDate = lastModified.Value.ToAcumaticaRestDate();
-            //    queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
-            //}
-
-            var queryString = "";
-
+            var queryString = "$expand=MainContact";
             var response = _httpContext.Get($"Customer?{queryString}");
             return response.Body;
         }
 
         public string RetrieveCustomer(string customerId)
         {
-            //var queryString =
-            //    new QueryStringBuilder()
-            //        .Add("$expand", "MainContact,BillingContact,ShippingContact")
-            //        .ToString();
-
-            var path = $"Customer/{customerId}?";
+            var path = $"Customer/{customerId}?$expand=MainContact";
             var response = _httpContext.Get(path);
             return response.Body;
         }

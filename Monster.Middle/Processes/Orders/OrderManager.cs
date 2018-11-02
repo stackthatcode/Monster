@@ -29,16 +29,22 @@ namespace Monster.Middle.Processes.Orders
             _acumaticaContext = acumaticaContext;
         }
 
+
         public void RunBaseline()
         {
             _batchStateRepository.ResetOrderBatchState();
 
-            //_shopifyCustomerPull.RunAll();
-            //_shopifyOrderPull.RunAll();
-            
+            _shopifyCustomerPull.RunAll();
+            _shopifyOrderPull.RunAll();
+
+            // Optional...
             _acumaticaContext.Begin();
-            _acumaticaCustomerPull.RunAll();
+
+            //_acumaticaCustomerPull.RunAll();
             _acumaticaOrderPull.RunAll();
+
+            // TODO - why not an idempotent function....?
+            _acumaticaOrderPull.RunUpdated();
         }
 
         public void RunUpdate()
@@ -47,7 +53,6 @@ namespace Monster.Middle.Processes.Orders
             _shopifyOrderPull.RunUpdated();
 
             _acumaticaContext.Begin();
-            _acumaticaCustomerPull.RunUpdated();
             _acumaticaOrderPull.RunUpdated();
         }
     }

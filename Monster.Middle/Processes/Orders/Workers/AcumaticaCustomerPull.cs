@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Multitenant;
+using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -58,26 +59,6 @@ namespace Monster.Middle.Processes.Orders.Workers
                 .UpdateAcumaticaCustomersPullEnd(batchStateEnd);
         }
         
-        public void RunUpdated()
-        {
-            var batchState = _batchStateRepository.RetrieveBatchState();
-            if (!batchState.AcumaticaCustomersPullEnd.HasValue)
-            {
-                throw new Exception(
-                    "AcumaticaCustomersPullEnd is null - execute RunAll() first");
-            }
-
-            var customerUpdateMin = batchState.AcumaticaCustomersPullEnd;
-            var pullRunStartTime = DateTime.UtcNow;
-
-            var json = _customerClient.RetrieveCustomers(customerUpdateMin);
-            var customers = json.DeserializeFromJson<List<Customer>>();
-
-            UpsertCustomersToPersist(customers);
-
-            _batchStateRepository.UpdateAcumaticaCustomersPullEnd(pullRunStartTime);
-        }
-
         public void UpsertCustomersToPersist(List<Customer> customers)
         {
             foreach (var customer in customers)
@@ -88,19 +69,22 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 if (existingData == null)
                 {
-                    var newData = new UsrAcumaticaCustomer()
-                    {
-                        AcumaticaCustomerId = customer.CustomerID.value,
-                        AcumaticaJson = customer.SerializeToJson(),
-                        DateCreated = DateTime.UtcNow,
-                        LastUpdated = DateTime.UtcNow,
-                    };
+                    var newData = new UsrAcumaticaCustomer();
+                    newData.AcumaticaCustomerId
+                                = customer.CustomerID.value;
+                    newData.AcumaticaJson = customer.SerializeToJson();
+                    newData.AcumaticaMainContactEmail 
+                                = customer.MainContact.Email.value;
+                    newData.DateCreated = DateTime.UtcNow;
+                    newData.LastUpdated = DateTime.UtcNow;
 
                     _orderRepository.InsertAcumaticaCustomer(newData);
                 }
                 else
                 {
                     existingData.AcumaticaJson = customer.SerializeToJson();
+                    existingData.AcumaticaMainContactEmail
+                                = customer.MainContact.Email.value;
                     existingData.LastUpdated = DateTime.UtcNow;
 
                     _orderRepository.SaveChanges();

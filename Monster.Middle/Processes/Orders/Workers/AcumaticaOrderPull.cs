@@ -58,7 +58,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                     ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
 
             _batchStateRepository
-                .UpdateAcumaticaCustomersPullEnd(batchStateEnd);
+                .UpdateAcumaticaOrdersPullEnd(batchStateEnd);
         }
         
         public void RunUpdated()
@@ -85,29 +85,67 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             foreach (var order in orders)
             {
-                //var existingData
-                //    = _orderRepository
-                //        .RetrieveAcumaticaSalesOrder(order.SalesOrderID.value);
+                var orderNbr = order.OrderNbr.value;
 
-                //if (existingData == null)
-                //{
-                //    var newData = new UsrAcumaticaCustomer()
-                //    {
-                //        AcumaticaCustomerId = customer.CustomerID.value,
-                //        AcumaticaJson = customer.SerializeToJson(),
-                //        DateCreated = DateTime.UtcNow,
-                //        LastUpdated = DateTime.UtcNow,
-                //    };
+                var existingData
+                    = _orderRepository
+                        .RetrieveAcumaticaSalesOrder(orderNbr);
 
-                //    _orderRepository.InsertAcumaticaCustomer(newData);
-                //}
-                //else
-                //{
-                //    existingData.AcumaticaJson = customer.SerializeToJson();
-                //    existingData.LastUpdated = DateTime.UtcNow;
+                if (existingData == null)
+                {
+                    // Locate Acumatica Customer..
+                    var customerId = order.CustomerID.value;
 
-                //    _orderRepository.SaveChanges();
-                //}
+                    var acumaticaCustomerMonsterId 
+                            = LocateOrPullAndUpsertCustomer(customerId);
+
+                    var newData = new UsrAcumaticaSalesOrder();
+                    newData.AcumaticaSalesOrderId = orderNbr;
+                    newData.AcumaticaJson = order.SerializeToJson();
+                    newData.AcumaticaCustomerMonsterId = acumaticaCustomerMonsterId;
+                    
+                    newData.DateCreated = DateTime.UtcNow;
+                    newData.LastUpdated = DateTime.UtcNow;
+
+                    _orderRepository.InsertAcumaticaSalesOrder(newData);
+                }
+                else
+                {
+                    existingData.AcumaticaJson = order.SerializeToJson();
+                    existingData.LastUpdated = DateTime.UtcNow;
+
+                    _orderRepository.SaveChanges();
+                }
+            }
+        }
+
+        private long LocateOrPullAndUpsertCustomer(string acumaticaCustomerId)
+        {
+            var existingCustomer
+                = _orderRepository.RetrieveAcumaticaCustomer(acumaticaCustomerId);
+
+            if (existingCustomer == null)
+            {
+                var customerJson = _customerClient.RetrieveCustomer(acumaticaCustomerId);
+                var customer = customerJson.DeserializeFromJson<Customer>();
+
+                var newData = new UsrAcumaticaCustomer();
+
+                newData.AcumaticaCustomerId
+                    = customer.CustomerID.value;
+                newData.AcumaticaJson = customer.SerializeToJson();
+                newData.AcumaticaMainContactEmail
+                    = customer.MainContact.Email.value;
+                newData.DateCreated = DateTime.UtcNow;
+                newData.LastUpdated = DateTime.UtcNow;
+
+                _orderRepository.InsertAcumaticaCustomer(newData);
+
+                return newData.Id;
+            }
+            else
+            {
+                return existingCustomer.Id;
             }
         }
     }

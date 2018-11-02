@@ -583,10 +583,18 @@ namespace Monster.Middle.Persist.Multitenant
     {
         public long Id { get; set; } // Id (Primary key)
         public string AcumaticaCustomerId { get; set; } // AcumaticaCustomerId (length: 50)
+        public string AcumaticaMainContactEmail { get; set; } // AcumaticaMainContactEmail (length: 100)
         public string AcumaticaJson { get; set; } // AcumaticaJson
         public long? ShopifyCustomerMonsterId { get; set; } // ShopifyCustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
+
+        // Reverse navigation
+
+        /// <summary>
+        /// Child UsrAcumaticaSalesOrders where [usrAcumaticaSalesOrder].[AcumaticaCustomerMonsterId] point to this entity (FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; } // usrAcumaticaSalesOrder.FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer
 
         // Foreign keys
 
@@ -594,6 +602,11 @@ namespace Monster.Middle.Persist.Multitenant
         /// Parent UsrShopifyCustomer pointed by [usrAcumaticaCustomer].([ShopifyCustomerMonsterId]) (FK_usrAcumaticaCustomer_usrShopifyCustomer)
         /// </summary>
         public virtual UsrShopifyCustomer UsrShopifyCustomer { get; set; } // FK_usrAcumaticaCustomer_usrShopifyCustomer
+
+        public UsrAcumaticaCustomer()
+        {
+            UsrAcumaticaSalesOrders = new System.Collections.Generic.List<UsrAcumaticaSalesOrder>();
+        }
     }
 
     // usrAcumaticaInventoryReceipt
@@ -627,8 +640,22 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public string AcumaticaSalesOrderId { get; set; } // AcumaticaSalesOrderId (length: 50)
         public string AcumaticaJson { get; set; } // AcumaticaJson
+        public long? AcumaticaCustomerMonsterId { get; set; } // AcumaticaCustomerMonsterId
+        public long? ShopifyOrderMonsterId { get; set; } // ShopifyOrderMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
+
+        // Foreign keys
+
+        /// <summary>
+        /// Parent UsrAcumaticaCustomer pointed by [usrAcumaticaSalesOrder].([AcumaticaCustomerMonsterId]) (FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer)
+        /// </summary>
+        public virtual UsrAcumaticaCustomer UsrAcumaticaCustomer { get; set; } // FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer
+
+        /// <summary>
+        /// Parent UsrShopifyOrder pointed by [usrAcumaticaSalesOrder].([ShopifyOrderMonsterId]) (FK_usrAcumaticaSalesOrder_usrShopifyOrder)
+        /// </summary>
+        public virtual UsrShopifyOrder UsrShopifyOrder { get; set; } // FK_usrAcumaticaSalesOrder_usrShopifyOrder
     }
 
     // usrAcumaticaStockItem
@@ -858,12 +885,24 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
+        // Reverse navigation
+
+        /// <summary>
+        /// Child UsrAcumaticaSalesOrders where [usrAcumaticaSalesOrder].[ShopifyOrderMonsterId] point to this entity (FK_usrAcumaticaSalesOrder_usrShopifyOrder)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; } // usrAcumaticaSalesOrder.FK_usrAcumaticaSalesOrder_usrShopifyOrder
+
         // Foreign keys
 
         /// <summary>
         /// Parent UsrShopifyCustomer pointed by [usrShopifyOrder].([CustomerMonsterId]) (FK_usrShopifyOrder_usrShopifyCustomer)
         /// </summary>
         public virtual UsrShopifyCustomer UsrShopifyCustomer { get; set; } // FK_usrShopifyOrder_usrShopifyCustomer
+
+        public UsrShopifyOrder()
+        {
+            UsrAcumaticaSalesOrders = new System.Collections.Generic.List<UsrAcumaticaSalesOrder>();
+        }
     }
 
     // usrShopifyPayout
@@ -1013,6 +1052,7 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaCustomerId).HasColumnName(@"AcumaticaCustomerId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaMainContactEmail).HasColumnName(@"AcumaticaMainContactEmail").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyCustomerMonsterId).HasColumnName(@"ShopifyCustomerMonsterId").HasColumnType("bigint").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
@@ -1063,8 +1103,14 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaSalesOrderId).HasColumnName(@"AcumaticaSalesOrderId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
+            Property(x => x.AcumaticaCustomerMonsterId).HasColumnName(@"AcumaticaCustomerMonsterId").HasColumnType("bigint").IsOptional();
+            Property(x => x.ShopifyOrderMonsterId).HasColumnName(@"ShopifyOrderMonsterId").HasColumnType("bigint").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+
+            // Foreign keys
+            HasOptional(a => a.UsrAcumaticaCustomer).WithMany(b => b.UsrAcumaticaSalesOrders).HasForeignKey(c => c.AcumaticaCustomerMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer
+            HasOptional(a => a.UsrShopifyOrder).WithMany(b => b.UsrAcumaticaSalesOrders).HasForeignKey(c => c.ShopifyOrderMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaSalesOrder_usrShopifyOrder
         }
     }
 
