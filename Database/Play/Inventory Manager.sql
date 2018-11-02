@@ -3,7 +3,8 @@ USE Monster0001;
 /**
 DELETE FROM usrPreferences;
 
-INSERT INTO usrPreferences VALUES ( '2018-01-01', 00.20, 'STOCKITEM', 'SHOPIFY', '5/24/2014'  );
+INSERT INTO usrPreferences 
+VALUES ( '2018-01-01', '2018-01-01', 00.20, 'STOCKITEM', 'SHOPIFY', '5/24/2014'  );
 SELECT * FROM usrPreferences;
 **/
 

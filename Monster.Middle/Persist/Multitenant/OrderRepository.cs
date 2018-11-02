@@ -52,8 +52,22 @@ namespace Monster.Middle.Persist.Multitenant
         {
             return Entities
                 .UsrShopifyCustomers
-                .Include(x => x.UsrShopifyCustomerAddresses)
+                //.Include(x => x.UsrShopifyCustomerAddresses)
                 .FirstOrDefault(x => x.ShopifyCustomerId == shopifyCustomerId);
+        }
+
+        public DateTime? RetrieveShopifyCustomerMaxUpdatedDate()
+        {
+            if (Entities.UsrShopifyCustomers.Any())
+            {
+                return Entities.UsrShopifyCustomers
+                    .Select(x => x.LastUpdated)
+                    .Max();
+            }
+            else
+            {
+                return (DateTime?)null;
+            }
         }
 
         public bool DoesShopifyCustomerExist(long shopifyCustomerId)
@@ -71,7 +85,7 @@ namespace Monster.Middle.Persist.Multitenant
 
 
         public UsrAcumaticaCustomer 
-                RetrieveAcumaticaCustomer(string acumaticaCustomerId)
+                    RetrieveAcumaticaCustomer(string acumaticaCustomerId)
         {
             return Entities
                     .UsrAcumaticaCustomers
@@ -79,7 +93,7 @@ namespace Monster.Middle.Persist.Multitenant
                         x => x.AcumaticaCustomerId == acumaticaCustomerId);
         }
 
-        public DateTime? RetrieveShopifyCustomerMaxUpdatedDate()
+        public DateTime? RetrieveAcumaticaCustomerMaxUpdatedDate()
         {
             if (Entities.UsrAcumaticaCustomers.Any())
             {
@@ -92,13 +106,28 @@ namespace Monster.Middle.Persist.Multitenant
                 return (DateTime?)null;
             }
         }
-
+        
         public void InsertAcumaticaCustomer(UsrAcumaticaCustomer customer)
         {
             Entities.UsrAcumaticaCustomers.Add(customer);
             Entities.SaveChanges();
         }
 
+
+
+        public UsrAcumaticaSalesOrder
+                RetrieveAcumaticaSalesOrder(string acumaticaSOId)
+        {
+            return Entities
+                    .UsrAcumaticaSalesOrders
+                .FirstOrDefault(x => x.AcumaticaSalesOrderId == acumaticaSOId);
+        }
+
+        public void InsertAcumaticaSalesOrder(UsrAcumaticaSalesOrder order)
+        {
+            Entities.UsrAcumaticaSalesOrders.Add(order);
+            Entities.SaveChanges();
+        }
 
         public void SaveChanges()
         {

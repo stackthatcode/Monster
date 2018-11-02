@@ -18,11 +18,20 @@ namespace Push.Shopify.Api
         }
 
         
-        public virtual string Retrieve(long customerId)
+        public string Retrieve(long customerId)
         {
             var path = $"/admin/customers/{customerId}.json";
             var response = _httpClient.Get(path);
             return response.Body;
         }
+
+        public string Retrieve(SearchFilter filter)
+        {
+            var path = $"/admin/customers.json?{filter.ToQueryString()}";
+            var response = _httpClient.Get(path);
+            return response.Body;
+        }
+
+
     }
 }

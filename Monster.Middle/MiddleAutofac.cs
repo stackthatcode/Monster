@@ -92,6 +92,7 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaWarehousePull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaWarehouseSync>().InstancePerLifetimeScope();
+
             builder.RegisterType<ShopifyLocationPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyLocationSync>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPull>().InstancePerLifetimeScope();
@@ -99,15 +100,16 @@ namespace Monster.Middle
 
             builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
-
-
+            
             // Order synchronization works
             builder.RegisterType<ShopifyCustomerPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderPull>().InstancePerLifetimeScope();
+
             builder.RegisterType<AcumaticaCustomerPull>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaOrderPull>().InstancePerLifetimeScope();
+
             builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
-
-
+            
             return builder.Build();
         }
     }

@@ -26,7 +26,7 @@ namespace Monster.ConsoleApp.Monster
 
                     // manager.RunInventoryBaseline();
 
-                    manager.RunInventoryUpdated();
+                    manager.RunUpdate();
                 }
                 catch (Exception ex)
                 {

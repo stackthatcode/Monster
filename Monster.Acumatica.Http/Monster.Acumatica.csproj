@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\SalesOrderClient.cs" />
     <Compile Include="Api\BankClient.cs" />
     <Compile Include="Api\Common\Values.cs" />
     <Compile Include="Api\Distribution\Action.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Api\Distribution\Warehouse.cs" />
     <Compile Include="Api\Distribution\WarehouseDetail.cs" />
     <Compile Include="Api\DistributionClient.cs" />
+    <Compile Include="Api\SalesOrder\SalesOrder.cs" />
     <Compile Include="Config\AcumaticaHttpConfig.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />
     <Compile Include="Http\AcumaticaCredentials.cs" />

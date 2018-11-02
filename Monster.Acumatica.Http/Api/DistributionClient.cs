@@ -83,5 +83,6 @@ namespace Monster.Acumatica.Api
                     "InventoryReceipt/ReleaseInventoryReceipt", content);
             return response.Body;
         }
+
     }
 }

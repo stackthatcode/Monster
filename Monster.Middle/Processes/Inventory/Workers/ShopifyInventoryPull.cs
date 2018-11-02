@@ -50,15 +50,12 @@ namespace Monster.Middle.Processes.Inventory.Workers
         {
             _logger.Debug("Baseline Pull Products");
 
-            _batchStateRepository.ResetBatchState();
-
             var startOfPullRun = DateTime.UtcNow;
 
             var firstFilter = new SearchFilter();
-            firstFilter.Page = 1;
-
             var firstJson = _productApi.Retrieve(firstFilter);
             var firstProducts = firstJson.DeserializeFromJson<ProductList>().products;
+
             UpsertProductsAndInventory(firstProducts);
 
             var currentPage = 2;

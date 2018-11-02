@@ -4,6 +4,7 @@ using Monster.Middle.Persist.Multitenant;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
+using Push.Shopify.Api.Customer;
 using Push.Shopify.Api.Order;
 
 
@@ -12,7 +13,9 @@ namespace Monster.Middle.Processes.Orders.Workers
     public class ShopifyOrderPull
     {
         private readonly OrderApi _orderApi;
+        private readonly CustomerApi _customerApi;
         private readonly OrderRepository _orderRepository;
+        private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
@@ -21,32 +24,38 @@ namespace Monster.Middle.Processes.Orders.Workers
         public const int InitialBatchStateFudgeMin = -15;
 
         public ShopifyOrderPull(
-                OrderApi orderApi, 
-                OrderRepository orderRepository, 
-                BatchStateRepository batchStateRepository, 
-                IPushLogger logger)
+                    OrderApi orderApi, 
+                    CustomerApi customerApi,
+                    OrderRepository orderRepository, 
+                    BatchStateRepository batchStateRepository, 
+                    TenantRepository tenantRepository,
+                    IPushLogger logger)
         {
             _orderApi = orderApi;
+            _customerApi = customerApi;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
             _logger = logger;
+            _tenantRepository = tenantRepository;
         }
+
 
         public void RunAll()
         {
             _logger.Debug("Baseline Pull Shopify Orders");
 
-            _batchStateRepository.ResetBatchState();
+            var preferences = _tenantRepository.RetrievePreferences();
 
             var startOfPullRun = DateTime.UtcNow;
 
             var firstFilter = new SearchFilter();
-            firstFilter.Page = 1;
+            firstFilter.CreatedAtMinUtc = preferences.DataPullStart;
 
             var firstJson = _orderApi.Retrieve(firstFilter);
-            var orders = firstJson.DeserializeFromJson<OrderList>().orders;
+            var firstOrders 
+                = firstJson.DeserializeFromJson<OrderList>().orders;
 
-            UpsertOrders(orders);
+            UpsertOrders(firstOrders);
 
             var currentPage = 2;
 
@@ -93,13 +102,14 @@ namespace Monster.Middle.Processes.Orders.Workers
             var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
 
             var firstFilter = new SearchFilter();
-            firstFilter.Page = 1;
             firstFilter.UpdatedAtMinUtc = lastBatchStateEnd;
 
             // Pull from Shopify
             var firstJson = _orderApi.Retrieve(firstFilter);
-            var firstOrders = firstJson.DeserializeFromJson<OrderList>().orders;
-            
+            var firstOrders 
+                = firstJson.DeserializeFromJson<OrderList>().orders;
+            UpsertOrders(firstOrders);
+
             var currentPage = 2;
 
             while (true)
@@ -109,20 +119,22 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 // Pull from Shopify
                 var currentJson = _orderApi.Retrieve(currentFilter);
-                var currentOrders = currentJson.DeserializeFromJson<OrderList>().orders;
+                var currentOrders 
+                    = currentJson.DeserializeFromJson<OrderList>().orders;
 
                 if (currentOrders.Count == 0)
                 {
                     break;
                 }
 
+                UpsertOrders(currentOrders);
+
                 currentPage++;
             }
 
             _batchStateRepository.UpdateShopifyOrdersPullEnd(startOfPullRun);
         }
-
-
+        
         private void UpsertOrders(List<Order> orders)
         {
             foreach (var order in orders)
@@ -133,7 +145,10 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         private void UpsertOrder(Order order)
         {
-            var existingOrder = _orderRepository.RetrieveShopifyOrder(order.id);
+            UpsertOrderCustomer(order);
+
+            var existingOrder 
+                = _orderRepository.RetrieveShopifyOrder(order.id);
 
             if (existingOrder == null)
             {
@@ -150,6 +165,31 @@ namespace Monster.Middle.Processes.Orders.Workers
                 existingOrder.ShopifyJson = order.SerializeToJson();
                 existingOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 existingOrder.LastUpdated = DateTime.UtcNow;
+            }
+        }
+
+        private void UpsertOrderCustomer(Order order)
+        {
+            var existingCustomer =
+                _orderRepository
+                    .RetrieveShopifyCustomer(order.customer.id);
+
+            if (existingCustomer == null)
+            {
+                var customerJson = _customerApi.Retrieve(order.customer.id);
+                var customer = customerJson.DeserializeFromJson<Customer>();
+
+                var newCustomer = new UsrShopifyCustomer();
+                newCustomer.ShopifyCustomerId = customer.id;
+                newCustomer.ShopifyJson = customer.SerializeToJson();
+                newCustomer.ShopifyPrimaryEmail = customer.email;
+                newCustomer.DateCreated = DateTime.UtcNow;
+                newCustomer.LastUpdated = DateTime.UtcNow;
+            }
+            else
+            {
+                // Don't worry about updating customer record - it'll be
+                // updated in that next run by ShopifyCustomerPull
             }
         }
     }

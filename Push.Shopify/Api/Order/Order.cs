@@ -52,7 +52,7 @@ namespace Push.Shopify.Api.Order
         public string email { get; set; }
         public string contact_email { get; set; }
         public bool buyer_accepts_marketing { get; set; }
-        public Customer customer { get; set; }
+        public Customer.Customer customer { get; set; }
         public BillingAddress billing_address { get; set; }
         public ShippingAddress shipping_address { get; set; }
 

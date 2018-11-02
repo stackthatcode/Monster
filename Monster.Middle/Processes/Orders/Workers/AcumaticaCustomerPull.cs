@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
-using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
+
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
@@ -15,6 +14,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly CustomerClient _customerClient;
         private readonly OrderRepository _orderRepository;
         private readonly BatchStateRepository _batchStateRepository;
+        private readonly TenantRepository _tenantRepository;
         private readonly IPushLogger _logger;
 
         public const int InitialBatchStateFudgeMin = -15;
@@ -24,18 +24,23 @@ namespace Monster.Middle.Processes.Orders.Workers
                 CustomerClient customerClient, 
                 OrderRepository orderRepository,
                 BatchStateRepository batchStateRepository,
+                TenantRepository tenantRepository,
                 IPushLogger logger)
         {
             _customerClient = customerClient;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
+            _tenantRepository = tenantRepository;
             _logger = logger;
         }
 
 
         public void RunAll()
         {
-            var json = _customerClient.RetrieveCustomers();
+            var preferences = _tenantRepository.RetrievePreferences();
+            var customerUpdateMin = preferences.DataPullStart;
+            
+            var json = _customerClient.RetrieveCustomers(customerUpdateMin);
             var customers = json.DeserializeFromJson<List<Customer>>();
 
             UpsertCustomersToPersist(customers);
@@ -62,7 +67,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                     "AcumaticaCustomersPullEnd is null - execute RunAll() first");
             }
 
-            var customerUpdateMin = batchState.AcumaticaProductsPullEnd;
+            var customerUpdateMin = batchState.AcumaticaCustomersPullEnd;
             var pullRunStartTime = DateTime.UtcNow;
 
             var json = _customerClient.RetrieveCustomers(customerUpdateMin);

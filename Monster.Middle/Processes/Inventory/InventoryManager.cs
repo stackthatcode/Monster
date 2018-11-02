@@ -1,4 +1,5 @@
 ﻿using Monster.Acumatica.Http;
+using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Inventory.Services;
 using Monster.Middle.Processes.Inventory.Workers;
 using Push.Foundation.Utilities.Logging;
@@ -18,6 +19,7 @@ namespace Monster.Middle.Processes.Inventory
         private readonly ShopifyLocationSync _shopifyLocationSync;
         private readonly ShopifyInventoryPull _shopifyInventoryPull;
         private readonly ShopifyInventorySync _shopifyInventorySync;
+        private readonly BatchStateRepository _batchStateRepository;
 
         private readonly InventoryStatusService _inventoryStatusService;
 
@@ -29,12 +31,13 @@ namespace Monster.Middle.Processes.Inventory
                 AcumaticaInventorySync acumaticaInventorySync,
                 AcumaticaWarehousePull acumaticaWarehousePull,
                 AcumaticaWarehouseSync acumaticaWarehouseSync,
-                
-                ShopifyInventoryPull shopifyInventoryPull,
-                ShopifyInventorySync shopifyInventorySync,
+
                 ShopifyLocationPull shopifyLocationPull,
                 ShopifyLocationSync shopifyLocationSync,
+                ShopifyInventoryPull shopifyInventoryPull,
+                ShopifyInventorySync shopifyInventorySync,
 
+                BatchStateRepository batchStateRepository,
                 InventoryStatusService inventoryStatusService,
 
                 IPushLogger logger)
@@ -43,23 +46,28 @@ namespace Monster.Middle.Processes.Inventory
 
             _acumaticaInventoryPull = acumaticaInventoryPull;
             _acumaticaInventorySync = acumaticaInventorySync;
+
             _acumaticaWarehousePull = acumaticaWarehousePull;
             _acumaticaWarehouseSync = acumaticaWarehouseSync;
 
-            _shopifyInventoryPull = shopifyInventoryPull;
             _shopifyLocationPull = shopifyLocationPull;
             _shopifyLocationSync = shopifyLocationSync;
+
+            _shopifyInventoryPull = shopifyInventoryPull;
             _shopifyInventorySync = shopifyInventorySync;
 
+            _batchStateRepository = batchStateRepository;
             _inventoryStatusService = inventoryStatusService;
 
             _logger = logger;
         }
 
 
-        public void RunInventoryBaseline()
+        public void RunBaseline()
         {
             _logger.Info("Inventory -> Baseline running...");
+
+            _batchStateRepository.ResetInventoryBatchState();
 
             RunLocationSync();
 
@@ -80,7 +88,7 @@ namespace Monster.Middle.Processes.Inventory
             _shopifyInventorySync.Run();
         }
         
-        public void RunInventoryUpdated()
+        public void RunUpdate()
         {
             RunLocationSync();
 

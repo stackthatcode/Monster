@@ -1,7 +1,7 @@
 using System;
-using Push.Shopify.Api.Customer;
+using System.Collections.Generic;
 
-namespace Push.Shopify.Api.Order
+namespace Push.Shopify.Api.Customer
 {
     public class Customer
     {
@@ -24,5 +24,11 @@ namespace Push.Shopify.Api.Order
         public string tags { get; set; }
         public object last_order_name { get; set; }
         public Address default_address { get; set; }
+        public List<Address> addresses { get; set; }
+    }
+
+    public class CustomerList
+    {
+        public List<Customer> customers { get; set; }
     }
 }
