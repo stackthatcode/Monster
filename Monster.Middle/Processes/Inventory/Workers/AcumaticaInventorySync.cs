@@ -143,7 +143,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
             var inventory =
                 _inventoryRepository
-                    .RetrieveShopifyInventoryLevelsMatchedButNotLoaded();
+                    .RetrieveShopifyInventoryLevelsMatchedButNotSynced();
 
             var productParentMonsterIds =
                 inventory
@@ -178,7 +178,9 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                 // TODO - add logging in case this blows us during persistence
 
-                _inventoryRepository.InsertAcumaticaInventoryReceipt(monsterReceipt);
+                _inventoryRepository
+                    .InsertAcumaticaInventoryReceipt(monsterReceipt);
+
                 _inventoryRepository
                     .UpdateAcumaticaInventoryReceipt(
                         inventoryByProduct, monsterReceipt);

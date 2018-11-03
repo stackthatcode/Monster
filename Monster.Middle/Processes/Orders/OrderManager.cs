@@ -12,6 +12,8 @@ namespace Monster.Middle.Processes.Orders
         private readonly AcumaticaHttpContext _acumaticaContext;
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
+        private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
+        private readonly AcumaticaOrderSync _acumaticaOrderSync;
 
         public OrderManager(
                 BatchStateRepository batchStateRepository,
@@ -19,7 +21,9 @@ namespace Monster.Middle.Processes.Orders
                 ShopifyOrderPull shopifyOrderPull, 
                 AcumaticaCustomerPull acumaticaCustomerPull,
                 AcumaticaOrderPull acumaticaOrderPull, 
-                AcumaticaHttpContext acumaticaContext)
+                AcumaticaHttpContext acumaticaContext, 
+                AcumaticaCustomerSync acumaticaCustomerSync, 
+                AcumaticaOrderSync acumaticaOrderSync)
         {
             _batchStateRepository = batchStateRepository;
             _shopifyCustomerPull = shopifyCustomerPull;
@@ -27,10 +31,12 @@ namespace Monster.Middle.Processes.Orders
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaContext = acumaticaContext;
+            _acumaticaCustomerSync = acumaticaCustomerSync;
+            _acumaticaOrderSync = acumaticaOrderSync;
         }
 
 
-        public void RunBaseline()
+        public void Baseline()
         {
             _batchStateRepository.ResetOrderBatchState();
 
@@ -40,20 +46,20 @@ namespace Monster.Middle.Processes.Orders
             // Optional...
             _acumaticaContext.Begin();
 
-            //_acumaticaCustomerPull.RunAll();
+            _acumaticaCustomerPull.RunAll();
             _acumaticaOrderPull.RunAll();
-
-            // TODO - why not an idempotent function....?
-            _acumaticaOrderPull.RunUpdated();
+            _acumaticaCustomerSync.RunMatch();
         }
 
-        public void RunUpdate()
+        public void Incremental()
         {
             _shopifyCustomerPull.RunUpdated();
             _shopifyOrderPull.RunUpdated();
 
             _acumaticaContext.Begin();
             _acumaticaOrderPull.RunUpdated();
+
+            _acumaticaOrderSync.Run();
         }
     }
 }

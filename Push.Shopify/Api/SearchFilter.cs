@@ -13,10 +13,12 @@ namespace Push.Shopify.Api
         public DateTime? CreatedAtMaxUtc { get; set; }
         public DateTime? UpdatedAtMinUtc { get; set; }
         public DateTime? UpdatedAtMaxUtc { get; set; }
+        public string OrderBy { get; set; }
 
 
         public SearchFilter()
         {
+            OrderBy = "created_at";
             Page = 1;
             Limit = 250;
         }
@@ -32,9 +34,20 @@ namespace Push.Shopify.Api
                 CreatedAtMaxUtc = this.CreatedAtMaxUtc,
                 UpdatedAtMinUtc = this.UpdatedAtMinUtc,
                 UpdatedAtMaxUtc = this.UpdatedAtMaxUtc,
+                OrderBy = this.OrderBy,
             };
         }
 
+        public void OrderByCreatedAt()
+        {
+            this.OrderBy = "created_at";
+        }
+
+        public void OrderByUpdatedAt()
+        {
+            this.OrderBy = "updated_at";
+        }
+        
         public QueryStringBuilder ToQueryStringBuilder()
         {
             var builder = new QueryStringBuilder();
@@ -66,6 +79,10 @@ namespace Push.Shopify.Api
             if (UpdatedAtMaxUtc != null)
             {
                 builder.Add("updated_at_max", UpdatedAtMaxUtc.Value);
+            }
+            if (OrderBy != null)
+            {
+                builder.Add("order_by", OrderBy);
             }
 
             return builder;

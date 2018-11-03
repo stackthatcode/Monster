@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Multitenant;
-using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -69,15 +68,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 if (existingData == null)
                 {
-                    var newData = new UsrAcumaticaCustomer();
-                    newData.AcumaticaCustomerId
-                                = customer.CustomerID.value;
-                    newData.AcumaticaJson = customer.SerializeToJson();
-                    newData.AcumaticaMainContactEmail 
-                                = customer.MainContact.Email.value;
-                    newData.DateCreated = DateTime.UtcNow;
-                    newData.LastUpdated = DateTime.UtcNow;
-
+                    var newData = customer.ToMonsterRecord();
                     _orderRepository.InsertAcumaticaCustomer(newData);
                 }
                 else

@@ -101,13 +101,16 @@ namespace Monster.Middle
             builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
             
+
             // Order synchronization works
             builder.RegisterType<ShopifyCustomerPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderPull>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaCustomerPull>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaCustomerSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPull>().InstancePerLifetimeScope();
-
+            builder.RegisterType<AcumaticaOrderSync>().InstancePerLifetimeScope();
+            
             builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
             
             return builder.Build();

@@ -15,14 +15,14 @@ namespace Push.Shopify.Api.Customer
         public int orders_count { get; set; }
         public string state { get; set; }
         public string total_spent { get; set; }
-        public object last_order_id { get; set; }
-        public object note { get; set; }
+        public string last_order_id { get; set; }
+        public string note { get; set; }
         public bool verified_email { get; set; }
-        public object multipass_identifier { get; set; }
+        public string multipass_identifier { get; set; }
         public bool tax_exempt { get; set; }
-        public object phone { get; set; }
+        public string phone { get; set; }
         public string tags { get; set; }
-        public object last_order_name { get; set; }
+        public string last_order_name { get; set; }
         public Address default_address { get; set; }
         public List<Address> addresses { get; set; }
     }

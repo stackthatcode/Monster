@@ -787,7 +787,7 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrShopifyCustomer
     {
         public long Id { get; set; } // Id (Primary key)
-        public string ShopifyJson { get; set; } // ShopifyJson (length: 10)
+        public string ShopifyJson { get; set; } // ShopifyJson
         public long ShopifyCustomerId { get; set; } // ShopifyCustomerId
         public string ShopifyPrimaryEmail { get; set; } // ShopifyPrimaryEmail (length: 100)
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -1052,7 +1052,7 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaCustomerId).HasColumnName(@"AcumaticaCustomerId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaMainContactEmail).HasColumnName(@"AcumaticaMainContactEmail").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.AcumaticaMainContactEmail).HasColumnName(@"AcumaticaMainContactEmail").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyCustomerMonsterId).HasColumnName(@"ShopifyCustomerMonsterId").HasColumnType("bigint").IsOptional();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
@@ -1278,8 +1278,8 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrShopifyCustomer", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyCustomerId).HasColumnName(@"ShopifyCustomerId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyPrimaryEmail).HasColumnName(@"ShopifyPrimaryEmail").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
@@ -1355,7 +1355,7 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrShopifyOrder", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderNumber).HasColumnName(@"ShopifyOrderNumber").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);

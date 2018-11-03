@@ -51,6 +51,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             var firstFilter = new SearchFilter();
             firstFilter.CreatedAtMinUtc = preferences.DataPullStart;
 
+
             var firstJson = _orderApi.Retrieve(firstFilter);
             var firstOrders 
                 = firstJson.DeserializeToOrderList().orders;
@@ -147,8 +148,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         private void UpsertOrder(Order order)
         {
-            UpsertOrderCustomer(order);
-
+            var monsterCustomerRecord = UpsertOrderCustomer(order);
             var existingOrder 
                 = _orderRepository.RetrieveShopifyOrder(order.id);
 
@@ -159,18 +159,21 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newOrder.ShopifyOrderNumber = order.order_number.ToString();
                 newOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 newOrder.ShopifyJson = order.SerializeToJson();
+                newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
+                _orderRepository.InsertShopifyOrder(newOrder);
             }
             else
             {
                 existingOrder.ShopifyJson = order.SerializeToJson();
                 existingOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 existingOrder.LastUpdated = DateTime.UtcNow;
+                _orderRepository.SaveChanges();
             }
         }
 
-        private void UpsertOrderCustomer(Order order)
+        private UsrShopifyCustomer UpsertOrderCustomer(Order order)
         {
             var existingCustomer =
                 _orderRepository
@@ -187,9 +190,13 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newCustomer.ShopifyPrimaryEmail = customer.email;
                 newCustomer.DateCreated = DateTime.UtcNow;
                 newCustomer.LastUpdated = DateTime.UtcNow;
+                _orderRepository.InsertShopifyCustomer(newCustomer);
+
+                return newCustomer;
             }
             else
             {
+                return existingCustomer;
                 // Don't worry about updating customer record - it'll be
                 // updated in that next run by ShopifyCustomerPull
             }

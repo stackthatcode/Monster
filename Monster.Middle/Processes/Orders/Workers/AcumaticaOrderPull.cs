@@ -126,19 +126,11 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             if (existingCustomer == null)
             {
-                var customerJson = _customerClient.RetrieveCustomer(acumaticaCustomerId);
+                var customerJson 
+                    = _customerClient.RetrieveCustomer(acumaticaCustomerId);
                 var customer = customerJson.DeserializeFromJson<Customer>();
 
-                var newData = new UsrAcumaticaCustomer();
-
-                newData.AcumaticaCustomerId
-                    = customer.CustomerID.value;
-                newData.AcumaticaJson = customer.SerializeToJson();
-                newData.AcumaticaMainContactEmail
-                    = customer.MainContact.Email.value;
-                newData.DateCreated = DateTime.UtcNow;
-                newData.LastUpdated = DateTime.UtcNow;
-
+                var newData = customer.ToMonsterRecord();                
                 _orderRepository.InsertAcumaticaCustomer(newData);
 
                 return newData.Id;

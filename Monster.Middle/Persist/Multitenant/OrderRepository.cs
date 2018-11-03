@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 
 namespace Monster.Middle.Persist.Multitenant
@@ -44,6 +46,16 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
+        public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSync()
+        {
+            return Entities
+                    .UsrShopifyOrders
+                    .Where(x => !x.UsrAcumaticaSalesOrders.Any())
+                    .Include(x => x.UsrShopifyCustomer)
+                    .Include(x => x.UsrShopifyCustomer.UsrAcumaticaCustomers)
+                    .ToList();
+        }
+
 
         public UsrShopifyCustomer 
                     RetrieveShopifyCustomer(long shopifyCustomerId)
@@ -68,6 +80,14 @@ namespace Monster.Middle.Persist.Multitenant
             }
         }
 
+        public List<UsrShopifyCustomer> RetrieveShopifyCustomersUnsynced()
+        {
+            return Entities
+                .UsrShopifyCustomers
+                .Where(x => !x.UsrAcumaticaCustomers.Any())
+                .ToList();
+        }
+
         public bool DoesShopifyCustomerExist(long shopifyCustomerId)
         {
             return Entities
@@ -90,6 +110,17 @@ namespace Monster.Middle.Persist.Multitenant
                     .FirstOrDefault(
                         x => x.AcumaticaCustomerId == acumaticaCustomerId);
         }
+
+        public UsrAcumaticaCustomer
+                RetrieveAcumaticaCustomerByEmail(string email)
+        {
+            return Entities
+                .UsrAcumaticaCustomers
+                .FirstOrDefault(
+                    x => x.AcumaticaMainContactEmail == email);
+        }
+        
+
 
         public DateTime? RetrieveAcumaticaCustomerMaxUpdatedDate()
         {

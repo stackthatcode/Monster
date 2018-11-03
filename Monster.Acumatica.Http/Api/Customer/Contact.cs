@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Monster.Acumatica.Api.Common;
+using Monster.Acumatica.Api.SalesOrder;
 
 namespace Monster.Acumatica.Api.Customer
 {
@@ -9,6 +10,8 @@ namespace Monster.Acumatica.Api.Customer
         public string id { get; set; }
         public int rowNumber { get; set; }
         public object note { get; set; }
+
+        public Address Address { get; set; }
         public StringValue ContactID { get; set; }
         public StringValue DisplayName { get; set; }
         public StringValue Email { get; set; }

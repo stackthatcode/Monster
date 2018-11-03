@@ -19,10 +19,9 @@ namespace Monster.Middle.Processes.Inventory
         private readonly ShopifyLocationSync _shopifyLocationSync;
         private readonly ShopifyInventoryPull _shopifyInventoryPull;
         private readonly ShopifyInventorySync _shopifyInventorySync;
+
         private readonly BatchStateRepository _batchStateRepository;
-
         private readonly InventoryStatusService _inventoryStatusService;
-
         private readonly IPushLogger _logger;
 
         public InventoryManager(
@@ -39,7 +38,6 @@ namespace Monster.Middle.Processes.Inventory
 
                 BatchStateRepository batchStateRepository,
                 InventoryStatusService inventoryStatusService,
-
                 IPushLogger logger)
         {
             _acumaticaContext = acumaticaContext;
@@ -63,7 +61,7 @@ namespace Monster.Middle.Processes.Inventory
         }
 
 
-        public void RunBaseline()
+        public void Baseline()
         {
             _logger.Info("Inventory -> Baseline running...");
 
@@ -88,8 +86,9 @@ namespace Monster.Middle.Processes.Inventory
             _shopifyInventorySync.Run();
         }
         
-        public void RunUpdate()
+        public void Incremental()
         {
+            _acumaticaContext.Begin();
             RunLocationSync();
 
             if (!IsInventoryStatusOk())

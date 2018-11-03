@@ -23,12 +23,13 @@ namespace Monster.ConsoleApp.Monster
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
 
-                    //var invmanager = scope.Resolve<InventoryManager>();
-                    // invmanager.RunInventoryBaseline();
-                    // invmanager.RunUpdate();
+                    var invmanager = scope.Resolve<InventoryManager>();
+                    invmanager.Baseline();
+                    invmanager.Incremental();
 
                     var orderManager = scope.Resolve<OrderManager>();
-                    orderManager.RunBaseline();
+                    orderManager.Baseline();
+                    orderManager.Incremental();
                 }
                 catch (Exception ex)
                 {

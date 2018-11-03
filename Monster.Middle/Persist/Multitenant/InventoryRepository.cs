@@ -80,7 +80,7 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
         public List<UsrShopifyInventoryLevel> 
-                        RetrieveShopifyInventoryLevelsMatchedButNotLoaded()
+                        RetrieveShopifyInventoryLevelsMatchedButNotSynced()
         {
             return Entities
                     .UsrShopifyInventoryLevels

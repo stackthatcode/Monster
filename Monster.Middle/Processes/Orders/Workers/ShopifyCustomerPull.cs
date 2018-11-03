@@ -147,12 +147,14 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newCustomer.ShopifyPrimaryEmail = customer.email;
                 newCustomer.DateCreated = DateTime.UtcNow;
                 newCustomer.LastUpdated = DateTime.UtcNow;
+                _orderRepository.InsertShopifyCustomer(newCustomer);
             }
             else
             {
                 existingCustomer.ShopifyJson = customer.SerializeToJson();
                 existingCustomer.ShopifyPrimaryEmail = customer.email;
                 existingCustomer.LastUpdated = DateTime.UtcNow;
+                _orderRepository.SaveChanges();
             }
         }        
     }
