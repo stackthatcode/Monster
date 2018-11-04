@@ -66,24 +66,35 @@ namespace Push.Shopify.Api.Order
         //
         // Computed properties
         //
+        [JsonIgnore]
         public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
         
+        [JsonIgnore]
         public decimal LineItemDiscountTotal
                         => discount_applications
                             .Where(x => x.target_type == DiscountTargetType.LineItem)
                             .Sum(x => x.TotalAllocations);
 
+        [JsonIgnore]
         public decimal RefundTransactionTotal => refunds.Sum(x => x.TransactionTotal);
+        [JsonIgnore]
         public decimal RefundTotal => refunds.Sum(x => x.Total);
+        [JsonIgnore]
         public decimal RefundTaxTotal => refunds.Sum(x => x.TaxTotal);
 
         [JsonIgnore]
         public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
+
+        [JsonIgnore]
         public decimal ShippingDiscountsTotal
                         => discount_applications
                             .Where(x => x.target_type == DiscountTargetType.ShippingLine)
                             .Sum(x => x.TotalAllocations);
+
+        [JsonIgnore]
         public decimal ShippingTotal => shipping_lines.Sum(x => x.price);
+
+        [JsonIgnore]
         public decimal ShippingDiscountedTotal => ShippingTotal - ShippingDiscountsTotal;
 
 
@@ -144,7 +155,14 @@ namespace Push.Shopify.Api.Order
             return output;
         }
 
-        public static OrderParent DeserializeToOrder(this string input)
+        public static Order DeserializeToOrder(this string input)
+        {
+            var output = input.DeserializeFromJson<Order>();
+            output.Initialize();
+            return output;
+        }
+
+        public static OrderParent DeserializeToOrderParent(this string input)
         {
             var output = input.DeserializeFromJson<OrderParent>();
             output.order.Initialize();

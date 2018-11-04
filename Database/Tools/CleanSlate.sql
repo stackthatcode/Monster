@@ -6,6 +6,7 @@ GO
 DELETE FROM usrAcumaticaSalesOrder;
 DELETE FROM usrAcumaticaCustomer;
 
+DELETE FROM usrShopifyOrderLineItem;
 DELETE FROM usrShopifyOrder;
 DELETE FROM usrShopifyCustomer;
 

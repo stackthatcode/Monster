@@ -135,6 +135,8 @@ namespace Monster.Acumatica.Http
                     bool excludeVersion = false)
         {
             _logger.Debug($"HTTP PUT on {path}");
+            _logger.Trace(content);
+
             var address = MakePath(path, excludeVersion);
 
             var httpContent

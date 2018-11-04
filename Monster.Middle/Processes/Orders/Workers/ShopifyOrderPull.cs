@@ -144,7 +144,14 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             _batchStateRepository.UpdateShopifyOrdersPullEnd(startOfPullRun);
         }
-        
+
+        public void Run(long shopifyOrderId)
+        {
+            var orderJson = _orderApi.Retrieve(shopifyOrderId);
+            var order = orderJson.DeserializeToOrderParent();
+            UpsertOrder(order.order);
+        }
+
         private void UpsertOrders(List<Order> orders)
         {
             foreach (var order in orders)
@@ -169,7 +176,10 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
+
+                // ** TODO - make this transactional
                 _orderRepository.InsertShopifyOrder(newOrder);
+                UpsertOrderLineItems(order);
             }
             else
             {
@@ -178,8 +188,6 @@ namespace Monster.Middle.Processes.Orders.Workers
                 existingOrder.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();
             }
-
-            UpsertOrderLineItems(order);
         }
 
         private UsrShopifyCustomer UpsertOrderCustomer(Order order)
@@ -233,6 +241,8 @@ namespace Monster.Middle.Processes.Orders.Workers
                 orderLineItem.ShopifyLineItemId = item.id;
                 orderLineItem.ShopifyProductId = item.product_id;
                 orderLineItem.ShopifyVariantId = item.variant_id;
+
+                _orderRepository.InsertShopifyOrderLineItem(orderLineItem);
             }
         }
     }

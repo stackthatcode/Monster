@@ -11,6 +11,7 @@ namespace Push.Shopify.Api.Order
         public decimal rate { get; set; }
         public string title { get; set; }
 
+        [JsonIgnore]
         public decimal PercentOfTotalTaxes => price / Parent.TaxLinesTotal;
     }
 }

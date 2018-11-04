@@ -19,8 +19,10 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public Order Parent { get; set; }
 
+        [JsonIgnore]
         public List<DiscountAllocation> Allocations => Parent.FindAllocations(this);
 
+        [JsonIgnore]
         public decimal TotalAllocations => Allocations.Sum(x => x.amount);
     }
 }

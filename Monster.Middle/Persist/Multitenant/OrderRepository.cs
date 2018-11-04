@@ -45,7 +45,13 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.UsrShopifyOrders.Add(order);
             Entities.SaveChanges();
         }
-        
+
+        public void InsertShopifyOrderLineItem(UsrShopifyOrderLineItem lineItem)
+        {
+            Entities.UsrShopifyOrderLineItems.Add(lineItem);
+            Entities.SaveChanges();
+        }
+
         public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
             return Entities

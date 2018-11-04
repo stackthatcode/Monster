@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Customer;
@@ -49,6 +50,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         public void RunByShopifyId(long shopifyOrderId)
         {
             var shopifyOrder = _orderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            PushOrder(shopifyOrder);
         }
 
         private void PushOrder(UsrShopifyOrder shopifyOrderRecord)
@@ -58,13 +60,13 @@ namespace Monster.Middle.Processes.Orders.Workers
             var shopifyOrder
                 = shopifyOrderRecord
                     .ShopifyJson
-                    .DeserializeToOrder()
-                    .order;
+                    .DeserializeToOrder();
 
             var salesOrder = new SalesOrder();
             salesOrder.OrderType = "SO".ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
+            salesOrder.Details = new List<SalesOrderDetail>();
 
             foreach (var lineItem in shopifyOrderRecord.UsrShopifyOrderLineItems)
             {
@@ -88,6 +90,8 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 salesOrderDetail.ExtendedPrice =
                     ((double) shopifyLineItem.TotalAfterDiscount).ToValue();
+
+                salesOrder.Details.Add(salesOrderDetail);
             }
 
             var resultJson 
@@ -96,7 +100,11 @@ namespace Monster.Middle.Processes.Orders.Workers
             var resultSalesOrder 
                 = resultJson.DeserializeFromJson<SalesOrder>();
 
-            _acumaticaOrderPull.UpsertOrderToPersist(resultSalesOrder);
+            var acumaticaRecord
+                = _acumaticaOrderPull.UpsertOrderToPersist(resultSalesOrder);
+
+            acumaticaRecord.UsrShopifyOrder = shopifyOrderRecord;
+            _orderRepository.SaveChanges();
         }
 
 
