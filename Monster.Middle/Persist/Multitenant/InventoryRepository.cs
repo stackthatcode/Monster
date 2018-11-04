@@ -174,8 +174,7 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.UsrAcumaticaStockItems.Add(item);
             Entities.SaveChanges();
         }
-
-
+        
         public void InsertAcumaticaInventoryReceipt(UsrAcumaticaInventoryReceipt receipt)
         {
             Entities.UsrAcumaticaInventoryReceipts.Add(receipt);

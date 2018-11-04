@@ -70,6 +70,7 @@
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Persist\Multitenant\BatchStateRepository.cs" />
     <Compile Include="Persist\Multitenant\Extensions\LocationExtensions.cs" />
+    <Compile Include="Persist\Multitenant\Extensions\OrderExtensions.cs" />
     <Compile Include="Persist\Multitenant\OrderRepository.cs" />
     <Compile Include="Persist\Multitenant\LocationRepository.cs" />
     <Compile Include="Persist\Multitenant\MatchRepository.cs" />

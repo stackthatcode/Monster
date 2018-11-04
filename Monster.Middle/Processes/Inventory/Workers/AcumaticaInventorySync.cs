@@ -60,7 +60,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                 if (stockItem != null)
                 {
-                    if (stockItem.IsMatchedToShopifyVariant())
+                    if (stockItem.IsMatchedToShopify())
                     {
                         _logger.Info(
                             $"Acumatica Stock Item {stockItem.ItemId} " +
@@ -248,10 +248,6 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
             return receipt;
         }
-
-        public void RunDifferential()
-        {
-
-        }
+        
     }
 }

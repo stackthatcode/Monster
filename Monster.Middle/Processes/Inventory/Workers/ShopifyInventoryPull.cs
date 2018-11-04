@@ -140,13 +140,19 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _batchStateRepository.UpdateShopifyProductsPullEnd(startOfPullRun);
         }
 
+        public long Run(long shopifyProductId)
+        {
+            var productJson = _productApi.Retrieve(shopifyProductId);
+            var product = productJson.DeserializeFromJson<ProductParent>();
+            return UpsertProductAndInventory(product.product);
+        }
 
         public void UpsertProductsAndInventory(IEnumerable<Product> products)
         {
             products.ForEach(x => UpsertProductAndInventory(x));
         }
 
-        public void UpsertProductAndInventory(Product product)
+        public long UpsertProductAndInventory(Product product)
         {
             var existing =
                 _inventoryRepository.RetrieveShopifyProduct(product.id);
@@ -185,6 +191,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
             // Pull and write the Inventory
             PullAndUpsertInventory(productMonsterId);
+
+            return productMonsterId;
         }
 
         public void UpsertVariants(long parentMonsterId, Product product)

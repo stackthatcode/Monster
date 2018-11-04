@@ -10,7 +10,7 @@ namespace Push.Shopify.Api.Order
         public long variant_id { get; set; }
         public string title { get; set; }
         public int quantity { get; set; }
-        public string price { get; set; }
+        public decimal price { get; set; }
         public string sku { get; set; }
         public string variant_title { get; set; }
         public string vendor { get; set; }
@@ -37,8 +37,10 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public Order Parent { get; set; }
 
-        public decimal TotalTaxes => tax_lines.Sum(x => x.rate);
+        public decimal TotalBeforeDiscount => quantity * price;
         public decimal TotalDiscount => discount_allocations.Sum(x => x.amount);
-        
+        public decimal TotalAfterDiscount => TotalBeforeDiscount - TotalDiscount;
+
+        public decimal TotalTaxes => tax_lines.Sum(x => x.rate);
     }
 }

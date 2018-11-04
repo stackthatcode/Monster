@@ -41,9 +41,19 @@ namespace Monster.Middle.Persist.Multitenant.Extensions
                 .ToList();
         }
 
+        public static bool IsMatched(this UsrShopifyVariant variant)
+        {
+            return variant.UsrAcumaticaStockItems.Any();
+        }
+
+        public static bool IsNotMatched(this UsrShopifyVariant variant)
+        {
+            return !variant.IsMatched();
+        }
+
         //public static IList<UsrShopifyInventoryLevel> By
 
-        public static bool IsMatchedToShopifyVariant(
+        public static bool IsMatchedToShopify(
                     this UsrAcumaticaStockItem stockItem)
         {
             return stockItem.ShopifyVariantMonsterId != null;

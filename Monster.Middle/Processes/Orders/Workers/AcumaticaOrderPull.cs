@@ -85,37 +85,46 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             foreach (var order in orders)
             {
-                var orderNbr = order.OrderNbr.value;
+                UpsertOrderToPersist(order);
+            }
+        }
 
-                var existingData
-                    = _orderRepository
-                        .RetrieveAcumaticaSalesOrder(orderNbr);
+        public UsrAcumaticaSalesOrder UpsertOrderToPersist(SalesOrder order)
+        {
+            var orderNbr = order.OrderNbr.value;
 
-                if (existingData == null)
-                {
-                    // Locate Acumatica Customer..
-                    var customerId = order.CustomerID.value;
+            var existingData
+                = _orderRepository
+                    .RetrieveAcumaticaSalesOrder(orderNbr);
 
-                    var acumaticaCustomerMonsterId 
-                            = LocateOrPullAndUpsertCustomer(customerId);
+            if (existingData == null)
+            {
+                // Locate Acumatica Customer..
+                var customerId = order.CustomerID.value;
 
-                    var newData = new UsrAcumaticaSalesOrder();
-                    newData.AcumaticaSalesOrderId = orderNbr;
-                    newData.AcumaticaJson = order.SerializeToJson();
-                    newData.AcumaticaCustomerMonsterId = acumaticaCustomerMonsterId;
-                    
-                    newData.DateCreated = DateTime.UtcNow;
-                    newData.LastUpdated = DateTime.UtcNow;
+                var acumaticaCustomerMonsterId
+                    = LocateOrPullAndUpsertCustomer(customerId);
 
-                    _orderRepository.InsertAcumaticaSalesOrder(newData);
-                }
-                else
-                {
-                    existingData.AcumaticaJson = order.SerializeToJson();
-                    existingData.LastUpdated = DateTime.UtcNow;
+                var newData = new UsrAcumaticaSalesOrder();
+                newData.AcumaticaSalesOrderId = orderNbr;
+                newData.AcumaticaJson = order.SerializeToJson();
+                newData.AcumaticaCustomerMonsterId = acumaticaCustomerMonsterId;
 
-                    _orderRepository.SaveChanges();
-                }
+                newData.DateCreated = DateTime.UtcNow;
+                newData.LastUpdated = DateTime.UtcNow;
+
+                _orderRepository.InsertAcumaticaSalesOrder(newData);
+
+                return newData;
+            }
+            else
+            {
+                existingData.AcumaticaJson = order.SerializeToJson();
+                existingData.LastUpdated = DateTime.UtcNow;
+
+                _orderRepository.SaveChanges();
+
+                return existingData;
             }
         }
 

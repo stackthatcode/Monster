@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Inventory.Workers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -17,6 +18,8 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly OrderRepository _orderRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
+        private readonly ShopifyInventoryPull _shopifyInventoryPull;
+        private readonly InventoryRepository _inventoryRepository;
         private readonly IPushLogger _logger;
 
         // Possibly expand - this is a one-time thing...
@@ -24,19 +27,23 @@ namespace Monster.Middle.Processes.Orders.Workers
         public const int InitialBatchStateFudgeMin = -15;
 
         public ShopifyOrderPull(
+                    IPushLogger logger,
                     OrderApi orderApi, 
                     CustomerApi customerApi,
                     OrderRepository orderRepository, 
                     BatchStateRepository batchStateRepository, 
                     TenantRepository tenantRepository,
-                    IPushLogger logger)
+                    InventoryRepository inventoryRepository,
+                    ShopifyInventoryPull shopifyInventoryPull)
         {
+            _logger = logger;
             _orderApi = orderApi;
             _customerApi = customerApi;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
-            _logger = logger;
+            _inventoryRepository = inventoryRepository;
             _tenantRepository = tenantRepository;
+            _shopifyInventoryPull = shopifyInventoryPull;
         }
 
 
@@ -171,6 +178,8 @@ namespace Monster.Middle.Processes.Orders.Workers
                 existingOrder.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();
             }
+
+            UpsertOrderLineItems(order);
         }
 
         private UsrShopifyCustomer UpsertOrderCustomer(Order order)
@@ -199,6 +208,31 @@ namespace Monster.Middle.Processes.Orders.Workers
                 return existingCustomer;
                 // Don't worry about updating customer record - it'll be
                 // updated in that next run by ShopifyCustomerPull
+            }
+        }
+
+        public void UpsertOrderLineItems(Order order)
+        {
+            var orderRecord = _orderRepository.RetrieveShopifyOrder(order.id);
+
+            foreach (var item in order.line_items)
+            {                
+                var variantMonsterRecord =
+                    _inventoryRepository
+                        .RetrieveShopifyVariant(item.variant_id, item.sku);
+
+                // Can't find exact match, and it has a valid Shopify Product Id?
+                if (variantMonsterRecord == null && item.product_id != null)
+                {
+                    _shopifyInventoryPull.Run(item.product_id.Value);
+                }
+
+                var orderLineItem = new UsrShopifyOrderLineItem();
+                orderLineItem.UsrShopifyOrder = orderRecord;
+                orderLineItem.UsrShopifyVariant = variantMonsterRecord;
+                orderLineItem.ShopifyLineItemId = item.id;
+                orderLineItem.ShopifyProductId = item.product_id;
+                orderLineItem.ShopifyVariantId = item.variant_id;
             }
         }
     }

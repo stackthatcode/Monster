@@ -45,14 +45,15 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.UsrShopifyOrders.Add(order);
             Entities.SaveChanges();
         }
-
-        public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSync()
+        
+        public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
             return Entities
                     .UsrShopifyOrders
                     .Where(x => !x.UsrAcumaticaSalesOrders.Any())
                     .Include(x => x.UsrShopifyCustomer)
                     .Include(x => x.UsrShopifyCustomer.UsrAcumaticaCustomers)
+                    .Include(x => x.UsrShopifyOrderLineItems)
                     .ToList();
         }
 
