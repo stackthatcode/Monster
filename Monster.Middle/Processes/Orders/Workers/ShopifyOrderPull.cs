@@ -161,6 +161,9 @@ namespace Monster.Middle.Processes.Orders.Workers
                 UpsertOrderAndCustomer(order);
                 UpsertOrderLineItems(order);
                 UpsertOrderFulfillments(order);
+                UpsertOrderRefunds(order);
+
+                AutoAssignVariantForLineItems(order);
             }
         }
 
@@ -256,34 +259,8 @@ namespace Monster.Middle.Processes.Orders.Workers
                     _orderRepository.InsertShopifyOrderLineItem(orderLineItem);
                 }
             }
-
-            AutoAssignVariantForLineItems(orderRecord.Id);
         }
 
-        public void AutoAssignVariantForLineItems(long shopifyOrderId)
-        { 
-            var orderRecord = _orderRepository.RetrieveShopifyOrder(shopifyOrderId);
-
-            foreach (var lineItem in orderRecord.UsrShopifyOrderLineItems)
-            { 
-                if (lineItem.UsrShopifyVariant != null)
-                {
-                    continue;
-                }
-
-                var monsterVariant = 
-                    _inventoryRepository
-                        .RetrieveShopifyVariant(
-                            lineItem.ShopifyVariantId, lineItem.ShopifySku);
-
-                if (monsterVariant != null)
-                {
-                    lineItem.UsrShopifyVariant = monsterVariant;
-                    _inventoryRepository.SaveChanges();
-                }
-            }
-        }
-        
         public void UpsertOrderFulfillments(Order order)
         {
             var orderRecord = _orderRepository.RetrieveShopifyOrder(order.id);
@@ -300,14 +277,14 @@ namespace Monster.Middle.Processes.Orders.Workers
                     var newRecord = new UsrShopifyFulfillment();
                     newRecord.ShopifyFulfillmentId = fulfillment.id;
                     newRecord.ShopifyOrderId = order.id;
-                    newRecord.ShopifyJson = fulfillment.SerializeToJson();
+                    newRecord.ShopifyStatus = fulfillment.status;
                     newRecord.UsrShopifyOrder = orderRecord;
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
                 }
                 else
                 {
-                    fulfillmentRecord.ShopifyJson = fulfillment.SerializeToJson();
+                    fulfillmentRecord.ShopifyStatus = fulfillment.status;
                     fulfillmentRecord.LastUpdated = DateTime.UtcNow;
                 }
             }
@@ -315,8 +292,57 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         private void UpsertOrderRefunds(Order order)
         {
-            throw new NotImplementedException();
+            var orderRecord = _orderRepository.RetrieveShopifyOrder(order.id);
+
+            foreach (var refund in order.refunds)
+            {
+                var refundRecord
+                    = orderRecord
+                        .UsrShopifyRefunds
+                        .FirstOrDefault(x => x.ShopifyRefundId == refund.id);
+
+                if (refundRecord == null)
+                {
+                    var newRecord = new UsrShopifyRefund();
+                    newRecord.ShopifyRefundId = refund.id;
+                    newRecord.ShopifyOrderId = order.id;
+                    newRecord.UsrShopifyOrder = orderRecord;
+                    newRecord.DateCreated = DateTime.UtcNow;
+                    newRecord.LastUpdated = DateTime.UtcNow;
+                }
+                else
+                {
+                    // TODO - do we need this?
+                    refundRecord.LastUpdated = DateTime.UtcNow;
+                }
+            }
         }
+
+        public void AutoAssignVariantForLineItems(Order order)
+        {
+            long shopifyOrderId = order.id;
+            var orderRecord = _orderRepository.RetrieveShopifyOrder(shopifyOrderId);
+
+            foreach (var lineItem in orderRecord.UsrShopifyOrderLineItems)
+            {
+                if (lineItem.UsrShopifyVariant != null)
+                {
+                    continue;
+                }
+
+                var monsterVariant =
+                    _inventoryRepository
+                        .RetrieveShopifyVariant(
+                            lineItem.ShopifyVariantId, lineItem.ShopifySku);
+
+                if (monsterVariant != null)
+                {
+                    lineItem.UsrShopifyVariant = monsterVariant;
+                    _inventoryRepository.SaveChanges();
+                }
+            }
+        }
+
     }
 }
 

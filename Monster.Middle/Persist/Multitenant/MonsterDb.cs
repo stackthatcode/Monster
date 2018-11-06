@@ -58,6 +58,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; } // usrShopifyPayout
         System.Data.Entity.DbSet<UsrShopifyPayoutTransaction> UsrShopifyPayoutTransactions { get; set; } // usrShopifyPayoutTransaction
         System.Data.Entity.DbSet<UsrShopifyProduct> UsrShopifyProducts { get; set; } // usrShopifyProduct
+        System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund
         System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
         System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
 
@@ -103,6 +104,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; } // usrShopifyPayout
         public System.Data.Entity.DbSet<UsrShopifyPayoutTransaction> UsrShopifyPayoutTransactions { get; set; } // usrShopifyPayoutTransaction
         public System.Data.Entity.DbSet<UsrShopifyProduct> UsrShopifyProducts { get; set; } // usrShopifyProduct
+        public System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
         public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
 
@@ -175,6 +177,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyPayoutConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyPayoutTransactionConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyProductConfiguration());
+            modelBuilder.Configurations.Add(new UsrShopifyRefundConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration());
             modelBuilder.Configurations.Add(new UsrTenantConfiguration());
         }
@@ -202,6 +205,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyPayoutConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyPayoutTransactionConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyProductConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrShopifyRefundConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrTenantConfiguration(schema));
             return modelBuilder;
@@ -247,6 +251,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyPayoutTransaction> UsrShopifyPayoutTransactions { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyProduct> UsrShopifyProducts { get; set; }
+        public System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; }
         public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; }
 
@@ -277,6 +282,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrShopifyPayouts = new FakeDbSet<UsrShopifyPayout>("ShopifyPayoutId");
             UsrShopifyPayoutTransactions = new FakeDbSet<UsrShopifyPayoutTransaction>("ShopifyPayoutId", "ShopifyPayoutTransId");
             UsrShopifyProducts = new FakeDbSet<UsrShopifyProduct>("MonsterId");
+            UsrShopifyRefunds = new FakeDbSet<UsrShopifyRefund>("Id");
             UsrShopifyVariants = new FakeDbSet<UsrShopifyVariant>("MonsterId");
             UsrTenants = new FakeDbSet<UsrTenant>("CompanyId");
         }
@@ -873,9 +879,9 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrShopifyFulfillment
     {
         public long Id { get; set; } // Id (Primary key)
-        public string ShopifyJson { get; set; } // ShopifyJson
         public long ShopifyFulfillmentId { get; set; } // ShopifyFulfillmentId
         public long ShopifyOrderId { get; set; } // ShopifyOrderId
+        public string ShopifyStatus { get; set; } // ShopifyStatus (length: 50)
         public long OrderMonsterId { get; set; } // OrderMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -990,6 +996,10 @@ namespace Monster.Middle.Persist.Multitenant
         /// Child UsrShopifyOrderLineItems where [usrShopifyOrderLineItem].[MonsterOrderId] point to this entity (FK_usrShopifyOrderLineItem_usrShopifyOrder1)
         /// </summary>
         public virtual System.Collections.Generic.ICollection<UsrShopifyOrderLineItem> UsrShopifyOrderLineItems { get; set; } // usrShopifyOrderLineItem.FK_usrShopifyOrderLineItem_usrShopifyOrder1
+        /// <summary>
+        /// Child UsrShopifyRefunds where [usrShopifyRefund].[OrderMonsterId] point to this entity (FK_usrShopifyRefund_usrShopifyOrder)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund.FK_usrShopifyRefund_usrShopifyOrder
 
         // Foreign keys
 
@@ -1003,6 +1013,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaSalesOrders = new System.Collections.Generic.List<UsrAcumaticaSalesOrder>();
             UsrShopifyFulfillments = new System.Collections.Generic.List<UsrShopifyFulfillment>();
             UsrShopifyOrderLineItems = new System.Collections.Generic.List<UsrShopifyOrderLineItem>();
+            UsrShopifyRefunds = new System.Collections.Generic.List<UsrShopifyRefund>();
         }
     }
 
@@ -1100,6 +1111,25 @@ namespace Monster.Middle.Persist.Multitenant
         {
             UsrShopifyVariants = new System.Collections.Generic.List<UsrShopifyVariant>();
         }
+    }
+
+    // usrShopifyRefund
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrShopifyRefund
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public long ShopifyRefundId { get; set; } // ShopifyRefundId
+        public long ShopifyOrderId { get; set; } // ShopifyOrderId
+        public long OrderMonsterId { get; set; } // OrderMonsterId
+        public System.DateTime DateCreated { get; set; } // DateCreated
+        public System.DateTime LastUpdated { get; set; } // LastUpdated
+
+        // Foreign keys
+
+        /// <summary>
+        /// Parent UsrShopifyOrder pointed by [usrShopifyRefund].([OrderMonsterId]) (FK_usrShopifyRefund_usrShopifyOrder)
+        /// </summary>
+        public virtual UsrShopifyOrder UsrShopifyOrder { get; set; } // FK_usrShopifyRefund_usrShopifyOrder
     }
 
     // usrShopifyVariant
@@ -1505,9 +1535,9 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyFulfillmentId).HasColumnName(@"ShopifyFulfillmentId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
+            Property(x => x.ShopifyStatus).HasColumnName(@"ShopifyStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.OrderMonsterId).HasColumnName(@"OrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
@@ -1702,6 +1732,32 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.IsDeleted).HasColumnName(@"IsDeleted").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+        }
+    }
+
+    // usrShopifyRefund
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrShopifyRefundConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrShopifyRefund>
+    {
+        public UsrShopifyRefundConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrShopifyRefundConfiguration(string schema)
+        {
+            ToTable("usrShopifyRefund", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsRequired();
+            Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
+            Property(x => x.OrderMonsterId).HasColumnName(@"OrderMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+
+            // Foreign keys
+            HasRequired(a => a.UsrShopifyOrder).WithMany(b => b.UsrShopifyRefunds).HasForeignKey(c => c.OrderMonsterId).WillCascadeOnDelete(false); // FK_usrShopifyRefund_usrShopifyOrder
         }
     }
 
