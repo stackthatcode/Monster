@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Transactions;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Inventory.Workers;
 using Push.Foundation.Utilities.Json;
@@ -18,7 +20,6 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly OrderRepository _orderRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
-        private readonly ShopifyInventoryPull _shopifyInventoryPull;
         private readonly InventoryRepository _inventoryRepository;
         private readonly IPushLogger _logger;
 
@@ -28,13 +29,12 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         public ShopifyOrderPull(
                     IPushLogger logger,
-                    OrderApi orderApi, 
+                    OrderApi orderApi,
                     CustomerApi customerApi,
-                    OrderRepository orderRepository, 
-                    BatchStateRepository batchStateRepository, 
+                    OrderRepository orderRepository,
+                    BatchStateRepository batchStateRepository,
                     TenantRepository tenantRepository,
-                    InventoryRepository inventoryRepository,
-                    ShopifyInventoryPull shopifyInventoryPull)
+                    InventoryRepository inventoryRepository)
         {
             _logger = logger;
             _orderApi = orderApi;
@@ -43,7 +43,6 @@ namespace Monster.Middle.Processes.Orders.Workers
             _batchStateRepository = batchStateRepository;
             _inventoryRepository = inventoryRepository;
             _tenantRepository = tenantRepository;
-            _shopifyInventoryPull = shopifyInventoryPull;
         }
 
 
@@ -56,11 +55,12 @@ namespace Monster.Middle.Processes.Orders.Workers
             var startOfPullRun = DateTime.UtcNow;
 
             var firstFilter = new SearchFilter();
+            firstFilter.OrderByCreatedAt();
             firstFilter.CreatedAtMinUtc = preferences.DataPullStart;
 
 
             var firstJson = _orderApi.Retrieve(firstFilter);
-            var firstOrders 
+            var firstOrders
                 = firstJson.DeserializeToOrderList().orders;
 
             UpsertOrders(firstOrders);
@@ -73,8 +73,8 @@ namespace Monster.Middle.Processes.Orders.Workers
                 currentFilter.Page = currentPage;
 
                 var currentJson = _orderApi.Retrieve(currentFilter);
-                var currentOrders 
-                        = currentJson.DeserializeToOrderList().orders;
+                var currentOrders
+                    = currentJson.DeserializeToOrderList().orders;
 
                 UpsertOrders(currentOrders);
 
@@ -85,7 +85,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 currentPage++;
             }
-            
+
             // Compute the Batch State end marker
             var maxUpdatedDate =
                 _orderRepository.RetrieveShopifyOrderMaxUpdatedDate();
@@ -112,11 +112,12 @@ namespace Monster.Middle.Processes.Orders.Workers
             var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
 
             var firstFilter = new SearchFilter();
+            firstFilter.OrderByUpdatedAt();
             firstFilter.UpdatedAtMinUtc = lastBatchStateEnd;
 
             // Pull from Shopify
             var firstJson = _orderApi.Retrieve(firstFilter);
-            var firstOrders 
+            var firstOrders
                 = firstJson.DeserializeFromJson<OrderList>().orders;
             UpsertOrders(firstOrders);
 
@@ -129,7 +130,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 // Pull from Shopify
                 var currentJson = _orderApi.Retrieve(currentFilter);
-                var currentOrders 
+                var currentOrders
                     = currentJson.DeserializeFromJson<OrderList>().orders;
 
                 if (currentOrders.Count == 0)
@@ -149,21 +150,25 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             var orderJson = _orderApi.Retrieve(shopifyOrderId);
             var order = orderJson.DeserializeToOrderParent();
-            UpsertOrder(order.order);
+            UpsertOrderAndCustomer(order.order);
         }
+
 
         private void UpsertOrders(List<Order> orders)
         {
             foreach (var order in orders)
             {
-                UpsertOrder(order);
+                UpsertOrderAndCustomer(order);
+                UpsertOrderLineItems(order);
+                UpsertOrderFulfillments(order);
             }
         }
 
-        private void UpsertOrder(Order order)
+        private void UpsertOrderAndCustomer(Order order)
         {
             var monsterCustomerRecord = UpsertOrderCustomer(order);
-            var existingOrder 
+
+            var existingOrder
                 = _orderRepository.RetrieveShopifyOrder(order.id);
 
             if (existingOrder == null)
@@ -173,19 +178,26 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newOrder.ShopifyOrderNumber = order.order_number.ToString();
                 newOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 newOrder.ShopifyJson = order.SerializeToJson();
+                newOrder.ShopifyFinancialStatus = order.financial_status;
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
 
-                // ** TODO - make this transactional
-                _orderRepository.InsertShopifyOrder(newOrder);
-                UpsertOrderLineItems(order);
+                using (var scope = new TransactionScope())
+                {
+                    _orderRepository.InsertShopifyOrder(newOrder);
+                    UpsertOrderLineItems(order);
+
+                    scope.Complete();
+                }
             }
             else
             {
                 existingOrder.ShopifyJson = order.SerializeToJson();
                 existingOrder.ShopifyIsCancelled = order.cancelled_at != null;
+                existingOrder.ShopifyFinancialStatus = order.financial_status;
                 existingOrder.LastUpdated = DateTime.UtcNow;
+
                 _orderRepository.SaveChanges();
             }
         }
@@ -221,29 +233,89 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         public void UpsertOrderLineItems(Order order)
         {
-            var orderRecord = _orderRepository.RetrieveShopifyOrder(order.id);
+            var orderRecord 
+                = _orderRepository.RetrieveShopifyOrder(order.id);
 
-            foreach (var item in order.line_items)
-            {                
-                var variantMonsterRecord =
-                    _inventoryRepository
-                        .RetrieveShopifyVariant(item.variant_id, item.sku);
+            foreach (var lineItem in order.line_items)
+            {
+                var shopifyLineItem
+                    = orderRecord
+                        .UsrShopifyOrderLineItems
+                        .FirstOrDefault(x => x.ShopifyLineItemId == lineItem.id);
 
-                // Can't find exact match, and it has a valid Shopify Product Id?
-                if (variantMonsterRecord == null && item.product_id != null)
+                if (shopifyLineItem == null)
                 {
-                    _shopifyInventoryPull.Run(item.product_id.Value);
+                    var orderLineItem = new UsrShopifyOrderLineItem();
+                    orderLineItem.UsrShopifyOrder = orderRecord;
+                    orderLineItem.UsrShopifyVariant = null;
+                    orderLineItem.ShopifyLineItemId = lineItem.id;
+                    orderLineItem.ShopifyProductId = lineItem.product_id;
+                    orderLineItem.ShopifyVariantId = lineItem.variant_id;
+                    orderLineItem.ShopifySku = lineItem.sku;
+
+                    _orderRepository.InsertShopifyOrderLineItem(orderLineItem);
+                }
+            }
+
+            AutoAssignVariantForLineItems(orderRecord.Id);
+        }
+
+        public void AutoAssignVariantForLineItems(long shopifyOrderId)
+        { 
+            var orderRecord = _orderRepository.RetrieveShopifyOrder(shopifyOrderId);
+
+            foreach (var lineItem in orderRecord.UsrShopifyOrderLineItems)
+            { 
+                if (lineItem.UsrShopifyVariant != null)
+                {
+                    continue;
                 }
 
-                var orderLineItem = new UsrShopifyOrderLineItem();
-                orderLineItem.UsrShopifyOrder = orderRecord;
-                orderLineItem.UsrShopifyVariant = variantMonsterRecord;
-                orderLineItem.ShopifyLineItemId = item.id;
-                orderLineItem.ShopifyProductId = item.product_id;
-                orderLineItem.ShopifyVariantId = item.variant_id;
+                var monsterVariant = 
+                    _inventoryRepository
+                        .RetrieveShopifyVariant(
+                            lineItem.ShopifyVariantId, lineItem.ShopifySku);
 
-                _orderRepository.InsertShopifyOrderLineItem(orderLineItem);
+                if (monsterVariant != null)
+                {
+                    lineItem.UsrShopifyVariant = monsterVariant;
+                    _inventoryRepository.SaveChanges();
+                }
             }
+        }
+        
+        public void UpsertOrderFulfillments(Order order)
+        {
+            var orderRecord = _orderRepository.RetrieveShopifyOrder(order.id);
+
+            foreach (var fulfillment in order.fulfillments)
+            {
+                var fulfillmentRecord
+                    = orderRecord
+                        .UsrShopifyFulfillments
+                        .FirstOrDefault(x => x.ShopifyFulfillmentId == fulfillment.id);
+
+                if (fulfillmentRecord == null)
+                {
+                    var newRecord = new UsrShopifyFulfillment();
+                    newRecord.ShopifyFulfillmentId = fulfillment.id;
+                    newRecord.ShopifyOrderId = order.id;
+                    newRecord.ShopifyJson = fulfillment.SerializeToJson();
+                    newRecord.UsrShopifyOrder = orderRecord;
+                    newRecord.DateCreated = DateTime.UtcNow;
+                    newRecord.LastUpdated = DateTime.UtcNow;
+                }
+                else
+                {
+                    fulfillmentRecord.ShopifyJson = fulfillment.SerializeToJson();
+                    fulfillmentRecord.LastUpdated = DateTime.UtcNow;
+                }
+            }
+        }
+
+        private void UpsertOrderRefunds(Order order)
+        {
+            throw new NotImplementedException();
         }
     }
 }

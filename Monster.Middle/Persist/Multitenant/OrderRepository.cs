@@ -17,12 +17,14 @@ namespace Monster.Middle.Persist.Multitenant
 
 
 
-        // Shopify persistence
+        // Shopify Order persistence
         //
         public UsrShopifyOrder RetrieveShopifyOrder(long shopifyOrderId)
         {
             return Entities
                     .UsrShopifyOrders
+                    .Include(x => x.UsrShopifyOrderLineItems)
+                    .Include(x => x.UsrShopifyFulfillments)
                     .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
         
@@ -55,15 +57,23 @@ namespace Monster.Middle.Persist.Multitenant
         public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
             return Entities
-                    .UsrShopifyOrders
-                    .Where(x => !x.UsrAcumaticaSalesOrders.Any())
-                    .Include(x => x.UsrShopifyCustomer)
-                    .Include(x => x.UsrShopifyCustomer.UsrAcumaticaCustomers)
-                    .Include(x => x.UsrShopifyOrderLineItems)
-                    .ToList();
+                .UsrShopifyOrders
+                .Where(x => !x.UsrAcumaticaSalesOrders.Any())
+                .Include(x => x.UsrShopifyCustomer)
+                .Include(x => x.UsrShopifyCustomer.UsrAcumaticaCustomers)
+                .Include(x => x.UsrShopifyOrderLineItems)
+                .Include(x => x.UsrAcumaticaSalesOrders)    
+                .ToList();
+        }
+
+        public void Refresh<T>(T instance) where T: class
+        {
+            Entities.Entry<T>(instance).Reload();
         }
 
 
+        // Shopify Customer persistence
+        // 
         public UsrShopifyCustomer 
                     RetrieveShopifyCustomer(long shopifyCustomerId)
         {
@@ -109,6 +119,26 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
 
+        // Shopify Fulfillments
+        public UsrShopifyFulfillment 
+                    RetrieveShopifyFulfillments(long shopifyOrderId)
+        {
+            return Entities
+                .UsrShopifyFulfillments
+                .Where(x => x.UsrShopifyOrder.ShopifyOrderId == shopifyOrderId)
+                .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
+        }
+
+        public void InsertShopifyFulfillments(UsrShopifyFulfillment fulfillment)
+        {
+            Entities.UsrShopifyFulfillments.Add(fulfillment);
+            Entities.SaveChanges();
+        }
+
+
+
+        // Acumatica
+        //
         public UsrAcumaticaCustomer 
                     RetrieveAcumaticaCustomer(string acumaticaCustomerId)
         {
@@ -127,7 +157,6 @@ namespace Monster.Middle.Persist.Multitenant
                     x => x.AcumaticaMainContactEmail == email);
         }
         
-
 
         public DateTime? RetrieveAcumaticaCustomerMaxUpdatedDate()
         {
@@ -148,8 +177,7 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.UsrAcumaticaCustomers.Add(customer);
             Entities.SaveChanges();
         }
-
-
+        
 
         public UsrAcumaticaSalesOrder
                 RetrieveAcumaticaSalesOrder(string acumaticaSOId)

@@ -38,22 +38,41 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             foreach (var shopifyOrder in shopifyOrders)
             {
+                // TODO - Make this useful state information conveniently available
+                // ... via the OrderSyncStatusService
+                //
                 if (!shopifyOrder.LineItemsAreReadyToSync())
                 {
                     continue;
                 }
 
-                PushOrder(shopifyOrder);
+                if (!shopifyOrder.IsPaid())
+                {
+                    continue;
+                }
+
+                SyncOrderWithAcumatica(shopifyOrder);
             }
         }
 
         public void RunByShopifyId(long shopifyOrderId)
         {
             var shopifyOrder = _orderRepository.RetrieveShopifyOrder(shopifyOrderId);
-            PushOrder(shopifyOrder);
+            SyncOrderWithAcumatica(shopifyOrder);
         }
 
-        private void PushOrder(UsrShopifyOrder shopifyOrderRecord)
+        private void SyncOrderWithAcumatica(UsrShopifyOrder shopifyOrderRecord)
+        {
+            if (!shopifyOrderRecord.UsrAcumaticaSalesOrders.Any())
+            {
+                PushOrderToAcumatica(shopifyOrderRecord);
+            }
+
+            _orderRepository.Refresh(shopifyOrderRecord);
+        }
+
+
+        private void PushOrderToAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
             var customer = SyncCustomer(shopifyOrderRecord);
 
@@ -63,10 +82,14 @@ namespace Monster.Middle.Processes.Orders.Workers
                     .DeserializeToOrder();
 
             var salesOrder = new SalesOrder();
+
+            // TODO - convert this to a constant or configurable item
             salesOrder.OrderType = "SO".ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
+            salesOrder.TaxTotal = ((double) shopifyOrder.total_tax).ToValue();
             salesOrder.Details = new List<SalesOrderDetail>();
+            
 
             foreach (var lineItem in shopifyOrderRecord.UsrShopifyOrderLineItems)
             {
@@ -107,6 +130,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             _orderRepository.SaveChanges();
         }
 
+        
 
         public UsrAcumaticaCustomer 
                 SyncCustomer(UsrShopifyOrder shopifyOrder)
@@ -126,6 +150,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             return output;
         }
         
+
         private UsrAcumaticaCustomer 
                 PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
         {

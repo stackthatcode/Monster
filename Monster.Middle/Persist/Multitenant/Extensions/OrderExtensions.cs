@@ -24,6 +24,25 @@
 
             return true;
         }
+        
+        public static bool IsPaid(this UsrShopifyOrder order)
+        {
+            return
+                order.ShopifyFinancialStatus == FinancialStatus.Paid ||
+                order.ShopifyFinancialStatus == FinancialStatus.PartiallyRefunded ||
+                order.ShopifyFinancialStatus == FinancialStatus.Refunded;
+        }
+
+        //public static UsrAcumaticaInvoice AcumaticaInvoice(this UsrShopifyOrder order)
+        //{
+        //    if (!order.UsrAcumaticaSalesOrders.Any())
+        //        return null;
+
+        //    return order.UsrAcumaticaSalesOrders
+        //        .First()
+        //        .UsrAcumaticaInvoices
+        //        .FirstOrDefault();
+        //}
     }
 }
 

@@ -18,7 +18,6 @@ namespace Push.Shopify.Api
 
         public SearchFilter()
         {
-            OrderBy = "created_at";
             Page = 1;
             Limit = 250;
         }
@@ -40,12 +39,12 @@ namespace Push.Shopify.Api
 
         public void OrderByCreatedAt()
         {
-            this.OrderBy = "created_at";
+            this.OrderBy = "created_at asc";
         }
 
         public void OrderByUpdatedAt()
         {
-            this.OrderBy = "updated_at";
+            this.OrderBy = "updated_at asc";
         }
         
         public QueryStringBuilder ToQueryStringBuilder()
@@ -82,7 +81,7 @@ namespace Push.Shopify.Api
             }
             if (OrderBy != null)
             {
-                builder.Add("order_by", OrderBy);
+                builder.Add("order", OrderBy);
             }
 
             return builder;

@@ -23,9 +23,9 @@ namespace Monster.ConsoleApp.Monster
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
 
-                    var inventoryManager = scope.Resolve<InventoryManager>();
-                    inventoryManager.Baseline();
-                    inventoryManager.Incremental();
+                    //var inventoryManager = scope.Resolve<InventoryManager>();
+                    //inventoryManager.Baseline();
+                    //inventoryManager.Incremental();
 
                     var orderManager = scope.Resolve<OrderManager>();
                     orderManager.Baseline();

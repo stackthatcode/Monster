@@ -79,6 +79,14 @@ namespace Monster.Middle.Processes.Orders
             _acumaticaContext.Begin();
             _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
         }
+
+        public void SingleOrderPull(long shopifyOrderId)
+        {
+            _shopifyOrderPull.Run(shopifyOrderId);
+
+            _acumaticaContext.Begin();
+            _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
+        }
     }
 }
 

@@ -59,6 +59,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -69,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Persist\Multitenant\BatchStateRepository.cs" />
+    <Compile Include="Persist\Multitenant\Extensions\FinancialStatus.cs" />
     <Compile Include="Persist\Multitenant\Extensions\LocationExtensions.cs" />
     <Compile Include="Persist\Multitenant\Extensions\OrderExtensions.cs" />
     <Compile Include="Persist\Multitenant\OrderRepository.cs" />

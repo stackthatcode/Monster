@@ -16,6 +16,7 @@ namespace Monster.Acumatica.Api
             _httpContext = httpContext;
         }
         
+
         public string RetrieveSalesOrders(DateTime? lastModified = null)
         {
             var queryString = "$expand=Details";
@@ -29,6 +30,7 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get($"SalesOrder?{queryString}");
             return response.Body;
         }
+
 
         public string AddSalesOrder(string json)
         {

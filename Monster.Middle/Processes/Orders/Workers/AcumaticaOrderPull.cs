@@ -102,13 +102,13 @@ namespace Monster.Middle.Processes.Orders.Workers
                 // Locate Acumatica Customer..
                 var customerId = order.CustomerID.value;
 
-                var acumaticaCustomerMonsterId
+                var customerMonsterId
                     = LocateOrPullAndUpsertCustomer(customerId);
 
                 var newData = new UsrAcumaticaSalesOrder();
                 newData.AcumaticaSalesOrderId = orderNbr;
                 newData.AcumaticaJson = order.SerializeToJson();
-                newData.AcumaticaCustomerMonsterId = acumaticaCustomerMonsterId;
+                newData.CustomerMonsterId = customerMonsterId;
 
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
