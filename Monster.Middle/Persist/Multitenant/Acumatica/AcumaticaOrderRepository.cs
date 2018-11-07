@@ -52,16 +52,16 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
             Entities.UsrAcumaticaCustomers.Add(customer);
             Entities.SaveChanges();
         }
+        
 
-
+        // Sales Order
         public UsrAcumaticaSalesOrder RetrieveSalesOrder(string acumaticaSOId)
         {
             return Entities
                 .UsrAcumaticaSalesOrders
                 .FirstOrDefault(x => x.AcumaticaSalesOrderId == acumaticaSOId);
         }
-
-
+        
         public DateTime? RetrieveOrderMaxUpdatedDate()
         {
             if (Entities.UsrAcumaticaCustomers.Any())
@@ -79,6 +79,21 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         public void InsertSalesOrder(UsrAcumaticaSalesOrder order)
         {
             Entities.UsrAcumaticaSalesOrders.Add(order);
+            Entities.SaveChanges();
+        }
+
+
+        // Shipment
+        public UsrAcumaticaShipment RetrieveShipment(string shipmentNbr)
+        {
+            return Entities
+                .UsrAcumaticaShipments
+                .FirstOrDefault(x => x.AcumaticaShipmentId == shipmentNbr);
+        }
+
+        public void InsertShipment(UsrAcumaticaShipment shipment)
+        {
+            Entities.UsrAcumaticaShipments.Add(shipment);
             Entities.SaveChanges();
         }
 

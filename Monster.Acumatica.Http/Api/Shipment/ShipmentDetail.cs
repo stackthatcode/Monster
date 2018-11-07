@@ -14,14 +14,14 @@ namespace Monster.Acumatica.Api.Shipment
         public StringValue InventoryID { get; set; }
         public IntegerValue LineNbr { get; set; }
         public StringValue LocationID { get; set; }
-        public IntegerValue OpenQty { get; set; }
-        public IntegerValue OrderedQty { get; set; }
+        public DoubleValue OpenQty { get; set; }
+        public DoubleValue OrderedQty { get; set; }
         public StringValue OrderLineNbr { get; set; }
         public StringValue OrderNbr { get; set; }
         public StringValue OrderType { get; set; }
-        public IntegerValue OriginalQty { get; set; }
+        public DoubleValue OriginalQty { get; set; }
         public StringValue ReasonCode { get; set; }
-        public IntegerValue ShippedQty { get; set; }
+        public DoubleValue ShippedQty { get; set; }
         public StringValue UOM { get; set; }
         public StringValue WarehouseID { get; set; }
         public StringValue custom { get; set; }

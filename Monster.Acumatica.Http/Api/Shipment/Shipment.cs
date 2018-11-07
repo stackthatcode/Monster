@@ -10,10 +10,10 @@ namespace Monster.Acumatica.Api.Shipment
         public int rowNumber { get; set; }
         public string note { get; set; }
         public StringValue BaseCurrencyID { get; set; }
-        public IntegerValue ControlQty { get; set; }
+        public DoubleValue ControlQty { get; set; }
         public DateValue CreatedDateTime { get; set; }
         public StringValue CurrencyID { get; set; }
-        public IntegerValue CurrencyRate { get; set; }
+        public DoubleValue CurrencyRate { get; set; }
         public StringValue CurrencyRateTypeID { get; set; }
         public BoolValue CurrencyViewState { get; set; }
         public StringValue CustomerID { get; set; }
@@ -29,14 +29,14 @@ namespace Monster.Acumatica.Api.Shipment
         public DateValue LastModifiedDateTime { get; set; }
         public StringValue Operation { get; set; }
         public StringValue Owner { get; set; }
-        public IntegerValue PackageCount { get; set; }
+        public DoubleValue PackageCount { get; set; }
         public DoubleValue PackageWeight { get; set; }
         public DoubleValue ReciprocalRate { get; set; }
         public BoolValue ResidentialDelivery { get; set; }
         public BoolValue SaturdayDelivery { get; set; }
         public DateValue ShipmentDate { get; set; }
         public StringValue ShipmentNbr { get; set; }
-        public IntegerValue ShippedQty { get; set; }
+        public DoubleValue ShippedQty { get; set; }
         public DoubleValue ShippedVolume { get; set; }
         public DoubleValue ShippedWeight { get; set; }
         public StringValue ShippingTerms { get; set; }

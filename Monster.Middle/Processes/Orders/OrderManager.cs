@@ -61,8 +61,8 @@ namespace Monster.Middle.Processes.Orders
             _acumaticaContext.Begin();
 
             // Any Products detected and loaded from Shopify Orders are synced            
-            _acumaticaCustomerPull.RunAll();
-            _acumaticaOrderPull.RunAll();
+            //_acumaticaCustomerPull.RunAll();
+            //_acumaticaOrderPull.RunAll();
             _acumaticaShipmentPull.RunAll();
             
             // Optional...
