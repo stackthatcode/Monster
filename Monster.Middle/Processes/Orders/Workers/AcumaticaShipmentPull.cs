@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -14,7 +17,7 @@ namespace Monster.Middle.Processes.Orders.Workers
     {
         private readonly CustomerClient _customerClient;
         private readonly ShipmentClient _shipmentClient;
-        private readonly OrderRepository _orderRepository;
+        private readonly ShopifyOrderRepository _orderRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
@@ -24,7 +27,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         public AcumaticaShipmentPull(
                 CustomerClient customerClient, 
-                OrderRepository orderRepository,
+                ShopifyOrderRepository orderRepository,
                 BatchStateRepository batchStateRepository,
                 ShipmentClient shipmentClient,
                 TenantRepository tenantRepository,
@@ -46,9 +49,9 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             var json = _shipmentClient.RetrieveShipments(orderUpdateMin);
 
-            //var orders = json.DeserializeFromJson<List<Shipment>>();
+            var shipments = json.DeserializeFromJson<List<Shipment>>();
 
-            //UpsertOrdersToPersist(orders);
+            //UpsertShipmentsToPersist(shipments);
 
             //// Set the Batch State Pull End marker
             //var maxOrderDate =
@@ -86,70 +89,70 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             foreach (var order in orders)
             {
-                UpsertOrderToPersist(order);
+               // UpsertOrderToPersist(order);
             }
         }
 
-        public UsrAcumaticaSalesOrder UpsertOrderToPersist(SalesOrder order)
-        {
-            var orderNbr = order.OrderNbr.value;
+        //public UsrAcumaticaSalesOrder UpsertOrderToPersist(SalesOrder order)
+        //{
+        //    var orderNbr = order.OrderNbr.value;
 
-            var existingData
-                = _orderRepository
-                    .RetrieveAcumaticaSalesOrder(orderNbr);
+        //    var existingData
+        //        = _orderRepository
+        //            .RetrieveAcumaticaSalesOrder(orderNbr);
 
-            if (existingData == null)
-            {
-                // Locate Acumatica Customer..
-                var customerId = order.CustomerID.value;
+        //    if (existingData == null)
+        //    {
+        //        // Locate Acumatica Customer..
+        //        var customerId = order.CustomerID.value;
 
-                var customerMonsterId
-                    = LocateOrPullAndUpsertCustomer(customerId);
+        //        var customerMonsterId
+        //            = LocateOrPullAndUpsertCustomer(customerId);
 
-                var newData = new UsrAcumaticaSalesOrder();
-                newData.AcumaticaSalesOrderId = orderNbr;
-                newData.AcumaticaJson = order.SerializeToJson();
-                newData.CustomerMonsterId = customerMonsterId;
+        //        var newData = new UsrAcumaticaSalesOrder();
+        //        newData.AcumaticaSalesOrderId = orderNbr;
+        //        newData.AcumaticaJson = order.SerializeToJson();
+        //        newData.CustomerMonsterId = customerMonsterId;
 
-                newData.DateCreated = DateTime.UtcNow;
-                newData.LastUpdated = DateTime.UtcNow;
+        //        newData.DateCreated = DateTime.UtcNow;
+        //        newData.LastUpdated = DateTime.UtcNow;
 
-                _orderRepository.InsertAcumaticaSalesOrder(newData);
+        //        _orderRepository.InsertAcumaticaSalesOrder(newData);
 
-                return newData;
-            }
-            else
-            {
-                existingData.AcumaticaJson = order.SerializeToJson();
-                existingData.LastUpdated = DateTime.UtcNow;
+        //        return newData;
+        //    }
+        //    else
+        //    {
+        //        existingData.AcumaticaJson = order.SerializeToJson();
+        //        existingData.LastUpdated = DateTime.UtcNow;
 
-                _orderRepository.SaveChanges();
+        //        _orderRepository.SaveChanges();
 
-                return existingData;
-            }
-        }
+        //        return existingData;
+        //    }
+        //}
 
-        private long LocateOrPullAndUpsertCustomer(string acumaticaCustomerId)
-        {
-            var existingCustomer
-                = _orderRepository.RetrieveAcumaticaCustomer(acumaticaCustomerId);
+        //private long LocateOrPullAndUpsertCustomer(string acumaticaCustomerId)
+        //{
+        //    var existingCustomer
+        //        = _orderRepository.RetrieveAcumaticaCustomer(acumaticaCustomerId);
 
-            if (existingCustomer == null)
-            {
-                var customerJson 
-                    = _customerClient.RetrieveCustomer(acumaticaCustomerId);
-                var customer = customerJson.DeserializeFromJson<Customer>();
+        //    if (existingCustomer == null)
+        //    {
+        //        var customerJson 
+        //            = _customerClient.RetrieveCustomer(acumaticaCustomerId);
+        //        var customer = customerJson.DeserializeFromJson<Customer>();
 
-                var newData = customer.ToMonsterRecord();                
-                _orderRepository.InsertAcumaticaCustomer(newData);
+        //        var newData = customer.ToMonsterRecord();                
+        //        _orderRepository.InsertAcumaticaCustomer(newData);
 
-                return newData.Id;
-            }
-            else
-            {
-                return existingCustomer.Id;
-            }
-        }
+        //        return newData.Id;
+        //    }
+        //    else
+        //    {
+        //        return existingCustomer.Id;
+        //    }
+        //}
     }
 }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Extensions;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -19,8 +20,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
         private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
         private readonly EventApi _eventApi;
-        private readonly InventoryRepository _inventoryRepository;
-        private readonly LocationRepository _locationRepository;
+        private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
@@ -33,16 +33,14 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 ProductApi productApi,
                 InventoryApi inventoryApi,
                 EventApi eventApi,
-                InventoryRepository inventoryRepository, 
-                BatchStateRepository batchStateRepository,
-                LocationRepository locationRepository)
+                ShopifyInventoryRepository inventoryRepository, 
+                BatchStateRepository batchStateRepository)
         {
             _productApi = productApi;
             _inventoryApi = inventoryApi;
             _eventApi = eventApi;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
-            _locationRepository = locationRepository;
             _logger = logger;
         }
 
@@ -82,7 +80,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
             // Compute the Batch State end marker
             var maxUpdatedDate = 
-                _inventoryRepository.RetrieveShopifyProductMaxUpdatedDate();
+                _inventoryRepository.RetrieveProductMaxUpdatedDate();
 
             var productBatchEnd
                 = maxUpdatedDate
@@ -155,7 +153,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public long UpsertProductAndInventory(Product product)
         {
             var existing =
-                _inventoryRepository.RetrieveShopifyProduct(product.id);
+                _inventoryRepository.RetrieveProduct(product.id);
 
             long productMonsterId;
                 
@@ -169,7 +167,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     LastUpdated = DateTime.UtcNow,
                 };
 
-                _inventoryRepository.InsertShopifyProduct(data);
+                _inventoryRepository.InsertProduct(data);
                 _inventoryRepository.SaveChanges();
 
                 productMonsterId = data.MonsterId;
@@ -206,7 +204,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public void UpsertVariant(long parentProductId, Variant variant)
         {
             var existing = 
-                _inventoryRepository.RetrieveShopifyVariant(variant.id, variant.sku);
+                _inventoryRepository.RetrieveVariant(variant.id, variant.sku);
             
             if (existing == null)
             {
@@ -222,7 +220,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 data.DateCreated = DateTime.UtcNow;
                 data.LastUpdated = DateTime.UtcNow;
                 
-                _inventoryRepository.InsertShopifyVariant(data);
+                _inventoryRepository.InsertVariant(data);
             }
             else
             {
@@ -239,7 +237,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public void FlagMissingVariants(long parentMonsterId, Product product)
         {
             var variants = 
-                _inventoryRepository.RetrieveShopifyVariantsByParent(parentMonsterId);
+                _inventoryRepository.RetrieveVariantsByParent(parentMonsterId);
 
             foreach (var variant in variants)
             {
@@ -260,7 +258,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
         {
             var variants =
                 _inventoryRepository
-                    .RetrieveShopifyVariantsByParent(parentMonsterId)
+                    .RetrieveVariantsByParent(parentMonsterId)
                     .ExcludeMissing();
             
             var inventoryItemIds
@@ -291,10 +289,9 @@ namespace Monster.Middle.Processes.Inventory.Workers
         {
             var existingLevels =
                 _inventoryRepository
-                    .RetrieveShopifyInventoryLevels(variant.ShopifyInventoryItemId);
+                    .RetrieveInventoryLevels(variant.ShopifyInventoryItemId);
 
-            var locations =
-                _locationRepository.RetreiveShopifyLocations();
+            var locations = _inventoryRepository.RetreiveLocations();
 
             foreach (var shopifyLevel in shopifyLevels)
             {
@@ -315,7 +312,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     newLevel.DateCreated = DateTime.UtcNow;
                     newLevel.LastUpdated = DateTime.UtcNow;
 
-                    _inventoryRepository.InsertShopifyInventoryLevel(newLevel);
+                    _inventoryRepository.InsertInventoryLevel(newLevel);
                 }
                 else
                 {
@@ -377,7 +374,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                 var product
                     = _inventoryRepository
-                        .RetrieveShopifyProduct(_event.subject_id);
+                        .RetrieveProduct(_event.subject_id);
 
                 product.IsDeleted = true;
 

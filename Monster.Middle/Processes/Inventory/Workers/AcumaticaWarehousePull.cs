@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Extensions;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -11,19 +13,16 @@ namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class AcumaticaWarehousePull
     {
-        private readonly LocationRepository _dataRepository;
-        private readonly InventoryApi _shopifyInventoryApi;
-        private readonly Acumatica.Api.DistributionClient _acumaticaInventoryApi;
+        private readonly AcumaticaInventoryRepository _dataRepository;
+        private readonly DistributionClient _acumaticaInventoryApi;
         private readonly IPushLogger _logger;
 
         public AcumaticaWarehousePull(
-                IPushLogger logger,
-                LocationRepository dataRepository, 
-                InventoryApi shopifyInventoryApi, 
-                Acumatica.Api.DistributionClient acumaticaInventoryApi)
+                AcumaticaInventoryRepository dataRepository,
+                DistributionClient acumaticaInventoryApi,
+                IPushLogger logger)
         {
             _dataRepository = dataRepository;
-            _shopifyInventoryApi = shopifyInventoryApi;
             _acumaticaInventoryApi = acumaticaInventoryApi;
             _logger = logger;
         }
@@ -35,8 +34,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     .RetrieveWarehouses()
                     .DeserializeFromJson<List<Warehouse>>();
             
-            var dataWarehouses = 
-                _dataRepository.RetreiveAcumaticaWarehouses();
+            var dataWarehouses = _dataRepository.RetreiveWarehouses();
 
             foreach (var warehouse in warehouses)
             {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Processes.Inventory.Workers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -17,10 +19,10 @@ namespace Monster.Middle.Processes.Orders.Workers
     {
         private readonly OrderApi _orderApi;
         private readonly CustomerApi _customerApi;
-        private readonly OrderRepository _orderRepository;
+        private readonly ShopifyOrderRepository _orderRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
-        private readonly InventoryRepository _inventoryRepository;
+        private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly IPushLogger _logger;
 
         // Possibly expand - this is a one-time thing...
@@ -31,10 +33,10 @@ namespace Monster.Middle.Processes.Orders.Workers
                     IPushLogger logger,
                     OrderApi orderApi,
                     CustomerApi customerApi,
-                    OrderRepository orderRepository,
+                    ShopifyOrderRepository orderRepository,
                     BatchStateRepository batchStateRepository,
                     TenantRepository tenantRepository,
-                    InventoryRepository inventoryRepository)
+                    ShopifyInventoryRepository inventoryRepository)
         {
             _logger = logger;
             _orderApi = orderApi;
@@ -88,7 +90,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             // Compute the Batch State end marker
             var maxUpdatedDate =
-                _orderRepository.RetrieveShopifyOrderMaxUpdatedDate();
+                _orderRepository.RetrieveOrderMaxUpdatedDate();
 
             var orderBatchEnd
                 = maxUpdatedDate
@@ -172,7 +174,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             var monsterCustomerRecord = UpsertOrderCustomer(order);
 
             var existingOrder
-                = _orderRepository.RetrieveShopifyOrder(order.id);
+                = _orderRepository.RetrieveOrder(order.id);
 
             if (existingOrder == null)
             {
@@ -188,7 +190,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 using (var scope = new TransactionScope())
                 {
-                    _orderRepository.InsertShopifyOrder(newOrder);
+                    _orderRepository.InsertOrder(newOrder);
                     UpsertOrderLineItems(order);
 
                     scope.Complete();
@@ -209,7 +211,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             var existingCustomer =
                 _orderRepository
-                    .RetrieveShopifyCustomer(order.customer.id);
+                    .RetrieveCustomer(order.customer.id);
 
             if (existingCustomer == null)
             {
@@ -222,7 +224,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newCustomer.ShopifyPrimaryEmail = customer.email;
                 newCustomer.DateCreated = DateTime.UtcNow;
                 newCustomer.LastUpdated = DateTime.UtcNow;
-                _orderRepository.InsertShopifyCustomer(newCustomer);
+                _orderRepository.InsertCustomer(newCustomer);
 
                 return newCustomer;
             }
@@ -237,7 +239,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         public void UpsertOrderLineItems(Order order)
         {
             var orderRecord 
-                = _orderRepository.RetrieveShopifyOrder(order.id);
+                = _orderRepository.RetrieveOrder(order.id);
 
             foreach (var lineItem in order.line_items)
             {
@@ -256,14 +258,14 @@ namespace Monster.Middle.Processes.Orders.Workers
                     orderLineItem.ShopifyVariantId = lineItem.variant_id;
                     orderLineItem.ShopifySku = lineItem.sku;
 
-                    _orderRepository.InsertShopifyOrderLineItem(orderLineItem);
+                    _orderRepository.InsertOrderLineItem(orderLineItem);
                 }
             }
         }
 
         public void UpsertOrderFulfillments(Order order)
         {
-            var orderRecord = _orderRepository.RetrieveShopifyOrder(order.id);
+            var orderRecord = _orderRepository.RetrieveOrder(order.id);
 
             foreach (var fulfillment in order.fulfillments)
             {
@@ -292,7 +294,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         private void UpsertOrderRefunds(Order order)
         {
-            var orderRecord = _orderRepository.RetrieveShopifyOrder(order.id);
+            var orderRecord = _orderRepository.RetrieveOrder(order.id);
 
             foreach (var refund in order.refunds)
             {
@@ -321,7 +323,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         public void AutoAssignVariantForLineItems(Order order)
         {
             long shopifyOrderId = order.id;
-            var orderRecord = _orderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var orderRecord = _orderRepository.RetrieveOrder(shopifyOrderId);
 
             foreach (var lineItem in orderRecord.UsrShopifyOrderLineItems)
             {
@@ -332,7 +334,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 var monsterVariant =
                     _inventoryRepository
-                        .RetrieveShopifyVariant(
+                        .RetrieveVariant(
                             lineItem.ShopifyVariantId, lineItem.ShopifySku);
 
                 if (monsterVariant != null)

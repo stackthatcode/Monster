@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Extensions;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 
@@ -10,16 +12,19 @@ namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class ShopifyLocationSync
     {
-        private readonly LocationRepository _locationRepository;
+        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
+        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
         private readonly InventoryApi  _inventoryApi;
         private readonly IPushLogger _logger;
 
         public ShopifyLocationSync(
-                    LocationRepository locationRepository,
+                    ShopifyInventoryRepository shopifyInventoryRepository,
+                    AcumaticaInventoryRepository acumaticaInventoryRepository,
                     InventoryApi inventoryApi,
                     IPushLogger logger)
         {
-            _locationRepository = locationRepository;
+            _shopifyInventoryRepository = shopifyInventoryRepository;
+            _acumaticaInventoryRepository = acumaticaInventoryRepository;
             _inventoryApi = inventoryApi;
             _logger = logger;
         }
@@ -27,9 +32,9 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public void Run()
         {
             var shopifyLocations 
-                    = _locationRepository.RetreiveShopifyLocations();
+                    = _shopifyInventoryRepository.RetreiveLocations();
 
-            var warehouses = _locationRepository.RetreiveAcumaticaWarehouses();
+            var warehouses = _acumaticaInventoryRepository.RetreiveWarehouses();
 
             // TODO - add a Preference for whether or not to push
             // ... Shopify Locations into Acumatica Warehouse
@@ -44,7 +49,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     warehouse.IsNameMismatched =
                             !matchedLocation.MatchesIdWithName(warehouse);
                     warehouse.LastUpdated = DateTime.UtcNow;
-                    _locationRepository.SaveChanges();                    
+                    _shopifyInventoryRepository.SaveChanges();                    
                     continue;
                 }
 
@@ -56,7 +61,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 {
                     warehouse.ShopifyLocationMonsterId = automatch.MonsterId;
                     warehouse.LastUpdated = DateTime.UtcNow;
-                    _locationRepository.SaveChanges();
+                    _shopifyInventoryRepository.SaveChanges();
                     continue;
                 }
                 

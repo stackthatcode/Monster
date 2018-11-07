@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -11,7 +13,7 @@ namespace Monster.Middle.Processes.Orders.Workers
     public class ShopifyCustomerPull
     {
         private readonly CustomerApi _customerApi;
-        private readonly OrderRepository _orderRepository;
+        private readonly ShopifyOrderRepository _orderRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly IPushLogger _logger;
@@ -22,7 +24,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         public ShopifyCustomerPull(
                 CustomerApi customerApi,
-                OrderRepository orderRepository,
+                ShopifyOrderRepository orderRepository,
                 BatchStateRepository batchStateRepository,
                 TenantRepository tenantRepository,
                 IPushLogger logger)
@@ -72,7 +74,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             // Compute the Batch State end marker
             var maxUpdatedDate =
-                _orderRepository.RetrieveShopifyCustomerMaxUpdatedDate();
+                _orderRepository.RetrieveCustomerMaxUpdatedDate();
 
             var orderBatchEnd
                 = maxUpdatedDate
@@ -137,7 +139,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         private void UpsertCustomer(Customer customer)
         {
             var existingCustomer 
-                = _orderRepository.RetrieveShopifyCustomer(customer.id);
+                = _orderRepository.RetrieveCustomer(customer.id);
 
             if (existingCustomer == null)
             {
@@ -147,7 +149,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newCustomer.ShopifyPrimaryEmail = customer.email;
                 newCustomer.DateCreated = DateTime.UtcNow;
                 newCustomer.LastUpdated = DateTime.UtcNow;
-                _orderRepository.InsertShopifyCustomer(newCustomer);
+                _orderRepository.InsertCustomer(newCustomer);
             }
             else
             {

@@ -3,6 +3,9 @@ using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Processes.Inventory.Services;
@@ -68,14 +71,19 @@ namespace Monster.Middle
 
             }).SingleInstance();
 
+
             // Multitenant Persistence
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutRepository>().InstancePerLifetimeScope();
             builder.RegisterType<BatchStateRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<LocationRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<InventoryRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<OrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
+            
+            builder.RegisterType<ShopifyInventoryRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyOrderRepository>().InstancePerLifetimeScope();
+
+            builder.RegisterType<AcumaticaOrderRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaInventoryRepository>().InstancePerLifetimeScope();
+
 
             // Tenant Context
             builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
@@ -102,7 +110,7 @@ namespace Monster.Middle
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
             
 
-            // Order synchronization works
+            // Order synchronization workers
             builder.RegisterType<ShopifyCustomerPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderPull>().InstancePerLifetimeScope();
 

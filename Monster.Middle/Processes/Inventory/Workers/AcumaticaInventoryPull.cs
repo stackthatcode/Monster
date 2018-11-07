@@ -4,6 +4,8 @@ using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -12,8 +14,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
     public class AcumaticaInventoryPull
     {
         private readonly DistributionClient _inventoryClient;
-        private readonly InventoryRepository _inventoryRepository;
-        private readonly LocationRepository _locationRepository;
+        private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
@@ -22,14 +23,12 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
         public AcumaticaInventoryPull(
                     DistributionClient inventoryClient, 
-                    InventoryRepository inventoryRepository,
-                    LocationRepository locationRepository,
+                    AcumaticaInventoryRepository inventoryRepository,
                     BatchStateRepository batchStateRepository,
                     IPushLogger logger)
         {
             _inventoryClient = inventoryClient;
             _inventoryRepository = inventoryRepository;
-            _locationRepository = locationRepository;
             _batchStateRepository = batchStateRepository;
             _logger = logger;
         }
@@ -46,7 +45,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
             var maxProductDate = 
                 _inventoryRepository
-                    .RetrieveAcumaticaStockItemsMaxUpdatedDate();
+                    .RetrieveStockItemsMaxUpdatedDate();
 
             var batchStateEnd 
                 = maxProductDate 
@@ -82,7 +81,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
             {
                 var existingData
                     = _inventoryRepository
-                        .RetreiveAcumaticaStockItem(item.InventoryID.value);
+                        .RetreiveStockItem(item.InventoryID.value);
 
                 if (existingData == null)
                 {
@@ -94,7 +93,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                         LastUpdated = DateTime.UtcNow,
                     };
 
-                    _inventoryRepository.InsertAcumaticaStockItems(newData);
+                    _inventoryRepository.InsertStockItems(newData);
                 }
                 else
                 {
@@ -112,15 +111,15 @@ namespace Monster.Middle.Processes.Inventory.Workers
         {
             var monsterStockItem = 
                     _inventoryRepository
-                        .RetreiveAcumaticaStockItem(stockItem.InventoryID.value);
+                        .RetreiveStockItem(stockItem.InventoryID.value);
 
             var stockItemMonsterId = monsterStockItem.MonsterId;
 
             var existingDetails = 
                 _inventoryRepository
-                    .RetrieveAcumaticaWarehouseDetails(stockItemMonsterId);
+                    .RetrieveWarehouseDetails(stockItemMonsterId);
 
-            var warehouses = _locationRepository.RetreiveAcumaticaWarehouses();
+            var warehouses = _inventoryRepository.RetreiveWarehouses();
 
             foreach (var acumaticaDetail in stockItem.WarehouseDetails)
             {
@@ -144,7 +143,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     newDetail.DateCreated = DateTime.UtcNow;
                     newDetail.LastUpdated = DateTime.UtcNow;
 
-                    _inventoryRepository.InsertAcumaticaWarehouseDetails(newDetail);
+                    _inventoryRepository.InsertWarehouseDetails(newDetail);
                 }
                 else
                 {

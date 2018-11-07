@@ -1,30 +1,37 @@
 ﻿using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Shopify;
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
     public class AcumaticaCustomerSync
     {
-        private readonly OrderRepository _orderRepository;
+        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
+        private readonly ShopifyOrderRepository _shopifyOrderRepository;
 
-        public AcumaticaCustomerSync(OrderRepository orderRepository)
+        public AcumaticaCustomerSync(
+                AcumaticaOrderRepository acumaticaOrderRepository, 
+                ShopifyOrderRepository shopifyOrderRepository)
         {
-            _orderRepository = orderRepository;
+            _acumaticaOrderRepository = acumaticaOrderRepository;
+            _shopifyOrderRepository = shopifyOrderRepository;
         }
 
         public void RunMatch()
         {
             var customers =
-                _orderRepository.RetrieveShopifyCustomersUnsynced();
+                _shopifyOrderRepository.RetrieveCustomersUnsynced();
 
             foreach (var customer in customers)
             {
                 var acumaticaCustomer =
-                    _orderRepository.RetrieveAcumaticaCustomerByEmail(customer.ShopifyPrimaryEmail);
+                    _acumaticaOrderRepository
+                        .RetrieveCustomerByEmail(customer.ShopifyPrimaryEmail);
 
                 if (acumaticaCustomer != null)
                 {
                     acumaticaCustomer.UsrShopifyCustomer = customer;
-                    _orderRepository.SaveChanges();
+                    _acumaticaOrderRepository.SaveChanges();
                 }
             }
         }

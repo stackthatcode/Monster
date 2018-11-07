@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Etc;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -12,7 +14,7 @@ namespace Monster.Middle.Processes.Orders.Workers
     public class AcumaticaCustomerPull
     {
         private readonly CustomerClient _customerClient;
-        private readonly OrderRepository _orderRepository;
+        private readonly AcumaticaOrderRepository _orderRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly IPushLogger _logger;
@@ -21,8 +23,8 @@ namespace Monster.Middle.Processes.Orders.Workers
 
 
         public AcumaticaCustomerPull(
-                CustomerClient customerClient, 
-                OrderRepository orderRepository,
+                CustomerClient customerClient,
+                AcumaticaOrderRepository orderRepository,
                 BatchStateRepository batchStateRepository,
                 TenantRepository tenantRepository,
                 IPushLogger logger)
@@ -48,7 +50,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             // Set the Batch State Pull End marker
             var maxCustomerDate =
                 _orderRepository
-                    .RetrieveShopifyCustomerMaxUpdatedDate();
+                    .RetrieveCustomerMaxUpdatedDate();
 
             var batchStateEnd 
                 = maxCustomerDate 
@@ -64,12 +66,12 @@ namespace Monster.Middle.Processes.Orders.Workers
             {
                 var existingData
                     = _orderRepository
-                        .RetrieveAcumaticaCustomer(customer.CustomerID.value);
+                        .RetrieveCustomer(customer.CustomerID.value);
 
                 if (existingData == null)
                 {
                     var newData = customer.ToMonsterRecord();
-                    _orderRepository.InsertAcumaticaCustomer(newData);
+                    _orderRepository.InsertCustomer(newData);
                 }
                 else
                 {

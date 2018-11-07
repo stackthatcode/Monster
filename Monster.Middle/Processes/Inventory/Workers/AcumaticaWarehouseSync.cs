@@ -5,7 +5,9 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Extensions;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -14,16 +16,19 @@ namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class AcumaticaWarehouseSync
     {
-        private readonly LocationRepository _locationRepository;
+        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
+        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
         private readonly DistributionClient _acumaticaInventoryApi;
         private readonly IPushLogger _logger;
 
         public AcumaticaWarehouseSync(
-                    LocationRepository locationRepository, 
+                    ShopifyInventoryRepository shopifyInventoryRepository,
+                    AcumaticaInventoryRepository acumaticaInventoryRepository, 
                     DistributionClient acumaticaInventoryApi,
                     IPushLogger logger)
         {
-            _locationRepository = locationRepository;
+            _shopifyInventoryRepository = shopifyInventoryRepository;
+            _acumaticaInventoryRepository = acumaticaInventoryRepository;
             _acumaticaInventoryApi = acumaticaInventoryApi;
             _logger = logger;
         }
@@ -31,9 +36,11 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public void Run()
         {
             var shopifyLocations 
-                    = _locationRepository.RetreiveShopifyLocations();
+                = _shopifyInventoryRepository
+                    .RetreiveLocations();
 
-            var warehouses = _locationRepository.RetreiveAcumaticaWarehouses();
+            var warehouses = 
+                _acumaticaInventoryRepository.RetreiveWarehouses();
 
             // TODO/ON-HOLD - add a Preference for whether or not to push
             // ... Shopify Locations into Acumatica Warehouse
@@ -50,7 +57,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                         !shopifyLocation.MatchesIdWithName(matchedWarehouse);
 
                     matchedWarehouse.LastUpdated = DateTime.UtcNow;
-                    _locationRepository.SaveChanges();                    
+                    _acumaticaInventoryRepository.SaveChanges();                    
                     continue;
                 }
 
@@ -62,7 +69,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 {
                     automatch.ShopifyLocationMonsterId = shopifyLocation.MonsterId;
                     automatch.LastUpdated = DateTime.UtcNow;
-                    _locationRepository.SaveChanges();
+                    _acumaticaInventoryRepository.SaveChanges();
                     continue;
                 }
 
@@ -115,7 +122,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 LastUpdated = DateTime.UtcNow,
             };
 
-            _locationRepository.InsertAcumaticaWarehouse(newDataRecord);
+            _acumaticaInventoryRepository.InsertAcumaticaWarehouse(newDataRecord);
         }
     }
 }

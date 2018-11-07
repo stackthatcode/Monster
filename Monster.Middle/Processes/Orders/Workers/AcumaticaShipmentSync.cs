@@ -6,6 +6,7 @@ using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Extensions;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
 
@@ -13,18 +14,18 @@ namespace Monster.Middle.Processes.Orders.Workers
 {
     public class AcumaticaShipmentSync
     {
-        private readonly OrderRepository _orderRepository;
+        private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly CustomerClient _customerClient;
         private readonly ShipmentClient _salesOrderClient;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
 
         public AcumaticaShipmentSync(
-                OrderRepository orderRepository, 
+                ShopifyOrderRepository shopifyOrderRepository, 
                 CustomerClient customerClient, 
                 ShipmentClient salesOrderClient, 
                 AcumaticaOrderPull acumaticaOrderPull)
         {
-            _orderRepository = orderRepository;
+            _shopifyOrderRepository = shopifyOrderRepository;
             _customerClient = customerClient;
             _salesOrderClient = salesOrderClient;
             _acumaticaOrderPull = acumaticaOrderPull;
@@ -34,8 +35,8 @@ namespace Monster.Middle.Processes.Orders.Workers
         public void Run()
         {
             var shopifyFulfillments 
-                    = _orderRepository
-                        .RetrieveShopifyFulfillmentsNotSynced();
+                    = _shopifyOrderRepository
+                        .RetrieveFulfillmentsNotSynced();
 
             foreach (var fulfillment in shopifyFulfillments)
             {
@@ -112,65 +113,6 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         
 
-        public UsrAcumaticaCustomer 
-                SyncCustomer(UsrShopifyOrder shopifyOrder)
-        {
-            var customer = shopifyOrder.UsrShopifyCustomer;
-            UsrAcumaticaCustomer output;
-
-            if (!customer.UsrAcumaticaCustomers.Any())
-            {
-                output = PushCustomer(customer);
-            }
-            else
-            {
-                output = customer.UsrAcumaticaCustomers.FirstOrDefault();
-            }
-
-            return output;
-        }
-        
-
-        private UsrAcumaticaCustomer 
-                PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
-        {
-            var shopifyCustomer =
-                shopifyCustomerRecord
-                    .ShopifyJson
-                    .DeserializeFromJson<Push.Shopify.Api.Customer.Customer>();
-            
-            var name = shopifyCustomer.first_name + " " + shopifyCustomer.last_name;
-            var shopifyAddress = shopifyCustomer.default_address;
-
-            var customer = new Customer();
-            customer.CustomerName = name.ToValue();
-            
-            var address = new Address();
-            address.AddressLine1 = shopifyAddress.address1.ToValue();
-            address.AddressLine2 = shopifyAddress.address2.ToValue();
-            address.City = shopifyAddress.city.ToValue();
-            address.State = shopifyAddress.province.ToValue();
-            address.PostalCode = shopifyAddress.zip.ToValue();
-
-            var mainContact = new Contact();
-            mainContact.Address = address;
-            mainContact.FirstName = shopifyCustomer.first_name.ToValue();
-            mainContact.LastName = shopifyCustomer.last_name.ToValue();
-            mainContact.Phone1 = shopifyCustomer.phone.ToValue();
-            mainContact.Email = shopifyCustomer.email.ToValue();
-
-            customer.MainContact = mainContact;
-
-            var resultJson 
-                = _customerClient.AddNewCustomer(customer.SerializeToJson());
-
-            var newAcumaticaCustomer = resultJson.DeserializeFromJson<Customer>();
-            var acumaticaMonsterRecord = newAcumaticaCustomer.ToMonsterRecord();
-            acumaticaMonsterRecord.UsrShopifyCustomer = shopifyCustomerRecord;
-
-            _orderRepository.InsertAcumaticaCustomer(acumaticaMonsterRecord);
-            return acumaticaMonsterRecord;
-        }
         
     }
 }

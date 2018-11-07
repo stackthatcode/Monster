@@ -70,6 +70,7 @@
     <Compile Include="Api\SalesOrder\SalesOrderDetail.cs" />
     <Compile Include="Api\ShipmentClient.cs" />
     <Compile Include="Api\Shipment\Shipment.cs" />
+    <Compile Include="Api\Shipment\ShipmentDetail.cs" />
     <Compile Include="Config\AcumaticaHttpConfig.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />
     <Compile Include="Http\AcumaticaCredentials.cs" />

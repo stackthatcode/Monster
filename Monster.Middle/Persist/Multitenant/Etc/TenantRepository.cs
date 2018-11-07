@@ -5,8 +5,7 @@ using Push.Foundation.Utilities.Security;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
 
-
-namespace Monster.Middle.Persist.Multitenant
+namespace Monster.Middle.Persist.Multitenant.Etc
 {
     public class TenantRepository
     {

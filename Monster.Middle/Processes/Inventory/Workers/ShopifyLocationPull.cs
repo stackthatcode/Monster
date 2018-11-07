@@ -1,23 +1,25 @@
 ﻿using System;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Extensions;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
+
 
 namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class ShopifyLocationPull
     {
         private readonly ProductApi _productApi;
-        private readonly LocationRepository _locationRepository;
+        private readonly ShopifyInventoryRepository _locationRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
         public ShopifyLocationPull(
-                ProductApi productApi, 
-                LocationRepository locationRepository, 
+                ProductApi productApi,
+                ShopifyInventoryRepository locationRepository, 
                 BatchStateRepository batchStateRepository, 
                 IPushLogger logger)
         {
@@ -30,7 +32,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public void Run()
         {
             var dataLocations 
-                    = _locationRepository.RetreiveShopifyLocations();
+                    = _locationRepository.RetreiveLocations();
 
             var shopifyLocations
                     = _productApi
@@ -52,7 +54,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                         LastUpdated = DateTime.UtcNow,
                     };
 
-                    _locationRepository.InsertShopifyLocation(newDataLocation);
+                    _locationRepository.InsertLocation(newDataLocation);
                 }
                 else
                 {

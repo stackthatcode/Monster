@@ -3,6 +3,7 @@ using Autofac;
 using Monster.Acumatica.Http;
 using Monster.Middle;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;

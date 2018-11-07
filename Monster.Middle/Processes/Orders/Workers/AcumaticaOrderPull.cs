@@ -4,6 +4,8 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Etc;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -14,7 +16,7 @@ namespace Monster.Middle.Processes.Orders.Workers
     {
         private readonly CustomerClient _customerClient;
         private readonly SalesOrderClient _salesOrderClient;
-        private readonly OrderRepository _orderRepository;
+        private readonly AcumaticaOrderRepository _orderRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
@@ -24,7 +26,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         public AcumaticaOrderPull(
                 CustomerClient customerClient, 
-                OrderRepository orderRepository,
+                AcumaticaOrderRepository orderRepository,
                 BatchStateRepository batchStateRepository,
                 SalesOrderClient salesOrderClient,
                 TenantRepository tenantRepository,
@@ -51,7 +53,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             // Set the Batch State Pull End marker
             var maxOrderDate =
-                _orderRepository.RetrieveShopifyOrderMaxUpdatedDate();
+                _orderRepository.RetrieveOrderMaxUpdatedDate();
 
             var batchStateEnd 
                 = maxOrderDate
@@ -93,9 +95,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             var orderNbr = order.OrderNbr.value;
 
-            var existingData
-                = _orderRepository
-                    .RetrieveAcumaticaSalesOrder(orderNbr);
+            var existingData = _orderRepository.RetrieveSalesOrder(orderNbr);
 
             if (existingData == null)
             {
@@ -114,7 +114,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 
-                _orderRepository.InsertAcumaticaSalesOrder(newData);
+                _orderRepository.InsertSalesOrder(newData);
 
                 return newData;
             }
@@ -133,7 +133,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         private long LocateOrPullAndUpsertCustomer(string acumaticaCustomerId)
         {
             var existingCustomer
-                = _orderRepository.RetrieveAcumaticaCustomer(acumaticaCustomerId);
+                = _orderRepository.RetrieveCustomer(acumaticaCustomerId);
 
             if (existingCustomer == null)
             {
@@ -142,7 +142,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 var customer = customerJson.DeserializeFromJson<Customer>();
 
                 var newData = customer.ToMonsterRecord();                
-                _orderRepository.InsertAcumaticaCustomer(newData);
+                _orderRepository.InsertCustomer(newData);
 
                 return newData.Id;
             }

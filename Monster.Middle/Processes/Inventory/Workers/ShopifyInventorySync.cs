@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -13,8 +15,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
     {
         private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
-        private readonly InventoryRepository _inventoryRepository;
-        private readonly LocationRepository _locationRepository;
+        private readonly ShopifyInventoryRepository _inventoryRepository;
+        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
 
@@ -26,15 +28,15 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 IPushLogger logger,
                 ProductApi productApi,
                 InventoryApi inventoryApi,
-                InventoryRepository inventoryRepository, 
-                BatchStateRepository batchStateRepository,
-                LocationRepository locationRepository)
+                ShopifyInventoryRepository inventoryRepository, 
+                AcumaticaInventoryRepository acumaticaInventoryRepository,
+                BatchStateRepository batchStateRepository)
         {
             _productApi = productApi;
             _inventoryApi = inventoryApi;
             _inventoryRepository = inventoryRepository;
+            _acumaticaInventoryRepository = acumaticaInventoryRepository;
             _batchStateRepository = batchStateRepository;
-            _locationRepository = locationRepository;
             _logger = logger;
         }
 
@@ -42,8 +44,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public void Run()
         {
             var warehouseDetails
-                = _inventoryRepository
-                    .RetrieveAcumaticaWarehouseDetailsNotSynced();
+                = _acumaticaInventoryRepository
+                    .RetrieveWarehouseDetailsNotSynced();
 
             foreach (var warehouseDetail in warehouseDetails)
             {

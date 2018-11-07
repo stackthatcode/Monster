@@ -5,7 +5,10 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Persist.Multitenant.Extensions;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Product;
@@ -15,34 +18,37 @@ namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class AcumaticaInventorySync
     {
-        private readonly InventoryRepository _inventoryRepository;
+        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
+        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly DistributionClient _distributionClient;
         private readonly IPushLogger _logger;
 
         public AcumaticaInventorySync(
-                    InventoryRepository inventoryRepository, 
-                    DistributionClient distributionClient, 
+                    ShopifyInventoryRepository shopifyInventoryRepository, 
+                    AcumaticaInventoryRepository acumaticaInventoryRepository,
+                    DistributionClient distributionClient,
                     TenantRepository tenantRepository,
                     IPushLogger logger)
         {
-            _inventoryRepository = inventoryRepository;
+            _shopifyInventoryRepository = shopifyInventoryRepository;
             _distributionClient = distributionClient;
             _tenantRepository = tenantRepository;
             _logger = logger;
+            _acumaticaInventoryRepository = acumaticaInventoryRepository;
         }
 
         public void Run()
         {
-            var variants = _inventoryRepository.RetrieveShopifyVariants();
+            var variants = _shopifyInventoryRepository.RetrieveVariants();
 
             foreach (var variant in variants)
             {
                 // Attempt to identify duplicates
                 // TODO - refactor this into 
                 var matchingShopifySkus =
-                    _inventoryRepository
-                        .RetrieveShopifyVariants(variant.StandardizedSku())
+                    _shopifyInventoryRepository
+                        .RetrieveVariantsWithStockItems(variant.StandardizedSku())
                         .ExcludeMissing()
                         .ExcludeMatched();
                 
@@ -55,8 +61,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                 // Attempt to Auto-match
                 var stockItem =
-                    _inventoryRepository
-                        .RetreiveAcumaticaStockItem(variant.StandardizedSku());
+                    _acumaticaInventoryRepository
+                        .RetreiveStockItem(variant.StandardizedSku());
 
                 if (stockItem != null)
                 {
@@ -75,7 +81,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                             $"to Shopify Variant {variant.ShopifyVariantId}");
 
                         stockItem.ShopifyVariantMonsterId = variant.MonsterId;
-                        _inventoryRepository.SaveChanges();
+                        _shopifyInventoryRepository.SaveChanges();
                         continue;
                     }
                 }
@@ -126,7 +132,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 LastUpdated = DateTime.UtcNow,
             };
 
-            _inventoryRepository.InsertAcumaticaStockItems(newData);
+            _acumaticaInventoryRepository.InsertStockItems(newData);
         }
 
         public void RunInventoryReceipts()
@@ -142,8 +148,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     "Preferences -> DefaultCoGsMargin is not set");
 
             var inventory =
-                _inventoryRepository
-                    .RetrieveShopifyInventoryLevelsMatchedButNotSynced();
+                _shopifyInventoryRepository
+                    .RetrieveInventoryLevelsMatchedButNotSynced();
 
             var productParentMonsterIds =
                 inventory
@@ -178,18 +184,20 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                 // TODO - add logging in case this blows us during persistence
 
-                _inventoryRepository
-                    .InsertAcumaticaInventoryReceipt(monsterReceipt);
+                _acumaticaInventoryRepository
+                    .InsertInventoryReceipt(monsterReceipt);
 
-                _inventoryRepository
-                    .UpdateAcumaticaInventoryReceipt(
+                _acumaticaInventoryRepository
+                    .UpdateInventoryReceipt(
                         inventoryByProduct, monsterReceipt);
             }
         }
 
         public void RunInventoryReceiptsRelease()
         {
-            var receipts = _inventoryRepository.RetrieveNonReleasedAcumaticaInventoryReceipts();
+            var receipts = 
+                _acumaticaInventoryRepository
+                    .RetrieveUnreleasedInventoryReceipts();
 
             foreach (var receipt in receipts)
             {
@@ -200,7 +208,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 _distributionClient.ReleaseInventoryReceipt(releaseEntity.SerializeToJson());
 
                 receipt.IsReleased = true;
-                _inventoryRepository.SaveChanges();
+                _shopifyInventoryRepository.SaveChanges();
             }
         }
 

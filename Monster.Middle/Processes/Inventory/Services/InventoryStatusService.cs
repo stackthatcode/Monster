@@ -1,30 +1,34 @@
 ﻿using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Extensions;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Processes.Inventory.Model;
 
 namespace Monster.Middle.Processes.Inventory.Services
 {
     public class InventoryStatusService
     {
-        private readonly InventoryRepository _inventoryRepository;
-        private readonly LocationRepository _locationRepository;
+        private readonly 
+            ShopifyInventoryRepository _shopifyInventoryRepository;
+        private readonly 
+            AcumaticaInventoryRepository _acumaticaInventoryRepository;
 
         public InventoryStatusService(
-                InventoryRepository inventoryRepository, 
-                LocationRepository locationRepository)
+                ShopifyInventoryRepository shopifyInventoryRepository,
+                AcumaticaInventoryRepository acumaticaInventoryRepository)
         {
-            _inventoryRepository = inventoryRepository;
-            _locationRepository = locationRepository;
+            _shopifyInventoryRepository = shopifyInventoryRepository;
+            _acumaticaInventoryRepository = acumaticaInventoryRepository;
         }
 
 
         public LocationStatus GetCurrentLocationStatus()
         {
             var warehouses =
-                    _locationRepository.RetreiveAcumaticaWarehouses();
+                    _acumaticaInventoryRepository.RetreiveWarehouses();
             var locations =
-                    _locationRepository.RetreiveShopifyLocations();
+                    _shopifyInventoryRepository.RetreiveLocations();
 
             var output = new LocationStatus();
 
