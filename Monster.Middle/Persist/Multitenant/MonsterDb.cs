@@ -823,6 +823,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
         public System.DateTime? AcumaticaCustomersPullEnd { get; set; } // AcumaticaCustomersPullEnd
         public System.DateTime? AcumaticaOrdersPullEnd { get; set; } // AcumaticaOrdersPullEnd
+        public System.DateTime? AcumaticaShipmentsPullEnd { get; set; } // AcumaticaShipmentsPullEnd
     }
 
     // usrPayoutPreferences
@@ -1452,6 +1453,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaCustomersPullEnd).HasColumnName(@"AcumaticaCustomersPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaOrdersPullEnd).HasColumnName(@"AcumaticaOrdersPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaShipmentsPullEnd).HasColumnName(@"AcumaticaShipmentsPullEnd").HasColumnType("datetime").IsOptional();
         }
     }
 

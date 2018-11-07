@@ -15,28 +15,39 @@ namespace Monster.Middle.Processes.Orders
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
         private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
         private readonly AcumaticaOrderSync _acumaticaOrderSync;
+        private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
+        private readonly AcumaticaShipmentSync _acumaticaShipmentSync;
         private readonly AcumaticaInventorySync _acumaticaInventorySync;
 
         public OrderManager(
                 BatchStateRepository batchStateRepository,
                 ShopifyCustomerPull shopifyCustomerPull, 
                 ShopifyOrderPull shopifyOrderPull,
+
                 AcumaticaHttpContext acumaticaContext,
+
                 AcumaticaCustomerPull acumaticaCustomerPull,
                 AcumaticaCustomerSync acumaticaCustomerSync,
-                AcumaticaInventorySync acumaticaInventorySync,
                 AcumaticaOrderPull acumaticaOrderPull,
-                AcumaticaOrderSync acumaticaOrderSync)
+                AcumaticaOrderSync acumaticaOrderSync,
+                AcumaticaShipmentPull acumaticaShipmentPull,
+                AcumaticaShipmentSync acumaticaShipmentSync,
+                AcumaticaInventorySync acumaticaInventorySync)
         {
             _batchStateRepository = batchStateRepository;
+
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyOrderPull = shopifyOrderPull;
+
             _acumaticaContext = acumaticaContext;
+
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaInventorySync = acumaticaInventorySync;
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaOrderSync = acumaticaOrderSync;
+            _acumaticaShipmentPull = acumaticaShipmentPull;
+            _acumaticaShipmentSync = acumaticaShipmentSync;
         }
 
 
@@ -44,18 +55,19 @@ namespace Monster.Middle.Processes.Orders
         {
             _batchStateRepository.ResetOrderBatchState();
 
-            _shopifyCustomerPull.RunAll();
-            _shopifyOrderPull.RunAll();
+            //_shopifyCustomerPull.RunAll();
+            //_shopifyOrderPull.RunAll();
 
             _acumaticaContext.Begin();
 
-            // Any Products detected and loaded from Shopify Orders are synced
-            _acumaticaInventorySync.Run();
-
-            // Optional...
+            // Any Products detected and loaded from Shopify Orders are synced            
             _acumaticaCustomerPull.RunAll();
             _acumaticaOrderPull.RunAll();
-            _acumaticaCustomerSync.RunMatch();
+            _acumaticaShipmentPull.RunAll();
+            
+            // Optional...
+            //_acumaticaInventorySync.Run();
+            //_acumaticaCustomerSync.RunMatch();
         }
 
         public void Incremental()
@@ -79,14 +91,7 @@ namespace Monster.Middle.Processes.Orders
             _acumaticaContext.Begin();
             _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
         }
-
-        public void SingleOrderPull(long shopifyOrderId)
-        {
-            _shopifyOrderPull.Run(shopifyOrderId);
-
-            _acumaticaContext.Begin();
-            _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
-        }
+        
     }
 }
 

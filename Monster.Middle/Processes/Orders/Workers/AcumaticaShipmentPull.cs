@@ -10,10 +10,10 @@ using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
-    public class AcumaticaOrderPull
+    public class AcumaticaShipmentPull
     {
         private readonly CustomerClient _customerClient;
-        private readonly SalesOrderClient _salesOrderClient;
+        private readonly ShipmentClient _shipmentClient;
         private readonly OrderRepository _orderRepository;
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
@@ -22,18 +22,18 @@ namespace Monster.Middle.Processes.Orders.Workers
         public const int InitialBatchStateFudgeMin = -15;
 
 
-        public AcumaticaOrderPull(
+        public AcumaticaShipmentPull(
                 CustomerClient customerClient, 
                 OrderRepository orderRepository,
                 BatchStateRepository batchStateRepository,
-                SalesOrderClient salesOrderClient,
+                ShipmentClient shipmentClient,
                 TenantRepository tenantRepository,
                 IPushLogger logger)
         {
             _customerClient = customerClient;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
-            _salesOrderClient = salesOrderClient;
+            _shipmentClient = shipmentClient;
             _tenantRepository = tenantRepository;
             _logger = logger;
         }
@@ -44,41 +44,42 @@ namespace Monster.Middle.Processes.Orders.Workers
             var preferences = _tenantRepository.RetrievePreferences();
             var orderUpdateMin = preferences.DataPullStart;
 
-            var json = _salesOrderClient.RetrieveSalesOrders(orderUpdateMin);
-            var orders = json.DeserializeFromJson<List<SalesOrder>>();
+            var json = _shipmentClient.RetrieveShipments(orderUpdateMin);
 
-            UpsertOrdersToPersist(orders);
+            //var orders = json.DeserializeFromJson<List<Shipment>>();
 
-            // Set the Batch State Pull End marker
-            var maxOrderDate =
-                _orderRepository.RetrieveShopifyOrderMaxUpdatedDate();
+            //UpsertOrdersToPersist(orders);
 
-            var batchStateEnd 
-                = maxOrderDate
-                    ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
+            //// Set the Batch State Pull End marker
+            //var maxOrderDate =
+            //    _orderRepository.RetrieveShopifyOrderMaxUpdatedDate();
 
-            _batchStateRepository
-                .UpdateAcumaticaOrdersPullEnd(batchStateEnd);
+            //var batchStateEnd 
+            //    = maxOrderDate
+            //        ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
+
+            //_batchStateRepository
+            //    .UpdateAcumaticaOrdersPullEnd(batchStateEnd);
         }
         
         public void RunUpdated()
         {
-            var batchState = _batchStateRepository.RetrieveBatchState();
-            if (!batchState.AcumaticaOrdersPullEnd.HasValue)
-            {
-                throw new Exception(
-                    "AcumaticaOrdersPullEnd is null - execute RunAll() first");
-            }
+            //var batchState = _batchStateRepository.RetrieveBatchState();
+            //if (!batchState.AcumaticaOrdersPullEnd.HasValue)
+            //{
+            //    throw new Exception(
+            //        "AcumaticaOrdersPullEnd is null - execute RunAll() first");
+            //}
 
-            var updateMin = batchState.AcumaticaOrdersPullEnd;
-            var pullRunStartTime = DateTime.UtcNow;
+            //var updateMin = batchState.AcumaticaOrdersPullEnd;
+            //var pullRunStartTime = DateTime.UtcNow;
 
-            var json = _salesOrderClient.RetrieveSalesOrders(updateMin);
-            var orders = json.DeserializeFromJson<List<SalesOrder>>();
+            //var json = _shipmentClient.RetrieveSalesOrders(updateMin);
+            //var orders = json.DeserializeFromJson<List<SalesOrder>>();
 
-            UpsertOrdersToPersist(orders);
+            //UpsertOrdersToPersist(orders);
 
-            _batchStateRepository.UpdateAcumaticaCustomersPullEnd(pullRunStartTime);
+            //_batchStateRepository.UpdateAcumaticaCustomersPullEnd(pullRunStartTime);
         }
 
         public void UpsertOrdersToPersist(List<SalesOrder> orders)
@@ -108,7 +109,6 @@ namespace Monster.Middle.Processes.Orders.Workers
                 var newData = new UsrAcumaticaSalesOrder();
                 newData.AcumaticaSalesOrderId = orderNbr;
                 newData.AcumaticaJson = order.SerializeToJson();
-                newData.AcumaticaStatus = order.Status.value;
                 newData.CustomerMonsterId = customerMonsterId;
 
                 newData.DateCreated = DateTime.UtcNow;
@@ -121,9 +121,8 @@ namespace Monster.Middle.Processes.Orders.Workers
             else
             {
                 existingData.AcumaticaJson = order.SerializeToJson();
-                existingData.AcumaticaStatus = order.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
-                
+
                 _orderRepository.SaveChanges();
 
                 return existingData;

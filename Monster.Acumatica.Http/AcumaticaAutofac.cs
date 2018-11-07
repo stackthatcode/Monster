@@ -18,6 +18,7 @@ namespace Monster.Acumatica
             builder.RegisterType<DistributionClient>().InstancePerLifetimeScope();
             builder.RegisterType<BankClient>().InstancePerLifetimeScope();
             builder.RegisterType<SalesOrderClient>().InstancePerLifetimeScope();
+            builder.RegisterType<ShipmentClient>().InstancePerLifetimeScope();
         }
     }
 }

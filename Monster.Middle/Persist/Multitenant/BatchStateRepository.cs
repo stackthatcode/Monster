@@ -50,6 +50,7 @@ namespace Monster.Middle.Persist.Multitenant
 
                 existingState.AcumaticaCustomersPullEnd = null;
                 existingState.AcumaticaOrdersPullEnd = null;
+                existingState.AcumaticaShipmentsPullEnd = null;
             }
 
             Entities.SaveChanges();
@@ -95,6 +96,13 @@ namespace Monster.Middle.Persist.Multitenant
         {
             var existingState = RetrieveBatchState();
             existingState.AcumaticaOrdersPullEnd = endTimeUtc;
+            Entities.SaveChanges();
+        }
+
+        public void UpdateAcumaticaShipmentsPullEnd(DateTime endTimeUtc)
+        {
+            var existingState = RetrieveBatchState();
+            existingState.AcumaticaShipmentsPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
