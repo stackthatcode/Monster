@@ -20,6 +20,7 @@ namespace Push.Shopify.Api.Order
         public List<string> tracking_urls { get; set; }
         public Receipt receipt { get; set; }
         public string name { get; set; }
+
         public List<LineItem> line_items { get; set; }
     }
 }

@@ -125,8 +125,19 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
         {
             return Entities
                 .UsrShopifyFulfillments
-                .Where(x => !x.UsrAcumaticaShipments.Any())
+                .Include(x => x.UsrShopifyOrder)
+                .Where(x =>
+                    x.UsrShopifyOrder.UsrAcumaticaSalesOrders.Any()
+                    && !x.UsrAcumaticaShipments.Any())
                 .ToList();
+        }
+
+        public UsrShopifyFulfillment RetreiveFulfillment(long shopifyFulfillmentId)
+        {
+            return Entities
+                .UsrShopifyFulfillments
+                .Include(x => x.UsrShopifyOrder)
+                .FirstOrDefault(x => x.ShopifyFulfillmentId == shopifyFulfillmentId);
         }
 
         public void InsertFulfillments(UsrShopifyFulfillment fulfillment)

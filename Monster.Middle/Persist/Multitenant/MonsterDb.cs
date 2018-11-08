@@ -623,7 +623,7 @@ namespace Monster.Middle.Persist.Multitenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrAcumaticaCreditMemo
     {
-        public string Id { get; set; } // Id (Primary key) (length: 10)
+        public long Id { get; set; } // Id (Primary key)
         public long SalesOrderMonsterId { get; set; } // SalesOrderMonsterId
         public string AcumaticaCreditMemoId { get; set; } // AcumaticaCreditMemoId (length: 50)
         public string AcumaticaJson { get; set; } // AcumaticaJson (length: 10)
@@ -643,12 +643,24 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
+        // Reverse navigation
+
+        /// <summary>
+        /// Child UsrAcumaticaSalesOrders where [usrAcumaticaSalesOrder].[CustomerMonsterId] point to this entity (FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; } // usrAcumaticaSalesOrder.FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer
+
         // Foreign keys
 
         /// <summary>
         /// Parent UsrShopifyCustomer pointed by [usrAcumaticaCustomer].([ShopifyCustomerMonsterId]) (FK_usrAcumaticaCustomer_usrShopifyCustomer)
         /// </summary>
         public virtual UsrShopifyCustomer UsrShopifyCustomer { get; set; } // FK_usrAcumaticaCustomer_usrShopifyCustomer
+
+        public UsrAcumaticaCustomer()
+        {
+            UsrAcumaticaSalesOrders = new System.Collections.Generic.List<UsrAcumaticaSalesOrder>();
+        }
     }
 
     // usrAcumaticaInventoryReceipt
@@ -707,6 +719,11 @@ namespace Monster.Middle.Persist.Multitenant
         public virtual System.Collections.Generic.ICollection<UsrAcumaticaSoShipment> UsrAcumaticaSoShipments { get; set; } // usrAcumaticaSOShipment.FK_usrAcumaticaSOShipment_usrAcumaticaSalesOrder
 
         // Foreign keys
+
+        /// <summary>
+        /// Parent UsrAcumaticaCustomer pointed by [usrAcumaticaSalesOrder].([CustomerMonsterId]) (FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer)
+        /// </summary>
+        public virtual UsrAcumaticaCustomer UsrAcumaticaCustomer { get; set; } // FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer
 
         /// <summary>
         /// Parent UsrShopifyOrder pointed by [usrAcumaticaSalesOrder].([ShopifyOrderMonsterId]) (FK_usrAcumaticaSalesOrder_usrShopifyOrder)
@@ -1267,7 +1284,7 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrAcumaticaCreditMemo", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.SalesOrderMonsterId).HasColumnName(@"SalesOrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.AcumaticaCreditMemoId).HasColumnName(@"AcumaticaCreditMemoId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10);
@@ -1373,6 +1390,7 @@ namespace Monster.Middle.Persist.Multitenant
 
             // Foreign keys
             HasOptional(a => a.UsrShopifyOrder).WithMany(b => b.UsrAcumaticaSalesOrders).HasForeignKey(c => c.ShopifyOrderMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaSalesOrder_usrShopifyOrder
+            HasRequired(a => a.UsrAcumaticaCustomer).WithMany(b => b.UsrAcumaticaSalesOrders).HasForeignKey(c => c.CustomerMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaSalesOrder_usrAcumaticaCustomer
         }
     }
 

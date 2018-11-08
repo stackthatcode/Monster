@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 
+
 namespace Monster.Middle.Persist.Multitenant.Acumatica
 {
     public class AcumaticaOrderRepository
@@ -16,7 +17,7 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         }
 
 
-        // Acumatica
+        // Acumatica Customer
         //
         public UsrAcumaticaCustomer RetrieveCustomer(string acumaticaCustomerId)
         {
@@ -57,13 +58,25 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         
 
         // Sales Order
+        //
         public UsrAcumaticaSalesOrder RetrieveSalesOrder(string acumaticaSOId)
         {
             return Entities
                 .UsrAcumaticaSalesOrders
                 .FirstOrDefault(x => x.AcumaticaSalesOrderId == acumaticaSOId);
         }
-        
+
+        public UsrAcumaticaSalesOrder 
+                    RetrieveSalesOrderByShopify(
+                            long shopifyMonsterId)
+        {
+            return Entities
+                .UsrAcumaticaSalesOrders
+                .Include(x => x.UsrAcumaticaCustomer)
+                .FirstOrDefault(x => x.ShopifyOrderMonsterId == shopifyMonsterId);
+        }
+
+
         public DateTime? RetrieveOrderMaxUpdatedDate()
         {
             if (Entities.UsrAcumaticaCustomers.Any())
