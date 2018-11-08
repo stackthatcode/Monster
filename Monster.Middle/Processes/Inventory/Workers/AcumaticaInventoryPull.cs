@@ -5,6 +5,7 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -34,8 +35,19 @@ namespace Monster.Middle.Processes.Inventory.Workers
         }
 
 
-        // TODO - log run start and end times
-        //
+        public void RunAutomatic()
+        {
+            var batchState = _batchStateRepository.Retrieve();
+            if (batchState.AcumaticaProductsPullEnd.HasValue)
+            {
+                RunUpdated();
+            }
+            else
+            {
+                RunAll();
+            }
+        }
+
         public void RunAll()
         {
             var json = _inventoryClient.RetreiveStockItems();
@@ -57,7 +69,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
         
         public void RunUpdated()
         {
-            var batchState = _batchStateRepository.RetrieveBatchState();
+            var batchState = _batchStateRepository.Retrieve();
             if (!batchState.AcumaticaProductsPullEnd.HasValue)
             {
                 throw new Exception(

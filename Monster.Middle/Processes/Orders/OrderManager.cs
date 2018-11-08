@@ -1,7 +1,8 @@
 ﻿using Monster.Acumatica.Http;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Processes.Inventory.Workers;
 using Monster.Middle.Processes.Orders.Workers;
+
 
 namespace Monster.Middle.Processes.Orders
 {
@@ -51,47 +52,57 @@ namespace Monster.Middle.Processes.Orders
         }
 
 
-        public void Baseline()
+        public void Reset()
         {
-            _batchStateRepository.ResetOrderBatchState();
-
-            _shopifyCustomerPull.RunAll();
-            _shopifyOrderPull.RunAll();
-
-            _acumaticaContext.Begin();
-
-            // Any Products detected and loaded from Shopify Orders are synced            
-            //_acumaticaCustomerPull.RunAll();
-            //_acumaticaOrderPull.RunAll();
-            _acumaticaShipmentPull.RunAll();
-            
-            // Optional...
-            //_acumaticaInventorySync.Run();
-            //_acumaticaCustomerSync.RunMatch();
+            _batchStateRepository.ResetOrders();
         }
 
-        public void Incremental()
+        public void SynchronizeInitial()
         {
-            _shopifyCustomerPull.RunUpdated();
-            _shopifyOrderPull.RunUpdated();
-            
-            _acumaticaContext.Begin();
-            
-            // Any Products detected and loaded from Shopify Orders are synced
-            _acumaticaInventorySync.Run();
+            _shopifyCustomerPull.RunAutomatic();
+            _shopifyOrderPull.RunAutomatic();
 
-            _acumaticaOrderPull.RunUpdated();
+            _acumaticaContext.Login();
+
+            // Pull down Acumatica Customers, Orders, Shipments, phew!
+            _acumaticaCustomerPull.RunAutomatic();
+            _acumaticaOrderPull.RunAutomatic();
+
+            _acumaticaShipmentPull.RunAutomatic();
+
+            // Automatically match Customer by email address (non-essential)
+            _acumaticaCustomerSync.RunMatchByEmail();
+            _acumaticaContext.Logout();
+        }
+
+        public void SynchronizeRoutine()
+        {
+            _shopifyCustomerPull.RunAutomatic();
+            _shopifyOrderPull.RunAutomatic();
+
+
+            // Acumatica
+            _acumaticaContext.Login();
+
+            // Get the latest Acumatica Sales Orders for monitoring sake
+            _acumaticaOrderPull.RunAutomatic();
+            _acumaticaShipmentPull.RunAutomatic();
+
+            // Push Orders to Acumatica
             _acumaticaOrderSync.Run();
+            _acumaticaShipmentSync.Run();
+
+            // Shopify Orders may have triggered new Product creations
+            _acumaticaInventorySync.Run();
         }
 
         public void SingleOrderPush(long shopifyOrderId)
         {
             _shopifyOrderPull.Run(shopifyOrderId);
 
-            _acumaticaContext.Begin();
+            _acumaticaContext.Login();
             _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
-        }
-        
+        }        
     }
 }
 

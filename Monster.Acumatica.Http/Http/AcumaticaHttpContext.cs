@@ -73,11 +73,17 @@ namespace Monster.Acumatica.Http
         }
 
 
-        public void Begin()
+        public void Login()
         {
             var path = $"/entity/auth/login";
             var content = _credentials.AuthenticationJson;
             var response = Post(path, content, excludeVersion:true);
+        }
+
+        public void Logout()
+        {
+            var path = $"/entity/auth/logout";
+            var response = Post(path, "", excludeVersion: true);
         }
 
         public string MakePath(string path, bool excludeVersion = false)

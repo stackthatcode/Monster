@@ -1,5 +1,4 @@
-﻿using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Acumatica;
+﻿using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Shopify;
 
 namespace Monster.Middle.Processes.Orders.Workers
@@ -17,7 +16,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             _shopifyOrderRepository = shopifyOrderRepository;
         }
 
-        public void RunMatch()
+        public void RunMatchByEmail()
         {
             var customers =
                 _shopifyOrderRepository.RetrieveCustomersUnsynced();

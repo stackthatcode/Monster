@@ -11,7 +11,7 @@ namespace Monster.ConsoleApp.Monster
 {
     public class MonsterHarness
     {        
-        public static void TestInventoryWorker(Guid tenantId)
+        public static void TestCompleteProcess(Guid tenantId)
         {
             using (var container = MiddleAutofac.Build())
             using (var scope = container.BeginLifetimeScope())
@@ -22,16 +22,29 @@ namespace Monster.ConsoleApp.Monster
                 {
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
-
-                    //var inventoryManager = scope.Resolve<InventoryManager>();
-                    //inventoryManager.Baseline();
-                    //inventoryManager.Incremental();
-
+                    var inventoryManager = scope.Resolve<InventoryManager>();
                     var orderManager = scope.Resolve<OrderManager>();
-                    orderManager.Baseline();
-                    orderManager.Incremental();
-                    //orderManager.SingleOrderPush(666924580962);
 
+                    /*
+                    
+                    // Step 1 - Synchronize Locations
+                    inventoryManager.Reset(); 
+                    inventoryManager.SynchronizeLocationOnly();
+
+                    // Step 2 - Load Inventory from both systems
+                    inventoryManager.SynchronizeInitial();
+                    inventoryManager.LoadShopifyInventoryIntoAcumatica();
+                    
+                    // Step 3 - Load Orders from both systems
+                    orderManager.Reset();
+                    orderManager.SynchronizeInitial();
+                    */
+
+                    // Step X - Routine Synchronization Process
+                    inventoryManager.SynchronizeRoutine();
+
+                    orderManager.Reset();
+                    orderManager.SynchronizeRoutine();
                 }
                 catch (Exception ex)
                 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Persist.Multitenant.Extensions;
 using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.General;
@@ -44,9 +45,22 @@ namespace Monster.Middle.Processes.Inventory.Workers
             _logger = logger;
         }
 
-        public void RunAll()
+        public void RunAutomatic()
         {
-            _logger.Debug("Baseline Pull Products");
+            var batchState = _batchStateRepository.Retrieve();
+            if (batchState.ShopifyProductsPullEnd.HasValue)
+            {
+                RunUpdated();
+            }
+            else
+            {
+                RunAll();
+            }
+        }
+
+        private void RunAll()
+        {
+            _logger.Debug("ShopifyInventoryPull -> RunAll()");
 
             var startOfPullRun = DateTime.UtcNow;
 
@@ -90,9 +104,11 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 .UpdateShopifyProductsPullEnd(productBatchEnd);            
         }
 
-        public void RunUpdated()
+        private void RunUpdated()
         {
-            var batchState = _batchStateRepository.RetrieveBatchState();
+            _logger.Debug("ShopifyInventoryPull -> RunUpdated()");
+
+            var batchState = _batchStateRepository.Retrieve();
 
             if (!batchState.ShopifyProductsPullEnd.HasValue)
             {

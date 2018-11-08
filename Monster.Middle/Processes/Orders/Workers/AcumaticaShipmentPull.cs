@@ -42,7 +42,20 @@ namespace Monster.Middle.Processes.Orders.Workers
         }
 
 
-        public void RunAll()
+        public void RunAutomatic()
+        {
+            var batchState = _batchStateRepository.Retrieve();
+            if (batchState.AcumaticaShipmentsPullEnd.HasValue)
+            {
+                RunUpdated();
+            }
+            else
+            {
+                RunAll();
+            }
+        }
+
+        private void RunAll()
         {
             var preferences = _tenantRepository.RetrievePreferences();
             var shipmentUpdateMin = preferences.DataPullStart;
@@ -64,10 +77,10 @@ namespace Monster.Middle.Processes.Orders.Workers
             _batchStateRepository
                 .UpdateAcumaticaShipmentsPullEnd(batchStateEnd);
         }
-        
-        public void RunUpdated()
+
+        private void RunUpdated()
         {
-            var batchState = _batchStateRepository.RetrieveBatchState();
+            var batchState = _batchStateRepository.Retrieve();
             if (!batchState.AcumaticaShipmentsPullEnd.HasValue)
             {
                 throw new Exception(

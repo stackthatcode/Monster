@@ -37,7 +37,20 @@ namespace Monster.Middle.Processes.Orders.Workers
         }
 
 
-        public void RunAll()
+        public void RunAutomatic()
+        {
+            var batchState = _batchStateRepository.Retrieve();
+            if (batchState.AcumaticaCustomersPullEnd.HasValue)
+            {
+                RunUpdated();
+            }
+            else
+            {
+                RunAll();
+            }
+        }
+
+        private void RunAll()
         {
             var preferences = _tenantRepository.RetrievePreferences();
             var customerUpdateMin = preferences.DataPullStart;
@@ -59,7 +72,27 @@ namespace Monster.Middle.Processes.Orders.Workers
             _batchStateRepository
                 .UpdateAcumaticaCustomersPullEnd(batchStateEnd);
         }
-        
+
+        private void RunUpdated()
+        {
+            var batchState = _batchStateRepository.Retrieve();
+            if (!batchState.AcumaticaCustomersPullEnd.HasValue)
+            {
+                throw new Exception(
+                    "AcumaticaCustomersPullEnd is null - execute RunAll() first");
+            }
+
+            var updateMin = batchState.AcumaticaOrdersPullEnd;
+            var pullRunStartTime = DateTime.UtcNow;
+
+            var json = _customerClient.RetrieveCustomers(updateMin);
+            var customers = json.DeserializeFromJson<List<Customer>>();
+            UpsertCustomersToPersist(customers);
+
+            _batchStateRepository.UpdateAcumaticaCustomersPullEnd(pullRunStartTime);
+        }
+
+
         public void UpsertCustomersToPersist(List<Customer> customers)
         {
             foreach (var customer in customers)
@@ -84,8 +117,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 }
             }
         }
-
-
+        
         public long RunAndUpsertCustomer(string acumaticaCustomerId)
         {
             var existingCustomer

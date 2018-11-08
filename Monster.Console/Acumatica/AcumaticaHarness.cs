@@ -19,7 +19,7 @@ namespace Monster.ConsoleApp.Acumatica
             acumaticaContext.Initialize(credentials);
 
             // Begin our Session
-            acumaticaContext.Begin();
+            acumaticaContext.Login();
         }
 
 

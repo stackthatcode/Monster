@@ -3,6 +3,7 @@ USE Monster0001;
 GO
 
 -- Clear out Monster
+DELETE FROM usrAcumaticaSOShipment;
 DELETE FROM usrAcumaticaSalesOrder;
 DELETE FROM usrAcumaticaCustomer;
 

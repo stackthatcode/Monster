@@ -7,11 +7,10 @@ namespace Monster.ConsoleApp
     class Program
     {
         static void Main(string[] args)
-        {
-            
+        {            
             // Monster test runs
             var installation = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
-            MonsterHarness.TestInventoryWorker(installation);
+            MonsterHarness.TestCompleteProcess(installation);
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();

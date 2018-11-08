@@ -2,12 +2,9 @@
 using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
-using Monster.Acumatica.Api.Customer;
-using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
-using Monster.Middle.Persist.Multitenant.Extensions;
 using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
@@ -23,11 +20,11 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly ShipmentClient _shipmentClient;
         
         public AcumaticaShipmentSync(
-                ShopifyOrderRepository shopifyOrderRepository,
-                ShopifyInventoryRepository shopifyInventoryRepository,
-                AcumaticaOrderRepository acumaticaOrderRepository,
-                AcumaticaShipmentPull acumaticaShipmentPull,
-                ShipmentClient shipmentClient)
+                    ShopifyOrderRepository shopifyOrderRepository,
+                    ShopifyInventoryRepository shopifyInventoryRepository,
+                    AcumaticaOrderRepository acumaticaOrderRepository,
+                    AcumaticaShipmentPull acumaticaShipmentPull,
+                    ShipmentClient shipmentClient)
         {
             _shopifyOrderRepository = shopifyOrderRepository;
             _shopifyInventoryRepository = shopifyInventoryRepository;
@@ -58,8 +55,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             SyncFulfillmentWithAcumatica(fulfillment);
         }
 
-        private void 
-                SyncFulfillmentWithAcumatica(
+        private void SyncFulfillmentWithAcumatica(
                     UsrShopifyFulfillment fulfillmentRecord)
         {
             var shopifyOrder
@@ -79,10 +75,17 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             var customerNbr 
                 = salesOrderRecord.UsrAcumaticaCustomer.AcumaticaCustomerId;
-            
+
+            var locationRecord =
+                _shopifyInventoryRepository
+                    .RetrieveLocation(shopifyFulfillment.location_id);
+            var warehouse = locationRecord.UsrAcumaticaWarehouses.First();
+
+
             var shipment = new Shipment();
             shipment.Type = "Shipment".ToValue();
             shipment.CustomerID = customerNbr.ToValue();
+            shipment.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
             shipment.Details = new List<ShipmentDetail>();
 
             foreach (var line in shopifyFulfillment.line_items)
@@ -96,13 +99,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                         .UsrAcumaticaStockItems
                         .First()
                         .ItemId;
-
-                var locationRecord =
-                    _shopifyInventoryRepository
-                        .RetrieveLocation(shopifyFulfillment.location_id);
-
-                var warehouse = locationRecord.UsrAcumaticaWarehouses.First();
-
+                
                 var detail = new ShipmentDetail();
                 detail.OrderNbr
                     = salesOrderRecord.AcumaticaSalesOrderId.ToValue();

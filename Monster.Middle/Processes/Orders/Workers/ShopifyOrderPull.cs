@@ -47,10 +47,22 @@ namespace Monster.Middle.Processes.Orders.Workers
             _tenantRepository = tenantRepository;
         }
 
-
-        public void RunAll()
+        public void RunAutomatic()
         {
-            _logger.Debug("Baseline Pull Shopify Orders");
+            var batchState = _batchStateRepository.Retrieve();
+            if (batchState.ShopifyOrdersPullEnd.HasValue)
+            {
+                RunUpdated();
+            }
+            else
+            {
+                RunAll();
+            }
+        }
+
+        private void RunAll()
+        {
+            _logger.Debug("ShopifyOrderPull -> RunAll()");
 
             var preferences = _tenantRepository.RetrievePreferences();
 
@@ -100,9 +112,9 @@ namespace Monster.Middle.Processes.Orders.Workers
                 .UpdateShopifyOrdersPullEnd(orderBatchEnd);
         }
 
-        public void RunUpdated()
+        private void RunUpdated()
         {
-            var batchState = _batchStateRepository.RetrieveBatchState();
+            var batchState = _batchStateRepository.Retrieve();
 
             if (!batchState.ShopifyOrdersPullEnd.HasValue)
             {
