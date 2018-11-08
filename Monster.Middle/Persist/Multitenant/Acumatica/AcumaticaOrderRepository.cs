@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 
 namespace Monster.Middle.Persist.Multitenant.Acumatica
@@ -31,8 +33,7 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
                 .FirstOrDefault(
                     x => x.AcumaticaMainContactEmail == email);
         }
-
-
+        
         public DateTime? RetrieveCustomerMaxUpdatedDate()
         {
             if (Entities.UsrAcumaticaCustomers.Any())
@@ -52,6 +53,7 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
             Entities.UsrAcumaticaCustomers.Add(customer);
             Entities.SaveChanges();
         }
+        
         
 
         // Sales Order
@@ -88,14 +90,80 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         {
             return Entities
                 .UsrAcumaticaShipments
+                .Include(x => x.UsrAcumaticaSoShipments)
                 .FirstOrDefault(x => x.AcumaticaShipmentId == shipmentNbr);
         }
-
+        public UsrAcumaticaShipment RetrieveShipmentByMId(long monsterId)
+        {
+            return Entities
+                .UsrAcumaticaShipments
+                .Include(x => x.UsrAcumaticaSoShipments)
+                .FirstOrDefault(x => x.Id == monsterId);
+        }
         public void InsertShipment(UsrAcumaticaShipment shipment)
         {
             Entities.UsrAcumaticaShipments.Add(shipment);
             Entities.SaveChanges();
         }
+
+        public DateTime? RetrieveShipmentMaxUpdatedDate()
+        {
+            if (Entities.UsrAcumaticaCustomers.Any())
+            {
+                return Entities.UsrAcumaticaShipments
+                    .Select(x => x.LastUpdated)
+                    .Max();
+            }
+            else
+            {
+                return (DateTime?)null;
+            }
+        }
+
+        public void ImprintShipmentDetail(
+                string acumaticaShipmentId, 
+                List<UsrAcumaticaSoShipment> newestRecords)
+        {
+            var existingShipment = RetrieveShipment(acumaticaShipmentId);
+
+            foreach (var existingSoShipment in existingShipment.UsrAcumaticaSoShipments)
+            {
+                if (!newestRecords.AnyMatchByAcumaticaIds(existingSoShipment))
+                {
+                    Entities.UsrAcumaticaSoShipments.Remove(existingSoShipment);
+                }
+            }
+
+            foreach (var newestRecord in newestRecords)
+            {
+                // TODO - check if Sales Order still exists?
+                var salesOrder = RetrieveSalesOrder(newestRecord.AcumaticaSalesOrderId);
+                var salesOrderMonsterId = salesOrder?.Id;
+                
+                var existingSOShipment =
+                    existingShipment
+                        .UsrAcumaticaSoShipments
+                        .FindByAcumaticaIds(newestRecord);
+
+                if (existingSOShipment != null)
+                {
+                    existingSOShipment.SalesOrderMonsterId = salesOrderMonsterId;
+                    existingSOShipment.LastUpdated = DateTime.UtcNow;
+                    Entities.SaveChanges();
+                    continue;
+                }
+                else
+                {
+
+                    newestRecord.SalesOrderMonsterId = salesOrderMonsterId;
+                    newestRecord.ShipmentMonsterId = existingShipment.Id;
+                    newestRecord.DateCreated = DateTime.UtcNow;
+                    newestRecord.LastUpdated = DateTime.UtcNow;
+                    Entities.SaveChanges();
+                }
+            }
+        }
+
 
         public void SaveChanges()
         {

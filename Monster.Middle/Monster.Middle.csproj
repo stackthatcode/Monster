@@ -71,6 +71,7 @@
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Persist\Multitenant\Acumatica\AcumaticaInventoryRepository.cs" />
     <Compile Include="Persist\Multitenant\Acumatica\AcumaticaOrderRepository.cs" />
+    <Compile Include="Persist\Multitenant\Acumatica\Extensions.cs" />
     <Compile Include="Persist\Multitenant\Etc\BatchStateRepository.cs" />
     <Compile Include="Persist\Multitenant\Extensions\FinancialStatus.cs" />
     <Compile Include="Persist\Multitenant\Extensions\LocationExtensions.cs" />

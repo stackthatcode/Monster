@@ -19,14 +19,12 @@ namespace Monster.Acumatica.Api
 
         public string RetrieveShipments(DateTime? lastModified = null)
         {
-           var queryString = "$expand=Details";
-
-            // TODO - LastModified is misnamed - view the 
-            //if (lastModified.HasValue)
-            //{
-            //    var restDate = lastModified.Value.ToAcumaticaRestDate();
-            //    queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
-            //}
+            var queryString = "$expand=Details";
+            if (lastModified.HasValue)
+            {
+                var restDate = lastModified.Value.ToAcumaticaRestDate();
+                queryString += $"&$filter=LastModifiedDateTime gt datetimeoffset'{restDate}'";
+            }
 
             var response = _httpContext.Get($"Shipment?{queryString}");
             return response.Body;

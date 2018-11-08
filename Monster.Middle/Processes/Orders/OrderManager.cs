@@ -55,8 +55,8 @@ namespace Monster.Middle.Processes.Orders
         {
             _batchStateRepository.ResetOrderBatchState();
 
-            //_shopifyCustomerPull.RunAll();
-            //_shopifyOrderPull.RunAll();
+            _shopifyCustomerPull.RunAll();
+            _shopifyOrderPull.RunAll();
 
             _acumaticaContext.Begin();
 

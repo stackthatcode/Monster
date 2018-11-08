@@ -277,17 +277,21 @@ namespace Monster.Middle.Processes.Orders.Workers
                 if (fulfillmentRecord == null)
                 {
                     var newRecord = new UsrShopifyFulfillment();
+                    newRecord.OrderMonsterId = orderRecord.Id;
                     newRecord.ShopifyFulfillmentId = fulfillment.id;
                     newRecord.ShopifyOrderId = order.id;
                     newRecord.ShopifyStatus = fulfillment.status;
-                    newRecord.UsrShopifyOrder = orderRecord;
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
+
+                    _orderRepository.InsertFulfillments(newRecord);
                 }
                 else
                 {
                     fulfillmentRecord.ShopifyStatus = fulfillment.status;
                     fulfillmentRecord.LastUpdated = DateTime.UtcNow;
+
+                    _orderRepository.SaveChanges();
                 }
             }
         }

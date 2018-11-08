@@ -84,6 +84,29 @@ namespace Monster.Middle.Processes.Orders.Workers
                 }
             }
         }
+
+
+        public long RunAndUpsertCustomer(string acumaticaCustomerId)
+        {
+            var existingCustomer
+                = _orderRepository.RetrieveCustomer(acumaticaCustomerId);
+
+            if (existingCustomer == null)
+            {
+                var customerJson
+                    = _customerClient.RetrieveCustomer(acumaticaCustomerId);
+                var customer = customerJson.DeserializeFromJson<Customer>();
+
+                var newData = customer.ToMonsterRecord();
+                _orderRepository.InsertCustomer(newData);
+
+                return newData.Id;
+            }
+            else
+            {
+                return existingCustomer.Id;
+            }
+        }
     }
 }
 
