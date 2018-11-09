@@ -62,6 +62,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund
         System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
         System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
+        System.Data.Entity.DbSet<VwAcumaticaUnsyncedShipment> VwAcumaticaUnsyncedShipments { get; set; } // vw_AcumaticaUnsyncedShipments
 
         int SaveChanges();
         System.Threading.Tasks.Task<int> SaveChangesAsync();
@@ -109,6 +110,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
         public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
+        public System.Data.Entity.DbSet<VwAcumaticaUnsyncedShipment> VwAcumaticaUnsyncedShipments { get; set; } // vw_AcumaticaUnsyncedShipments
 
         static MonsterDataContext()
         {
@@ -183,6 +185,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyRefundConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration());
             modelBuilder.Configurations.Add(new UsrTenantConfiguration());
+            modelBuilder.Configurations.Add(new VwAcumaticaUnsyncedShipmentConfiguration());
         }
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
@@ -212,6 +215,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyRefundConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrTenantConfiguration(schema));
+            modelBuilder.Configurations.Add(new VwAcumaticaUnsyncedShipmentConfiguration(schema));
             return modelBuilder;
         }
     }
@@ -259,6 +263,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; }
         public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; }
+        public System.Data.Entity.DbSet<VwAcumaticaUnsyncedShipment> VwAcumaticaUnsyncedShipments { get; set; }
 
         public FakeMonsterDataContext()
         {
@@ -291,6 +296,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrShopifyRefunds = new FakeDbSet<UsrShopifyRefund>("Id");
             UsrShopifyVariants = new FakeDbSet<UsrShopifyVariant>("MonsterId");
             UsrTenants = new FakeDbSet<UsrTenant>("CompanyId");
+            VwAcumaticaUnsyncedShipments = new FakeDbSet<VwAcumaticaUnsyncedShipment>("Id", "AcumaticaJson", "AcumaticaShipmentId", "AcumaticaStatus", "CustomerMonsterId", "DateCreated", "LastUpdated");
         }
 
         public int SaveChangesCount { get; private set; }
@@ -743,6 +749,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public string AcumaticaJson { get; set; } // AcumaticaJson
         public string AcumaticaShipmentId { get; set; } // AcumaticaShipmentId (length: 50)
+        public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 25)
         public long? ShopifyFulfillmentMonsterId { get; set; } // ShopifyFulfillmentMonsterId
         public long CustomerMonsterId { get; set; } // CustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -915,6 +922,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaDefaultItemClass { get; set; } // AcumaticaDefaultItemClass (length: 50)
         public string AcumaticaDefaultPostingClass { get; set; } // AcumaticaDefaultPostingClass (length: 50)
         public System.DateTime? AcumaticaPostingDate { get; set; } // AcumaticaPostingDate
+        public string AcumaticaTimeZone { get; set; } // AcumaticaTimeZone (length: 50)
     }
 
     // usrShopifyCustomer
@@ -1265,6 +1273,20 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaPassword { get; set; } // AcumaticaPassword (length: 500)
     }
 
+    // vw_AcumaticaUnsyncedShipments
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class VwAcumaticaUnsyncedShipment
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public string AcumaticaJson { get; set; } // AcumaticaJson (Primary key)
+        public string AcumaticaShipmentId { get; set; } // AcumaticaShipmentId (Primary key) (length: 50)
+        public string AcumaticaStatus { get; set; } // AcumaticaStatus (Primary key) (length: 25)
+        public long? ShopifyFulfillmentMonsterId { get; set; } // ShopifyFulfillmentMonsterId
+        public long CustomerMonsterId { get; set; } // CustomerMonsterId (Primary key)
+        public System.DateTime DateCreated { get; set; } // DateCreated (Primary key)
+        public System.DateTime LastUpdated { get; set; } // LastUpdated (Primary key)
+    }
+
     #endregion
 
     #region POCO Configuration
@@ -1410,6 +1432,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.AcumaticaShipmentId).HasColumnName(@"AcumaticaShipmentId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.ShopifyFulfillmentMonsterId).HasColumnName(@"ShopifyFulfillmentMonsterId").HasColumnType("bigint").IsOptional();
             Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
@@ -1595,6 +1618,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaDefaultItemClass).HasColumnName(@"AcumaticaDefaultItemClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDefaultPostingClass).HasColumnName(@"AcumaticaDefaultPostingClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaPostingDate).HasColumnName(@"AcumaticaPostingDate").HasColumnType("date").IsOptional();
+            Property(x => x.AcumaticaTimeZone).HasColumnName(@"AcumaticaTimeZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
         }
     }
 
@@ -1916,6 +1940,31 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaCompanyName).HasColumnName(@"AcumaticaCompanyName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.AcumaticaUsername).HasColumnName(@"AcumaticaUsername").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.AcumaticaPassword).HasColumnName(@"AcumaticaPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+        }
+    }
+
+    // vw_AcumaticaUnsyncedShipments
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class VwAcumaticaUnsyncedShipmentConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<VwAcumaticaUnsyncedShipment>
+    {
+        public VwAcumaticaUnsyncedShipmentConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public VwAcumaticaUnsyncedShipmentConfiguration(string schema)
+        {
+            ToTable("vw_AcumaticaUnsyncedShipments", schema);
+            HasKey(x => new { x.Id, x.AcumaticaJson, x.AcumaticaShipmentId, x.AcumaticaStatus, x.CustomerMonsterId, x.DateCreated, x.LastUpdated });
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.AcumaticaShipmentId).HasColumnName(@"AcumaticaShipmentId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyFulfillmentMonsterId).HasColumnName(@"ShopifyFulfillmentMonsterId").HasColumnType("bigint").IsOptional();
+            Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
         }
     }
 

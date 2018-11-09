@@ -1,4 +1,7 @@
-﻿namespace Monster.Middle.Persist.Multitenant.Extensions
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Monster.Middle.Persist.Multitenant.Extensions
 {
     public static class OrderExtensions
     {
@@ -32,6 +35,39 @@
                 order.ShopifyFinancialStatus == FinancialStatus.PartiallyRefunded ||
                 order.ShopifyFinancialStatus == FinancialStatus.Refunded;
         }
+
+        public static bool IsReadyForAcumaticaShipment(
+                    this UsrShopifyFulfillment fulfillment)
+        {
+            var acumaticaSalesOrder =
+                    fulfillment
+                        .UsrShopifyOrder
+                        .UsrAcumaticaSalesOrders
+                        .FirstOrDefault();
+
+            if (acumaticaSalesOrder == null)
+            {
+                return false;
+            }
+
+            if (acumaticaSalesOrder.AcumaticaStatus != "Open")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+        public static List<UsrShopifyFulfillment> 
+                    ReadyForAcumaticaShipment(
+                        this List<UsrShopifyFulfillment> fulfillments)
+        {
+            return fulfillments
+                .Where(x => x.IsReadyForAcumaticaShipment())
+                .ToList();
+        }
+
 
         //public static UsrAcumaticaInvoice AcumaticaInvoice(this UsrShopifyOrder order)
         //{

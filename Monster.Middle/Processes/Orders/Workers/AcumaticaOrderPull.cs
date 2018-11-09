@@ -5,6 +5,7 @@ using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -17,6 +18,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
+        private readonly TimeZoneService _timeZoneService;
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
         private readonly IPushLogger _logger;
@@ -28,6 +30,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 CustomerClient customerClient, 
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 AcumaticaCustomerPull acumaticaCustomerPull,
+                TimeZoneService timeZoneService,
                 BatchStateRepository batchStateRepository,
                 
                 SalesOrderClient salesOrderClient,
@@ -37,6 +40,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             _customerClient = customerClient;
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _acumaticaCustomerPull = acumaticaCustomerPull;
+            _timeZoneService = timeZoneService;
             _batchStateRepository = batchStateRepository;
             _salesOrderClient = salesOrderClient;
             _tenantRepository = tenantRepository;
@@ -89,7 +93,9 @@ namespace Monster.Middle.Processes.Orders.Workers
                     "AcumaticaOrdersPullEnd is null - execute RunAll() first");
             }
 
-            var updateMin = batchState.AcumaticaOrdersPullEnd;
+            var updateMinUtc = batchState.AcumaticaOrdersPullEnd;
+            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+
             var pullRunStartTime = DateTime.UtcNow;
 
             var json = _salesOrderClient.RetrieveSalesOrders(updateMin);

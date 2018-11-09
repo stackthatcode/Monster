@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
-using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -16,6 +16,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly CustomerClient _customerClient;
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly BatchStateRepository _batchStateRepository;
+        private readonly TimeZoneService _timeZoneService;
         private readonly TenantRepository _tenantRepository;
         private readonly IPushLogger _logger;
 
@@ -26,12 +27,14 @@ namespace Monster.Middle.Processes.Orders.Workers
                 CustomerClient customerClient,
                 AcumaticaOrderRepository orderRepository,
                 BatchStateRepository batchStateRepository,
+                TimeZoneService timeZoneService,
                 TenantRepository tenantRepository,
                 IPushLogger logger)
         {
             _customerClient = customerClient;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
+            _timeZoneService = timeZoneService;
             _tenantRepository = tenantRepository;
             _logger = logger;
         }
@@ -82,7 +85,10 @@ namespace Monster.Middle.Processes.Orders.Workers
                     "AcumaticaCustomersPullEnd is null - execute RunAll() first");
             }
 
-            var updateMin = batchState.AcumaticaOrdersPullEnd;
+            var updateMinUtc = batchState.AcumaticaCustomersPullEnd;
+            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+
+
             var pullRunStartTime = DateTime.UtcNow;
 
             var json = _customerClient.RetrieveCustomers(updateMin);

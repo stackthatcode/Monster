@@ -7,6 +7,7 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Persist.Multitenant.Shopify;
+using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -17,6 +18,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
         private readonly DistributionClient _inventoryClient;
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly BatchStateRepository _batchStateRepository;
+        private readonly TimeZoneService _timeZoneService;
         private readonly IPushLogger _logger;
 
         public const int InitialBatchStateFudgeMin = -15;
@@ -26,12 +28,14 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     DistributionClient inventoryClient, 
                     AcumaticaInventoryRepository inventoryRepository,
                     BatchStateRepository batchStateRepository,
+                    TimeZoneService timeZoneService,
                     IPushLogger logger)
         {
             _inventoryClient = inventoryClient;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
             _logger = logger;
+            _timeZoneService = timeZoneService;
         }
 
 
@@ -76,10 +80,12 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     "AcumaticaProductsPullEnd is null - run Acumatica Baseline Pull first");
             }
 
-            var productUpdateMin = batchState.AcumaticaProductsPullEnd;
+            var updateMinUtc = batchState.AcumaticaProductsPullEnd;
+            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+
             var pullRunStartTime = DateTime.UtcNow;
 
-            var json = _inventoryClient.RetreiveStockItems(productUpdateMin);
+            var json = _inventoryClient.RetreiveStockItems(updateMin);
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
 
             UpsertStockItemToPersist(stockItems);

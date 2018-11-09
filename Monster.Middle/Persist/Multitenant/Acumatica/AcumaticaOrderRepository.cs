@@ -133,6 +133,14 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
             }
         }
 
+        public List<UsrAcumaticaShipment> RetrieveShipmentsUnsynced()
+        {
+            return
+                Entities.Database.SqlQuery<UsrAcumaticaShipment>
+                    ("SELECT * FROM vw_AcumaticaUnsyncedShipments ORDER BY AcumaticaShipmentId")
+                .ToList();
+        }
+
         public void ImprintShipmentDetail(
                 string acumaticaShipmentId, 
                 List<UsrAcumaticaSoShipment> newestRecords)
@@ -182,5 +190,6 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         {
             Entities.SaveChanges();
         }
+
     }
 }

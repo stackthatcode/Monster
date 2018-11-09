@@ -2,11 +2,14 @@
 USE Monster0001;
 GO
 
+
 -- Clear out Monster
 DELETE FROM usrAcumaticaSOShipment;
+DELETE FROM usrAcumaticaShipment;
 DELETE FROM usrAcumaticaSalesOrder;
 DELETE FROM usrAcumaticaCustomer;
 
+DELETE FROM usrShopifyFulfillment;
 DELETE FROM usrShopifyOrderLineItem;
 DELETE FROM usrShopifyOrder;
 DELETE FROM usrShopifyCustomer;

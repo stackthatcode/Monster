@@ -77,23 +77,23 @@ namespace Monster.Middle.Processes.Orders
 
         public void SynchronizeRoutine()
         {
+            // Shopify Pull
             _shopifyCustomerPull.RunAutomatic();
             _shopifyOrderPull.RunAutomatic();
-
-
-            // Acumatica
+            
+            // Acumatica Pull
             _acumaticaContext.Login();
 
             // Get the latest Acumatica Sales Orders for monitoring sake
             _acumaticaOrderPull.RunAutomatic();
             _acumaticaShipmentPull.RunAutomatic();
-
-            // Push Orders to Acumatica
+            
+            // Acumatica Sync
+            _acumaticaInventorySync.Run();
             _acumaticaOrderSync.Run();
             _acumaticaShipmentSync.Run();
 
-            // Shopify Orders may have triggered new Product creations
-            _acumaticaInventorySync.Run();
+            _acumaticaContext.Logout();
         }
 
         public void SingleOrderPush(long shopifyOrderId)

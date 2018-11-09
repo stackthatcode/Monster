@@ -126,6 +126,7 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
             return Entities
                 .UsrShopifyFulfillments
                 .Include(x => x.UsrShopifyOrder)
+                .Include(x => x.UsrShopifyOrder.UsrAcumaticaSalesOrders)
                 .Where(x =>
                     x.UsrShopifyOrder.UsrAcumaticaSalesOrders.Any()
                     && !x.UsrAcumaticaShipments.Any())

@@ -90,6 +90,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             // TODO - convert this to a constant or configurable item
             salesOrder.OrderType = "SO".ToValue();
+            salesOrder.Status = "Open".ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
             salesOrder.TaxTotal = ((double) shopifyOrder.total_tax).ToValue();

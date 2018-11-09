@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -20,6 +20,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
+        private readonly TimeZoneService _timeZoneService;
         private readonly IPushLogger _logger;
 
         public const int InitialBatchStateFudgeMin = -15;
@@ -29,6 +30,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 AcumaticaCustomerPull acumaticaCustomerPull,
                 BatchStateRepository batchStateRepository,
+                TimeZoneService timeZoneService,
                 ShipmentClient shipmentClient,
                 TenantRepository tenantRepository,
                 IPushLogger logger)
@@ -36,6 +38,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _batchStateRepository = batchStateRepository;
+            _timeZoneService = timeZoneService;
             _shipmentClient = shipmentClient;
             _tenantRepository = tenantRepository;
             _logger = logger;
@@ -87,7 +90,9 @@ namespace Monster.Middle.Processes.Orders.Workers
                     "AcumaticaOrdersPullEnd is null - execute RunAll() first");
             }
 
-            var updateMin = batchState.AcumaticaShipmentsPullEnd;
+            var updateMinUtc = batchState.AcumaticaShipmentsPullEnd;
+            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+
             var pullRunStartTime = DateTime.UtcNow;
 
             var json = _shipmentClient.RetrieveShipments(updateMin);
@@ -125,7 +130,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newData.AcumaticaJson = shipment.SerializeToJson();
                 newData.AcumaticaShipmentId = shipment.ShipmentNbr.value;
                 newData.CustomerMonsterId = customerMonsterId;
-
+                newData.AcumaticaStatus = shipment.Status.value;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 
@@ -138,6 +143,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             else
             {
                 existingData.AcumaticaJson = shipment.SerializeToJson();
+                existingData.AcumaticaStatus = shipment.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
 
                 _acumaticaOrderRepository.SaveChanges();

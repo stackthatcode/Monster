@@ -93,6 +93,9 @@ namespace Monster.Middle
             builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
+            
+            // Misc
+            builder.RegisterType<TimeZoneService>().InstancePerLifetimeScope();
 
 
             // Inventory synchronization workers

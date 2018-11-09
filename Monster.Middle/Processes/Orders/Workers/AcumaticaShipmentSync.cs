@@ -5,6 +5,7 @@ using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
+using Monster.Middle.Persist.Multitenant.Extensions;
 using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
@@ -36,12 +37,15 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         public void Run()
         {
-            var shopifyFulfillments 
+            var fulfillments 
                     = _shopifyOrderRepository
                         .RetrieveFulfillmentsNotSynced();
 
-            foreach (var fulfillment in shopifyFulfillments)
-            {
+            var correctedFulfillments
+                    = fulfillments.ReadyForAcumaticaShipment();
+
+            foreach (var fulfillment in correctedFulfillments)
+            {                
                 SyncFulfillmentWithAcumatica(fulfillment);
             }
         }
@@ -56,7 +60,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         }
 
         private void SyncFulfillmentWithAcumatica(
-                    UsrShopifyFulfillment fulfillmentRecord)
+                        UsrShopifyFulfillment fulfillmentRecord)
         {
             var shopifyOrder
                 = fulfillmentRecord
@@ -84,6 +88,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             var shipment = new Shipment();
             shipment.Type = "Shipment".ToValue();
+            shipment.Status = "Open".ToValue();
             shipment.CustomerID = customerNbr.ToValue();
             shipment.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
             shipment.Details = new List<ShipmentDetail>();
