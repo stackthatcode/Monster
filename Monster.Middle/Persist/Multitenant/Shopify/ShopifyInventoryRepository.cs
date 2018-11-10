@@ -25,34 +25,21 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
 
         public IList<UsrShopifyLocation> RetreiveLocations()
         {
-            return Entities
-                .UsrShopifyLocations
-                .Include(x => x.UsrAcumaticaWarehouses)
-                .ToList();
+            return Entities.UsrShopifyLocations.ToList();
         }
 
-        public UsrShopifyLocation RetrieveLocation(long locationId)
-        {
-            return Entities
-                .UsrShopifyLocations
-                .Include(x => x.UsrAcumaticaWarehouses)
-                .FirstOrDefault(x => x.ShopifyLocationId == locationId);
-        }
 
 
         // Shopify persistence
         //
-        public UsrShopifyProduct 
-                RetrieveProduct(long shopifyProductId)
+        public UsrShopifyProduct RetrieveProduct(long shopifyProductId)
         {
             return Entities
                 .UsrShopifyProducts
-                .FirstOrDefault(
-                        x => x.ShopifyProductId == shopifyProductId);
+                .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
         
-        public UsrShopifyVariant
-                RetrieveVariant(long shopifyVariantId, string sku)
+        public UsrShopifyVariant RetrieveVariant(long shopifyVariantId, string sku)
         {
             return Entities
                 .UsrShopifyVariants

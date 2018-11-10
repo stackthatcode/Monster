@@ -63,6 +63,22 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .Where(x => x.IsUnmatched())
                 .ToList();
         }
+
+        public static UsrShopifyLocation 
+                MatchedLocation(this UsrAcumaticaWarehouse input)
+        {
+            return input
+                .UsrShopAcuWarehouseSyncs
+                .FirstOrDefault()?.UsrShopifyLocation;
+        }
+
+        public static UsrAcumaticaWarehouse
+                MatchedWarehouse(this UsrShopifyLocation input)
+        {
+            return input
+                .UsrShopAcuWarehouseSyncs
+                .FirstOrDefault()?.UsrAcumaticaWarehouse;
+        }
     }
 }
 

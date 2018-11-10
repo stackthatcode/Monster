@@ -117,7 +117,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 {
                     existingData.AcumaticaJson = item.SerializeToJson();
                     existingData.LastUpdated = DateTime.UtcNow;
-
+                    
                     _inventoryRepository.SaveChanges();
                 }
 
@@ -157,7 +157,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     newDetail.AcumaticaWarehouseId = acumaticaDetail.WarehouseID.value;
                     newDetail.AcumaticaQtyOnHand = acumaticaDetail.QtyOnHand.value;
                     newDetail.WarehouseMonsterId = monsterWarehouse.Id;
-                    newDetail.ShopifyIsSynced = false;
+                    newDetail.IsShopifySynced = false;
                     newDetail.DateCreated = DateTime.UtcNow;
                     newDetail.LastUpdated = DateTime.UtcNow;
 
@@ -167,7 +167,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 {
                     existingDetail.AcumaticaQtyOnHand = acumaticaDetail.QtyOnHand.value;
                     existingDetail.AcumaticaJson = acumaticaDetail.SerializeToJson();
-                    existingDetail.ShopifyIsSynced = false;
+                    existingDetail.IsShopifySynced = false;
                     existingDetail.LastUpdated = DateTime.UtcNow;
                     _inventoryRepository.SaveChanges();
                 }

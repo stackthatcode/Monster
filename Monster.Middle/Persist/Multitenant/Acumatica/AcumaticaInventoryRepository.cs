@@ -33,19 +33,11 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         public UsrAcumaticaStockItem
                     RetreiveStockItem(string itemId, bool? isMatched = null)
         {
-            if (isMatched.HasValue)
-            {
-                return Entities
-                    .UsrAcumaticaStockItems
-                    .FirstOrDefault(x => x.ShopifyVariantMonsterId.HasValue == isMatched
-                                    && x.ItemId == itemId);
-            }
-            else
-            {
-                return Entities
-                    .UsrAcumaticaStockItems
-                    .FirstOrDefault(x => x.ItemId == itemId);
-            }
+            return Entities
+                .UsrAcumaticaStockItems
+                .Include(x => x.UsrShopAcuItemSyncs)
+                .Where(x => x.UsrShopAcuItemSyncs.Any() == isMatched)
+                .FirstOrDefault(x => x.ItemId == itemId);
         }
 
         public UsrAcumaticaStockItem RetreiveStockItem(long monsterId)

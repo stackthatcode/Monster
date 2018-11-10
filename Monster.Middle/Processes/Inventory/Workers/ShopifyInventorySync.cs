@@ -3,6 +3,7 @@ using System.Linq;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Persist.Multitenant.Shopify;
+using Monster.Middle.Persist.Multitenant.Sync;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -13,64 +14,62 @@ namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class ShopifyInventorySync
     {
-        private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
+        private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
-        private readonly BatchStateRepository _batchStateRepository;
-        private readonly IPushLogger _logger;
 
         // Possibly expand - this is a one-time thing...
         public const int InitialBatchStateFudgeMin = -15;
 
 
         public ShopifyInventorySync(
-                IPushLogger logger,
-                ProductApi productApi,
                 InventoryApi inventoryApi,
                 ShopifyInventoryRepository inventoryRepository, 
-                AcumaticaInventoryRepository acumaticaInventoryRepository,
-                BatchStateRepository batchStateRepository)
+                AcumaticaInventoryRepository acumaticaInventoryRepository, 
+                SyncInventoryRepository syncInventoryRepository)
         {
-            _productApi = productApi;
             _inventoryApi = inventoryApi;
             _inventoryRepository = inventoryRepository;
             _acumaticaInventoryRepository = acumaticaInventoryRepository;
-            _batchStateRepository = batchStateRepository;
-            _logger = logger;
+            _syncInventoryRepository = syncInventoryRepository;
         }
 
 
         public void Run()
         {
             var warehouseDetails
-                = _acumaticaInventoryRepository
+                = _syncInventoryRepository
                     .RetrieveWarehouseDetailsNotSynced();
+
+            var warehouses = _syncInventoryRepository.RetrieveWarehouses();
 
             foreach (var warehouseDetail in warehouseDetails)
             {
                 var quantity = (int)warehouseDetail.AcumaticaQtyOnHand;
 
-                var location =
-                    warehouseDetail
-                        .UsrAcumaticaWarehouse
-                        .UsrShopifyLocation;
+                // Extracts the Shopify Location
+                // NOTE - requires valid Warehouse-Location matching
+                var warehouse = warehouses.ByDetail(warehouseDetail);                    
+                var location = warehouse.MatchedLocation();
 
-                var shopifyLocationId = location.ShopifyLocationId;
                 var locationMonsterId = location.MonsterId;
+                var shopifyLocationId = location.ShopifyLocationId;
+
+                // Extracts the Matched Variant
+                var stockItem
+                    = _syncInventoryRepository.RetrieveStockItem(
+                        warehouseDetail.UsrAcumaticaStockItem.ItemId);
 
                 var shopifyInventoryItemId =
-                    warehouseDetail
-                        .UsrAcumaticaStockItem
-                        .UsrShopifyVariant
-                        .ShopifyInventoryItemId;
+                    stockItem.MatchedVariant().ShopifyInventoryItemId;
 
-                var inventoryLevelData
-                    = warehouseDetail
-                        .UsrAcumaticaStockItem
-                        .UsrShopifyVariant
-                        .UsrShopifyInventoryLevels
-                        .First(x => x.LocationMonsterId == locationMonsterId);
+                var inventoryLevels =
+                    stockItem.MatchedVariant().UsrShopifyInventoryLevels;
+
+                var inventoryLevel =
+                    inventoryLevels.First(
+                        x => x.LocationMonsterId == locationMonsterId);
 
                 var level = new InventoryLevel
                 {
@@ -83,11 +82,11 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 var resultJson = _inventoryApi.SetInventoryLevels(levelJson);
 
                 // Flag Acumatica Warehouse Detail as synchronized
-                warehouseDetail.ShopifyIsSynced = true;
+                warehouseDetail.IsShopifySynced = true;
 
                 // Update Shopify Inventory Level records
-                inventoryLevelData.ShopifyAvailableQuantity = quantity;
-                inventoryLevelData.LastUpdated = DateTime.UtcNow;
+                inventoryLevel.ShopifyAvailableQuantity = quantity;
+                inventoryLevel.LastUpdated = DateTime.UtcNow;
 
                 _inventoryRepository.SaveChanges();
             }

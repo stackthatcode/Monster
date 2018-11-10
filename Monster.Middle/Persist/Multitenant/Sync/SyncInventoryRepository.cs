@@ -123,7 +123,7 @@ namespace Monster.Middle.Persist.Multitenant.Sync
         }
 
         public void InsertItemSync(
-            UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem)
+                UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem)
         {
             var sync = new UsrShopAcuItemSync();
             sync.UsrShopifyVariant = variant;
@@ -149,16 +149,15 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .ToList();
         }
 
+        // *** TODO - could obviously be done a little bit cleaner
+
         public List<UsrAcumaticaWarehouseDetail> RetrieveWarehouseDetailsNotSynced()
         {
             return Entities
                 .UsrAcumaticaWarehouseDetails
                 .Include(x => x.UsrAcumaticaStockItem)
                 .Include(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs)
-                .Where(x => x.ShopifyIsSynced == false &&
-                            x.UsrAcumaticaStockItem != null &&
-                            x.UsrAcumaticaStockItem.UsrShopifyVariant != null &&
-                            x.UsrAcumaticaStockItem.UsrShopifyVariant.ShopifyIsTracked)
+                .Where(x => x.IsShopifySynced.HasValue && x.IsShopifySynced.Value == false)
                 .ToList();
         }
 

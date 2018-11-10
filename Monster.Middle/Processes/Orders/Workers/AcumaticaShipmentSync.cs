@@ -87,6 +87,8 @@ namespace Monster.Middle.Processes.Orders.Workers
                     .fulfillments
                     .FirstOrDefault(x => x.id == fulfillmentRecord.ShopifyFulfillmentId);
 
+
+            // Isolate the corresponding Acumatica Sales Order and Customer
             var salesOrderRecord 
                 = _acumaticaOrderRepository
                         .RetrieveSalesOrderByShopify(fulfillmentRecord.OrderMonsterId);
@@ -94,14 +96,14 @@ namespace Monster.Middle.Processes.Orders.Workers
             var customerNbr 
                 = salesOrderRecord.UsrAcumaticaCustomer.AcumaticaCustomerId;
 
+
+            // Isolate the Warehouse
             var locationRecord =
                     _syncInventoryRepository
                         .RetrieveLocation(shopifyFulfillment.location_id);
+            var warehouse = locationRecord.MatchedWarehouse();
 
-            var warehouse 
-                = locationRecord.UsrAcumaticaWarehouses.First();
-
-
+            // Create the Shipment API payload
             var shipment = new Shipment();
             shipment.Type = "Shipment".ToValue();
             shipment.Status = "Open".ToValue();
@@ -116,10 +118,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                         .RetrieveVariant(line.variant_id, line.sku);
 
                 var stockItemId
-                    = variantRecord
-                        .UsrAcumaticaStockItems
-                        .First()
-                        .ItemId;
+                    = variantRecord.MatchedStockItem().ItemId;
                 
                 var detail = new ShipmentDetail();
                 detail.OrderNbr
