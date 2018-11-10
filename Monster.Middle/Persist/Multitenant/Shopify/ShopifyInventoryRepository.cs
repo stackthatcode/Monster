@@ -56,7 +56,6 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
         {
             return Entities
                 .UsrShopifyVariants
-                .Include(x => x.UsrAcumaticaStockItems)
                 .FirstOrDefault(
                     x => x.ShopifyVariantId == shopifyVariantId &&
                          x.ShopifySku == sku);

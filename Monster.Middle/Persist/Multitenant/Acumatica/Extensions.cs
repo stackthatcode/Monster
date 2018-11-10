@@ -1,35 +1,44 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Monster.Middle.Persist.Multitenant.Acumatica
 {
     public static class Extensions
     {
-        public static bool 
-                MatchByAcumaticaIds(
-                    this UsrAcumaticaSoShipment input,
-                    UsrAcumaticaSoShipment compareWith)
+        public static string AcumaticaStockItemId(
+            this UsrShopifyInventoryLevel input)
         {
-            return input.AcumaticaSalesOrderId == compareWith.AcumaticaSalesOrderId
-                   && input.AcumaticaShipmentId == compareWith.AcumaticaShipmentId;
+            var stockItems = input
+                .UsrShopifyVariant
+                .UsrAcumaticaStockItems;
+
+            if (stockItems.Count == 0)
+            {
+                throw new Exception("No matching Acumatica Stock Items");
+            }
+
+            return stockItems.First().ItemId;
         }
 
-        public static UsrAcumaticaSoShipment
-                FindByAcumaticaIds(
-                    this IEnumerable<UsrAcumaticaSoShipment> input, 
-                    UsrAcumaticaSoShipment compareWith)
+        public static string AcumaticaWarehouseId(
+            this UsrShopifyInventoryLevel input)
         {
-            return input.FirstOrDefault(
-                x => x.MatchByAcumaticaIds(compareWith));
+            var location = input.UsrShopifyLocation;
+            if (location == null)
+            {
+                throw new Exception("Inventory Level not assigned to Location");
+            }
+
+            var warehouse = location.UsrAcumaticaWarehouses.FirstOrDefault();
+            if (warehouse == null)
+            {
+                throw new Exception("Shopify Location not matched to Acumatica Warehouse");
+            }
+
+            return warehouse.AcumaticaWarehouseId;
         }
 
-        public static bool
-                AnyMatchByAcumaticaIds(
-                    this IEnumerable<UsrAcumaticaSoShipment> input,
-                    UsrAcumaticaSoShipment compareWith)
-        {
-            return input.FindByAcumaticaIds(compareWith) != null;
-        }
     }
 }
 

@@ -1,8 +1,7 @@
 ﻿using System.Linq;
-using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
-using Monster.Middle.Persist.Multitenant.Extensions;
 using Monster.Middle.Persist.Multitenant.Shopify;
+using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Processes.Inventory.Model;
 
 namespace Monster.Middle.Processes.Inventory.Services

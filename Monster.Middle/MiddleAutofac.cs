@@ -6,6 +6,7 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Persist.Multitenant.Shopify;
+using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Processes.Inventory.Services;
@@ -84,7 +85,9 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaOrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventoryRepository>().InstancePerLifetimeScope();
 
+            builder.RegisterType<SyncOrderRepository>().InstancePerLifetimeScope();
 
+            
             // Tenant Context
             builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
 

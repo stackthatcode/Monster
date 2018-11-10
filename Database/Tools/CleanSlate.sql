@@ -4,7 +4,6 @@ GO
 
 
 -- Clear out Monster
-DELETE FROM usrAcumaticaSOShipment;
 DELETE FROM usrAcumaticaShipment;
 DELETE FROM usrAcumaticaSalesOrder;
 DELETE FROM usrAcumaticaCustomer;

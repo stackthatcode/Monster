@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api.Common;
+using Newtonsoft.Json;
 
 
 namespace Monster.Acumatica.Api.SalesOrder
@@ -51,5 +53,6 @@ namespace Monster.Acumatica.Api.SalesOrder
         public DoubleValue TaxTotal { get; set; }
         public StringValue custom { get; set; }
         public List<object> files { get; set; }
+
     }
 }

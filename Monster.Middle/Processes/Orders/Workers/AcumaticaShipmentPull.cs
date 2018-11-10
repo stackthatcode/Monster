@@ -136,8 +136,6 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 _acumaticaOrderRepository.InsertShipment(newData);
 
-                UpsertSOShipments(shipment);
-
                 return newData;
             }
             else
@@ -148,32 +146,10 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 _acumaticaOrderRepository.SaveChanges();
                 
-                UpsertSOShipments(shipment);
-
                 return existingData;
             }
         }
-
-        public void UpsertSOShipments(Shipment shipment)
-        {
-            var currentDetailRecords = new List<UsrAcumaticaSoShipment>();
-            
-            foreach (var detail in shipment.Details)
-            {
-                var currentDetailRecord =
-                    new UsrAcumaticaSoShipment
-                    {
-                        AcumaticaSalesOrderId = detail.OrderNbr.value,
-                        AcumaticaShipmentId = shipment.ShipmentNbr.value
-                    };
-                
-                currentDetailRecords.Add(currentDetailRecord);
-            }
-
-            _acumaticaOrderRepository
-                .ImprintShipmentDetail(
-                    shipment.ShipmentNbr.value, currentDetailRecords);
-        }
+        
 
     }
 }

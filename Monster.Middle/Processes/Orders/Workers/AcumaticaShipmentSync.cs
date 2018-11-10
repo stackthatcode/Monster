@@ -7,6 +7,7 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Extensions;
 using Monster.Middle.Persist.Multitenant.Shopify;
+using Monster.Middle.Persist.Multitenant.Sync;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
 
@@ -14,6 +15,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 {
     public class AcumaticaShipmentSync
     {
+        private readonly SyncOrderRepository _syncOrderRepository;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
@@ -21,12 +23,14 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly ShipmentClient _shipmentClient;
         
         public AcumaticaShipmentSync(
+                    SyncOrderRepository syncOrderRepository,
                     ShopifyOrderRepository shopifyOrderRepository,
                     ShopifyInventoryRepository shopifyInventoryRepository,
                     AcumaticaOrderRepository acumaticaOrderRepository,
                     AcumaticaShipmentPull acumaticaShipmentPull,
                     ShipmentClient shipmentClient)
         {
+            _syncOrderRepository = syncOrderRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
             _shopifyInventoryRepository = shopifyInventoryRepository;
             _acumaticaOrderRepository = acumaticaOrderRepository;
@@ -38,14 +42,22 @@ namespace Monster.Middle.Processes.Orders.Workers
         public void Run()
         {
             var fulfillments 
-                    = _shopifyOrderRepository
-                        .RetrieveFulfillmentsNotSynced();
+                    = _syncOrderRepository.RetrieveFulfillmentsNotSynced();
 
-            var correctedFulfillments
-                    = fulfillments.ReadyForAcumaticaShipment();
+            foreach (var fulfillment in fulfillments)
+            {
+                var acumaticaOrder = fulfillment.UsrShopifyOrder.AcumaticaSalesOrder();
 
-            foreach (var fulfillment in correctedFulfillments)
-            {                
+                if (acumaticaOrder == null)
+                {
+                    continue;
+                }
+
+                if (!acumaticaOrder.IsReadyForShipment())
+                {
+                    continue;
+                }
+
                 SyncFulfillmentWithAcumatica(fulfillment);
             }
         }
@@ -124,9 +136,8 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             var acumaticaRecord
                 = _acumaticaShipmentPull.UpsertShipmentToPersist(resultShipment);
-            
-            acumaticaRecord.UsrShopifyFulfillment = fulfillmentRecord;
-            _acumaticaOrderRepository.SaveChanges();
+
+            _syncOrderRepository.InsertShipmentSync(fulfillmentRecord, acumaticaRecord);
         }
     }
 }

@@ -6,52 +6,56 @@ using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
-using Monster.Middle.Persist.Multitenant.Extensions;
 using Monster.Middle.Persist.Multitenant.Shopify;
+using Monster.Middle.Persist.Multitenant.Sync;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
+
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
     public class AcumaticaOrderSync
     {
+        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
+        private readonly SyncOrderRepository _syncOrderRepository;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
+        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly CustomerClient _customerClient;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
-        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
-
+        
         public AcumaticaOrderSync(
-                ShopifyOrderRepository orderRepository, 
-                CustomerClient customerClient,
-                SalesOrderClient salesOrderClient, 
-                AcumaticaOrderPull acumaticaOrderPull, 
-                AcumaticaOrderRepository acumaticaOrderRepository)
+                    SyncOrderRepository syncOrderRepository,
+                    ShopifyInventoryRepository shopifyInventoryRepository,
+                    ShopifyOrderRepository orderRepository, 
+                    AcumaticaOrderRepository acumaticaOrderRepository, 
+                    CustomerClient customerClient,
+                    SalesOrderClient salesOrderClient,
+                    AcumaticaOrderPull acumaticaOrderPull)
         {
+            _syncOrderRepository = syncOrderRepository;
             _shopifyOrderRepository = orderRepository;
+            _acumaticaOrderRepository = acumaticaOrderRepository;
+            _shopifyInventoryRepository = shopifyInventoryRepository;
             _customerClient = customerClient;
             _salesOrderClient = salesOrderClient;
             _acumaticaOrderPull = acumaticaOrderPull;
-            _acumaticaOrderRepository = acumaticaOrderRepository;
         }
 
 
         public void Run()
         {
-            var shopifyOrders = 
-                    _shopifyOrderRepository.RetrieveOrdersNotSynced();
+            var shopifyOrders 
+                = _syncOrderRepository.RetrieveShopifyOrdersNotSynced();
 
             foreach (var shopifyOrder in shopifyOrders)
             {
-                // TODO - Make this useful state information conveniently available
-                // ... via the OrderSyncStatusService
-                //
-                if (!shopifyOrder.LineItemsAreReadyToSync())
+                if (!shopifyOrder.IsPaid())
                 {
                     continue;
                 }
 
-                if (!shopifyOrder.IsPaid())
+                if (!AreLineItemsReadyToSync(shopifyOrder))
                 {
                     continue;
                 }
@@ -60,26 +64,49 @@ namespace Monster.Middle.Processes.Orders.Workers
             }
         }
 
+        public bool AreLineItemsReadyToSync(UsrShopifyOrder shopifyOrderRecord)
+        {
+            var shopifyOrder
+                = shopifyOrderRecord
+                    .ShopifyJson
+                    .DeserializeToOrder();
+
+            foreach (var lineItem in shopifyOrder.line_items)
+            {
+                var variant = 
+                    _syncOrderRepository
+                        .RetrieveVariant(lineItem.variant_id, lineItem.sku);
+
+                if (variant == null || variant.IsNotMatched())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
         public void RunByShopifyId(long shopifyOrderId)
         {
-            var shopifyOrder = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
+            var shopifyOrder 
+                = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
+
             SyncOrderWithAcumatica(shopifyOrder);
         }
 
         private void SyncOrderWithAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
-            if (!shopifyOrderRecord.UsrAcumaticaSalesOrders.Any())
+            if (!shopifyOrderRecord.UsrShopAcuOrderSyncs.Any())
             {
                 PushOrderToAcumatica(shopifyOrderRecord);
             }
-
-            _shopifyOrderRepository.Refresh(shopifyOrderRecord);
         }
 
 
         private void PushOrderToAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
-            var customer = SyncCustomer(shopifyOrderRecord);
+            var customer = SyncCustomerToAcumatica(shopifyOrderRecord);
 
             var shopifyOrder
                 = shopifyOrderRecord
@@ -97,28 +124,23 @@ namespace Monster.Middle.Processes.Orders.Workers
             salesOrder.Details = new List<SalesOrderDetail>();
             
 
-            foreach (var lineItem in shopifyOrderRecord.UsrShopifyOrderLineItems)
+            foreach (var lineItem in shopifyOrder.line_items)
             {
-                var stockItem
-                    = lineItem
-                        .UsrShopifyVariant
-                        .UsrAcumaticaStockItems
-                        .First();
+                var variant =
+                    _syncOrderRepository
+                        .RetrieveVariant(lineItem.variant_id, lineItem.sku);
 
-                var shopifyLineItem
-                    = shopifyOrder
-                        .line_items
-                        .First(x => x.id == lineItem.ShopifyLineItemId);
-
+                var stockItem = variant.UsrAcumaticaStockItems.First();
+                
                 var salesOrderDetail = new SalesOrderDetail();
 
                 salesOrderDetail.InventoryID = stockItem.ItemId.ToValue();
 
                 salesOrderDetail.OrderQty 
-                    = ((double)shopifyLineItem.quantity).ToValue();
+                    = ((double)lineItem.quantity).ToValue();
 
                 salesOrderDetail.ExtendedPrice =
-                    ((double) shopifyLineItem.TotalAfterDiscount).ToValue();
+                    ((double) lineItem.TotalAfterDiscount).ToValue();
 
                 salesOrder.Details.Add(salesOrderDetail);
             }
@@ -132,25 +154,31 @@ namespace Monster.Middle.Processes.Orders.Workers
             var acumaticaRecord
                 = _acumaticaOrderPull.UpsertOrderToPersist(resultSalesOrder);
 
-            acumaticaRecord.UsrShopifyOrder = shopifyOrderRecord;
-            _shopifyOrderRepository.SaveChanges();
+            _syncOrderRepository
+                .InsertOrderSync(shopifyOrderRecord, acumaticaRecord);
         }
 
         
 
         public UsrAcumaticaCustomer 
-                SyncCustomer(UsrShopifyOrder shopifyOrder)
+                    SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
         {
-            var customer = shopifyOrder.UsrShopifyCustomer;
+            var customer =
+                _syncOrderRepository.RetrieveCustomer(
+                    shopifyOrder.UsrShopifyCustomer.ShopifyCustomerId);
+
             UsrAcumaticaCustomer output;
 
-            if (!customer.UsrAcumaticaCustomers.Any())
+            if (!customer.UsrShopAcuCustomerSyncs.Any())
             {
                 output = PushCustomer(customer);
             }
             else
             {
-                output = customer.UsrAcumaticaCustomers.FirstOrDefault();
+                output = customer
+                    .UsrShopAcuCustomerSyncs
+                    .FirstOrDefault()
+                    .UsrAcumaticaCustomer;
             }
 
             return output;
@@ -187,14 +215,18 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             customer.MainContact = mainContact;
 
+            // Push to Acumatica API
             var resultJson 
                 = _customerClient.AddNewCustomer(customer.SerializeToJson());
 
             var newAcumaticaCustomer = resultJson.DeserializeFromJson<Customer>();
+
             var acumaticaMonsterRecord = newAcumaticaCustomer.ToMonsterRecord();
-            acumaticaMonsterRecord.UsrShopifyCustomer = shopifyCustomerRecord;
 
             _acumaticaOrderRepository.InsertCustomer(acumaticaMonsterRecord);
+
+            _syncOrderRepository.InsertCustomerSync(shopifyCustomerRecord, acumaticaMonsterRecord);
+
             return acumaticaMonsterRecord;
         }
         

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api.Common;
+using Newtonsoft.Json;
 
 namespace Monster.Acumatica.Api.Shipment
 {
@@ -49,5 +51,14 @@ namespace Monster.Acumatica.Api.Shipment
         public StringValue WorkgroupID { get; set; }
         public StringValue custom { get; set; }
         public List<object> files { get; set; }
+
+        [JsonIgnore]
+        public List<string>
+            UniqueOrderNbrs =>
+                Details
+                    .Select(x => x.OrderNbr.value)
+                    .Distinct()
+                    .ToList();
+
     }
 }

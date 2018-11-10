@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Etc;
@@ -7,7 +6,6 @@ using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
-using Push.Shopify.Api.Inventory;
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
@@ -41,66 +39,39 @@ namespace Monster.Middle.Processes.Orders.Workers
         public void Run()
         {
             // Shipments that have Sales Orders, but no matching Shopify Fulfillment
-            var shipments =
+            var shipmentsRecords =
                 _acumaticaOrderRepository.RetrieveShipmentsUnsynced();
 
             // TODO - more Acumatica Status filtering
-            var correctedShipments =
-                shipments
+            var correctedShipmentRecords =
+                shipmentsRecords
                     .Where(x => x.AcumaticaStatus != "Hold")
                     .ToList();
 
-            foreach (var shipment in shipments)
+            foreach (var shipmentRecord in correctedShipmentRecords)
             {
-                //var shipmentObject 
-                //    = shipment.AcumaticaJson.DeserializeFromJson<Shipment>();
-                
+                var shipment = 
+                    shipmentRecord
+                        .AcumaticaJson
+                        .DeserializeFromJson<Shipment>();
 
-                //var salesOrder = 
+                foreach (var orderNbr in shipment.UniqueOrderNbrs)
+                {
+                    var order = 
+                        _acumaticaOrderRepository.RetrieveSalesOrder(orderNbr);
 
+                    //if (order.UsrShopifyOrder == null)
+                    //{
+                    //    continue;
+                    //}
 
-                //var quantity = (int)warehouseDetail.AcumaticaQtyOnHand;
-
-                //var location =
-                //    warehouseDetail
-                //        .UsrAcumaticaWarehouse
-                //        .UsrShopifyLocation;
-
-                //var shopifyLocationId = location.ShopifyLocationId;
-                //var locationMonsterId = location.MonsterId;
-
-                //var shopifyInventoryItemId =
-                //    warehouseDetail
-                //        .UsrAcumaticaStockItem
-                //        .UsrShopifyVariant
-                //        .ShopifyInventoryItemId;
-
-                //var inventoryLevelData
-                //    = warehouseDetail
-                //        .UsrAcumaticaStockItem
-                //        .UsrShopifyVariant
-                //        .UsrShopifyInventoryLevels
-                //        .First(x => x.LocationMonsterId == locationMonsterId);
-
-                //var level = new InventoryLevel
-                //{
-                //    inventory_item_id = shopifyInventoryItemId,
-                //    available = quantity,
-                //    location_id = shopifyLocationId,
-                //};
-
-                //var levelJson = level.SerializeToJson();
-                //var resultJson = _inventoryApi.SetInventoryLevels(levelJson);
-
-                //// Flag Acumatica Warehouse Detail as synchronized
-                //warehouseDetail.ShopifyIsSynced = true;
-
-                //// Update Shopify Inventory Level records
-                //inventoryLevelData.ShopifyAvailableQuantity = quantity;
-                //inventoryLevelData.LastUpdated = DateTime.UtcNow;
-
-                //_inventoryRepository.SaveChanges();
+                }
             }
+        }
+
+        public void PushFulfillmentToShopify()
+        {
+
         }
     }
 }

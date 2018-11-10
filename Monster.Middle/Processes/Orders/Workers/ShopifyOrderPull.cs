@@ -173,11 +173,8 @@ namespace Monster.Middle.Processes.Orders.Workers
             foreach (var order in orders)
             {
                 UpsertOrderAndCustomer(order);
-                UpsertOrderLineItems(order);
                 UpsertOrderFulfillments(order);
                 UpsertOrderRefunds(order);
-
-                AutoAssignVariantForLineItems(order);
             }
         }
 
@@ -200,13 +197,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
 
-                using (var scope = new TransactionScope())
-                {
-                    _orderRepository.InsertOrder(newOrder);
-                    UpsertOrderLineItems(order);
-
-                    scope.Complete();
-                }
+                _orderRepository.InsertOrder(newOrder);
             }
             else
             {
@@ -248,32 +239,6 @@ namespace Monster.Middle.Processes.Orders.Workers
             }
         }
 
-        public void UpsertOrderLineItems(Order order)
-        {
-            var orderRecord 
-                = _orderRepository.RetrieveOrder(order.id);
-
-            foreach (var lineItem in order.line_items)
-            {
-                var shopifyLineItem
-                    = orderRecord
-                        .UsrShopifyOrderLineItems
-                        .FirstOrDefault(x => x.ShopifyLineItemId == lineItem.id);
-
-                if (shopifyLineItem == null)
-                {
-                    var orderLineItem = new UsrShopifyOrderLineItem();
-                    orderLineItem.UsrShopifyOrder = orderRecord;
-                    orderLineItem.UsrShopifyVariant = null;
-                    orderLineItem.ShopifyLineItemId = lineItem.id;
-                    orderLineItem.ShopifyProductId = lineItem.product_id;
-                    orderLineItem.ShopifyVariantId = lineItem.variant_id;
-                    orderLineItem.ShopifySku = lineItem.sku;
-
-                    _orderRepository.InsertOrderLineItem(orderLineItem);
-                }
-            }
-        }
 
         public void UpsertOrderFulfillments(Order order)
         {
@@ -335,32 +300,6 @@ namespace Monster.Middle.Processes.Orders.Workers
                 }
             }
         }
-
-        public void AutoAssignVariantForLineItems(Order order)
-        {
-            long shopifyOrderId = order.id;
-            var orderRecord = _orderRepository.RetrieveOrder(shopifyOrderId);
-
-            foreach (var lineItem in orderRecord.UsrShopifyOrderLineItems)
-            {
-                if (lineItem.UsrShopifyVariant != null)
-                {
-                    continue;
-                }
-
-                var monsterVariant =
-                    _inventoryRepository
-                        .RetrieveVariant(
-                            lineItem.ShopifyVariantId, lineItem.ShopifySku);
-
-                if (monsterVariant != null)
-                {
-                    lineItem.UsrShopifyVariant = monsterVariant;
-                    _inventoryRepository.SaveChanges();
-                }
-            }
-        }
-
     }
 }
 

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Monster.Middle.Persist.Multitenant.Extensions
+﻿namespace Monster.Middle.Persist.Multitenant.Shopify
 {
-    // Mirror's Shopify's Order -> Financial Status field
+    // Mirrors Shopify's Order -> Financial Status field
     public class FinancialStatus
     {
         public const string Pending ="pending";

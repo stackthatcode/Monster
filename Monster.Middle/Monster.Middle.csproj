@@ -81,15 +81,17 @@
     <Compile Include="Persist\Multitenant\Acumatica\AcumaticaOrderRepository.cs" />
     <Compile Include="Persist\Multitenant\Acumatica\Extensions.cs" />
     <Compile Include="Persist\Multitenant\Etc\BatchStateRepository.cs" />
-    <Compile Include="Persist\Multitenant\Extensions\FinancialStatus.cs" />
+    <Compile Include="Persist\Multitenant\Shopify\FinancialStatus.cs" />
     <Compile Include="Persist\Multitenant\Extensions\LocationExtensions.cs" />
-    <Compile Include="Persist\Multitenant\Extensions\OrderExtensions.cs" />
+    <Compile Include="Persist\Multitenant\Sync\LocationExtensions.cs" />
     <Compile Include="Persist\Multitenant\Shopify\ShopifyOrderRepository.cs" />
     <Compile Include="Persist\Multitenant\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Persist\Multitenant\Sync\OrderExtensions.cs" />
+    <Compile Include="Persist\Multitenant\Sync\SyncOrderRepository.cs" />
     <Compile Include="Processes\Inventory\Model\LocationStatus.cs" />
     <Compile Include="Processes\Inventory\Services\InventoryStatusService.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaInventoryPull.cs" />
@@ -98,7 +100,7 @@
     <Compile Include="Processes\Inventory\Workers\ShopifyLocationSync.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaWarehouseSync.cs" />
     <Compile Include="Processes\Inventory\Workers\ShopifyInventoryPull.cs" />
-    <Compile Include="Persist\Multitenant\Extensions\InventoryExtensions.cs" />
+    <Compile Include="Persist\Multitenant\Shopify\Extensions.cs" />
     <Compile Include="Processes\Inventory\Workers\ShopifyLocationPull.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaInventorySync.cs" />
     <Compile Include="Processes\Inventory\Standards.cs" />
