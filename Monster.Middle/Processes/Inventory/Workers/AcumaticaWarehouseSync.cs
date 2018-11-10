@@ -6,8 +6,6 @@ using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
-using Monster.Middle.Persist.Multitenant.Extensions;
-using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Persist.Multitenant.Sync;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -17,19 +15,17 @@ namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class AcumaticaWarehouseSync
     {
-        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
+        private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
         private readonly DistributionClient _acumaticaInventoryApi;
         private readonly IPushLogger _logger;
 
         public AcumaticaWarehouseSync(
-                    ShopifyInventoryRepository shopifyInventoryRepository,
-                    AcumaticaInventoryRepository acumaticaInventoryRepository, 
+                    SyncInventoryRepository syncInventoryRepository,
                     DistributionClient acumaticaInventoryApi,
                     IPushLogger logger)
         {
-            _shopifyInventoryRepository = shopifyInventoryRepository;
-            _acumaticaInventoryRepository = acumaticaInventoryRepository;
+            _syncInventoryRepository = syncInventoryRepository;
             _acumaticaInventoryApi = acumaticaInventoryApi;
             _logger = logger;
         }
@@ -37,40 +33,44 @@ namespace Monster.Middle.Processes.Inventory.Workers
         public void Run()
         {
             var shopifyLocations 
-                = _shopifyInventoryRepository
-                    .RetreiveLocations();
+                    = _syncInventoryRepository.RetrieveLocations();
 
-            var warehouses = 
-                _acumaticaInventoryRepository.RetreiveWarehouses();
+            var warehouses 
+                    = _syncInventoryRepository.RetrieveWarehouses();
+                
 
             // TODO/ON-HOLD - add a Preference for whether or not to push
             // ... Shopify Locations into Acumatica Warehouse
 
             foreach (var shopifyLocation in shopifyLocations)
             {
-                if (shopifyLocation.UsrAcumaticaWarehouses.Any())
+                if (shopifyLocation.UsrShopAcuWarehouseSyncs.Any())
                 {
-                    var matchedWarehouse 
-                        = shopifyLocation.UsrAcumaticaWarehouses.First();
+                    var sync
+                        = shopifyLocation
+                            .UsrShopAcuWarehouseSyncs
+                            .First();
+
+                    var matchedWarehouse = sync.UsrAcumaticaWarehouse;
 
                     // Flag if the names mismatch, now
-                    matchedWarehouse.IsNameMismatched =
+                    sync.IsNameMismatched =
                         !shopifyLocation.MatchesIdWithName(matchedWarehouse);
 
                     matchedWarehouse.LastUpdated = DateTime.UtcNow;
-                    _acumaticaInventoryRepository.SaveChanges();                    
+                    _syncInventoryRepository.SaveChanges();                    
                     continue;
                 }
 
                 // Attempt to automatically match
-                var automatch = warehouses
+                var automatchedWarehouse = warehouses
                         .FirstOrDefault(x => x.AutoMatches(shopifyLocation));
 
-                if (automatch != null)
+                if (automatchedWarehouse != null)
                 {
-                    automatch.ShopifyLocationMonsterId = shopifyLocation.MonsterId;
-                    automatch.LastUpdated = DateTime.UtcNow;
-                    _acumaticaInventoryRepository.SaveChanges();
+
+                    _syncInventoryRepository
+                        .InsertWarehouseSync(shopifyLocation, automatchedWarehouse);
                     continue;
                 }
 
@@ -113,9 +113,8 @@ namespace Monster.Middle.Processes.Inventory.Workers
             var newAcumaticaWarehouse 
                     = warehouseJson.DeserializeFromJson<Warehouse>();
 
-            var newDataRecord = new UsrAcumaticaWarehouse
+            var newWarehouseRecord = new UsrAcumaticaWarehouse
             {
-                ShopifyLocationMonsterId = location.MonsterId,
                 AcumaticaWarehouseId
                     = newAcumaticaWarehouse.WarehouseID.value,
                 AcumaticaJson = warehouseJson,                
@@ -123,7 +122,9 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 LastUpdated = DateTime.UtcNow,
             };
 
-            _acumaticaInventoryRepository.InsertAcumaticaWarehouse(newDataRecord);
+            _acumaticaInventoryRepository.InsertAcumaticaWarehouse(newWarehouseRecord);
+
+            _syncInventoryRepository.InsertWarehouseSync(location, newWarehouseRecord);
         }
     }
 }

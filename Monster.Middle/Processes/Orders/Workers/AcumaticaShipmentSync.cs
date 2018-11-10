@@ -16,9 +16,11 @@ namespace Monster.Middle.Processes.Orders.Workers
     public class AcumaticaShipmentSync
     {
         private readonly SyncOrderRepository _syncOrderRepository;
+        private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
+
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
         
@@ -93,9 +95,11 @@ namespace Monster.Middle.Processes.Orders.Workers
                 = salesOrderRecord.UsrAcumaticaCustomer.AcumaticaCustomerId;
 
             var locationRecord =
-                _shopifyInventoryRepository
-                    .RetrieveLocation(shopifyFulfillment.location_id);
-            var warehouse = locationRecord.UsrAcumaticaWarehouses.First();
+                    _syncInventoryRepository
+                        .RetrieveLocation(shopifyFulfillment.location_id);
+
+            var warehouse 
+                = locationRecord.UsrAcumaticaWarehouses.First();
 
 
             var shipment = new Shipment();

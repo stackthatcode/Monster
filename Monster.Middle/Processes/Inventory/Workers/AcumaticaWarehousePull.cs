@@ -34,11 +34,11 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     .RetrieveWarehouses()
                     .DeserializeFromJson<List<Warehouse>>();
             
-            var dataWarehouses = _dataRepository.RetreiveWarehouses();
+            var warehouseRecords = _dataRepository.RetreiveWarehouses();
 
             foreach (var warehouse in warehouses)
             {
-                var dataWarehouse = dataWarehouses.FindByAcumaticaId(warehouse);
+                var dataWarehouse = warehouseRecords.FindByAcumaticaId(warehouse);
 
                 if (dataWarehouse == null)
                 {

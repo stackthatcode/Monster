@@ -8,26 +8,18 @@ namespace Monster.Middle.Processes.Inventory.Services
 {
     public class InventoryStatusService
     {
-        private readonly 
-            ShopifyInventoryRepository _shopifyInventoryRepository;
-        private readonly 
-            AcumaticaInventoryRepository _acumaticaInventoryRepository;
+        private readonly SyncInventoryRepository _repository;
 
-        public InventoryStatusService(
-                ShopifyInventoryRepository shopifyInventoryRepository,
-                AcumaticaInventoryRepository acumaticaInventoryRepository)
+        public InventoryStatusService(SyncInventoryRepository repository)
         {
-            _shopifyInventoryRepository = shopifyInventoryRepository;
-            _acumaticaInventoryRepository = acumaticaInventoryRepository;
+            _repository = repository;
         }
 
 
         public LocationStatus GetCurrentLocationStatus()
         {
-            var warehouses =
-                    _acumaticaInventoryRepository.RetreiveWarehouses();
-            var locations =
-                    _shopifyInventoryRepository.RetreiveLocations();
+            var warehouses = _repository.RetrieveWarehouses();
+            var locations = _repository.RetrieveLocations();
 
             var output = new LocationStatus();
 

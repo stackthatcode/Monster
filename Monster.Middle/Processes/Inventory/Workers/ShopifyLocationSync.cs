@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Acumatica;
-using Monster.Middle.Persist.Multitenant.Extensions;
-using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Persist.Multitenant.Sync;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -13,56 +9,50 @@ namespace Monster.Middle.Processes.Inventory.Workers
 {
     public class ShopifyLocationSync
     {
-        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
-        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
+        private readonly SyncInventoryRepository _repository;
         private readonly InventoryApi  _inventoryApi;
         private readonly IPushLogger _logger;
 
         public ShopifyLocationSync(
-                    ShopifyInventoryRepository shopifyInventoryRepository,
-                    AcumaticaInventoryRepository acumaticaInventoryRepository,
-                    InventoryApi inventoryApi,
-                    IPushLogger logger)
+                IPushLogger logger,
+                InventoryApi inventoryApi,
+                SyncInventoryRepository repository)
         {
-            _shopifyInventoryRepository = shopifyInventoryRepository;
-            _acumaticaInventoryRepository = acumaticaInventoryRepository;
-            _inventoryApi = inventoryApi;
             _logger = logger;
+            _inventoryApi = inventoryApi;
+            _repository = repository;
         }
+
+
+        // TODO - add a Preference for whether or not to push
+        // ... Shopify Locations into Acumatica Warehouse
 
         public void Run()
         {
-            var shopifyLocations 
-                    = _shopifyInventoryRepository.RetreiveLocations();
-
-            var warehouses = _acumaticaInventoryRepository.RetreiveWarehouses();
-
-            // TODO - add a Preference for whether or not to push
-            // ... Shopify Locations into Acumatica Warehouse
+            var shopifyLocations = _repository.RetrieveLocations();
+            var warehouses = _repository.RetrieveWarehouses();
 
             foreach (var warehouse in warehouses)
             {
-                if (warehouse.UsrShopifyLocation != null)
+                if (warehouse.IsMatched())
                 {
-                    var matchedLocation = warehouse.UsrShopifyLocation;
+                    var sync = warehouse.UsrShopAcuWarehouseSyncs.First();
 
-                    // Flag if the names mismatch, now
-                    warehouse.IsNameMismatched =
-                            !matchedLocation.MatchesIdWithName(warehouse);
-                    warehouse.LastUpdated = DateTime.UtcNow;
-                    _shopifyInventoryRepository.SaveChanges();                    
+                    var location = sync.UsrShopifyLocation;
+
+                    sync.IsNameMismatched = location.MatchesIdWithName(warehouse);
+                    sync.LastUpdated = DateTime.UtcNow;
+                    _repository.SaveChanges();                    
                     continue;
                 }
 
                 // Attempt to automatically match
-                var automatch = 
+                var automatchLocation = 
                     shopifyLocations.FirstOrDefault(x => warehouse.AutoMatches(x));
 
-                if (automatch != null)
+                if (automatchLocation != null)
                 {
-                    warehouse.ShopifyLocationMonsterId = automatch.MonsterId;
-                    warehouse.LastUpdated = DateTime.UtcNow;
-                    _shopifyInventoryRepository.SaveChanges();
+                    _repository.InsertWarehouseSync(automatchLocation, warehouse);
                     continue;
                 }
                 

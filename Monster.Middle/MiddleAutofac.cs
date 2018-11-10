@@ -86,8 +86,9 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaInventoryRepository>().InstancePerLifetimeScope();
 
             builder.RegisterType<SyncOrderRepository>().InstancePerLifetimeScope();
-
+            builder.RegisterType<SyncInventoryRepository>().InstancePerLifetimeScope();
             
+
             // Tenant Context
             builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
 

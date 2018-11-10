@@ -23,6 +23,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .ToList();
         }
         
+
+
         public UsrShopifyOrder RetrieveShopifyOrder(long shopifyOrderId)
         {
             return Entities
@@ -30,16 +32,6 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .Include(x => x.UsrShopAcuOrderSyncs)
                 .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
-        }
-
-        public UsrShopifyVariant 
-                RetrieveVariant(long shopifyVariantId, string sku)
-        {
-            return Entities
-                .UsrShopifyVariants
-                .Include(x => x.UsrAcumaticaStockItems)
-                .FirstOrDefault(
-                    x => x.ShopifyVariantId == shopifyVariantId && x.ShopifySku == sku);
         }
 
         public UsrShopAcuOrderSync 
@@ -54,8 +46,11 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             Entities.SaveChanges();
             return sync;
         }
+        
 
 
+        // Customer syncing
+        //
         public UsrShopifyCustomer RetrieveCustomer(long shopifyCustomerId)
         {
             return Entities
@@ -72,7 +67,7 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .Where(x => !x.UsrShopAcuCustomerSyncs.Any())
                 .ToList();
         }
-
+        
         public UsrShopAcuCustomerSync 
                 InsertCustomerSync(
                     UsrShopifyCustomer shopifyCustomer, 

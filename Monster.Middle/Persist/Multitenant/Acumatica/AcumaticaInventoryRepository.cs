@@ -25,10 +25,7 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
 
         public IList<UsrAcumaticaWarehouse> RetreiveWarehouses()
         {
-            return Entities
-                .UsrAcumaticaWarehouses
-                .Include(x => x.UsrShopifyLocation)
-                .ToList();
+            return Entities.UsrAcumaticaWarehouses.ToList();
         }
 
         // Acumatica persistence
@@ -67,20 +64,6 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
                 .ToList();
         }
 
-        public List<UsrAcumaticaWarehouseDetail>
-                        RetrieveWarehouseDetailsNotSynced()
-        {
-            return Entities
-                    .UsrAcumaticaWarehouseDetails
-                    .Include(x => x.UsrAcumaticaStockItem)
-                    .Include(x => x.UsrAcumaticaStockItem.UsrShopifyVariant)
-                    .Include(x => x.UsrAcumaticaStockItem.UsrShopifyVariant.UsrAcumaticaStockItems)
-                    .Where(x => x.ShopifyIsSynced == false &&
-                                x.UsrAcumaticaStockItem != null &&
-                                x.UsrAcumaticaStockItem.UsrShopifyVariant != null &&
-                                x.UsrAcumaticaStockItem.UsrShopifyVariant.ShopifyIsTracked)
-                    .ToList();
-        }
 
         public void InsertWarehouseDetails(UsrAcumaticaWarehouseDetail details)
         {

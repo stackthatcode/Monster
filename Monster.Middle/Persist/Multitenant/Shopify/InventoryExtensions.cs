@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.Persist.Multitenant.Extensions;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Product;
 
 
 namespace Monster.Middle.Persist.Multitenant.Shopify
 {
-    public static class Extensions
+    public static class InventoryExtensions
     {       
         public static bool IsPaid(this UsrShopifyOrder order)
         {
@@ -15,13 +14,6 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
                 order.ShopifyFinancialStatus == FinancialStatus.Paid ||
                 order.ShopifyFinancialStatus == FinancialStatus.PartiallyRefunded ||
                 order.ShopifyFinancialStatus == FinancialStatus.Refunded;
-        }
-
-
-        public static bool
-            IsReadyForShipment(this UsrAcumaticaSalesOrder order)
-        {
-            return order.AcumaticaStatus == "Open";
         }
 
 
@@ -42,11 +34,11 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
                     .ToList();
         }
 
-        public static IList<UsrShopifyVariant> ExcludeUnmatched(
-                    this IEnumerable<UsrShopifyVariant> input)
+        public static IList<UsrShopifyVariant> 
+                    ExcludeUnmatched(this IEnumerable<UsrShopifyVariant> input)
         {
             return input
-                    .Where(x => !x.UsrAcumaticaStockItems.Any())
+                    .Where(x => !x.UsrShopAcuItemSyncs.Any())
                     .ToList();
         }
         
@@ -54,27 +46,20 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
                 ExcludeMatched(this IEnumerable<UsrShopifyVariant> input)
         {
             return input
-                .Where(x => x.UsrAcumaticaStockItems.Any())
+                .Where(x => x.UsrShopAcuItemSyncs.Any())
                 .ToList();
         }
 
         public static bool IsMatched(this UsrShopifyVariant variant)
         {
-            return variant.UsrAcumaticaStockItems.Any();
+            return variant.UsrShopAcuItemSyncs.Any();
         }
 
         public static bool IsNotMatched(this UsrShopifyVariant variant)
         {
             return !variant.IsMatched();
         }
-
-        //public static IList<UsrShopifyInventoryLevel> By
-
-        public static bool IsMatchedToShopify(
-                    this UsrAcumaticaStockItem stockItem)
-        {
-            return stockItem.ShopifyVariantMonsterId != null;
-        }
+        
 
         public static double CogsByMarginPercent(
                     this UsrShopifyVariant variant, double marginPercent)
@@ -95,5 +80,21 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
                 .ToList();
         }
 
+
+        public static int ControlQty(
+                this IEnumerable<UsrShopifyInventoryLevel> input)
+        {
+            return input.Sum(x => x.ShopifyAvailableQuantity);
+
+        }
+        public static double ControlCost(
+                this IEnumerable<UsrShopifyInventoryLevel> input,
+                double defaultCogs)
+        {
+            return input.Sum(
+                x =>
+                    x.UsrShopifyVariant.CogsByMarginPercent(defaultCogs)
+                    * x.ShopifyAvailableQuantity);
+        }
     }
 }

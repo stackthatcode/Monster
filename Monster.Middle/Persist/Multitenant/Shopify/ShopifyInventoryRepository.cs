@@ -102,50 +102,10 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
             Entities.SaveChanges();
         }
 
-        public List<UsrShopifyInventoryLevel> 
-                        RetrieveInventoryLevelsMatchedButNotSynced()
-        {
-            return Entities
-                    .UsrShopifyInventoryLevels
-                    .Include(x => x.UsrShopifyVariant)
-                    .Include(x => x.UsrShopifyVariant.UsrAcumaticaStockItems)
-                    .Include(x => x.UsrShopifyVariant.UsrShopifyProduct)
-                    .Include(x => x.UsrShopifyLocation)
-                    .Where(x => x.UsrAcumaticaInventoryReceipt == null
-                                && x.UsrShopifyVariant.UsrAcumaticaStockItems.Any()
-                                && x.ShopifyAvailableQuantity > 0)
-                    .ToList();
-        }
-
 
 
         // Product to Stock Item matching 
         //
-        public List<UsrShopifyVariant> RetrieveVariants(bool? isMatched = null)
-        {
-            var output = 
-                Entities
-                    .UsrShopifyVariants
-                    .Include(x => x.UsrShopifyProduct)
-                    .Include(x => x.UsrAcumaticaStockItems);
-
-            if (isMatched.HasValue)
-            {
-                output = output.Where(x => x.UsrAcumaticaStockItems.Any() == isMatched);
-            }
-
-            return output.ToList();
-        }
-
-        public List<UsrShopifyVariant> RetrieveVariantsWithStockItems(string sku)
-        {
-            return Entities
-                    .UsrShopifyVariants
-                    .Include(x => x.UsrAcumaticaStockItems)
-                    .Where(x => x.ShopifySku == sku)
-                    .ToList();
-        }
-
         public List<UsrShopifyVariant> 
                         RetrieveVariantsByParent(long parentMonsterId)
         {

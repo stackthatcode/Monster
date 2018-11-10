@@ -16,30 +16,28 @@ namespace Monster.Middle.Processes.Orders.Workers
 {
     public class AcumaticaOrderSync
     {
-        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
-        private readonly SyncOrderRepository _syncOrderRepository;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
+        private readonly SyncOrderRepository _syncOrderRepository;
+        private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly CustomerClient _customerClient;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
         
         public AcumaticaOrderSync(
                     SyncOrderRepository syncOrderRepository,
-                    ShopifyInventoryRepository shopifyInventoryRepository,
-                    ShopifyOrderRepository orderRepository, 
+                    SyncInventoryRepository syncInventoryRepository,
                     AcumaticaOrderRepository acumaticaOrderRepository, 
                     CustomerClient customerClient,
                     SalesOrderClient salesOrderClient,
                     AcumaticaOrderPull acumaticaOrderPull)
         {
             _syncOrderRepository = syncOrderRepository;
-            _shopifyOrderRepository = orderRepository;
             _acumaticaOrderRepository = acumaticaOrderRepository;
-            _shopifyInventoryRepository = shopifyInventoryRepository;
             _customerClient = customerClient;
             _salesOrderClient = salesOrderClient;
             _acumaticaOrderPull = acumaticaOrderPull;
+            _syncInventoryRepository = syncInventoryRepository;
         }
 
 
@@ -74,7 +72,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             foreach (var lineItem in shopifyOrder.line_items)
             {
                 var variant = 
-                    _syncOrderRepository
+                    _syncInventoryRepository
                         .RetrieveVariant(lineItem.variant_id, lineItem.sku);
 
                 if (variant == null || variant.IsNotMatched())
@@ -104,6 +102,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         }
 
 
+        // Assumes that the 
         private void PushOrderToAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
             var customer = SyncCustomerToAcumatica(shopifyOrderRecord);
@@ -127,10 +126,10 @@ namespace Monster.Middle.Processes.Orders.Workers
             foreach (var lineItem in shopifyOrder.line_items)
             {
                 var variant =
-                    _syncOrderRepository
+                    _syncInventoryRepository
                         .RetrieveVariant(lineItem.variant_id, lineItem.sku);
 
-                var stockItem = variant.UsrAcumaticaStockItems.First();
+                var stockItem = variant.MatchedStockItem();
                 
                 var salesOrderDetail = new SalesOrderDetail();
 
@@ -157,11 +156,10 @@ namespace Monster.Middle.Processes.Orders.Workers
             _syncOrderRepository
                 .InsertOrderSync(shopifyOrderRecord, acumaticaRecord);
         }
-
         
 
         public UsrAcumaticaCustomer 
-                    SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
+                SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
         {
             var customer =
                 _syncOrderRepository.RetrieveCustomer(
@@ -215,16 +213,16 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             customer.MainContact = mainContact;
 
-            // Push to Acumatica API
-            var resultJson 
+            // Push new Customer to Acumatica API
+            var newCustomerJson 
                 = _customerClient.AddNewCustomer(customer.SerializeToJson());
+            var newCustomer = newCustomerJson.DeserializeFromJson<Customer>();
 
-            var newAcumaticaCustomer = resultJson.DeserializeFromJson<Customer>();
-
-            var acumaticaMonsterRecord = newAcumaticaCustomer.ToMonsterRecord();
-
+            // Create record in Monster for Customer
+            var acumaticaMonsterRecord = newCustomer.ToMonsterRecord();
             _acumaticaOrderRepository.InsertCustomer(acumaticaMonsterRecord);
 
+            // Create a sync record
             _syncOrderRepository.InsertCustomerSync(shopifyCustomerRecord, acumaticaMonsterRecord);
 
             return acumaticaMonsterRecord;
