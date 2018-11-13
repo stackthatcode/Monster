@@ -37,10 +37,16 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public Order Parent { get; set; }
 
+        [JsonIgnore]
         public decimal TotalBeforeDiscount => quantity * price;
+
+        [JsonIgnore]
         public decimal TotalDiscount => discount_allocations.Sum(x => x.amount);
+
+        [JsonIgnore]
         public decimal TotalAfterDiscount => TotalBeforeDiscount - TotalDiscount;
 
+        [JsonIgnore]
         public decimal TotalTaxes => tax_lines.Sum(x => x.rate);
     }
 }

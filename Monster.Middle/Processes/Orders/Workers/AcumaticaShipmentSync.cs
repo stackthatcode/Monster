@@ -26,6 +26,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         
         public AcumaticaShipmentSync(
                     SyncOrderRepository syncOrderRepository,
+                    SyncInventoryRepository syncInventoryRepository,
                     ShopifyOrderRepository shopifyOrderRepository,
                     ShopifyInventoryRepository shopifyInventoryRepository,
                     AcumaticaOrderRepository acumaticaOrderRepository,
@@ -38,6 +39,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _acumaticaShipmentPull = acumaticaShipmentPull;
             _shipmentClient = shipmentClient;
+            _syncInventoryRepository = syncInventoryRepository;
         }
 
 
@@ -48,7 +50,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             foreach (var fulfillment in fulfillments)
             {
-                var acumaticaOrder = fulfillment.UsrShopifyOrder.AcumaticaSalesOrder();
+                var acumaticaOrder = fulfillment.UsrShopifyOrder.MatchingSalesOrder();
 
                 if (acumaticaOrder == null)
                 {
@@ -76,27 +78,23 @@ namespace Monster.Middle.Processes.Orders.Workers
         private void SyncFulfillmentWithAcumatica(
                         UsrShopifyFulfillment fulfillmentRecord)
         {
-            var shopifyOrder
-                = fulfillmentRecord
-                    .UsrShopifyOrder
-                    .ShopifyJson
-                    .DeserializeToOrder();
+            var shopifyOrderRecord 
+                = _syncOrderRepository
+                        .RetrieveShopifyOrder(fulfillmentRecord.ShopifyOrderId);
+            
+            var shopifyOrder 
+                = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
             
             var shopifyFulfillment
                 = shopifyOrder
                     .fulfillments
                     .FirstOrDefault(x => x.id == fulfillmentRecord.ShopifyFulfillmentId);
-
-
+            
             // Isolate the corresponding Acumatica Sales Order and Customer
-            var salesOrderRecord 
-                = _acumaticaOrderRepository
-                        .RetrieveSalesOrderByShopify(fulfillmentRecord.OrderMonsterId);
-
+            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
             var customerNbr 
                 = salesOrderRecord.UsrAcumaticaCustomer.AcumaticaCustomerId;
-
-
+            
             // Isolate the Warehouse
             var locationRecord =
                     _syncInventoryRepository

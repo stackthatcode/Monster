@@ -122,14 +122,13 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             if (existingData == null)
             {
-                var customerMonsterId =
-                    _acumaticaCustomerPull.RunAndUpsertCustomer(
-                        shipment.CustomerID.value);
+                //var customerMonsterId =
+                //    _acumaticaCustomerPull.RunAndUpsertCustomer(
+                //        shipment.CustomerID.value);
 
                 var newData = new UsrAcumaticaShipment();
                 newData.AcumaticaJson = shipment.SerializeToJson();
                 newData.AcumaticaShipmentId = shipment.ShipmentNbr.value;
-                newData.CustomerMonsterId = customerMonsterId;
                 newData.AcumaticaStatus = shipment.Status.value;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;

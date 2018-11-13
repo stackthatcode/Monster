@@ -6,7 +6,7 @@ namespace Monster.Middle.Persist.Multitenant.Sync
     {
 
         public static UsrAcumaticaSalesOrder 
-                    AcumaticaSalesOrder(this UsrShopifyOrder order)
+                    MatchingSalesOrder(this UsrShopifyOrder order)
         {
             if (!order.UsrShopAcuOrderSyncs.Any())
             {

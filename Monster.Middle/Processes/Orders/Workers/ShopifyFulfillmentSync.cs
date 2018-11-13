@@ -57,7 +57,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             // 
             var filteredShipmentRecords =
                 shipmentsRecords
-                    .Where(x => x.AcumaticaStatus != "Hold")
+                    .Where(x => x.AcumaticaStatus == "Confirmed")
                     .ToList();
 
             foreach (var shipmentRecord in filteredShipmentRecords)
@@ -76,7 +76,8 @@ namespace Monster.Middle.Processes.Orders.Workers
                     {
                         continue;
                     }
-                    
+
+                    PushFulfillmentToShopify(shipment, order);
 
                 }
             }
@@ -120,7 +121,8 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 var fulfillmentDetail = new LineItem()
                 {                    
-                    id = shopifyLineItem.id
+                    id = shopifyLineItem.id,
+                    quantity = (int)quantity,
                 };
 
                 fulfillment.line_items.Add(fulfillmentDetail);

@@ -26,6 +26,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             var sync = new UsrInventoryReceiptSync();
             sync.UsrShopifyInventoryLevel = level;
             sync.UsrAcumaticaInventoryReceipt = receipt;
+            sync.DateCreated = DateTime.Now;
+            sync.LastUpdated = DateTime.Now;
             Entities.UsrInventoryReceiptSyncs.Add(sync);
             Entities.SaveChanges();
         }
@@ -167,7 +169,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .UsrAcumaticaWarehouseDetails
                 .Include(x => x.UsrAcumaticaStockItem)
                 .Include(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs)
-                .Where(x => x.IsShopifySynced.HasValue && x.IsShopifySynced.Value == false)
+                .Where(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs.Any()
+                            && x.IsShopifySynced == false)
                 .ToList();
         }
 

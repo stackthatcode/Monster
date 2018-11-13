@@ -89,13 +89,6 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
             Entities.SaveChanges();
         }
 
-        public void UpdateInventoryReceipt(
-                        List<UsrShopifyInventoryLevel> levels,
-                        UsrAcumaticaInventoryReceipt receipt)
-        {
-            levels.ForEach(x => x.InventoryReceiptMonsterId = receipt.MonsterId);
-            Entities.SaveChanges();
-        }
 
         public List<UsrAcumaticaInventoryReceipt>
                         RetrieveUnreleasedInventoryReceipts()

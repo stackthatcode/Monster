@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 
@@ -30,15 +31,18 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .UsrShopifyOrders
                 .Include(x => x.UsrShopAcuOrderSyncs)
                 .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
+                .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder.UsrAcumaticaCustomer))
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
-        
+
         public UsrAcumaticaSalesOrder RetrieveSalesOrder(string orderNbr)
         {
             return Entities
                 .UsrAcumaticaSalesOrders
                 .Include(x => x.UsrShopAcuOrderSyncs)
+                .Include(x => x.UsrAcumaticaCustomer)
                 .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrShopifyOrder))
+                .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrShopifyOrder.UsrShopifyCustomer))
                 .FirstOrDefault(x => x.AcumaticaSalesOrderId == orderNbr);
         }
 
@@ -50,6 +54,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             var sync = new UsrShopAcuOrderSync();
             sync.UsrShopifyOrder = shopifyOrder;
             sync.UsrAcumaticaSalesOrder = acumaticaSalesOrder;
+            sync.DateCreated = DateTime.UtcNow;
+            sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuOrderSyncs.Add(sync);
             Entities.SaveChanges();
             return sync;
@@ -84,6 +90,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             var sync = new UsrShopAcuCustomerSync();
             sync.UsrShopifyCustomer = shopifyCustomer;
             sync.UsrAcumaticaCustomer = acumaticaCustomer;
+            sync.DateCreated = DateTime.UtcNow;
+            sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuCustomerSyncs.Add(sync);
             Entities.SaveChanges();
             return sync;
@@ -109,6 +117,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             var sync = new UsrShopAcuShipmentSync();
             sync.UsrShopifyFulfillment = fulfillment;
             sync.UsrAcumaticaShipment = shipment;
+            sync.DateCreated = DateTime.UtcNow;
+            sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuShipmentSyncs.Add(sync);
             Entities.SaveChanges();
         }

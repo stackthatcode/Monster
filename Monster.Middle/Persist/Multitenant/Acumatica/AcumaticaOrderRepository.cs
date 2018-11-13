@@ -67,17 +67,6 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
                 .FirstOrDefault(x => x.AcumaticaSalesOrderId == acumaticaSOId);
         }
 
-        public UsrAcumaticaSalesOrder 
-                    RetrieveSalesOrderByShopify(
-                            long shopifyMonsterId)
-        {
-            return Entities
-                .UsrAcumaticaSalesOrders
-                .Include(x => x.UsrAcumaticaCustomer)
-                .FirstOrDefault(x => x.ShopifyOrderMonsterId == shopifyMonsterId);
-        }
-
-
         public DateTime? RetrieveOrderMaxUpdatedDate()
         {
             if (Entities.UsrAcumaticaCustomers.Any())
@@ -129,14 +118,13 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
 
         public List<UsrAcumaticaShipment> RetrieveShipmentsUnsynced()
         {
-            return
-                Entities.Database.SqlQuery<UsrAcumaticaShipment>
-                    ("SELECT * FROM vw_AcumaticaUnsyncedShipments ORDER BY AcumaticaShipmentId")
-                .ToList();
+            return 
+                Entities
+                    .UsrAcumaticaShipments
+                    .ToList();
         }
 
-
-
+        
         public void SaveChanges()
         {
             Entities.SaveChanges();

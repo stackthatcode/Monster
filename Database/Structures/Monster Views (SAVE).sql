@@ -9,10 +9,9 @@ AS
 
 SELECT t1.* 
 FROM usrAcumaticaShipment t1
-	LEFT OUTER JOIN usrAcumaticaSOShipment t2
-		ON t1.Id = t2.AcumaticaShipmentId
-	LEFT OUTER JOIN usrAcumaticaSalesOrder t3
-		ON t2.AcumaticaSalesOrderId = t3.Id
+	LEFT OUTER JOIN usrAcumaticaSalesOrder t2
+		ON t1.AcumaticaSalesOrderId = t2.AcumaticaSalesOrderId
+
 WHERE t3.ShopifyOrderMonsterId IS NOT NULL
 AND t1.ShopifyFulfillmentMonsterId IS NULL
 GO

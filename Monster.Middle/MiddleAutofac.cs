@@ -112,6 +112,7 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyLocationSync>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventorySync>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyFulfillmentSync>().InstancePerLifetimeScope();
 
             builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();

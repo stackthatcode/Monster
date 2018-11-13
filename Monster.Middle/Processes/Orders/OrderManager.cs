@@ -9,9 +9,12 @@ namespace Monster.Middle.Processes.Orders
     public class OrderManager
     {
         private readonly BatchStateRepository _batchStateRepository;
+        private readonly AcumaticaHttpContext _acumaticaContext;
+
         private readonly ShopifyCustomerPull _shopifyCustomerPull;
         private readonly ShopifyOrderPull _shopifyOrderPull;
-        private readonly AcumaticaHttpContext _acumaticaContext;
+        private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
+
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
         private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
@@ -22,10 +25,11 @@ namespace Monster.Middle.Processes.Orders
 
         public OrderManager(
                 BatchStateRepository batchStateRepository,
+                AcumaticaHttpContext acumaticaContext,
+
                 ShopifyCustomerPull shopifyCustomerPull, 
                 ShopifyOrderPull shopifyOrderPull,
-
-                AcumaticaHttpContext acumaticaContext,
+                ShopifyFulfillmentSync shopifyFulfillmentSync,
 
                 AcumaticaCustomerPull acumaticaCustomerPull,
                 AcumaticaCustomerSync acumaticaCustomerSync,
@@ -39,7 +43,8 @@ namespace Monster.Middle.Processes.Orders
 
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyOrderPull = shopifyOrderPull;
-
+            _shopifyFulfillmentSync = shopifyFulfillmentSync;
+            
             _acumaticaContext = acumaticaContext;
 
             _acumaticaCustomerPull = acumaticaCustomerPull;
@@ -91,7 +96,13 @@ namespace Monster.Middle.Processes.Orders
             // Acumatica Sync
             _acumaticaInventorySync.Run();
             _acumaticaOrderSync.Run();
-            _acumaticaShipmentSync.Run();
+
+            // TODO - this depends on whether the preference is to:
+            // 1) Sync Fulfillments to Acumatica Shipments
+            // 2) Sync Shipments to Shopify Fulfillments
+            //_acumaticaShipmentSync.Run();
+            
+            _shopifyFulfillmentSync.Run();
 
             _acumaticaContext.Logout();
         }

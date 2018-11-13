@@ -25,23 +25,21 @@ namespace Monster.ConsoleApp.Monster
                     var inventoryManager = scope.Resolve<InventoryManager>();
                     var orderManager = scope.Resolve<OrderManager>();
 
-                    // Step 1 - Synchronize Locations
-                    inventoryManager.Reset();
-                    inventoryManager.SynchronizeLocationOnly();
+                    //// Step 1 - Synchronize Locations
+                    //inventoryManager.Reset();
+                    //inventoryManager.SynchronizeLocationOnly();
 
-                    // Step 2 - Load Inventory from both systems
-                    inventoryManager.SynchronizeInitial();
-                    inventoryManager.LoadShopifyInventoryIntoAcumatica();
+                    //// Step 2 - Load Inventory from both systems
+                    //inventoryManager.SynchronizeInitial();
+                    //inventoryManager.LoadShopifyInventoryIntoAcumatica();
 
-                    // Step 3 - Load Orders from both systems
-                    orderManager.Reset();
-                    orderManager.SynchronizeInitial();
+                    //// Step 3 - Load Orders from both systems
+                    //orderManager.Reset();
+                    //orderManager.SynchronizeInitial();
 
 
-                    // Step X - Routine Synchronization Process
-                    inventoryManager.SynchronizeRoutine();
-
-                    orderManager.Reset();
+                    //Step X -Routine Synchronization Process
+                    //inventoryManager.SynchronizeRoutine();
                     orderManager.SynchronizeRoutine();
                 }
                 catch (Exception ex)

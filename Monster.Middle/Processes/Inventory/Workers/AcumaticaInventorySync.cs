@@ -186,13 +186,15 @@ namespace Monster.Middle.Processes.Inventory.Workers
                 monsterReceipt.IsReleased = false;
                 monsterReceipt.DateCreated = DateTime.UtcNow;
                 monsterReceipt.LastUpdate = DateTime.UtcNow;
-
+                
                 _acumaticaInventoryRepository
                     .InsertInventoryReceipt(monsterReceipt);
 
-                _acumaticaInventoryRepository
-                    .UpdateInventoryReceipt(
-                        inventoryByProduct, monsterReceipt);
+                foreach (var level in inventoryByProduct)
+                {
+                    _syncInventoryRepository
+                        .InsertInventoryReceiptSync(level, monsterReceipt);
+                }
             }
         }
 
