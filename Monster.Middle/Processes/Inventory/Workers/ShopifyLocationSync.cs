@@ -40,7 +40,7 @@ namespace Monster.Middle.Processes.Inventory.Workers
 
                     var location = sync.UsrShopifyLocation;
 
-                    sync.IsNameMismatched = location.MatchesIdWithName(warehouse);
+                    sync.IsNameMismatched = !location.MatchesIdWithName(warehouse);
                     sync.LastUpdated = DateTime.UtcNow;
                     _repository.SaveChanges();                    
                     continue;

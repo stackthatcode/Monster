@@ -301,14 +301,14 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaWarehouses = new FakeDbSet<UsrAcumaticaWarehouse>("Id");
             UsrAcumaticaWarehouseDetails = new FakeDbSet<UsrAcumaticaWarehouseDetail>("MonsterId");
             UsrBatchStates = new FakeDbSet<UsrBatchState>("Id");
-            UsrInventoryReceiptSyncs = new FakeDbSet<UsrInventoryReceiptSync>("Id", "ShopifyInventoryMonsterId", "AcumaticaInvReceiptMonsterId", "DateCreated", "LastUpdated");
+            UsrInventoryReceiptSyncs = new FakeDbSet<UsrInventoryReceiptSync>("Id");
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
             UsrPreferences = new FakeDbSet<UsrPreference>("Id");
             UsrShopAcuCustomerSyncs = new FakeDbSet<UsrShopAcuCustomerSync>("Id");
             UsrShopAcuItemSyncs = new FakeDbSet<UsrShopAcuItemSync>("Id");
             UsrShopAcuOrderSyncs = new FakeDbSet<UsrShopAcuOrderSync>("Id");
             UsrShopAcuShipmentSyncs = new FakeDbSet<UsrShopAcuShipmentSync>("Id");
-            UsrShopAcuWarehouseSyncs = new FakeDbSet<UsrShopAcuWarehouseSync>("Id", "ShopifyLocationMonsterId", "AcumaticaWarehouseMonsterId", "IsNameMismatched", "DateCreated", "LastUpdated");
+            UsrShopAcuWarehouseSyncs = new FakeDbSet<UsrShopAcuWarehouseSync>("Id");
             UsrShopifyCustomers = new FakeDbSet<UsrShopifyCustomer>("Id");
             UsrShopifyFulfillments = new FakeDbSet<UsrShopifyFulfillment>("Id");
             UsrShopifyInventoryLevels = new FakeDbSet<UsrShopifyInventoryLevel>("MonsterId");
@@ -767,7 +767,6 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaJson { get; set; } // AcumaticaJson
         public string AcumaticaShipmentId { get; set; } // AcumaticaShipmentId (length: 50)
         public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 25)
-        public long? ShopifyFulfillmentMonsterId { get; set; } // ShopifyFulfillmentMonsterId
         public long CustomerMonsterId { get; set; } // CustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -887,10 +886,10 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrInventoryReceiptSync
     {
         public long Id { get; set; } // Id (Primary key)
-        public long ShopifyInventoryMonsterId { get; set; } // ShopifyInventoryMonsterId (Primary key)
-        public long AcumaticaInvReceiptMonsterId { get; set; } // AcumaticaInvReceiptMonsterId (Primary key)
-        public System.DateTime DateCreated { get; set; } // DateCreated (Primary key)
-        public System.DateTime LastUpdated { get; set; } // LastUpdated (Primary key)
+        public long ShopifyInventoryMonsterId { get; set; } // ShopifyInventoryMonsterId
+        public long AcumaticaInvReceiptMonsterId { get; set; } // AcumaticaInvReceiptMonsterId
+        public System.DateTime DateCreated { get; set; } // DateCreated
+        public System.DateTime LastUpdated { get; set; } // LastUpdated
 
         // Foreign keys
 
@@ -1021,11 +1020,11 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrShopAcuWarehouseSync
     {
         public long Id { get; set; } // Id (Primary key)
-        public long ShopifyLocationMonsterId { get; set; } // ShopifyLocationMonsterId (Primary key)
-        public long AcumaticaWarehouseMonsterId { get; set; } // AcumaticaWarehouseMonsterId (Primary key)
-        public bool IsNameMismatched { get; set; } // IsNameMismatched (Primary key)
-        public System.DateTime DateCreated { get; set; } // DateCreated (Primary key)
-        public System.DateTime LastUpdated { get; set; } // LastUpdated (Primary key)
+        public long ShopifyLocationMonsterId { get; set; } // ShopifyLocationMonsterId
+        public long AcumaticaWarehouseMonsterId { get; set; } // AcumaticaWarehouseMonsterId
+        public bool IsNameMismatched { get; set; } // IsNameMismatched
+        public System.DateTime DateCreated { get; set; } // DateCreated
+        public System.DateTime LastUpdated { get; set; } // LastUpdated
 
         // Foreign keys
 
@@ -1516,7 +1515,6 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.AcumaticaShipmentId).HasColumnName(@"AcumaticaShipmentId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
-            Property(x => x.ShopifyFulfillmentMonsterId).HasColumnName(@"ShopifyFulfillmentMonsterId").HasColumnType("bigint").IsOptional();
             Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
@@ -1634,13 +1632,13 @@ namespace Monster.Middle.Persist.Multitenant
         public UsrInventoryReceiptSyncConfiguration(string schema)
         {
             ToTable("usrInventoryReceiptSync", schema);
-            HasKey(x => new { x.Id, x.ShopifyInventoryMonsterId, x.AcumaticaInvReceiptMonsterId, x.DateCreated, x.LastUpdated });
+            HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ShopifyInventoryMonsterId).HasColumnName(@"ShopifyInventoryMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.AcumaticaInvReceiptMonsterId).HasColumnName(@"AcumaticaInvReceiptMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.ShopifyInventoryMonsterId).HasColumnName(@"ShopifyInventoryMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.AcumaticaInvReceiptMonsterId).HasColumnName(@"AcumaticaInvReceiptMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
             HasRequired(a => a.UsrAcumaticaInventoryReceipt).WithMany(b => b.UsrInventoryReceiptSyncs).HasForeignKey(c => c.AcumaticaInvReceiptMonsterId).WillCascadeOnDelete(false); // FK_usrInventoryReceiptSync_usrAcumaticaInventoryReceipt
@@ -1805,14 +1803,14 @@ namespace Monster.Middle.Persist.Multitenant
         public UsrShopAcuWarehouseSyncConfiguration(string schema)
         {
             ToTable("usrShopAcuWarehouseSync", schema);
-            HasKey(x => new { x.Id, x.ShopifyLocationMonsterId, x.AcumaticaWarehouseMonsterId, x.IsNameMismatched, x.DateCreated, x.LastUpdated });
+            HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ShopifyLocationMonsterId).HasColumnName(@"ShopifyLocationMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.AcumaticaWarehouseMonsterId).HasColumnName(@"AcumaticaWarehouseMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.IsNameMismatched).HasColumnName(@"IsNameMismatched").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.ShopifyLocationMonsterId).HasColumnName(@"ShopifyLocationMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.AcumaticaWarehouseMonsterId).HasColumnName(@"AcumaticaWarehouseMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.IsNameMismatched).HasColumnName(@"IsNameMismatched").HasColumnType("bit").IsRequired();
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
             HasRequired(a => a.UsrAcumaticaWarehouse).WithMany(b => b.UsrShopAcuWarehouseSyncs).HasForeignKey(c => c.AcumaticaWarehouseMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuWarehouseSync_usrAcumaticaWarehouse

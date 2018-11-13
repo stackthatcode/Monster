@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 
@@ -38,6 +39,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             sync.UsrShopifyLocation = location;
             sync.UsrAcumaticaWarehouse = warehouse;
             sync.IsNameMismatched = isNameMismatched;
+            sync.DateCreated = DateTime.UtcNow;
+            sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuWarehouseSyncs.Add(sync);
             Entities.SaveChanges();
         }
@@ -136,6 +139,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             var sync = new UsrShopAcuItemSync();
             sync.UsrShopifyVariant = variant;
             sync.UsrAcumaticaStockItem = stockItem;
+            sync.DateCreated = DateTime.UtcNow;
+            sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuItemSyncs.Add(sync);
             Entities.SaveChanges();
         }
