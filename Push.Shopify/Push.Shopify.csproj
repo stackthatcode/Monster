@@ -93,6 +93,7 @@
     <Compile Include="Api\InventoryApi.cs" />
     <Compile Include="Api\Inventory\Location.cs" />
     <Compile Include="Api\CustomerApi.cs" />
+    <Compile Include="Api\FulfillmentApi.cs" />
     <Compile Include="Api\Order\BillingAddress.cs" />
     <Compile Include="Api\Order\ClientDetails.cs" />
     <Compile Include="Api\Customer\Customer.cs" />

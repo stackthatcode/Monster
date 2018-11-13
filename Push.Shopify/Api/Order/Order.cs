@@ -97,6 +97,10 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public decimal ShippingDiscountedTotal => ShippingTotal - ShippingDiscountsTotal;
 
+        public LineItem LineItem(string sku)
+        {
+            return line_items.FirstOrDefault(x => x.sku == sku);
+        }
 
         public void Initialize()
         {

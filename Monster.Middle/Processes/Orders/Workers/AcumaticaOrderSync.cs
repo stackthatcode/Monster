@@ -16,7 +16,6 @@ namespace Monster.Middle.Processes.Orders.Workers
 {
     public class AcumaticaOrderSync
     {
-        private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
@@ -24,6 +23,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
         
+
         public AcumaticaOrderSync(
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
@@ -88,7 +88,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         public void RunByShopifyId(long shopifyOrderId)
         {
             var shopifyOrder 
-                = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
+                = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
 
             SyncOrderWithAcumatica(shopifyOrder);
         }

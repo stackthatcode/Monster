@@ -60,5 +60,11 @@ namespace Monster.Acumatica.Api.Shipment
                     .Distinct()
                     .ToList();
 
+        public List<ShipmentDetail> DetailByOrder(string orderNbr)
+        {
+            return Details
+                .Where(x => x.OrderNbr.value == orderNbr)
+                .ToList();
+        }
     }
 }

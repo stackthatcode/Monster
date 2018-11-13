@@ -21,5 +21,18 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             }
         }
 
+
+        public static bool
+                IsFromShopify(this UsrAcumaticaSalesOrder order)
+        {
+            // TODO - add intelligence to check for our Monster Stamp
+            return order.UsrShopAcuOrderSyncs.Any();
+        }
+
+        public static UsrShopifyOrder
+                MatchingShopifyOrder(this UsrAcumaticaSalesOrder order)
+        {
+            return order.UsrShopAcuOrderSyncs.FirstOrDefault()?.UsrShopifyOrder;
+        }
     }
 }

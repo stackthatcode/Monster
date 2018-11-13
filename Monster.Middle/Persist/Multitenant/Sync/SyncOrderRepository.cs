@@ -23,8 +23,7 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .ToList();
         }
         
-
-
+        
         public UsrShopifyOrder RetrieveShopifyOrder(long shopifyOrderId)
         {
             return Entities
@@ -32,6 +31,15 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .Include(x => x.UsrShopAcuOrderSyncs)
                 .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
+        }
+        
+        public UsrAcumaticaSalesOrder RetrieveSalesOrder(string orderNbr)
+        {
+            return Entities
+                .UsrAcumaticaSalesOrders
+                .Include(x => x.UsrShopAcuOrderSyncs)
+                .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrShopifyOrder))
+                .FirstOrDefault(x => x.AcumaticaSalesOrderId == orderNbr);
         }
 
         public UsrShopAcuOrderSync 
@@ -104,5 +112,6 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             Entities.UsrShopAcuShipmentSyncs.Add(sync);
             Entities.SaveChanges();
         }
+
     }
 }

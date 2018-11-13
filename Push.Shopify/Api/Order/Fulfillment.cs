@@ -23,4 +23,9 @@ namespace Push.Shopify.Api.Order
 
         public List<LineItem> line_items { get; set; }
     }
+
+    public class FulfillmentParent
+    {
+        public Fulfillment fulfillment { get; set; }
+    }
 }

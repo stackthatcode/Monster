@@ -22,6 +22,7 @@ namespace Push.Shopify
             builder.RegisterType<EventApi>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutApi>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryApi>().InstancePerLifetimeScope();
+            builder.RegisterType<FulfillmentApi>().InstancePerLifetimeScope();
         }
     }
 }

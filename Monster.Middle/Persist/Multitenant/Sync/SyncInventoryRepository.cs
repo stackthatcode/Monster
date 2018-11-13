@@ -69,6 +69,14 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .ToList();
         }
 
+        public UsrAcumaticaWarehouse RetrieveWarehouse(string warehouseId)
+        {
+            return Entities
+                .UsrAcumaticaWarehouses
+                .Include(x => x.UsrShopAcuWarehouseSyncs)
+                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrShopifyLocation))
+                .FirstOrDefault(x => x.AcumaticaWarehouseId == warehouseId);
+        }
 
 
         // Products/Variants and Stock Items
