@@ -1727,7 +1727,7 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrShopAcuItemSync", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyVariantMonsterId).HasColumnName(@"ShopifyVariantMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.AcumaticaItemMonsterId).HasColumnName(@"AcumaticaItemMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();

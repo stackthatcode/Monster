@@ -5,6 +5,8 @@ GO
 
 -- Clear out Monster
 
+DELETE FROM usrBatchState;
+
 -- Synchronization
 DELETE FROM usrShopAcuShipmentSync;
 DELETE FROM usrShopAcuOrderSync;
@@ -39,6 +41,7 @@ DELETE FROM usrShopifyLocation;
 
 ALTER DATABASE AcuInst2 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
 ALTER DATABASE AcuInst2 SET MULTI_USER
+
 
 DROP DATABASE AcuInst2;
 GO

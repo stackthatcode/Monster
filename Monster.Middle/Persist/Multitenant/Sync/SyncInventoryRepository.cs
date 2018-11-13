@@ -149,21 +149,18 @@ namespace Monster.Middle.Persist.Multitenant.Sync
 
         // Inventory and Warehouse Details
         //
-        public List<UsrShopifyInventoryLevel>
-                    RetrieveInventoryLevelsMatchedButNotSynced()
+        public List<UsrShopifyInventoryLevel> RetrieveInventoryLevelsNotSynced()
         {
             return Entities
-                .UsrShopifyInventoryLevels
-                .Include(x => x.UsrShopifyVariant)
-                .Include(x => x.UsrShopifyLocation)
-                .Where(x => x.UsrInventoryReceiptSyncs == null
-                            && x.UsrShopifyVariant.UsrShopAcuItemSyncs.Any()
-                            && x.ShopifyAvailableQuantity > 0)
-                .ToList();
+                    .UsrShopifyInventoryLevels
+                    .Include(x => x.UsrShopifyVariant)
+                    .Include(x => x.UsrShopifyVariant.UsrShopAcuItemSyncs)
+                    .Include(x => x.UsrShopifyLocation)
+                    .Where(x => !x.UsrInventoryReceiptSyncs.Any()
+                                && x.ShopifyAvailableQuantity > 0)
+                    .ToList();
         }
-
-        // *** TODO - could obviously be done a little bit cleaner
-
+        
         public List<UsrAcumaticaWarehouseDetail> RetrieveWarehouseDetailsNotSynced()
         {
             return Entities

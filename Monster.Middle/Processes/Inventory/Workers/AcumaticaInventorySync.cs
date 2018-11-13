@@ -152,10 +152,15 @@ namespace Monster.Middle.Processes.Inventory.Workers
                     "Preferences -> DefaultCoGsMargin is not set");
 
             var inventory =
-                _syncInventoryRepository.RetrieveInventoryLevelsMatchedButNotSynced();
+                _syncInventoryRepository.RetrieveInventoryLevelsNotSynced();
+
+            var matchedInventory =
+                inventory
+                    .Where(x => x.UsrShopifyVariant.IsMatched())
+                    .ToList();
 
             var productParentMonsterIds =
-                inventory
+                matchedInventory
                     .Select(x => x.UsrShopifyVariant.ParentMonsterId)
                     .Distinct()
                     .ToList();

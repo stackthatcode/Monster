@@ -30,13 +30,11 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
 
         // Acumatica persistence
         //
-        public UsrAcumaticaStockItem
-                    RetreiveStockItem(string itemId, bool? isMatched = null)
+        public UsrAcumaticaStockItem RetreiveStockItem(string itemId)
         {
             return Entities
                 .UsrAcumaticaStockItems
                 .Include(x => x.UsrShopAcuItemSyncs)
-                .Where(x => x.UsrShopAcuItemSyncs.Any() == isMatched)
                 .FirstOrDefault(x => x.ItemId == itemId);
         }
 
