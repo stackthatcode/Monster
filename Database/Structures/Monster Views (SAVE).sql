@@ -16,7 +16,8 @@ WHERE t2.Id IS NULL
 GO
 
 
-
 SELECT * FROM vw_AcumaticaUnsyncedShipmentIds
+
+SELECT * FROM usrAcumaticaShipment;
 
 

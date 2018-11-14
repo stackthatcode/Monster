@@ -117,14 +117,16 @@ namespace Monster.Middle.Processes.Orders.Workers
             var result = 
                 _fulfillmentApi.Insert(
                     shopifyOrderRecord.ShopifyOrderId, parent.SerializeToJson());
-            var resultFulfillment = result.DeserializeFromJson<Fulfillment>();
-
+            var resultFulfillmentParent = result.DeserializeFromJson<FulfillmentParent>();
+            
             // Save the result
             var fulfillmentRecord = new UsrShopifyFulfillment();
-            fulfillmentRecord.OrderMonsterId = orderRecord.Id;
-            fulfillmentRecord.ShopifyFulfillmentId = resultFulfillment.id;
+            fulfillmentRecord.OrderMonsterId = shopifyOrderRecord.Id;
             fulfillmentRecord.ShopifyOrderId = shopifyOrder.id;
-            fulfillmentRecord.ShopifyStatus = fulfillment.status;
+            fulfillmentRecord.ShopifyFulfillmentId 
+                    = resultFulfillmentParent.fulfillment.id;
+
+            fulfillmentRecord.ShopifyStatus = resultFulfillmentParent.fulfillment.status;
             fulfillmentRecord.DateCreated = DateTime.UtcNow;
             fulfillmentRecord.LastUpdated = DateTime.UtcNow;
 
