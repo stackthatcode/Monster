@@ -97,7 +97,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             var location = locationRecord.ShopifyJson.DeserializeFromJson<Location>();
 
             // Line Items
-            var details = shipment.DetailByOrder(orderRecord.AcumaticaSalesOrderId);
+            var details = shipment.DetailByOrder(orderRecord.AcumaticaOrderNbr);
 
             var fulfillment = new Fulfillment();
             fulfillment.line_items = new List<LineItem>();

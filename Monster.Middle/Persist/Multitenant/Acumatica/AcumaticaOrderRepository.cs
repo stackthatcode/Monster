@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Transactions;
 
 
 namespace Monster.Middle.Persist.Multitenant.Acumatica
@@ -16,6 +17,11 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
             _dataContext = dataContext;
         }
 
+
+        public DbContextTransaction BeginTransaction()
+        {
+            return Entities.Database.BeginTransaction();
+        }
 
         // Acumatica Customer
         //
@@ -59,12 +65,12 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
 
         // Sales Order
         //
-        public UsrAcumaticaSalesOrder RetrieveSalesOrder(string acumaticaSOId)
+        public UsrAcumaticaSalesOrder RetrieveSalesOrder(string acumaticaOrderNbr)
         {
             return Entities
                 .UsrAcumaticaSalesOrders
                 .Include(x => x.UsrShopAcuOrderSyncs)
-                .FirstOrDefault(x => x.AcumaticaSalesOrderId == acumaticaSOId);
+                .FirstOrDefault(x => x.AcumaticaOrderNbr == acumaticaOrderNbr);
         }
 
         public DateTime? RetrieveOrderMaxUpdatedDate()
@@ -93,7 +99,7 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         {
             return Entities
                 .UsrAcumaticaShipments
-                .FirstOrDefault(x => x.AcumaticaShipmentId == shipmentNbr);
+                .FirstOrDefault(x => x.AcumaticaShipmentNbr == shipmentNbr);
         }
         
         public void InsertShipment(UsrAcumaticaShipment shipment)
@@ -123,8 +129,43 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
                     .UsrAcumaticaShipments
                     .ToList();
         }
+        
 
         
+        public void ImprintShipmentDetail(
+                long monsterShipmentId, List<UsrAcumaticaShipmentSo> newestRecords)
+        {
+            var existingRecords =
+                Entities
+                    .UsrAcumaticaShipmentSoes
+                    .Where(x => x.ShipmentMonsterId == monsterShipmentId)
+                    .ToList();
+            
+            foreach (var existingRecord in existingRecords)
+            {
+                if (!newestRecords.AnyMatch(existingRecord))
+                {
+                    Entities.UsrAcumaticaShipmentSoes.Remove(existingRecord);
+                    Entities.SaveChanges();
+                }
+            }
+
+            foreach (var newestRecord in newestRecords)
+            {
+                if (!existingRecords.AnyMatch(newestRecord))
+                {
+                    newestRecord.ShipmentMonsterId = monsterShipmentId;
+                    newestRecord.DateCreated = DateTime.UtcNow;
+                    newestRecord.LastUpdated = DateTime.UtcNow;
+
+                    Entities.UsrAcumaticaShipmentSoes.Add(newestRecord);
+                    Entities.SaveChanges();
+                }                
+            }
+        }
+
+
+
         public void SaveChanges()
         {
             Entities.SaveChanges();

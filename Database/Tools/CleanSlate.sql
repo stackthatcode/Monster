@@ -1,4 +1,3 @@
-
 USE Monster0001;
 GO
 
@@ -17,6 +16,7 @@ DELETE FROM usrShopAcuWarehouseSync;
 
 
 -- Shopify
+DELETE FROM usrAcumaticaShipmentSO;
 DELETE FROM usrAcumaticaShipment;
 DELETE FROM usrAcumaticaSalesOrder;
 DELETE FROM usrAcumaticaCustomer;
@@ -43,10 +43,12 @@ ALTER DATABASE AcuInst2 SET SINGLE_USER WITH ROLLBACK IMMEDIATE
 ALTER DATABASE AcuInst2 SET MULTI_USER
 
 
+/*
 DROP DATABASE AcuInst2;
 GO
 
 -- TODO - RESTORE DATABASE FROM FILE
 RESTORE DATABASE AcuInst2
-  FROM DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\Backup\AcuInst2.bak'
+FROM DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\Backup\AcuInst2.bak'
+*/
 

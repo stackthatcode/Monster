@@ -127,13 +127,22 @@ namespace Monster.Middle.Processes.Inventory
             // TODO - control this via a Preference
             _acumaticaInventorySync.RunInventoryReceiptsRelease();
 
-            // Finally, refresh our local cache of Acumatica Inventory
-            _acumaticaInventoryPull.RunAutomatic();
-
             _acumaticaContext.Logout();
         }
 
-        public void SynchronizeRoutine()
+        public void SynchronizeShopifyInitial()
+        {
+            // Refresh our local cache of Acumatica Inventory
+            _acumaticaContext.Login();
+            _acumaticaInventoryPull.RunAll();
+            _acumaticaContext.Logout();
+
+            // Finally, push Acumatica Inventory into Shopify
+            _shopifyInventorySync.Run();
+
+        }
+
+        public void SynchronizeShopifyRoutine()
         {
             SynchronizeLocationOnly();
             if (!IsLocationStatusValid())
@@ -141,6 +150,7 @@ namespace Monster.Middle.Processes.Inventory
                 return;
             }
 
+            // Doesn't really matter, technically
             _shopifyInventoryPull.RunAutomatic();
 
             _acumaticaContext.Login();

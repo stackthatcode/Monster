@@ -102,6 +102,7 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             return Entities
                 .UsrAcumaticaStockItems
                 .Include(x => x.UsrShopAcuItemSyncs)
+                .Include(x => x.UsrAcumaticaWarehouseDetails)
                 .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrShopifyVariant))
                 .FirstOrDefault(x => x.ItemId == itemId);
         }

@@ -1,3 +1,5 @@
+USE Monster0001;
+GO
 
 -- Preferences, Batch State
 SELECT * FROM usrPreferences;
@@ -20,8 +22,10 @@ SELECT * FROM usrShopAcuItemSync;
 -- Inventory Levels and Warehouse Details
 SELECT * FROM usrShopifyInventoryLevels;
 SELECT * FROM usrAcumaticaWarehouseDetails;
-SELECT * FROM usrInventoryReceiptSync;
+UPDATE usrAcumaticaWarehouseDetails SET IsShopifySynced = 0;
 
+SELECT * FROM usrInventoryReceiptSync;
+SELECT * FROM usrAcumaticaInventoryReceipt;
 
 -- Shopify Orders and Acumatica Sales Orders
 SELECT * FROM usrShopifyOrder;

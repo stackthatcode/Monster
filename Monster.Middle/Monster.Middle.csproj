@@ -115,6 +115,7 @@
     <Compile Include="Processes\Orders\Workers\AcumaticaShipmentSync.cs" />
     <Compile Include="Processes\Orders\Workers\AcumaticaOrderSync.cs" />
     <Compile Include="Processes\Orders\Workers\Extensions.cs" />
+    <Compile Include="Processes\Orders\Workers\Model\ShipmentSyncReadiness.cs" />
     <Compile Include="Processes\Orders\Workers\ShopifyCustomerPull.cs" />
     <Compile Include="Processes\Orders\Workers\ShopifyFulfillmentSync.cs" />
     <Compile Include="Processes\Orders\Workers\ShopifyOrderPull.cs" />

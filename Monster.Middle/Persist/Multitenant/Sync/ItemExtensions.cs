@@ -17,5 +17,6 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             return input
                 .UsrShopAcuItemSyncs?.First().UsrShopifyVariant;
         }
+        
     }
 }

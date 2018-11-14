@@ -129,7 +129,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                     = _acumaticaCustomerPull.RunAndUpsertCustomer(customerId);
 
                 var newData = new UsrAcumaticaSalesOrder();
-                newData.AcumaticaSalesOrderId = orderNbr;
+                newData.AcumaticaOrderNbr = orderNbr;
                 newData.AcumaticaJson = order.SerializeToJson();
                 newData.AcumaticaStatus = order.Status.value;
                 newData.CustomerMonsterId = customerMonsterId;

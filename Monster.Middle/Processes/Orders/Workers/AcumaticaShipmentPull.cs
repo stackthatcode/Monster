@@ -122,18 +122,19 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             if (existingData == null)
             {
-                //var customerMonsterId =
-                //    _acumaticaCustomerPull.RunAndUpsertCustomer(
-                //        shipment.CustomerID.value);
-
                 var newData = new UsrAcumaticaShipment();
                 newData.AcumaticaJson = shipment.SerializeToJson();
-                newData.AcumaticaShipmentId = shipment.ShipmentNbr.value;
+                newData.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 newData.AcumaticaStatus = shipment.Status.value;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 
-                _acumaticaOrderRepository.InsertShipment(newData);
+                using (var transaction = _acumaticaOrderRepository.BeginTransaction())
+                {
+                    _acumaticaOrderRepository.InsertShipment(newData);
+                    UpsertSOShipments(newData.Id, shipment);
+                    transaction.Commit();
+                }
 
                 return newData;
             }
@@ -143,13 +144,38 @@ namespace Monster.Middle.Processes.Orders.Workers
                 existingData.AcumaticaStatus = shipment.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
 
-                _acumaticaOrderRepository.SaveChanges();
-                
+                using (var transaction = _acumaticaOrderRepository.BeginTransaction())
+                {
+                    _acumaticaOrderRepository.SaveChanges();
+                    UpsertSOShipments(existingData.Id, shipment);
+                    transaction.Commit();
+                }
+
                 return existingData;
             }
         }
-        
 
+        public void UpsertSOShipments(long monsterShipmentId, Shipment shipment)
+        {
+            var currentDetailRecords = new List<UsrAcumaticaShipmentSo>();
+
+            foreach (var detail in shipment.Details)
+            {
+                var currentDetailRecord =
+                    new UsrAcumaticaShipmentSo
+                    {
+                        ShipmentMonsterId = monsterShipmentId,
+                        AcumaticaShipmentNbr = shipment.ShipmentNbr.value,
+                        AcumaticaOrderNbr = detail.OrderNbr.value,
+                    };
+
+                currentDetailRecords.Add(currentDetailRecord);
+            }
+
+            _acumaticaOrderRepository
+                .ImprintShipmentDetail(
+                    monsterShipmentId, currentDetailRecords);
+        }
     }
 }
 

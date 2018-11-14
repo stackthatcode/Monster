@@ -5,11 +5,13 @@ using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
-using Monster.Middle.Persist.Multitenant.Extensions;
 using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Persist.Multitenant.Sync;
+using Monster.Middle.Processes.Orders.Workers.Model;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
+
+
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
@@ -18,9 +20,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
-        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
-        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
-
+        
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
         
@@ -28,15 +28,11 @@ namespace Monster.Middle.Processes.Orders.Workers
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     ShopifyOrderRepository shopifyOrderRepository,
-                    ShopifyInventoryRepository shopifyInventoryRepository,
-                    AcumaticaOrderRepository acumaticaOrderRepository,
                     AcumaticaShipmentPull acumaticaShipmentPull,
                     ShipmentClient shipmentClient)
         {
             _syncOrderRepository = syncOrderRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
-            _shopifyInventoryRepository = shopifyInventoryRepository;
-            _acumaticaOrderRepository = acumaticaOrderRepository;
             _acumaticaShipmentPull = acumaticaShipmentPull;
             _shipmentClient = shipmentClient;
             _syncInventoryRepository = syncInventoryRepository;
@@ -50,7 +46,8 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             foreach (var fulfillment in fulfillments)
             {
-                var acumaticaOrder = fulfillment.UsrShopifyOrder.MatchingSalesOrder();
+                var acumaticaOrder 
+                        = fulfillment.UsrShopifyOrder.MatchingSalesOrder();
 
                 if (acumaticaOrder == null)
                 {
@@ -62,9 +59,15 @@ namespace Monster.Middle.Processes.Orders.Workers
                     continue;
                 }
 
-                SyncFulfillmentWithAcumatica(fulfillment);
+                var readiness = IsReadyToSyncWithAcumatica(fulfillment);
+
+                if (readiness.IsReady)
+                {
+                    SyncFulfillmentWithAcumatica(fulfillment);
+                }
             }
         }
+
 
         public void RunByShopifyId(long shopifyFulfillmentId)
         {
@@ -74,7 +77,56 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             SyncFulfillmentWithAcumatica(fulfillment);
         }
+        
 
+        private ShipmentSyncReadiness 
+                IsReadyToSyncWithAcumatica(
+                        UsrShopifyFulfillment fulfillmentRecord)
+        {
+            var output = new ShipmentSyncReadiness();
+
+            var shopifyOrderRecord
+                = _syncOrderRepository
+                    .RetrieveShopifyOrder(fulfillmentRecord.ShopifyOrderId);
+
+            var shopifyOrder
+                = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
+
+            var shopifyFulfillment
+                = shopifyOrder.Fulfillment(fulfillmentRecord.ShopifyFulfillmentId);
+            
+            // Isolate the Warehouse
+            var locationRecord =
+                _syncInventoryRepository
+                    .RetrieveLocation(shopifyFulfillment.location_id);
+
+            var warehouseId = locationRecord.MatchedWarehouse().AcumaticaWarehouseId;
+
+            // Create the Shipment API payload            
+            foreach (var line in shopifyFulfillment.line_items)
+            {
+                var variantRecord =
+                    _syncInventoryRepository
+                        .RetrieveVariant(line.variant_id, line.sku);
+
+                var stockItemId = variantRecord.MatchedStockItem().ItemId;
+
+                // Get Warehouse Details
+                var stockItem =
+                    _syncInventoryRepository.RetrieveStockItem(stockItemId);
+
+                var warehouseDetail = stockItem.WarehouseDetail(warehouseId);
+
+                if (line.quantity > warehouseDetail.AcumaticaQtyOnHand)
+                {
+                    output.SkuWithInsuffientInventory.Add(line.sku);
+                }
+            }
+
+            return output;
+        }
+
+        
         private void SyncFulfillmentWithAcumatica(
                         UsrShopifyFulfillment fulfillmentRecord)
         {
@@ -105,6 +157,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             var shipment = new Shipment();
             shipment.Type = "Shipment".ToValue();
             shipment.Status = "Open".ToValue();
+            shipment.Hold = false.ToValue();
             shipment.CustomerID = customerNbr.ToValue();
             shipment.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
             shipment.Details = new List<ShipmentDetail>();
@@ -112,7 +165,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             foreach (var line in shopifyFulfillment.line_items)
             {
                 var variantRecord =
-                    _shopifyInventoryRepository
+                    _syncInventoryRepository
                         .RetrieveVariant(line.variant_id, line.sku);
 
                 var stockItemId
@@ -120,7 +173,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 
                 var detail = new ShipmentDetail();
                 detail.OrderNbr
-                    = salesOrderRecord.AcumaticaSalesOrderId.ToValue();
+                    = salesOrderRecord.AcumaticaOrderNbr.ToValue();
 
                 detail.OrderType = "SO".ToValue();
                 detail.InventoryID = stockItemId.ToValue();

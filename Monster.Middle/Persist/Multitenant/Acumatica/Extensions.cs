@@ -22,5 +22,39 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
             return input.FirstOrDefault(
                     x => x.AcumaticaWarehouseId == detail.AcumaticaWarehouseId);
         }
+
+
+        public static bool AnyMatch(
+                    this IEnumerable<UsrAcumaticaShipmentSo> input,
+                    UsrAcumaticaShipmentSo other)
+        {
+            return input.Any(x => x.Match(other));
+        }
+
+        public static bool Match(
+                this UsrAcumaticaShipmentSo input, UsrAcumaticaShipmentSo other)
+        {
+            return input.AcumaticaOrderNbr == other.AcumaticaOrderNbr
+                   && input.AcumaticaShipmentNbr == other.AcumaticaShipmentNbr;
+        }
+
+        public static UsrAcumaticaShipmentSo FindMatch(
+                this IEnumerable<UsrAcumaticaShipmentSo> input,
+                UsrAcumaticaShipmentSo findMe)
+        {
+            return input.FirstOrDefault(x => x.Match(findMe));
+        }
+
+
+        public static UsrAcumaticaWarehouseDetail
+                WarehouseDetail(
+                    this UsrAcumaticaStockItem input,
+                    string warehouseId)
+        {
+            return input
+                .UsrAcumaticaWarehouseDetails
+                .FirstOrDefault(x => x.AcumaticaWarehouseId == warehouseId);
+        }
+
     }
 }

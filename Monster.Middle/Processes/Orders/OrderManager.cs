@@ -99,12 +99,13 @@ namespace Monster.Middle.Processes.Orders
 
             // TODO - this depends on whether the preference is to:
             // 1) Sync Fulfillments to Acumatica Shipments
-            // 2) Sync Shipments to Shopify Fulfillments
             //_acumaticaShipmentSync.Run();
             
-            _shopifyFulfillmentSync.Run();
-
             _acumaticaContext.Logout();
+
+            // ...or to:
+            // 2) Sync Shipments to Shopify Fulfillments
+            //_shopifyFulfillmentSync.Run();
         }
 
         public void SingleOrderPush(long shopifyOrderId)

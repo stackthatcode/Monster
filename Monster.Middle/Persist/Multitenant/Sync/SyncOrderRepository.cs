@@ -43,7 +43,7 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .Include(x => x.UsrAcumaticaCustomer)
                 .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrShopifyOrder))
                 .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrShopifyOrder.UsrShopifyCustomer))
-                .FirstOrDefault(x => x.AcumaticaSalesOrderId == orderNbr);
+                .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
 
         public UsrShopAcuOrderSync 

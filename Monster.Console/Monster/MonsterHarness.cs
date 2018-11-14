@@ -22,24 +22,32 @@ namespace Monster.ConsoleApp.Monster
                 {
                     var tenantContext = scope.Resolve<TenantContext>();
                     tenantContext.Initialize(tenantId);
+                    
                     var inventoryManager = scope.Resolve<InventoryManager>();
                     var orderManager = scope.Resolve<OrderManager>();
 
-                    //// Step 1 - Synchronize Locations
-                    //inventoryManager.Reset();
-                    //inventoryManager.SynchronizeLocationOnly();
+                    // Step 1 - Synchronize Locations
+                    inventoryManager.Reset();
+                    inventoryManager.SynchronizeLocationOnly();
 
-                    //// Step 2 - Load Inventory from both systems
-                    //inventoryManager.SynchronizeInitial();
-                    //inventoryManager.LoadShopifyInventoryIntoAcumatica();
+                    // Step 2 - Inventory baseline, use Shopify Inventory as starting point
+                    inventoryManager.SynchronizeInitial();
+                    inventoryManager.LoadShopifyInventoryIntoAcumatica();
+                    
+                    // *** PAUSE TO ALLOW ACUMATICA CACHE TO REFRESH ***
+                    Console.WriteLine("Need Acumatica cache to update - hit enter to continue...");
+                    Console.ReadLine();
 
-                    //// Step 3 - Load Orders from both systems
-                    //orderManager.Reset();
-                    //orderManager.SynchronizeInitial();
+                    // Step 3 - Load Acumatica into Shopify
+                    inventoryManager.SynchronizeShopifyInitial();
+                    
+                    // Step 4 - Initial Order Synchronization
+                    orderManager.Reset();
+                    orderManager.SynchronizeInitial();
+                    
 
-
-                    //Step X -Routine Synchronization Process
-                    //inventoryManager.SynchronizeRoutine();
+                    // Step N - Routine Synchronization Process
+                    inventoryManager.SynchronizeShopifyRoutine();
                     orderManager.SynchronizeRoutine();
                 }
                 catch (Exception ex)
