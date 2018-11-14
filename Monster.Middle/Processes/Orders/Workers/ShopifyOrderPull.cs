@@ -261,7 +261,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
 
-                    _orderRepository.InsertFulfillments(newRecord);
+                    _orderRepository.InsertFulfillment(newRecord);
                 }
                 else
                 {

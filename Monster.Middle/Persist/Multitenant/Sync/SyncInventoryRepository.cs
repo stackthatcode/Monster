@@ -15,6 +15,10 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             _dataContext = dataContext;
         }
 
+        public DbContextTransaction BeginTransaction()
+        {
+            return Entities.Database.BeginTransaction();
+        }
 
 
         // Warehouses & Locations

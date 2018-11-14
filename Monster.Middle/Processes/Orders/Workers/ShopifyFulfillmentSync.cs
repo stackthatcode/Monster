@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
@@ -11,6 +11,7 @@ using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
 using Push.Shopify.Api.Order;
+
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
@@ -50,51 +51,41 @@ namespace Monster.Middle.Processes.Orders.Workers
         public void Run()
         {
             // Shipments that have Sales Orders, but no matching Shopify Fulfillment
-            var shipmentsRecords =
-                _acumaticaOrderRepository.RetrieveShipmentsUnsynced();
+            var shipmentIds =
+                _acumaticaOrderRepository.RetrieveUnsyncedShipmentIds();
 
-            // TODO - more Acumatica Status filtering - 
-            // 
-            var filteredShipmentRecords =
-                shipmentsRecords
-                    .Where(x => x.AcumaticaStatus == "Confirmed")
-                    .ToList();
-
-            foreach (var shipmentRecord in filteredShipmentRecords)
+            foreach (var shipmentId in shipmentIds)
             {
-                var shipment = 
-                    shipmentRecord
-                        .AcumaticaJson
-                        .DeserializeFromJson<Shipment>();
-
-                foreach (var orderNbr in shipment.UniqueOrderNbrs)
+                var shipmentRecord =
+                    _acumaticaOrderRepository.RetrieveShipment(shipmentId);
+                
+                foreach (var shipmentSo in shipmentRecord.UsrAcumaticaShipmentSoes)
                 {
-                    var order = 
-                        _syncOrderRepository.RetrieveSalesOrder(orderNbr);
-
-                    if (!order.IsFromShopify())
-                    {
-                        continue;
-                    }
-
-                    PushFulfillmentToShopify(shipment, order);
-
+                    PushFulfillmentToShopify(shipmentSo);
                 }
             }
         }
 
-        public void PushFulfillmentToShopify(
-                    Shipment shipment, UsrAcumaticaSalesOrder orderRecord)
+        public void PushFulfillmentToShopify(UsrAcumaticaShipmentSo shipmentSoRecord)
         {
+            var orderRecord =
+                _syncOrderRepository
+                    .RetrieveSalesOrder(shipmentSoRecord.AcumaticaOrderNbr);
+
+            if (!orderRecord.IsFromShopify())
+            {
+                return;
+            }
+
             var shopifyOrderRecord = orderRecord.MatchingShopifyOrder();
             var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
 
-            // Location
-            var warehouse =
-                _syncInventoryRepository
-                    .RetrieveWarehouse(shipment.WarehouseID.value);
-            var locationRecord = warehouse.MatchedLocation();
-            var location = locationRecord.ShopifyJson.DeserializeFromJson<Location>();
+            var shipment
+                = shipmentSoRecord
+                    .UsrAcumaticaShipment
+                    .AcumaticaJson.DeserializeFromJson<Shipment>();
+
+            var location = RetrieveMatchingLocation(shipment);
 
             // Line Items
             var details = shipment.DetailByOrder(orderRecord.AcumaticaOrderNbr);
@@ -102,21 +93,14 @@ namespace Monster.Middle.Processes.Orders.Workers
             var fulfillment = new Fulfillment();
             fulfillment.line_items = new List<LineItem>();
             fulfillment.location_id = location.id;
+            // TODO - add Tracking Number...?
 
-            // TODO - add Tracking Number
-
+            // Build the Detail
             foreach (var detail in details)
             {
-                // TODO - for now, just use the SKU
-                //var stockItem
-                //    = _syncInventoryRepository
-                //        .RetrieveStockItem(detail.InventoryID.value);
-                //var variant = stockItem.MatchedVariant();
-
+                // TODO - for now, just use the SKU... although beware of doing this!
                 var shopifySku = detail.InventoryID.value;
-
                 var shopifyLineItem = shopifyOrder.LineItem(shopifySku);
-
                 var quantity = detail.ShippedQty.value;
 
                 var fulfillmentDetail = new LineItem()
@@ -128,13 +112,37 @@ namespace Monster.Middle.Processes.Orders.Workers
                 fulfillment.line_items.Add(fulfillmentDetail);
             }
 
-            var parent = new FulfillmentParent()
-            {
-                fulfillment = fulfillment
-            };
+            // Write the Fulfillment to the Shopify API
+            var parent = new FulfillmentParent() { fulfillment = fulfillment };
+            var result = 
+                _fulfillmentApi.Insert(
+                    shopifyOrderRecord.ShopifyOrderId, parent.SerializeToJson());
+            var resultFulfillment = result.DeserializeFromJson<Fulfillment>();
 
-            _fulfillmentApi.Insert(
-                shopifyOrderRecord.ShopifyOrderId, parent.SerializeToJson());
+            // Save the result
+            var fulfillmentRecord = new UsrShopifyFulfillment();
+            fulfillmentRecord.OrderMonsterId = orderRecord.Id;
+            fulfillmentRecord.ShopifyFulfillmentId = resultFulfillment.id;
+            fulfillmentRecord.ShopifyOrderId = shopifyOrder.id;
+            fulfillmentRecord.ShopifyStatus = fulfillment.status;
+            fulfillmentRecord.DateCreated = DateTime.UtcNow;
+            fulfillmentRecord.LastUpdated = DateTime.UtcNow;
+
+            using (var transaction = _syncInventoryRepository.BeginTransaction())
+            {
+                _shopifyOrderRepository.InsertFulfillment(fulfillmentRecord);
+                _syncOrderRepository.InsertShipmentSoSync(fulfillmentRecord, shipmentSoRecord);
+                transaction.Commit();
+            }
+        }
+
+        public Location RetrieveMatchingLocation(Shipment shipment)
+        {
+            var warehouse =
+                _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
+            var locationRecord = warehouse.MatchedLocation();
+            var location = locationRecord.ShopifyJson.DeserializeFromJson<Location>();
+            return location;
         }
     }
 }

@@ -103,25 +103,27 @@ namespace Monster.Middle.Persist.Multitenant.Sync
         public List<UsrShopifyFulfillment> RetrieveFulfillmentsNotSynced()
         {
             return Entities
-                .UsrShopifyFulfillments
-                .Include(x => x.UsrShopifyOrder)
-                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
-                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
-                .Where(x => !x.UsrShopAcuShipmentSyncs.Any())
-                .ToList();
+                    .UsrShopifyFulfillments
+                    .Include(x => x.UsrShopifyOrder)
+                    .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
+                    .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
+                    .Where(x => !x.UsrShopAcuShipmentSyncs.Any())
+                    .ToList();
         }
 
-        public void InsertShipmentSync(
-                UsrShopifyFulfillment fulfillment, UsrAcumaticaShipment shipment)
+        public void InsertShipmentSoSync(
+                UsrShopifyFulfillment fulfillment, UsrAcumaticaShipmentSo shipmentSo)
         {
             var sync = new UsrShopAcuShipmentSync();
             sync.UsrShopifyFulfillment = fulfillment;
-            sync.UsrAcumaticaShipment = shipment;
+            sync.UsrAcumaticaShipmentSo = shipmentSo;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuShipmentSyncs.Add(sync);
             Entities.SaveChanges();
         }
+
+
 
     }
 }

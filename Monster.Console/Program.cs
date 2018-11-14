@@ -9,8 +9,10 @@ namespace Monster.ConsoleApp
         static void Main(string[] args)
         {            
             // Monster test runs
-            var installation = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
-            MonsterHarness.TestCompleteProcess(installation);
+            var tenantId = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
+
+            MonsterHarness.InitialLoad(tenantId);
+            MonsterHarness.RoutineExecution(tenantId);
 
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();

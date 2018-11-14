@@ -99,9 +99,20 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         {
             return Entities
                 .UsrAcumaticaShipments
+                .Include(x => x.UsrAcumaticaShipmentSoes)
+                .Include(x => x.UsrAcumaticaShipmentSoes.Select(y => y.UsrShopAcuShipmentSyncs))
                 .FirstOrDefault(x => x.AcumaticaShipmentNbr == shipmentNbr);
         }
-        
+
+        public UsrAcumaticaShipment RetrieveShipment(long shipmentMonsterId)
+        {
+            return Entities
+                .UsrAcumaticaShipments
+                .Include(x => x.UsrAcumaticaShipmentSoes)
+                .Include(x => x.UsrAcumaticaShipmentSoes.Select(y => y.UsrShopAcuShipmentSyncs))
+                .FirstOrDefault(x => x.Id == shipmentMonsterId);
+        }
+
         public void InsertShipment(UsrAcumaticaShipment shipment)
         {
             Entities.UsrAcumaticaShipments.Add(shipment);
@@ -122,12 +133,13 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
             }
         }
 
-        public List<UsrAcumaticaShipment> RetrieveShipmentsUnsynced()
+        public List<long> RetrieveUnsyncedShipmentIds()
         {
-            return 
-                Entities
-                    .UsrAcumaticaShipments
-                    .ToList();
+            var sql = @"SELECT * FROM vw_AcumaticaUnsyncedShipmentIds";
+            return Entities
+                .Database
+                .SqlQuery<long>(sql)
+                .ToList();
         }
         
 

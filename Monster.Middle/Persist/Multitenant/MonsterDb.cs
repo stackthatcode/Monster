@@ -67,7 +67,6 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund
         System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
         System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
-        System.Data.Entity.DbSet<VwAcumaticaUnsyncedShipment> VwAcumaticaUnsyncedShipments { get; set; } // vw_AcumaticaUnsyncedShipments
 
         int SaveChanges();
         System.Threading.Tasks.Task<int> SaveChangesAsync();
@@ -120,7 +119,6 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
         public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
-        public System.Data.Entity.DbSet<VwAcumaticaUnsyncedShipment> VwAcumaticaUnsyncedShipments { get; set; } // vw_AcumaticaUnsyncedShipments
 
         static MonsterDataContext()
         {
@@ -200,7 +198,6 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyRefundConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration());
             modelBuilder.Configurations.Add(new UsrTenantConfiguration());
-            modelBuilder.Configurations.Add(new VwAcumaticaUnsyncedShipmentConfiguration());
         }
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
@@ -235,7 +232,6 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyRefundConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrTenantConfiguration(schema));
-            modelBuilder.Configurations.Add(new VwAcumaticaUnsyncedShipmentConfiguration(schema));
             return modelBuilder;
         }
     }
@@ -288,7 +284,6 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; }
         public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; }
-        public System.Data.Entity.DbSet<VwAcumaticaUnsyncedShipment> VwAcumaticaUnsyncedShipments { get; set; }
 
         public FakeMonsterDataContext()
         {
@@ -326,7 +321,6 @@ namespace Monster.Middle.Persist.Multitenant
             UsrShopifyRefunds = new FakeDbSet<UsrShopifyRefund>("Id");
             UsrShopifyVariants = new FakeDbSet<UsrShopifyVariant>("MonsterId");
             UsrTenants = new FakeDbSet<UsrTenant>("CompanyId");
-            VwAcumaticaUnsyncedShipments = new FakeDbSet<VwAcumaticaUnsyncedShipment>("Id", "AcumaticaJson", "AcumaticaShipmentId", "AcumaticaStatus", "CustomerMonsterId", "DateCreated", "LastUpdated");
         }
 
         public int SaveChangesCount { get; private set; }
@@ -782,15 +776,10 @@ namespace Monster.Middle.Persist.Multitenant
         /// Child UsrAcumaticaShipmentSoes where [usrAcumaticaShipmentSO].[ShipmentMonsterId] point to this entity (FK_usrAcumaticaShipmentSO_usrAcumaticaShipment)
         /// </summary>
         public virtual System.Collections.Generic.ICollection<UsrAcumaticaShipmentSo> UsrAcumaticaShipmentSoes { get; set; } // usrAcumaticaShipmentSO.FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
-        /// <summary>
-        /// Child UsrShopAcuShipmentSyncs where [usrShopAcuShipmentSync].[AcumaticaShipmentMonsterId] point to this entity (FK_usrShopAcuShipmentSync_usrAcumaticaShipment)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; } // usrShopAcuShipmentSync.FK_usrShopAcuShipmentSync_usrAcumaticaShipment
 
         public UsrAcumaticaShipment()
         {
             UsrAcumaticaShipmentSoes = new System.Collections.Generic.List<UsrAcumaticaShipmentSo>();
-            UsrShopAcuShipmentSyncs = new System.Collections.Generic.List<UsrShopAcuShipmentSync>();
         }
     }
 
@@ -805,12 +794,24 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
+        // Reverse navigation
+
+        /// <summary>
+        /// Child UsrShopAcuShipmentSyncs where [usrShopAcuShipmentSync].[AcumaticaShipmentSOMonsterId] point to this entity (FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; } // usrShopAcuShipmentSync.FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
+
         // Foreign keys
 
         /// <summary>
         /// Parent UsrAcumaticaShipment pointed by [usrAcumaticaShipmentSO].([ShipmentMonsterId]) (FK_usrAcumaticaShipmentSO_usrAcumaticaShipment)
         /// </summary>
         public virtual UsrAcumaticaShipment UsrAcumaticaShipment { get; set; } // FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
+
+        public UsrAcumaticaShipmentSo()
+        {
+            UsrShopAcuShipmentSyncs = new System.Collections.Generic.List<UsrShopAcuShipmentSync>();
+        }
     }
 
     // usrAcumaticaStockItem
@@ -1028,7 +1029,7 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrShopAcuShipmentSync
     {
         public long Id { get; set; } // Id (Primary key)
-        public long AcumaticaShipmentMonsterId { get; set; } // AcumaticaShipmentMonsterId
+        public long AcumaticaShipmentSoMonsterId { get; set; } // AcumaticaShipmentSOMonsterId
         public long ShopifyFulfillmentMonsterId { get; set; } // ShopifyFulfillmentMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -1036,9 +1037,9 @@ namespace Monster.Middle.Persist.Multitenant
         // Foreign keys
 
         /// <summary>
-        /// Parent UsrAcumaticaShipment pointed by [usrShopAcuShipmentSync].([AcumaticaShipmentMonsterId]) (FK_usrShopAcuShipmentSync_usrAcumaticaShipment)
+        /// Parent UsrAcumaticaShipmentSo pointed by [usrShopAcuShipmentSync].([AcumaticaShipmentSoMonsterId]) (FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO)
         /// </summary>
-        public virtual UsrAcumaticaShipment UsrAcumaticaShipment { get; set; } // FK_usrShopAcuShipmentSync_usrAcumaticaShipment
+        public virtual UsrAcumaticaShipmentSo UsrAcumaticaShipmentSo { get; set; } // FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
 
         /// <summary>
         /// Parent UsrShopifyFulfillment pointed by [usrShopAcuShipmentSync].([ShopifyFulfillmentMonsterId]) (FK_usrShopAcuShipmentSync_usrShopifyFulfillment)
@@ -1388,20 +1389,6 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaCompanyName { get; set; } // AcumaticaCompanyName (length: 500)
         public string AcumaticaUsername { get; set; } // AcumaticaUsername (length: 500)
         public string AcumaticaPassword { get; set; } // AcumaticaPassword (length: 500)
-    }
-
-    // vw_AcumaticaUnsyncedShipments
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class VwAcumaticaUnsyncedShipment
-    {
-        public long Id { get; set; } // Id (Primary key)
-        public string AcumaticaJson { get; set; } // AcumaticaJson (Primary key)
-        public string AcumaticaShipmentId { get; set; } // AcumaticaShipmentId (Primary key) (length: 50)
-        public string AcumaticaStatus { get; set; } // AcumaticaStatus (Primary key) (length: 25)
-        public long? ShopifyFulfillmentMonsterId { get; set; } // ShopifyFulfillmentMonsterId
-        public long CustomerMonsterId { get; set; } // CustomerMonsterId (Primary key)
-        public System.DateTime DateCreated { get; set; } // DateCreated (Primary key)
-        public System.DateTime LastUpdated { get; set; } // LastUpdated (Primary key)
     }
 
     #endregion
@@ -1838,13 +1825,13 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.AcumaticaShipmentMonsterId).HasColumnName(@"AcumaticaShipmentMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.AcumaticaShipmentSoMonsterId).HasColumnName(@"AcumaticaShipmentSOMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyFulfillmentMonsterId).HasColumnName(@"ShopifyFulfillmentMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
-            HasRequired(a => a.UsrAcumaticaShipment).WithMany(b => b.UsrShopAcuShipmentSyncs).HasForeignKey(c => c.AcumaticaShipmentMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuShipmentSync_usrAcumaticaShipment
+            HasRequired(a => a.UsrAcumaticaShipmentSo).WithMany(b => b.UsrShopAcuShipmentSyncs).HasForeignKey(c => c.AcumaticaShipmentSoMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
             HasRequired(a => a.UsrShopifyFulfillment).WithMany(b => b.UsrShopAcuShipmentSyncs).HasForeignKey(c => c.ShopifyFulfillmentMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuShipmentSync_usrShopifyFulfillment
         }
     }
@@ -2165,31 +2152,6 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaCompanyName).HasColumnName(@"AcumaticaCompanyName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.AcumaticaUsername).HasColumnName(@"AcumaticaUsername").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.AcumaticaPassword).HasColumnName(@"AcumaticaPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-        }
-    }
-
-    // vw_AcumaticaUnsyncedShipments
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class VwAcumaticaUnsyncedShipmentConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<VwAcumaticaUnsyncedShipment>
-    {
-        public VwAcumaticaUnsyncedShipmentConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public VwAcumaticaUnsyncedShipmentConfiguration(string schema)
-        {
-            ToTable("vw_AcumaticaUnsyncedShipments", schema);
-            HasKey(x => new { x.Id, x.AcumaticaJson, x.AcumaticaShipmentId, x.AcumaticaStatus, x.CustomerMonsterId, x.DateCreated, x.LastUpdated });
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.AcumaticaShipmentId).HasColumnName(@"AcumaticaShipmentId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ShopifyFulfillmentMonsterId).HasColumnName(@"ShopifyFulfillmentMonsterId").HasColumnType("bigint").IsOptional();
-            Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
         }
     }
 

@@ -125,7 +125,6 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             return output;
         }
-
         
         private void SyncFulfillmentWithAcumatica(
                         UsrShopifyFulfillment fulfillmentRecord)
@@ -137,7 +136,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             var shopifyOrder 
                 = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
             
-            var shopifyFulfillment
+            var fulfillment
                 = shopifyOrder
                     .fulfillments
                     .FirstOrDefault(x => x.id == fulfillmentRecord.ShopifyFulfillmentId);
@@ -150,7 +149,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             // Isolate the Warehouse
             var locationRecord =
                     _syncInventoryRepository
-                        .RetrieveLocation(shopifyFulfillment.location_id);
+                        .RetrieveLocation(fulfillment.location_id);
             var warehouse = locationRecord.MatchedWarehouse();
 
             // Create the Shipment API payload
@@ -161,8 +160,10 @@ namespace Monster.Middle.Processes.Orders.Workers
             shipment.CustomerID = customerNbr.ToValue();
             shipment.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
             shipment.Details = new List<ShipmentDetail>();
+            shipment.ControlQty = ((double) fulfillment.ControlQuantity).ToValue();
 
-            foreach (var line in shopifyFulfillment.line_items)
+            // Build out the Shipment Detail from the Shopify Fulfillment Line Items
+            foreach (var line in fulfillment.line_items)
             {
                 var variantRecord =
                     _syncInventoryRepository
@@ -178,20 +179,30 @@ namespace Monster.Middle.Processes.Orders.Workers
                 detail.OrderType = "SO".ToValue();
                 detail.InventoryID = stockItemId.ToValue();
                 detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
+                detail.ShippedQty = 
+                    ((double)line.fulfillable_quantity).ToValue();
 
                 shipment.Details.Add(detail);
             }
 
+            // Write the Shipment to Acumatica via API
             var resultJson
                 = _shipmentClient.AddShipment(shipment.SerializeToJson());
 
             var resultShipment
                 = resultJson.DeserializeFromJson<Shipment>();
 
-            var acumaticaRecord
+            // Create Monster footprint of Shipment
+            var shipmentRecord
                 = _acumaticaShipmentPull.UpsertShipmentToPersist(resultShipment);
 
-            _syncOrderRepository.InsertShipmentSync(fulfillmentRecord, acumaticaRecord);
+            // NOTE - every Shopify Fulfillment will create
+            // .. exactly one Acumatica Shipment, thus we can do this
+            var shipmentSoRecord 
+                = shipmentRecord.UsrAcumaticaShipmentSoes.First();
+
+            _syncOrderRepository
+                .InsertShipmentSoSync(fulfillmentRecord, shipmentSoRecord);
         }
     }
 }

@@ -97,7 +97,7 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
                 .FirstOrDefault(x => x.ShopifyFulfillmentId == shopifyFulfillmentId);
         }
 
-        public void InsertFulfillments(UsrShopifyFulfillment fulfillment)
+        public void InsertFulfillment(UsrShopifyFulfillment fulfillment)
         {
             Entities.UsrShopifyFulfillments.Add(fulfillment);
             Entities.SaveChanges();

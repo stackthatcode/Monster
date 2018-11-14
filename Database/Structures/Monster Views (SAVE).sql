@@ -1,24 +1,22 @@
 USE Monster0001;
 GO
 
--- Identifies 
 
-DROP VIEW vw_AcumaticaUnsyncedShipments
+DROP VIEW vw_AcumaticaUnsyncedShipmentIds
 GO
 
-CREATE VIEW vw_AcumaticaUnsyncedShipments
+CREATE VIEW vw_AcumaticaUnsyncedShipmentIds
 AS
 
-SELECT t1.* 
+SELECT DISTINCT(t1.ShipmentMonsterId)
 FROM usrAcumaticaShipmentSo t1
-	LEFT OUTER JOIN usrAcumaticaSalesOrder t2
-		ON t1.AcumaticaOrderNbr = t2.AcumaticaOrderNbr
-	LEFT OUTER JOIN usrShopAcuOrderSync t3
-		ON t2.Id = t3.AcumaticaSalesOrderMonsterId
-WHERE t3.AcumaticaSalesOrderMonsterId IS NOT NULL;
+	LEFT OUTER JOIN usrShopAcuShipmentSync t2
+		ON t1.Id = t2.AcumaticaShipmentSOMonsterId
+WHERE t2.Id IS NULL
 GO
 
 
-SELECT * FROM vw_AcumaticaUnsyncedShipments
+
+SELECT * FROM vw_AcumaticaUnsyncedShipmentIds
 
 

@@ -56,5 +56,13 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
                 .FirstOrDefault(x => x.AcumaticaWarehouseId == warehouseId);
         }
 
+        public static List<string> 
+                    UniqueOrderNbrs(this UsrAcumaticaShipment input)
+        {
+            return input.UsrAcumaticaShipmentSoes
+                    .Select(x => x.AcumaticaOrderNbr)
+                    .ToList();
+        }
+
     }
 }
