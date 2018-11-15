@@ -36,6 +36,8 @@ SELECT * FROM usrShopAcuOrderSync;
 
 SELECT * FROM usrShopifyFulfillment;
 SELECT * FROM usrAcumaticaShipment;
+SELECT * FROM usrAcumaticaShipmentSo;
 SELECT * FROM usrShopAcuShipmentSync;
 
 SELECT * FROM vw_AcumaticaUnsyncedShipments 
+

@@ -25,22 +25,22 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
 
 
         public static bool AnyMatch(
-                    this IEnumerable<UsrAcumaticaShipmentSo> input,
-                    UsrAcumaticaShipmentSo other)
+                    this IEnumerable<UsrAcumaticaShipmentDetail> input,
+                    UsrAcumaticaShipmentDetail other)
         {
             return input.Any(x => x.Match(other));
         }
 
         public static bool Match(
-                this UsrAcumaticaShipmentSo input, UsrAcumaticaShipmentSo other)
+                this UsrAcumaticaShipmentDetail input, UsrAcumaticaShipmentDetail other)
         {
             return input.AcumaticaOrderNbr == other.AcumaticaOrderNbr
                    && input.AcumaticaShipmentNbr == other.AcumaticaShipmentNbr;
         }
 
-        public static UsrAcumaticaShipmentSo FindMatch(
-                this IEnumerable<UsrAcumaticaShipmentSo> input,
-                UsrAcumaticaShipmentSo findMe)
+        public static UsrAcumaticaShipmentDetail FindMatch(
+                this IEnumerable<UsrAcumaticaShipmentDetail> input,
+                UsrAcumaticaShipmentDetail findMe)
         {
             return input.FirstOrDefault(x => x.Match(findMe));
         }
@@ -59,7 +59,8 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         public static List<string> 
                     UniqueOrderNbrs(this UsrAcumaticaShipment input)
         {
-            return input.UsrAcumaticaShipmentSoes
+            return input
+                    .UsrAcumaticaShipmentDetails
                     .Select(x => x.AcumaticaOrderNbr)
                     .ToList();
         }

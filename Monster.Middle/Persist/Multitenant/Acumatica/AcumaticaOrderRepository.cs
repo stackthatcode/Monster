@@ -94,13 +94,14 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         }
 
 
-        // Shipment
+        // Shipments
+        //
         public UsrAcumaticaShipment RetrieveShipment(string shipmentNbr)
         {
             return Entities
                 .UsrAcumaticaShipments
-                .Include(x => x.UsrAcumaticaShipmentSoes)
-                .Include(x => x.UsrAcumaticaShipmentSoes.Select(y => y.UsrShopAcuShipmentSyncs))
+                .Include(x => x.UsrAcumaticaShipmentDetails)
+                .Include(x => x.UsrAcumaticaShipmentDetails.Select(y => y.UsrShopAcuShipmentSyncs))
                 .FirstOrDefault(x => x.AcumaticaShipmentNbr == shipmentNbr);
         }
 
@@ -108,8 +109,8 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         {
             return Entities
                 .UsrAcumaticaShipments
-                .Include(x => x.UsrAcumaticaShipmentSoes)
-                .Include(x => x.UsrAcumaticaShipmentSoes.Select(y => y.UsrShopAcuShipmentSyncs))
+                .Include(x => x.UsrAcumaticaShipmentDetails)
+                .Include(x => x.UsrAcumaticaShipmentDetails.Select(y => y.UsrShopAcuShipmentSyncs))
                 .FirstOrDefault(x => x.Id == shipmentMonsterId);
         }
 
@@ -142,14 +143,12 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
                 .ToList();
         }
         
-
-        
         public void ImprintShipmentDetail(
-                long monsterShipmentId, List<UsrAcumaticaShipmentSo> newestRecords)
+                long monsterShipmentId, List<UsrAcumaticaShipmentDetail> newestRecords)
         {
             var existingRecords =
                 Entities
-                    .UsrAcumaticaShipmentSoes
+                    .UsrAcumaticaShipmentDetails
                     .Where(x => x.ShipmentMonsterId == monsterShipmentId)
                     .ToList();
             
@@ -157,7 +156,7 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
             {
                 if (!newestRecords.AnyMatch(existingRecord))
                 {
-                    Entities.UsrAcumaticaShipmentSoes.Remove(existingRecord);
+                    Entities.UsrAcumaticaShipmentDetails.Remove(existingRecord);
                     Entities.SaveChanges();
                 }
             }
@@ -170,7 +169,7 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
                     newestRecord.DateCreated = DateTime.UtcNow;
                     newestRecord.LastUpdated = DateTime.UtcNow;
 
-                    Entities.UsrAcumaticaShipmentSoes.Add(newestRecord);
+                    Entities.UsrAcumaticaShipmentDetails.Add(newestRecord);
                     Entities.SaveChanges();
                 }                
             }

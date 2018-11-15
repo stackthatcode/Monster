@@ -11,34 +11,7 @@ namespace Monster.ConsoleApp.Monster
 {
     public class MonsterHarness
     {
-        public static void RoutineExecution(Guid tenantId)
-        {
-
-            using (var container = MiddleAutofac.Build())
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var logger = scope.Resolve<IPushLogger>();
-
-                try
-                {
-                    var tenantContext = scope.Resolve<TenantContext>();
-                    tenantContext.Initialize(tenantId);
-
-                    var inventoryManager = scope.Resolve<InventoryManager>();
-                    var orderManager = scope.Resolve<OrderManager>();
-
-                    inventoryManager.SynchronizeShopifyRoutine();
-                    orderManager.SynchronizeRoutine();
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex);
-                    throw;
-                }
-            }
-        }
-
-
+        
         public static void InitialLoad(Guid tenantId)
         {
             using (var container = MiddleAutofac.Build())
@@ -72,6 +45,32 @@ namespace Monster.ConsoleApp.Monster
                     // Step 4 - Initial Order Synchronization
                     orderManager.Reset();
                     orderManager.SynchronizeInitial();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex);
+                    throw;
+                }
+            }
+        }
+
+        public static void RoutineExecution(Guid tenantId)
+        {
+            using (var container = MiddleAutofac.Build())
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var logger = scope.Resolve<IPushLogger>();
+
+                try
+                {
+                    var tenantContext = scope.Resolve<TenantContext>();
+                    tenantContext.Initialize(tenantId);
+
+                    var inventoryManager = scope.Resolve<InventoryManager>();
+                    var orderManager = scope.Resolve<OrderManager>();
+
+                    inventoryManager.SynchronizeShopifyRoutine();
+                    orderManager.SynchronizeRoutine();
                 }
                 catch (Exception ex)
                 {

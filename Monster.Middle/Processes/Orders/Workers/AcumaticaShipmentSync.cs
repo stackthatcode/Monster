@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
+using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
@@ -23,23 +25,26 @@ namespace Monster.Middle.Processes.Orders.Workers
         
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
+        private readonly SalesOrderClient _salesOrderClient;
         
         public AcumaticaShipmentSync(
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     ShopifyOrderRepository shopifyOrderRepository,
                     AcumaticaShipmentPull acumaticaShipmentPull,
-                    ShipmentClient shipmentClient)
+                    ShipmentClient shipmentClient, 
+                    SalesOrderClient salesOrderClient)
         {
             _syncOrderRepository = syncOrderRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
             _acumaticaShipmentPull = acumaticaShipmentPull;
             _shipmentClient = shipmentClient;
+            _salesOrderClient = salesOrderClient;
             _syncInventoryRepository = syncInventoryRepository;
         }
 
 
-        public void Run()
+        public void RunShipments()
         {
             var fulfillments 
                     = _syncOrderRepository.RetrieveFulfillmentsNotSynced();
@@ -67,8 +72,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 }
             }
         }
-
-
+        
         public void RunByShopifyId(long shopifyFulfillmentId)
         {
             var fulfillment 
@@ -78,7 +82,6 @@ namespace Monster.Middle.Processes.Orders.Workers
             SyncFulfillmentWithAcumatica(fulfillment);
         }
         
-
         private ShipmentSyncReadiness 
                 IsReadyToSyncWithAcumatica(
                         UsrShopifyFulfillment fulfillmentRecord)
@@ -192,17 +195,65 @@ namespace Monster.Middle.Processes.Orders.Workers
             var resultShipment
                 = resultJson.DeserializeFromJson<Shipment>();
 
-            // Create Monster footprint of Shipment
-            var shipmentRecord
-                = _acumaticaShipmentPull.UpsertShipmentToPersist(resultShipment);
+            using (var transaction = _syncInventoryRepository.BeginTransaction())
+            {
+                // Create Monster footprint of Shipment
+                var shipmentRecord
+                    = _acumaticaShipmentPull
+                        .UpsertShipmentToPersist(resultShipment, isCreatedByMonster: true);
 
-            // NOTE - every Shopify Fulfillment will create
-            // .. exactly one Acumatica Shipment, thus we can do this
-            var shipmentSoRecord 
-                = shipmentRecord.UsrAcumaticaShipmentSoes.First();
+                // NOTE - every Shopify Fulfillment will create
+                // .. exactly one Acumatica Shipment, thus we can do this
+                var shipmentSoRecord
+                    = shipmentRecord.UsrAcumaticaShipmentDetails.First();
 
-            _syncOrderRepository
-                .InsertShipmentSoSync(fulfillmentRecord, shipmentSoRecord);
+                _syncOrderRepository
+                    .InsertShipmentDetailSync(fulfillmentRecord, shipmentSoRecord);
+
+                transaction.Commit();
+            }
+        }
+
+
+        public void RunSingleInvoicePerShipment()
+        {
+            var shipmentRecords = 
+                _syncOrderRepository
+                    .RetrieveConfirmedShipmentsCreatedByMonster();
+
+            foreach (var shipmentRecord in shipmentRecords)
+            {
+                CreateAcumaticaInvoiceFromMonsterShipment(shipmentRecord);
+            }
+        }
+
+        public void CreateAcumaticaInvoiceFromMonsterShipment(UsrAcumaticaShipment shipmentRecord)
+        {
+            var shipment =
+                shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
+
+            var customerId = shipment.CustomerID.value;
+            
+            var invoice = new SalesInvoicePayload();
+            invoice.CustomerID = customerId.ToValue();
+            invoice.Type = "Invoice".ToValue();
+
+            foreach (var shipmentDetail in shipment.Details)
+            {
+                var invoiceDetail = new SalesInvoiceDetailsPayload();
+                invoiceDetail.ShipmentNbr = shipment.ShipmentNbr.Copy();
+                invoiceDetail.OrderNbr = shipmentDetail.OrderNbr.Copy();
+                invoiceDetail.OrderType = shipmentDetail.OrderType.Copy();
+
+                invoice.Details.Add(invoiceDetail);
+            }
+
+            var result = _salesOrderClient.AddInvoice(invoice.SerializeToJson());
+            var resultInvoice = result.DeserializeFromJson<SalesInvoicePayload>();
+
+            shipmentRecord.AcumaticaInvoiceRefNbr 
+                    = resultInvoice.ReferenceNbr.value;
+            _syncOrderRepository.Entities.SaveChanges();
         }
     }
 }

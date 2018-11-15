@@ -111,19 +111,29 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                     .ToList();
         }
 
-        public void InsertShipmentSoSync(
-                UsrShopifyFulfillment fulfillment, UsrAcumaticaShipmentSo shipmentSo)
+        public void InsertShipmentDetailSync(
+                UsrShopifyFulfillment fulfillment, 
+                UsrAcumaticaShipmentDetail detail)
         {
             var sync = new UsrShopAcuShipmentSync();
             sync.UsrShopifyFulfillment = fulfillment;
-            sync.UsrAcumaticaShipmentSo = shipmentSo;
+            sync.UsrAcumaticaShipmentDetail = detail;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuShipmentSyncs.Add(sync);
             Entities.SaveChanges();
         }
 
+        public List<UsrAcumaticaShipment> RetrieveConfirmedShipmentsCreatedByMonster()
+        {
+            return Entities
+                .UsrAcumaticaShipments
+                .Where(x => x.IsCreatedByMonster && x.AcumaticaStatus == "Confirmed")
+                .ToList();
+        }
 
+        // To use later...?
+        // public void UpdateShipmentInvoiceRefNbr(string) { }
 
     }
 }

@@ -59,14 +59,14 @@ namespace Monster.Middle.Processes.Orders.Workers
                 var shipmentRecord =
                     _acumaticaOrderRepository.RetrieveShipment(shipmentId);
                 
-                foreach (var shipmentSo in shipmentRecord.UsrAcumaticaShipmentSoes)
+                foreach (var shipmentSo in shipmentRecord.UsrAcumaticaShipmentDetails)
                 {
                     PushFulfillmentToShopify(shipmentSo);
                 }
             }
         }
 
-        public void PushFulfillmentToShopify(UsrAcumaticaShipmentSo shipmentSoRecord)
+        public void PushFulfillmentToShopify(UsrAcumaticaShipmentDetail shipmentSoRecord)
         {
             var orderRecord =
                 _syncOrderRepository
@@ -133,7 +133,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
                 _shopifyOrderRepository.InsertFulfillment(fulfillmentRecord);
-                _syncOrderRepository.InsertShipmentSoSync(fulfillmentRecord, shipmentSoRecord);
+                _syncOrderRepository.InsertShipmentDetailSync(fulfillmentRecord, shipmentSoRecord);
                 transaction.Commit();
             }
         }

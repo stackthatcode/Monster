@@ -112,7 +112,8 @@ namespace Monster.Middle.Processes.Orders.Workers
         }
 
         public UsrAcumaticaShipment 
-                    UpsertShipmentToPersist(Shipment shipment)
+                UpsertShipmentToPersist(
+                    Shipment shipment, bool isCreatedByMonster = false)
         {
             var shipmentNbr = shipment.ShipmentNbr.value;
 
@@ -126,6 +127,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newData.AcumaticaJson = shipment.SerializeToJson();
                 newData.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 newData.AcumaticaStatus = shipment.Status.value;
+                newData.IsCreatedByMonster = isCreatedByMonster;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 
@@ -157,12 +159,12 @@ namespace Monster.Middle.Processes.Orders.Workers
 
         public void UpsertSOShipments(long monsterShipmentId, Shipment shipment)
         {
-            var currentDetailRecords = new List<UsrAcumaticaShipmentSo>();
+            var currentDetailRecords = new List<UsrAcumaticaShipmentDetail>();
 
             foreach (var detail in shipment.Details)
             {
                 var currentDetailRecord =
-                    new UsrAcumaticaShipmentSo
+                    new UsrAcumaticaShipmentDetail
                     {
                         ShipmentMonsterId = monsterShipmentId,
                         AcumaticaShipmentNbr = shipment.ShipmentNbr.value,

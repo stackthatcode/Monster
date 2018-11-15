@@ -48,6 +48,11 @@ namespace Monster.Acumatica.Api.Common
         {
             value = _value;
         }
+
+        public StringValue Copy()
+        {
+            return new StringValue(value);
+        }
     }
 
     public class BoolValue

@@ -25,7 +25,7 @@ namespace Monster.Middle.Persist.Multitenant.Etc
             }
             else
             {
-                existingState.ShopifyProductsPullEnd= null;
+                existingState.ShopifyProductsPullEnd = null;
                 existingState.AcumaticaProductsPullEnd = null;
             }
 
@@ -103,6 +103,7 @@ namespace Monster.Middle.Persist.Multitenant.Etc
             existingState.AcumaticaShipmentsPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
+
 
         public UsrBatchState Retrieve()
         {

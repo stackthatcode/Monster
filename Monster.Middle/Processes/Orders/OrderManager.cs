@@ -22,7 +22,7 @@ namespace Monster.Middle.Processes.Orders
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly AcumaticaShipmentSync _acumaticaShipmentSync;
         private readonly AcumaticaInventorySync _acumaticaInventorySync;
-
+        
         public OrderManager(
                 BatchStateRepository batchStateRepository,
                 AcumaticaHttpContext acumaticaContext,
@@ -62,6 +62,7 @@ namespace Monster.Middle.Processes.Orders
             _batchStateRepository.ResetOrders();
         }
 
+
         public void SynchronizeInitial()
         {
             _shopifyCustomerPull.RunAutomatic();
@@ -72,7 +73,6 @@ namespace Monster.Middle.Processes.Orders
             // Pull down Acumatica Customers, Orders, Shipments, phew!
             _acumaticaCustomerPull.RunAutomatic();
             _acumaticaOrderPull.RunAutomatic();
-
             _acumaticaShipmentPull.RunAutomatic();
 
             // Automatically match Customer by email address (non-essential)
@@ -99,7 +99,8 @@ namespace Monster.Middle.Processes.Orders
 
             // TODO - this depends on whether the preference is to:
             // 1) Sync Fulfillments to Acumatica Shipments
-            //_acumaticaShipmentSync.Run();
+            _acumaticaShipmentSync.RunShipments();
+            _acumaticaShipmentSync.RunSingleInvoicePerShipment();
             _acumaticaContext.Logout();
 
             // ...or to:

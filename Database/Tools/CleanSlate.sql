@@ -16,7 +16,7 @@ DELETE FROM usrShopAcuWarehouseSync;
 
 
 -- Shopify
-DELETE FROM usrAcumaticaShipmentSO;
+DELETE FROM usrAcumaticaShipmentDetail;
 DELETE FROM usrAcumaticaShipment;
 DELETE FROM usrAcumaticaSalesOrder;
 DELETE FROM usrAcumaticaCustomer;

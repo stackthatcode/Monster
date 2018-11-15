@@ -30,11 +30,16 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get($"SalesOrder?{queryString}");
             return response.Body;
         }
-
-
+        
         public string AddSalesOrder(string json)
         {
             var response = _httpContext.Put("SalesOrder", json);
+            return response.Body;
+        }
+
+        public string AddInvoice(string json)
+        {
+            var response = _httpContext.Put("SalesInvoice", json);
             return response.Body;
         }
     }
