@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.Acumatica.Api.Shipment;
+using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Persist.Multitenant.Acumatica
 {
@@ -65,5 +67,9 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
                     .ToList();
         }
 
+        public static Shipment ToAcuObject(this UsrAcumaticaShipment input)
+        {
+            return input.AcumaticaJson.DeserializeFromJson<Shipment>();
+        }
     }
 }

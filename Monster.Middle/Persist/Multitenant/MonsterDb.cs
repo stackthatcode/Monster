@@ -53,6 +53,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; } // usrShopAcuCustomerSync
         System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; } // usrShopAcuItemSync
         System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; } // usrShopAcuOrderSync
+        System.Data.Entity.DbSet<UsrShopAcuRefundWithInv> UsrShopAcuRefundWithInvs { get; set; } // usrShopAcuRefundWithInv
         System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; } // usrShopAcuShipmentSync
         System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; } // usrShopAcuWarehouseSync
         System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; } // usrShopifyCustomer
@@ -105,6 +106,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; } // usrShopAcuCustomerSync
         public System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; } // usrShopAcuItemSync
         public System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; } // usrShopAcuOrderSync
+        public System.Data.Entity.DbSet<UsrShopAcuRefundWithInv> UsrShopAcuRefundWithInvs { get; set; } // usrShopAcuRefundWithInv
         public System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; } // usrShopAcuShipmentSync
         public System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; } // usrShopAcuWarehouseSync
         public System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; } // usrShopifyCustomer
@@ -184,6 +186,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopAcuCustomerSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuItemSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuOrderSyncConfiguration());
+            modelBuilder.Configurations.Add(new UsrShopAcuRefundWithInvConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuShipmentSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuWarehouseSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyCustomerConfiguration());
@@ -218,6 +221,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopAcuCustomerSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuItemSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuOrderSyncConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrShopAcuRefundWithInvConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuShipmentSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuWarehouseSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyCustomerConfiguration(schema));
@@ -270,6 +274,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; }
+        public System.Data.Entity.DbSet<UsrShopAcuRefundWithInv> UsrShopAcuRefundWithInvs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; }
@@ -307,6 +312,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrShopAcuCustomerSyncs = new FakeDbSet<UsrShopAcuCustomerSync>("Id");
             UsrShopAcuItemSyncs = new FakeDbSet<UsrShopAcuItemSync>("Id");
             UsrShopAcuOrderSyncs = new FakeDbSet<UsrShopAcuOrderSync>("Id");
+            UsrShopAcuRefundWithInvs = new FakeDbSet<UsrShopAcuRefundWithInv>("Id");
             UsrShopAcuShipmentSyncs = new FakeDbSet<UsrShopAcuShipmentSync>("Id");
             UsrShopAcuWarehouseSyncs = new FakeDbSet<UsrShopAcuWarehouseSync>("Id");
             UsrShopifyCustomers = new FakeDbSet<UsrShopifyCustomer>("Id");
@@ -938,6 +944,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public System.DateTime? DataPullStart { get; set; } // DataPullStart
         public double? DefaultCoGsMargin { get; set; } // DefaultCoGSMargin
+        public int? ShopifyOrderPushStart { get; set; } // ShopifyOrderPushStart
         public string AcumaticaDefaultItemClass { get; set; } // AcumaticaDefaultItemClass (length: 50)
         public string AcumaticaDefaultPostingClass { get; set; } // AcumaticaDefaultPostingClass (length: 50)
         public System.DateTime? AcumaticaPostingDate { get; set; } // AcumaticaPostingDate
@@ -951,8 +958,8 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public long AcumaticaCustomerMonsterId { get; set; } // AcumaticaCustomerMonsterId
         public long ShopifyCustomerMonsterId { get; set; } // ShopifyCustomerMonsterId
-        public System.DateTime? DateCreated { get; set; } // DateCreated
-        public System.DateTime? LastUpdated { get; set; } // LastUpdated
+        public System.DateTime DateCreated { get; set; } // DateCreated
+        public System.DateTime LastUpdated { get; set; } // LastUpdated
 
         // Foreign keys
 
@@ -1011,6 +1018,24 @@ namespace Monster.Middle.Persist.Multitenant
         /// Parent UsrShopifyOrder pointed by [usrShopAcuOrderSync].([ShopifyOrderMonsterId]) (FK_usrShopAcuOrderSync_usrShopifyOrder)
         /// </summary>
         public virtual UsrShopifyOrder UsrShopifyOrder { get; set; } // FK_usrShopAcuOrderSync_usrShopifyOrder
+    }
+
+    // usrShopAcuRefundWithInv
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrShopAcuRefundWithInv
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public long ShopifyRefundMonsterId { get; set; } // ShopifyRefundMonsterId
+        public string AcumaticaCreditMemoNbr { get; set; } // AcumaticaCreditMemoNbr (length: 50)
+        public System.DateTime DateCreated { get; set; } // DateCreated
+        public System.DateTime LastUpdated { get; set; } // LastUpdated
+
+        // Foreign keys
+
+        /// <summary>
+        /// Parent UsrShopifyRefund pointed by [usrShopAcuRefundWithInv].([ShopifyRefundMonsterId]) (FK_usrShopAcuRefundWithInv_usrShopifyRefund)
+        /// </summary>
+        public virtual UsrShopifyRefund UsrShopifyRefund { get; set; } // FK_usrShopAcuRefundWithInv_usrShopifyRefund
     }
 
     // usrShopAcuShipmentSync
@@ -1196,7 +1221,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public string ShopifyJson { get; set; } // ShopifyJson
         public long ShopifyOrderId { get; set; } // ShopifyOrderId
-        public string ShopifyOrderNumber { get; set; } // ShopifyOrderNumber (length: 50)
+        public int ShopifyOrderNumber { get; set; } // ShopifyOrderNumber
         public bool ShopifyIsCancelled { get; set; } // ShopifyIsCancelled
         public string ShopifyFinancialStatus { get; set; } // ShopifyFinancialStatus (length: 25)
         public bool AreLineItemsSynced { get; set; } // AreLineItemsSynced
@@ -1316,12 +1341,24 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
+        // Reverse navigation
+
+        /// <summary>
+        /// Child UsrShopAcuRefundWithInvs where [usrShopAcuRefundWithInv].[ShopifyRefundMonsterId] point to this entity (FK_usrShopAcuRefundWithInv_usrShopifyRefund)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<UsrShopAcuRefundWithInv> UsrShopAcuRefundWithInvs { get; set; } // usrShopAcuRefundWithInv.FK_usrShopAcuRefundWithInv_usrShopifyRefund
+
         // Foreign keys
 
         /// <summary>
         /// Parent UsrShopifyOrder pointed by [usrShopifyRefund].([OrderMonsterId]) (FK_usrShopifyRefund_usrShopifyOrder)
         /// </summary>
         public virtual UsrShopifyOrder UsrShopifyOrder { get; set; } // FK_usrShopifyRefund_usrShopifyOrder
+
+        public UsrShopifyRefund()
+        {
+            UsrShopAcuRefundWithInvs = new System.Collections.Generic.List<UsrShopAcuRefundWithInv>();
+        }
     }
 
     // usrShopifyVariant
@@ -1699,6 +1736,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.DataPullStart).HasColumnName(@"DataPullStart").HasColumnType("date").IsOptional();
             Property(x => x.DefaultCoGsMargin).HasColumnName(@"DefaultCoGSMargin").HasColumnType("float").IsOptional();
+            Property(x => x.ShopifyOrderPushStart).HasColumnName(@"ShopifyOrderPushStart").HasColumnType("int").IsOptional();
             Property(x => x.AcumaticaDefaultItemClass).HasColumnName(@"AcumaticaDefaultItemClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDefaultPostingClass).HasColumnName(@"AcumaticaDefaultPostingClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaPostingDate).HasColumnName(@"AcumaticaPostingDate").HasColumnType("date").IsOptional();
@@ -1723,8 +1761,8 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaCustomerMonsterId).HasColumnName(@"AcumaticaCustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyCustomerMonsterId).HasColumnName(@"ShopifyCustomerMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
             HasRequired(a => a.UsrAcumaticaCustomer).WithMany(b => b.UsrShopAcuCustomerSyncs).HasForeignKey(c => c.AcumaticaCustomerMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuCustomerSync_usrAcumaticaCustomer
@@ -1781,6 +1819,31 @@ namespace Monster.Middle.Persist.Multitenant
             // Foreign keys
             HasRequired(a => a.UsrAcumaticaSalesOrder).WithMany(b => b.UsrShopAcuOrderSyncs).HasForeignKey(c => c.AcumaticaSalesOrderMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuOrderSync_usrAcumaticaSalesOrder
             HasRequired(a => a.UsrShopifyOrder).WithMany(b => b.UsrShopAcuOrderSyncs).HasForeignKey(c => c.ShopifyOrderMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuOrderSync_usrShopifyOrder
+        }
+    }
+
+    // usrShopAcuRefundWithInv
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrShopAcuRefundWithInvConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrShopAcuRefundWithInv>
+    {
+        public UsrShopAcuRefundWithInvConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrShopAcuRefundWithInvConfiguration(string schema)
+        {
+            ToTable("usrShopAcuRefundWithInv", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyRefundMonsterId).HasColumnName(@"ShopifyRefundMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.AcumaticaCreditMemoNbr).HasColumnName(@"AcumaticaCreditMemoNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+
+            // Foreign keys
+            HasRequired(a => a.UsrShopifyRefund).WithMany(b => b.UsrShopAcuRefundWithInvs).HasForeignKey(c => c.ShopifyRefundMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuRefundWithInv_usrShopifyRefund
         }
     }
 
@@ -1957,7 +2020,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
-            Property(x => x.ShopifyOrderNumber).HasColumnName(@"ShopifyOrderNumber").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.ShopifyOrderNumber).HasColumnName(@"ShopifyOrderNumber").HasColumnType("int").IsRequired();
             Property(x => x.ShopifyIsCancelled).HasColumnName(@"ShopifyIsCancelled").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyFinancialStatus).HasColumnName(@"ShopifyFinancialStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AreLineItemsSynced).HasColumnName(@"AreLineItemsSynced").HasColumnType("bit").IsRequired();

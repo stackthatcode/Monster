@@ -107,7 +107,11 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             foreach (var shipment in shipments)
             {
-                UpsertShipmentToPersist(shipment);
+                using (var transaction = _acumaticaOrderRepository.BeginTransaction())
+                {
+                    UpsertShipmentToPersist(shipment);
+                    transaction.Commit();
+                }
             }
         }
 
@@ -131,13 +135,8 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 
-                using (var transaction = _acumaticaOrderRepository.BeginTransaction())
-                {
-                    _acumaticaOrderRepository.InsertShipment(newData);
-                    UpsertSOShipments(newData.Id, shipment);
-                    transaction.Commit();
-                }
-
+                _acumaticaOrderRepository.InsertShipment(newData);
+                UpsertSOShipments(newData.Id, shipment);
                 return newData;
             }
             else
@@ -146,13 +145,9 @@ namespace Monster.Middle.Processes.Orders.Workers
                 existingData.AcumaticaStatus = shipment.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
 
-                using (var transaction = _acumaticaOrderRepository.BeginTransaction())
-                {
-                    _acumaticaOrderRepository.SaveChanges();
-                    UpsertSOShipments(existingData.Id, shipment);
-                    transaction.Commit();
-                }
-
+                _acumaticaOrderRepository.SaveChanges();
+                UpsertSOShipments(existingData.Id, shipment);
+                
                 return existingData;
             }
         }

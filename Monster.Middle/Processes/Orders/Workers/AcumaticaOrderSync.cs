@@ -136,7 +136,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 salesOrderDetail.InventoryID = stockItem.ItemId.ToValue();
 
                 salesOrderDetail.OrderQty 
-                    = ((double)lineItem.quantity).ToValue();
+                    = ((double)lineItem.RefundCancelAdjustedQuantity).ToValue();
 
                 salesOrderDetail.ExtendedPrice =
                     ((double) lineItem.TotalAfterDiscount).ToValue();
@@ -157,7 +157,6 @@ namespace Monster.Middle.Processes.Orders.Workers
                 .InsertOrderSync(shopifyOrderRecord, acumaticaRecord);
         }
         
-
         public UsrAcumaticaCustomer 
                 SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
         {
@@ -223,7 +222,8 @@ namespace Monster.Middle.Processes.Orders.Workers
             _acumaticaOrderRepository.InsertCustomer(acumaticaMonsterRecord);
 
             // Create a sync record
-            _syncOrderRepository.InsertCustomerSync(shopifyCustomerRecord, acumaticaMonsterRecord);
+            _syncOrderRepository
+                .InsertCustomerSync(shopifyCustomerRecord, acumaticaMonsterRecord);
 
             return acumaticaMonsterRecord;
         }

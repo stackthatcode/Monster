@@ -9,9 +9,9 @@ CREATE VIEW vw_AcumaticaUnsyncedShipmentIds
 AS
 
 SELECT DISTINCT(t1.ShipmentMonsterId)
-FROM usrAcumaticaShipmentSo t1
+FROM usrAcumaticaShipmentDetail t1
 	LEFT OUTER JOIN usrShopAcuShipmentSync t2
-		ON t1.Id = t2.AcumaticaShipmentSOMonsterId
+		ON t1.Id = t2.AcumaticaShipDetailMonsterId
 WHERE t2.Id IS NULL
 GO
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Web.Helpers;
 
 namespace Push.Shopify.Api
@@ -14,10 +15,11 @@ namespace Push.Shopify.Api
         public DateTime? UpdatedAtMinUtc { get; set; }
         public DateTime? UpdatedAtMaxUtc { get; set; }
         public string OrderBy { get; set; }
-
+        public string Status { get; set; }
 
         public SearchFilter()
         {
+            Status = "any";
             Page = 1;
             Limit = 250;
         }
@@ -51,6 +53,10 @@ namespace Push.Shopify.Api
         {
             var builder = new QueryStringBuilder();
 
+            if (Status != null)
+            {
+                builder.Add("status", Status);
+            }
             if (Page != null)
             {
                 builder.Add("page", Page.Value);
@@ -63,25 +69,29 @@ namespace Push.Shopify.Api
             {
                 builder.Add("since_id", SinceId.Value);
             }
-            if (CreatedAtMinUtc != null)
-            {
-                builder.Add("created_at_min", CreatedAtMinUtc.Value);
-            }
-            if (CreatedAtMaxUtc != null)
-            {
-                builder.Add("created_at_max", CreatedAtMinUtc.Value);
-            }
-            if (UpdatedAtMinUtc != null)
-            {
-                builder.Add("updated_at_min", UpdatedAtMinUtc.Value);
-            }
-            if (UpdatedAtMaxUtc != null)
-            {
-                builder.Add("updated_at_max", UpdatedAtMaxUtc.Value);
-            }
             if (OrderBy != null)
             {
                 builder.Add("order", OrderBy);
+            }
+            if (CreatedAtMinUtc != null)
+            {
+                builder.Add(
+                    "created_at_min", CreatedAtMinUtc.Value.ToIso8601Utc());
+            }
+            if (CreatedAtMaxUtc != null)
+            {
+                builder.Add(
+                    "created_at_max", CreatedAtMaxUtc.Value.ToIso8601Utc());
+            }
+            if (UpdatedAtMinUtc != null)
+            {
+                builder.Add(
+                    "updated_at_min", UpdatedAtMinUtc.Value.ToIso8601Utc());
+            }
+            if (UpdatedAtMaxUtc != null)
+            {
+                builder.Add(
+                    "updated_at_max", UpdatedAtMaxUtc.Value.ToIso8601Utc());
             }
 
             return builder;

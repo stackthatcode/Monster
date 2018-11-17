@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Linq;
 using Autofac;
 using Monster.Middle;
 using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Processes.Orders;
 using Monster.Middle.Services;
+using Push.Foundation.Utilities.Helpers;
+using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
+using Push.Shopify.Api;
+using Push.Shopify.Api.Order;
 
 
 namespace Monster.ConsoleApp.Monster
@@ -78,6 +83,35 @@ namespace Monster.ConsoleApp.Monster
                     throw;
                 }
             }
+        }
+
+        public static void LoadShopifyOrderNbr(Guid tenantId)
+        {
+            Console.WriteLine("Enter Shopify Order Number");
+            var number = Console.ReadLine().ToLong();
+
+            using (var container = MiddleAutofac.Build())
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var tenantContext = scope.Resolve<TenantContext>();
+                tenantContext.Initialize(tenantId);
+
+                var logger = scope.Resolve<IPushLogger>();
+
+                try
+                {
+                    var api = scope.Resolve<OrderApi>();
+                    var json = api.RetrieveByName(number);
+
+                    var orders = json.DeserializeToOrderList();
+                    var order = orders.orders.FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex);
+                    throw;
+                }
+            } 
         }
     }
 }

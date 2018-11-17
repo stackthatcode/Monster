@@ -38,6 +38,23 @@ namespace Push.Shopify.Api.Order
         public Order Parent { get; set; }
 
         [JsonIgnore]
+        public int RefundCancelAdjustedQuantity =>
+                quantity - CancelledQuantity;
+
+        [JsonIgnore]
+        public int CancelledQuantity =>
+            Parent.RefundLineItems(this.id)
+                .Where(x => x.restock_type == "cancel")
+                .Sum(x => x.quantity);
+
+        [JsonIgnore]
+        public int RestockedQuantity =>
+            Parent.RefundLineItems(this.id)
+                .Where(x => x.restock_type == "restock")
+                .Sum(x => x.quantity);
+
+
+        [JsonIgnore]
         public decimal TotalBeforeDiscount => quantity * price;
 
         [JsonIgnore]

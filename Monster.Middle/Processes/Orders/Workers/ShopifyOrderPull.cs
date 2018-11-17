@@ -189,7 +189,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             {
                 var newOrder = new UsrShopifyOrder();
                 newOrder.ShopifyOrderId = order.id;
-                newOrder.ShopifyOrderNumber = order.order_number.ToString();
+                newOrder.ShopifyOrderNumber = order.order_number;
                 newOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 newOrder.ShopifyJson = order.SerializeToJson();
                 newOrder.ShopifyFinancialStatus = order.financial_status;
@@ -295,7 +295,6 @@ namespace Monster.Middle.Processes.Orders.Workers
                 }
                 else
                 {
-                    // TODO - do we need this?
                     refundRecord.LastUpdated = DateTime.UtcNow;
                 }
             }

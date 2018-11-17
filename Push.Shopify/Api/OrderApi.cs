@@ -33,6 +33,13 @@ namespace Push.Shopify.Api
             var response = _httpClient.Get(path);
             return response.Body;
         }
+        
+        public virtual string RetrieveByName(long orderName)
+        {
+            var path = $"/admin/orders.json?name={orderName}";
+            var response = _httpClient.Get(path);
+            return response.Body;
+        }
 
         public virtual string RetrieveTransactions(long orderId)
         {

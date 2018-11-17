@@ -17,9 +17,12 @@ namespace Monster.Middle.Persist.Multitenant.Sync
 
         public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
+            var preferences = Entities.UsrPreferences.First();
+            
             return Entities
                 .UsrShopifyOrders
-                .Where(x => !x.UsrShopAcuOrderSyncs.Any())
+                .Where(x => x.ShopifyOrderNumber >= preferences.ShopifyOrderPushStart 
+                            && !x.UsrShopAcuOrderSyncs.Any())
                 .Include(x => x.UsrShopifyCustomer)
                 .ToList();
         }
@@ -100,6 +103,7 @@ namespace Monster.Middle.Persist.Multitenant.Sync
 
 
         // Shopify Fulfillments
+        //
         public List<UsrShopifyFulfillment> RetrieveFulfillmentsNotSynced()
         {
             return Entities
@@ -124,16 +128,49 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             Entities.SaveChanges();
         }
 
-        public List<UsrAcumaticaShipment> RetrieveConfirmedShipmentsCreatedByMonster()
+
+        public List<UsrAcumaticaShipment> 
+                        RetrieveShipmentsByMonsterNotConfirmed()
         {
             return Entities
                 .UsrAcumaticaShipments
-                .Where(x => x.IsCreatedByMonster && x.AcumaticaStatus == "Confirmed")
+                .Where(x => x.IsCreatedByMonster
+                            && x.AcumaticaStatus == "Open")
                 .ToList();
         }
 
+        public List<UsrAcumaticaShipment> 
+                        RetrieveShipmentsByMonsterWithNoInvoice()
+        {
+            return Entities
+                .UsrAcumaticaShipments
+                .Where(x => x.IsCreatedByMonster 
+                            && x.AcumaticaInvoiceRefNbr == null
+                            && x.AcumaticaStatus == "Confirmed")
+                .ToList();
+        }
+
+
+        // Shopify Refunds
+        //
+        public List<UsrShopifyRefund> RetrieveRefundsNotSynced()
+        {
+            return Entities
+                    .UsrShopifyRefunds
+                    .Include(x => x.UsrShopifyOrder)
+                    .Where(x => !x.UsrShopAcuRefundWithInvs.Any())
+                    .ToList();
+        }
+
+        public void InsertRefundSync(UsrShopAcuRefundWithInv input)
+        {
+            Entities.UsrShopAcuRefundWithInvs.Add(input);
+            Entities.SaveChanges();
+        }
+
+        
         // To use later...?
         // public void UpdateShipmentInvoiceRefNbr(string) { }
-
+        //
     }
 }

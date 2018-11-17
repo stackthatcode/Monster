@@ -112,6 +112,7 @@
     <Compile Include="Processes\Orders\Workers\AcumaticaOrderPull.cs" />
     <Compile Include="Processes\Orders\Workers\AcumaticaCustomerPull.cs" />
     <Compile Include="Processes\Orders\Workers\AcumaticaCustomerSync.cs" />
+    <Compile Include="Processes\Orders\Workers\AcumaticaCreditMemoSync.cs" />
     <Compile Include="Processes\Orders\Workers\AcumaticaShipmentSync.cs" />
     <Compile Include="Processes\Orders\Workers\AcumaticaOrderSync.cs" />
     <Compile Include="Processes\Orders\Workers\Extensions.cs" />
