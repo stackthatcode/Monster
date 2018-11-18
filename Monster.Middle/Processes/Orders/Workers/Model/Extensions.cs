@@ -3,8 +3,7 @@ using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Multitenant;
 using Push.Foundation.Utilities.Json;
 
-
-namespace Monster.Middle.Processes.Orders.Workers
+namespace Monster.Middle.Processes.Orders.Workers.Model
 {
     public static class Extensions
     {

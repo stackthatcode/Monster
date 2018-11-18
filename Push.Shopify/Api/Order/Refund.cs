@@ -70,6 +70,17 @@ namespace Push.Shopify.Api.Order
                                     Price = x.PercentOfTotalTaxes * this.TaxTotal,
                                 })
                         .ToList();
+
+
+        public List<RefundLineItem> CancelledLineItems =>
+            refund_line_items
+                .Where(x => x.restock_type == "cancel")
+                .ToList();
+
+        public List<RefundLineItem> Restocks =>
+            refund_line_items
+                .Where(x => x.restock_type == "restock")
+                .ToList();
     }
 }
 

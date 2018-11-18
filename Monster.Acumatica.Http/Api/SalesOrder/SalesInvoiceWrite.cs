@@ -7,22 +7,22 @@ namespace Monster.Acumatica.Api.SalesOrder
 {
     // Currently purposed only for writing invoices
     //
-    public class SalesInvoicePayload
+    public class SalesInvoiceWrite
     {
         public StringValue Type { get; set; }
         public StringValue ReferenceNbr { get; set; }
         public StringValue Status { get; set; }
         public StringValue CustomerID { get; set; }
 
-        public List<SalesInvoiceDetailsPayload> Details { get; set; }
+        public List<SalesInvoiceDetailsUpdate> Details { get; set; }
 
-        public SalesInvoicePayload()
+        public SalesInvoiceWrite()
         {
-            Details = new List<SalesInvoiceDetailsPayload>();
+            Details = new List<SalesInvoiceDetailsUpdate>();
         }
     }
 
-    public class SalesInvoiceDetailsPayload
+    public class SalesInvoiceDetailsUpdate
     {
         public StringValue ShipmentNbr { get; set; }
         public StringValue OrderType { get; set; }

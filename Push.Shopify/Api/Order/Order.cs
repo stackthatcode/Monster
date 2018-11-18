@@ -105,6 +105,12 @@ namespace Push.Shopify.Api.Order
             return line_items.FirstOrDefault(x => x.sku == sku);
         }
 
+        public LineItem LineItem(long id)
+        {
+            return line_items.FirstOrDefault(x => x.id == id);
+        }
+
+
         public Fulfillment Fulfillment(long id)
         {
             return fulfillments.FirstOrDefault(x => x.id == id);

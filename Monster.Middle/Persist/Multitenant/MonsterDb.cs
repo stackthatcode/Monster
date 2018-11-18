@@ -53,7 +53,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; } // usrShopAcuCustomerSync
         System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; } // usrShopAcuItemSync
         System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; } // usrShopAcuOrderSync
-        System.Data.Entity.DbSet<UsrShopAcuRefundWithInv> UsrShopAcuRefundWithInvs { get; set; } // usrShopAcuRefundWithInv
+        System.Data.Entity.DbSet<UsrShopAcuRefundCm> UsrShopAcuRefundCms { get; set; } // usrShopAcuRefundCM
         System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; } // usrShopAcuShipmentSync
         System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; } // usrShopAcuWarehouseSync
         System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; } // usrShopifyCustomer
@@ -106,7 +106,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; } // usrShopAcuCustomerSync
         public System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; } // usrShopAcuItemSync
         public System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; } // usrShopAcuOrderSync
-        public System.Data.Entity.DbSet<UsrShopAcuRefundWithInv> UsrShopAcuRefundWithInvs { get; set; } // usrShopAcuRefundWithInv
+        public System.Data.Entity.DbSet<UsrShopAcuRefundCm> UsrShopAcuRefundCms { get; set; } // usrShopAcuRefundCM
         public System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; } // usrShopAcuShipmentSync
         public System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; } // usrShopAcuWarehouseSync
         public System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; } // usrShopifyCustomer
@@ -186,7 +186,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopAcuCustomerSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuItemSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuOrderSyncConfiguration());
-            modelBuilder.Configurations.Add(new UsrShopAcuRefundWithInvConfiguration());
+            modelBuilder.Configurations.Add(new UsrShopAcuRefundCmConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuShipmentSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuWarehouseSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyCustomerConfiguration());
@@ -221,7 +221,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopAcuCustomerSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuItemSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuOrderSyncConfiguration(schema));
-            modelBuilder.Configurations.Add(new UsrShopAcuRefundWithInvConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrShopAcuRefundCmConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuShipmentSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuWarehouseSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyCustomerConfiguration(schema));
@@ -274,7 +274,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; }
-        public System.Data.Entity.DbSet<UsrShopAcuRefundWithInv> UsrShopAcuRefundWithInvs { get; set; }
+        public System.Data.Entity.DbSet<UsrShopAcuRefundCm> UsrShopAcuRefundCms { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; }
@@ -312,7 +312,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrShopAcuCustomerSyncs = new FakeDbSet<UsrShopAcuCustomerSync>("Id");
             UsrShopAcuItemSyncs = new FakeDbSet<UsrShopAcuItemSync>("Id");
             UsrShopAcuOrderSyncs = new FakeDbSet<UsrShopAcuOrderSync>("Id");
-            UsrShopAcuRefundWithInvs = new FakeDbSet<UsrShopAcuRefundWithInv>("Id");
+            UsrShopAcuRefundCms = new FakeDbSet<UsrShopAcuRefundCm>("Id");
             UsrShopAcuShipmentSyncs = new FakeDbSet<UsrShopAcuShipmentSync>("Id");
             UsrShopAcuWarehouseSyncs = new FakeDbSet<UsrShopAcuWarehouseSync>("Id");
             UsrShopifyCustomers = new FakeDbSet<UsrShopifyCustomer>("Id");
@@ -1020,9 +1020,9 @@ namespace Monster.Middle.Persist.Multitenant
         public virtual UsrShopifyOrder UsrShopifyOrder { get; set; } // FK_usrShopAcuOrderSync_usrShopifyOrder
     }
 
-    // usrShopAcuRefundWithInv
+    // usrShopAcuRefundCM
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrShopAcuRefundWithInv
+    public class UsrShopAcuRefundCm
     {
         public long Id { get; set; } // Id (Primary key)
         public long ShopifyRefundMonsterId { get; set; } // ShopifyRefundMonsterId
@@ -1033,9 +1033,9 @@ namespace Monster.Middle.Persist.Multitenant
         // Foreign keys
 
         /// <summary>
-        /// Parent UsrShopifyRefund pointed by [usrShopAcuRefundWithInv].([ShopifyRefundMonsterId]) (FK_usrShopAcuRefundWithInv_usrShopifyRefund)
+        /// Parent UsrShopifyRefund pointed by [usrShopAcuRefundCM].([ShopifyRefundMonsterId]) (FK_UsrShopAcuRefundCM_usrShopifyRefund)
         /// </summary>
-        public virtual UsrShopifyRefund UsrShopifyRefund { get; set; } // FK_usrShopAcuRefundWithInv_usrShopifyRefund
+        public virtual UsrShopifyRefund UsrShopifyRefund { get; set; } // FK_UsrShopAcuRefundCM_usrShopifyRefund
     }
 
     // usrShopAcuShipmentSync
@@ -1344,9 +1344,9 @@ namespace Monster.Middle.Persist.Multitenant
         // Reverse navigation
 
         /// <summary>
-        /// Child UsrShopAcuRefundWithInvs where [usrShopAcuRefundWithInv].[ShopifyRefundMonsterId] point to this entity (FK_usrShopAcuRefundWithInv_usrShopifyRefund)
+        /// Child UsrShopAcuRefundCms where [usrShopAcuRefundCM].[ShopifyRefundMonsterId] point to this entity (FK_UsrShopAcuRefundCM_usrShopifyRefund)
         /// </summary>
-        public virtual System.Collections.Generic.ICollection<UsrShopAcuRefundWithInv> UsrShopAcuRefundWithInvs { get; set; } // usrShopAcuRefundWithInv.FK_usrShopAcuRefundWithInv_usrShopifyRefund
+        public virtual System.Collections.Generic.ICollection<UsrShopAcuRefundCm> UsrShopAcuRefundCms { get; set; } // usrShopAcuRefundCM.FK_UsrShopAcuRefundCM_usrShopifyRefund
 
         // Foreign keys
 
@@ -1357,7 +1357,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         public UsrShopifyRefund()
         {
-            UsrShopAcuRefundWithInvs = new System.Collections.Generic.List<UsrShopAcuRefundWithInv>();
+            UsrShopAcuRefundCms = new System.Collections.Generic.List<UsrShopAcuRefundCm>();
         }
     }
 
@@ -1822,18 +1822,18 @@ namespace Monster.Middle.Persist.Multitenant
         }
     }
 
-    // usrShopAcuRefundWithInv
+    // usrShopAcuRefundCM
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrShopAcuRefundWithInvConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrShopAcuRefundWithInv>
+    public class UsrShopAcuRefundCmConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrShopAcuRefundCm>
     {
-        public UsrShopAcuRefundWithInvConfiguration()
+        public UsrShopAcuRefundCmConfiguration()
             : this("dbo")
         {
         }
 
-        public UsrShopAcuRefundWithInvConfiguration(string schema)
+        public UsrShopAcuRefundCmConfiguration(string schema)
         {
-            ToTable("usrShopAcuRefundWithInv", schema);
+            ToTable("usrShopAcuRefundCM", schema);
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
@@ -1843,7 +1843,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
-            HasRequired(a => a.UsrShopifyRefund).WithMany(b => b.UsrShopAcuRefundWithInvs).HasForeignKey(c => c.ShopifyRefundMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuRefundWithInv_usrShopifyRefund
+            HasRequired(a => a.UsrShopifyRefund).WithMany(b => b.UsrShopAcuRefundCms).HasForeignKey(c => c.ShopifyRefundMonsterId).WillCascadeOnDelete(false); // FK_UsrShopAcuRefundCM_usrShopifyRefund
         }
     }
 

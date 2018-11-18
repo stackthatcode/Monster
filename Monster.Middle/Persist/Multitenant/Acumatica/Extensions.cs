@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Api.Shipment;
 using Push.Foundation.Utilities.Json;
+using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Persist.Multitenant.Acumatica
 {
@@ -70,6 +72,11 @@ namespace Monster.Middle.Persist.Multitenant.Acumatica
         public static Shipment ToAcuObject(this UsrAcumaticaShipment input)
         {
             return input.AcumaticaJson.DeserializeFromJson<Shipment>();
+        }
+
+        public static SalesOrder ToAcuObject(this UsrAcumaticaSalesOrder input)
+        {
+            return input.AcumaticaJson.DeserializeFromJson<SalesOrder>();
         }
     }
 }

@@ -255,13 +255,13 @@ namespace Monster.Middle.Processes.Orders.Workers
             var shipment = shipmentRecord.ToAcuObject();
             var customerId = shipment.CustomerID.value;
             
-            var invoice = new SalesInvoicePayload();
+            var invoice = new SalesInvoiceWrite();
             invoice.CustomerID = customerId.ToValue();
             invoice.Type = "Invoice".ToValue();
 
             foreach (var shipmentDetail in shipment.Details)
             {
-                var invoiceDetail = new SalesInvoiceDetailsPayload();
+                var invoiceDetail = new SalesInvoiceDetailsUpdate();
                 invoiceDetail.ShipmentNbr = shipment.ShipmentNbr.Copy();
                 invoiceDetail.OrderNbr = shipmentDetail.OrderNbr.Copy();
                 invoiceDetail.OrderType = shipmentDetail.OrderType.Copy();
@@ -270,7 +270,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             }
 
             var result = _salesOrderClient.AddInvoice(invoice.SerializeToJson());
-            var resultInvoice = result.DeserializeFromJson<SalesInvoicePayload>();
+            var resultInvoice = result.DeserializeFromJson<SalesInvoiceWrite>();
 
             // Acumatica does not allow you split up Shipments for Invoicing
             shipmentRecord.AcumaticaInvoiceRefNbr = resultInvoice.ReferenceNbr.value;

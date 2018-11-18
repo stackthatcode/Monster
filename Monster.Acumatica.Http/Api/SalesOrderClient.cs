@@ -31,7 +31,7 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
         
-        public string AddSalesOrder(string json)
+        public string WriteSalesOrder(string json)
         {
             var response = _httpContext.Put("SalesOrder", json);
             return response.Body;

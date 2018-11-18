@@ -4,6 +4,7 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Processes.Orders.Workers.Model;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;

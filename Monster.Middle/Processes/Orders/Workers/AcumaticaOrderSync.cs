@@ -8,6 +8,7 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Persist.Multitenant.Sync;
+using Monster.Middle.Processes.Orders.Workers.Model;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
 
@@ -145,7 +146,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             }
 
             var resultJson 
-                = _salesOrderClient.AddSalesOrder(salesOrder.SerializeToJson());
+                = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
 
             var resultSalesOrder 
                 = resultJson.DeserializeFromJson<SalesOrder>();

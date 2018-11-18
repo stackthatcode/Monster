@@ -158,13 +158,16 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             return Entities
                     .UsrShopifyRefunds
                     .Include(x => x.UsrShopifyOrder)
-                    .Where(x => !x.UsrShopAcuRefundWithInvs.Any())
+                    .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
+                    .Include(x => x.UsrShopifyOrder
+                                    .UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
+                    .Where(x => !x.UsrShopAcuRefundCms.Any())
                     .ToList();
         }
 
-        public void InsertRefundSync(UsrShopAcuRefundWithInv input)
+        public void InsertRefundSync(UsrShopAcuRefundCm input)
         {
-            Entities.UsrShopAcuRefundWithInvs.Add(input);
+            Entities.UsrShopAcuRefundCms.Add(input);
             Entities.SaveChanges();
         }
 
