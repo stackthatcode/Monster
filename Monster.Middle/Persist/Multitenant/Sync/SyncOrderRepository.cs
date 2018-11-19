@@ -161,7 +161,8 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                     .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
                     .Include(x => x.UsrShopifyOrder
                                     .UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
-                    .Where(x => !x.UsrShopAcuRefundCms.Any())
+                    .Where(x => !x.UsrShopAcuRefundCms.Any()
+                                && x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
                     .ToList();
         }
 

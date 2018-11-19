@@ -86,24 +86,25 @@ namespace Monster.Middle.Processes.Orders
         public void SynchronizeRoutine()
         {
             // Shopify Pull
-            _shopifyCustomerPull.RunAutomatic();
-            _shopifyOrderPull.RunAutomatic();
+            //_shopifyCustomerPull.RunAutomatic();
+            //_shopifyOrderPull.RunAutomatic();
 
             //// Acumatica Pull
             _acumaticaContext.Login();
 
-            //// Get the latest Acumatica Sales Orders for monitoring sake
-            _acumaticaOrderPull.RunAutomatic();
-            _acumaticaShipmentPull.RunAutomatic();
+            ////// Get the latest Acumatica Sales Orders for monitoring sake
+            //_acumaticaOrderPull.RunAutomatic();
+            //_acumaticaShipmentPull.RunAutomatic();
 
-            // Acumatica Sync
-            _acumaticaInventorySync.Run();
+            //// Acumatica Sync
+            //_acumaticaInventorySync.Run();
+
             _acumaticaOrderSync.Run();
 
             // TODO - this depends on whether the preference is to:
             // 1) Sync Fulfillments to Acumatica Shipments
             _acumaticaShipmentSync.RunShipments();
-            _acumaticaShipmentSync.RunConfirmShipments();
+            //_acumaticaShipmentSync.RunConfirmShipments();
             _acumaticaShipmentSync.RunSingleInvoicePerShipment();
 
             // ...or to:

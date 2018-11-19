@@ -1836,7 +1836,7 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrShopAcuRefundCM", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyRefundMonsterId).HasColumnName(@"ShopifyRefundMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.AcumaticaCreditMemoNbr).HasColumnName(@"AcumaticaCreditMemoNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();

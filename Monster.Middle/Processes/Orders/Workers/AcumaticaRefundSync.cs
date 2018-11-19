@@ -91,7 +91,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                     salesOrderDetail.OrderQty.value - refund_line_item.quantity;
 
                 var detail = new SalesOrderUpdateDetail();
-                detail.id = salesOrderDetail.id;
+                detail.id = salesOrderDetail.id;                
                 detail.Quantity = newQuantity.ToValue();
 
                 salesOrderUpdate.Details.Add(detail);
@@ -145,7 +145,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 var stockItemId = variant.MatchedStockItem().ItemId;
 
                 var location =
-                    _syncInventoryRepository.RetrieveLocation(refund_line_item.location_id);
+                    _syncInventoryRepository.RetrieveLocation(refund_line_item.location_id.Value);
 
                 var warehouse = location.MatchedWarehouse();
 
@@ -169,42 +169,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
             _syncOrderRepository.InsertRefundSync(syncRecord);
         }
-
-
-        //// This is for the refund
-        //var customerNbr
-        //    = salesOrderRecord.UsrAcumaticaCustomer.AcumaticaCustomerId;
-
-        //// Isolate the Warehouse
-        //var locationRecord =
-        //    _syncInventoryRepository
-        //        .RetrieveLocation(fulfillment.location_id);
-        //var warehouse = locationRecord.MatchedWarehouse();
-
-        //// Write the Shipment to Acumatica via API
-        //var resultJson
-        //    = _shipmentClient.AddShipment(shipment.SerializeToJson());
-
-        //var resultShipment
-        //        = resultJson.DeserializeFromJson<Shipment>();
-
-        //    using (var transaction = _syncInventoryRepository.BeginTransaction())
-        //{
-        //    // Create Monster footprint of Shipment
-        //    var shipmentRecord
-        //        = _acumaticaShipmentPull
-        //            .UpsertShipmentToPersist(resultShipment, isCreatedByMonster: true);
-
-        //    // NOTE - every Shopify Fulfillment will create
-        //    // .. exactly one Acumatica Shipment, thus we can do this
-        //    var shipmentSoRecord
-        //        = shipmentRecord.UsrAcumaticaShipmentDetails.First();
-
-        //    _syncOrderRepository
-        //        .InsertShipmentDetailSync(fulfillmentRecord, shipmentSoRecord);
-
-        //    transaction.Commit();
-        //}
+        
     }
 }
 
