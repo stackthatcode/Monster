@@ -147,12 +147,11 @@ namespace Monster.Middle.Processes.Orders.Workers
             var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
             var customerNbr 
                 = salesOrderRecord.UsrAcumaticaCustomer.AcumaticaCustomerId;
-            
+
             // Isolate the Warehouse
-            var locationRecord =
-                    _syncInventoryRepository
-                        .RetrieveLocation(fulfillment.location_id);
-            var warehouse = locationRecord.MatchedWarehouse();
+            // TODO - this is the malady of Acumatica not allowing Shipments from 
+            var warehouseId 
+                = DestinationWarehouseIdHeuristic(salesOrderRecord.ToAcuObject());
 
             // Create the Shipment API payload
             var shipment = new Shipment();
@@ -160,7 +159,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             shipment.Status = "Open".ToValue();
             shipment.Hold = false.ToValue();
             shipment.CustomerID = customerNbr.ToValue();
-            shipment.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
+            shipment.WarehouseID = warehouseId.ToValue();
             shipment.Details = new List<ShipmentDetail>();
             shipment.ControlQty = ((double) fulfillment.ControlQuantity).ToValue();
 
@@ -180,7 +179,7 @@ namespace Monster.Middle.Processes.Orders.Workers
 
                 detail.OrderType = "SO".ToValue();
                 detail.InventoryID = stockItemId.ToValue();
-                detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
+                detail.WarehouseID = warehouseId.ToValue();
                 detail.ShippedQty = 
                     ((double)line.fulfillable_quantity).ToValue();
 
@@ -213,6 +212,11 @@ namespace Monster.Middle.Processes.Orders.Workers
             }
         }
 
+        public string DestinationWarehouseIdHeuristic(SalesOrder order)
+        {
+            return order.Details.First().WarehouseID.value;
+        }
+
 
         public void RunConfirmShipments()
         {
@@ -230,7 +234,7 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             var shipment = shipmentRecord.ToAcuObject();
 
-            var payload = new ShipmentPayload(shipmentRecord.AcumaticaShipmentNbr);
+            var payload = new ShipmentConfirmation(shipmentRecord.AcumaticaShipmentNbr);
 
             var result = _shipmentClient.ConfirmShipment(payload.SerializeToJson());
             shipmentRecord.AcumaticaStatus = "Confirmed";

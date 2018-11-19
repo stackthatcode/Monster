@@ -7,6 +7,7 @@ GO
 DELETE FROM usrBatchState;
 
 -- Synchronization
+DELETE FROM usrShopAcuRefundCM;
 DELETE FROM usrShopAcuShipmentSync;
 DELETE FROM usrShopAcuOrderSync;
 DELETE FROM usrShopAcuCustomerSync;
@@ -28,6 +29,7 @@ DELETE FROM usrAcumaticaWarehouse;
 
 
 -- Acumatica
+DELETE FROM usrShopifyRefund;
 DELETE FROM usrShopifyFulfillment;
 DELETE FROM usrShopifyOrder;
 DELETE FROM usrShopifyCustomer;

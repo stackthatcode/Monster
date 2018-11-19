@@ -122,7 +122,12 @@ namespace Monster.Middle.Processes.Orders.Workers
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
             salesOrder.TaxTotal = ((double) shopifyOrder.total_tax).ToValue();
             salesOrder.Details = new List<SalesOrderDetail>();
-            
+
+            salesOrder.ShippingSettings = new ShippingSettings
+            {
+                ShipSeparately = true.ToValue(),
+                ShippingRule = "Back Order Allowed".ToValue(),
+            };
 
             foreach (var lineItem in shopifyOrder.line_items)
             {

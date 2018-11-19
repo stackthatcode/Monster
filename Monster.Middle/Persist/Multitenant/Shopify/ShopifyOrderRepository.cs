@@ -72,8 +72,7 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
                 return (DateTime?)null;
             }
         }
-
-
+        
         public bool DoesShopifyCustomerExist(long shopifyCustomerId)
         {
             return Entities
@@ -102,7 +101,12 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
             Entities.UsrShopifyFulfillments.Add(fulfillment);
             Entities.SaveChanges();
         }
-
+        
+        public void InsertRefund(UsrShopifyRefund refund)
+        {
+            Entities.UsrShopifyRefunds.Add(refund);
+            Entities.SaveChanges();
+        }
 
         public void SaveChanges()
         {

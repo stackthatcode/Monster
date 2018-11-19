@@ -70,6 +70,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             var salesOrderUpdate = new SalesOrderWrite();
             salesOrderUpdate.OrderType = salesOrder.OrderType.Copy();
             salesOrderUpdate.OrderNbr = salesOrder.OrderNbr.Copy();
+            salesOrderUpdate.Hold = false.ToValue();
 
             // Isolate the corresponding Acumatica Sales Order and Customer
             foreach (var refund_line_item in refund.CancelledLineItems)
@@ -87,7 +88,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);
                 
                 var newQuantity =
-                    salesOrderDetail.OpenQty.value - refund_line_item.quantity;
+                    salesOrderDetail.OrderQty.value - refund_line_item.quantity;
 
                 var detail = new SalesOrderUpdateDetail();
                 detail.id = salesOrderDetail.id;
@@ -131,7 +132,7 @@ namespace Monster.Middle.Processes.Orders.Workers
             creditMemo.OrderType = "CM".ToValue();
             creditMemo.CustomerID = salesOrder.CustomerID.Copy();
 
-            foreach (var refund_line_item in refund.Restocks)
+            foreach (var refund_line_item in refund.Returns)
             {
                 var line_item
                     = shopifyOrder.LineItem(refund_line_item.line_item_id);

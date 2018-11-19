@@ -1033,9 +1033,9 @@ namespace Monster.Middle.Persist.Multitenant
         // Foreign keys
 
         /// <summary>
-        /// Parent UsrShopifyRefund pointed by [usrShopAcuRefundCM].([ShopifyRefundMonsterId]) (FK_UsrShopAcuRefundCM_usrShopifyRefund)
+        /// Parent UsrShopifyRefund pointed by [usrShopAcuRefundCM].([ShopifyRefundMonsterId]) (FK_usrShopAcuRefundWithInv_usrShopifyRefund)
         /// </summary>
-        public virtual UsrShopifyRefund UsrShopifyRefund { get; set; } // FK_UsrShopAcuRefundCM_usrShopifyRefund
+        public virtual UsrShopifyRefund UsrShopifyRefund { get; set; } // FK_usrShopAcuRefundWithInv_usrShopifyRefund
     }
 
     // usrShopAcuShipmentSync
@@ -1344,9 +1344,9 @@ namespace Monster.Middle.Persist.Multitenant
         // Reverse navigation
 
         /// <summary>
-        /// Child UsrShopAcuRefundCms where [usrShopAcuRefundCM].[ShopifyRefundMonsterId] point to this entity (FK_UsrShopAcuRefundCM_usrShopifyRefund)
+        /// Child UsrShopAcuRefundCms where [usrShopAcuRefundCM].[ShopifyRefundMonsterId] point to this entity (FK_usrShopAcuRefundWithInv_usrShopifyRefund)
         /// </summary>
-        public virtual System.Collections.Generic.ICollection<UsrShopAcuRefundCm> UsrShopAcuRefundCms { get; set; } // usrShopAcuRefundCM.FK_UsrShopAcuRefundCM_usrShopifyRefund
+        public virtual System.Collections.Generic.ICollection<UsrShopAcuRefundCm> UsrShopAcuRefundCms { get; set; } // usrShopAcuRefundCM.FK_usrShopAcuRefundWithInv_usrShopifyRefund
 
         // Foreign keys
 
@@ -1843,7 +1843,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
-            HasRequired(a => a.UsrShopifyRefund).WithMany(b => b.UsrShopAcuRefundCms).HasForeignKey(c => c.ShopifyRefundMonsterId).WillCascadeOnDelete(false); // FK_UsrShopAcuRefundCM_usrShopifyRefund
+            HasRequired(a => a.UsrShopifyRefund).WithMany(b => b.UsrShopAcuRefundCms).HasForeignKey(c => c.ShopifyRefundMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuRefundWithInv_usrShopifyRefund
         }
     }
 
@@ -2123,7 +2123,7 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrShopifyRefund", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
             Property(x => x.OrderMonsterId).HasColumnName(@"OrderMonsterId").HasColumnType("bigint").IsRequired();

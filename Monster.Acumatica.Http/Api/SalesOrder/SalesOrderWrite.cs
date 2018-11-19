@@ -8,6 +8,7 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue OrderNbr  { get; set; }
         public StringValue OrderType { get; set; }
         public List<SalesOrderUpdateDetail> Details { get; set; }
+        public BoolValue Hold { get; set; }
 
         public SalesOrderWrite()
         {

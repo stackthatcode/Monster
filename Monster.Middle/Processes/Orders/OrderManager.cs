@@ -22,7 +22,8 @@ namespace Monster.Middle.Processes.Orders
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly AcumaticaShipmentSync _acumaticaShipmentSync;
         private readonly AcumaticaInventorySync _acumaticaInventorySync;
-        
+        private readonly AcumaticaRefundSync _acumaticaRefundSync;
+
         public OrderManager(
                 BatchStateRepository batchStateRepository,
                 AcumaticaHttpContext acumaticaContext,
@@ -37,7 +38,8 @@ namespace Monster.Middle.Processes.Orders
                 AcumaticaOrderSync acumaticaOrderSync,
                 AcumaticaShipmentPull acumaticaShipmentPull,
                 AcumaticaShipmentSync acumaticaShipmentSync,
-                AcumaticaInventorySync acumaticaInventorySync)
+                AcumaticaInventorySync acumaticaInventorySync,
+                AcumaticaRefundSync acumaticaRefundSync)
         {
             _batchStateRepository = batchStateRepository;
 
@@ -50,6 +52,7 @@ namespace Monster.Middle.Processes.Orders
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaInventorySync = acumaticaInventorySync;
+            _acumaticaRefundSync = acumaticaRefundSync;
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaOrderSync = acumaticaOrderSync;
             _acumaticaShipmentPull = acumaticaShipmentPull;
@@ -85,14 +88,14 @@ namespace Monster.Middle.Processes.Orders
             // Shopify Pull
             _shopifyCustomerPull.RunAutomatic();
             _shopifyOrderPull.RunAutomatic();
-            
-            // Acumatica Pull
+
+            //// Acumatica Pull
             _acumaticaContext.Login();
 
-            // Get the latest Acumatica Sales Orders for monitoring sake
+            //// Get the latest Acumatica Sales Orders for monitoring sake
             _acumaticaOrderPull.RunAutomatic();
             _acumaticaShipmentPull.RunAutomatic();
-            
+
             // Acumatica Sync
             _acumaticaInventorySync.Run();
             _acumaticaOrderSync.Run();
@@ -102,11 +105,13 @@ namespace Monster.Middle.Processes.Orders
             _acumaticaShipmentSync.RunShipments();
             _acumaticaShipmentSync.RunConfirmShipments();
             _acumaticaShipmentSync.RunSingleInvoicePerShipment();
-            _acumaticaContext.Logout();
 
             // ...or to:
             // 2) Sync Shipments to Shopify Fulfillments
             //_shopifyFulfillmentSync.Run();
+
+            _acumaticaRefundSync.Run();
+            _acumaticaContext.Logout();
         }
 
         public void SingleOrderPush(long shopifyOrderId)

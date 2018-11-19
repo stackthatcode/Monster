@@ -38,7 +38,7 @@ namespace Monster.Acumatica.Api
 
         public string ConfirmShipment(string json)
         {
-            var response = _httpContext.Put("Shipment/ConfirmShipment", json);
+            var response = _httpContext.Post("Shipment/ConfirmShipment", json);
             return response.Body;
         }
     }

@@ -19,7 +19,8 @@ namespace Monster.Acumatica.Api
 
         public string RetrieveSalesOrders(DateTime? lastModified = null)
         {
-            var queryString = "$expand=Details";
+            //var queryString = "$expand=ShippingSettings";
+            var queryString = "$expand=Details,ShippingSettings";
 
             if (lastModified.HasValue)
             {

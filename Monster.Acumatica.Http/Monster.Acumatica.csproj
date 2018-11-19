@@ -74,10 +74,11 @@
     <Compile Include="Api\SalesOrder\SalesInvoiceWrite.cs" />
     <Compile Include="Api\SalesOrder\SalesOrder.cs" />
     <Compile Include="Api\SalesOrder\SalesOrderWrite.cs" />
+    <Compile Include="Api\SalesOrder\ShippingSettings.cs" />
     <Compile Include="Api\ShipmentClient.cs" />
     <Compile Include="Api\Shipment\Shipment.cs" />
     <Compile Include="Api\Shipment\ShipmentDetail.cs" />
-    <Compile Include="Api\Shipment\ShipmentPayload.cs" />
+    <Compile Include="Api\Shipment\ShipmentConfirmation.cs" />
     <Compile Include="Config\AcumaticaHttpConfig.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />
     <Compile Include="Http\AcumaticaCredentials.cs" />

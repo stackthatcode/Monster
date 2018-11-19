@@ -77,9 +77,9 @@ namespace Push.Shopify.Api.Order
                 .Where(x => x.restock_type == "cancel")
                 .ToList();
 
-        public List<RefundLineItem> Restocks =>
+        public List<RefundLineItem> Returns =>
             refund_line_items
-                .Where(x => x.restock_type == "restock")
+                .Where(x => x.restock_type == "return")
                 .ToList();
     }
 }

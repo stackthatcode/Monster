@@ -172,6 +172,12 @@ namespace Monster.Middle.Processes.Orders.Workers
         {
             foreach (var order in orders)
             {
+                if (order.customer == null)
+                {
+                    // TODO - add the Order Analysis service
+                    continue;
+                }
+
                 UpsertOrderAndCustomer(order);
                 UpsertOrderFulfillments(order);
                 UpsertOrderRefunds(order);
@@ -292,10 +298,13 @@ namespace Monster.Middle.Processes.Orders.Workers
                     newRecord.UsrShopifyOrder = orderRecord;
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
+
+                    _orderRepository.InsertRefund(newRecord);
                 }
                 else
                 {
                     refundRecord.LastUpdated = DateTime.UtcNow;
+                    _orderRepository.SaveChanges();
                 }
             }
         }
