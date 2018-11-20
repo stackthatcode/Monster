@@ -14,6 +14,7 @@ using Monster.Middle.Processes.Inventory.Workers;
 using Monster.Middle.Processes.Orders;
 using Monster.Middle.Processes.Orders.Workers;
 using Monster.Middle.Processes.Payouts;
+using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;

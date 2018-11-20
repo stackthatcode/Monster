@@ -33,6 +33,8 @@ SELECT * FROM usrShopifyCustomer;
 SELECT * FROM usrAcumaticaCustomer;
 
 SELECT * FROM usrShopifyOrder;
-SELECT * FROM usrShopifyRefund;
 SELECT * FROM usrAcumaticaSalesOrder;
+SELECT * FROM usrShopAcuOrderSync;
+
+SELECT * FROM usrShopifyRefund;
 SELECT * FROM usrShopAcuRefundCM;

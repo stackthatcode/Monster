@@ -172,9 +172,29 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             Entities.SaveChanges();
         }
 
-        
-        // To use later...?
-        // public void UpdateShipmentInvoiceRefNbr(string) { }
+
+        // Shopify Payouts
         //
+        //public List<UsrShopifyPayout> RetrieveNotYetUploadedPayouts()
+        //{
+        //    return Entities
+        //        .UsrShopifyPayouts
+        //        .Where(x => x.UsrShopifyPayoutTransactions.Any(y => y.AcumaticaImportDate == null)
+        //                    && x.ShopifyLastStatus != "in_transit")
+        //        .OrderBy(x => x.ShopifyPayoutId)
+        //        .ToList();
+        //}
+
+        //public List<UsrShopifyPayoutTransaction>
+        //    RetrieveNotYetUploadedPayoutTranscations(long shopifyPayoutId)
+        //{
+        //    return Entities
+        //        .UsrShopifyPayoutTransactions
+        //        .Where(x =>
+        //            x.ShopifyPayoutId == shopifyPayoutId &&
+        //            x.AcumaticaImportDate == null)
+        //        .ToList();
+        //}
+
     }
 }

@@ -124,14 +124,14 @@
     <Compile Include="Processes\Orders\Workers\ShopifyOrderPull.cs" />
     <Compile Include="Processes\Payouts\PayoutConfig.cs" />
     <Compile Include="Processes\Inventory\Workers\AcumaticaWarehousePull.cs" />
-    <Compile Include="Processes\Payouts\BankImportService.cs" />
+    <Compile Include="Processes\Payouts\Workers\BankImportService.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
-    <Compile Include="Processes\Payouts\ShopifyPayoutPullWorker.cs" />
+    <Compile Include="Processes\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Services\TenantContext.cs" />
     <Compile Include="Persist\Sys\SystemRepository.cs" />
     <Compile Include="Persist\Sys\Installation.cs" />
     <Compile Include="Persist\Multitenant\Shopify\ShopifyInventoryRepository.cs" />
-    <Compile Include="Persist\Multitenant\Etc\PayoutRepository.cs" />
+    <Compile Include="Persist\Multitenant\Shopify\ShopifyPayoutRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
     <Compile Include="Persist\Multitenant\PersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

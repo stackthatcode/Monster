@@ -1,25 +1,27 @@
-﻿using Monster.Acumatica.Http;
-using Monster.Middle.Persist.Multitenant;
-using Push.Shopify.Http;
-using Push.Shopify.Http.Credentials;
+﻿using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Persist.Multitenant.Shopify;
+using Monster.Middle.Processes.Orders.Workers;
+using Monster.Middle.Processes.Payouts.Workers;
 
 
 namespace Monster.Middle.Processes.Payouts
 {
     public class PayoutProcess
     {
+        private readonly TenantRepository _tenantRepository;
         private readonly ShopifyPayoutPullWorker _shopifyPayoutPullWorker;
         private readonly BankImportService _bankImportService;
         private readonly PayoutRepository _persistenceRepository;
 
-        public const int DummyCompanyId = 1;
-
 
         public PayoutProcess(
+                TenantRepository tenantRepository,
                 ShopifyPayoutPullWorker shopifyPayoutPullWorker,
                 BankImportService bankImportService, 
                 PayoutRepository persistenceRepository)
         {
+            _tenantRepository = tenantRepository;
             _shopifyPayoutPullWorker = shopifyPayoutPullWorker;
             _bankImportService = bankImportService;
             _persistenceRepository = persistenceRepository;
@@ -29,46 +31,26 @@ namespace Monster.Middle.Processes.Payouts
         public void PullShopifyPayout(
                 long shopifyPayoutId, bool includeTransactions = true)
         {
-            _shopifyPayoutPullWorker.ImportPayoutHeader(shopifyPayoutId);
+            _shopifyPayoutPullWorker.RunPayoutHeader(shopifyPayoutId);
 
             if (includeTransactions)
             {
-                _shopifyPayoutPullWorker.ImportPayoutTransactions(shopifyPayoutId);
+                _shopifyPayoutPullWorker.RunPayoutTransactions(shopifyPayoutId);
             }
         }
 
-        public void PullShopifyPayouts(
-                int numberOfHeaders = 1, bool includeTransactions = true)
+        public void PullShopifyPayouts()
         {
-            _shopifyPayoutPullWorker.ImportPayoutHeaders(numberOfHeaders);
+            _shopifyPayoutPullWorker.RunPayoutHeaders();
+            _shopifyPayoutPullWorker.RunIncompletePayoutTransations();
 
-            if (includeTransactions)
-            {
-                _shopifyPayoutPullWorker.ImportIncompletePayoutTransactions();
-            }
-
-            // 
             // Entirely optional self-analysis
             //
             //_shopifyPayoutPullWorker
             //    .LogBalancingSummaries(5);
         }
         
-
-        public void PushAllAcumaticaPayouts()
-        {
-            _bankImportService.BeginSession();
-
-            foreach (var payout in
-                _persistenceRepository.RetrieveNotYetUploadedPayouts())
-            {
-                _bankImportService
-                    .WritePayoutHeaderToAcumatica(payout.ShopifyPayoutId);
-            }
-
-            _bankImportService.EndSession();
-        }
-
+        
         public void PushAcumaticaPayout(long shopifyPayoutId)
         {
             _bankImportService.BeginSession();

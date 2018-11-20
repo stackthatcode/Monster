@@ -6,7 +6,7 @@ GO
 DELETE FROM usrPreferences;
 
 INSERT INTO usrPreferences VALUES 
-	( '2018-01-01', 00.20, 1013, 'STOCKITEM', 'SHOPIFY', '5/24/2014', 'America/Chicago' );
+	( '2018-01-01', 00.20, 1019, 'STOCKITEM', 'SHOPIFY', '5/24/2014', 'America/Chicago' );
 
 SELECT * FROM usrPreferences;
 **/
@@ -50,9 +50,17 @@ SELECT * FROM usrAcumaticaShipment;
 SELECT * FROM usrAcumaticaShipmentDetail;
 SELECT * FROM usrShopAcuShipmentSync;
 
-SELECT * FROM usrShop
+
+SELECT * FROM usrShopifyRefund;
+SELECT * FROM usrShopi
+
 
 SELECT * FROM vw_AcumaticaUnsyncedShipments 
 
 UPDATE usrBatchState SET ShopifyOrdersPullEnd = '2018-11-15 23:10:24.093';
+
+
+/** Payouts **/
+
+SELECT * FROM usrShopifyPayout;
 

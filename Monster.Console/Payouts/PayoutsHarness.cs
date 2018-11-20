@@ -4,6 +4,7 @@ using Monster.Acumatica.Http;
 using Monster.Middle;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Etc;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
@@ -24,9 +25,6 @@ namespace Monster.ConsoleApp.Payouts
                 var logger = scope.Resolve<IPushLogger>();
                 try
                 {
-                    // TODO - enter your Payout Id here
-                    var shopifyPayoutId = 123456;
-
                     var tenantId = new Guid("1ADACC65-43EB-4083-9A14-1D3601F52328");
 
                     // Get load the Installation
@@ -50,11 +48,8 @@ namespace Monster.ConsoleApp.Payouts
                     var process = scope.Resolve<PayoutProcess>();
 
                     // TODO - use these to control the actual activity
-                    process.PullShopifyPayouts(3);
-                    process.PushAllAcumaticaPayouts();
-
-                    //process.PullShopifyPayout(shopifyPayoutId);
-                    //process.PushAcumaticaPayout(shopifyPayoutId);
+                    process.PullShopifyPayouts();
+                    //process.PushAllAcumaticaPayouts();
                 }
                 catch (Exception ex)
                 {
@@ -125,7 +120,7 @@ namespace Monster.ConsoleApp.Payouts
                     var process = scope.Resolve<PayoutProcess>();
 
                     process.PullShopifyPayouts();
-                    process.PushAllAcumaticaPayouts();
+                    //process.PushAllAcumaticaPayouts();
 
                     // TODO - enter your Payout Id here
                     var shopifyPayoutId = 123456;
@@ -171,7 +166,7 @@ namespace Monster.ConsoleApp.Payouts
                     ShopifyPayoutId = 11111111111,
                     ShopifyLastStatus = "paid",
                     CreatedDate = DateTime.UtcNow,
-                    AllShopifyTransDownloaded = true,
+                    AllTransDownloaded = true,
                     Json = shopifyPayout.SerializeToJson(),
                 };
 

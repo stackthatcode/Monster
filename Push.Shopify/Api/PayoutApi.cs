@@ -1,4 +1,5 @@
-﻿using Push.Foundation.Utilities.Logging;
+﻿using System;
+using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 using Push.Shopify.Http;
 
@@ -18,10 +19,13 @@ namespace Push.Shopify.Api
             _httpClient = httpClient;
         }
 
-        public virtual string RetrievePayoutsHeaders(int limit = 50)
+        public virtual string RetrievePayoutsHeaders(
+                    DateTime minDate, int page = 1, int limit = 50)
         {
             var queryString 
                 = new QueryStringBuilder()
+                    .Add("min_date", minDate.ToString("YYYY-mm-dd"))
+                    .Add("page", page)
                     .Add("limit", limit)
                     .ToString();
 

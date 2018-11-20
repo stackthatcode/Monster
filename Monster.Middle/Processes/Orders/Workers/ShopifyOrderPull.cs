@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Persist.Multitenant.Shopify;
-using Monster.Middle.Processes.Inventory.Workers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -71,11 +69,9 @@ namespace Monster.Middle.Processes.Orders.Workers
             var firstFilter = new SearchFilter();
             firstFilter.OrderByCreatedAt();
             firstFilter.CreatedAtMinUtc = preferences.DataPullStart;
-
-
+            
             var firstJson = _orderApi.Retrieve(firstFilter);
-            var firstOrders
-                = firstJson.DeserializeToOrderList().orders;
+            var firstOrders = firstJson.DeserializeToOrderList().orders;
 
             UpsertOrders(firstOrders);
 

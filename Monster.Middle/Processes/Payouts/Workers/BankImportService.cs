@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Monster.Acumatica.BankImportApi;
-using Monster.Acumatica.Http;
 using Monster.Acumatica.ScreenApi;
-using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
-using Push.Foundation.Utilities.Helpers;
+using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Payout;
@@ -59,7 +57,8 @@ namespace Monster.Middle.Processes.Payouts
             var persistedPayout = _persistRepository.RetrievePayout(shopifyPayoutId);
             var schema = PX.Soap.Helper.GetSchema<CA306500Content>(_screen);
 
-            if (persistedPayout.AcumaticaRefNumber.IsNullOrEmpty())
+            if (true)
+                //persistedPayout.AcumaticaRefNumber.IsNullOrEmpty())
             {
                 // Get data staged
                 var preferences = _persistRepository.RetrievePayoutPreferences();
@@ -93,41 +92,41 @@ namespace Monster.Middle.Processes.Payouts
                     $"Created Shopify Payout : {persistedPayout.ShopifyPayoutId} " +
                     $"in Acumatica with Ref Number: {referenceNbr}");
 
-                _persistRepository
-                    .UpdatePayoutHeaderAcumaticaImport(
-                        persistedPayout.ShopifyPayoutId,
-                        cashAccount,
-                        referenceNbr,
-                        DateTime.UtcNow);
+                //_persistRepository
+                //    .UpdatePayoutHeaderAcumaticaImport(
+                //        persistedPayout.ShopifyPayoutId,
+                //        cashAccount,
+                //        referenceNbr,
+                //        DateTime.UtcNow);
             }
             else
             {
-                _logger.Info(
-                    $"Shopify Payout : {persistedPayout.ShopifyPayoutId} " +
-                    $"already exists in Acumatica with Ref Number: {persistedPayout.AcumaticaRefNumber}");
+                //_logger.Info(
+                //    $"Shopify Payout : {persistedPayout.ShopifyPayoutId} " +
+                //    $"already exists in Acumatica with Ref Number: {persistedPayout.AcumaticaRefNumber}");
             }
 
-            var navigateCommands
-                    = new List<Command>()
-                        .AddCommand(schema.CashAccount.CashAccount, persistedPayout.AcumaticaCashAccount)
-                        .AddCommand(schema.CashAccount.ReferenceNbr, persistedPayout.AcumaticaRefNumber)
-                        .AddCommand(schema.Actions.Cancel);
+            //var navigateCommands
+            //        = new List<Command>()
+            //            .AddCommand(schema.CashAccount.CashAccount, persistedPayout.AcumaticaCashAccount)
+            //            .AddCommand(schema.CashAccount.ReferenceNbr, persistedPayout.AcumaticaRefNumber)
+            //            .AddCommand(schema.Actions.Cancel);
 
-            var resultnavs = _screen.CA306500Submit(navigateCommands.ToArray());
+            //var resultnavs = _screen.CA306500Submit(navigateCommands.ToArray());
 
             WritePayoutTransactions(shopifyPayoutId);
         }
         
         public void WritePayoutTransactions(long shopifyPayoutId)
         {
-            var transactions = 
-                _persistRepository
-                    .RetrieveNotYetUploadedPayoutTranscations(shopifyPayoutId);
+            //var transactions = 
+            //    _persistRepository
+            //        .RetrieveNotYetUploadedPayoutTranscations(shopifyPayoutId);
             
-            foreach (var transaction in transactions)
-            {
-                WritePayoutTransaction(transaction);
-            }
+            //foreach (var transaction in transactions)
+            //{
+            //    WritePayoutTransaction(transaction);
+            //}
         }
 
         public void WritePayoutTransaction(
@@ -168,12 +167,12 @@ namespace Monster.Middle.Processes.Payouts
 
             var results = _screen.CA306500Submit(commands.ToArray());
 
-            _persistRepository
-                .UpdatePayoutHeaderAcumaticaImport(
-                        transaction.ShopifyPayoutId,
-                        transaction.ShopifyPayoutTransId,
-                        DateTime.UtcNow, 
-                        extRefNbr);
+            //_persistRepository
+            //    .UpdatePayoutHeaderAcumaticaImport(
+            //            transaction.ShopifyPayoutId,
+            //            transaction.ShopifyPayoutTransId,
+            //            DateTime.UtcNow, 
+            //            extRefNbr);
 
             _logger.Info(
                 $"Created Transaction Payout Id: {transaction.ShopifyPayoutId} - " +
