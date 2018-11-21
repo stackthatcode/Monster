@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace Push.Shopify.Api.Transaction
+namespace Push.Shopify.Api.Transactions
 {
     public class Transaction
     {
@@ -22,12 +22,16 @@ namespace Push.Shopify.Api.Transaction
         public string user_id { get; set; }
         public long? parent_id { get; set; }
         public string device_id { get; set; }
-        public Receipt receipt { get; set; }
+
+        // TODO - replace this with Payment Gateway specific processing
+        //public object receipt { get; set; }
         public string error_code { get; set; }
         public string source_name { get; set; }
 
-        // Credit Card-specific details
-        public PaymentDetails payment_details { get; set; }
+        // TODO - handle later when we deal with Settlement
+        // public PaymentDetails payment_details { get; set; }
+
+        public bool IsSuccess => status == TransactionStatus.Success;
     }
 
     public class TransactionList

@@ -4,7 +4,7 @@ using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
 using Push.Shopify.Api.Order;
 using Push.Shopify.Api.Product;
-using Push.Shopify.Api.Transaction;
+using Push.Shopify.Api.Transactions;
 
 namespace Monster.ConsoleApp.Shopify
 {

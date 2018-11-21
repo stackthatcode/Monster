@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace Monster.Middle.Persist.Multitenant.Shopify
 {
-    public class PayoutRepository
+    public class ShopifyPayoutRepository
     {
         private readonly PersistContext _persistContext;
         public MonsterDataContext Entities => _persistContext.Entities;
 
-        public PayoutRepository(PersistContext dataContext)
+        public ShopifyPayoutRepository(PersistContext dataContext)
         {
             _persistContext = dataContext;
         }

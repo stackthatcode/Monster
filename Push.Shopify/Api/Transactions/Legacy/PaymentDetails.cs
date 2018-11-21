@@ -1,5 +1,8 @@
-﻿namespace Push.Shopify.Api.Transaction
+﻿using System;
+
+namespace Push.Shopify.Api.Transactions.Legacy
 {
+    [Obsolete]
     public class PaymentDetails
     {
         public string credit_card_bin { get; set; }

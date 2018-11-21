@@ -76,12 +76,12 @@ namespace Monster.Middle
 
             // Multitenant Persistence
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
-            builder.RegisterType<PayoutRepository>().InstancePerLifetimeScope();
             builder.RegisterType<BatchStateRepository>().InstancePerLifetimeScope();
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
             
             builder.RegisterType<ShopifyInventoryRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyPayoutRepository>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaOrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventoryRepository>().InstancePerLifetimeScope();
@@ -92,12 +92,6 @@ namespace Monster.Middle
 
             // Tenant Context
             builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
-
-            // Payout Processes
-            builder.RegisterType<Screen>().InstancePerLifetimeScope();
-            builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
-            builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
             
             // Misc
             builder.RegisterType<TimeZoneService>().InstancePerLifetimeScope();
@@ -105,15 +99,16 @@ namespace Monster.Middle
 
             // Inventory synchronization workers
             builder.RegisterType<AcumaticaInventoryPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaWarehousePull>().InstancePerLifetimeScope();
+
+            builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaWarehouseSync>().InstancePerLifetimeScope();
 
             builder.RegisterType<ShopifyLocationPull>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyLocationSync>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPull>().InstancePerLifetimeScope();
+
+            builder.RegisterType<ShopifyLocationSync>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventorySync>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyFulfillmentSync>().InstancePerLifetimeScope();
 
             builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
@@ -122,17 +117,27 @@ namespace Monster.Middle
             // Order synchronization workers
             builder.RegisterType<ShopifyCustomerPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderPull>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyFulfillmentSync>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaCustomerPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaCustomerSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaOrderSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaShipmentPull>().InstancePerLifetimeScope();
+
+            builder.RegisterType<AcumaticaCustomerSync>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaOrderSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaShipmentSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaRefundSync>().InstancePerLifetimeScope();
 
             builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
-            
+
+
+            // Payout Processes
+            builder.RegisterType<Screen>().InstancePerLifetimeScope();
+            builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
+            builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
+
+
             return builder.Build();
         }
     }

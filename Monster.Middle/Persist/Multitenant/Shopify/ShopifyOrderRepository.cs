@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using Monster.Middle.Persist.Multitenant.Acumatica;
 
 namespace Monster.Middle.Persist.Multitenant.Shopify
 {
@@ -106,6 +108,38 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
         {
             Entities.UsrShopifyRefunds.Add(refund);
             Entities.SaveChanges();
+        }
+
+
+        // Transactions
+        public void ImprintTransactions(
+                long shopifyMonsterId, List<UsrShopifyTransaction> transactions)
+        {
+            var existingRecords =
+                Entities
+                    .UsrShopifyTransactions
+                    .Where(x => x.OrderMonsterId == shopifyMonsterId)
+                    .ToList();
+            
+            foreach (var newestRecord in transactions)
+            {
+                if (!existingRecords.AnyMatch(newestRecord))
+                {
+                    newestRecord.DateCreated = DateTime.UtcNow;
+                    newestRecord.LastUpdated = DateTime.UtcNow;
+
+                    Entities.UsrShopifyTransactions.Add(newestRecord);
+                    Entities.SaveChanges();
+                }
+            }
+        }
+
+        public List<UsrShopifyOrder> RetrieveOrdersNeedingTransactionPull()
+        {
+            return Entities
+                .UsrShopifyOrders
+                .Where(x => x.AreTransactionsUpdated == false)
+                .ToList();
         }
 
         public void SaveChanges()

@@ -148,7 +148,7 @@ namespace Monster.ConsoleApp.Payouts
                 var persistsContext = scope.Resolve<PersistContext>();
                 persistsContext.Initialize(connectionString, 0);
 
-                var repository = scope.Resolve<PayoutRepository>();
+                var repository = scope.Resolve<ShopifyPayoutRepository>();
                 var logger = scope.Resolve<IPushLogger>();
 
                 var shopifyPayout = new Payout()

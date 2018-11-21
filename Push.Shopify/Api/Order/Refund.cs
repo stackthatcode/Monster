@@ -15,7 +15,7 @@ namespace Push.Shopify.Api.Order
         public DateTime processed_at { get; set; }
         
         public List<RefundLineItem> refund_line_items { get; set; }
-        public List<Transaction> transactions { get; set; }
+        public List<Transactions.Transaction> transactions { get; set; }
         public List<OrderAdjustment> order_adjustments { get; set; }
 
 
@@ -31,13 +31,14 @@ namespace Push.Shopify.Api.Order
         public bool IsValid => transactions.Any() && transactions.All(x => x.IsSuccess);
 
         [JsonIgnore]
-        public decimal TransactionTotal => transactions.Sum(x => x.amount);
+        public decimal TransactionTotal 
+                        => transactions.Sum(x => x.amount);
 
 
         [JsonIgnore]
-        public decimal RefundLineItemTotal => refund_line_items.Sum(x => x.Total);
-
-
+        public decimal RefundLineItemTotal 
+                        => refund_line_items.Sum(x => x.Total);
+        
         [JsonIgnore]
         public decimal ShippingAdjustmentTotal =>
                             -(order_adjustments

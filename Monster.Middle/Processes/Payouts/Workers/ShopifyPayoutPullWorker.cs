@@ -15,7 +15,7 @@ namespace Monster.Middle.Processes.Payouts.Workers
     {
         private readonly TenantRepository _tenantRepository;
         private readonly BatchStateRepository _batchStateRepository;
-        private readonly PayoutRepository _persistRepository;
+        private readonly ShopifyPayoutRepository _persistRepository;
         private readonly PayoutApi _payoutApi;
         private readonly IPushLogger _logger;
 
@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Payouts.Workers
         public ShopifyPayoutPullWorker(
                 TenantRepository tenantRepository,
                 BatchStateRepository batchStateRepository,
-                PayoutRepository persistRepository,
+                ShopifyPayoutRepository persistRepository,
                 PayoutApi payoutApi,
                 IPushLogger logger)
         {

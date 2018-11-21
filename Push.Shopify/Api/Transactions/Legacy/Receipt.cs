@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace Push.Shopify.Api.Transaction
+namespace Push.Shopify.Api.Transactions.Legacy
 {
+
+    [Obsolete]
     public class Receipt
     {
         public DateTimeOffset? timestamp { get; set; }

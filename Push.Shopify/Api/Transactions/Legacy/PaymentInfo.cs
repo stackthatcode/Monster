@@ -1,7 +1,8 @@
 ﻿using System;
 
-namespace Push.Shopify.Api.Transaction
+namespace Push.Shopify.Api.Transactions.Legacy
 {
+    [Obsolete]
     public class PaymentInfo
     {
         public string TransactionID { get; set; }

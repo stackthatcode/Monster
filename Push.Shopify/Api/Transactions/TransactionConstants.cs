@@ -1,4 +1,4 @@
-﻿namespace Push.Shopify.Api.Transaction
+﻿namespace Push.Shopify.Api.Transactions
 {
     public class TransactionStatus
     {

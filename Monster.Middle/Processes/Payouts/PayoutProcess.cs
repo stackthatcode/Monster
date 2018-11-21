@@ -12,14 +12,14 @@ namespace Monster.Middle.Processes.Payouts
         private readonly TenantRepository _tenantRepository;
         private readonly ShopifyPayoutPullWorker _shopifyPayoutPullWorker;
         private readonly BankImportService _bankImportService;
-        private readonly PayoutRepository _persistenceRepository;
+        private readonly ShopifyPayoutRepository _persistenceRepository;
 
 
         public PayoutProcess(
                 TenantRepository tenantRepository,
                 ShopifyPayoutPullWorker shopifyPayoutPullWorker,
                 BankImportService bankImportService, 
-                PayoutRepository persistenceRepository)
+                ShopifyPayoutRepository persistenceRepository)
         {
             _tenantRepository = tenantRepository;
             _shopifyPayoutPullWorker = shopifyPayoutPullWorker;

@@ -81,6 +81,7 @@
     <Compile Include="Persist\Multitenant\Acumatica\AcumaticaOrderRepository.cs" />
     <Compile Include="Persist\Multitenant\Acumatica\Extensions.cs" />
     <Compile Include="Persist\Multitenant\Shopify\OrderExtensions.cs" />
+    <Compile Include="Persist\Multitenant\Shopify\TransactionExtensions.cs" />
     <Compile Include="Persist\Multitenant\Sync\ItemExtensions.cs" />
     <Compile Include="Persist\Multitenant\Sync\WarehouseExtensions.cs" />
     <Compile Include="Persist\Multitenant\Etc\BatchStateRepository.cs" />
@@ -119,6 +120,7 @@
     <Compile Include="Processes\Orders\Workers\Model\Extensions.cs" />
     <Compile Include="Processes\Orders\Workers\Model\RefundCancelStatus.cs" />
     <Compile Include="Processes\Orders\Workers\Model\ShipmentSyncReadiness.cs" />
+    <Compile Include="Processes\Orders\Workers\ShopifyTransactionPull.cs" />
     <Compile Include="Processes\Orders\Workers\ShopifyCustomerPull.cs" />
     <Compile Include="Processes\Orders\Workers\ShopifyFulfillmentSync.cs" />
     <Compile Include="Processes\Orders\Workers\ShopifyOrderPull.cs" />

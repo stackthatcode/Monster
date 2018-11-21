@@ -195,6 +195,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 newOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 newOrder.ShopifyJson = order.SerializeToJson();
                 newOrder.ShopifyFinancialStatus = order.financial_status;
+                newOrder.AreTransactionsUpdated = false;
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
@@ -206,6 +207,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 existingOrder.ShopifyJson = order.SerializeToJson();
                 existingOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 existingOrder.ShopifyFinancialStatus = order.financial_status;
+                existingOrder.AreTransactionsUpdated = false;
                 existingOrder.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.SaveChanges();
@@ -240,8 +242,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 // updated in that next run by ShopifyCustomerPull
             }
         }
-
-
+        
         public void UpsertOrderFulfillments(Order order)
         {
             var orderRecord = _orderRepository.RetrieveOrder(order.id);
@@ -304,6 +305,8 @@ namespace Monster.Middle.Processes.Orders.Workers
                 }
             }
         }
+
+
     }
 }
 

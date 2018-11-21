@@ -29,6 +29,9 @@ DELETE FROM usrAcumaticaWarehouse;
 
 
 -- Acumatica
+DELETE FROM usrShopifyPayout;
+DELETE FROM usrShopifyPayoutTransaction;
+
 DELETE FROM usrShopifyRefund;
 DELETE FROM usrShopifyFulfillment;
 DELETE FROM usrShopifyOrder;
