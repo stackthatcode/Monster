@@ -6,10 +6,11 @@ GO
 DELETE FROM usrPreferences;
 
 INSERT INTO usrPreferences VALUES 
-	( '2018-01-01', 00.20, 1019, 'STOCKITEM', 'SHOPIFY', '5/24/2014', 'America/Chicago' );
+	( '2018-01-01', 00.20, 1019, 'STOCKITEM', 'SHOPIFY', '5/24/2014', 'America/Chicago', 'ONLINE' );
 
 SELECT * FROM usrPreferences;
 **/
+
 
 
 -- Preferences, Batch State

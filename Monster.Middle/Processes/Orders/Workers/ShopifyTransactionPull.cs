@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Persist.Multitenant.Shopify;
 using Push.Foundation.Utilities.Json;
-using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
-using Push.Shopify.Api.Customer;
-using Push.Shopify.Api.Order;
 using Push.Shopify.Api.Transactions;
+
 
 namespace Monster.Middle.Processes.Orders.Workers
 {
@@ -45,8 +41,10 @@ namespace Monster.Middle.Processes.Orders.Workers
                     var record = new UsrShopifyTransaction();
                     record.ShopifyOrderId = transaction.order_id;
                     record.ShopifyTransactionId = transaction.id;
-                    record.OrderMonsterId = orderRecord.Id;
+                    record.ShopifyStatus = transaction.status;
+                    record.ShopifyKind = transaction.kind;
                     record.ShopifyJson = transaction.SerializeToJson();
+                    record.OrderMonsterId = orderRecord.Id;
 
                     transactionRecords.Add(record);
                 }

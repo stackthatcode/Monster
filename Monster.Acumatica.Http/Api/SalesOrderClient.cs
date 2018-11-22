@@ -10,7 +10,8 @@ namespace Monster.Acumatica.Api
         private readonly AcumaticaHttpContext _httpContext;
         private readonly IPushLogger _logger;
         
-        public SalesOrderClient(IPushLogger logger, AcumaticaHttpContext httpContext)
+        public SalesOrderClient(
+                IPushLogger logger, AcumaticaHttpContext httpContext)
         {
             _logger = logger;
             _httpContext = httpContext;

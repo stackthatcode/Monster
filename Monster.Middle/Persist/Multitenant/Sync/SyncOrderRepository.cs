@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Persist.Multitenant.Sync
 {
@@ -15,6 +16,9 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             _dataContext = dataContext;
         }
 
+
+        // Order Syncing
+        //
         public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
             var preferences = Entities.UsrPreferences.First();
@@ -26,7 +30,6 @@ namespace Monster.Middle.Persist.Multitenant.Sync
                 .Include(x => x.UsrShopifyCustomer)
                 .ToList();
         }
-        
         
         public UsrShopifyOrder RetrieveShopifyOrder(long shopifyOrderId)
         {
@@ -127,8 +130,7 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             Entities.UsrShopAcuShipmentSyncs.Add(sync);
             Entities.SaveChanges();
         }
-
-
+        
         public List<UsrAcumaticaShipment> 
                         RetrieveShipmentsByMonsterNotConfirmed()
         {
@@ -171,6 +173,29 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             Entities.UsrShopAcuRefundCms.Add(input);
             Entities.SaveChanges();
         }
+
+
+        // Shopify Transactions
+        //
+        public List<UsrShopifyTransaction> RetrieveUnsyncedTransactions()
+        {
+            return Entities.UsrShopifyTransactions
+                .Include(x => x.UsrShopifyOrder)
+                .Include(x => x.UsrShopifyOrder.UsrShopifyCustomer)
+                .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any()
+                            && x.ShopifyStatus == TransactionStatus.Success
+                            && (x.ShopifyKind == TransactionKind.Capture
+                                || x.ShopifyKind == TransactionKind.Sale)
+                            && x.UsrShopifyAcuPayment == null)
+                .ToList();
+        }
+
+        public void InsertPayment(UsrShopifyAcuPayment payment)
+        {
+            Entities.UsrShopifyAcuPayments.Add(payment);
+            Entities.SaveChanges();
+        }
+
 
 
         // Shopify Payouts

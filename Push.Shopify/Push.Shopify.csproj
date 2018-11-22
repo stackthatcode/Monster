@@ -134,7 +134,8 @@
     <Compile Include="Api\Product\Variant.cs" />
     <Compile Include="Api\PayoutApi.cs" />
     <Compile Include="Api\Transactions\Extensions.cs" />
-    <Compile Include="Api\Transactions\TransactionConstants.cs" />
+    <Compile Include="Api\Transactions\TransactionKind.cs" />
+    <Compile Include="Api\Transactions\TransactionStatus.cs" />
     <Compile Include="Api\Transactions\Legacy\PaymentDetails.cs" />
     <Compile Include="Api\Transactions\Legacy\PaymentInfo.cs" />
     <Compile Include="Api\Transactions\Legacy\Receipt.cs" />
