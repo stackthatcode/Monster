@@ -8,6 +8,7 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Acumatica;
 using Monster.Middle.Persist.Multitenant.Shopify;
 using Monster.Middle.Persist.Multitenant.Sync;
+using Monster.Middle.Processes.Orders.Workers.Model;
 using Push.Foundation.Utilities.Json;
 
 
@@ -129,7 +130,7 @@ namespace Monster.Middle.Processes.Orders.Workers
                 shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
 
             var creditMemo = new CreditMemoWrite();
-            creditMemo.OrderType = "CM".ToValue();
+            creditMemo.OrderType = Constants.CreditMemoType.ToValue();
             creditMemo.CustomerID = salesOrder.CustomerID.Copy();
 
             foreach (var refund_line_item in refund.Returns)

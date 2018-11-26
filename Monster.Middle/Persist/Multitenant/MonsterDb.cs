@@ -964,6 +964,9 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaTimeZone { get; set; } // AcumaticaTimeZone (length: 50)
         public string AcumaticaPaymentMethod { get; set; } // AcumaticaPaymentMethod (length: 50)
         public string AcumaticaPaymentCashAccount { get; set; } // AcumaticaPaymentCashAccount (length: 50)
+        public string AcumaticaTaxZone { get; set; } // AcumaticaTaxZone (length: 50)
+        public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
+        public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
     }
 
     // usrShopAcuCustomerSync
@@ -1811,6 +1814,9 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaTimeZone).HasColumnName(@"AcumaticaTimeZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaPaymentMethod).HasColumnName(@"AcumaticaPaymentMethod").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaPaymentCashAccount).HasColumnName(@"AcumaticaPaymentCashAccount").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaTaxZone).HasColumnName(@"AcumaticaTaxZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaTaxId).HasColumnName(@"AcumaticaTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
         }
     }
 

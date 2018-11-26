@@ -119,6 +119,7 @@
     <Compile Include="Processes\Orders\Workers\AcumaticaRefundSync.cs" />
     <Compile Include="Processes\Orders\Workers\AcumaticaShipmentSync.cs" />
     <Compile Include="Processes\Orders\Workers\AcumaticaOrderSync.cs" />
+    <Compile Include="Processes\Orders\Workers\Model\Constants.cs" />
     <Compile Include="Processes\Orders\Workers\Model\Extensions.cs" />
     <Compile Include="Processes\Orders\Workers\Model\RefundCancelStatus.cs" />
     <Compile Include="Processes\Orders\Workers\Model\ShipmentSyncReadiness.cs" />

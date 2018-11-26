@@ -72,10 +72,12 @@
     <Compile Include="Api\DistributionClient.cs" />
     <Compile Include="Api\SalesOrder\Address.cs" />
     <Compile Include="Api\SalesOrder\CreditMemoWrite.cs" />
+    <Compile Include="Api\SalesOrder\FinancialSettings.cs" />
     <Compile Include="Api\SalesOrder\SalesInvoiceWrite.cs" />
     <Compile Include="Api\SalesOrder\SalesOrder.cs" />
     <Compile Include="Api\SalesOrder\SalesOrderWrite.cs" />
     <Compile Include="Api\SalesOrder\ShippingSettings.cs" />
+    <Compile Include="Api\SalesOrder\TaxDetails.cs" />
     <Compile Include="Api\ShipmentClient.cs" />
     <Compile Include="Api\PaymentClient.cs" />
     <Compile Include="Api\Shipment\Shipment.cs" />

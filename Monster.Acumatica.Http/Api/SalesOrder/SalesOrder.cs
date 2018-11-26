@@ -54,6 +54,11 @@ namespace Monster.Acumatica.Api.SalesOrder
         
         public ShippingSettings ShippingSettings { get; set; }
 
+        public FinancialSettings FinancialSettings { get; set; }
+
+        public List<TaxDetails> TaxDetails { get; set; }
+
+
         public SalesOrderDetail DetailByInventoryId(string inventoryId)
         {
             return Details.FirstOrDefault(x => x.InventoryID.value == inventoryId);

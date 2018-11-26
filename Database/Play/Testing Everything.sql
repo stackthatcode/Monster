@@ -5,8 +5,20 @@ GO
 /**
 DELETE FROM usrPreferences;
 
-INSERT INTO usrPreferences VALUES 
-	( '2018-01-01', 00.20, 1019, 'STOCKITEM', 'SHOPIFY', '5/24/2014', 'America/Chicago', 'ONLINE' );
+INSERT INTO usrPreferences VALUES (
+	'2018-01-01', 
+	00.20, 
+	1019, 
+	'STOCKITEM', 
+	'SHOPIFY', 
+	'5/24/2014', 
+	'America/Chicago', 
+	'ONLINE', 
+	'102050', 
+	'ONLINE', 
+	'ONLINE', 
+	'ONLINE' );
+
 
 SELECT * FROM usrPreferences;
 **/
@@ -53,8 +65,16 @@ SELECT * FROM usrShopAcuShipmentSync;
 
 
 SELECT * FROM usrShopifyRefund;
-SELECT * FROM usrShopi
 
+SELECT * FROM usrShopifyOrder;
+SELECT * FROM usrShopAcuOrderSync;
+
+DELETE FROM usrShopAcuOrderSync;
+
+SELECT * FROM usrShopifyTransaction;
+SELECT * FROM usrShopifyAcuPayment;
+
+DELETE FROM usrShopifyAcuPayment;
 
 SELECT * FROM vw_AcumaticaUnsyncedShipments 
 
