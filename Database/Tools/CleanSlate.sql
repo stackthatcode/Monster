@@ -8,6 +8,7 @@ DELETE FROM usrBatchState;
 
 -- Synchronization
 DELETE FROM usrShopAcuRefundCM;
+DELETE FROM usrShopifyAcuPayment;
 DELETE FROM usrShopAcuShipmentSync;
 DELETE FROM usrShopAcuOrderSync;
 DELETE FROM usrShopAcuCustomerSync;

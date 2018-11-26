@@ -963,6 +963,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime? AcumaticaPostingDate { get; set; } // AcumaticaPostingDate
         public string AcumaticaTimeZone { get; set; } // AcumaticaTimeZone (length: 50)
         public string AcumaticaPaymentMethod { get; set; } // AcumaticaPaymentMethod (length: 50)
+        public string AcumaticaPaymentCashAccount { get; set; } // AcumaticaPaymentCashAccount (length: 50)
     }
 
     // usrShopAcuCustomerSync
@@ -1108,12 +1109,12 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
-        // Reverse navigation
+        // Foreign keys
 
         /// <summary>
-        /// Parent (One-to-One) UsrShopifyAcuPayment pointed by [usrShopifyTransaction].[Id] (FK_usrShopifyTransaction_usrShopifyAcuPayment)
+        /// Parent UsrShopifyTransaction pointed by [usrShopifyAcuPayment].([ShopifyTransactionMonsterId]) (FK_usrShopifyAcuPayment_usrShopifyTransaction)
         /// </summary>
-        public virtual UsrShopifyTransaction UsrShopifyTransaction { get; set; } // usrShopifyTransaction.FK_usrShopifyTransaction_usrShopifyAcuPayment
+        public virtual UsrShopifyTransaction UsrShopifyTransaction { get; set; } // FK_usrShopifyAcuPayment_usrShopifyTransaction
     }
 
     // usrShopifyCustomer
@@ -1412,12 +1413,14 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
-        // Foreign keys
+        // Reverse navigation
 
         /// <summary>
-        /// Parent UsrShopifyAcuPayment pointed by [usrShopifyTransaction].([Id]) (FK_usrShopifyTransaction_usrShopifyAcuPayment)
+        /// Parent (One-to-One) UsrShopifyTransaction pointed by [usrShopifyAcuPayment].[ShopifyTransactionMonsterId] (FK_usrShopifyAcuPayment_usrShopifyTransaction)
         /// </summary>
-        public virtual UsrShopifyAcuPayment UsrShopifyAcuPayment { get; set; } // FK_usrShopifyTransaction_usrShopifyAcuPayment
+        public virtual UsrShopifyAcuPayment UsrShopifyAcuPayment { get; set; } // usrShopifyAcuPayment.FK_usrShopifyAcuPayment_usrShopifyTransaction
+
+        // Foreign keys
 
         /// <summary>
         /// Parent UsrShopifyOrder pointed by [usrShopifyTransaction].([OrderMonsterId]) (FK_usrShopifyTransaction_usrShopifyOrder)
@@ -1807,6 +1810,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaPostingDate).HasColumnName(@"AcumaticaPostingDate").HasColumnType("date").IsOptional();
             Property(x => x.AcumaticaTimeZone).HasColumnName(@"AcumaticaTimeZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaPaymentMethod).HasColumnName(@"AcumaticaPaymentMethod").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaPaymentCashAccount).HasColumnName(@"AcumaticaPaymentCashAccount").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
         }
     }
 
@@ -1984,6 +1988,9 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.ShopifyPaymentNbr).HasColumnName(@"ShopifyPaymentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+
+            // Foreign keys
+            HasRequired(a => a.UsrShopifyTransaction).WithOptional(b => b.UsrShopifyAcuPayment).WillCascadeOnDelete(false); // FK_usrShopifyAcuPayment_usrShopifyTransaction
         }
     }
 
@@ -2237,7 +2244,7 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrShopifyTransaction", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyTransactionId).HasColumnName(@"ShopifyTransactionId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyStatus).HasColumnName(@"ShopifyStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
@@ -2248,7 +2255,6 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
-            HasRequired(a => a.UsrShopifyAcuPayment).WithOptional(b => b.UsrShopifyTransaction).WillCascadeOnDelete(false); // FK_usrShopifyTransaction_usrShopifyAcuPayment
             HasRequired(a => a.UsrShopifyOrder).WithMany(b => b.UsrShopifyTransactions).HasForeignKey(c => c.OrderMonsterId).WillCascadeOnDelete(false); // FK_usrShopifyTransaction_usrShopifyOrder
         }
     }

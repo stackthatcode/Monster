@@ -117,6 +117,8 @@ namespace Monster.Middle
             // Order synchronization workers
             builder.RegisterType<ShopifyCustomerPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderPull>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyTransactionPull>().InstancePerLifetimeScope();
+
             builder.RegisterType<ShopifyFulfillmentSync>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaCustomerPull>().InstancePerLifetimeScope();
@@ -127,6 +129,7 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaOrderSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaShipmentSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaRefundSync>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaPaymentSync>().InstancePerLifetimeScope();
 
             builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
 

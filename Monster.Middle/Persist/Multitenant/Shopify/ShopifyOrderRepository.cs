@@ -113,12 +113,12 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
 
         // Transactions
         public void ImprintTransactions(
-                long shopifyMonsterId, List<UsrShopifyTransaction> transactions)
+                long orderMonsterId, List<UsrShopifyTransaction> transactions)
         {
             var existingRecords =
                 Entities
                     .UsrShopifyTransactions
-                    .Where(x => x.OrderMonsterId == shopifyMonsterId)
+                    .Where(x => x.OrderMonsterId == orderMonsterId)
                     .ToList();
             
             foreach (var newestRecord in transactions)
@@ -129,9 +129,12 @@ namespace Monster.Middle.Persist.Multitenant.Shopify
                     newestRecord.LastUpdated = DateTime.UtcNow;
 
                     Entities.UsrShopifyTransactions.Add(newestRecord);
-                    Entities.SaveChanges();
                 }
             }
+
+            var order = Entities.UsrShopifyOrders.First(x => x.Id == orderMonsterId);
+            order.AreTransactionsUpdated = true;
+            Entities.SaveChanges();
         }
 
         public List<UsrShopifyOrder> RetrieveOrdersNeedingTransactionPull()

@@ -14,6 +14,7 @@ namespace Monster.Middle.Processes.Orders
         private readonly ShopifyCustomerPull _shopifyCustomerPull;
         private readonly ShopifyOrderPull _shopifyOrderPull;
         private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
+        private readonly ShopifyTransactionPull _shopifyTransactionPull;
 
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
@@ -22,6 +23,7 @@ namespace Monster.Middle.Processes.Orders
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly AcumaticaShipmentSync _acumaticaShipmentSync;
         private readonly AcumaticaInventorySync _acumaticaInventorySync;
+        private readonly AcumaticaPaymentSync _acumaticaPaymentSync;
         private readonly AcumaticaRefundSync _acumaticaRefundSync;
 
         public OrderManager(
@@ -39,7 +41,8 @@ namespace Monster.Middle.Processes.Orders
                 AcumaticaShipmentPull acumaticaShipmentPull,
                 AcumaticaShipmentSync acumaticaShipmentSync,
                 AcumaticaInventorySync acumaticaInventorySync,
-                AcumaticaRefundSync acumaticaRefundSync)
+                AcumaticaRefundSync acumaticaRefundSync, 
+                AcumaticaPaymentSync acumaticaPaymentSync, ShopifyTransactionPull shopifyTransactionPull)
         {
             _batchStateRepository = batchStateRepository;
 
@@ -53,6 +56,8 @@ namespace Monster.Middle.Processes.Orders
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaInventorySync = acumaticaInventorySync;
             _acumaticaRefundSync = acumaticaRefundSync;
+            _acumaticaPaymentSync = acumaticaPaymentSync;
+            _shopifyTransactionPull = shopifyTransactionPull;
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaOrderSync = acumaticaOrderSync;
             _acumaticaShipmentPull = acumaticaShipmentPull;
@@ -70,6 +75,7 @@ namespace Monster.Middle.Processes.Orders
         {
             _shopifyCustomerPull.RunAutomatic();
             _shopifyOrderPull.RunAutomatic();
+            _shopifyTransactionPull.RunAutomatic();
 
             _acumaticaContext.Login();
 
@@ -88,6 +94,7 @@ namespace Monster.Middle.Processes.Orders
             // Shopify Pull
             _shopifyCustomerPull.RunAutomatic();
             _shopifyOrderPull.RunAutomatic();
+            _shopifyTransactionPull.RunAutomatic();
 
             // Acumatica Pull
             _acumaticaContext.Login();
@@ -110,7 +117,8 @@ namespace Monster.Middle.Processes.Orders
             // ...or to:
             // 2) Sync Shipments to Shopify Fulfillments
             //_shopifyFulfillmentSync.Run();
-
+            
+            _acumaticaPaymentSync.Run();
             _acumaticaRefundSync.Run();
             _acumaticaContext.Logout();
         }

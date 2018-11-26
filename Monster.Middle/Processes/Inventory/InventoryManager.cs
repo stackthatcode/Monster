@@ -10,6 +10,7 @@ namespace Monster.Middle.Processes.Inventory
     public class InventoryManager
     {
         private readonly AcumaticaHttpContext _acumaticaContext;
+
         private readonly AcumaticaWarehousePull _acumaticaWarehousePull;
         private readonly AcumaticaWarehouseSync _acumaticaWarehouseSync;
         private readonly AcumaticaInventoryPull _acumaticaInventoryPull;
@@ -24,8 +25,10 @@ namespace Monster.Middle.Processes.Inventory
         private readonly InventoryStatusService _inventoryStatusService;
         private readonly IPushLogger _logger;
 
+
         public InventoryManager(
                 AcumaticaHttpContext acumaticaContext,
+
                 AcumaticaInventoryPull acumaticaInventoryPull,
                 AcumaticaInventorySync acumaticaInventorySync,
                 AcumaticaWarehousePull acumaticaWarehousePull,
@@ -130,7 +133,7 @@ namespace Monster.Middle.Processes.Inventory
             _acumaticaContext.Logout();
         }
 
-        public void SynchronizeShopifyInitial()
+        public void SynchronizeAcumaticaInventoryIntoShopify()
         {
             // Refresh our local cache of Acumatica Inventory
             _acumaticaContext.Login();

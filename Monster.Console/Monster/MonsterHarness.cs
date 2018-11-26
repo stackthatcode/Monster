@@ -6,7 +6,6 @@ using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Processes.Orders;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Helpers;
-using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Order;
@@ -44,8 +43,8 @@ namespace Monster.ConsoleApp.Monster
                     Console.WriteLine("Need Acumatica cache to update - hit enter to continue...");
                     Console.ReadLine();
 
-                    // Step 3 - Load Acumatica into Shopify
-                    inventoryManager.SynchronizeShopifyInitial();
+                    // Step 3 - Load Acumatica Inventory into Shopify
+                    inventoryManager.SynchronizeAcumaticaInventoryIntoShopify();
                     
                     // Step 4 - Initial Order Synchronization
                     orderManager.Reset();
