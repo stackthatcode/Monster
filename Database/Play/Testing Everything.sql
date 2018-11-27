@@ -58,30 +58,23 @@ SELECT * FROM usrAcumaticaSalesOrder;
 SELECT * FROM usrShopAcuOrderSync;
 
 
+-- Shipments and Fulfillments
 SELECT * FROM usrShopifyFulfillment;
 SELECT * FROM usrAcumaticaShipment;
 SELECT * FROM usrAcumaticaShipmentDetail;
 SELECT * FROM usrShopAcuShipmentSync;
+SELECT * FROM vw_AcumaticaUnsyncedShipments 
 
 
+-- Refunds
 SELECT * FROM usrShopifyRefund;
 
-SELECT * FROM usrShopifyOrder;
-SELECT * FROM usrShopAcuOrderSync;
 
-DELETE FROM usrShopAcuOrderSync;
-
+-- Transactions/Payments
 SELECT * FROM usrShopifyTransaction;
 SELECT * FROM usrShopifyAcuPayment;
 
-DELETE FROM usrShopifyAcuPayment;
 
-SELECT * FROM vw_AcumaticaUnsyncedShipments 
-
-UPDATE usrBatchState SET ShopifyOrdersPullEnd = '2018-11-15 23:10:24.093';
-
-
-/** Payouts **/
-
+-- Payouts (ON HOLD FOR NOW)
 SELECT * FROM usrShopifyPayout;
 

@@ -1,6 +1,6 @@
 ﻿using System;
-using Monster.Middle.Persist.Multitenant.Etc;
 using Monster.Middle.Misc;
+using Monster.Middle.Persist.Multitenant;
 
 namespace Monster.Middle.Services
 {

@@ -37,6 +37,7 @@ namespace Monster.Middle.Persist.Multitenant
 
     public interface IMonsterDataContext : System.IDisposable
     {
+        System.Data.Entity.DbSet<UsrAcumaticaBatchState> UsrAcumaticaBatchStates { get; set; } // usrAcumaticaBatchState
         System.Data.Entity.DbSet<UsrAcumaticaCreditMemo> UsrAcumaticaCreditMemoes { get; set; } // usrAcumaticaCreditMemo
         System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; } // usrAcumaticaCustomer
         System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; } // usrAcumaticaInventoryReceipt
@@ -46,7 +47,6 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; } // usrAcumaticaStockItem
         System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
-        System.Data.Entity.DbSet<UsrBatchState> UsrBatchStates { get; set; } // usrBatchState
         System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; } // usrInventoryReceiptSync
         System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
         System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; } // usrPreferences
@@ -57,6 +57,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; } // usrShopAcuShipmentSync
         System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; } // usrShopAcuWarehouseSync
         System.Data.Entity.DbSet<UsrShopifyAcuPayment> UsrShopifyAcuPayments { get; set; } // usrShopifyAcuPayment
+        System.Data.Entity.DbSet<UsrShopifyBatchState> UsrShopifyBatchStates { get; set; } // usrShopifyBatchState
         System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; } // usrShopifyCustomer
         System.Data.Entity.DbSet<UsrShopifyFulfillment> UsrShopifyFulfillments { get; set; } // usrShopifyFulfillment
         System.Data.Entity.DbSet<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevels
@@ -92,6 +93,7 @@ namespace Monster.Middle.Persist.Multitenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class MonsterDataContext : System.Data.Entity.DbContext, IMonsterDataContext
     {
+        public System.Data.Entity.DbSet<UsrAcumaticaBatchState> UsrAcumaticaBatchStates { get; set; } // usrAcumaticaBatchState
         public System.Data.Entity.DbSet<UsrAcumaticaCreditMemo> UsrAcumaticaCreditMemoes { get; set; } // usrAcumaticaCreditMemo
         public System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; } // usrAcumaticaCustomer
         public System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; } // usrAcumaticaInventoryReceipt
@@ -101,7 +103,6 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; } // usrAcumaticaStockItem
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
-        public System.Data.Entity.DbSet<UsrBatchState> UsrBatchStates { get; set; } // usrBatchState
         public System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; } // usrInventoryReceiptSync
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
         public System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; } // usrPreferences
@@ -112,6 +113,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; } // usrShopAcuShipmentSync
         public System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; } // usrShopAcuWarehouseSync
         public System.Data.Entity.DbSet<UsrShopifyAcuPayment> UsrShopifyAcuPayments { get; set; } // usrShopifyAcuPayment
+        public System.Data.Entity.DbSet<UsrShopifyBatchState> UsrShopifyBatchStates { get; set; } // usrShopifyBatchState
         public System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; } // usrShopifyCustomer
         public System.Data.Entity.DbSet<UsrShopifyFulfillment> UsrShopifyFulfillments { get; set; } // usrShopifyFulfillment
         public System.Data.Entity.DbSet<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevels
@@ -174,6 +176,7 @@ namespace Monster.Middle.Persist.Multitenant
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Configurations.Add(new UsrAcumaticaBatchStateConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaCreditMemoConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaCustomerConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaInventoryReceiptConfiguration());
@@ -183,7 +186,6 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaStockItemConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration());
-            modelBuilder.Configurations.Add(new UsrBatchStateConfiguration());
             modelBuilder.Configurations.Add(new UsrInventoryReceiptSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration());
             modelBuilder.Configurations.Add(new UsrPreferenceConfiguration());
@@ -194,6 +196,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopAcuShipmentSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuWarehouseSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyAcuPaymentConfiguration());
+            modelBuilder.Configurations.Add(new UsrShopifyBatchStateConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyCustomerConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyFulfillmentConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyInventoryLevelConfiguration());
@@ -211,6 +214,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
         {
+            modelBuilder.Configurations.Add(new UsrAcumaticaBatchStateConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaCreditMemoConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaCustomerConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaInventoryReceiptConfiguration(schema));
@@ -220,7 +224,6 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaStockItemConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration(schema));
-            modelBuilder.Configurations.Add(new UsrBatchStateConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrInventoryReceiptSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPreferenceConfiguration(schema));
@@ -231,6 +234,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopAcuShipmentSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuWarehouseSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyAcuPaymentConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrShopifyBatchStateConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyCustomerConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyFulfillmentConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyInventoryLevelConfiguration(schema));
@@ -266,6 +270,7 @@ namespace Monster.Middle.Persist.Multitenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class FakeMonsterDataContext : IMonsterDataContext
     {
+        public System.Data.Entity.DbSet<UsrAcumaticaBatchState> UsrAcumaticaBatchStates { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaCreditMemo> UsrAcumaticaCreditMemoes { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; }
@@ -275,7 +280,6 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; }
-        public System.Data.Entity.DbSet<UsrBatchState> UsrBatchStates { get; set; }
         public System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; }
         public System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; }
@@ -286,6 +290,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopAcuShipmentSync> UsrShopAcuShipmentSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyAcuPayment> UsrShopifyAcuPayments { get; set; }
+        public System.Data.Entity.DbSet<UsrShopifyBatchState> UsrShopifyBatchStates { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyFulfillment> UsrShopifyFulfillments { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; }
@@ -306,6 +311,7 @@ namespace Monster.Middle.Persist.Multitenant
             _configuration = null;
             _database = null;
 
+            UsrAcumaticaBatchStates = new FakeDbSet<UsrAcumaticaBatchState>("Id");
             UsrAcumaticaCreditMemoes = new FakeDbSet<UsrAcumaticaCreditMemo>("Id");
             UsrAcumaticaCustomers = new FakeDbSet<UsrAcumaticaCustomer>("Id");
             UsrAcumaticaInventoryReceipts = new FakeDbSet<UsrAcumaticaInventoryReceipt>("MonsterId");
@@ -315,7 +321,6 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaStockItems = new FakeDbSet<UsrAcumaticaStockItem>("MonsterId");
             UsrAcumaticaWarehouses = new FakeDbSet<UsrAcumaticaWarehouse>("Id");
             UsrAcumaticaWarehouseDetails = new FakeDbSet<UsrAcumaticaWarehouseDetail>("MonsterId");
-            UsrBatchStates = new FakeDbSet<UsrBatchState>("Id");
             UsrInventoryReceiptSyncs = new FakeDbSet<UsrInventoryReceiptSync>("Id");
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
             UsrPreferences = new FakeDbSet<UsrPreference>("Id");
@@ -326,6 +331,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrShopAcuShipmentSyncs = new FakeDbSet<UsrShopAcuShipmentSync>("Id");
             UsrShopAcuWarehouseSyncs = new FakeDbSet<UsrShopAcuWarehouseSync>("Id");
             UsrShopifyAcuPayments = new FakeDbSet<UsrShopifyAcuPayment>("ShopifyTransactionMonsterId");
+            UsrShopifyBatchStates = new FakeDbSet<UsrShopifyBatchState>("Id");
             UsrShopifyCustomers = new FakeDbSet<UsrShopifyCustomer>("Id");
             UsrShopifyFulfillments = new FakeDbSet<UsrShopifyFulfillment>("Id");
             UsrShopifyInventoryLevels = new FakeDbSet<UsrShopifyInventoryLevel>("MonsterId");
@@ -667,6 +673,17 @@ namespace Monster.Middle.Persist.Multitenant
 
     #region POCO classes
 
+    // usrAcumaticaBatchState
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrAcumaticaBatchState
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
+        public System.DateTime? AcumaticaCustomersPullEnd { get; set; } // AcumaticaCustomersPullEnd
+        public System.DateTime? AcumaticaOrdersPullEnd { get; set; } // AcumaticaOrdersPullEnd
+        public System.DateTime? AcumaticaShipmentsPullEnd { get; set; } // AcumaticaShipmentsPullEnd
+    }
+
     // usrAcumaticaCreditMemo
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrAcumaticaCreditMemo
@@ -904,21 +921,6 @@ namespace Monster.Middle.Persist.Multitenant
         public virtual UsrAcumaticaWarehouse UsrAcumaticaWarehouse { get; set; } // FK_usrAcumaticaWarehouseDetails_usrAcumaticaWarehouse
     }
 
-    // usrBatchState
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrBatchState
-    {
-        public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? ShopifyProductsPullEnd { get; set; } // ShopifyProductsPullEnd
-        public System.DateTime? ShopifyOrdersPullEnd { get; set; } // ShopifyOrdersPullEnd
-        public System.DateTime? ShopifyCustomersPullEnd { get; set; } // ShopifyCustomersPullEnd
-        public System.DateTime? ShopifyPayoutPullEnd { get; set; } // ShopifyPayoutPullEnd
-        public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
-        public System.DateTime? AcumaticaCustomersPullEnd { get; set; } // AcumaticaCustomersPullEnd
-        public System.DateTime? AcumaticaOrdersPullEnd { get; set; } // AcumaticaOrdersPullEnd
-        public System.DateTime? AcumaticaShipmentsPullEnd { get; set; } // AcumaticaShipmentsPullEnd
-    }
-
     // usrInventoryReceiptSync
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrInventoryReceiptSync
@@ -1118,6 +1120,17 @@ namespace Monster.Middle.Persist.Multitenant
         /// Parent UsrShopifyTransaction pointed by [usrShopifyAcuPayment].([ShopifyTransactionMonsterId]) (FK_usrShopifyAcuPayment_usrShopifyTransaction)
         /// </summary>
         public virtual UsrShopifyTransaction UsrShopifyTransaction { get; set; } // FK_usrShopifyAcuPayment_usrShopifyTransaction
+    }
+
+    // usrShopifyBatchState
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrShopifyBatchState
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public System.DateTime? ShopifyProductsPullEnd { get; set; } // ShopifyProductsPullEnd
+        public System.DateTime? ShopifyOrdersPullEnd { get; set; } // ShopifyOrdersPullEnd
+        public System.DateTime? ShopifyCustomersPullEnd { get; set; } // ShopifyCustomersPullEnd
+        public System.DateTime? ShopifyPayoutPullEnd { get; set; } // ShopifyPayoutPullEnd
     }
 
     // usrShopifyCustomer
@@ -1498,6 +1511,28 @@ namespace Monster.Middle.Persist.Multitenant
 
     #region POCO Configuration
 
+    // usrAcumaticaBatchState
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrAcumaticaBatchStateConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAcumaticaBatchState>
+    {
+        public UsrAcumaticaBatchStateConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrAcumaticaBatchStateConfiguration(string schema)
+        {
+            ToTable("usrAcumaticaBatchState", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaCustomersPullEnd).HasColumnName(@"AcumaticaCustomersPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaOrdersPullEnd).HasColumnName(@"AcumaticaOrdersPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaShipmentsPullEnd).HasColumnName(@"AcumaticaShipmentsPullEnd").HasColumnType("datetime").IsOptional();
+        }
+    }
+
     // usrAcumaticaCreditMemo
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrAcumaticaCreditMemoConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAcumaticaCreditMemo>
@@ -1716,32 +1751,6 @@ namespace Monster.Middle.Persist.Multitenant
             // Foreign keys
             HasOptional(a => a.UsrAcumaticaStockItem).WithMany(b => b.UsrAcumaticaWarehouseDetails).HasForeignKey(c => c.ParentMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaWarehouseDetails_usrAcumaticaStockItem
             HasRequired(a => a.UsrAcumaticaWarehouse).WithMany(b => b.UsrAcumaticaWarehouseDetails).HasForeignKey(c => c.WarehouseMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaWarehouseDetails_usrAcumaticaWarehouse
-        }
-    }
-
-    // usrBatchState
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrBatchStateConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrBatchState>
-    {
-        public UsrBatchStateConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public UsrBatchStateConfiguration(string schema)
-        {
-            ToTable("usrBatchState", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyProductsPullEnd).HasColumnName(@"ShopifyProductsPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.ShopifyOrdersPullEnd).HasColumnName(@"ShopifyOrdersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.ShopifyCustomersPullEnd).HasColumnName(@"ShopifyCustomersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.ShopifyPayoutPullEnd).HasColumnName(@"ShopifyPayoutPullEnd").HasColumnType("date").IsOptional();
-            Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaCustomersPullEnd).HasColumnName(@"AcumaticaCustomersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaOrdersPullEnd).HasColumnName(@"AcumaticaOrdersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaShipmentsPullEnd).HasColumnName(@"AcumaticaShipmentsPullEnd").HasColumnType("datetime").IsOptional();
         }
     }
 
@@ -1997,6 +2006,28 @@ namespace Monster.Middle.Persist.Multitenant
 
             // Foreign keys
             HasRequired(a => a.UsrShopifyTransaction).WithOptional(b => b.UsrShopifyAcuPayment).WillCascadeOnDelete(false); // FK_usrShopifyAcuPayment_usrShopifyTransaction
+        }
+    }
+
+    // usrShopifyBatchState
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrShopifyBatchStateConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrShopifyBatchState>
+    {
+        public UsrShopifyBatchStateConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrShopifyBatchStateConfiguration(string schema)
+        {
+            ToTable("usrShopifyBatchState", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.ShopifyProductsPullEnd).HasColumnName(@"ShopifyProductsPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyOrdersPullEnd).HasColumnName(@"ShopifyOrdersPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyCustomersPullEnd).HasColumnName(@"ShopifyCustomersPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyPayoutPullEnd).HasColumnName(@"ShopifyPayoutPullEnd").HasColumnType("date").IsOptional();
         }
     }
 

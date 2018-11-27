@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.SalesOrder
@@ -12,7 +8,10 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue OrderNbr { get; set; }
         public StringValue OrderType { get; set; }
         public StringValue CustomerID { get; set; }
+
         public List<CreditMemoWriteDetail> Details { get; set; }
+        public List<TaxDetails> TaxDetails { get; set; }
+
 
         public CreditMemoWrite()
         {
@@ -25,6 +24,7 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue WarehouseID;
         public StringValue InventoryID { get; set; }
         public DoubleValue OrderQty { get; set; }
+        public StringValue TaxCategory { get; set; }
     }
 }
 
