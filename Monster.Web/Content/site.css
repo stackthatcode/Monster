@@ -32,6 +32,10 @@ body {
     text-align: center;
 }
 
+.left {
+    text-align: left;
+}
+
 .std-padding {
     padding-top: 40px;
     padding-bottom: 40px;

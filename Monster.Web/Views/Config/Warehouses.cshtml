@@ -1,0 +1,105 @@
+﻿@using Monster.Web.Plumbing
+
+
+<div class="center std-padding">
+    <img style="width: 125px;" src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")" />
+</div>
+
+<hr/>
+<h1 class="mt-5 center">Warehouse &amp; Location Mapping</h1>
+<p class="lead center">Synchronize your Acumatica Warehouses with Shopify Locations</p>
+
+<style>
+    #step-1 { display: none; }
+    #step-2 { display: none; }
+</style>
+
+<div id="step-1" class="std-padding">
+    <div class="alert alert-primary" role="alert">
+        Each of your <strong>Shopify Location Names</strong> must match identifically 
+        with one <strong>Acumatica Warehouse ID</strong>, and vice-versa.
+    </div>
+    <p>In order to work properly, Odysseus needs a one-to-one mapping between
+        all of your Shopify Locations and Acumatica Warehouses.
+        Luckily, Odysseus will automatically detect if both systems
+        are properly in-sync, or not, and report the results to you.</p>
+
+    <div class="center std-padding">
+        <a href="@GlobalConfig.Url("Config/Preferences")"
+           class="btn btn-secondary btn-lg">
+            <i class="fas fa-undo"></i> Go Back to Config   
+        </a>
+
+        <a href="@GlobalConfig.Url("Config/Preferences")"
+           class="btn btn-primary btn-lg">Synchronize Now
+            <i class="fas fa-bolt"></i>
+        </a>
+    </div>
+</div>
+
+<div id="step-2" class="std-padding">
+    <div class="card">
+        <div class="card-body center std-padding">
+            <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+            
+            <div style="height: 30px;"></div>
+            <p>
+                Please wait while Odysseus pulls both Warehouse and Location data
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="step-3" class="std-padding">
+    <div class="card">
+        <div class="card-body center std-padding">
+            <h5 class="card-title">Synchronization Successful!</h5>
+            
+            <p>The following Location-Warehouse combinations successfully matched:</p>
+
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ALTERNATIVE
+                    <i class="fas fa-check"></i>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    MAIN
+                    <i class="fas fa-check"></i>
+                </li>
+            </ul>
+            
+            <div style="height: 40px;"></div>
+            <p>The following Locations and Warehouses could <strong>not</strong> be matched:</p>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Acumatica SKIDROW
+                    <i style="color: red;" class="fas fa-times"></i>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Shopify FLOOZYWLD
+                    <i style="color: red;" class="fas fa-times"></i>
+                </li>
+            </ul>
+            
+            <div class="alert alert-warning left" role="alert">
+                <strong>
+                    ACTION STEPS: add, delete or rename Warehouses and Locations as needed
+                    so that they map exactly. Then click "Synchronize Now", below.
+                </strong>
+            </div>
+        </div>
+    </div>
+    
+    <div class="center std-padding">
+        <a href="@GlobalConfig.Url("Config/Preferences")"
+           class="btn btn-secondary btn-lg">
+            <i class="fas fa-undo"></i> Go Back to Config   
+        </a>
+
+        <a href="@GlobalConfig.Url("Config/Inventory")"
+           class="btn btn-success btn-lg">Go to Next Step
+            <i class="fas fa-sign-in-alt"></i>
+        </a>
+    </div>
+</div>
+

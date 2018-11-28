@@ -30,6 +30,11 @@ namespace Monster.Web.Controllers
             var model = Mapper.Map<Preferences>(preferencesData);
             return View(model);
         }
+
+        public ActionResult Warehouses()
+        {
+            return View();
+        }
     }
 }
 

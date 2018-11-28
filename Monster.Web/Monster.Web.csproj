@@ -214,6 +214,7 @@
     <Content Include="Content\DetailGraphic.png" />
     <Content Include="Content\ShopifySyncWithAcumatica.png" />
     <Content Include="Content\site.css" />
+    <Content Include="Content\throbber_12.gif" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\AjaxFunctions.js" />
@@ -268,6 +269,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\Preferences.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Config\Warehouses.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
