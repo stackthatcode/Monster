@@ -32,10 +32,8 @@ namespace Monster.Middle
     {
         public static string LoggerName = "Monster.System";
 
-        public static IContainer Build()
+        public static ContainerBuilder Build(ContainerBuilder builder)
         {
-            var builder = new ContainerBuilder();
-
             // Register Push Foundation stuff
             FoundationWebAutofac.Build(builder);
             
@@ -63,7 +61,7 @@ namespace Monster.Middle
                 .As<IPushLogger>()
                 .InstancePerLifetimeScope();
             
-            // TODO *** Need to implement this!!
+            // TODO *** Need to implement this for Batch stuff!!
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
 
             // System-level Persistence always uses the MonsterConfig 
@@ -77,16 +75,13 @@ namespace Monster.Middle
 
             }).SingleInstance();
             
+
             // Tenant Context
             builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
-
-            // Misc
-            builder.RegisterType<TimeZoneService>().InstancePerLifetimeScope();
 
             // Multitenant Persistence
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
-
 
             // Shopify Pull Process
             builder.RegisterType<ShopifyBatchRepository>().InstancePerLifetimeScope();
@@ -112,8 +107,7 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaOrderPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaShipmentPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();
-
-
+            
             // Sync Inventory Persistence
             builder.RegisterType<SyncInventoryRepository>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
@@ -132,16 +126,17 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaRefundSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaPaymentSync>().InstancePerLifetimeScope();
             builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
-
-
+            
             // Payout Processes
             builder.RegisterType<Screen>().InstancePerLifetimeScope();
             builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
 
+            // Misc
+            builder.RegisterType<TimeZoneService>().InstancePerLifetimeScope();
 
-            return builder.Build();
+            return builder;
         }
     }
 }

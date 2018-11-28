@@ -122,7 +122,8 @@ namespace Push.Foundation
 
         private void buttonShopifyLoadContext_Click(object sender, EventArgs e)
         {
-            using (var container = MiddleAutofac.Build())
+            var builder = new ContainerBuilder();
+            using (var container = MiddleAutofac.Build(builder).Build())
             using (var scope = container.BeginLifetimeScope())
             {                
                 var logger = scope.Resolve<IPushLogger>();
@@ -154,7 +155,8 @@ namespace Push.Foundation
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            using (var container = MiddleAutofac.Build())
+            var builder = new ContainerBuilder();
+            using (var container = MiddleAutofac.Build(builder).Build())
             using (var scope = container.BeginLifetimeScope())
             {
                 var logger = scope.Resolve<IPushLogger>();
@@ -170,7 +172,7 @@ namespace Push.Foundation
                     var repository = scope.Resolve<TenantRepository>();
 
                     repository.CreateIfMissingContext();
-                    repository.UpdateContextAcumatica(                        
+                    repository.UpdateContextAcumatica(
                         this.textAcumaticaUrl.Text,
                         this.textAcumaticaCompany.Text,
                         this.textAcumaticaBranch.Text,

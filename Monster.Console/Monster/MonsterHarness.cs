@@ -118,40 +118,11 @@ namespace Monster.ConsoleApp.Monster
                 orderManager.RoutineOrdersSync();
             });
         }
-
-        public static void LoadShopifyOrderNbr(Guid tenantId)
-        {
-            Console.WriteLine("Enter Shopify Order Number");
-            var number = Console.ReadLine().ToLong();
-
-            using (var container = MiddleAutofac.Build())
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var tenantContext = scope.Resolve<TenantContext>();
-                tenantContext.Initialize(tenantId);
-
-                var logger = scope.Resolve<IPushLogger>();
-
-                try
-                {
-                    var api = scope.Resolve<OrderApi>();
-                    var json = api.RetrieveByName(number);
-
-                    var orders = json.DeserializeToOrderList();
-                    var order = orders.orders.FirstOrDefault();
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex);
-                    throw;
-                }
-            } 
-        }
-
-
+        
         public static void ExecuteInScope(Guid tenantId, Action<ILifetimeScope> task)
         {
-            using (var container = MiddleAutofac.Build())
+            var builder = new ContainerBuilder();
+            using (var container = MiddleAutofac.Build(builder).Build())
             using (var scope = container.BeginLifetimeScope())
             {
                 var logger = scope.Resolve<IPushLogger>();

@@ -7,9 +7,13 @@ namespace Monster.Web
     public partial class Startup
     {
         public void Configuration(IAppBuilder app)
-        {
+        {            
+            var autofacContainer = WebAutofac.Build();
+
             // TODO - rip all that shit out and replace with Push
-            //ConfigureAuth(app);
+            //AuthConfig.Configure(app, autofacContainer);
+
+            HangFireConfig.Configure(app);
         }
     }
 }

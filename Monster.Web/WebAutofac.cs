@@ -5,9 +5,13 @@ using System.Data.SqlClient;
 using System.Web.Mvc;
 using Autofac;
 using Autofac.Integration.Mvc;
-//using RequestActivityIdLogFormatter = Enable.Web.Plumbing.RequestActivityIdLogFormatter;
+using Monster.Web.Controllers;
+using Push.Foundation.Utilities.Logging;
+using RequestActivityIdLogFormatter 
+        = Monster.Web.Plumbing.RequestActivityIdLogFormatter;
 
-namespace Enable.Web
+
+namespace Monster.Web
 {
     public class WebAutofac
     {
@@ -15,13 +19,12 @@ namespace Enable.Web
         {
             var builder = new ContainerBuilder();
 
-            // Push.Foundation.Web relies on consumers to supply Key and IV for its Encryption Service
+            // Dependent component registrations
             Push.Foundation.Web.FoundationWebAutofac.Build(builder);
-
-            Enable.Middleware.MiddlewareAutofac.Build(builder);
+            Middle.MiddleAutofac.Build(builder);
 
             // Logging
-            var loggerName = "Enable.Web";
+            var loggerName = "Monster.Web"; // TODO - make this a singleton/static value
 
             builder.RegisterType<RequestActivityIdLogFormatter>()
                     .As<ILogFormatter>()
@@ -31,10 +34,28 @@ namespace Enable.Web
                     .As<IPushLogger>()
                     .InstancePerLifetimeScope();
             
+            // Database Connection for ... OWIN stuff...?
+            //ConfigureDatabaseConnection(builder);
+
+            // ASP.NET MVC Controller registration
+            builder.RegisterType<ConfigController>();
+            
+
+            var container = builder.Build();
+            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+            return container;
+        }
+
+
+        // TODO - figure out who needs this...?
+        public static void ConfigureDatabaseConnection(ContainerBuilder builder)
+        {
             // Database connection string...
             var connectionString =
-                    ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-
+                ConfigurationManager
+                    .ConnectionStrings["DefaultConnection"]
+                    .ConnectionString;
+            
             // ... and register configuration
             builder
                 .Register(ctx =>
@@ -48,19 +69,6 @@ namespace Enable.Web
                 .As<DbConnection>()
                 .As<IDbConnection>()
                 .InstancePerLifetimeScope();
-
-            // Critical piece for all database infrastructure to work smoothly
-            builder.RegisterType<ConnectionWrapper>().InstancePerLifetimeScope();
-            builder.RegisterType<EnableDbContext>().InstancePerLifetimeScope();
-
-            // Controller registration
-            builder.RegisterType<ErrorController>();
-
-
-            var container = builder.Build();
-            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
-            return container;
         }
     }
 }
-

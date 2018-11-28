@@ -66,7 +66,8 @@ namespace Monster.ConsoleApp.Shopify
 
 
             // Create Autofac IContainer
-            using (var container = MiddleAutofac.Build())
+            var builder = new ContainerBuilder();
+            using (var container = MiddleAutofac.Build(builder).Build())
             {
                 // TODO - Get credentials from config file
                 var credentials

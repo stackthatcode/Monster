@@ -6,14 +6,14 @@ namespace Monster.ConsoleApp.Acumatica
     {
         public static void Execute()
         {
-            using (var container = MiddleAutofac.Build())
-            using (var scope = container.BeginLifetimeScope())
-            {
-                AcumaticaHarness.BeginSession(scope);
-                AcumaticaHarness.RetrieveItemAndPostingClass(scope);
-                AcumaticaHarness.RetrieveCustomer(scope);
-                //AcumaticaHarness.NewCustomerRecord(scope);
-            }
+            //using (var container = MiddleAutofac.Build())
+            //using (var scope = container.BeginLifetimeScope())
+            //{
+            //    AcumaticaHarness.BeginSession(scope);
+            //    AcumaticaHarness.RetrieveItemAndPostingClass(scope);
+            //    AcumaticaHarness.RetrieveCustomer(scope);
+            //    //AcumaticaHarness.NewCustomerRecord(scope);
+            //}
         }
     }
 }

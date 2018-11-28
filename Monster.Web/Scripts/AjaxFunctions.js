@@ -1,36 +1,36 @@
 ﻿
-var LogicAuto = LogicAuto || {};
+var Monster = Monster || {};
 
-LogicAuto.StandardErrorMessage = "Something went wrong. Please refresh your browser and try again.";
-LogicAuto.Http403ErrorMessage = "You are not authorized to view that resource.";
-LogicAuto.Http401ErrorMessage = "You appear to be currently logged out of EWC.";
+Monster.StandardErrorMessage = "Something went wrong. Please refresh your browser and try again.";
+Monster.Http403ErrorMessage = "You are not authorized to view that resource.";
+Monster.Http401ErrorMessage = "You appear to be currently logged out of EWC.";
 
-LogicAuto.ErrorPopup = function (message) {
-    alert(message || LogicAuto.StandardErrorMessage);
+Monster.ErrorPopup = function (message) {
+    alert(message || Monster.StandardErrorMessage);
 }
 
-LogicAuto.AjaxSettings = function (modal) {
+Monster.AjaxSettings = function (modal) {
     return {
-        BaseUrl: LogicAuto.BaseUrl,
+        BaseUrl: Monster.BaseUrl,
         Timeout: 120000,    // Two minutes for development
         UseSpinner: true,
         Modal: modal || false,
     };
 };
 
-LogicAuto.ShowLoading = function () {
+Monster.ShowLoading = function () {
     $("#spinner-layer").show();
 };
 
-LogicAuto.HideLoading = function () {
+Monster.HideLoading = function () {
     $("#spinner-layer").hide();
 };
 
 
-LogicAuto.AjaxGet = function (url) {
+Monster.AjaxGet = function (url) {
     flow.exec(
         function () {
-            var ajax = new LogicAuto.Ajax();
+            var ajax = new Monster.Ajax();
             ajax.HttpGet(url, this);
         },
         function (data) {
@@ -38,19 +38,19 @@ LogicAuto.AjaxGet = function (url) {
         });
     };
 
-LogicAuto.Ajax = function (settings) {
+Monster.Ajax = function (settings) {
     var self = this;
 
-    self.Settings = settings || new LogicAuto.AjaxSettings();
+    self.Settings = settings || new Monster.AjaxSettings();
 
     self.ErrorCallback = function (jqXHR, textStatus, errorThrown) {        
         self.HideLoading();
 
         if (jqXHR.status != 0 || textStatus == "timeout") {
-            var message = LogicAuto.StandardErrorMessage;
+            var message = Monster.StandardErrorMessage;
 
             if (jqXHR.status == 401) {
-                alert(LogicAuto.Http401ErrorMessage);
+                alert(Monster.Http401ErrorMessage);
 
                 window.location.href =
                     PushConfig.BaseUrl + "?ReturnUrl=" +
@@ -60,14 +60,14 @@ LogicAuto.Ajax = function (settings) {
             }
 
             if (jqXHR.status == 403) {
-                message = LogicAuto.Http403ErrorMessage
+                message = Monster.Http403ErrorMessage
             }
             
             if (self.Settings.Modal) {
                 // Avoid nested modals and use browser alert when one is present, already
                 alert(message);
             } else {
-                LogicAuto.ErrorPopup(message);
+                Monster.ErrorPopup(message);
             }
         }
     };
@@ -131,13 +131,13 @@ LogicAuto.Ajax = function (settings) {
 
     self.ShowLoading = function () {
         if (self.Settings.UseSpinner) {
-            LogicAuto.ShowLoading();
+            Monster.ShowLoading();
         }
     };
 
     self.HideLoading = function () {
         if (self.Settings.UseSpinner) {
-            LogicAuto.HideLoading();
+            Monster.HideLoading();
         }
     };
 };

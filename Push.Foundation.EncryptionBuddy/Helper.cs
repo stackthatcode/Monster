@@ -9,7 +9,8 @@ namespace Push.Foundation
     {
         public static void RunInLifetimeScope(Action<ILifetimeScope> action)
         {
-            using (var container = MiddleAutofac.Build())
+            var builder = new ContainerBuilder();
+            using (var container = MiddleAutofac.Build(builder).Build())
             using (var scope = container.BeginLifetimeScope())
             {
                 var logger = scope.Resolve<IPushLogger>();
