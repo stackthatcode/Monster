@@ -25,21 +25,6 @@ namespace Monster.ConsoleApp
             Console.WriteLine("Finished - hit any key to exit...");
             Console.ReadKey();
         }
-
-        static void RunTestSequences()
-        {
-            // *** Uncomment a process flow to execute...            
-            // Acumatica test runs
-            //AcumaticaProcess.Execute();
-
-            // Shopify test runs
-            // ShopifyHarness.RunShopifyMetafieldCopy();
-            // TODO - Product, Orders, Locations
-
-            // Payouts runs
-            //PayoutsHarness.RunPayoutsByTenant();
-            //PayoutsRunner.StressTestDataPopulate();
-        }
     }
 }
 

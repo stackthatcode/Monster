@@ -44,8 +44,7 @@ namespace Push.Foundation.Web.Helpers
             var claimsPrincipal = HttpContext.Current.User as ClaimsPrincipal;
             return claimsPrincipal?.ExtractUserId();
         }
-
-
+        
         public static string ExtractUserEmail(this IPrincipal user)
         {
             var identity = user.Identity as ClaimsIdentity;

@@ -10,21 +10,25 @@ namespace Monster.Web.Attributes
     {
         public bool Authorize(DashboardContext context)
         {
-            // In case you need an OWIN context, use the next line,
-            // `OwinContext` class is the part of the `Microsoft.Owin` package.
-            var owincontext = new OwinContext(context.GetOwinEnvironment());
+            // Phase 1
+            return true;
 
-            // Only allow Admins to see HangFire Dashboard
-            var userId = owincontext.Authentication.User.Identity.GetUserId();
-            if (userId == null)
-            {
-                return false;
-            }
+            // Phase 2
+            //// In case you need an OWIN context, use the next line,
+            //// `OwinContext` class is the part of the `Microsoft.Owin` package.
+            //var owincontext = new OwinContext(context.GetOwinEnvironment());
 
-            var userManager 
-                = DependencyResolver.Current.GetService<ApplicationUserManager>();
-            var roles = userManager.GetRoles(userId);
-            return roles.Contains(SecurityConfig.AdminRole);
+            //// Only allow Admins to see HangFire Dashboard
+            //var userId = owincontext.Authentication.User.Identity.GetUserId();
+            //if (userId == null)
+            //{
+            //    return false;
+            //}
+
+            //var userManager 
+            //    = DependencyResolver.Current.GetService<ApplicationUserManager>();
+            //var roles = userManager.GetRoles(userId);
+            //return roles.Contains(SecurityConfig.AdminRole);
         }
     }
 }

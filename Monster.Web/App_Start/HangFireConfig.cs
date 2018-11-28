@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Hangfire.SqlServer;
 using Monster.Web.Attributes;
 using Monster.Web.Plumbing;
 using Owin;
@@ -11,7 +12,11 @@ namespace Monster.Web
         {
             GlobalConfiguration
                 .Configuration
-                .UseSqlServerStorage("DefaultConnection");
+                .UseSqlServerStorage("DefaultConnection",
+                    new SqlServerStorageOptions
+                    {
+                        PrepareSchemaIfNecessary = false
+                    });
 
             app.UseHangfireDashboard(
                 "/hangfire", new DashboardOptions
