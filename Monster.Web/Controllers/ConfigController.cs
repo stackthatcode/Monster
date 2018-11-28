@@ -19,8 +19,6 @@ namespace Monster.Web.Controllers
 
         public ActionResult Home()
         {
-            var test = _tenantRepository.RetrievePreferences();
-
             return View();
         }
 
@@ -32,6 +30,11 @@ namespace Monster.Web.Controllers
         }
 
         public ActionResult Warehouses()
+        {
+            return View();
+        }
+
+        public ActionResult Inventory()
         {
             return View();
         }
