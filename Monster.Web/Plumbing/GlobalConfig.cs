@@ -7,6 +7,7 @@ namespace Monster.Web.Plumbing
     public class GlobalConfig
     {
         public static readonly string AppName = "Odysseus - Automated Shopify to Acumatica Synchronization";
+        public static readonly string Organization = "Logic Automated LLC";
         public static readonly string BaseUrl = ConfigurationManager.AppSettings["application_root_url"];
         public static readonly string LogoUrl = BaseUrl + "/Content/images/EWC_logo_circle.jpg";
         public static readonly string SupportEmail = "aleksjones@gmail.com";        

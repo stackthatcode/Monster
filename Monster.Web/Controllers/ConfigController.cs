@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 
 namespace Monster.Web.Controllers
 {
-    public class ConfigController
+    public class ConfigController : Controller
     {
         public ActionResult Home()
         {
