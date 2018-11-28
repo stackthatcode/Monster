@@ -8,7 +8,8 @@ namespace Monster.Web
     {
         public void Configuration(IAppBuilder app)
         {
-            ConfigureAuth(app);
+            // TODO - rip all that shit out and replace with Push
+            //ConfigureAuth(app);
         }
     }
 }

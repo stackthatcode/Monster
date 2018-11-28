@@ -157,6 +157,7 @@
     <Compile Include="Processes\Sync\Payouts\Workers\BankImportService.cs" />
     <Compile Include="Processes\Sync\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Sync\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
+    <Compile Include="Security\SecurityConfig.cs" />
     <Compile Include="Services\TenantContext.cs" />
     <Compile Include="Persist\Sys\Repositories\SystemRepository.cs" />
     <Compile Include="Persist\Sys\Installation.cs" />

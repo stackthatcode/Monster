@@ -7,27 +7,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../../../favicon.ico">
+    <link rel="icon" href="@GlobalConfig.Url("favicon.ico")">
 
     <title>@GlobalConfig.AppName</title>
 
-    <!-- Bootstrap core CSS -->
+    <!-- CSS -->
     <link href="@GlobalConfig.Url("Content/bootstrap.css")" rel="stylesheet">
-
-    <link href="@GlobalConfig.Url("Content/site.css")" rel="stylesheet">
+    <link href="@GlobalConfig.Url("Content/site.css")" rel="stylesheet">    
+    <link rel="stylesheet" href="@GlobalConfig.Url("Content/all.css")">
+    
+    <!-- JavaScript -->
+    <script>
+        LogicAuto.BaseUrl = '@GlobalConfig.BaseUrl';
+    </script>
+    @Scripts.Render("~/Scripts/AjaxFunctions.js?tmp=" + Guid.NewGuid())
+    @Scripts.Render("~/Scripts/knockout-3.4.2.js?tmp=" + Guid.NewGuid())
 </head>
 
 <body>
+    <!-- Begin page content -->
+    <main role="main" class="container">
+        @RenderBody()
+    </main>
 
-<!-- Begin page content -->
-<main role="main" class="container">
-    @RenderBody()
-</main>
-
-<footer class="footer">
-    <div class="container" style="text-align: center;">
-        <span class="text-muted">@GlobalConfig.Organization - All rights reserved</span>
-    </div>
-</footer>
+    <footer class="footer">
+        <div class="container" style="text-align: center;">
+            <span class="text-muted">@GlobalConfig.Organization - All rights reserved</span>
+        </div>
+    </footer>
 </body>
 </html>
