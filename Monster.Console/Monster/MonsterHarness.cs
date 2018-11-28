@@ -3,8 +3,10 @@ using System.Linq;
 using Autofac;
 using Monster.Middle;
 using Monster.Middle.Processes.Acumatica;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Inventory;
 using Monster.Middle.Processes.Shopify;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Services;
@@ -18,13 +20,22 @@ namespace Monster.ConsoleApp.Monster
 {
     public class MonsterHarness
     {
+        public static void ResetBatchStates(Guid tenantId)
+        {
+            ExecuteInScope(tenantId, scope =>
+            {
+                var shopifyBatchRepository = scope.Resolve<ShopifyBatchRepository>();
+                var acumaticaBatchRepository = scope.Resolve<AcumaticaBatchRepository>();
+
+                shopifyBatchRepository.Reset();
+                acumaticaBatchRepository.Reset();
+            });
+        }
+
         public static void LoadWarehouses(Guid tenantId)
         {
             ExecuteInScope(tenantId, scope =>
             {
-                var tenantContext = scope.Resolve<TenantContext>();
-                tenantContext.Initialize(tenantId);
-
                 var acumaticaManager = scope.Resolve<AcumaticaManager>();
                 var shopifyManager = scope.Resolve<ShopifyManager>();
                 var inventoryManager = scope.Resolve<InventoryManager>();
@@ -49,8 +60,16 @@ namespace Monster.ConsoleApp.Monster
             ExecuteInScope(tenantId, scope =>
             {
                 var inventoryManager = scope.Resolve<InventoryManager>();
-                
-                // Step 1 - Load Shopify Inventory into Acumatica as baseline
+                var acumaticaManager = scope.Resolve<AcumaticaManager>();
+                var shopifyManager = scope.Resolve<ShopifyManager>();
+
+                // Step 1 - Pull Shopify Inventory
+                shopifyManager.PullInventory();
+
+                // Step 2 - Pull Acumatica Inventory
+                acumaticaManager.PullInventory();
+
+                // Step 3 - Load Shopify Inventory into Acumatica as baseline
                 inventoryManager.PushShopifyInventoryIntoAcumatica();
 
                 // *** PAUSE TO ALLOW ACUMATICA CACHE TO REFRESH ***
@@ -58,7 +77,7 @@ namespace Monster.ConsoleApp.Monster
                 Console.ReadLine();
 
 
-                // Step 2 - Load Acumatica Inventory into Shopify
+                // Step 3 - Load Acumatica Inventory into Shopify
                 inventoryManager.PushAcumaticaInventoryIntoShopify();
             });
         }
@@ -86,7 +105,6 @@ namespace Monster.ConsoleApp.Monster
         {
             ExecuteInScope(tenantId, scope =>
             {
-
                 var inventoryManager = scope.Resolve<InventoryManager>();
                 var orderManager = scope.Resolve<OrderManager>();
 
@@ -152,7 +170,6 @@ namespace Monster.ConsoleApp.Monster
                 }
             }
         }
-
     }
 }
 

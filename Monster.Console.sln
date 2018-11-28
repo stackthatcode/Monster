@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.ConsoleApp", "Monst
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.Acumatica", "Monster.Acumatica.Http\Monster.Acumatica.csproj", "{E31F2A05-6346-48D5-B323-3D048AB0E392}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.Web", "Monster.Web\Monster.Web.csproj", "{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Aleks|Any CPU = Debug Aleks|Any CPU
@@ -125,6 +127,18 @@ Global
 		{E31F2A05-6346-48D5-B323-3D048AB0E392}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E31F2A05-6346-48D5-B323-3D048AB0E392}.ReleaseAzure|Any CPU.ActiveCfg = Release|Any CPU
 		{E31F2A05-6346-48D5-B323-3D048AB0E392}.ReleaseAzure|Any CPU.Build.0 = Release|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Debug Aleks|Any CPU.ActiveCfg = Debug|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Debug Aleks|Any CPU.Build.0 = Debug|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Debug Jeremy|Any CPU.ActiveCfg = Debug|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Debug Jeremy|Any CPU.Build.0 = Debug|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Release Standalone|Any CPU.ActiveCfg = Release|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Release Standalone|Any CPU.Build.0 = Release|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.ReleaseAzure|Any CPU.ActiveCfg = Release|Any CPU
+		{B90CC9DF-DD0B-42E2-B629-16AFEBD80F73}.ReleaseAzure|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

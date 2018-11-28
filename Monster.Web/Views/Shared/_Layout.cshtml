@@ -1,0 +1,33 @@
+﻿@using Monster.Web.Plumbing
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>@GlobalConfig.AppName</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="@GlobalConfig.Url("Content/bootstrap.css")" rel="stylesheet">
+
+    <link href="@GlobalConfig.Url("Content/site.css")" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    @RenderBody()
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">Place sticky footer content here.</span>
+    </div>
+</footer>
+</body>
+</html>

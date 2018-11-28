@@ -50,12 +50,17 @@ namespace Monster.Middle.Processes.Sync.Orders
 
         public void LoadShopifyProductsIntoAcumatica()
         {
-            // Load new Shopify Product Variants into Acumatica
+            _acumaticaContext.Login();
+
             _acumaticaInventorySync.Run();
+
+            _acumaticaContext.Logout();
         }
 
         public void RoutineOrdersSync()
-        {            
+        {
+            _acumaticaContext.Login();
+
             // Load Sales Orders into Acumatica
             _acumaticaOrderSync.Run();
 
@@ -72,6 +77,7 @@ namespace Monster.Middle.Processes.Sync.Orders
             // Synchronize Payments and Refunds
             _acumaticaPaymentSync.Run();
             _acumaticaRefundSync.Run();
+
             _acumaticaContext.Logout();
         }
 
@@ -79,7 +85,8 @@ namespace Monster.Middle.Processes.Sync.Orders
         {
             _acumaticaContext.Login();
             _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
-        }        
+            _acumaticaContext.Logout();
+        }
     }
 }
 

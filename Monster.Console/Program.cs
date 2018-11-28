@@ -13,6 +13,8 @@ namespace Monster.ConsoleApp
             // Monster test runs
             var tenantId = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
 
+            MonsterHarness.ResetBatchStates(tenantId);
+
             MonsterHarness.LoadWarehouses(tenantId);
             MonsterHarness.LoadInventory(tenantId);
 
