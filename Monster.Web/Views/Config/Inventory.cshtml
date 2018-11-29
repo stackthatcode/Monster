@@ -6,18 +6,40 @@
 </div>
 
 <hr/>
-<h1 class="mt-5 center">Inventory Synchronization - Step 1</h1>
-<p class="lead center">Load your Shopify catalog into Acumatica</p>
-
 <style>
-    #step-2 { display: none; }
-    #step-3 { display: none; }
+    #step-1-header {
+    }
+    #step-2-header {
+        display: none;
+    }
+
+    #step-2 {
+        display: none;
+    }
+
+    #step-3 {
+        display: none;
+    }
 </style>
 
+
+
+<div id="step-1-header">
+    <h1 class="mt-5 center">Inventory Synchronization - Step 1</h1>
+    <p class="lead center">Load your Shopify Inventory into Acumatica</p>
+</div>
+
+<div id="step-2-header">
+    <h1 class="mt-5 center">Inventory Synchronization - Step 2</h1>
+    <p class="lead center">Connect Acumatica Inventory to Shopify</p>
+</div>
+
+
 <div id="step-1" class="std-padding">
-    <p>Odysseus expedites creating Stock Items in Acumatica by loading your
-        complete Shopify catalog. Odysseus will also load your entire
-        Shopify inventory into Acumatica via Inventory Receipts.</p>
+    <p>Odysseus loads your complete Shopify catalog of Products and Variant into Acumatica, 
+        and creates corresponding Stock Items in Acumatica. 
+        Odysseus will also load your entire Inventory counts 
+        from Shopify into Acumatica via Inventory Receipts.</p>
 
     <div class="center std-padding">
         <a href="@GlobalConfig.Url("Config/Preferences")"
@@ -25,7 +47,7 @@
             <i class="fas fa-undo"></i> Go Back to Config   
         </a>
 
-        <a href="@GlobalConfig.Url("Config/Preferences")"
+        <a href="#" 
            class="btn btn-primary btn-lg">Synchronize Now
             <i class="fas fa-bolt"></i>
         </a>
@@ -39,7 +61,8 @@
             
             <div style="height: 30px;"></div>
             <p>
-                Please wait while Odysseus pulls both Warehouse and Location data
+                Please wait while Odysseus loads your Shopify Products and Variants
+                into Acumatica. Depending on size, this process may take several minutes.
             </p>
         </div>
     </div>
@@ -48,51 +71,79 @@
 <div id="step-3" class="std-padding">
     <div class="card">
         <div class="card-body center std-padding">
-            <h5 class="card-title">Synchronization Successful!</h5>
+            <h5 class="card-title">Synchronization Complete!</h5>
             
-            <p>The following Location-Warehouse combinations successfully matched:</p>
-
             <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    ALTERNATIVE
+                    Created Stock Items in Acumatica
                     <i class="fas fa-check"></i>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    MAIN
+                    Created Warehouse Receipts in Acumatica
+                    <i class="fas fa-check"></i>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Released Warehouse Receipts in Acumatica
                     <i class="fas fa-check"></i>
                 </li>
             </ul>
             
             <div style="height: 40px;"></div>
-            <p>The following Locations and Warehouses could <strong>not</strong> be matched:</p>
-            <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Acumatica SKIDROW
-                    <i style="color: red;" class="fas fa-times"></i>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Shopify FLOOZYWLD
-                    <i style="color: red;" class="fas fa-times"></i>
-                </li>
-            </ul>
             
-            <div class="alert alert-warning left" role="alert">
-                <strong>
-                    ACTION STEPS: add, delete or rename Warehouses and Locations as needed
-                    so that they map exactly. Then click "Synchronize Now", below.
-                </strong>
-            </div>
+            <p>There's one final step: connecting the Acumatica Inventory
+                you've just created back to Shopify. After this, 
+                your two systems will be ready for real-time synchronization.
+            </p>
         </div>
     </div>
-    
+
+    <div class="center std-padding">
+        <a href="@GlobalConfig.Url("Config/Inventory")" 
+           class="btn btn-secondary btn-lg">
+            <i class="fas fa-undo"></i> Go Back to Inventory   
+        </a>
+
+        <a href="#" class="btn btn-primary btn-lg">Synchronize Now
+            <i class="fas fa-bolt"></i>
+        </a>
+    </div>
+</div>
+
+<div id="step-4" class="std-padding">
+    <div class="card">
+        <div class="card-body center std-padding">
+            <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+            <div style="height: 30px;"></div>
+            <p>
+                Please wait while Odysseus connects your Acumatica Inventory to Shopify.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="step-5" class="std-padding">
+    <div class="card">
+        <div class="card-body center std-padding">
+            <h5 class="card-title">Synchronization Complete!</h5>
+
+            <p>Excellent! You are now ready to run Odysseus in Real-Time Mode.
+                Odysseus will maintain synchronization between Shopify 
+                and Acumatica for you.
+            </p>
+            <div style="height: 40px;"></div>
+        </div>
+    </div>
+
     <div class="center std-padding">
         <a href="@GlobalConfig.Url("Config/Preferences")"
            class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Go Back to Config   
+            <i class="fas fa-undo"></i> Go Back to Config
         </a>
 
-        <a href="@GlobalConfig.Url("Config/Inventory")"
-           class="btn btn-success btn-lg">Go to Next Step
+        <a href="@GlobalConfig.Url("Config/RealTime")"
+           class="btn btn-primary btn-lg">
+            Start Real Time, Now!
             <i class="fas fa-sign-in-alt"></i>
         </a>
     </div>

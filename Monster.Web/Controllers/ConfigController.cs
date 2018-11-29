@@ -38,6 +38,11 @@ namespace Monster.Web.Controllers
         {
             return View();
         }
+
+        public ActionResult RealTime()
+        {
+            return View();
+        }
     }
 }
 

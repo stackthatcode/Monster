@@ -67,15 +67,20 @@ namespace Monster.ConsoleApp.Monster
                 // Step 3 - Load Shopify Inventory into Acumatica as baseline
                 inventoryManager.PushShopifyInventoryIntoAcumatica();
 
+
                 // *** PAUSE TO ALLOW ACUMATICA CACHE TO REFRESH ***
                 Console.WriteLine("Need Acumatica cache to update - hit enter to continue...");
                 Console.ReadLine();
 
 
-                // Step 3 - Load Acumatica Inventory into Shopify
+                // Step 4 - Pull Acumatica Inventory
+                acumaticaManager.PullInventory();
+
+                // Step 5 - Load Acumatica Inventory into Shopify
                 inventoryManager.PushAcumaticaInventoryIntoShopify();
             });
         }
+
 
         public static void RoutineShopifyPull(Guid tenantId)
         {
