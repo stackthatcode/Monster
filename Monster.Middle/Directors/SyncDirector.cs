@@ -7,6 +7,7 @@ using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Services;
+using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 
@@ -19,6 +20,7 @@ namespace Monster.Middle.Directors
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
         private readonly InventoryManager _inventoryManager;
+        private readonly OrderManager _orderManager;
         private readonly TenantContext _tenantContext;
         private readonly TenantRepository _tenantRepository;
         private readonly InventoryStatusService _inventoryStatusService;
@@ -30,7 +32,8 @@ namespace Monster.Middle.Directors
                 AcumaticaBatchRepository acumaticaBatchRepository, 
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
-                InventoryManager inventoryManager, 
+                InventoryManager inventoryManager,
+                OrderManager orderManager,
                 TenantContext tenantContext,
                 TenantRepository tenantRepository,
                 IPushLogger logger, 
@@ -41,6 +44,7 @@ namespace Monster.Middle.Directors
             _acumaticaManager = acumaticaManager;
             _shopifyManager = shopifyManager;
             _inventoryManager = inventoryManager;
+            _orderManager = orderManager;
             _tenantContext = tenantContext;
             _tenantRepository = tenantRepository;
             _logger = logger;
@@ -50,7 +54,9 @@ namespace Monster.Middle.Directors
 
         public void ResetBatchStates(Guid tenantId)
         {
-            Execute(tenantId, () =>
+            _tenantContext.Initialize(tenantId);
+
+            Execute(() =>
             {
                 _shopifyBatchRepository.Reset();
                 _acumaticaBatchRepository.Reset();
@@ -81,10 +87,12 @@ namespace Monster.Middle.Directors
             }
         }
 
-        public void LoadInventoryInAcumatica(Guid tenantId)
+        public void LoadInventoryIntoAcumatica(Guid tenantId)
         {
-            Execute(tenantId, () =>
+            try
             {
+                _tenantContext.Initialize(tenantId);
+
                 // Step 1 - Pull Shopify Inventory
                 _shopifyManager.PullInventory();
 
@@ -92,27 +100,69 @@ namespace Monster.Middle.Directors
                 _acumaticaManager.PullInventory();
 
                 // Step 3 - Load Shopify Inventory into Acumatica as baseline
-                _inventoryManager.PushShopifyInventoryIntoAcumatica();                
-            });
+                _inventoryManager.PushShopifyInventoryIntoAcumatica();
+                
+                // Update the Job Status
+                _tenantRepository
+                    .UpdateLoadInventoryIntoAcumaticaStatus(JobStatus.Complete);
+            }
+            catch (Exception ex)
+            {
+                _tenantRepository
+                    .UpdateLoadInventoryIntoAcumaticaStatus(JobStatus.Failed);
+                _logger.Error(ex);
+                throw;
+            }
         }
 
-        public void SyncInventoryWithShopify(Guid tenantId)
+        public void LoadInventoryIntoShopify(Guid tenantId)
         {
-            Execute(tenantId, () =>
+            try
             {
+                _tenantContext.Initialize(tenantId);
+
                 // Step 1 - Pull Shopify Inventory
                 _acumaticaManager.PullInventory();
 
                 // Step 2 - Load Acumatica Inventory into Shopify
                 _inventoryManager.PushAcumaticaInventoryIntoShopify();
-            });
+                
+                // Update the Job Status
+                _tenantRepository.UpdateLoadInventoryIntoShopifyStatus(JobStatus.Complete);
+            }
+            catch (Exception ex)
+            {
+                _tenantRepository.UpdateLoadInventoryIntoShopifyStatus(JobStatus.Failed);
+                _logger.Error(ex);
+                throw;
+            }
         }
-        
-        private void Execute(Guid tenantId, Action task)            
+
+        public void RoutineSynch(Guid tenantId)
+        {
+            _tenantContext.Initialize(tenantId);
+
+            Execute(() => _shopifyManager.PullOrdersAndCustomers());
+
+            Execute(() => _acumaticaManager.PullCustomerAndOrdersAndShipments());
+
+            Execute(() =>
+                {
+                    // Step 1 - Load Acumatica Inventory into Shopify
+                    _inventoryManager.PushAcumaticaInventoryIntoShopify();
+
+                    // Step 2 (optional) - Load Products into Acumatica
+                    //_orderManager.LoadShopifyProductsIntoAcumatica();
+
+                    // Step 3 - Load Orders, Refunds, Payments and Shipments
+                    _orderManager.RoutineOrdersSync();
+                });
+        }
+
+        private void Execute(Action task)            
         {
             try
             {
-                _tenantContext.Initialize(tenantId);
                 task();
             }
             catch (Exception ex)
@@ -123,3 +173,4 @@ namespace Monster.Middle.Directors
         }
     }
 }
+

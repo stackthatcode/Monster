@@ -956,6 +956,8 @@ namespace Monster.Middle.Persist.Multitenant
     {
         public long Id { get; set; } // Id (Primary key)
         public int WarehouseSyncStatus { get; set; } // WarehouseSyncStatus
+        public int LoadInventoryIntoAcumaticaStatus { get; set; } // LoadInventoryIntoAcumaticaStatus
+        public int LoadInventoryIntoShopifyStatus { get; set; } // LoadInventoryIntoShopifyStatus
     }
 
     // usrPayoutPreferences
@@ -1810,6 +1812,8 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.WarehouseSyncStatus).HasColumnName(@"WarehouseSyncStatus").HasColumnType("int").IsRequired();
+            Property(x => x.LoadInventoryIntoAcumaticaStatus).HasColumnName(@"LoadInventoryIntoAcumaticaStatus").HasColumnType("int").IsRequired();
+            Property(x => x.LoadInventoryIntoShopifyStatus).HasColumnName(@"LoadInventoryIntoShopifyStatus").HasColumnType("int").IsRequired();
         }
     }
 

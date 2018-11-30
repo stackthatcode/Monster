@@ -170,5 +170,18 @@ namespace Monster.Middle.Persist.Multitenant
             monitor.WarehouseSyncStatus = status;
             Entities.SaveChanges();
         }
+
+        public void UpdateLoadInventoryIntoAcumaticaStatus(int status)
+        {
+            var monitor = RetrieveJobMonitor();
+            monitor.LoadInventoryIntoAcumaticaStatus = status;
+            Entities.SaveChanges();
+        }
+        public void UpdateLoadInventoryIntoShopifyStatus(int status)
+        {
+            var monitor = RetrieveJobMonitor();
+            monitor.LoadInventoryIntoShopifyStatus = status;
+            Entities.SaveChanges();
+        }
     }
 }

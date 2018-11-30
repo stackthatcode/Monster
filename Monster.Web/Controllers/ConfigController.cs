@@ -68,7 +68,6 @@ namespace Monster.Web.Controllers
         public ActionResult SyncWarehouses()
         {
             _queuingService.SyncWarehouseAndLocation();
-
             return JsonNetResult.Success();
         }
 
@@ -89,6 +88,49 @@ namespace Monster.Web.Controllers
             }
             
             return new JsonNetResult(output);
+        }
+
+
+
+        [HttpPost]
+        public ActionResult LoadInventoryInAcumatica()
+        {
+            _queuingService.LoadInventoryIntoAcumatica();
+            return JsonNetResult.Success();
+        }
+
+        [HttpGet]
+        public ActionResult LoadInventoryInAcumaticaStatus()
+        {
+            var monitor = _tenantRepository.RetrieveJobMonitor();
+            var output = new { JobStatus = monitor.LoadInventoryIntoAcumaticaStatus };            
+            return new JsonNetResult(output);
+        }
+
+
+
+        [HttpPost]
+        public ActionResult LoadInventoryInShopify()
+        {
+            _queuingService.LoadInventoryIntoShopify();
+            return JsonNetResult.Success();
+        }
+
+        [HttpGet]
+        public ActionResult LoadInventoryInShopifyStatus()
+        {
+            var monitor = _tenantRepository.RetrieveJobMonitor();
+            var output = new { JobStatus = monitor.LoadInventoryIntoShopifyStatus };
+            return new JsonNetResult(output);
+        }
+
+
+
+        [HttpPost]
+        public ActionResult StartRealTime()
+        {
+            _queuingService.ScheduleRoutineSync();
+            return JsonNetResult.Success();
         }
     }
 }

@@ -6,146 +6,247 @@
 </div>
 
 <hr/>
-<style>
-    #step-1-header {
-    }
-    #step-2-header {
-        display: none;
-    }
 
-    #step-2 {
-        display: none;
-    }
-
-    #step-3 {
-        display: none;
-    }
-</style>
-
-
-
-<div id="step-1-header">
+<div data-bind="if: Step1Visible">
     <h1 class="mt-5 center">Inventory Synchronization - Step 1</h1>
     <p class="lead center">Load your Shopify Inventory into Acumatica</p>
+
+    <div class="std-padding">        
+        <p>
+            Odysseus loads your complete Shopify catalog of Products and Variant into Acumatica,
+            and creates corresponding Stock Items in Acumatica.
+            Odysseus will also load your entire Inventory counts
+            from Shopify into Acumatica via Inventory Receipts.
+        </p>
+
+        <div class="center std-padding">
+            <a href="@GlobalConfig.Url("Config/Warehouses")"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Go Back to Warehouses
+            </a>
+
+            <a href="#" data-bind="click: LoadInventoryInAcumaticaClick"
+               class="btn btn-primary btn-lg">
+                Synchronize Now
+                <i class="fas fa-bolt"></i>
+            </a>
+        </div>
+    </div>
 </div>
 
-<div id="step-2-header">
+<div data-bind="if: Step2Visible">
+    <div class="std-padding">
+        <div class="card">
+            <div class="card-body center std-padding">
+                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+                <div style="height: 30px;"></div>
+                <p>
+                    Please wait while Odysseus loads your Shopify Products and Variants
+                    into Acumatica. Depending on size, this process may take several minutes.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-bind="if: Step3Visible">
     <h1 class="mt-5 center">Inventory Synchronization - Step 2</h1>
     <p class="lead center">Connect Acumatica Inventory to Shopify</p>
-</div>
 
+    <div class="std-padding">
+        <div class="card">
+            <div class="card-body center std-padding">
+                <h5 class="card-title">Synchronization Complete!</h5>
 
-<div id="step-1" class="std-padding">
-    <p>Odysseus loads your complete Shopify catalog of Products and Variant into Acumatica, 
-        and creates corresponding Stock Items in Acumatica. 
-        Odysseus will also load your entire Inventory counts 
-        from Shopify into Acumatica via Inventory Receipts.</p>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Created Stock Items in Acumatica
+                        <i class="fas fa-check"></i>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Created Warehouse Receipts in Acumatica
+                        <i class="fas fa-check"></i>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Released Warehouse Receipts in Acumatica
+                        <i class="fas fa-check"></i>
+                    </li>
+                </ul>
 
-    <div class="center std-padding">
-        <a href="@GlobalConfig.Url("Config/Preferences")"
-           class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Go Back to Config   
-        </a>
+                <div style="height: 40px;"></div>
 
-        <a href="#" 
-           class="btn btn-primary btn-lg">Synchronize Now
-            <i class="fas fa-bolt"></i>
-        </a>
-    </div>
-</div>
+                <p>
+                    There's one final step: connecting the Acumatica Inventory
+                    you've just created back to Shopify. After this,
+                    your two systems will be ready for real-time synchronization.
+                </p>
+            </div>
+        </div>
 
-<div id="step-2" class="std-padding">
-    <div class="card">
-        <div class="card-body center std-padding">
-            <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-            
-            <div style="height: 30px;"></div>
-            <p>
-                Please wait while Odysseus loads your Shopify Products and Variants
-                into Acumatica. Depending on size, this process may take several minutes.
-            </p>
+        <div class="center std-padding">
+            <a href="@GlobalConfig.Url("Config/Warehouses")"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Go Back to Warehouses
+            </a>
+
+            <a href="#" class="btn btn-primary btn-lg"
+               data-bind="click: LoadInventoryInShopifyClick">
+                Synchronize Now
+                <i class="fas fa-bolt"></i>
+            </a>
         </div>
     </div>
 </div>
 
-<div id="step-3" class="std-padding">
-    <div class="card">
-        <div class="card-body center std-padding">
-            <h5 class="card-title">Synchronization Complete!</h5>
-            
-            <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Created Stock Items in Acumatica
-                    <i class="fas fa-check"></i>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Created Warehouse Receipts in Acumatica
-                    <i class="fas fa-check"></i>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Released Warehouse Receipts in Acumatica
-                    <i class="fas fa-check"></i>
-                </li>
-            </ul>
-            
-            <div style="height: 40px;"></div>
-            
-            <p>There's one final step: connecting the Acumatica Inventory
-                you've just created back to Shopify. After this, 
-                your two systems will be ready for real-time synchronization.
-            </p>
-        </div>
-    </div>
+<div data-bind="if: Step4Visible">
+    <div class="std-padding">
+        <div class="card">
+            <div class="card-body center std-padding">
+                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
-    <div class="center std-padding">
-        <a href="@GlobalConfig.Url("Config/Inventory")" 
-           class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Go Back to Inventory   
-        </a>
-
-        <a href="#" class="btn btn-primary btn-lg">Synchronize Now
-            <i class="fas fa-bolt"></i>
-        </a>
-    </div>
-</div>
-
-<div id="step-4" class="std-padding">
-    <div class="card">
-        <div class="card-body center std-padding">
-            <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-            <div style="height: 30px;"></div>
-            <p>
-                Please wait while Odysseus connects your Acumatica Inventory to Shopify.
-            </p>
+                <div style="height: 30px;"></div>
+                <p>
+                    Please wait while Odysseus connects your Acumatica Inventory to Shopify.
+                </p>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="step-5" class="std-padding">
-    <div class="card">
-        <div class="card-body center std-padding">
-            <h5 class="card-title">Synchronization Complete!</h5>
+<div data-bind="if: Step5Visible">
+    <div class="std-padding">
+        <div class="card">
+            <div class="card-body center std-padding">
+                <h5 class="card-title">Synchronization Complete!</h5>
 
-            <p>Excellent! You are now ready to run Odysseus in Real-Time Mode.
-                Odysseus will maintain synchronization between Shopify 
-                and Acumatica for you.
-            </p>
-            <div style="height: 40px;"></div>
+                <p>
+                    Excellent! You are now ready to run Odysseus in Real-Time Mode.
+                    Odysseus will maintain synchronization between Shopify
+                    and Acumatica for you.
+                </p>
+                <div style="height: 40px;"></div>
+            </div>
+        </div>
+
+        <div class="center std-padding">
+            <a href="@GlobalConfig.Url("Config/Warehouses")"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Go Back to Warehouses
+            </a>
+
+            <a href="@GlobalConfig.Url("Config/RealTime")"
+               class="btn btn-primary btn-lg"
+               data-bind="click: StartRealTimeClick">
+                Start Real Time, Now!
+                <i class="fas fa-sign-in-alt"></i>
+            </a>
         </div>
     </div>
-
-    <div class="center std-padding">
-        <a href="@GlobalConfig.Url("Config/Preferences")"
-           class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Go Back to Config
-        </a>
-
-        <a href="@GlobalConfig.Url("Config/RealTime")"
-           class="btn btn-primary btn-lg">
-            Start Real Time, Now!
-            <i class="fas fa-sign-in-alt"></i>
-        </a>
-    </div>
 </div>
+
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.InventoryConfigModel = function () {
+        var self = this;
+
+        self.Step1Visible = ko.observable();
+        self.Step2Visible = ko.observable();
+        self.Step3Visible = ko.observable();
+        self.Step4Visible = ko.observable();
+        self.Step5Visible = ko.observable();
+
+        self.ClearVisibility = function () {
+            self.Step1Visible(false);
+            self.Step2Visible(false);
+            self.Step3Visible(false);
+            self.Step4Visible(false);
+            self.Step5Visible(false);
+        };
+
+        self.LoadInventoryInAcumaticaClick = function () {
+            self.ClearVisibility();
+            self.Step2Visible(true);
+
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost(
+                "Config/LoadInventoryInAcumatica", {},
+                self.PollLoadInventoryInAcumaticaStatus);
+        };
+
+        self.PollLoadInventoryInAcumaticaStatus = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/LoadInventoryInAcumaticaStatus", this);
+                },
+                function (response) {
+                    if (response.JobStatus == jobStatus.Complete) {
+                        self.CompleteAcumatica();
+                    } else {
+                        setTimeout(self.PollLoadInventoryInAcumaticaStatus, 1000);
+                    }
+                });
+        };
+
+        self.CompleteAcumatica = function () {
+            self.ClearVisibility();
+            self.Step3Visible(true);
+        };
+
+
+        self.LoadInventoryInShopifyClick = function () {
+            self.ClearVisibility();
+            self.Step4Visible(true);
+
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost(
+                "Config/LoadInventoryInShopify", {},
+                self.PollLoadInventoryInShopifyStatus);
+        };
+
+        self.PollLoadInventoryInShopifyStatus = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/LoadInventoryInShopifyStatus", this);
+                },
+                function (response) {
+                    if (response.JobStatus == jobStatus.Complete) {
+                        self.CompleteShopify();
+                    } else {
+                        setTimeout(self.PollLoadInventoryInShopifyStatus, 1000);
+                    }
+                });
+        };
+
+        self.CompleteShopify = function () {
+            self.ClearVisibility();
+            self.Step5Visible(true);
+        };
+
+        self.StartRealTimeClick = function () {
+            flow.exec(function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("Config/StartRealTime", {}, this);
+                },
+                function() {
+                    window.location = "@GlobalConfig.Url("Config/RealTime")";
+                });
+        }
+
+        self.Initialize = function () {
+            self.ClearVisibility();
+            self.Step1Visible(true);
+        };
+
+        return self;
+    };
+
+    var model = new Monster.InventoryConfigModel();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
 
