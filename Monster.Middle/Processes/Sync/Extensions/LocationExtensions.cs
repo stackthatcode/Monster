@@ -2,8 +2,6 @@
 using System.Linq;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Inventory;
-using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Push.Shopify.Api.Inventory;
 
@@ -41,19 +39,30 @@ namespace Monster.Middle.Processes.Sync.Extensions
             return warehouse.AcumaticaWarehouseId == location.StandardizedName();
         }
 
-        public static bool IsMatched(this UsrAcumaticaWarehouse warehouse)
+        public static bool IsImproperlyMatched(this UsrShopifyLocation location)
+        {
+            var warehouse = location.MatchedWarehouse();
+            if (warehouse == null)
+            {
+                return false;
+            }
+
+            return !location.MatchesIdWithName(warehouse);
+        }
+
+        public static bool HasMatch(this UsrAcumaticaWarehouse warehouse)
         {
             return warehouse.UsrShopAcuWarehouseSyncs.Any();
         }
 
-        public static bool IsMatched(this UsrShopifyLocation location)
+        public static bool HasMatch(this UsrShopifyLocation location)
         {
             return location.UsrShopAcuWarehouseSyncs.Any();
         }
 
-        public static bool IsUnmatched(this UsrShopifyLocation location)
+        public static bool HasNoMatch(this UsrShopifyLocation location)
         {
-            return !location.IsMatched();
+            return !location.HasMatch();
         }
 
 
@@ -62,7 +71,7 @@ namespace Monster.Middle.Processes.Sync.Extensions
                     this IEnumerable<UsrAcumaticaWarehouse> input)
         {
             return input
-                .Where(x => x.UsrShopAcuWarehouseSyncs == null)
+                .Where(x => x.UsrShopAcuWarehouseSyncs.Count == 0)
                 .ToList();
         }
 
@@ -80,11 +89,16 @@ namespace Monster.Middle.Processes.Sync.Extensions
         public static IList<UsrShopifyLocation>
                 Unmatched(this IEnumerable<UsrShopifyLocation> input)
         {
-            return input
-                .Where(x => x.IsUnmatched())
-                .ToList();
+            return input.Where(x => x.HasNoMatch()).ToList();
         }
 
+        public static IList<UsrShopifyLocation>
+                Matched(this IEnumerable<UsrShopifyLocation> input)
+        {
+            return input.Where(x => x.HasMatch()).ToList();
+        }
+
+        
         public static UsrShopifyLocation 
                 MatchedLocation(this UsrAcumaticaWarehouse input)
         {

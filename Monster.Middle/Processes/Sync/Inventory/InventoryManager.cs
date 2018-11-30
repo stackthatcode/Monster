@@ -1,5 +1,5 @@
 ﻿using Monster.Acumatica.Http;
-using Monster.Middle.Processes.Inventory.Services;
+using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Push.Foundation.Utilities.Logging;
 
@@ -51,7 +51,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
         public bool LocationStatusCheck()
         {
             // Status checkpoint
-            var status = _inventoryStatusService.GetCurrentLocationStatus();
+            var status = _inventoryStatusService.GetWarehouseSyncStatus();
             if (!status.OK)
             {
                 _logger.Info(status.GetSynopsis());

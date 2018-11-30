@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Processes.Sync.Extensions;
+using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 
@@ -34,15 +34,21 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
             foreach (var warehouse in warehouses)
             {
-                if (warehouse.IsMatched())
+                if (warehouse.HasMatch())
                 {
                     var sync = warehouse.UsrShopAcuWarehouseSyncs.First();
-
                     var location = sync.UsrShopifyLocation;
 
-                    sync.IsNameMismatched = !location.MatchesIdWithName(warehouse);
-                    sync.LastUpdated = DateTime.UtcNow;
-                    _repository.SaveChanges();                    
+                    if (location.IsImproperlyMatched())
+                    {
+                        _repository.DeleteWarehouseSync(sync);
+                    }
+
+                    // TODO - revisit
+                    //sync.IsNameMismatched = !location.MatchesIdWithName(warehouse);
+                    //sync.LastUpdated = DateTime.UtcNow;
+                    //_repository.SaveChanges();                    
+
                     continue;
                 }
 

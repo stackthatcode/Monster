@@ -2,8 +2,9 @@
 using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Processes.Sync.Persist;
 
-namespace Monster.Middle.Processes.Inventory.Services
+namespace Monster.Middle.Processes.Sync.Inventory.Services
 {
     public class InventoryStatusService
     {
@@ -15,28 +16,34 @@ namespace Monster.Middle.Processes.Inventory.Services
         }
 
 
-        public LocationStatus GetCurrentLocationStatus()
+        public WarehouseSyncState GetWarehouseSyncStatus()
         {
             var warehouses = _repository.RetrieveWarehouses();
             var locations = _repository.RetrieveLocations();
 
-            var output = new LocationStatus();
+            var output = new WarehouseSyncState();
 
-            output.UnmatchedWarehouses
+            output.UnmatchedAcumaticaWarehouses
                 = warehouses
                     .Unmatched()
                     .Select(x => x.AcumaticaWarehouseId)
                     .ToList();
 
-            output.MismatchedWarehouses
+            output.MismatchedWarehouseLocations
                 = warehouses
                     .Mismatched()
                     .Select(x => x.AcumaticaWarehouseId)
                     .ToList();
 
-            output.UnmatchedLocations
+            output.UnmatchedShopifyLocations
                 = locations
                     .Unmatched()
+                    .Select(x => x.ShopifyLocationName)
+                    .ToList();
+
+            output.MatchedWarehouseLocations
+                = locations
+                    .Matched()
                     .Select(x => x.ShopifyLocationName)
                     .ToList();
 

@@ -17,7 +17,7 @@ namespace Monster.Web
 
             // TODO - rip all that shit out and replace with Push
             //AuthConfig.Configure(app, autofacContainer);
-
+            
             HangFireConfig.Configure(app);
         }
 

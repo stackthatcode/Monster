@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Monster.Acumatica.Http;
+using Monster.Middle.Persist.Multitenant.Model;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Http;
@@ -131,6 +132,43 @@ namespace Monster.Middle.Persist.Multitenant
         public UsrPreference RetrievePreferences()
         {
             return Entities.UsrPreferences.First();
+        }
+
+        public UsrJobMonitor RetrieveJobMonitor()
+        {
+            var monitor = Entities.UsrJobMonitors.FirstOrDefault();
+            if (monitor == null)
+            {
+                return ResetJobMonitor();
+            }
+            else
+            {
+                return monitor;
+            }
+        }
+
+        public UsrJobMonitor ResetJobMonitor()
+        {
+            var monitor = Entities.UsrJobMonitors.FirstOrDefault();
+            if (monitor != null)
+            {
+                Entities.UsrJobMonitors.Remove(monitor);
+            }
+
+            var newMonitor = new UsrJobMonitor()
+            {
+                WarehouseSyncStatus = JobStatus.Pending
+            };
+            Entities.UsrJobMonitors.Add(newMonitor);
+            Entities.SaveChanges();
+            return newMonitor;
+        }
+
+        public void UpdateWarehouseSyncStatus(int status)
+        {
+            var monitor = RetrieveJobMonitor();
+            monitor.WarehouseSyncStatus = status;
+            Entities.SaveChanges();
         }
     }
 }

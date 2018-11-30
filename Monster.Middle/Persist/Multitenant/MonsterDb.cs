@@ -48,6 +48,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
         System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; } // usrInventoryReceiptSync
+        System.Data.Entity.DbSet<UsrJobMonitor> UsrJobMonitors { get; set; } // usrJobMonitor
         System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
         System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; } // usrPreferences
         System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; } // usrShopAcuCustomerSync
@@ -104,6 +105,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
         public System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; } // usrInventoryReceiptSync
+        public System.Data.Entity.DbSet<UsrJobMonitor> UsrJobMonitors { get; set; } // usrJobMonitor
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
         public System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; } // usrPreferences
         public System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; } // usrShopAcuCustomerSync
@@ -187,6 +189,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration());
             modelBuilder.Configurations.Add(new UsrInventoryReceiptSyncConfiguration());
+            modelBuilder.Configurations.Add(new UsrJobMonitorConfiguration());
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration());
             modelBuilder.Configurations.Add(new UsrPreferenceConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuCustomerSyncConfiguration());
@@ -225,6 +228,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrInventoryReceiptSyncConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrJobMonitorConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuCustomerSyncConfiguration(schema));
@@ -281,6 +285,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; }
         public System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; }
+        public System.Data.Entity.DbSet<UsrJobMonitor> UsrJobMonitors { get; set; }
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; }
         public System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; }
@@ -322,6 +327,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaWarehouses = new FakeDbSet<UsrAcumaticaWarehouse>("Id");
             UsrAcumaticaWarehouseDetails = new FakeDbSet<UsrAcumaticaWarehouseDetail>("MonsterId");
             UsrInventoryReceiptSyncs = new FakeDbSet<UsrInventoryReceiptSync>("Id");
+            UsrJobMonitors = new FakeDbSet<UsrJobMonitor>("Id");
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
             UsrPreferences = new FakeDbSet<UsrPreference>("Id");
             UsrShopAcuCustomerSyncs = new FakeDbSet<UsrShopAcuCustomerSync>("Id");
@@ -942,6 +948,14 @@ namespace Monster.Middle.Persist.Multitenant
         /// Parent UsrShopifyInventoryLevel pointed by [usrInventoryReceiptSync].([ShopifyInventoryMonsterId]) (FK_usrInventoryReceiptSync_usrShopifyInventoryLevels)
         /// </summary>
         public virtual UsrShopifyInventoryLevel UsrShopifyInventoryLevel { get; set; } // FK_usrInventoryReceiptSync_usrShopifyInventoryLevels
+    }
+
+    // usrJobMonitor
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrJobMonitor
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public int WarehouseSyncStatus { get; set; } // WarehouseSyncStatus
     }
 
     // usrPayoutPreferences
@@ -1777,6 +1791,25 @@ namespace Monster.Middle.Persist.Multitenant
             // Foreign keys
             HasRequired(a => a.UsrAcumaticaInventoryReceipt).WithMany(b => b.UsrInventoryReceiptSyncs).HasForeignKey(c => c.AcumaticaInvReceiptMonsterId).WillCascadeOnDelete(false); // FK_usrInventoryReceiptSync_usrAcumaticaInventoryReceipt
             HasRequired(a => a.UsrShopifyInventoryLevel).WithMany(b => b.UsrInventoryReceiptSyncs).HasForeignKey(c => c.ShopifyInventoryMonsterId).WillCascadeOnDelete(false); // FK_usrInventoryReceiptSync_usrShopifyInventoryLevels
+        }
+    }
+
+    // usrJobMonitor
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrJobMonitorConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrJobMonitor>
+    {
+        public UsrJobMonitorConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrJobMonitorConfiguration(string schema)
+        {
+            ToTable("usrJobMonitor", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.WarehouseSyncStatus).HasColumnName(@"WarehouseSyncStatus").HasColumnType("int").IsRequired();
         }
     }
 

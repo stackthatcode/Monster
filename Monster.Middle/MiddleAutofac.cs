@@ -2,23 +2,24 @@
 using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
+using Monster.Middle.Directors;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Inventory;
-using Monster.Middle.Processes.Inventory.Services;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Inventory;
+using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Processes.Sync.Orders.Workers;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
@@ -132,6 +133,10 @@ namespace Monster.Middle
             builder.RegisterType<BankImportService>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyPayoutPullWorker>().InstancePerLifetimeScope();
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
+
+            // Director Components
+            builder.RegisterType<QueuingService>().InstancePerLifetimeScope();
+            builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();
 
             // Misc
             builder.RegisterType<TimeZoneService>().InstancePerLifetimeScope();

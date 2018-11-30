@@ -18,9 +18,11 @@
     
     <!-- JavaScript -->
     <script>
-        Monster = Monster || {};
+        var Monster = Monster || {};
         Monster.BaseUrl = '@GlobalConfig.BaseUrl';
     </script>
+    @Scripts.Render("~/Scripts/jquery.min.js?tmp=" + Guid.NewGuid())
+    @Scripts.Render("~/Scripts/flow.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/AjaxFunctions.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/knockout-3.4.2.js?tmp=" + Guid.NewGuid())
 </head>

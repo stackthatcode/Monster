@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using Monster.Middle.Persist.Multitenant;
 
-namespace Monster.Middle.Persist.Multitenant.Sync
+namespace Monster.Middle.Processes.Sync.Persist
 {
     public class SyncInventoryRepository
     {
@@ -48,6 +49,12 @@ namespace Monster.Middle.Persist.Multitenant.Sync
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuWarehouseSyncs.Add(sync);
+            Entities.SaveChanges();
+        }
+
+        public void DeleteWarehouseSync(UsrShopAcuWarehouseSync sync)
+        {
+            Entities.UsrShopAcuWarehouseSyncs.Remove(sync);
             Entities.SaveChanges();
         }
 

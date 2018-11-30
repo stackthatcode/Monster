@@ -17,6 +17,7 @@ namespace Monster.Middle.Services
         
         // Why not add pass throughs Shopify and Acumatica...?
         // Lifetime Scope says we're safe
+        private Guid? _tenantId;
 
 
         public TenantContext(
@@ -33,8 +34,12 @@ namespace Monster.Middle.Services
             _acumaticaHttpContext = acumaticaHttpContext;
         }
 
+        public Guid InstallationId => _tenantId.Value;
+
         public void Initialize(Guid installationId)
         {
+            _tenantId = installationId;
+
             var installation = 
                     _accountRepository
                         .RetrieveInstallation(installationId);
@@ -56,6 +61,8 @@ namespace Monster.Middle.Services
 
         public void InitializePersistOnly(Guid installationId)
         {
+            _tenantId = installationId;
+
             var installation = 
                     _accountRepository.RetrieveInstallation(installationId);
 
@@ -65,6 +72,8 @@ namespace Monster.Middle.Services
 
         }
 
+
+        [Obsolete]
         public void Initialize(
                 string connectionString, 
                 long companyId,

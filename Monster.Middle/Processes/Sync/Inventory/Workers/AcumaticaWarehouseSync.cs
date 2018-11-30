@@ -9,6 +9,7 @@ using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -47,19 +48,23 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             {
                 if (shopifyLocation.UsrShopAcuWarehouseSyncs.Any())
                 {
-                    var sync
-                        = shopifyLocation
-                            .UsrShopAcuWarehouseSyncs
-                            .First();
-
-                    var matchedWarehouse = sync.UsrAcumaticaWarehouse;
-
+                    // TODO - resolve this
+                    //var sync
+                    //    = shopifyLocation
+                    //        .UsrShopAcuWarehouseSyncs
+                    //        .First();
                     // Flag if the names mismatch, now
-                    sync.IsNameMismatched =
-                        !shopifyLocation.MatchesIdWithName(matchedWarehouse);
+                    //sync.IsNameMismatched =
+                    //    !shopifyLocation.MatchesIdWithName(matchedWarehouse);
 
-                    matchedWarehouse.LastUpdated = DateTime.UtcNow;
-                    _syncInventoryRepository.SaveChanges();                    
+                    if (shopifyLocation.IsImproperlyMatched())
+                    {
+                        _syncInventoryRepository.DeleteWarehouseSync(
+                                shopifyLocation
+                                    .UsrShopAcuWarehouseSyncs
+                                    .First());
+                    }
+
                     continue;
                 }
 
