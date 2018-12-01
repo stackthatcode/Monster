@@ -14,6 +14,8 @@ using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
+using Monster.Middle.Processes.Sync;
+using Monster.Middle.Processes.Sync.Directors;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Inventory.Workers;

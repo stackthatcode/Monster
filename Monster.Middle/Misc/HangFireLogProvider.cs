@@ -1,7 +1,7 @@
 ﻿using Hangfire.Logging;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.HangFire
+namespace Monster.Middle.Misc
 {
     public class HangFireLogProvider : ILogProvider
     {

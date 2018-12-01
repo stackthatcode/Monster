@@ -2,8 +2,11 @@
 using Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
+using Monster.Middle.Processes.Sync;
+using Monster.Middle.Processes.Sync.Directors;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
+using Monster.Middle.Jobs;
 
 namespace Monster.Middle.Directors
 {
@@ -44,7 +47,7 @@ namespace Monster.Middle.Directors
 
                 var tenantId = _tenantContext.InstallationId;
                 var jobId = BackgroundJob
-                    .Enqueue<SyncDirector>(x => x.SyncWarehouseAndLocation(tenantId));
+                    .Enqueue<JobRunner>(x => x.RunSyncWarehouseAndLocation(tenantId));
 
                 _jobRepository.SetPending(QueuedJobType.SyncWarehouseAndLocation, jobId);
             }
@@ -61,8 +64,8 @@ namespace Monster.Middle.Directors
                 }
 
                 var tenantId = _tenantContext.InstallationId;
-                var jobId = BackgroundJob.Enqueue<SyncDirector>(
-                    x => x.LoadInventoryIntoAcumatica(tenantId));
+                var jobId = BackgroundJob.Enqueue<JobRunner>(
+                    x => x.RunLoadInventoryIntoAcumatica(tenantId));
 
                 _jobRepository.SetPending(QueuedJobType.LoadInventoryIntoAcumatica, jobId);
             }
@@ -81,23 +84,26 @@ namespace Monster.Middle.Directors
                 var tenantId = _tenantContext.InstallationId;
 
                 var jobId = BackgroundJob
-                        .Enqueue<SyncDirector>(
-                            x => x.LoadInventoryIntoShopify(tenantId));
+                        .Enqueue<JobRunner>(
+                            x => x.RunLoadInventoryIntoShopify(tenantId));
 
                 _jobRepository.SetPending(QueuedJobType.LoadInventoryIntoShopify, jobId);
             }
         }
 
 
+        public string RoutineSyncJobId()
+        {
+            return "RoutineSync:" + _tenantContext.InstallationId;
+        }
+
         // Recurring Job - separate category
         public void ScheduleRoutineSync()
         {
-            var recurringJobId
-                = "RoutineSync:" + _tenantContext.InstallationId;
 
-            RecurringJob.AddOrUpdate<SyncDirector>(
-                recurringJobId,
-                x => x.RoutineSynchHarness(_tenantContext.InstallationId),
+            RecurringJob.AddOrUpdate<JobRunner>(
+                RoutineSyncJobId(),
+                x => x.RunRoutineSync(_tenantContext.InstallationId),
                 "*/5 * * * *",
                 TimeZoneInfo.Utc);
         }

@@ -134,18 +134,6 @@ namespace Monster.Middle.Persist.Multitenant
             return Entities.UsrPreferences.First();
         }
 
-        public UsrJobMonitor RetrieveJobMonitor()
-        {
-            var monitor = Entities.UsrJobMonitors.FirstOrDefault();
-            if (monitor == null)
-            {
-                return ResetJobMonitor();
-            }
-            else
-            {
-                return monitor;
-            }
-        }
 
     }
 }

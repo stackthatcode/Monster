@@ -15,15 +15,18 @@ namespace Monster.Web.Controllers
     public class ConfigController : Controller
     {
         private readonly TenantRepository _tenantRepository;
+        private readonly JobRepository _jobRepository;
         private readonly QueuingService _queuingService;
         private readonly InventoryStatusService _inventoryStatusService;
 
         public ConfigController(
                 TenantRepository tenantRepository, 
+                JobRepository jobRepository,
                 QueuingService queuingService, 
                 InventoryStatusService inventoryStatusService)
         {
             _tenantRepository = tenantRepository;
+            _jobRepository = jobRepository;
             _queuingService = queuingService;
             _inventoryStatusService = inventoryStatusService;
         }
@@ -74,14 +77,15 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult WarehouseSyncStatus()
         {
-            var monitor = _tenantRepository.RetrieveJobMonitor();
+            var job = _jobRepository
+                        .Retrieve(QueuedJobType.SyncWarehouseAndLocation);
 
             var output = new WarehouseSyncStatusModel()
             {
-                JobStatus = monitor.WarehouseSyncStatus
+                JobStatus = job.JobStatus
             };
 
-            if (monitor.WarehouseSyncStatus == JobStatus.Complete)
+            if (job.JobStatus == JobStatus.Complete)
             {
                 output.SyncState
                     = _inventoryStatusService.GetWarehouseSyncStatus();
@@ -102,8 +106,8 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult LoadInventoryInAcumaticaStatus()
         {
-            var monitor = _tenantRepository.RetrieveJobMonitor();
-            var output = new { JobStatus = monitor.LoadInventoryIntoAcumaticaStatus };            
+            var job = _jobRepository.Retrieve(QueuedJobType.LoadInventoryIntoAcumatica);
+            var output = new { JobStatus = job.JobStatus };            
             return new JsonNetResult(output);
         }
 
@@ -119,8 +123,8 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult LoadInventoryInShopifyStatus()
         {
-            var monitor = _tenantRepository.RetrieveJobMonitor();
-            var output = new { JobStatus = monitor.LoadInventoryIntoShopifyStatus };
+            var job = _jobRepository.Retrieve(QueuedJobType.LoadInventoryIntoShopify);
+            var output = new { JobStatus = job.JobStatus };
             return new JsonNetResult(output);
         }
 

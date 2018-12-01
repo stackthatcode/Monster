@@ -3,7 +3,7 @@ using Hangfire.Logging;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.HangFire
+namespace Monster.Middle.Misc
 {
     // Glue between the Push.Foundation Logger and HangFire
     // NOTE: Requires registration of LoggerSingleton delegate

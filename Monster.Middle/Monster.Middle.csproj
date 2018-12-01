@@ -101,11 +101,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
+    <Compile Include="Jobs\JobRunner.cs" />
     <Compile Include="Persist\Multitenant\Model\QueuedJobTypeId.cs" />
-    <Compile Include="Directors\QueuingService.cs" />
-    <Compile Include="HangFire\HangFireLogger.cs" />
-    <Compile Include="HangFire\HangFireLogProvider.cs" />
-    <Compile Include="Directors\NamedLock.cs" />
+    <Compile Include="Jobs\QueuingService.cs" />
+    <Compile Include="Misc\HangFireLogger.cs" />
+    <Compile Include="Misc\HangFireLogProvider.cs" />
+    <Compile Include="Jobs\NamedLock.cs" />
     <Compile Include="Persist\Multitenant\JobRepository.cs" />
     <Compile Include="Persist\Multitenant\Model\JobStatus.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
@@ -164,7 +165,7 @@
     <Compile Include="Processes\Sync\Payouts\Workers\BankImportService.cs" />
     <Compile Include="Processes\Sync\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Sync\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
-    <Compile Include="Directors\SyncDirector.cs" />
+    <Compile Include="Processes\Sync\SyncDirector.cs" />
     <Compile Include="Security\IdentityContext.cs" />
     <Compile Include="Security\SecurityConfig.cs" />
     <Compile Include="Services\TenantContext.cs" />
