@@ -147,41 +147,5 @@ namespace Monster.Middle.Persist.Multitenant
             }
         }
 
-        public UsrJobMonitor ResetJobMonitor()
-        {
-            var monitor = Entities.UsrJobMonitors.FirstOrDefault();
-            if (monitor != null)
-            {
-                Entities.UsrJobMonitors.Remove(monitor);
-            }
-
-            var newMonitor = new UsrJobMonitor()
-            {
-                WarehouseSyncStatus = JobStatus.Pending
-            };
-            Entities.UsrJobMonitors.Add(newMonitor);
-            Entities.SaveChanges();
-            return newMonitor;
-        }
-
-        public void UpdateWarehouseSyncStatus(int status)
-        {
-            var monitor = RetrieveJobMonitor();
-            monitor.WarehouseSyncStatus = status;
-            Entities.SaveChanges();
-        }
-
-        public void UpdateLoadInventoryIntoAcumaticaStatus(int status)
-        {
-            var monitor = RetrieveJobMonitor();
-            monitor.LoadInventoryIntoAcumaticaStatus = status;
-            Entities.SaveChanges();
-        }
-        public void UpdateLoadInventoryIntoShopifyStatus(int status)
-        {
-            var monitor = RetrieveJobMonitor();
-            monitor.LoadInventoryIntoShopifyStatus = status;
-            Entities.SaveChanges();
-        }
     }
 }

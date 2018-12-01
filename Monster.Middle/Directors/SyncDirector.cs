@@ -24,7 +24,11 @@ namespace Monster.Middle.Directors
         private readonly TenantContext _tenantContext;
         private readonly TenantRepository _tenantRepository;
         private readonly InventoryStatusService _inventoryStatusService;
+        private readonly JobRepository _jobRepository;
         private readonly IPushLogger _logger;
+
+        private static NamedLock 
+            _warehouseLocationLock = new NamedLock("");
 
 
         public SyncDirector(
@@ -36,8 +40,9 @@ namespace Monster.Middle.Directors
                 OrderManager orderManager,
                 TenantContext tenantContext,
                 TenantRepository tenantRepository,
-                IPushLogger logger, 
-                InventoryStatusService inventoryStatusService)
+                InventoryStatusService inventoryStatusService, 
+                JobRepository jobRepository,
+                IPushLogger logger)
         {
             _shopifyBatchRepository = shopifyBatchRepository;
             _acumaticaBatchRepository = acumaticaBatchRepository;
@@ -49,96 +54,127 @@ namespace Monster.Middle.Directors
             _tenantRepository = tenantRepository;
             _logger = logger;
             _inventoryStatusService = inventoryStatusService;
+            _jobRepository = jobRepository;
         }
 
 
+        // Run-once jobs
+        //
         public void ResetBatchStates(Guid tenantId)
         {
+            _jobRepository.Clear();
             _tenantContext.Initialize(tenantId);
-
-            Execute(() =>
-            {
-                _shopifyBatchRepository.Reset();
-                _acumaticaBatchRepository.Reset();
-            });
+            _shopifyBatchRepository.Reset();
+            _acumaticaBatchRepository.Reset();
         }
         
-        public void SyncWarehouseAndLocation(Guid tenantId)
+        public void SyncWarehouseAndLocation(Guid tenantId, bool updateStatus = true)
+        {
+            ExecuteRunOnceJob(
+                QueuedJobType.SyncWarehouseAndLocation,
+                () => {
+                    _tenantContext.Initialize(tenantId);
+
+                    // Step 1 - Pull Locations and Warehouses
+                    _acumaticaManager.PullWarehouses();
+                    _shopifyManager.PullLocations();
+
+                    // Step 2 - Synchronize Locations and Warehouses
+                    _inventoryManager.SynchronizeLocationOnly();
+                },
+                updateStatus);
+        }
+
+        public void LoadInventoryIntoAcumatica(Guid tenantId, bool updateStatus = true)
+        {
+            ExecuteRunOnceJob(
+                QueuedJobType.LoadInventoryIntoAcumatica,
+                () => {
+
+                    _tenantContext.Initialize(tenantId);
+
+                    // Step 1 - Pull Shopify Inventory
+                    _shopifyManager.PullInventory();
+
+                    // Step 2 - Pull Acumatica Inventory
+                    _acumaticaManager.PullInventory();
+
+                    // Step 3 - Load Shopify Inventory into Acumatica as baseline
+                    _inventoryManager.PushShopifyInventoryIntoAcumatica();
+                    },
+                    updateStatus);
+        }
+        
+        public void LoadInventoryIntoShopify(Guid tenantId, bool updateStatus = true)
+        {
+            ExecuteRunOnceJob(
+                QueuedJobType.LoadInventoryIntoShopify,
+                () => {
+                    _tenantContext.Initialize(tenantId);
+
+                    // Step 1 - Pull Shopify Inventory
+                    _acumaticaManager.PullInventory();
+
+                    // Step 2 - Load Acumatica Inventory into Shopify
+                    _inventoryManager.PushAcumaticaInventoryIntoShopify();
+                },
+                updateStatus);
+        }
+        
+        private void ExecuteRunOnceJob(
+                    int queueJobTypeId, Action task, bool updateStatus)
         {
             try
             {
-                _tenantContext.Initialize(tenantId);
+                task();
 
-                // Step 1 - Pull Locations and Warehouses
-                _acumaticaManager.PullWarehouses();
-                _shopifyManager.PullLocations();
-
-                // Step 2 - Synchronize Locations and Warehouses
-                _inventoryManager.SynchronizeLocationOnly();
-
-                // Update the Job Status
-                _tenantRepository.UpdateWarehouseSyncStatus(JobStatus.Complete);
+                if (updateStatus)
+                {
+                    _jobRepository.UpdateStatus(queueJobTypeId, JobStatus.Complete);
+                }
             }
             catch (Exception ex)
             {
-                _tenantRepository.UpdateWarehouseSyncStatus(JobStatus.Failed);
+                if (updateStatus)
+                {
+                    _jobRepository.UpdateStatus(queueJobTypeId, JobStatus.Failed);
+                }
+
                 _logger.Error(ex);
                 throw;
             }
         }
 
-        public void LoadInventoryIntoAcumatica(Guid tenantId)
+
+
+        public static readonly 
+                NamedLock _routineSyncLock = new NamedLock("RoutineSynchHarness");
+        
+        // TODO - add NameLocking based on Tenant Id
+        public void RoutineSynchHarness(Guid tenantId)
         {
             try
             {
-                _tenantContext.Initialize(tenantId);
+                if (!_routineSyncLock.Acquire(tenantId.ToString()))
+                {
+                    _logger.Info($"Failed to acquired RoutineSynchHarness for {tenantId}");
+                    return;
+                }
 
-                // Step 1 - Pull Shopify Inventory
-                _shopifyManager.PullInventory();
-
-                // Step 2 - Pull Acumatica Inventory
-                _acumaticaManager.PullInventory();
-
-                // Step 3 - Load Shopify Inventory into Acumatica as baseline
-                _inventoryManager.PushShopifyInventoryIntoAcumatica();
-                
-                // Update the Job Status
-                _tenantRepository
-                    .UpdateLoadInventoryIntoAcumaticaStatus(JobStatus.Complete);
+                RoutineSync(tenantId);
             }
             catch (Exception ex)
             {
-                _tenantRepository
-                    .UpdateLoadInventoryIntoAcumaticaStatus(JobStatus.Failed);
                 _logger.Error(ex);
                 throw;
             }
+            finally
+            {
+                _routineSyncLock.Free(tenantId.ToString());
+            }            
         }
 
-        public void LoadInventoryIntoShopify(Guid tenantId)
-        {
-            try
-            {
-                _tenantContext.Initialize(tenantId);
-
-                // Step 1 - Pull Shopify Inventory
-                _acumaticaManager.PullInventory();
-
-                // Step 2 - Load Acumatica Inventory into Shopify
-                _inventoryManager.PushAcumaticaInventoryIntoShopify();
-                
-                // Update the Job Status
-                _tenantRepository.UpdateLoadInventoryIntoShopifyStatus(JobStatus.Complete);
-            }
-            catch (Exception ex)
-            {
-                _tenantRepository.UpdateLoadInventoryIntoShopifyStatus(JobStatus.Failed);
-                _logger.Error(ex);
-                throw;
-            }
-        }
-
-        public void RoutineSynch(Guid tenantId)
+        public void RoutineSync(Guid tenantId)
         {
             _tenantContext.Initialize(tenantId);
 
@@ -147,19 +183,19 @@ namespace Monster.Middle.Directors
             Execute(() => _acumaticaManager.PullCustomerAndOrdersAndShipments());
 
             Execute(() =>
-                {
-                    // Step 1 - Load Acumatica Inventory into Shopify
-                    _inventoryManager.PushAcumaticaInventoryIntoShopify();
+            {
+                // Step 1 - Load Acumatica Inventory into Shopify
+                _inventoryManager.PushAcumaticaInventoryIntoShopify();
 
-                    // Step 2 (optional) - Load Products into Acumatica
-                    //_orderManager.LoadShopifyProductsIntoAcumatica();
+                // Step 2 (optional) - Load Products into Acumatica
+                //_orderManager.LoadShopifyProductsIntoAcumatica();
 
-                    // Step 3 - Load Orders, Refunds, Payments and Shipments
-                    _orderManager.RoutineOrdersSync();
-                });
+                // Step 3 - Load Orders, Refunds, Payments and Shipments
+                _orderManager.RoutineOrdersSync();
+            });
         }
 
-        private void Execute(Action task)            
+        private void Execute(Action task)
         {
             try
             {

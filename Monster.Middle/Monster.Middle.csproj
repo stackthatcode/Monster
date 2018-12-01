@@ -101,9 +101,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
+    <Compile Include="Persist\Multitenant\Model\QueuedJobTypeId.cs" />
     <Compile Include="Directors\QueuingService.cs" />
     <Compile Include="HangFire\HangFireLogger.cs" />
     <Compile Include="HangFire\HangFireLogProvider.cs" />
+    <Compile Include="Directors\NamedLock.cs" />
+    <Compile Include="Persist\Multitenant\JobRepository.cs" />
     <Compile Include="Persist\Multitenant\Model\JobStatus.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />

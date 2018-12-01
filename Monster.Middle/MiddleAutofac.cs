@@ -83,6 +83,7 @@ namespace Monster.Middle
             // Multitenant Persistence
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<JobRepository>().InstancePerLifetimeScope();
 
             // Shopify Pull Process
             builder.RegisterType<ShopifyBatchRepository>().InstancePerLifetimeScope();
