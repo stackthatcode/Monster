@@ -3,8 +3,9 @@ GO
 
 
 -- Clear out Monster
+DELETE FROM usrAcumaticaBatchState;
+DELETE FROM usrShopifyBatchState;
 
-DELETE FROM usrBatchState;
 
 -- Synchronization
 DELETE FROM usrShopAcuRefundCM;
@@ -17,7 +18,7 @@ DELETE FROM usrShopAcuItemSync;
 DELETE FROM usrShopAcuWarehouseSync;
 
 
--- Shopify
+-- Acumatica
 DELETE FROM usrAcumaticaShipmentDetail;
 DELETE FROM usrAcumaticaShipment;
 DELETE FROM usrAcumaticaSalesOrder;
@@ -29,10 +30,11 @@ DELETE FROM usrAcumaticaStockItem;
 DELETE FROM usrAcumaticaWarehouse;
 
 
--- Acumatica
+-- Shopify
 DELETE FROM usrShopifyPayout;
 DELETE FROM usrShopifyPayoutTransaction;
 
+DELETE FROM usrShopifyTransaction;
 DELETE FROM usrShopifyRefund;
 DELETE FROM usrShopifyFulfillment;
 DELETE FROM usrShopifyOrder;

@@ -4,7 +4,6 @@ using Autofac;
 using Hangfire;
 using Hangfire.Logging;
 using Hangfire.SqlServer;
-using Monster.ConsoleApp.Monster;
 using Monster.Middle;
 using Monster.Middle.Misc;
 using Push.Foundation.Utilities.Helpers;
@@ -24,10 +23,10 @@ namespace Monster.ConsoleApp
         {            
             ConfigureHangFire();
 
+            
             var options = new BackgroundJobServerOptions()
                 {
                     SchedulePollingInterval = new TimeSpan(0, 0, 0, 1),
-                    //Queues = QueueChannel.All, ** Don't think we're using this...
                 };
 
             var workerCount = 
@@ -47,7 +46,11 @@ namespace Monster.ConsoleApp
         public static IContainer ConfigureHangFire()
         {
             var builder = new ContainerBuilder();
-            var container = MiddleAutofac.Build(builder).Build();
+            MiddleAutofac.Build(builder);
+            
+            // *** Inject
+            var container = builder.Build();
+
 
             // Set the HangFire storage
             JobStorage.Current = new SqlServerStorage("DefaultConnection");
@@ -59,28 +62,6 @@ namespace Monster.ConsoleApp
             LogProvider.SetCurrentLogProvider(new HangFireLogProvider());
 
             return container;
-        }
-
-        
-
-        static void RunTestingHarness()
-        {
-            Console.WriteLine("Monster v1.0 Testing Harness");
-
-            // Monster test runs
-            var tenantId = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
-
-            MonsterHarness.ResetBatchStates(tenantId);
-
-            MonsterHarness.LoadWarehouses(tenantId);
-            MonsterHarness.LoadInventory(tenantId);
-
-            MonsterHarness.RoutineShopifyPull(tenantId);
-            MonsterHarness.RoutineAcumaticaPull(tenantId);
-            MonsterHarness.RoutineSynchronization(tenantId);
-
-            Console.WriteLine("Finished - hit any key to exit...");
-            Console.ReadKey();
         }
 
     }

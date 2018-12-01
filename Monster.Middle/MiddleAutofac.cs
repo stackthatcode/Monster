@@ -3,6 +3,7 @@ using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Directors;
+using Monster.Middle.Jobs;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Persist.Sys;
@@ -71,21 +72,25 @@ namespace Monster.Middle
             // ... for its Connection String
             builder.Register<SystemRepository>(x =>
             {
+                // TODO - replace with Default Connections string...?
                 var connectionString
                     = MonsterConfig.Settings.SystemDatabaseConnection;
 
                 return new SystemRepository(connectionString);
 
             }).SingleInstance();
+
             
-
-            // Tenant Context
-            builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
-
             // Multitenant Persistence
+            builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
+
+            // Job Running components
             builder.RegisterType<JobRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
+            builder.RegisterType<QueuingService>().InstancePerLifetimeScope();
+
 
             // Shopify Pull Process
             builder.RegisterType<ShopifyBatchRepository>().InstancePerLifetimeScope();
@@ -138,7 +143,6 @@ namespace Monster.Middle
             builder.RegisterType<PayoutProcess>().InstancePerLifetimeScope();
 
             // Director Components
-            builder.RegisterType<QueuingService>().InstancePerLifetimeScope();
             builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();
 
             // Misc

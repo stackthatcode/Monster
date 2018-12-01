@@ -2,6 +2,7 @@
 using AutoMapper;
 using Hangfire;
 using Monster.Middle.Directors;
+using Monster.Middle.Jobs;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
 using Monster.Middle.Processes.Sync.Inventory.Services;

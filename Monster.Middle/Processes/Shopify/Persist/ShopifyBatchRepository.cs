@@ -54,7 +54,21 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public UsrShopifyBatchState Retrieve()
         {
-            return _dataContext.Entities.UsrShopifyBatchStates.First();
+            var output = 
+                _dataContext
+                    .Entities
+                    .UsrShopifyBatchStates.FirstOrDefault();
+
+            if (output == null)
+            {
+                var newState = new UsrShopifyBatchState();
+                Entities.UsrShopifyBatchStates.Add(newState);
+                return newState;
+            }
+            else
+            {
+                return output;
+            }
         }
 
         public void SaveChanges()

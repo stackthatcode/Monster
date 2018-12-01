@@ -2,18 +2,14 @@
 using Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
-using Monster.Middle.Processes.Sync;
-using Monster.Middle.Processes.Sync.Directors;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
-using Monster.Middle.Jobs;
 
-namespace Monster.Middle.Directors
+namespace Monster.Middle.Jobs
 {
     public class QueuingService
     {
         private readonly TenantContext _tenantContext;
-        private readonly TenantRepository _tenantRepository;
         private readonly JobRepository _jobRepository;
         private readonly IPushLogger _logger;
 
@@ -24,12 +20,10 @@ namespace Monster.Middle.Directors
 
         public QueuingService(
                 TenantContext tenantContext, 
-                TenantRepository tenantRepository, 
                 JobRepository jobRepository,
                 IPushLogger logger)
         {
             _tenantContext = tenantContext;
-            _tenantRepository = tenantRepository;
             _jobRepository = jobRepository;
             _logger = logger;
         }

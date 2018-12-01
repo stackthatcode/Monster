@@ -24,7 +24,8 @@ namespace Monster.Middle.Persist.Multitenant
         public bool PendingExists(int queuedJobType)
         {
             var job = Retrieve(queuedJobType);
-            return job.JobStatus == JobStatus.Pending;
+
+            return job != null && job.JobStatus == JobStatus.Pending;
         }
 
         public UsrQueuedJob Retrieve(int queuedJobType)

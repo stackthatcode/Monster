@@ -182,16 +182,19 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.InsertRefundSync(syncRecord);
 
             // Write the Sales Tax 
-            var updateCM = new CreditMemoWrite();
-            var taxUpdate = new TaxDetails();
-            taxUpdate.id = resultCM.TaxDetails.First().id;
-            taxUpdate.TaxID = preferences.AcumaticaTaxId.ToValue();
-            taxUpdate.TaxRate = ((double)0).ToValue();
-            taxUpdate.TaxableAmount = ((double)0).ToValue();
-            taxUpdate.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
+            if (resultCM.TaxDetails.Any())
+            {
+                var updateCM = new CreditMemoWrite();
+                var taxUpdate = new TaxDetails();
+                taxUpdate.id = resultCM.TaxDetails.First().id;
+                taxUpdate.TaxID = preferences.AcumaticaTaxId.ToValue();
+                taxUpdate.TaxRate = ((double) 0).ToValue();
+                taxUpdate.TaxableAmount = ((double) 0).ToValue();
+                taxUpdate.TaxAmount = ((double) shopifyOrder.total_tax).ToValue();
 
-            var resultJson2
-                = _salesOrderClient.WriteSalesOrder(updateCM.SerializeToJson());
+                var resultJson2
+                    = _salesOrderClient.WriteSalesOrder(updateCM.SerializeToJson());
+            }
         }
     }
 }

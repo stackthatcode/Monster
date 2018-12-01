@@ -9,6 +9,11 @@ namespace Monster.ConsoleApp.Acumatica
 {
     public class AcumaticaHarness
     {
+        //
+        // *** USES CREDENTIALS STORED IN CONFIGURATION FILE
+        // 
+
+
         // Use configuration for Credentials
         public static void BeginSession(ILifetimeScope scope)
         {
