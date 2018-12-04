@@ -18,6 +18,8 @@ namespace Monster.Web.Models
         public string AcumaticaTaxZone { get; set; } // AcumaticaTaxZone (length: 50)
         public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
         public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
+        public bool FulfillmentInAcumatica { get; set; }
 
+        public string FulfillmentSystem => FulfillmentInAcumatica ? "ACUMATICA" : "SHOPIFY";
     }
 }

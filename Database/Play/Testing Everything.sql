@@ -5,7 +5,7 @@ GO
 DELETE FROM usrPreferences;
 
 -- TODO - replace with interactive management
-DECLARE @StartingShopifyOrder int = 1024;
+DECLARE @StartingShopifyOrder int = 1027;
 DECLARE @FulfillInAcumatica bit = 1;
 
 
@@ -22,7 +22,10 @@ INSERT INTO usrPreferences VALUES (
 	'ONLINE', 
 	'ONLINE', 
 	'ONLINE', 
-	NULL );
+	NULL,
+	@FulfillInAcumatica );
+
+
 
 SELECT * FROM usrPreferences;
 
