@@ -2,13 +2,17 @@ USE Monster0001;
 GO
 
 
-/**
 DELETE FROM usrPreferences;
+
+-- TODO - replace with interactive management
+DECLARE @StartingShopifyOrder int = 1024;
+DECLARE @FulfillInAcumatica bit = 1;
+
 
 INSERT INTO usrPreferences VALUES (
 	'2018-01-01', 
 	00.20, 
-	1020, 
+	@StartingShopifyOrder, 
 	'STOCKITEM', 
 	'SHOPIFY', 
 	'5/24/2014', 
@@ -17,11 +21,10 @@ INSERT INTO usrPreferences VALUES (
 	'102050', 
 	'ONLINE', 
 	'ONLINE', 
-	'ONLINE' );
-
+	'ONLINE', 
+	NULL );
 
 SELECT * FROM usrPreferences;
-**/
 
 
 
@@ -53,9 +56,11 @@ SELECT * FROM usrAcumaticaInventoryReceipt;
 
 
 -- Shopify Orders and Acumatica Sales Orders
-SELECT * FROM usrShopifyOrder;
-SELECT * FROM usrAcumaticaSalesOrder;
+SELECT TOP 3 * FROM usrShopifyOrder ORDER BY ShopifyOrderNumber DESC
+SELECT TOP 3 * FROM usrAcumaticaSalesOrder ORDER BY AcumaticaOrderNbr DESC
 SELECT * FROM usrShopAcuOrderSync;
+
+DELETE FROM usrShopAcuOrderSync;
 
 
 -- Shipments and Fulfillments
@@ -80,6 +85,18 @@ SELECT * FROM usrShopifyTransaction;
 SELECT * FROM usrShopifyAcuPayment;
 
 
+SELECT * FROM usrShopifyTransaction;
+
+SELECT * FROM usrShopifyOrder;
+SELECT * FROM usrJobExecutionLog;
+
+
 -- Payouts (ON HOLD FOR NOW)
 SELECT * FROM usrShopifyPayout;
 
+
+INSERT INTO usrJobExecutionLog VALUES('Test 1',  GETUTCDATE())
+INSERT INTO usrJobExecutionLog VALUES('Test 2',  GETUTCDATE())
+INSERT INTO usrJobExecutionLog VALUES('Test 3',  GETUTCDATE())
+
+DELETE FROM usrJobExecutionLog;

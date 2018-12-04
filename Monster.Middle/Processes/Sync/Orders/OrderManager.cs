@@ -1,4 +1,5 @@
 ﻿using Monster.Acumatica.Http;
+using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders.Workers;
 
@@ -6,6 +7,7 @@ namespace Monster.Middle.Processes.Sync.Orders
 {
     public class OrderManager
     {
+        private readonly TenantRepository _tenantRepository;
         private readonly AcumaticaHttpContext _acumaticaContext;
 
         private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
@@ -18,6 +20,8 @@ namespace Monster.Middle.Processes.Sync.Orders
         private readonly AcumaticaRefundSync _acumaticaRefundSync;
 
         public OrderManager(
+                TenantRepository tenantRepository,
+
                 AcumaticaHttpContext acumaticaContext,
                 AcumaticaCustomerSync acumaticaCustomerSync,
                 AcumaticaOrderSync acumaticaOrderSync,
@@ -28,6 +32,7 @@ namespace Monster.Middle.Processes.Sync.Orders
 
                 ShopifyFulfillmentSync shopifyFulfillmentSync)
         {
+            _tenantRepository = tenantRepository;
             _acumaticaContext = acumaticaContext;
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaInventorySync = acumaticaInventorySync;
@@ -57,16 +62,21 @@ namespace Monster.Middle.Processes.Sync.Orders
 
         public void RoutineOrdersSync()
         {
+            var preferences = _tenantRepository.RetrievePreferences();
+            var fulfilledInAcumatica = preferences.FulfillmentInAcumatica.Value;
+
             _acumaticaContext.Login();
 
             // Load Sales Orders into Acumatica
             _acumaticaOrderSync.Run();
 
-            // TODO - this depends on whether the preference is to:
-            // 1) Sync Fulfillments to Acumatica Shipments
-            _acumaticaShipmentSync.RunShipments();
-            _acumaticaShipmentSync.RunConfirmShipments();
-            _acumaticaShipmentSync.RunSingleInvoicePerShipment();
+            if (!fulfilledInAcumatica)
+            { 
+                // Sync Fulfillments to Acumatica Shipments
+                _acumaticaShipmentSync.RunShipments();
+                _acumaticaShipmentSync.RunConfirmShipments();
+                _acumaticaShipmentSync.RunSingleInvoicePerShipment();
+            }
 
             // Synchronize Payments and Refunds
             _acumaticaPaymentSync.Run();
@@ -75,9 +85,11 @@ namespace Monster.Middle.Processes.Sync.Orders
             _acumaticaContext.Logout();
 
 
-            // ...or to:
-            // 2) Sync Shipments to Shopify Fulfillments
-            //_shopifyFulfillmentSync.Run();
+            // Sync Shipments to Shopify Fulfillments
+            if (fulfilledInAcumatica)
+            {
+                _shopifyFulfillmentSync.Run();
+            }
         }
 
         public void SingleOrderPush(long shopifyOrderId)

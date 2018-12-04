@@ -991,6 +991,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
         public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
         public string RealTimeHangFireJobId { get; set; } // RealTimeHangFireJobId (length: 250)
+        public bool? FulfillmentInAcumatica { get; set; } // FulfillmentInAcumatica
     }
 
     // usrQueuedJob
@@ -1881,6 +1882,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxId).HasColumnName(@"AcumaticaTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.RealTimeHangFireJobId).HasColumnName(@"RealTimeHangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(250);
+            Property(x => x.FulfillmentInAcumatica).HasColumnName(@"FulfillmentInAcumatica").HasColumnType("bit").IsOptional();
         }
     }
 

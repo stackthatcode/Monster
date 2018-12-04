@@ -74,10 +74,14 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 _syncOrderRepository
                     .RetrieveSalesOrder(shipmentSoRecord.AcumaticaOrderNbr);
 
+            // TODO - This should've been filtered by the View
             if (!orderRecord.IsFromShopify())
             {
                 return;
             }
+
+            // TODO - Does this Order have Fulfillments that not synced with Acumatica?
+            // ... if so, then we can't do this either
 
             var shopifyOrderRecord = orderRecord.MatchingShopifyOrder();
             var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
