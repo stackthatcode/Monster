@@ -136,9 +136,8 @@
             </a>
 
             <a href="@GlobalConfig.Url("Config/RealTime")"
-               class="btn btn-primary btn-lg"
-               data-bind="click: StartRealTimeClick">
-                Start Real Time, Now!
+               class="btn btn-success btn-lg">
+                Go to Real Time, Now!
                 <i class="fas fa-sign-in-alt"></i>
             </a>
         </div>
@@ -196,7 +195,6 @@
             self.Step3Visible(true);
         };
 
-
         self.LoadInventoryInShopifyClick = function () {
             self.ClearVisibility();
             self.Step4Visible(true);
@@ -227,15 +225,6 @@
             self.Step5Visible(true);
         };
 
-        self.StartRealTimeClick = function () {
-            flow.exec(function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Config/StartRealTime", {}, this);
-                },
-                function() {
-                    window.location = "@GlobalConfig.Url("Config/RealTime")";
-                });
-        }
 
         self.Initialize = function () {
             self.ClearVisibility();

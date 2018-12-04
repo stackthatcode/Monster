@@ -1,6 +1,6 @@
-﻿using Monster.Middle.Persist.Multitenant.Sync;
-using Monster.Middle.Processes.Acumatica.Persist;
+﻿using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Persist;
 
 namespace Monster.Middle.Processes.Sync.Orders.Workers
 {

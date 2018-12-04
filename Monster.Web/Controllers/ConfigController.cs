@@ -1,7 +1,5 @@
 ﻿using System.Web.Mvc;
 using AutoMapper;
-using Hangfire;
-using Monster.Middle.Directors;
 using Monster.Middle.Jobs;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
@@ -9,6 +7,7 @@ using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Push.Foundation.Web.Json;
+
 
 namespace Monster.Web.Controllers
 {
@@ -34,7 +33,6 @@ namespace Monster.Web.Controllers
 
 
         [HttpGet]
-
         public ActionResult Home()
         {
             return View();

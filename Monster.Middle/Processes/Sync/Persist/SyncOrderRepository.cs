@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using Monster.Middle.Persist.Multitenant;
 using Push.Shopify.Api.Transactions;
 
-namespace Monster.Middle.Persist.Multitenant.Sync
+namespace Monster.Middle.Processes.Sync.Persist
 {
     public class SyncOrderRepository
     {

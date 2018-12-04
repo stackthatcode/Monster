@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;

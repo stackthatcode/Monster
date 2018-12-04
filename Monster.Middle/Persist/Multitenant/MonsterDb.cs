@@ -975,6 +975,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaTaxZone { get; set; } // AcumaticaTaxZone (length: 50)
         public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
         public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
+        public string RealTimeHangFireJobId { get; set; } // RealTimeHangFireJobId (length: 250)
     }
 
     // usrQueuedJob
@@ -983,8 +984,8 @@ namespace Monster.Middle.Persist.Multitenant
     {
         public long Id { get; set; } // Id (Primary key)
         public int QueuedJobType { get; set; } // QueuedJobType
-        public string HangFireJobId { get; set; } // HangFireJobId (length: 50)
         public int JobStatus { get; set; } // JobStatus
+        public string HangFireJobId { get; set; } // HangFireJobId (length: 50)
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
     }
@@ -1844,6 +1845,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaTaxZone).HasColumnName(@"AcumaticaTaxZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxId).HasColumnName(@"AcumaticaTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.RealTimeHangFireJobId).HasColumnName(@"RealTimeHangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(250);
         }
     }
 
@@ -1863,8 +1865,8 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.QueuedJobType).HasColumnName(@"QueuedJobType").HasColumnType("int").IsRequired();
-            Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.JobStatus).HasColumnName(@"JobStatus").HasColumnType("int").IsRequired();
+            Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }

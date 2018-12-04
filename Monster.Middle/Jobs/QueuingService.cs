@@ -10,6 +10,7 @@ namespace Monster.Middle.Jobs
     public class QueuingService
     {
         private readonly TenantContext _tenantContext;
+        private readonly TenantRepository _tenantRepository;
         private readonly JobRepository _jobRepository;
         private readonly IPushLogger _logger;
 
@@ -21,10 +22,12 @@ namespace Monster.Middle.Jobs
         public QueuingService(
                 TenantContext tenantContext, 
                 JobRepository jobRepository,
+                TenantRepository tenantRepository,
                 IPushLogger logger)
         {
             _tenantContext = tenantContext;
             _jobRepository = jobRepository;
+            _tenantRepository = tenantRepository;
             _logger = logger;
         }
 
@@ -94,12 +97,22 @@ namespace Monster.Middle.Jobs
         // Recurring Job - separate category
         public void ScheduleRoutineSync()
         {
+            var jobId = RoutineSyncJobId();
 
-            RecurringJob.AddOrUpdate<JobRunner>(
-                RoutineSyncJobId(),
-                x => x.RunRoutineSync(_tenantContext.InstallationId),
-                "*/5 * * * *",
-                TimeZoneInfo.Utc);
+            using (var transaction = _tenantRepository.BeginTransaction())
+            {
+                var preferences = _tenantRepository.RetrievePreferences();
+
+                RecurringJob.AddOrUpdate<JobRunner>(
+                    x => x.RunRoutineSync(_tenantContext.InstallationId),
+                    "*/1 * * * *",
+                    TimeZoneInfo.Utc);
+
+                preferences.RealTimeHangFireJobId = jobId;
+                _tenantRepository.Entities.SaveChanges();
+
+                transaction.Commit();
+            }
         }
     }
 }

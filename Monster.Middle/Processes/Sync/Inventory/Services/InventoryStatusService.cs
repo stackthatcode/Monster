@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Persist;

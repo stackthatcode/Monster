@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;

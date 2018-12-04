@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data.Entity;
+using System.Linq;
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Multitenant.Model;
 using Push.Foundation.Utilities.Helpers;
@@ -23,6 +24,10 @@ namespace Monster.Middle.Persist.Multitenant
             _cryptoService = cryptoService;
         }
 
+        public DbContextTransaction BeginTransaction()
+        {
+            return Entities.Database.BeginTransaction();
+        }
 
         // TODO => implement this https://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string-in-c/10366194#10366194
 

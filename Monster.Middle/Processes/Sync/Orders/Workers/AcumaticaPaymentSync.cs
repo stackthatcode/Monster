@@ -3,8 +3,8 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Sync;
 using Monster.Middle.Processes.Sync.Extensions;
+using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Transactions;
 

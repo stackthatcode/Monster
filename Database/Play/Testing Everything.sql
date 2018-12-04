@@ -66,6 +66,11 @@ SELECT * FROM usrShopAcuShipmentSync;
 SELECT * FROM vw_AcumaticaUnsyncedShipments 
 
 
+
+
+DELETE FROM usrQueuedJob;
+
+
 -- Refunds
 SELECT * FROM usrShopifyRefund;
 
