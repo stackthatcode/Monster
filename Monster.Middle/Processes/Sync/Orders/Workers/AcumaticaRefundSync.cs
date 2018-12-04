@@ -22,18 +22,21 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly SalesOrderClient _salesOrderClient;
-        
+        private readonly JobRepository _jobRepository;
+
         public AcumaticaRefundSync(
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     AcumaticaShipmentPull acumaticaShipmentPull,
                     SalesOrderClient salesOrderClient, 
-                    TenantRepository tenantRepository)
+                    TenantRepository tenantRepository, 
+                    JobRepository jobRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _acumaticaShipmentPull = acumaticaShipmentPull;
             _salesOrderClient = salesOrderClient;
             _tenantRepository = tenantRepository;
+            _jobRepository = jobRepository;
             _syncInventoryRepository = syncInventoryRepository;
         }
 
@@ -179,6 +182,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             syncRecord.LastUpdated = DateTime.UtcNow;
 
             _syncOrderRepository.InsertRefundSync(syncRecord);
+
+            var log =
+                $"Created Refund {resultCM.OrderNbr.value} in Acumatica from " +
+                $"Shopify Order #{shopifyOrder.order_number}";
+
+            _jobRepository.InsertExecutionLog(log);
 
             // Write the Sales Tax 
             if (resultCM.TaxDetails.Any())

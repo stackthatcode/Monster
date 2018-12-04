@@ -11,7 +11,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
     {
         public static bool IsReadyForShipment(this UsrAcumaticaSalesOrder order)
         {
-            return order.AcumaticaStatus == "Open";
+            return order.AcumaticaStatus == "Open" || order.AcumaticaStatus == "Back Order";
         }
         
         public static bool IsMatchedToShopify(this UsrAcumaticaStockItem stockItem)

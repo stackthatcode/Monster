@@ -249,6 +249,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var result = _shipmentClient.ConfirmShipment(payload.SerializeToJson());
             shipmentRecord.AcumaticaStatus = "Confirmed";
             _syncInventoryRepository.SaveChanges();
+
+            var log = $"Confirmed Shipment {shipmentRecord.AcumaticaShipmentNbr} in Acumatica";
+
+            _jobRepository.InsertExecutionLog(log);
+
         }
 
 
@@ -289,6 +294,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             // Acumatica does not allow you split up Shipments for Invoicing
             shipmentRecord.AcumaticaInvoiceRefNbr = resultInvoice.ReferenceNbr.value;
             _syncOrderRepository.Entities.SaveChanges();
+
+            var log = $"Created Invoice for Shipment {shipmentRecord.AcumaticaShipmentNbr} in Acumatica";
+            _jobRepository.InsertExecutionLog(log);
         }
     }
 }
