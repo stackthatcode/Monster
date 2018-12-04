@@ -60,7 +60,7 @@ Monster.Ajax = function (settings) {
             }
 
             if (jqXHR.status == 403) {
-                message = Monster.Http403ErrorMessage
+                message = Monster.Http403ErrorMessage;
             }
             
             if (self.Settings.Modal) {

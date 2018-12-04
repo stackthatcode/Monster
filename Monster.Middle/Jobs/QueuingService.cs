@@ -3,6 +3,7 @@ using Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
 using Monster.Middle.Services;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Jobs
@@ -95,20 +96,46 @@ namespace Monster.Middle.Jobs
         }
 
         // Recurring Job - separate category
-        public void ScheduleRoutineSync()
+        public void StartRoutineSync()
         {
-            var jobId = RoutineSyncJobId();
+            var routineSyncJobId = RoutineSyncJobId();
 
             using (var transaction = _tenantRepository.BeginTransaction())
             {
                 var preferences = _tenantRepository.RetrievePreferences();
 
-                RecurringJob.AddOrUpdate<JobRunner>(
+                RecurringJob.AddOrUpdate<JobRunner>(  
+                    routineSyncJobId,
                     x => x.RunRoutineSync(_tenantContext.InstallationId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 
-                preferences.RealTimeHangFireJobId = jobId;
+                preferences.RealTimeHangFireJobId = routineSyncJobId;;
+                _tenantRepository.Entities.SaveChanges();
+
+                transaction.Commit();
+            }
+        }
+
+        public bool IsRoutineSyncStarted()
+        {
+            var preferences = _tenantRepository.RetrievePreferences();
+            return !preferences.RealTimeHangFireJobId.IsNullOrEmpty();
+        }
+
+        public void PauseRoutineSync()
+        {
+            using (var transaction = _tenantRepository.BeginTransaction())
+            {
+                var preferences = _tenantRepository.RetrievePreferences();
+                var jobId = preferences.RealTimeHangFireJobId;
+                if (jobId.IsNullOrEmpty())
+                {
+                    return;
+                }
+
+                RecurringJob.RemoveIfExists(jobId);
+                preferences.RealTimeHangFireJobId = null;
                 _tenantRepository.Entities.SaveChanges();
 
                 transaction.Commit();

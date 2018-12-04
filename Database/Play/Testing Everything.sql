@@ -8,7 +8,7 @@ DELETE FROM usrPreferences;
 INSERT INTO usrPreferences VALUES (
 	'2018-01-01', 
 	00.20, 
-	1019, 
+	1020, 
 	'STOCKITEM', 
 	'SHOPIFY', 
 	'5/24/2014', 

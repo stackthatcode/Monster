@@ -9,18 +9,20 @@ namespace Monster.Middle.Processes.Shopify
         private readonly ShopifyInventoryPull _shopifyInventoryPull;
         private readonly ShopifyCustomerPull _shopifyCustomerPull;
         private readonly ShopifyOrderPull _shopifyOrderPull;
-
+        private readonly ShopifyTransactionPull _shopifyTransactionPull;
 
         public ShopifyManager(
             ShopifyLocationPull shopifyLocationPull,
             ShopifyInventoryPull shopifyInventoryPull, 
             ShopifyCustomerPull shopifyCustomerPull, 
-            ShopifyOrderPull shopifyOrderPull)
+            ShopifyOrderPull shopifyOrderPull, 
+            ShopifyTransactionPull shopifyTransactionPull)
         {
             _shopifyLocationPull = shopifyLocationPull;
             _shopifyInventoryPull = shopifyInventoryPull;
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyOrderPull = shopifyOrderPull;
+            _shopifyTransactionPull = shopifyTransactionPull;
         }
         
 
@@ -39,6 +41,7 @@ namespace Monster.Middle.Processes.Shopify
         {
             _shopifyCustomerPull.RunAutomatic();
             _shopifyOrderPull.RunAutomatic();
+            _shopifyTransactionPull.RunAutomatic();
         }
     }
 }

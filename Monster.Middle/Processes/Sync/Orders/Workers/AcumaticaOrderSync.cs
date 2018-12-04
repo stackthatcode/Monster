@@ -19,6 +19,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     public class AcumaticaOrderSync
     {
         private readonly TenantRepository _tenantRepository;
+        private readonly JobRepository _jobRepository;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
@@ -34,7 +35,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     CustomerClient customerClient,
                     SalesOrderClient salesOrderClient,
                     AcumaticaOrderPull acumaticaOrderPull, 
-                    TenantRepository tenantRepository)
+                    TenantRepository tenantRepository, 
+                    JobRepository jobRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _acumaticaOrderRepository = acumaticaOrderRepository;
@@ -42,6 +44,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _salesOrderClient = salesOrderClient;
             _acumaticaOrderPull = acumaticaOrderPull;
             _tenantRepository = tenantRepository;
+            _jobRepository = jobRepository;
             _syncInventoryRepository = syncInventoryRepository;
         }
 
@@ -180,7 +183,13 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             _syncOrderRepository
                 .InsertOrderSync(shopifyOrderRecord, acumaticaRecord);
+            _jobRepository.InsertExecutionLog(
+                $"Created Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
+                $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
 
+
+            // TODO - add a flag to the Sync Record to indicate that Taxes 
+            // ... have been propery loaded
             // Write the Sales Tax 
             var taxUpdate = new TaxDetails();
             taxUpdate.id = resultSalesOrder.TaxDetails.First().id;

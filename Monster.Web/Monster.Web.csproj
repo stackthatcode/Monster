@@ -206,6 +206,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ExecutionLog.cs" />
     <Compile Include="Models\Preferences.cs" />
     <Compile Include="Models\WarehouseSyncStatusModel.cs" />
     <Compile Include="Plumbing\GlobalConfig.cs" />

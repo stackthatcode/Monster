@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant.Model;
 
@@ -65,6 +66,23 @@ namespace Monster.Middle.Persist.Multitenant
             job.LastUpdated = DateTime.UtcNow;
             Entities.SaveChanges();
         }
-        
+
+
+        public void InsertExecutionLog(string content)
+        {
+            var logEntry = new UsrJobExecutionLog();
+            logEntry.LogContent = content;
+            logEntry.DateCreated = DateTime.UtcNow;
+            Entities.UsrJobExecutionLogs.Add(logEntry);
+            Entities.SaveChanges();
+        }
+
+        public List<UsrJobExecutionLog> RetrieveExecutionLogs()
+        {
+            return Entities
+                .UsrJobExecutionLogs
+                .OrderByDescending(x => x.DateCreated)
+                .ToList();
+        }
     }
 }

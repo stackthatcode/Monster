@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Linq;
+using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Jobs;
 using Monster.Middle.Persist.Multitenant;
@@ -6,6 +7,7 @@ using Monster.Middle.Persist.Multitenant.Model;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Web.Json;
 
 
@@ -132,7 +134,32 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult StartRealTime()
         {
-            _queuingService.ScheduleRoutineSync();
+            _queuingService.StartRoutineSync();
+            return JsonNetResult.Success();
+        }
+
+        public ActionResult RealTimeStatus()
+        {
+            var logs = _jobRepository.RetrieveExecutionLogs();
+            var logDtos = 
+                logs.Select(x => 
+                    new ExecutionLog()
+                    {
+                        LogTime = x.DateCreated.ToString(),
+                        Content = x.LogContent,
+                    }).ToList();
+
+            var output = new
+            {
+                IsStarted = _queuingService.IsRoutineSyncStarted(),
+                Logs = logDtos,
+            };
+            return new JsonNetResult(output);
+        }
+
+        public ActionResult PauseRealTime()
+        {
+            _queuingService.PauseRoutineSync();
             return JsonNetResult.Success();
         }
     }

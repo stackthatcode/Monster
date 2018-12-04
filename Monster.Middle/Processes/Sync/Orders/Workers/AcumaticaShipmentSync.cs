@@ -25,21 +25,25 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
         private readonly SalesOrderClient _salesOrderClient;
-        
+        private readonly JobRepository _jobRepository;
+
         public AcumaticaShipmentSync(
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     ShopifyOrderRepository shopifyOrderRepository,
                     AcumaticaShipmentPull acumaticaShipmentPull,
                     ShipmentClient shipmentClient, 
-                    SalesOrderClient salesOrderClient)
+                    SalesOrderClient salesOrderClient,
+                    JobRepository jobRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
             _acumaticaShipmentPull = acumaticaShipmentPull;
             _shipmentClient = shipmentClient;
             _salesOrderClient = salesOrderClient;
-            _syncInventoryRepository = syncInventoryRepository;
+            _jobRepository = jobRepository;
+              _syncInventoryRepository = syncInventoryRepository;
+            
         }
 
 
@@ -181,7 +185,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 detail.InventoryID = stockItemId.ToValue();
                 detail.WarehouseID = warehouseId.ToValue();
                 detail.ShippedQty = 
-                    ((double)line.fulfillable_quantity).ToValue();
+                    ((double)line.quantity).ToValue();
 
                 shipment.Details.Add(detail);
             }
@@ -208,6 +212,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 _syncOrderRepository
                     .InsertShipmentDetailSync(fulfillmentRecord, shipmentSoRecord);
 
+                var log = 
+                    $"Created Shipment {resultShipment.ShipmentNbr.value} in Acumatica from "+ 
+                    $"Shopify Order #{shopifyOrder.order_number}";
+
+                _jobRepository.InsertExecutionLog(log);
+                
                 transaction.Commit();
             }
         }

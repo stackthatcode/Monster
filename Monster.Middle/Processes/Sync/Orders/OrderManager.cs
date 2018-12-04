@@ -1,6 +1,4 @@
 ﻿using Monster.Acumatica.Http;
-using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders.Workers;
 
@@ -70,15 +68,16 @@ namespace Monster.Middle.Processes.Sync.Orders
             _acumaticaShipmentSync.RunConfirmShipments();
             _acumaticaShipmentSync.RunSingleInvoicePerShipment();
 
-            // ...or to:
-            // 2) Sync Shipments to Shopify Fulfillments
-            //_shopifyFulfillmentSync.Run();
-            
             // Synchronize Payments and Refunds
             _acumaticaPaymentSync.Run();
             _acumaticaRefundSync.Run();
 
             _acumaticaContext.Logout();
+
+
+            // ...or to:
+            // 2) Sync Shipments to Shopify Fulfillments
+            //_shopifyFulfillmentSync.Run();
         }
 
         public void SingleOrderPush(long shopifyOrderId)

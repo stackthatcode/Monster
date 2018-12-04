@@ -1,12 +1,20 @@
 ﻿@using Monster.Web.Plumbing
 
 
+<style>
+    .container {
+        width: auto;
+        max-width: 800px;
+        padding: 0 15px;
+    }
+</style>
+
+
 <div class="center std-padding">
     <img style="width: 125px;" src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")" />
 </div>
 
 <hr/>
-
 
 <div>
     <h1 class="mt-5 center">Odysseus Real-Time Mode</h1>
@@ -15,38 +23,99 @@
     </p>
 </div>
 
-<div class="std-padding">
-    <div class="card">
+<div data-bind="if: IsStarted">
+    <div class="std-padding">    
+        <div class="card">
+            <!-- If Real Time Synchronization is Enabled -->
+            <div class="card-body std-padding">
+                <h4 class="card-title center">Real-Time Synchronization Enabled</h4>
+                
+                <div style="height: 30px;"></div>
 
-        <!-- If Real Time Synchronization is Enabled -->
-        <div class="card-body std-padding">
-            <h5 class="card-title center">Real-Time Synchronization Enabled</h5>
+                <div style="text-align: center;">
+                    <img style="width: 80px;" 
+                         src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+                </div>
 
-            <p>Odysseus is busy working behind the scenes keeping your
-                Shopify storefront and your Acumatica ERP system synchronized.
-            </p>
+                <div style="height: 30px;"></div>
 
-            <p>No more person-hours wasted copying and loading data between systems.
-                Now you can focus on growing your business!
-            </p>
-            
-            <!-- Real-Time Feedback -->
+                <p>Odysseus is busy working behind the scenes keeping your
+                    Shopify storefront and your Acumatica ERP system synchronized.
+                    No more person-hours wasted copying and loading data between systems.
+                    Now you can focus on growing your business!
+                </p> 
+                
+                <div style="height: 30px;"></div>
+                
+                <div style="text-align: center;">
+                    <a href="@GlobalConfig.Url("Config/Preferences")"
+                       class="btn btn-secondary btn-lg">
+                        <i class="fas fa-undo"></i> Go Back to Config
+                    </a>
+
+                    <a href="#"
+                       data-bind="click: PauseRealTimeClick"
+                       class="btn btn-primary btn-lg">Pause Real-Time Sync
+                        <i class="fas fa-bolt"></i>
+                    </a>
+                </div>
+                
+                <div style="height: 30px;"></div>
+                
+                <h6 class="card-title">Real-Time Monitoring</h6>
+                <div style="overflow-y: scroll; height: 300px;">
+                    
+                    <div data-bind="if: Logs().length">
+                        <table class="table table-striped">
+                            <tbody data-bind="foreach: Logs">
+                            <tr>
+                                <td style="width: 200px;"
+                                    data-bind="text: LogTime"></td>
+                                <td data-bind="text: Content"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
         </div>
-    </div>
 
-    <div class="center std-padding">
-        <a href="@GlobalConfig.Url("Config/Preferences")"
-           class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Go Back to Config
-        </a>
-
-        <a href="#"
-           data-bind="click: StartRealTimeClick"
-           class="btn btn-primary btn-lg">Start Real-Time Monitoring
-            <i class="fas fa-bolt"></i>
-        </a>
     </div>
 </div>
+
+<div data-bind="ifnot: IsStarted">
+    <div class="std-padding">
+        <div class="card">
+            <!-- If Real Time Synchronization is Enabled -->
+            <div class="card-body std-padding">
+                <h5 class="card-title center">Real-Time Synchronization Not-Running</h5>
+
+                <p>
+                    When you are ready to begin Odysseus Real-Time Synchronization,
+                    please hit the "Start Real Time Sync" below.
+                </p>
+
+            </div>
+        </div>
+
+        <div class="center std-padding">
+            <a href="@GlobalConfig.Url("Config/Preferences")"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Go Back to Config
+            </a>
+
+            <a href="#"
+               data-bind="click: StartRealTimeClick"
+               class="btn btn-primary btn-lg">
+                Start Real-Time Sync
+                <i class="fas fa-bolt"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+
 
 <script>
     var Monster = Monster || {};
@@ -54,27 +123,52 @@
     Monster.InventoryConfigModel = function() {
         var self = this;
 
-        self.Step1Visible = ko.observable();
-        self.Step2Visible = ko.observable();
+        self.IsStarted = ko.observable(false);
+        self.Logs = ko.observableArray();
 
-        self.ClearVisibility = function() {
-            self.Step1Visible(false);
-            self.Step2Visible(false);
-        };
-
-        self.StartRealTimeClick = function() {
-            flow.exec(function() {
+        self.StartRealTimeClick = function () {
+            flow.exec(
+                function() {
                     var ajax = new Monster.Ajax();
                     ajax.HttpPost("Config/StartRealTime", {}, this);
                 },
-                function() {
-                    self.PollStatus();
+                function(response) {
+                    self.IsStarted(true);
                 });
-        }
+        };
+        
+        self.PauseRealTimeClick = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("Config/PauseRealTime", {}, this);
+                },
+                function (response) {
+                    self.IsStarted(false);
+                });
+        };
+
 
         // Add Polling Function
         self.PollStatus = function() {
+            flow.exec(function () {
+                var ajax = new Monster.Ajax();
+                ajax.ErrorCallback = function(jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                };
+                ajax.HttpGet("Config/RealTimeStatus", this);
+            },
+            function (response) {
+                console.log(response);
+                self.IsStarted(response.IsStarted);
+                self.Logs(response.Logs);
 
+                setTimeout(self.PollStatus, 1000);
+            });
+        };
+
+        self.Initialize = function() {
+            self.PollStatus();
         };
 
         return self;
@@ -84,5 +178,5 @@
     var model = new Monster.InventoryConfigModel();
     model.Initialize();
     ko.applyBindings(model);
-    model.PollStatus();
+    model.Initialize();
 </script>

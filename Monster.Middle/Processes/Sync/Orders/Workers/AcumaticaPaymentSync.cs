@@ -13,17 +13,20 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     public class AcumaticaPaymentSync
     {
         private readonly TenantRepository _tenantRepository;
+        private readonly JobRepository _jobRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
 
         public AcumaticaPaymentSync(
                 TenantRepository tenantRepository,
                 SyncOrderRepository syncOrderRepository, 
-                PaymentClient paymentClient)
+                PaymentClient paymentClient, 
+                JobRepository jobRepository)
         {
             _tenantRepository = tenantRepository;
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
+            _jobRepository = jobRepository;
         }
 
         public void Run()
@@ -84,7 +87,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             paymentRecord.ShopifyPaymentNbr = paymentNbr;
             paymentRecord.DateCreated = DateTime.UtcNow;
             paymentRecord.LastUpdated = DateTime.UtcNow;
+
             _syncOrderRepository.InsertPayment(paymentRecord);
+            var log = $"Created Payment {paymentNbr} in Acumatica " +
+                      $"from Shopify Order #{order.ShopifyOrderNumber}";
+            _jobRepository.InsertExecutionLog(log);
         }
     }
 }
