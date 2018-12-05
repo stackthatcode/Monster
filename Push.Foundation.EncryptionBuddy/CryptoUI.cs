@@ -76,11 +76,10 @@ namespace Push.Foundation
 
         private void buttonHMAC256_Click(object sender, EventArgs e)
         {
-            var hmacCrypto = new HmacCryptoService();
+            var hmacCrypto = new HmacCryptoService(this.textHMACSecret.Text);
 
             var hashedResult = 
-                hmacCrypto.ToBase64EncodedSha256(
-                        this.textHMACSecret.Text, this.textHMACPayload.Text);
+                hmacCrypto.ToBase64EncodedSha256(this.textHMACPayload.Text);
 
             this.textHMACOutput.Text = hashedResult;
         }

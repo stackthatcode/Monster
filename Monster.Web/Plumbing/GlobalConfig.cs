@@ -15,12 +15,17 @@ namespace Monster.Web.Plumbing
         public const bool ReleaseMode = true;
 #endif
 
-        public static readonly string AppName = "Odysseus - Automated Shopify to Acumatica Synchronization";
+        public static readonly string BaseUrl = ConfigurationManager.AppSettings["application_root_url"];
+        public static readonly string AppName = ConfigurationManager.AppSettings["application_name"];
+
         public static readonly string Organization = "Logic Automated LLC";
         public static readonly string SupportEmail = "aleksjones@gmail.com";
 
-        public static readonly string BaseUrl = ConfigurationManager.AppSettings["application_root_url"];
-        
+        public static string FullAppName 
+                => $"{AppName} - Automated Shopify to Acumatica Synchronization";
+
+
+
         public static RedirectResult Redirect(string destinationUrl, string returnUrl = null)
         {
             var url = $"{BaseUrl}" + $"{destinationUrl}";
@@ -36,7 +41,7 @@ namespace Monster.Web.Plumbing
         public static string Url(string relativepath)
         {
             return $"{BaseUrl}{relativepath}";
-        }
+        }        
 
         public static string LoginPage => Url("Config/Home");
     }

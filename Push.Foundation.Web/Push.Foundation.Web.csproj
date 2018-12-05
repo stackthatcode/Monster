@@ -153,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FoundationWebAutofac.cs" />
+    <Compile Include="Helpers\UtilityExtensions.cs" />
     <Compile Include="Helpers\HttpExceptionUtilities.cs" />
     <Compile Include="Helpers\JsonHelperExtensions.cs" />
     <Compile Include="Helpers\NetworkUtilities.cs" />

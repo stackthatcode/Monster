@@ -165,7 +165,6 @@ namespace Push.Shopify.Http
         {
             _httpClient?.Dispose();
         }
-
     }
 }
 
