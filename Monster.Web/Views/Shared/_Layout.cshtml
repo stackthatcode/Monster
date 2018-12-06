@@ -16,7 +16,8 @@
     <link href="@GlobalConfig.Url("Content/bootstrap.css")" rel="stylesheet">
     <link href="@GlobalConfig.Url("Content/site.css")" rel="stylesheet">    
     <link rel="stylesheet" href="@GlobalConfig.Url("Content/all.css")">
-    
+    <link rel="stylesheet" href="@GlobalConfig.Url("Content/gijgo.min.css")">
+
     <!-- JavaScript -->
     <script>        
         // Constant configuration
@@ -33,6 +34,7 @@
     @Scripts.Render("~/Scripts/flow.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/AjaxFunctions.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/knockout-3.4.2.js?tmp=" + Guid.NewGuid())
+    @Scripts.Render("~/Scripts/gijgo.min.js?tmp=" + Guid.NewGuid())    
 </head>
 
 <body>

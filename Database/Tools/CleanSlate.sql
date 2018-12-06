@@ -3,8 +3,14 @@ GO
 
 
 -- Clear out Monster
+
+--DELETE FROM usrJobExecutionLog;
+UPDATE usrPreferences SET RealTimeHangFireJobId = NULL;
+
 DELETE FROM usrAcumaticaBatchState;
 DELETE FROM usrShopifyBatchState;
+
+
 
 
 -- Synchronization

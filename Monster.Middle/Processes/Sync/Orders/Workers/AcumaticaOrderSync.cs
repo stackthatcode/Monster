@@ -53,9 +53,16 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         {
             var shopifyOrders 
                 = _syncOrderRepository.RetrieveShopifyOrdersNotSynced();
+            var preferences = _tenantRepository.RetrievePreferences();
+            var orderStart = preferences.ShopifyOrderPushStart ?? 1000;
 
             foreach (var shopifyOrder in shopifyOrders)
             {
+                if (shopifyOrder.ShopifyOrderNumber < orderStart)
+                {
+                    continue;
+                }
+
                 if (!shopifyOrder.IsPaid())
                 {
                     continue;
