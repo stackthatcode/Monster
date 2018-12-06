@@ -221,7 +221,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
             if (existingCustomer == null)
             {
                 var customerJson = _customerApi.Retrieve(order.customer.id);
-                var customer = customerJson.DeserializeFromJson<Customer>();
+                var customer
+                    = customerJson.DeserializeFromJson<CustomerParent>()
+                        .customer;
 
                 var newCustomer = new UsrShopifyCustomer();
                 newCustomer.ShopifyCustomerId = customer.id;

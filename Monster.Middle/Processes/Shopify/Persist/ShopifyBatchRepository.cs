@@ -52,22 +52,27 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
         
 
+        private readonly object _lock = new object();
+
         public UsrShopifyBatchState Retrieve()
         {
-            var output = 
-                _dataContext
-                    .Entities
-                    .UsrShopifyBatchStates.FirstOrDefault();
+            lock (_lock)
+            {
+                var output =
+                    _dataContext
+                        .Entities
+                        .UsrShopifyBatchStates.FirstOrDefault();
 
-            if (output == null)
-            {
-                var newState = new UsrShopifyBatchState();
-                Entities.UsrShopifyBatchStates.Add(newState);
-                return newState;
-            }
-            else
-            {
-                return output;
+                if (output == null)
+                {
+                    var newState = new UsrShopifyBatchState();
+                    Entities.UsrShopifyBatchStates.Add(newState);
+                    return newState;
+                }
+                else
+                {
+                    return output;
+                }
             }
         }
 

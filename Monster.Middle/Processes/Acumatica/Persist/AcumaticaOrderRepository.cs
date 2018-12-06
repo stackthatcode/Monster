@@ -74,7 +74,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         public DateTime? RetrieveOrderMaxUpdatedDate()
         {
-            if (Entities.UsrAcumaticaCustomers.Any())
+            if (Entities.UsrAcumaticaSalesOrders.Any())
             {
                 return Entities.UsrAcumaticaSalesOrders
                     .Select(x => x.LastUpdated)
@@ -121,7 +121,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         public DateTime? RetrieveShipmentMaxUpdatedDate()
         {
-            if (Entities.UsrAcumaticaCustomers.Any())
+            if (Entities.UsrAcumaticaShipments.Any())
             {
                 return Entities.UsrAcumaticaShipments
                     .Select(x => x.LastUpdated)

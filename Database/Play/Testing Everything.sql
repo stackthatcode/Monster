@@ -5,12 +5,11 @@ GO
 DELETE FROM usrPreferences;
 
 -- TODO - replace with interactive management
-DECLARE @StartingShopifyOrder int = 1028;
+DECLARE @StartingShopifyOrder int = 1029;
 DECLARE @FulfillInAcumatica bit = 1;
 
-
 INSERT INTO usrPreferences VALUES (
-	'2018-01-01', 
+	'2018-12-05', 
 	00.20, 
 	@StartingShopifyOrder, 
 	'STOCKITEM', 
@@ -28,6 +27,8 @@ INSERT INTO usrPreferences VALUES (
 SELECT * FROM usrTenant;
 
 SELECT * FROM usrPreferences;
+
+DELETE FROM usrShopifyBatchState;
 
 
 
@@ -90,7 +91,25 @@ SELECT * FROM usrShopifyAcuPayment;
 
 SELECT * FROM usrShopifyTransaction;
 
-SELECT * FROM usrShopifyOrder;
+
+DELETE FROM usrShopifyRefund;
+DELETE FROM usrShopifyFulfillment;
+DELETE FROM usrShopifyBatchState;
+DELETE FROM usrShopifyTransaction;
+DELETE FROM usrShopifyOrder;
+DELETE FROM usrShopifyCustomer;
+
+
+SELECT * FROM usrShopifyORder;
+
+
+SELECT * FROM usrShopifyCustomer;
+
+
+
+
+
+
 SELECT * FROM usrJobExecutionLog;
 
 
@@ -103,3 +122,13 @@ INSERT INTO usrJobExecutionLog VALUES('Test 2',  GETUTCDATE())
 INSERT INTO usrJobExecutionLog VALUES('Test 3',  GETUTCDATE())
 
 DELETE FROM usrJobExecutionLog;
+
+SELECT * FROM usrQueuedJob;
+
+DELETE FROM usrQueuedJob;
+
+SELECT * FROM usrPreferences;
+SELECT * FROM usrShopifyORder;
+
+
+

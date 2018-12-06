@@ -27,6 +27,11 @@ namespace Push.Shopify.Api.Customer
         public List<Address> addresses { get; set; }
     }
 
+    public class CustomerParent
+    {
+        public Customer customer { get; set; }
+    }
+
     public class CustomerList
     {
         public List<Customer> customers { get; set; }
