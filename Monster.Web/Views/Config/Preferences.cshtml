@@ -10,26 +10,47 @@
 <h1 class="mt-5 center">Configuration - Preferences</h1>
 <p class="lead center">Choose settings to enable @GlobalConfig.AppName to properly synchronize</p>
 
-<p>By now, you will have configured your Acumatica instance in preparation for
-    Real-Time Synchronization. If you haven't already, please review 
-    <a href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")">
-        the following guide</a> and make sure you have everything properly setup.
-</p>
-<p>As soon as your Acumatica instance is ready, hit the "Load Settings" button.
-    If you want to use a different Acumatica instance, hit the "Acumatica Connection" button.
-</p>
+<div data-bind="if: Step1Visible">
+    <p>
+        By now, you will have configured your Acumatica instance in preparation for
+        Real-Time Synchronization. If you haven't already, please review
+        <a href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")">
+            the following guide
+        </a> and make sure you have everything properly setup.
+    </p>
+    <p>
+        As soon as your Acumatica instance is ready, hit the "Load Settings" button.
+        If you want to use a different Acumatica instance, hit the "Acumatica Connection" button.
+    </p>
 
-<div class="std-padding center">
-    <a href="@GlobalConfig.Url("Config/AcumaticaCreds")"
-       class="btn btn-secondary btn-lg">
-        <i class="fas fa-undo"></i> Acumatica Connection
-    </a>
+    <div class="std-padding center">
+        <a href="@GlobalConfig.Url("Config/AcumaticaCreds")"
+           class="btn btn-secondary btn-lg">
+            <i class="fas fa-undo"></i> Acumatica Connection
+        </a>
 
-    <a href="#" class="btn btn-primary btn-lg"
-       data-bind="click: ConnectToAcumatica">
-        Load Settings <i class="fas fa-sign-in-alt"></i>
-    </a>
+        <a href="#" class="btn btn-primary btn-lg"
+           data-bind="click: ConnectToAcumatica">
+            Load Settings <i class="fas fa-sign-in-alt"></i>
+        </a>
 
+    </div>
+</div>
+
+<div data-bind="if: Step2Visible">
+    <div class="std-padding">
+        <div class="card">
+            <div class="card-body center std-padding">
+                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+                <div style="height: 30px;"></div>
+                <p class="center">
+                    Please wait while @GlobalConfig.AppName connects to your Acumatica instance
+                    to collect data for Preferences. 
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -37,77 +58,121 @@
     .preferences th, .preferences td { text-align: left; }
 </style>
 
-<div style="display: none;" class="card text-center">
-    <div class="card-body">
-        <table class="table table-striped preferences">
-            <tbody>
-            <tr>
-                <th style="width: 50%;" scope="row">DataPullStart</th>
-                <td>@Model.DataPullStart</td>
-            </tr>
-            <tr>
-                <th scope="row">ShopifyOrderPushStart</th>
-                <td>@Model.ShopifyOrderPushStart</td>
-            </tr>
-            <tr>
-                <th scope="row">FulfillmentSystem</th>
-                <td>@Model.FulfillmentSystem</td>
-            </tr>
-            <tr>
-                <th scope="row">DefaultCoGsMargin</th>
-                <td>@Model.DefaultCoGsMargin</td>
-            </tr>
-            <tr>
-                <th scope="row">AcumaticaDefaultItemClass</th>
-                <td>@Model.AcumaticaDefaultItemClass</td>
-            </tr>
-            <tr>
-                <th scope="row">AcumaticaDefaultPostingClass</th>
-                <td>@Model.AcumaticaDefaultPostingClass</td>
-            </tr>
-            <tr>
-                <th scope="row">AcumaticaPostingDate</th>
-                <td>@Model.AcumaticaPostingDate</td>
-            </tr>
-            <tr>
-                <th scope="row">AcumaticaTimeZone</th>
-                <td>@Model.AcumaticaTimeZone</td>
-            </tr>
+<div data-bind="if: Step3Visible">
+    <div class="std-padding">
+        <div class="card text-center">
+            <div class="card-body">
+                <table class="table table-striped preferences">
+                    <tbody>
+                        <tr>
+                            <th style="width: 50%;" scope="row">DataPullStart</th>
+                            <td>@Model.DataPullStart</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">ShopifyOrderPushStart</th>
+                            <td>@Model.ShopifyOrderPushStart</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">FulfillmentSystem</th>
+                            <td>@Model.FulfillmentSystem</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">DefaultCoGsMargin</th>
+                            <td>@Model.DefaultCoGsMargin</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">AcumaticaDefaultItemClass</th>
+                            <td>@Model.AcumaticaDefaultItemClass</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">AcumaticaDefaultPostingClass</th>
+                            <td>@Model.AcumaticaDefaultPostingClass</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">AcumaticaPostingDate</th>
+                            <td>@Model.AcumaticaPostingDate</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">AcumaticaTimeZone</th>
+                            <td>@Model.AcumaticaTimeZone</td>
+                        </tr>
 
-            <tr>
-                <th scope="row">AcumaticaPaymentMethod</th>
-                <td>@Model.AcumaticaPaymentMethod</td>
-            </tr>
-            <tr>
-                <th scope="row">AcumaticaPaymentCashAccount</th>
-                <td>@Model.AcumaticaPaymentCashAccount</td>
-            </tr>
+                        <tr>
+                            <th scope="row">AcumaticaPaymentMethod</th>
+                            <td>@Model.AcumaticaPaymentMethod</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">AcumaticaPaymentCashAccount</th>
+                            <td>@Model.AcumaticaPaymentCashAccount</td>
+                        </tr>
 
-            <tr>
-                <th scope="row">AcumaticaTaxZone</th>
-                <td>@Model.AcumaticaTaxZone</td>
-            </tr>
-            <tr>
-                <th scope="row">AcumaticaTaxCategory</th>
-                <td>@Model.AcumaticaTaxCategory</td>
-            </tr>
-            <tr>
-                <th scope="row">AcumaticaTaxId</th>
-                <td>@Model.AcumaticaTaxId</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="card-footer text-muted">
-        2 days ago
+                        <tr>
+                            <th scope="row">AcumaticaTaxZone</th>
+                            <td>@Model.AcumaticaTaxZone</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">AcumaticaTaxCategory</th>
+                            <td>@Model.AcumaticaTaxCategory</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">AcumaticaTaxId</th>
+                            <td>@Model.AcumaticaTaxId</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-muted">
+                2 days ago
+            </div>
+        </div>
     </div>
 </div>
 
 <!--
 <div class="center std-padding">
-    <a href="@GlobalConfig.Url("Config/Warehouses")" 
+    <a href="@GlobalConfig.Url("Config/Warehouses")"
        class="btn btn-success btn-lg">Go to Next Step
         <i class="fas fa-sign-in-alt"></i></a>
 </div>
 -->
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.AcumaticaCredsModel = function () {
+        var self = this;
+
+        self.Step1Visible = ko.observable();
+        self.Step2Visible = ko.observable();
+        self.Step3Visible = ko.observable();
+
+        self.ClearVisibility = function () {
+            self.Step1Visible(false);
+            self.Step2Visible(false);
+            self.Step3Visible(false);
+        };
+
+        self.ConnectToAcumatica = function () {
+            self.ClearVisibility();
+            self.Step2Visible(true);
+            setTimeout(self.ConnectionComplete, 2000);
+        };
+
+        self.ConnectionComplete = function () {
+            self.ClearVisibility();
+            self.Step3Visible(true);
+        };
+
+        self.Initialize = function () {
+            self.ClearVisibility();
+            self.Step1Visible(true);
+        };
+
+        return self;
+    };
+
+    var model = new Monster.AcumaticaCredsModel();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
 
