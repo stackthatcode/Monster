@@ -22,6 +22,7 @@ namespace Monster.Web.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         public ActionResult Start()
         {
             return View();

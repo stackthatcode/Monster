@@ -40,6 +40,12 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
+        public ActionResult AcumaticaCreds()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public ActionResult Preferences()
         {
             var preferencesData = _tenantRepository.RetrievePreferences();

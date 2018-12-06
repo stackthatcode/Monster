@@ -221,6 +221,7 @@
     <Content Include="Content\all.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\DetailGraphic.png" />
+    <Content Include="Content\pdf-icon.png" />
     <Content Include="Content\ShopifySyncWithAcumatica.png" />
     <Content Include="Content\site.css" />
     <Content Include="Content\throbber_12.gif" />
@@ -296,7 +297,13 @@
     <Content Include="Views\Config\RealTime.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\ShopifyAuth\Home.cshtml" />
+    <Content Include="Views\ShopifyAuth\Start.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Config\AcumaticaCreds.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\Ulysses-AcumaticaConfiguration.pdf" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

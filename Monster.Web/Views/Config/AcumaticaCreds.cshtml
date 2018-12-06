@@ -1,0 +1,182 @@
+﻿@using Monster.Web.Plumbing
+@model Monster.Web.Models.Preferences
+
+
+<style>
+    .form-group label {
+        font-weight: 700;
+    }
+</style>
+
+<div class="center std-padding">
+    <img style="width: 125px;" src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")"/>
+</div>
+
+<hr/>
+<h1 class="mt-5 center">Configuration - Acumatica</h1>
+<p class="lead center">Cloud-based Shopify-to-Acumatica Synchronization</p>
+
+<div data-bind="if: Step1Visible">
+    <div class="std-padding">
+        <p>
+            Now, we will connect @GlobalConfig.AppName to your Acumatica instance.
+            In preparation, make sure you have selected the correct Acumatica instance
+            and have the appropriate security credentials for access.
+        </p>
+
+        <div class="card text-center">
+            <div class="card-body" style="text-align: left;">
+                <div class="form-group">
+                    <label for="instanceUrl">Acumatica Instance URL</label>
+                    <input type="url"
+                           class="form-control"
+                           name="instanceUrl"
+                           id="instanceUrl"
+                           placeholder="Enter your Acumatica Instance URL">
+
+                    <small id="urlHelp" class="form-text text-muted">
+                        E.G.: https://acucode.acumaticacloud.com
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="branch">Acumatica Branch</label>
+                    <input type="text"
+                           class="form-control"
+                           name="branch"
+                           id="branch"
+                           placeholder="Enter the Acumatica Branch">
+
+                    <small id="branchHelp" class="form-text text-muted">
+                        E.G.: MYCOMPANY
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Acumatica User Name</label>
+                    <input type="text"
+                           class="form-control"
+                           name="username"
+                           id="username"
+                           placeholder="Enter the Acumatica User Name">
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Acumatica Password</label>
+                    <input type="text"
+                           class="form-control"
+                           name="password"
+                           id="password"
+                           placeholder="Enter the Acumatica Password">
+                </div>
+
+                <div class="center std-padding">
+                    <a href="#" class="btn btn-primary btn-lg"
+                       data-bind="click: ConnectToAcumatica">
+                        Connect to Acumatica <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-bind="if: Step2Visible">
+    <div class="std-padding">
+        <div class="card">
+            <div class="card-body center std-padding">
+                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+                <div style="height: 30px;"></div>
+                <p class="center">
+                    Please wait while @GlobalConfig.AppName connects to your Acumatica instance.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-bind="if: Step3Visible">
+    <div class="std-padding">
+
+        <div class="alert alert-primary">
+            <strong>Acumatica Connection - Successful</strong>
+            - @GlobalConfig.AppName now has access to your Acumatica instance
+            and can begin reading data.
+        </div>
+
+        <p>
+            The next step will require you to configure Acumatica so that
+            @GlobalConfig.AppName can properly push Shopify data during
+            real-time synchronization. This will involve creating
+            Item Classes, Tax Categories, etc.
+        </p>
+
+        <p>
+            Download the following PDF document and execute all of the steps contained
+            therein to prepare your Acumatica instance for synchronization.
+        </p>
+
+        <div class="card">
+            <div class="card-body center">
+                <a target="_blank" 
+                   href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")">
+                    <img style="width: 125px;" src="@GlobalConfig.Url("Content/pdf-icon.png")" />
+                </a>
+                <p class="center" style="font-weight: 700;">
+                    Download - Configuring Acumatica for Ulysses Synchronization
+                </p>
+            </div>
+        </div>
+
+
+        <div class="center std-padding">
+            <a href="@GlobalConfig.Url("Config/Preferences")"
+               class="btn btn-success btn-lg">
+                Go to Next Step
+                <i class="fas fa-sign-in-alt"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.AcumaticaCredsModel = function() {
+        var self = this;
+
+        self.Step1Visible = ko.observable();
+        self.Step2Visible = ko.observable();
+        self.Step3Visible = ko.observable();
+
+        self.ClearVisibility = function() {
+            self.Step1Visible(false);
+            self.Step2Visible(false);
+            self.Step3Visible(false);
+        };
+
+        self.ConnectToAcumatica = function () {
+            self.ClearVisibility();
+            self.Step2Visible(true);
+            setTimeout(self.ConnectionComplete, 2000);
+        };
+
+        self.ConnectionComplete = function() {
+            self.ClearVisibility();
+            self.Step3Visible(true);
+        };
+
+        self.Initialize = function() {
+            self.ClearVisibility();
+            self.Step1Visible(true);
+        };
+
+        return self;
+    };
+
+    var model = new Monster.AcumaticaCredsModel();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
+

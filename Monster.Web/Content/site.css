@@ -17,6 +17,9 @@ body {
     background-color: #f5f5f5;
 }
 
+p {
+    text-align: justify;
+}
 
 /* Custom page CSS
 -------------------------------------------------- */

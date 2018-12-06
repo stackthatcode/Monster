@@ -33,13 +33,14 @@ namespace Monster.Web
             builder.Register(x => new NLogger(loggerName, x.Resolve<ILogFormatter>()))
                     .As<IPushLogger>()
                     .InstancePerLifetimeScope();
-            
+
             // Database Connection for ... OWIN stuff...?
             //ConfigureDatabaseConnection(builder);
 
             // ASP.NET MVC Controller registration
+            builder.RegisterType<ShopifyAuthController>();
             builder.RegisterType<ConfigController>();
-            
+
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

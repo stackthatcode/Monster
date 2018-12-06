@@ -2,21 +2,42 @@
 @model Monster.Web.Models.Preferences
 
 <div class="center std-padding">
-    <img style="width: 125px;" src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")"/>
+    <img style="width: 125px;" 
+         src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")"/>
 </div>
 
 <hr/>
-<h1 class="mt-5 center">Configuration</h1>
-<p class="lead center">Please take a moment to review your configuration settings</p>
+<h1 class="mt-5 center">Configuration - Preferences</h1>
+<p class="lead center">Choose settings to enable @GlobalConfig.AppName to properly synchronize</p>
 
-<p>Once @GlobalConfig.AppName is running in real-time, it will automatically produce a large volume of work.
-    Make sure everything is properly configured to get the results you want.</p>
+<p>By now, you will have configured your Acumatica instance in preparation for
+    Real-Time Synchronization. If you haven't already, please review 
+    <a href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")">
+        the following guide</a> and make sure you have everything properly setup.
+</p>
+<p>As soon as your Acumatica instance is ready, hit the "Load Settings" button.
+    If you want to use a different Acumatica instance, hit the "Acumatica Connection" button.
+</p>
+
+<div class="std-padding center">
+    <a href="@GlobalConfig.Url("Config/AcumaticaCreds")"
+       class="btn btn-secondary btn-lg">
+        <i class="fas fa-undo"></i> Acumatica Connection
+    </a>
+
+    <a href="#" class="btn btn-primary btn-lg"
+       data-bind="click: ConnectToAcumatica">
+        Load Settings <i class="fas fa-sign-in-alt"></i>
+    </a>
+
+</div>
+
 
 <style>
     .preferences th, .preferences td { text-align: left; }
 </style>
 
-<div class="card text-center">
+<div style="display: none;" class="card text-center">
     <div class="card-body">
         <table class="table table-striped preferences">
             <tbody>
@@ -82,8 +103,11 @@
     </div>
 </div>
 
+<!--
 <div class="center std-padding">
     <a href="@GlobalConfig.Url("Config/Warehouses")" 
        class="btn btn-success btn-lg">Go to Next Step
         <i class="fas fa-sign-in-alt"></i></a>
 </div>
+-->
+

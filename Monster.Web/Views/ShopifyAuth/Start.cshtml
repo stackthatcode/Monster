@@ -1,0 +1,44 @@
+﻿@using Monster.Web.Plumbing
+
+<div class="center std-padding">
+    <img style="width: 200px;" src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")"/>
+</div>
+
+<hr/>
+<h1 class="mt-5 center">Welcome to @GlobalConfig.AppName!</h1>
+<p class="lead center">Cloud-based Shopify-to-Acumatica Synchronization</p>
+
+<p style="text-align: justify">Welcome @GlobalConfig.AppName, the 100% cloud-based, automated Shopify-to-Acumatica 
+    synchronization tool. @GlobalConfig.AppName has been carefully designed to maximize your autonomy
+    by making the on-boarding process as pain-free as possible.    
+</p>
+
+<p>The first step in configuring @GlobalConfig.AppName will be to connect with your Shopify
+    store. Start by entering your store's Shopify "myshopify.com" URL below:</p>
+
+<div style="height: 30px;"></div>
+
+<div class="card">
+    <!-- If Real Time Synchronization is Enabled -->
+    <div class="card-body">
+        <form action="@GlobalConfig.Url("ShopifyAuth/Login")">
+            <div class="form-group">
+                <label for="shop">Shopify "myshopify.com" URL</label>
+                <input type="text"
+                       class="form-control"
+                       id="shop"
+                       name="shop"
+                       placeholder="Enter yourshopname.myshopify.com">
+
+                <small id="shopifyUrlHelp" class="form-text text-muted">E.G.: tophats-for-all.myshopify.com</small>
+            </div>
+            
+            <div class="center std-padding">
+                <button class="btn btn-primary btn-lg" type="submit">
+                    Connect to Shopify <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div style="height: 30px;"></div>
