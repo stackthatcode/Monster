@@ -1,9 +1,7 @@
 ﻿@using Monster.Web.Plumbing
 
 
-<div class="center std-padding">
-    <img style="width: 125px;" src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")" />
-</div>
+@Html.Partial("_TopBrand")
 
 <hr/>
 
@@ -13,7 +11,7 @@
 
     <div class="std-padding">        
         <p>
-            @GlobalConfig.AppName loads your complete Shopify catalog of Products and Variant into Acumatica,
+            @GlobalConfig.AppName loads your complete Shopify catalog of Products and Variants into Acumatica,
             and creates corresponding Stock Items in Acumatica.
             @GlobalConfig.AppName will also load your entire Inventory counts
             from Shopify into Acumatica via Inventory Receipts.

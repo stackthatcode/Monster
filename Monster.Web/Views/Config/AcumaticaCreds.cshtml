@@ -8,9 +8,7 @@
     }
 </style>
 
-<div class="center std-padding">
-    <img style="width: 125px;" src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")"/>
-</div>
+@Html.Partial("_TopBrand")
 
 <hr/>
 <h1 class="mt-5 center">Configuration - Acumatica</h1>
@@ -63,7 +61,7 @@
 
                 <div class="form-group">
                     <label for="username">Acumatica Password</label>
-                    <input type="text"
+                    <input type="password"
                            class="form-control"
                            name="password"
                            id="password"

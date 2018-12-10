@@ -1,16 +1,7 @@
 ﻿@using Monster.Web.Plumbing
 @model Monster.Web.Models.Preferences
 
-<div class="center std-padding">
-    <img style="width: 125px;" 
-         src="@GlobalConfig.Url("Content/ShopifySyncWithAcumatica.png")"/>
-    <div style="padding-top: 20px;">
-        <small class="text-muted">
-            <strong>Ulysses Shopify-to-Acumatica Sync Tool</strong><br/>
-            Logic Automated LLC
-        </small>
-    </div>
-</div>
+@Html.Partial("_TopBrand")
 
 <hr/>
 <h1 class="mt-5 center">Configuration - Preferences</h1>
@@ -273,7 +264,7 @@
         self.ConnectToAcumatica = function () {
             self.ClearVisibility();
             self.Step2Visible(true);
-            setTimeout(self.ConnectionComplete, 2000);
+            setTimeout(self.ConnectionComplete, 10000);
         };
 
         self.ConnectionComplete = function () {
