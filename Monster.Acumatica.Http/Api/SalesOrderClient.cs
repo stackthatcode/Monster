@@ -20,7 +20,7 @@ namespace Monster.Acumatica.Api
 
         public string RetrieveSalesOrders(DateTime? lastModified = null)
         {
-            var queryString = "$expand=Details,ShippingSettings";
+            var queryString = "$expand=Shipments";
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();
@@ -30,7 +30,14 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get($"SalesOrder?{queryString}");
             return response.Body;
         }
-        
+
+        public string RetrieveSalesOrderShipments(string salesOrderId)
+        {
+            var url = $"SalesOrder/SO/{salesOrderId}?$expand=Shipments";
+            var response = _httpContext.Get(url);
+            return response.Body;
+        }
+
         public string WriteSalesOrder(string json)
         {
             var response = _httpContext.Put("SalesOrder", json);
@@ -40,6 +47,27 @@ namespace Monster.Acumatica.Api
         public string AddInvoice(string json)
         {
             var response = _httpContext.Put("SalesInvoice", json);
+            return response.Body;
+        }
+        
+        public string RetrieveSalesOrderInvoices(DateTime? lastModified = null)
+        {
+            //var queryString = "";
+            var queryString = "$expand=SalesInvoiceDetails";
+            //if (lastModified.HasValue)
+            //{
+            //    var restDate = lastModified.Value.ToAcumaticaRestDate();
+            //    queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
+            //}
+
+            var response = _httpContext.Get($"SalesInvoice?{queryString}");
+            return response.Body;
+        }
+
+        public string RetrieveSalesOrderInvoice(string invoiceRefNbr)
+        {
+            var url = $"SalesInvoice/{invoiceRefNbr}$expand=Details";
+            var response = _httpContext.Get(url);
             return response.Body;
         }
     }

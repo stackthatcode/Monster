@@ -10,6 +10,7 @@ UPDATE usrPreferences SET RealTimeHangFireJobId = NULL;
 
 DELETE FROM usrQueuedJob;
 
+SELECT * FROM usrAcumaticaBatchState;
 DELETE FROM usrAcumaticaBatchState;
 DELETE FROM usrShopifyBatchState;
 
@@ -27,6 +28,7 @@ DELETE FROM usrShopAcuWarehouseSync;
 
 
 -- Acumatica
+DELETE FROM usrAcumaticaInvoice;
 DELETE FROM usrAcumaticaShipmentDetail;
 DELETE FROM usrAcumaticaShipment;
 DELETE FROM usrAcumaticaSalesOrder;

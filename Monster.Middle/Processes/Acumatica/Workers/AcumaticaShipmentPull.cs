@@ -13,7 +13,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
     public class AcumaticaShipmentPull
     {
         private readonly ShipmentClient _shipmentClient;
-        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
+        private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
 
         private readonly TenantRepository _tenantRepository;
@@ -25,7 +25,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
 
         public AcumaticaShipmentPull(
-                AcumaticaOrderRepository acumaticaOrderRepository,
+                AcumaticaOrderRepository orderRepository,
                 AcumaticaCustomerPull acumaticaCustomerPull,
                 AcumaticaBatchRepository batchStateRepository,
                 TimeZoneService timeZoneService,
@@ -34,7 +34,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 IPushLogger logger)
         {
             _acumaticaCustomerPull = acumaticaCustomerPull;
-            _acumaticaOrderRepository = acumaticaOrderRepository;
+            _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
             _timeZoneService = timeZoneService;
             _shipmentClient = shipmentClient;
@@ -45,6 +45,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void RunAutomatic()
         {
+            // Pull Shipments that are detected from Sales Orders
+            RunStubbedShipments();
+
+            // Pull Shipments based on Batch State
             var batchState = _batchStateRepository.Retrieve();
             if (batchState.AcumaticaShipmentsPullEnd.HasValue)
             {
@@ -69,24 +73,18 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             // Set the Batch State Pull End marker
             var maxOrderDate =
-                _acumaticaOrderRepository.RetrieveShipmentMaxUpdatedDate();
+                _orderRepository.RetrieveShipmentMaxUpdatedDate();
 
             var batchStateEnd
                 = maxOrderDate
                     ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
 
-            _batchStateRepository.UpdateShipmentsPullEnd(batchStateEnd);
+            _batchStateRepository.UpdateOrderShipmentsPullEnd(batchStateEnd);
         }
-
+        
         private void RunUpdated()
         {
             var batchState = _batchStateRepository.Retrieve();
-            if (!batchState.AcumaticaShipmentsPullEnd.HasValue)
-            {
-                throw new Exception(
-                    "AcumaticaOrdersPullEnd is null - execute RunAll() first");
-            }
-
             var updateMinUtc = batchState.AcumaticaShipmentsPullEnd;
             var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
@@ -97,21 +95,38 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             UpsertShipmentsToPersist(shipments);
 
-            _batchStateRepository.UpdateShipmentsPullEnd(pullRunStartTime);
+            _batchStateRepository.UpdateOrderShipmentsPullEnd(pullRunStartTime);
         }
+
+        private void RunStubbedShipments()
+        {
+            var stubbedShipments = _orderRepository.RetrieveShipmentStubs();
+
+            foreach (var stubbedShipment in stubbedShipments)
+            {
+                var json 
+                    = _shipmentClient
+                        .RetrieveShipment(stubbedShipment.AcumaticaShipmentNbr);
+
+                var shipment = json.DeserializeFromJson<Shipment>();
+
+                UpsertShipmentToPersist(shipment, false);
+            }
+        }
+
 
         public void UpsertShipmentsToPersist(List<Shipment> shipments)
         {
             foreach (var shipment in shipments)
             {
-                using (var transaction = _acumaticaOrderRepository.BeginTransaction())
+                using (var transaction = _orderRepository.BeginTransaction())
                 {
                     UpsertShipmentToPersist(shipment);
                     transaction.Commit();
                 }
             }
         }
-
+        
         public UsrAcumaticaShipment 
                 UpsertShipmentToPersist(
                     Shipment shipment, bool isCreatedByMonster = false)
@@ -119,8 +134,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var shipmentNbr = shipment.ShipmentNbr.value;
 
             var existingData
-                = _acumaticaOrderRepository
-                    .RetrieveShipment(shipmentNbr);
+                    = _orderRepository.RetrieveShipment(shipmentNbr);
 
             if (existingData == null)
             {
@@ -132,8 +146,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 
-                _acumaticaOrderRepository.InsertShipment(newData);
-                UpsertSOShipments(newData.Id, shipment);
+                _orderRepository.InsertShipment(newData);
+                UpsertShipmentSalesOrderRefs(newData.Id, shipment);
                 return newData;
             }
             else
@@ -142,14 +156,15 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 existingData.AcumaticaStatus = shipment.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
 
-                _acumaticaOrderRepository.SaveChanges();
-                UpsertSOShipments(existingData.Id, shipment);
+                _orderRepository.SaveChanges();
+                UpsertShipmentSalesOrderRefs(existingData.Id, shipment);
                 
                 return existingData;
             }
         }
-
-        public void UpsertSOShipments(long monsterShipmentId, Shipment shipment)
+        
+        public void UpsertShipmentSalesOrderRefs(
+                    long monsterShipmentId, Shipment shipment)
         {
             var currentDetailRecords = new List<UsrAcumaticaShipmentDetail>();
 
@@ -166,7 +181,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 currentDetailRecords.Add(currentDetailRecord);
             }
 
-            _acumaticaOrderRepository
+            _orderRepository
                 .ImprintShipmentDetail(
                     monsterShipmentId, currentDetailRecords);
         }

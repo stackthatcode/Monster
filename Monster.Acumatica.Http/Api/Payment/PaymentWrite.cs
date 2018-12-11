@@ -1,4 +1,5 @@
-﻿using Monster.Acumatica.Api.Common;
+﻿using System.Collections.Generic;
+using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.Payment
 {
@@ -12,6 +13,7 @@ namespace Monster.Acumatica.Api.Payment
         public StringValue PaymentRef { get; set; }
         public StringValue Description { get; set; }
         public DoubleValue PaymentAmount { get; set; }
+        public List<PaymentOrdersRef> OrdersToApply { get; set; }
     }
 }
 

@@ -76,7 +76,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         public static SalesOrder ToAcuObject(this UsrAcumaticaSalesOrder input)
         {
-            return input.AcumaticaJson.DeserializeFromJson<SalesOrder>();
+            return input.DetailsJson.DeserializeFromJson<SalesOrder>();
         }
     }
 }

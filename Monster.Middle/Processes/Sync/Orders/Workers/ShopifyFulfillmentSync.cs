@@ -86,10 +86,20 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var shopifyOrderRecord = orderRecord.MatchingShopifyOrder();
             var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
 
-            var shipment
+            var shipmentRecord
                 = shipmentSoRecord
-                    .UsrAcumaticaShipment
+                    .UsrAcumaticaShipment;
+
+            // TODO - This should've been filtered by the View
+            if (shipmentRecord.UsrAcumaticaInvoice == null)
+            {
+                return;
+            }
+
+            var shipment
+                = shipmentRecord
                     .AcumaticaJson.DeserializeFromJson<Shipment>();
+
 
             var location = RetrieveMatchingLocation(shipment);
 

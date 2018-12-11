@@ -113,6 +113,7 @@
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
+    <Compile Include="Processes\Acumatica\Workers\AcumaticaInvoicePull.cs" />
     <Compile Include="Processes\Shopify\Persist\OrderExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Extensions\CustomerExtensions.cs" />

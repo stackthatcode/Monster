@@ -236,11 +236,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             foreach (var shipmentRecord in shipmentRecords)
             {
-                ConfirmMonsterShipment(shipmentRecord);
+                ConfirmShipment(shipmentRecord);
             }
         }
 
-        public void ConfirmMonsterShipment(UsrAcumaticaShipment shipmentRecord)
+        public void ConfirmShipment(UsrAcumaticaShipment shipmentRecord)
         {
             var shipment = shipmentRecord.ToAcuObject();
 
@@ -269,34 +269,37 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             }
         }
 
+
+        // ON HOLD - pending any usage of Shopify-based Fulfillment
         public void CreateInvoiceForShipment(UsrAcumaticaShipment shipmentRecord)
         {
-            var shipment = shipmentRecord.ToAcuObject();
-            var customerId = shipment.CustomerID.value;
+            //var shipment = shipmentRecord.ToAcuObject();
+            //var customerId = shipment.CustomerID.value;
             
-            var invoice = new SalesInvoiceWrite();
-            invoice.CustomerID = customerId.ToValue();
-            invoice.Type = "Invoice".ToValue();
+            //var invoice = new SalesInvoiceWrite();
+            //invoice.CustomerID = customerId.ToValue();
+            //invoice.Type = "Invoice".ToValue();
 
-            foreach (var shipmentDetail in shipment.Details)
-            {
-                var invoiceDetail = new SalesInvoiceDetailsUpdate();
-                invoiceDetail.ShipmentNbr = shipment.ShipmentNbr.Copy();
-                invoiceDetail.OrderNbr = shipmentDetail.OrderNbr.Copy();
-                invoiceDetail.OrderType = shipmentDetail.OrderType.Copy();
+            //foreach (var shipmentDetail in shipment.Details)
+            //{
+            //    var invoiceDetail = new SalesInvoiceDetailsUpdate();
+            //    invoiceDetail.ShipmentNbr = shipment.ShipmentNbr.Copy();
+            //    invoiceDetail.OrderNbr = shipmentDetail.OrderNbr.Copy();
+            //    invoiceDetail.OrderType = shipmentDetail.OrderType.Copy();
 
-                invoice.Details.Add(invoiceDetail);
-            }
+            //    invoice.Details.Add(invoiceDetail);
+            //}
 
-            var result = _salesOrderClient.AddInvoice(invoice.SerializeToJson());
-            var resultInvoice = result.DeserializeFromJson<SalesInvoiceWrite>();
+            //// *** TODO - Using Stubbing code, or create a Record
+            //var result = _salesOrderClient.AddInvoice(invoice.SerializeToJson());
+            //var resultInvoice = result.DeserializeFromJson<SalesInvoiceWrite>();
 
-            // Acumatica does not allow you split up Shipments for Invoicing
-            shipmentRecord.AcumaticaInvoiceRefNbr = resultInvoice.ReferenceNbr.value;
-            _syncOrderRepository.Entities.SaveChanges();
+            //// Acumatica does not allow you split up Shipments for Invoicing
+            //shipmentRecord.AcumaticaInvoiceNbr = resultInvoice.ReferenceNbr.value;
+            //_syncOrderRepository.Entities.SaveChanges();
 
-            var log = $"Created Invoice for Shipment {shipmentRecord.AcumaticaShipmentNbr} in Acumatica";
-            _jobRepository.InsertExecutionLog(log);
+            //var log = $"Created Invoice for Shipment {shipmentRecord.AcumaticaShipmentNbr} in Acumatica";
+            //_jobRepository.InsertExecutionLog(log);
         }
     }
 }

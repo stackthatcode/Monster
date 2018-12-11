@@ -136,6 +136,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
             salesOrder.Details = new List<SalesOrderDetail>();
+            salesOrder.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();
+            salesOrder.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
 
             salesOrder.ShippingSettings = new ShippingSettings
             {
@@ -148,6 +150,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 OverrideTaxZone = true.ToValue(),
                 CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
             };
+            
 
             foreach (var lineItem in shopifyOrder.line_items)
             {

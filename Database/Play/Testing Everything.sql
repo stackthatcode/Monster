@@ -31,6 +31,10 @@ SELECT * FROM usrPreferences;
 DELETE FROM usrShopifyBatchState;
 
 
+UPDATE usrAcumaticaBatchState SET AcumaticaOrdersPullEnd = NULL;
+
+UPDATE usrAcumaticaBatchState SET AcumaticaShipmentsPullEnd = NULL;
+
 
 -- Preferences, Batch State
 SELECT * FROM usrPreferences;

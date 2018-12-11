@@ -104,6 +104,7 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyTransactionPull>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyManager>().InstancePerLifetimeScope();
 
+
             // Acumatica Pull Process
             builder.RegisterType<AcumaticaBatchRepository>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderRepository>().InstancePerLifetimeScope();
@@ -114,8 +115,10 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaCustomerPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaShipmentPull>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaInvoicePull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();
             
+
             // Sync Inventory Persistence
             builder.RegisterType<SyncInventoryRepository>().InstancePerLifetimeScope();
             builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();

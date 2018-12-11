@@ -51,12 +51,20 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Entities.SaveChanges();
         }
 
-        public void UpdateShipmentsPullEnd(DateTime endTimeUtc)
+        public void UpdateOrderShipmentsPullEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
-            existingState.AcumaticaShipmentsPullEnd = endTimeUtc;
+            //existingState.AcumaticaOrderShipmentsPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
+        
+        public void UpdateInvoicesPullEnd(DateTime endTimeUtc)
+        {
+            var existingState = Retrieve();
+            existingState.AcumaticaInvoicesPullEnd = endTimeUtc;
+            Entities.SaveChanges();
+        }
+
 
 
         public UsrAcumaticaBatchState Retrieve()

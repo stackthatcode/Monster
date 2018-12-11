@@ -26,6 +26,8 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue Description { get; set; }
         public StringValue DestinationWarehouseID { get; set; }
         public List<SalesOrderDetail> Details { get; set; }
+        public List<SalesOrderShipment> Shipments { get; set; }
+
         public DateValue EffectiveDate { get; set; }
         public StringValue ExternalRef { get; set; }
         public BoolValue Hold { get; set; }

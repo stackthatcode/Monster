@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Payment\PaymentOrdersRef.cs" />
     <Compile Include="Api\Payment\PaymentWrite.cs" />
     <Compile Include="Api\SalesOrderClient.cs" />
     <Compile Include="Api\BankClient.cs" />
@@ -73,8 +74,10 @@
     <Compile Include="Api\SalesOrder\Address.cs" />
     <Compile Include="Api\SalesOrder\CreditMemoWrite.cs" />
     <Compile Include="Api\SalesOrder\FinancialSettings.cs" />
+    <Compile Include="Api\SalesOrder\PaymentSettings.cs" />
     <Compile Include="Api\SalesOrder\SalesInvoiceWrite.cs" />
     <Compile Include="Api\SalesOrder\SalesOrder.cs" />
+    <Compile Include="Api\SalesOrder\SalesOrderShipment.cs" />
     <Compile Include="Api\SalesOrder\SalesOrderWrite.cs" />
     <Compile Include="Api\SalesOrder\ShippingSettings.cs" />
     <Compile Include="Api\SalesOrder\TaxDetails.cs" />

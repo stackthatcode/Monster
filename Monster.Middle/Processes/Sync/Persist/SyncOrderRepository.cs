@@ -148,7 +148,7 @@ namespace Monster.Middle.Processes.Sync.Persist
             return Entities
                 .UsrAcumaticaShipments
                 .Where(x => x.IsCreatedByMonster 
-                            && x.AcumaticaInvoiceRefNbr == null
+                            && x.UsrAcumaticaInvoice == null
                             && x.AcumaticaStatus == "Confirmed")
                 .ToList();
         }

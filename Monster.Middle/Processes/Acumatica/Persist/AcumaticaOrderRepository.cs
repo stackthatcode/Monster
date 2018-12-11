@@ -86,6 +86,20 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             }
         }
 
+        public DateTime? RetrieveInvoiceMaxUpdatedDate()
+        {
+            if (Entities.UsrAcumaticaInvoices.Any())
+            {
+                return Entities.UsrAcumaticaInvoices
+                    .Select(x => x.LastUpdated)
+                    .Max();
+            }
+            else
+            {
+                return (DateTime?)null;
+            }
+        }
+
         public void InsertSalesOrder(UsrAcumaticaSalesOrder order)
         {
             Entities.UsrAcumaticaSalesOrders.Add(order);
@@ -95,6 +109,14 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Shipments
         //
+        public bool ShipmentExists(string shipmentNbr)
+        {
+            return Entities
+                .UsrAcumaticaShipments
+                .Any(x => x.AcumaticaShipmentNbr == shipmentNbr);
+        }
+
+
         public UsrAcumaticaShipment RetrieveShipment(string shipmentNbr)
         {
             return Entities
@@ -111,6 +133,14 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 .Include(x => x.UsrAcumaticaShipmentDetails)
                 .Include(x => x.UsrAcumaticaShipmentDetails.Select(y => y.UsrShopAcuShipmentSyncs))
                 .FirstOrDefault(x => x.Id == shipmentMonsterId);
+        }
+
+        public List<UsrAcumaticaShipment> RetrieveShipmentStubs()
+        {
+            return Entities
+                .UsrAcumaticaShipments
+                .Where(x => x.IsPulledFromAcumatica == false)
+                .ToList();
         }
 
         public void InsertShipment(UsrAcumaticaShipment shipment)
@@ -173,6 +203,49 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 }                
             }
         }
+
+
+        // Sales Order Invoices
+        //
+        public bool InvoiceExists(string invoiceNbr)
+        {
+            return Entities
+                .UsrAcumaticaInvoices
+                .Any(x => x.AcumaticaInvoiceRefNbr == invoiceNbr);
+        }
+
+        public void InsertInvoice(UsrAcumaticaInvoice invoice)
+        {
+            Entities.UsrAcumaticaInvoices.Add(invoice);
+            Entities.SaveChanges();
+        }
+
+        public UsrAcumaticaInvoice RetrieveInvoice(string invoiceNbr)
+        {
+            return Entities
+                .UsrAcumaticaInvoices
+                .FirstOrDefault(x => x.AcumaticaInvoiceRefNbr == invoiceNbr);
+        }
+
+        public List<UsrAcumaticaInvoice> RetrieveStubbedInvoices()
+        {
+            return Entities
+                .UsrAcumaticaInvoices
+                .Where(x => x.IsPulledFromAcumatica == false)
+                .ToList();
+        }
+
+
+        public List<UsrAcumaticaShipment>
+                RetrieveShipmentWithUnsyncedInvoices()
+        {
+            return Entities
+                    .UsrAcumaticaShipments
+                    //.Where(x => x.AcumaticaInvoiceNbr != null &&
+                    //            x.UsrAcumaticaInvoice == null)
+                    .ToList();
+        }
+
 
 
 
