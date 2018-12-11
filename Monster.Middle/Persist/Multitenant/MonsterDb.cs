@@ -1746,9 +1746,9 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
+            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.AcumaticaShipmentNbr).HasColumnName(@"AcumaticaShipmentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.InvoiceMonsterId).HasColumnName(@"InvoiceMonsterId").HasColumnType("bigint").IsOptional();
             Property(x => x.IsPulledFromAcumatica).HasColumnName(@"IsPulledFromAcumatica").HasColumnType("bit").IsRequired();
             Property(x => x.IsCreatedByMonster).HasColumnName(@"IsCreatedByMonster").HasColumnType("bit").IsRequired();

@@ -192,21 +192,26 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
 
         public void UpsertShipmentInvoiceStub(
-                    UsrAcumaticaSalesOrder orderRecord, 
-                    SalesOrderShipment detailRecord)
+                UsrAcumaticaSalesOrder orderRecord, SalesOrderShipment detailRecord)
         {
+            if (detailRecord.InvoiceNbr.value == null)
+            {
+                return;
+            }
+
             if (_orderRepository.InvoiceExists(detailRecord.InvoiceNbr.value))
             {
                 return;
             }
+            
 
             var shipmentRecord = 
                     _orderRepository.RetrieveShipment(detailRecord.ShipmentNbr.value);
             
             var invoiceRecord = new UsrAcumaticaInvoice();
-            invoiceRecord.AcumaticaInvoiceRefNbr = detailRecord.InventoryRefNbr.value;
-
-            // Not sure about this!
+            invoiceRecord.AcumaticaInvoiceRefNbr = detailRecord.InvoiceNbr.value;
+            
+            // Not sure about this! - *** TODO - add function that glues things together
             invoiceRecord.UsrAcumaticaShipments = new List<UsrAcumaticaShipment>()
             {
                 shipmentRecord
@@ -217,7 +222,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             invoiceRecord.DateCreated = DateTime.UtcNow;
             invoiceRecord.LastUpdated = DateTime.UtcNow;
 
-            _orderRepository.InsertShipment(shipmentRecord);
+            _orderRepository.InsertInvoice(invoiceRecord);
         }
     }
 }

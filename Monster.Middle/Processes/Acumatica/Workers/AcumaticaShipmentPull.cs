@@ -142,6 +142,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 newData.AcumaticaJson = shipment.SerializeToJson();
                 newData.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 newData.AcumaticaStatus = shipment.Status.value;
+                newData.IsPulledFromAcumatica = true;
                 newData.IsCreatedByMonster = isCreatedByMonster;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
@@ -152,6 +153,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
+                existingData.IsPulledFromAcumatica = true;
                 existingData.AcumaticaJson = shipment.SerializeToJson();
                 existingData.AcumaticaStatus = shipment.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
