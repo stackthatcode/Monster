@@ -20,7 +20,8 @@ namespace Monster.Acumatica.Api
 
         public string RetrieveSalesOrders(DateTime? lastModified = null)
         {
-            var queryString = "$expand=Shipments";
+            var queryString = "$expand=Details,ShippingSettings";
+
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();
@@ -44,20 +45,6 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
         
-
-        public string RetrieveSalesOrderInvoices(DateTime? lastModified = null)
-        {
-            var queryString = "$expand=SalesInvoiceDetail";
-            //if (lastModified.HasValue)
-            //{
-            //    var restDate = lastModified.Value.ToAcumaticaRestDate();
-            //    queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
-            //}
-
-            var response = _httpContext.Get($"SalesInvoice?{queryString}");
-            return response.Body;
-        }
-
         public string RetrieveSalesOrderInvoice(string invoiceRefNbr)
         {
             var url = $"SalesInvoice/Invoice/{invoiceRefNbr}?$expand=Details";

@@ -52,49 +52,32 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
         public void Run()
         {
-            // Shipments that have Sales Orders, but no matching Shopify Fulfillment
-            var shipmentIds =
-                _acumaticaOrderRepository.RetrieveUnsyncedShipmentIds();
-
-            foreach (var shipmentId in shipmentIds)
+            var unsyncedShipmentRefs =
+                _acumaticaOrderRepository
+                    .RetrieveUnsyncedShipmentSalesOrderRefs();
+            
+            foreach (var shipmentRef in unsyncedShipmentRefs)
             {
-                var shipmentRecord =
-                    _acumaticaOrderRepository.RetrieveShipment(shipmentId);
-                
-                foreach (var shipmentSo in shipmentRecord.UsrAcumaticaShipmentSalesOrderRefs)
-                {
-                    PushFulfillmentToShopify(shipmentSo);
-                }
+                PushFulfillmentToShopify(shipmentRef);
             }
         }
 
         public void PushFulfillmentToShopify(
                 UsrAcumaticaShipmentSalesOrderRef shipmentSalesOrderRef)
         {
+            // TODO - optimize 
             var orderRecord =
                 _syncOrderRepository
                     .RetrieveSalesOrder(shipmentSalesOrderRef.AcumaticaOrderNbr);
 
-            // TODO - This should've been filtered by the View
             if (!orderRecord.IsFromShopify())
             {
                 return;
             }
 
-            // TODO - Does this Order have Fulfillments that not synced with Acumatica?
-            // ... if so, then we can't do this either
-
             var shopifyOrderRecord = orderRecord.MatchingShopifyOrder();
             var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
-
-            // TODO - This should've been filtered by the View
-            if (shipmentSalesOrderRef
-                    .UsrAcumaticaShipment
-                    .AcumaticaReleasedInvoiceNbr == null)
-            {
-                return;
-            }
-
+            
             var shipmentRecord = shipmentSalesOrderRef.UsrAcumaticaShipment;
             var shipment
                 = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();

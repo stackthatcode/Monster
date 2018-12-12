@@ -28,7 +28,7 @@ DELETE FROM usrShopAcuWarehouseSync;
 
 -- Acumatica
 DELETE FROM usrAcumaticaInvoice;
-DELETE FROM usrAcumaticaShipmentDetail;
+DELETE FROM usrAcumaticaShipmentSalesOrderRef;
 DELETE FROM usrAcumaticaShipment;
 DELETE FROM usrAcumaticaSalesOrder;
 DELETE FROM usrAcumaticaCustomer;

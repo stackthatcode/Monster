@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
-using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
+
 
 namespace Monster.Middle.Processes.Acumatica.Workers
 {
@@ -98,11 +98,13 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository.UpdateOrdersPullEnd(pullRunStartTime);
         }
 
+        
         public void UpsertOrdersToPersist(List<SalesOrder> orders)
         {
             foreach (var order in orders)
             {
                 UpsertOrderToPersist(order);
+                PullAndStubNewShipments(order.OrderNbr.value);
             }
         }
 
@@ -144,7 +146,43 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
                 return existingData;
             }
+        }
+        
+        public void PullAndStubNewShipments(string orderNbr)
+        {
+            var json = _salesOrderClient.RetrieveSalesOrderShipments(orderNbr);
+            var orderRecord = _orderRepository.RetrieveSalesOrder(orderNbr);
+            var order = json.DeserializeFromJson<SalesOrder>();
+
+            // First, update the Sales Order record
+            orderRecord.ShipmentsJson = json;
+            orderRecord.LastUpdated = DateTime.UtcNow;
+
+            using (var transaction = _orderRepository.BeginTransaction())
+            {
+                UpsertShipmentInvoiceStubs(orderRecord, order.Shipments);
+                transaction.Commit();
+            }
         }        
+        
+        public void UpsertShipmentInvoiceStubs(
+                    UsrAcumaticaSalesOrder orderRecord, 
+                    List<SalesOrderShipment> shipments)
+        {
+            var translation = new List<UsrAcumaticaSoShipmentInvoice>();
+
+            foreach (var shipment in shipments)
+            {
+                var record = new UsrAcumaticaSoShipmentInvoice();
+                record.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
+                record.AcumaticaInvoiceNbr = shipment.InvoiceNbr.value;
+
+                translation.Add(record);
+            }
+
+            _orderRepository
+                .ImprintSoShipmentInvoices(orderRecord.Id, translation);
+        }
     }
 }
 

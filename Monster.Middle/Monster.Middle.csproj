@@ -118,6 +118,7 @@
     <Compile Include="Processes\Shopify\Persist\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Extensions\CustomerExtensions.cs" />
     <Compile Include="Processes\Sync\Extensions\ItemExtensions.cs" />
+    <Compile Include="Processes\Sync\Extensions\ShipmentExtensions.cs" />
     <Compile Include="Processes\Sync\Extensions\WarehouseExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyBatchRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\FinancialStatus.cs" />

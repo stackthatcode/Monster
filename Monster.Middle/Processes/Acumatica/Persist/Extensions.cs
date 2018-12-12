@@ -32,10 +32,16 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                     this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
                     UsrAcumaticaShipmentSalesOrderRef other)
         {
-            return input.Any(x => x.Match(other));
+            return input.Any(x => x.IsMatch(other));
+        }
+        public static UsrAcumaticaShipmentSalesOrderRef Match(
+            this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
+            UsrAcumaticaShipmentSalesOrderRef other)
+        {
+            return input.FirstOrDefault(x => x.IsMatch(other));
         }
 
-        public static bool Match(
+        public static bool IsMatch(
                 this UsrAcumaticaShipmentSalesOrderRef input, UsrAcumaticaShipmentSalesOrderRef other)
         {
             return input.AcumaticaOrderNbr == other.AcumaticaOrderNbr
@@ -46,7 +52,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
                 UsrAcumaticaShipmentSalesOrderRef findMe)
         {
-            return input.FirstOrDefault(x => x.Match(findMe));
+            return input.FirstOrDefault(x => x.IsMatch(findMe));
         }
 
 
@@ -78,5 +84,28 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         {
             return input.DetailsJson.DeserializeFromJson<SalesOrder>();
         }
+
+
+
+        public static bool AnyMatch(
+            this IEnumerable<UsrAcumaticaSoShipmentInvoice> input,
+            UsrAcumaticaSoShipmentInvoice other)
+        {
+            return input.Any(x => x.IsMatch(other));
+        }
+
+        public static UsrAcumaticaSoShipmentInvoice Match(
+            this IEnumerable<UsrAcumaticaSoShipmentInvoice> input,
+            UsrAcumaticaSoShipmentInvoice other)
+        {
+            return input.FirstOrDefault(x => x.IsMatch(other));
+        }
+        
+        public static bool IsMatch(
+            this UsrAcumaticaSoShipmentInvoice input, UsrAcumaticaSoShipmentInvoice other)
+        {
+            return input.AcumaticaShipmentNbr == other.AcumaticaShipmentNbr;
+        }
+
     }
 }

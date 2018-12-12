@@ -60,20 +60,20 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var preferences = _tenantRepository.RetrievePreferences();
             var updateMin = preferences.DataPullStart;
 
-            var json = _salesOrderClient.RetrieveSalesOrderInvoices(updateMin);
+            //var json = _salesOrderClient.RetrieveSalesOrderInvoices(updateMin);
 
             // *** WRITE TO PERSISTENCE
             //var invoices = json.DeserializeFromJson<List<SalesInvoice>>();
             //UpsertOrdersToPersist(orders);
 
             // Set the Batch State Pull End marker
-            var maxOrderDate = _orderRepository.RetrieveInvoiceMaxUpdatedDate();
+            //var maxOrderDate = _orderRepository.RetrieveInvoiceMaxUpdatedDate();
 
-            var batchStateEnd
-                = maxOrderDate
-                    ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
+            //var batchStateEnd
+            //    = maxOrderDate
+            //        ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
 
-            _batchStateRepository.UpdateInvoicesPullEnd(batchStateEnd);
+            //_batchStateRepository.UpdateInvoicesPullEnd(batchStateEnd);
         }
 
         private void RunUpdated()
@@ -84,15 +84,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
             var pullRunStartTime = DateTime.UtcNow;
-            var json = _salesOrderClient.RetrieveSalesOrderInvoices(updateMin);
+            //var json = _salesOrderClient.RetrieveSalesOrderInvoices(updateMin);
             
             //var orders = json.DeserializeFromJson<List<SalesOrder>>();
             //UpsertOrdersToPersist(orders);
 
             _batchStateRepository.UpdateCustomersPullEnd(pullRunStartTime);
         }
-
-
+        
         public void UpsertInvoicesToPersist(List<SalesOrder> orders)
         {
             foreach (var order in orders)

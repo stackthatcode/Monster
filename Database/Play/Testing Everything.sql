@@ -24,51 +24,7 @@ INSERT INTO usrPreferences VALUES (
 	NULL,
 	@FulfillInAcumatica );
 
-SELECT * FROM usrTenant;
 
-SELECT * FROM usrPreferences;
-
-DELETE FROM usrShopifyBatchState;
-
-
-UPDATE usrAcumaticaBatchState SET AcumaticaOrdersPullEnd = NULL;
-
-UPDATE usrAcumaticaBatchState SET AcumaticaShipmentsPullEnd = NULL;
-
-
--- Preferences, Batch State
-SELECT * FROM usrPreferences;
-SELECT * FROM usrBatchState;
-
-
--- Warehouse and Location
-SELECT * FROM usrAcumaticaWarehouse;
-SELECT * FROM usrShopifyLocation;
-SELECT * FROM usrShopAcuWarehouseSync;
-
-
--- Products/Variants and Stock Items
-SELECT * FROM usrShopifyProduct;
-SELECT * FROM usrShopifyVariant;
-SELECT * FROM usrAcumaticaStockItem;
-SELECT * FROM usrShopAcuItemSync;
-
-
--- Inventory Levels and Warehouse Details
-SELECT * FROM usrShopifyInventoryLevels;
-SELECT * FROM usrAcumaticaWarehouseDetails;
---UPDATE usrAcumaticaWarehouseDetails SET IsShopifySynced = 0;
-
-SELECT * FROM usrInventoryReceiptSync;
-SELECT * FROM usrAcumaticaInventoryReceipt;
-
-
--- Shopify Orders and Acumatica Sales Orders
-SELECT TOP 3 * FROM usrShopifyOrder ORDER BY ShopifyOrderNumber DESC
-SELECT TOP 3 * FROM usrAcumaticaSalesOrder ORDER BY AcumaticaOrderNbr DESC
-SELECT * FROM usrShopAcuOrderSync;
-
-DELETE FROM usrShopAcuOrderSync;
 
 
 -- Shipments and Fulfillments
@@ -79,11 +35,6 @@ SELECT * FROM usrShopAcuShipmentSync;
 SELECT * FROM vw_AcumaticaUnsyncedShipments 
 
 
-
-
-DELETE FROM usrQueuedJob;
-
-
 -- Refunds
 SELECT * FROM usrShopifyRefund;
 
@@ -92,46 +43,19 @@ SELECT * FROM usrShopifyRefund;
 SELECT * FROM usrShopifyTransaction;
 SELECT * FROM usrShopifyAcuPayment;
 
-
-SELECT * FROM usrShopifyTransaction;
-
-
-DELETE FROM usrShopifyRefund;
-DELETE FROM usrShopifyFulfillment;
-DELETE FROM usrShopifyBatchState;
-DELETE FROM usrShopifyTransaction;
-DELETE FROM usrShopifyOrder;
-DELETE FROM usrShopifyCustomer;
-
-
 SELECT * FROM usrShopifyORder;
-
-
 SELECT * FROM usrShopifyCustomer;
-
-
 
 SELECT * FROM usrJobExecutionLog;
 
 
--- Payouts (ON HOLD FOR NOW)
-SELECT * FROM usrShopifyPayout;
 
 
-INSERT INTO usrJobExecutionLog VALUES('Test 1',  GETUTCDATE())
-INSERT INTO usrJobExecutionLog VALUES('Test 2',  GETUTCDATE())
-INSERT INTO usrJobExecutionLog VALUES('Test 3',  GETUTCDATE())
+SELECT * FROM usrAcumaticaSalesOrder;
+SELECT * FROM usrAcumaticaSoShipmentInvoice;
 
-DELETE FROM usrJobExecutionLog;
+SELECT * FROM usrAcumaticaShipment;
+SELECT * FROM usrAcumaticaShipmentSalesOrderRef;
 
-SELECT * FROM usrQueuedJob;
-
-DELETE FROM usrQueuedJob;
-
-SELECT * FROM usrPreferences;
-SELECT * FROM usrShopifyORder;
-SELECT * FROM usrShopAcuOrderSync;
-
-
-
+SELECT * FROM usrAcumaticaInvoice;
 
