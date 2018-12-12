@@ -103,8 +103,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             foreach (var order in orders)
             {
                 UpsertOrderToPersist(order);
-
-                PullAndStubNewShipments(order.OrderNbr.value);
             }
         }
 
@@ -146,84 +144,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
                 return existingData;
             }
-        }
-
-        public void PullAndStubNewShipments(string orderNbr)
-        {
-            var json = _salesOrderClient.RetrieveSalesOrderShipments(orderNbr);
-            var orderRecord = _orderRepository.RetrieveSalesOrder(orderNbr);
-            var order = json.DeserializeFromJson<SalesOrder>();
-
-            // First, update the Sales Order record
-            orderRecord.ShipmentsJson = json;
-            orderRecord.LastUpdated = DateTime.UtcNow;
-
-            using (var transaction = _orderRepository.BeginTransaction())
-            {
-                foreach (var shipment in order.Shipments)
-                {
-                    UpsertOrderShipmentStub(orderRecord, shipment);
-
-                    UpsertShipmentInvoiceStub(orderRecord, shipment);
-                }
-
-                transaction.Commit();
-            }
-        }
-        
-        public void UpsertOrderShipmentStub(
-                    UsrAcumaticaSalesOrder orderRecord, SalesOrderShipment shipment)
-        {
-            if (_orderRepository.ShipmentExists(shipment.ShipmentNbr.value))
-            {
-                return;
-            }
-
-            var shipmentRecord = new UsrAcumaticaShipment();
-            shipmentRecord.AcumaticaJson = null;
-            shipmentRecord.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
-            shipmentRecord.IsPulledFromAcumatica = false;
-            shipmentRecord.IsCreatedByMonster = false;
-            shipmentRecord.DateCreated = DateTime.UtcNow;
-            shipmentRecord.LastUpdated = DateTime.UtcNow;
-
-            _orderRepository.InsertShipment(shipmentRecord);
-        }
-
-
-        public void UpsertShipmentInvoiceStub(
-                UsrAcumaticaSalesOrder orderRecord, SalesOrderShipment detailRecord)
-        {
-            if (detailRecord.InvoiceNbr.value == null)
-            {
-                return;
-            }
-
-            if (_orderRepository.InvoiceExists(detailRecord.InvoiceNbr.value))
-            {
-                return;
-            }
-            
-
-            var shipmentRecord = 
-                    _orderRepository.RetrieveShipment(detailRecord.ShipmentNbr.value);
-            
-            var invoiceRecord = new UsrAcumaticaInvoice();
-            invoiceRecord.AcumaticaInvoiceRefNbr = detailRecord.InvoiceNbr.value;
-            
-            // Not sure about this! - *** TODO - add function that glues things together
-            invoiceRecord.UsrAcumaticaShipments = new List<UsrAcumaticaShipment>()
-            {
-                shipmentRecord
-            };
-
-            invoiceRecord.AcumaticaStatus = null;
-            invoiceRecord.Json = null;
-            invoiceRecord.DateCreated = DateTime.UtcNow;
-            invoiceRecord.LastUpdated = DateTime.UtcNow;
-
-            _orderRepository.InsertInvoice(invoiceRecord);
-        }
+        }        
     }
 }
 

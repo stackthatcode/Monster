@@ -43,9 +43,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void RunAutomatic()
         {
-            // Pull stubs
-            RunStubbedInvoices();
-
             // Pull based on date range
             var batchState = _batchStateRepository.Retrieve();
             if (batchState.AcumaticaInvoicesPullEnd.HasValue)
@@ -95,20 +92,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository.UpdateCustomersPullEnd(pullRunStartTime);
         }
 
-        private void RunStubbedInvoices()
-        {
-            var stubbedInvoices = _orderRepository.RetrieveStubbedInvoices();
-            foreach (var invoiceRecord in stubbedInvoices)
-            {
-                var json = 
-                    _salesOrderClient
-                        .RetrieveSalesOrderInvoice(invoiceRecord.AcumaticaInvoiceRefNbr);
-
-                //var invoice = json.DeserializeFromJson<SalesI>()
-                //UpsertInvoiceToPersist(invoiceRecord);
-            }
-        }
-
 
         public void UpsertInvoicesToPersist(List<SalesOrder> orders)
         {
@@ -133,7 +116,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 newData.AcumaticaJson = shipment.SerializeToJson();
                 newData.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 newData.AcumaticaStatus = shipment.Status.value;
-                newData.IsPulledFromAcumatica = true;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
                 _orderRepository.InsertShipment(newData);
@@ -144,7 +126,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             {
                 existingData.AcumaticaJson = shipment.SerializeToJson();
                 existingData.AcumaticaStatus = shipment.Status.value;
-                existingData.IsPulledFromAcumatica = true;
                 existingData.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();
                                 

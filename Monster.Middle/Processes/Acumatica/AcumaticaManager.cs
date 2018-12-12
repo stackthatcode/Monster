@@ -55,9 +55,9 @@ namespace Monster.Middle.Processes.Acumatica
         {
             _acumaticaHttpContext.Login();
 
-            //_acumaticaCustomerPull.RunAutomatic();
-            //_acumaticaOrderPull.RunAutomatic();
-            //_acumaticaShipmentPull.RunAutomatic();
+            _acumaticaCustomerPull.RunAutomatic();
+            _acumaticaOrderPull.RunAutomatic();
+            _acumaticaShipmentPull.RunAutomatic();
             _acumaticaInvoicePull.RunAutomatic();
 
             _acumaticaHttpContext.Logout();

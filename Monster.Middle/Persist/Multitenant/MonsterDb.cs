@@ -44,7 +44,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrAcumaticaInvoice> UsrAcumaticaInvoices { get; set; } // usrAcumaticaInvoice
         System.Data.Entity.DbSet<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; } // usrAcumaticaSalesOrder
         System.Data.Entity.DbSet<UsrAcumaticaShipment> UsrAcumaticaShipments { get; set; } // usrAcumaticaShipment
-        System.Data.Entity.DbSet<UsrAcumaticaShipmentDetail> UsrAcumaticaShipmentDetails { get; set; } // usrAcumaticaShipmentDetail
+        System.Data.Entity.DbSet<UsrAcumaticaShipmentSalesOrderRef> UsrAcumaticaShipmentSalesOrderRefs { get; set; } // usrAcumaticaShipmentSalesOrderRef
         System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; } // usrAcumaticaStockItem
         System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
@@ -103,7 +103,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaInvoice> UsrAcumaticaInvoices { get; set; } // usrAcumaticaInvoice
         public System.Data.Entity.DbSet<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; } // usrAcumaticaSalesOrder
         public System.Data.Entity.DbSet<UsrAcumaticaShipment> UsrAcumaticaShipments { get; set; } // usrAcumaticaShipment
-        public System.Data.Entity.DbSet<UsrAcumaticaShipmentDetail> UsrAcumaticaShipmentDetails { get; set; } // usrAcumaticaShipmentDetail
+        public System.Data.Entity.DbSet<UsrAcumaticaShipmentSalesOrderRef> UsrAcumaticaShipmentSalesOrderRefs { get; set; } // usrAcumaticaShipmentSalesOrderRef
         public System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; } // usrAcumaticaStockItem
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
@@ -189,7 +189,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaInvoiceConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaSalesOrderConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaShipmentConfiguration());
-            modelBuilder.Configurations.Add(new UsrAcumaticaShipmentDetailConfiguration());
+            modelBuilder.Configurations.Add(new UsrAcumaticaShipmentSalesOrderRefConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaStockItemConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration());
@@ -230,7 +230,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaInvoiceConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaSalesOrderConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaShipmentConfiguration(schema));
-            modelBuilder.Configurations.Add(new UsrAcumaticaShipmentDetailConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrAcumaticaShipmentSalesOrderRefConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaStockItemConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration(schema));
@@ -289,7 +289,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaInvoice> UsrAcumaticaInvoices { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaShipment> UsrAcumaticaShipments { get; set; }
-        public System.Data.Entity.DbSet<UsrAcumaticaShipmentDetail> UsrAcumaticaShipmentDetails { get; set; }
+        public System.Data.Entity.DbSet<UsrAcumaticaShipmentSalesOrderRef> UsrAcumaticaShipmentSalesOrderRefs { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; }
@@ -333,7 +333,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaInvoices = new FakeDbSet<UsrAcumaticaInvoice>("Id");
             UsrAcumaticaSalesOrders = new FakeDbSet<UsrAcumaticaSalesOrder>("Id");
             UsrAcumaticaShipments = new FakeDbSet<UsrAcumaticaShipment>("Id");
-            UsrAcumaticaShipmentDetails = new FakeDbSet<UsrAcumaticaShipmentDetail>("Id");
+            UsrAcumaticaShipmentSalesOrderRefs = new FakeDbSet<UsrAcumaticaShipmentSalesOrderRef>("Id");
             UsrAcumaticaStockItems = new FakeDbSet<UsrAcumaticaStockItem>("MonsterId");
             UsrAcumaticaWarehouses = new FakeDbSet<UsrAcumaticaWarehouse>("Id");
             UsrAcumaticaWarehouseDetails = new FakeDbSet<UsrAcumaticaWarehouseDetail>("MonsterId");
@@ -779,18 +779,6 @@ namespace Monster.Middle.Persist.Multitenant
         public bool IsPulledFromAcumatica { get; set; } // IsPulledFromAcumatica
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
-
-        // Reverse navigation
-
-        /// <summary>
-        /// Child UsrAcumaticaShipments where [usrAcumaticaShipment].[InvoiceMonsterId] point to this entity (FK_usrAcumaticaShipment_usrAcumaticaInvoice)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<UsrAcumaticaShipment> UsrAcumaticaShipments { get; set; } // usrAcumaticaShipment.FK_usrAcumaticaShipment_usrAcumaticaInvoice
-
-        public UsrAcumaticaInvoice()
-        {
-            UsrAcumaticaShipments = new System.Collections.Generic.List<UsrAcumaticaShipment>();
-        }
     }
 
     // usrAcumaticaSalesOrder
@@ -834,8 +822,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaJson { get; set; } // AcumaticaJson
         public string AcumaticaShipmentNbr { get; set; } // AcumaticaShipmentNbr (length: 50)
         public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 25)
-        public long? InvoiceMonsterId { get; set; } // InvoiceMonsterId
-        public bool IsPulledFromAcumatica { get; set; } // IsPulledFromAcumatica
+        public string AcumaticaReleasedInvoiceNbr { get; set; } // AcumaticaReleasedInvoiceNbr (length: 50)
         public bool IsCreatedByMonster { get; set; } // IsCreatedByMonster
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -843,26 +830,19 @@ namespace Monster.Middle.Persist.Multitenant
         // Reverse navigation
 
         /// <summary>
-        /// Child UsrAcumaticaShipmentDetails where [usrAcumaticaShipmentDetail].[ShipmentMonsterId] point to this entity (FK_usrAcumaticaShipmentSO_usrAcumaticaShipment)
+        /// Child UsrAcumaticaShipmentSalesOrderRefs where [usrAcumaticaShipmentSalesOrderRef].[ShipmentMonsterId] point to this entity (FK_usrAcumaticaShipmentSO_usrAcumaticaShipment)
         /// </summary>
-        public virtual System.Collections.Generic.ICollection<UsrAcumaticaShipmentDetail> UsrAcumaticaShipmentDetails { get; set; } // usrAcumaticaShipmentDetail.FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
-
-        // Foreign keys
-
-        /// <summary>
-        /// Parent UsrAcumaticaInvoice pointed by [usrAcumaticaShipment].([InvoiceMonsterId]) (FK_usrAcumaticaShipment_usrAcumaticaInvoice)
-        /// </summary>
-        public virtual UsrAcumaticaInvoice UsrAcumaticaInvoice { get; set; } // FK_usrAcumaticaShipment_usrAcumaticaInvoice
+        public virtual System.Collections.Generic.ICollection<UsrAcumaticaShipmentSalesOrderRef> UsrAcumaticaShipmentSalesOrderRefs { get; set; } // usrAcumaticaShipmentSalesOrderRef.FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
 
         public UsrAcumaticaShipment()
         {
-            UsrAcumaticaShipmentDetails = new System.Collections.Generic.List<UsrAcumaticaShipmentDetail>();
+            UsrAcumaticaShipmentSalesOrderRefs = new System.Collections.Generic.List<UsrAcumaticaShipmentSalesOrderRef>();
         }
     }
 
-    // usrAcumaticaShipmentDetail
+    // usrAcumaticaShipmentSalesOrderRef
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrAcumaticaShipmentDetail
+    public class UsrAcumaticaShipmentSalesOrderRef
     {
         public long Id { get; set; } // Id (Primary key)
         public long ShipmentMonsterId { get; set; } // ShipmentMonsterId
@@ -881,11 +861,11 @@ namespace Monster.Middle.Persist.Multitenant
         // Foreign keys
 
         /// <summary>
-        /// Parent UsrAcumaticaShipment pointed by [usrAcumaticaShipmentDetail].([ShipmentMonsterId]) (FK_usrAcumaticaShipmentSO_usrAcumaticaShipment)
+        /// Parent UsrAcumaticaShipment pointed by [usrAcumaticaShipmentSalesOrderRef].([ShipmentMonsterId]) (FK_usrAcumaticaShipmentSO_usrAcumaticaShipment)
         /// </summary>
         public virtual UsrAcumaticaShipment UsrAcumaticaShipment { get; set; } // FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
 
-        public UsrAcumaticaShipmentDetail()
+        public UsrAcumaticaShipmentSalesOrderRef()
         {
             UsrShopAcuShipmentSyncs = new System.Collections.Generic.List<UsrShopAcuShipmentSync>();
         }
@@ -1147,9 +1127,9 @@ namespace Monster.Middle.Persist.Multitenant
         // Foreign keys
 
         /// <summary>
-        /// Parent UsrAcumaticaShipmentDetail pointed by [usrShopAcuShipmentSync].([AcumaticaShipDetailMonsterId]) (FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO)
+        /// Parent UsrAcumaticaShipmentSalesOrderRef pointed by [usrShopAcuShipmentSync].([AcumaticaShipDetailMonsterId]) (FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO)
         /// </summary>
-        public virtual UsrAcumaticaShipmentDetail UsrAcumaticaShipmentDetail { get; set; } // FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
+        public virtual UsrAcumaticaShipmentSalesOrderRef UsrAcumaticaShipmentSalesOrderRef { get; set; } // FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
 
         /// <summary>
         /// Parent UsrShopifyFulfillment pointed by [usrShopAcuShipmentSync].([ShopifyFulfillmentMonsterId]) (FK_usrShopAcuShipmentSync_usrShopifyFulfillment)
@@ -1749,29 +1729,25 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.AcumaticaShipmentNbr).HasColumnName(@"AcumaticaShipmentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
-            Property(x => x.InvoiceMonsterId).HasColumnName(@"InvoiceMonsterId").HasColumnType("bigint").IsOptional();
-            Property(x => x.IsPulledFromAcumatica).HasColumnName(@"IsPulledFromAcumatica").HasColumnType("bit").IsRequired();
+            Property(x => x.AcumaticaReleasedInvoiceNbr).HasColumnName(@"AcumaticaReleasedInvoiceNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.IsCreatedByMonster).HasColumnName(@"IsCreatedByMonster").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
-
-            // Foreign keys
-            HasOptional(a => a.UsrAcumaticaInvoice).WithMany(b => b.UsrAcumaticaShipments).HasForeignKey(c => c.InvoiceMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaShipment_usrAcumaticaInvoice
         }
     }
 
-    // usrAcumaticaShipmentDetail
+    // usrAcumaticaShipmentSalesOrderRef
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrAcumaticaShipmentDetailConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAcumaticaShipmentDetail>
+    public class UsrAcumaticaShipmentSalesOrderRefConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAcumaticaShipmentSalesOrderRef>
     {
-        public UsrAcumaticaShipmentDetailConfiguration()
+        public UsrAcumaticaShipmentSalesOrderRefConfiguration()
             : this("dbo")
         {
         }
 
-        public UsrAcumaticaShipmentDetailConfiguration(string schema)
+        public UsrAcumaticaShipmentSalesOrderRefConfiguration(string schema)
         {
-            ToTable("usrAcumaticaShipmentDetail", schema);
+            ToTable("usrAcumaticaShipmentSalesOrderRef", schema);
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
@@ -1782,7 +1758,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
 
             // Foreign keys
-            HasRequired(a => a.UsrAcumaticaShipment).WithMany(b => b.UsrAcumaticaShipmentDetails).HasForeignKey(c => c.ShipmentMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
+            HasRequired(a => a.UsrAcumaticaShipment).WithMany(b => b.UsrAcumaticaShipmentSalesOrderRefs).HasForeignKey(c => c.ShipmentMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
         }
     }
 
@@ -2104,7 +2080,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
-            HasRequired(a => a.UsrAcumaticaShipmentDetail).WithMany(b => b.UsrShopAcuShipmentSyncs).HasForeignKey(c => c.AcumaticaShipDetailMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
+            HasRequired(a => a.UsrAcumaticaShipmentSalesOrderRef).WithMany(b => b.UsrShopAcuShipmentSyncs).HasForeignKey(c => c.AcumaticaShipDetailMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
             HasRequired(a => a.UsrShopifyFulfillment).WithMany(b => b.UsrShopAcuShipmentSyncs).HasForeignKey(c => c.ShopifyFulfillmentMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuShipmentSync_usrShopifyFulfillment
         }
     }

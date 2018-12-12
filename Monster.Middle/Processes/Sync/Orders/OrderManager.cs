@@ -75,7 +75,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 // Sync Fulfillments to Acumatica Shipments
                 _acumaticaShipmentSync.RunShipments();
                 _acumaticaShipmentSync.RunConfirmShipments();
-                _acumaticaShipmentSync.RunSingleInvoicePerShipment();
+                _acumaticaShipmentSync.RunSingleInvoicePerShipmentSalesRef();
             }
 
             // Synchronize Payments and Refunds

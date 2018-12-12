@@ -121,11 +121,11 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         public void InsertShipmentDetailSync(
                 UsrShopifyFulfillment fulfillment, 
-                UsrAcumaticaShipmentDetail detail)
+                UsrAcumaticaShipmentSalesOrderRef detail)
         {
             var sync = new UsrShopAcuShipmentSync();
             sync.UsrShopifyFulfillment = fulfillment;
-            sync.UsrAcumaticaShipmentDetail = detail;
+            sync.UsrAcumaticaShipmentSalesOrderRef = detail;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuShipmentSyncs.Add(sync);
@@ -148,7 +148,7 @@ namespace Monster.Middle.Processes.Sync.Persist
             return Entities
                 .UsrAcumaticaShipments
                 .Where(x => x.IsCreatedByMonster 
-                            && x.UsrAcumaticaInvoice == null
+                            && x.AcumaticaReleasedInvoiceNbr == null
                             && x.AcumaticaStatus == "Confirmed")
                 .ToList();
         }

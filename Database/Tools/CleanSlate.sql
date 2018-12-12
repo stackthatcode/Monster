@@ -10,7 +10,6 @@ UPDATE usrPreferences SET RealTimeHangFireJobId = NULL;
 
 DELETE FROM usrQueuedJob;
 
-SELECT * FROM usrAcumaticaBatchState;
 DELETE FROM usrAcumaticaBatchState;
 DELETE FROM usrShopifyBatchState;
 

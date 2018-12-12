@@ -29,22 +29,22 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
 
         public static bool AnyMatch(
-                    this IEnumerable<UsrAcumaticaShipmentDetail> input,
-                    UsrAcumaticaShipmentDetail other)
+                    this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
+                    UsrAcumaticaShipmentSalesOrderRef other)
         {
             return input.Any(x => x.Match(other));
         }
 
         public static bool Match(
-                this UsrAcumaticaShipmentDetail input, UsrAcumaticaShipmentDetail other)
+                this UsrAcumaticaShipmentSalesOrderRef input, UsrAcumaticaShipmentSalesOrderRef other)
         {
             return input.AcumaticaOrderNbr == other.AcumaticaOrderNbr
                    && input.AcumaticaShipmentNbr == other.AcumaticaShipmentNbr;
         }
 
-        public static UsrAcumaticaShipmentDetail FindMatch(
-                this IEnumerable<UsrAcumaticaShipmentDetail> input,
-                UsrAcumaticaShipmentDetail findMe)
+        public static UsrAcumaticaShipmentSalesOrderRef FindMatch(
+                this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
+                UsrAcumaticaShipmentSalesOrderRef findMe)
         {
             return input.FirstOrDefault(x => x.Match(findMe));
         }
@@ -64,7 +64,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                     UniqueOrderNbrs(this UsrAcumaticaShipment input)
         {
             return input
-                    .UsrAcumaticaShipmentDetails
+                    .UsrAcumaticaShipmentSalesOrderRefs
                     .Select(x => x.AcumaticaOrderNbr)
                     .ToList();
         }

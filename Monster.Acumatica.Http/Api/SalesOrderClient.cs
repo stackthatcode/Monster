@@ -43,17 +43,11 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Put("SalesOrder", json);
             return response.Body;
         }
-
-        public string AddInvoice(string json)
-        {
-            var response = _httpContext.Put("SalesInvoice", json);
-            return response.Body;
-        }
         
+
         public string RetrieveSalesOrderInvoices(DateTime? lastModified = null)
         {
-            //var queryString = "";
-            var queryString = "$expand=SalesInvoiceDetails";
+            var queryString = "$expand=SalesInvoiceDetail";
             //if (lastModified.HasValue)
             //{
             //    var restDate = lastModified.Value.ToAcumaticaRestDate();

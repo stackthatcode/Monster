@@ -44,10 +44,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
 
         public void RunAutomatic()
-        {
-            // Pull Shipments that are detected from Sales Orders
-            RunStubbedShipments();
-
+        {            
             // Pull Shipments based on Batch State
             var batchState = _batchStateRepository.Retrieve();
             if (batchState.AcumaticaShipmentsPullEnd.HasValue)
@@ -98,22 +95,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository.UpdateOrderShipmentsPullEnd(pullRunStartTime);
         }
 
-        private void RunStubbedShipments()
-        {
-            var stubbedShipments = _orderRepository.RetrieveShipmentStubs();
-
-            foreach (var stubbedShipment in stubbedShipments)
-            {
-                var json 
-                    = _shipmentClient
-                        .RetrieveShipment(stubbedShipment.AcumaticaShipmentNbr);
-
-                var shipment = json.DeserializeFromJson<Shipment>();
-
-                UpsertShipmentToPersist(shipment, false);
-            }
-        }
-
 
         public void UpsertShipmentsToPersist(List<Shipment> shipments)
         {
@@ -142,7 +123,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 newData.AcumaticaJson = shipment.SerializeToJson();
                 newData.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 newData.AcumaticaStatus = shipment.Status.value;
-                newData.IsPulledFromAcumatica = true;
                 newData.IsCreatedByMonster = isCreatedByMonster;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
@@ -153,7 +133,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
-                existingData.IsPulledFromAcumatica = true;
                 existingData.AcumaticaJson = shipment.SerializeToJson();
                 existingData.AcumaticaStatus = shipment.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
@@ -168,12 +147,12 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void UpsertShipmentSalesOrderRefs(
                     long monsterShipmentId, Shipment shipment)
         {
-            var currentDetailRecords = new List<UsrAcumaticaShipmentDetail>();
+            var currentDetailRecords = new List<UsrAcumaticaShipmentSalesOrderRef>();
 
             foreach (var detail in shipment.Details)
             {
                 var currentDetailRecord =
-                    new UsrAcumaticaShipmentDetail
+                    new UsrAcumaticaShipmentSalesOrderRef
                     {
                         ShipmentMonsterId = monsterShipmentId,
                         AcumaticaShipmentNbr = shipment.ShipmentNbr.value,

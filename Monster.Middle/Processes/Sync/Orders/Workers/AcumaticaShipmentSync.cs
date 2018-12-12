@@ -192,7 +192,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             // Write the Shipment to Acumatica via API
             var resultJson
-                = _shipmentClient.AddShipment(shipment.SerializeToJson());
+                = _shipmentClient.WriteShipment(shipment.SerializeToJson());
 
             var resultShipment
                 = resultJson.DeserializeFromJson<Shipment>();
@@ -207,7 +207,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 // NOTE - every Shopify Fulfillment will create
                 // .. exactly one Acumatica Shipment, thus we can do this
                 var shipmentSoRecord
-                    = shipmentRecord.UsrAcumaticaShipmentDetails.First();
+                    = shipmentRecord.UsrAcumaticaShipmentSalesOrderRefs.First();
 
                 _syncOrderRepository
                     .InsertShipmentDetailSync(fulfillmentRecord, shipmentSoRecord);
@@ -257,7 +257,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         }
 
 
-        public void RunSingleInvoicePerShipment()
+        public void RunSingleInvoicePerShipmentSalesRef()
         {
             var shipmentRecords = 
                 _syncOrderRepository
