@@ -29,7 +29,7 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
         
-        public string AddNewCustomer(string content)
+        public string WriteCustomer(string content)
         {
             var response = _httpContext.Put("Customer", content);
             return response.Body;

@@ -21,29 +21,26 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     {
         private readonly TenantRepository _tenantRepository;
         private readonly JobRepository _jobRepository;
-        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly CustomerClient _customerClient;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
-        
+        private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
+
 
         public AcumaticaOrderSync(
+                    TenantRepository tenantRepository,
+                    JobRepository jobRepository,
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
-                    AcumaticaOrderRepository acumaticaOrderRepository, 
-                    CustomerClient customerClient,
                     SalesOrderClient salesOrderClient,
                     AcumaticaOrderPull acumaticaOrderPull, 
-                    TenantRepository tenantRepository, 
-                    JobRepository jobRepository)
+                    AcumaticaCustomerSync acumaticaCustomerSync)
         {
             _syncOrderRepository = syncOrderRepository;
-            _acumaticaOrderRepository = acumaticaOrderRepository;
-            _customerClient = customerClient;
             _salesOrderClient = salesOrderClient;
             _acumaticaOrderPull = acumaticaOrderPull;
+            _acumaticaCustomerSync = acumaticaCustomerSync;
             _tenantRepository = tenantRepository;
             _jobRepository = jobRepository;
             _syncInventoryRepository = syncInventoryRepository;
@@ -244,75 +241,17 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         }
 
 
-        public UsrAcumaticaCustomer 
+        public UsrAcumaticaCustomer
                 SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
         {
             var customer =
                 _syncOrderRepository.RetrieveCustomer(
                     shopifyOrder.UsrShopifyCustomer.ShopifyCustomerId);
 
-            UsrAcumaticaCustomer output;
-
-            if (!customer.UsrShopAcuCustomerSyncs.Any())
-            {
-                output = PushCustomer(customer);
-            }
-            else
-            {
-                output = customer
-                    .UsrShopAcuCustomerSyncs
-                    .FirstOrDefault()
-                    .UsrAcumaticaCustomer;
-            }
-
+            var output = _acumaticaCustomerSync.PushCustomer(customer);
             return output;
         }
-        
-        private UsrAcumaticaCustomer 
-                PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
-        {
-            var shopifyCustomer =
-                shopifyCustomerRecord
-                    .ShopifyJson
-                    .DeserializeFromJson<Push.Shopify.Api.Customer.Customer>();
-            
-            var name = shopifyCustomer.first_name + " " + shopifyCustomer.last_name;
-            var shopifyAddress = shopifyCustomer.default_address;
 
-            var customer = new Customer();
-            customer.CustomerName = name.ToValue();
-            
-            var address = new Address();
-            address.AddressLine1 = shopifyAddress.address1.ToValue();
-            address.AddressLine2 = shopifyAddress.address2.ToValue();
-            address.City = shopifyAddress.city.ToValue();
-            address.State = shopifyAddress.province.ToValue();
-            address.PostalCode = shopifyAddress.zip.ToValue();
-
-            var mainContact = new Contact();
-            mainContact.Address = address;
-            mainContact.FirstName = shopifyCustomer.first_name.ToValue();
-            mainContact.LastName = shopifyCustomer.last_name.ToValue();
-            mainContact.Phone1 = shopifyCustomer.phone.ToValue();
-            mainContact.Email = shopifyCustomer.email.ToValue();
-
-            customer.MainContact = mainContact;
-
-            // Push new Customer to Acumatica API
-            var newCustomerJson 
-                = _customerClient.AddNewCustomer(customer.SerializeToJson());
-            var newCustomer = newCustomerJson.DeserializeFromJson<Customer>();
-
-            // Create record in Monster for Customer
-            var acumaticaMonsterRecord = newCustomer.ToMonsterRecord();
-            _acumaticaOrderRepository.InsertCustomer(acumaticaMonsterRecord);
-
-            // Create a sync record
-            _syncOrderRepository
-                .InsertCustomerSync(shopifyCustomerRecord, acumaticaMonsterRecord);
-
-            return acumaticaMonsterRecord;
-        }        
     }
 }
 

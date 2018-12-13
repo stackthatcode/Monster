@@ -165,13 +165,16 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newCustomer.ShopifyPrimaryEmail = customer.email;
                 newCustomer.DateCreated = DateTime.UtcNow;
                 newCustomer.LastUpdated = DateTime.UtcNow;
-                _orderRepository.InsertCustomer(newCustomer);
+                newCustomer.IsUpdatedInAcumatica = false;
+                _orderRepository.InsertCustomer(newCustomer);                
             }
             else
             {
                 existingCustomer.ShopifyJson = customer.SerializeToJson();
                 existingCustomer.ShopifyPrimaryEmail = customer.email;
+                existingCustomer.IsUpdatedInAcumatica = false;
                 existingCustomer.LastUpdated = DateTime.UtcNow;
+                
                 _orderRepository.SaveChanges();
             }
         }        

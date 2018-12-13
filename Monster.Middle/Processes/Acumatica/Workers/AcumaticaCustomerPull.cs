@@ -102,24 +102,31 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             foreach (var customer in customers)
             {
-                var existingData
-                    = _orderRepository
-                        .RetrieveCustomer(customer.CustomerID.value);
+                UpsertCustomerToPersist(customer);
+            }
+        }
 
-                if (existingData == null)
-                {
-                    var newData = customer.ToMonsterRecord();
-                    _orderRepository.InsertCustomer(newData);
-                }
-                else
-                {
-                    existingData.AcumaticaJson = customer.SerializeToJson();
-                    existingData.AcumaticaMainContactEmail
-                                = customer.MainContact.Email.value;
-                    existingData.LastUpdated = DateTime.UtcNow;
+        public UsrAcumaticaCustomer UpsertCustomerToPersist(Customer customer)
+        {
+            var existingData
+                = _orderRepository
+                    .RetrieveCustomer(customer.CustomerID.value);
 
-                    _orderRepository.SaveChanges();
-                }
+            if (existingData == null)
+            {
+                var newData = customer.ToMonsterRecord();
+                _orderRepository.InsertCustomer(newData);
+                return newData;
+            }
+            else
+            {
+                existingData.AcumaticaJson = customer.SerializeToJson();
+                existingData.AcumaticaMainContactEmail
+                    = customer.MainContact.Email.value;
+                existingData.LastUpdated = DateTime.UtcNow;
+
+                _orderRepository.SaveChanges();
+                return existingData;
             }
         }
         
@@ -132,6 +139,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             {
                 var customerJson
                     = _customerClient.RetrieveCustomer(acumaticaCustomerId);
+
                 var customer = customerJson.DeserializeFromJson<Customer>();
 
                 var newData = customer.ToMonsterRecord();

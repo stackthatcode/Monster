@@ -86,14 +86,27 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyCustomerId == shopifyCustomerId);
         }
 
-        public List<UsrShopifyCustomer> RetrieveCustomersUnsynced()
+        public List<UsrShopifyCustomer> RetrieveCustomersWithOrdersNotLoaded()
         {
             return Entities
                 .UsrShopifyCustomers
                 .Where(x => !x.UsrShopAcuCustomerSyncs.Any())
+                .Where(x => Entities.UsrShopifyOrders.Any(
+                            y => y.UsrShopifyCustomer.ShopifyCustomerId == x.ShopifyCustomerId))
                 .ToList();
         }
-        
+
+        public List<UsrShopifyCustomer> RetrieveCustomersNeedingUpdate()
+        {
+            return Entities
+                .UsrShopifyCustomers
+                .Where(x => x.UsrShopAcuCustomerSyncs.Any() &&
+                            x.IsUpdatedInAcumatica == false)
+                .ToList();
+        }
+
+
+
         public UsrShopAcuCustomerSync 
                 InsertCustomerSync(
                     UsrShopifyCustomer shopifyCustomer, 
@@ -227,5 +240,10 @@ namespace Monster.Middle.Processes.Sync.Persist
         //        .ToList();
         //}
 
+
+        public void SaveChanges()
+        {
+            Entities.SaveChanges();
+        }
     }
 }
