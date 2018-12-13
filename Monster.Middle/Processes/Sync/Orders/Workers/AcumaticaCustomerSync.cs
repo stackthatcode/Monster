@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Customer;
@@ -7,6 +8,7 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Orders.Model;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
@@ -82,19 +84,49 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             mainContact.Email = shopifyCustomer.email.ToValue();
 
             customer.MainContact = mainContact;
+            customer.AccountRef = 
+                $"Shopify Customer #{shopifyCustomer.id}".ToValue();
+
+            var acumaticaCustomerRecord = shopifyCustomerRecord.MatchingCustomer();
+            if (acumaticaCustomerRecord != null)
+            {
+                customer.CustomerID 
+                    = acumaticaCustomerRecord.AcumaticaCustomerId.ToValue();
+            }
 
             // Push Customer to Acumatica API
             var customerResultJson
                 = _customerClient.WriteCustomer(customer.SerializeToJson());
             var customerResult = customerResultJson.DeserializeFromJson<Customer>();
+            
+            // Create SQL footprint
+            using (var transaction = _syncOrderRepository.BeginTransaction())
+            {
+                var output = 
+                    _acumaticaCustomerPull.UpsertCustomerToPersist(customerResult);
 
-            var output = 
-                _acumaticaCustomerPull.UpsertCustomerToPersist(customerResult);
+                var existingSync = output.UsrShopAcuCustomerSyncs.FirstOrDefault();
 
-            shopifyCustomerRecord.IsUpdatedInAcumatica = true;
-            _syncOrderRepository.SaveChanges();
+                if (existingSync == null)
+                {
+                    var syncRecord = new UsrShopAcuCustomerSync();
+                    syncRecord.UsrShopifyCustomer = shopifyCustomerRecord;
+                    syncRecord.UsrAcumaticaCustomer = output;
+                    syncRecord.DateCreated = DateTime.UtcNow;
+                    syncRecord.LastUpdated = DateTime.UtcNow;
+                    _syncOrderRepository.InsertCustomerSync(syncRecord);
+                }
+                else
+                {
+                    existingSync.LastUpdated = DateTime.UtcNow;
+                    _syncOrderRepository.SaveChanges();
+                }
 
-            return output;
+                shopifyCustomerRecord.IsUpdatedInAcumatica = true;
+                transaction.Commit();
+
+                return output;
+            }
         }
     }
 }

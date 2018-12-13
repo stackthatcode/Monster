@@ -119,6 +119,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             // Pull from Shopify
             var firstJson = _customerApi.Retrieve(firstFilter);
             var firstCustomers = firstJson.DeserializeFromJson<CustomerList>().customers;
+            UpsertCustomers(firstCustomers);
 
             var currentPage = 2;
 
@@ -131,6 +132,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 var currentJson = _customerApi.Retrieve(currentFilter);
                 var currentCustomers 
                     = currentJson.DeserializeFromJson<CustomerList>().customers;
+
+                UpsertCustomers(currentCustomers);
 
                 if (currentCustomers.Count == 0)
                 {

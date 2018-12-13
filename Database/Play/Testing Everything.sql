@@ -18,12 +18,11 @@ INSERT INTO usrPreferences VALUES (
 	'America/Chicago', 
 	'ONLINE', 
 	'102050', 
-	'MANUAL', 
-	'MANUAL', 
-	'MANUAL', 
+	'ONLINE', 
+	'ONLINE', 
+	'ONLINE', 
 	NULL,
 	@FulfillInAcumatica );
-
 
 
 
@@ -44,13 +43,21 @@ SELECT * FROM usrShopifyTransaction;
 SELECT * FROM usrShopifyAcuPayment;
 
 SELECT * FROM usrShopifyORder;
-SELECT * FROM usrShopifyCustomer;
 
 SELECT * FROM usrJobExecutionLog;
 
 
 SELECT * FROM usrAcumaticaSalesOrder;
+SELECT * FROM usrShopAcuOrderSync;
 SELECT * FROM usrAcumaticaSoShipmentInvoice;
+
+
+SELECT * FROM usrShopifyOrder
+SELECT * FROM usrShopifyCustomer;
+SELECT * FROM usrShopAcuCustomerSync;
+SELECT * FROM usrAcumaticaCustomer;
+
+SELECT * FROM usr
 
 
 SELECT * FROM usrAcumaticaShipment;

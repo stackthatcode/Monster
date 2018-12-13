@@ -17,6 +17,10 @@ namespace Monster.Middle.Processes.Sync.Persist
             _dataContext = dataContext;
         }
 
+        public DbContextTransaction BeginTransaction()
+        {
+            return Entities.Database.BeginTransaction();
+        }
 
         // Order Syncing
         //
@@ -105,21 +109,11 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .ToList();
         }
 
-
-
-        public UsrShopAcuCustomerSync 
-                InsertCustomerSync(
-                    UsrShopifyCustomer shopifyCustomer, 
-                    UsrAcumaticaCustomer acumaticaCustomer)
+        
+        public void InsertCustomerSync(UsrShopAcuCustomerSync input)
         {
-            var sync = new UsrShopAcuCustomerSync();
-            sync.UsrShopifyCustomer = shopifyCustomer;
-            sync.UsrAcumaticaCustomer = acumaticaCustomer;
-            sync.DateCreated = DateTime.UtcNow;
-            sync.LastUpdated = DateTime.UtcNow;
-            Entities.UsrShopAcuCustomerSyncs.Add(sync);
+            Entities.UsrShopAcuCustomerSyncs.Add(input);
             Entities.SaveChanges();
-            return sync;
         }
 
 

@@ -68,8 +68,7 @@ namespace Monster.Middle.Processes.Sync.Orders
             _acumaticaContext.Login();
 
             _acumaticaCustomerSync.Run();
-            return;
-
+            
             _acumaticaOrderSync.Run();
 
             if (!fulfilledInAcumatica)
