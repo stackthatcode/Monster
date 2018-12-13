@@ -10,12 +10,15 @@ namespace Push.Shopify.Api.Order
         public string province { get; set; }
         public string country { get; set; }
         public string last_name { get; set; }
-        public object address2 { get; set; }
+        public string address2 { get; set; }
         public string company { get; set; }
         public double latitude { get; set; }
         public double longitude { get; set; }
         public string name { get; set; }
         public string country_code { get; set; }
         public string province_code { get; set; }
+
+        public string FullName =>
+                    (first_name ?? "" + " " + last_name ?? "").Trim();
     }
 }

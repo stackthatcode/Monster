@@ -72,6 +72,7 @@
     <Compile Include="Api\Distribution\WarehouseDetail.cs" />
     <Compile Include="Api\DistributionClient.cs" />
     <Compile Include="Api\SalesOrder\Address.cs" />
+    <Compile Include="Api\SalesOrder\ContactOverride.cs" />
     <Compile Include="Api\SalesOrder\CreditMemoWrite.cs" />
     <Compile Include="Api\SalesOrder\FinancialSettings.cs" />
     <Compile Include="Api\SalesOrder\PaymentSettings.cs" />

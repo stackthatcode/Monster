@@ -123,7 +123,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private void PushOrderToAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
             var preferences = _tenantRepository.RetrievePreferences();
-
             var customer = SyncCustomerToAcumatica(shopifyOrderRecord);
 
             var shopifyOrder
@@ -144,9 +143,36 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             salesOrder.ShippingSettings = new ShippingSettings
             {
                 ShipSeparately = true.ToValue(),
-                ShippingRule = "Back Order Allowed".ToValue(),
+                ShippingRule = "Back Order Allowed".ToValue(),                
             };
-            
+
+            // Shipping Contact
+            var shippingContact = new ContactOverride();
+            shippingContact.Email = shopifyOrder.contact_email.ToValue();
+            shippingContact.Attention
+                    = shopifyOrder.shipping_address.FullName.ToValue();
+            shippingContact.BusinessName = shopifyOrder.shipping_address.company.ToValue();
+            shippingContact.Phone1 = shopifyOrder.shipping_address.phone.ToValue();
+
+            salesOrder.ShipToContactOverride = true.ToValue();
+            salesOrder.ShipToContact = shippingContact;
+
+            // Shipping Address
+            var shippingAddress = new Address();
+            shippingAddress.AddressLine1
+                = shopifyOrder.shipping_address.address1.ToValue();
+            shippingAddress.AddressLine2
+                = shopifyOrder.shipping_address.address2.ToValue();
+            shippingAddress.City = shopifyOrder.shipping_address.city.ToValue();
+            shippingAddress.State 
+                = shopifyOrder.shipping_address.province.ToValue();
+            shippingAddress.PostalCode
+                = shopifyOrder.shipping_address.province_code.ToValue();
+
+            salesOrder.ShipToAddressOverride = true.ToValue();
+            salesOrder.ShipToAddress = shippingAddress;
+
+
             foreach (var lineItem in shopifyOrder.line_items)
             {
                 var variant =

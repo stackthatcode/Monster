@@ -121,8 +121,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             else
             {
                 existingData.AcumaticaJson = customer.SerializeToJson();
-                existingData.AcumaticaMainContactEmail
-                    = customer.MainContact.Email.value;
+                existingData.AcumaticaMainContactEmail = customer.MainContact.Email.value;
                 existingData.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.SaveChanges();

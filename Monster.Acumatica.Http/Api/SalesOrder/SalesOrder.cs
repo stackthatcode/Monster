@@ -46,8 +46,13 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue PreferredWarehouseID { get; set; }
         public DoubleValue ReciprocalRate { get; set; }
         public DateValue RequestedOn { get; set; }
-        public BoolValue ShipToAddressOverride { get; set; }
+
         public BoolValue ShipToContactOverride { get; set; }
+        public ContactOverride ShipToContact { get; set; }
+
+        public BoolValue ShipToAddressOverride { get; set; }
+        public Address ShipToAddress { get; set; }
+
         public StringValue ShipVia { get; set; }
         public StringValue Status { get; set; }
         public DoubleValue TaxTotal { get; set; }
