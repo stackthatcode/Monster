@@ -7,7 +7,7 @@ namespace Push.Shopify.Api.Order
     public class LineItem
     {
         public long id { get; set; }
-        public long variant_id { get; set; }
+        public long? variant_id { get; set; }
         public string title { get; set; }
         public int quantity { get; set; }
         public decimal price { get; set; }
@@ -64,6 +64,9 @@ namespace Push.Shopify.Api.Order
         public decimal TotalAfterDiscount => TotalBeforeDiscount - TotalDiscount;
 
         [JsonIgnore]
-        public decimal TotalTaxes => tax_lines.Sum(x => x.rate);
+        public decimal TotalTaxes => tax_lines.Sum(x => x.rate * x.price);
+
+        [JsonIgnore]
+        public decimal TaxableAmount => taxable ? TotalAfterDiscount : 0m;
     }
 }

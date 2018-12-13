@@ -18,9 +18,9 @@ INSERT INTO usrPreferences VALUES (
 	'America/Chicago', 
 	'ONLINE', 
 	'102050', 
-	'ONLINE', 
-	'ONLINE', 
-	'ONLINE', 
+	'MANUAL', 
+	'MANUAL', 
+	'MANUAL', 
 	NULL,
 	@FulfillInAcumatica );
 
@@ -49,13 +49,19 @@ SELECT * FROM usrShopifyCustomer;
 SELECT * FROM usrJobExecutionLog;
 
 
-
-
 SELECT * FROM usrAcumaticaSalesOrder;
 SELECT * FROM usrAcumaticaSoShipmentInvoice;
 
+
 SELECT * FROM usrAcumaticaShipment;
 SELECT * FROM usrAcumaticaShipmentSalesOrderRef;
+SELECT * FROM usrShopAcuShipmentSync;
+
+DELETE FROM usrQueuedJob;
+
+SELECT * FROM usrShopifyOrder;
+SELECT * FROM usrPreferences;
 
 SELECT * FROM usrAcumaticaInvoice;
+
 

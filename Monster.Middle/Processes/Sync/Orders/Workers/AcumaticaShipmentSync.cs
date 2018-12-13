@@ -113,7 +113,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             {
                 var variantRecord =
                     _syncInventoryRepository
-                        .RetrieveVariant(line.variant_id, line.sku);
+                        .RetrieveVariant(line.variant_id.Value, line.sku);
 
                 var stockItemId = variantRecord.MatchedStockItem().ItemId;
 
@@ -172,7 +172,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             {
                 var variantRecord =
                     _syncInventoryRepository
-                        .RetrieveVariant(line.variant_id, line.sku);
+                        .RetrieveVariant(line.variant_id.Value, line.sku);
 
                 var stockItemId
                     = variantRecord.MatchedStockItem().ItemId;

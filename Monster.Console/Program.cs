@@ -17,8 +17,7 @@ namespace Monster.ConsoleApp
         {
             RunHangFireBackgroundService();
         }
-
-
+        
         static void RunHangFireBackgroundService()
         {            
             ConfigureHangFire();

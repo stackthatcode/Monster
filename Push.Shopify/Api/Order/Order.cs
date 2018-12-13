@@ -68,7 +68,10 @@ namespace Push.Shopify.Api.Order
         //
         [JsonIgnore]
         public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
-        
+
+        [JsonIgnore]
+        public decimal TaxableAmountTotal => line_items.Sum(x => x.TaxableAmount);
+
         [JsonIgnore]
         public decimal LineItemDiscountTotal
                         => discount_applications
@@ -83,8 +86,7 @@ namespace Push.Shopify.Api.Order
 
         [JsonIgnore]
         public decimal RefundTaxTotal => refunds.Sum(x => x.TaxTotal);
-
-
+        
         [JsonIgnore]
         public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
 
@@ -109,8 +111,7 @@ namespace Push.Shopify.Api.Order
         {
             return line_items.FirstOrDefault(x => x.id == id);
         }
-
-
+        
         public Fulfillment Fulfillment(long id)
         {
             return fulfillments.FirstOrDefault(x => x.id == id);

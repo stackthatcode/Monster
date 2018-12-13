@@ -38,6 +38,7 @@ namespace Push.Shopify.Http
             {
                 NumberOfAttempts = _settings.RetryLimit,
                 ThrottlingKey = credentials.Domain.BaseUrl,
+                ThrottlingDelay = _settings.ThrottlingDelay,
                 Logger = _logger,
             };
 

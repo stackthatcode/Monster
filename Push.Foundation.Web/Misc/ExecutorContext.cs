@@ -8,12 +8,15 @@ namespace Push.Foundation.Web.Misc
         public IPushLogger Logger { get; set; }
         public int NumberOfAttempts { get; set; }
         public string ThrottlingKey { get; set; }
+        public int ThrottlingDelay { get; set; }
+
 
         public ExecutorContext()
         {
             Logger = new ConsoleAndDebugLogger();
             NumberOfAttempts = 1;
             ThrottlingKey = Guid.NewGuid().ToString();
+            ThrottlingDelay = 0;
         }
     }
 }

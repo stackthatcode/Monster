@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
@@ -86,9 +87,14 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             foreach (var lineItem in shopifyOrder.line_items)
             {
+                if (lineItem.variant_id == null)
+                {
+                    return false;
+                }
+
                 var variant = 
                     _syncInventoryRepository
-                        .RetrieveVariant(lineItem.variant_id, lineItem.sku);
+                        .RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
 
                 if (variant == null || variant.IsNotMatched())
                 {
@@ -112,11 +118,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             if (!shopifyOrderRecord.UsrShopAcuOrderSyncs.Any())
             {
                 PushOrderToAcumatica(shopifyOrderRecord);
+                PushOrderTaxesToAcumatica(shopifyOrderRecord);
             }
         }
 
-
-        // Assumes that the 
+        
         private void PushOrderToAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
             var preferences = _tenantRepository.RetrievePreferences();
@@ -129,13 +135,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     .DeserializeToOrder();
 
             var salesOrder = new SalesOrder();
-
+            salesOrder.Details = new List<SalesOrderDetail>();
             salesOrder.OrderType = Constants.SalesOrderType.ToValue();
             salesOrder.Status = "Open".ToValue();
             salesOrder.Hold = false.ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
-            salesOrder.Details = new List<SalesOrderDetail>();
             salesOrder.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();
             salesOrder.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
 
@@ -144,19 +149,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 ShipSeparately = true.ToValue(),
                 ShippingRule = "Back Order Allowed".ToValue(),
             };
-
-            salesOrder.FinancialSettings = new FinancialSettings()
-            {
-                OverrideTaxZone = true.ToValue(),
-                CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
-            };
             
-
             foreach (var lineItem in shopifyOrder.line_items)
             {
                 var variant =
                     _syncInventoryRepository
-                        .RetrieveVariant(lineItem.variant_id, lineItem.sku);
+                        .RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
 
                 var stockItem = variant.MatchedStockItem();
                 
@@ -176,44 +174,75 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 salesOrder.Details.Add(salesOrderDetail);
             }
             
+            salesOrder.FinancialSettings = new FinancialSettings()
+            {
+                OverrideTaxZone = true.ToValue(),
+                CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
+            };
+
             var taxDetail = new TaxDetails();
             taxDetail.TaxID = preferences.AcumaticaTaxId.ToValue();
             salesOrder.TaxDetails = new List<TaxDetails> { taxDetail };
-            
-            var resultJson 
+
+
+            // Record the Sales Order Record to SQL
+            var resultJson
                 = _salesOrderClient
                     .WriteSalesOrder(salesOrder.SerializeToJson());
 
-            var resultSalesOrder 
-                = resultJson.DeserializeFromJson<SalesOrder>();
-            
-            // Record the Sales Order Record to SQL
+            var resultSalesOrder = resultJson.DeserializeFromJson<SalesOrder>();
             var acumaticaRecord
                 = _acumaticaOrderPull.UpsertOrderToPersist(resultSalesOrder);
-
+            
+            var taxDetailsId = resultSalesOrder.TaxDetails.First().id;
+            
             _syncOrderRepository
-                .InsertOrderSync(shopifyOrderRecord, acumaticaRecord);
+                .InsertOrderSync(
+                    shopifyOrderRecord, acumaticaRecord, taxDetailsId, false);
+
             _jobRepository.InsertExecutionLog(
                 $"Created Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
                 $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
+        }
 
-
-            // TODO - add a flag to the Sync Record to indicate that Taxes 
-            // ... have been propery loaded
-            // Write the Sales Tax 
+        private void PushOrderTaxesToAcumatica(UsrShopifyOrder shopifyOrderRecord)
+        {
+            // Arrange
+            var syncRecord = shopifyOrderRecord.UsrShopAcuOrderSyncs.FirstOrDefault();
+            if (syncRecord == null)
+            {
+                return;
+            }
+            var preferences = _tenantRepository.RetrievePreferences();
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+            var acumaticaRecord = syncRecord.UsrAcumaticaSalesOrder;
+            
+            // Create Tax Details payload
             var taxUpdate = new TaxDetails();
-            taxUpdate.id = resultSalesOrder.TaxDetails.First().id;
+            taxUpdate.id = syncRecord.AcumaticaTaxDetailId;
             taxUpdate.TaxID = preferences.AcumaticaTaxId.ToValue();
             taxUpdate.TaxRate = ((double)0).ToValue();
-            taxUpdate.TaxableAmount = ((double)0).ToValue();
+            taxUpdate.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
             taxUpdate.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
 
+            // Create Sales Order payload
             var orderUpdate = new SalesOrderWrite();
-            orderUpdate.OrderNbr = resultSalesOrder.OrderNbr.Copy();
+            orderUpdate.OrderNbr = acumaticaRecord.AcumaticaOrderNbr.ToValue();
             orderUpdate.TaxDetails = new List<TaxDetails> { taxUpdate };
-            var resultJson2
-                = _salesOrderClient.WriteSalesOrder(orderUpdate.SerializeToJson());
+            var result = 
+                _salesOrderClient.WriteSalesOrder(orderUpdate.SerializeToJson());
+
+            // Update the Sync Record
+            acumaticaRecord.DetailsJson = result;
+            syncRecord.IsTaxLoadedToAcumatica = true;
+            syncRecord.LastUpdated = DateTime.UtcNow;
+            _syncOrderRepository.Entities.SaveChanges();
+
+            _jobRepository.InsertExecutionLog(
+                $"Wrote Taxes for Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
+                $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }
+
 
         public UsrAcumaticaCustomer 
                 SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
@@ -239,7 +268,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             return output;
         }
         
-
         private UsrAcumaticaCustomer 
                 PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
         {

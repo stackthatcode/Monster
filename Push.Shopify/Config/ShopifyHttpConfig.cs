@@ -24,8 +24,8 @@ namespace Push.Shopify.Config
         [ConfigurationProperty("Timeout", IsRequired = true)]
         public int Timeout
         {
-            get { return ((string)_settings["RetryLimit"]).ToIntegerAlt(60000); }
-            set { _settings["TimeoutTimeout"] = value; }
+            get { return ((string)_settings["Timeout"]).ToIntegerAlt(60000); }
+            set { _settings["Timeout"] = value; }
         }
 
         [ConfigurationProperty("ThrottlingDelay", IsRequired = false)]

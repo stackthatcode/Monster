@@ -103,7 +103,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             var batchState = _shopifyBatchRepository.Retrieve();
 
-            if (!batchState.ShopifyOrdersPullEnd.HasValue)
+            if (!batchState.ShopifyCustomersPullEnd.HasValue)
             {
                 throw new Exception(
                     "ShopifyOrdersPullEnd not set - must run Baseline Pull first");
@@ -140,7 +140,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 currentPage++;
             }
 
-            _shopifyBatchRepository.UpdateShopifyCustomersPullEnd(startOfPullRun);
+            _shopifyBatchRepository
+                .UpdateShopifyCustomersPullEnd(startOfPullRun);
         }
 
         private void UpsertCustomers(List<Customer> customers)

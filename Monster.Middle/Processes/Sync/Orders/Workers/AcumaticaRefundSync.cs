@@ -89,7 +89,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 // TODO *** this needs to be replaced by the Sync Map
                 var variant =
                     _syncInventoryRepository
-                        .RetrieveVariant(line_item.variant_id, line_item.sku);
+                        .RetrieveVariant(
+                            line_item.variant_id.Value, line_item.sku);
 
                 var stockItemId = variant.MatchedStockItem().ItemId;
 
@@ -154,7 +155,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 // TODO *** this needs to be replaced by the Sync Map
                 var variant =
                     _syncInventoryRepository
-                        .RetrieveVariant(line_item.variant_id, line_item.sku);
+                        .RetrieveVariant(line_item.variant_id.Value, line_item.sku);
 
                 var stockItemId = variant.MatchedStockItem().ItemId;
 
