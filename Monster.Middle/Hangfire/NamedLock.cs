@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace Monster.Middle.Directors
+
+namespace Monster.Middle.Hangfire
 {
     public class NamedLock
     {

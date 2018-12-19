@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using Dapper;
 
-namespace Monster.Middle.Persist.Sys
+namespace Monster.Middle.Persist.Sys.Repositories
 {
     public class SystemRepository
     {

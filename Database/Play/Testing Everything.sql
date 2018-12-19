@@ -57,8 +57,6 @@ SELECT * FROM usrShopifyCustomer;
 SELECT * FROM usrShopAcuCustomerSync;
 SELECT * FROM usrAcumaticaCustomer;
 
-SELECT * FROM usr
-
 
 SELECT * FROM usrAcumaticaShipment;
 SELECT * FROM usrAcumaticaShipmentSalesOrderRef;
@@ -70,5 +68,7 @@ SELECT * FROM usrShopifyOrder;
 SELECT * FROM usrPreferences;
 
 SELECT * FROM usrAcumaticaInvoice;
+
+
 
 

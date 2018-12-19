@@ -1,7 +1,7 @@
 ﻿using System;
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Sys;
+using Monster.Middle.Persist.Sys.Repositories;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
 

@@ -5,7 +5,7 @@ using System.Linq;
 using Monster.Middle.Persist.Multitenant;
 using Push.Shopify.Api.Transactions;
 
-namespace Monster.Middle.Processes.Sync.Persist
+namespace Monster.Middle.Processes.Sync.Orders
 {
     public class SyncOrderRepository
     {

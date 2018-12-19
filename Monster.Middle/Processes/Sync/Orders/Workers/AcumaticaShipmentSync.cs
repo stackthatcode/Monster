@@ -9,8 +9,8 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
+using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Orders.Model;
-using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
 
@@ -25,7 +25,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
         private readonly SalesOrderClient _salesOrderClient;
-        private readonly JobRepository _jobRepository;
+        private readonly SystemRepository _jobRepository;
 
         public AcumaticaShipmentSync(
                     SyncOrderRepository syncOrderRepository,
@@ -34,7 +34,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     AcumaticaShipmentPull acumaticaShipmentPull,
                     ShipmentClient shipmentClient, 
                     SalesOrderClient salesOrderClient,
-                    JobRepository jobRepository)
+                    SystemRepository jobRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _shopifyOrderRepository = shopifyOrderRepository;

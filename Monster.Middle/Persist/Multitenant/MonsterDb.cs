@@ -49,11 +49,11 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; } // usrAcumaticaStockItem
         System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
+        System.Data.Entity.DbSet<UsrBackgroundJob> UsrBackgroundJobs { get; set; } // usrBackgroundJob
+        System.Data.Entity.DbSet<UsrExecutionLog> UsrExecutionLogs { get; set; } // usrExecutionLog
         System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; } // usrInventoryReceiptSync
-        System.Data.Entity.DbSet<UsrJobExecutionLog> UsrJobExecutionLogs { get; set; } // usrJobExecutionLog
         System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
         System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; } // usrPreferences
-        System.Data.Entity.DbSet<UsrQueuedJob> UsrQueuedJobs { get; set; } // usrQueuedJob
         System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; } // usrShopAcuCustomerSync
         System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; } // usrShopAcuItemSync
         System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; } // usrShopAcuOrderSync
@@ -73,6 +73,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund
         System.Data.Entity.DbSet<UsrShopifyTransaction> UsrShopifyTransactions { get; set; } // usrShopifyTransaction
         System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
+        System.Data.Entity.DbSet<UsrSystemState> UsrSystemStates { get; set; } // usrSystemState
         System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
 
         int SaveChanges();
@@ -108,11 +109,11 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; } // usrAcumaticaStockItem
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
+        public System.Data.Entity.DbSet<UsrBackgroundJob> UsrBackgroundJobs { get; set; } // usrBackgroundJob
+        public System.Data.Entity.DbSet<UsrExecutionLog> UsrExecutionLogs { get; set; } // usrExecutionLog
         public System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; } // usrInventoryReceiptSync
-        public System.Data.Entity.DbSet<UsrJobExecutionLog> UsrJobExecutionLogs { get; set; } // usrJobExecutionLog
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
         public System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; } // usrPreferences
-        public System.Data.Entity.DbSet<UsrQueuedJob> UsrQueuedJobs { get; set; } // usrQueuedJob
         public System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; } // usrShopAcuCustomerSync
         public System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; } // usrShopAcuItemSync
         public System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; } // usrShopAcuOrderSync
@@ -132,6 +133,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; } // usrShopifyRefund
         public System.Data.Entity.DbSet<UsrShopifyTransaction> UsrShopifyTransactions { get; set; } // usrShopifyTransaction
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
+        public System.Data.Entity.DbSet<UsrSystemState> UsrSystemStates { get; set; } // usrSystemState
         public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
 
         static MonsterDataContext()
@@ -194,11 +196,11 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaStockItemConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration());
+            modelBuilder.Configurations.Add(new UsrBackgroundJobConfiguration());
+            modelBuilder.Configurations.Add(new UsrExecutionLogConfiguration());
             modelBuilder.Configurations.Add(new UsrInventoryReceiptSyncConfiguration());
-            modelBuilder.Configurations.Add(new UsrJobExecutionLogConfiguration());
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration());
             modelBuilder.Configurations.Add(new UsrPreferenceConfiguration());
-            modelBuilder.Configurations.Add(new UsrQueuedJobConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuCustomerSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuItemSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrShopAcuOrderSyncConfiguration());
@@ -218,6 +220,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyRefundConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyTransactionConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration());
+            modelBuilder.Configurations.Add(new UsrSystemStateConfiguration());
             modelBuilder.Configurations.Add(new UsrTenantConfiguration());
         }
 
@@ -235,11 +238,11 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaStockItemConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrBackgroundJobConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrExecutionLogConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrInventoryReceiptSyncConfiguration(schema));
-            modelBuilder.Configurations.Add(new UsrJobExecutionLogConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPreferenceConfiguration(schema));
-            modelBuilder.Configurations.Add(new UsrQueuedJobConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuCustomerSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuItemSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopAcuOrderSyncConfiguration(schema));
@@ -259,6 +262,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyRefundConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyTransactionConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrSystemStateConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrTenantConfiguration(schema));
             return modelBuilder;
         }
@@ -294,11 +298,11 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaStockItem> UsrAcumaticaStockItems { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; }
+        public System.Data.Entity.DbSet<UsrBackgroundJob> UsrBackgroundJobs { get; set; }
+        public System.Data.Entity.DbSet<UsrExecutionLog> UsrExecutionLogs { get; set; }
         public System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; }
-        public System.Data.Entity.DbSet<UsrJobExecutionLog> UsrJobExecutionLogs { get; set; }
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; }
         public System.Data.Entity.DbSet<UsrPreference> UsrPreferences { get; set; }
-        public System.Data.Entity.DbSet<UsrQueuedJob> UsrQueuedJobs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuCustomerSync> UsrShopAcuCustomerSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrShopAcuOrderSync> UsrShopAcuOrderSyncs { get; set; }
@@ -318,6 +322,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyRefund> UsrShopifyRefunds { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyTransaction> UsrShopifyTransactions { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; }
+        public System.Data.Entity.DbSet<UsrSystemState> UsrSystemStates { get; set; }
         public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; }
 
         public FakeMonsterDataContext()
@@ -338,11 +343,11 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaStockItems = new FakeDbSet<UsrAcumaticaStockItem>("MonsterId");
             UsrAcumaticaWarehouses = new FakeDbSet<UsrAcumaticaWarehouse>("Id");
             UsrAcumaticaWarehouseDetails = new FakeDbSet<UsrAcumaticaWarehouseDetail>("MonsterId");
+            UsrBackgroundJobs = new FakeDbSet<UsrBackgroundJob>("Id");
+            UsrExecutionLogs = new FakeDbSet<UsrExecutionLog>("Id");
             UsrInventoryReceiptSyncs = new FakeDbSet<UsrInventoryReceiptSync>("Id");
-            UsrJobExecutionLogs = new FakeDbSet<UsrJobExecutionLog>("Id");
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
             UsrPreferences = new FakeDbSet<UsrPreference>("Id");
-            UsrQueuedJobs = new FakeDbSet<UsrQueuedJob>("Id");
             UsrShopAcuCustomerSyncs = new FakeDbSet<UsrShopAcuCustomerSync>("Id");
             UsrShopAcuItemSyncs = new FakeDbSet<UsrShopAcuItemSync>("Id");
             UsrShopAcuOrderSyncs = new FakeDbSet<UsrShopAcuOrderSync>("Id");
@@ -362,6 +367,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrShopifyRefunds = new FakeDbSet<UsrShopifyRefund>("Id");
             UsrShopifyTransactions = new FakeDbSet<UsrShopifyTransaction>("Id");
             UsrShopifyVariants = new FakeDbSet<UsrShopifyVariant>("MonsterId");
+            UsrSystemStates = new FakeDbSet<UsrSystemState>("Id");
             UsrTenants = new FakeDbSet<UsrTenant>("CompanyId");
         }
 
@@ -979,6 +985,26 @@ namespace Monster.Middle.Persist.Multitenant
         public virtual UsrAcumaticaWarehouse UsrAcumaticaWarehouse { get; set; } // FK_usrAcumaticaWarehouseDetails_usrAcumaticaWarehouse
     }
 
+    // usrBackgroundJob
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrBackgroundJob
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public int? BackgroundJobType { get; set; } // BackgroundJobType
+        public string HangFireJobId { get; set; } // HangFireJobId (length: 50)
+        public System.DateTime? DateCreated { get; set; } // DateCreated
+        public System.DateTime? LastUpdated { get; set; } // LastUpdated
+    }
+
+    // usrExecutionLog
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrExecutionLog
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public string LogContent { get; set; } // LogContent (length: 250)
+        public System.DateTime DateCreated { get; set; } // DateCreated
+    }
+
     // usrInventoryReceiptSync
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrInventoryReceiptSync
@@ -1000,15 +1026,6 @@ namespace Monster.Middle.Persist.Multitenant
         /// Parent UsrShopifyInventoryLevel pointed by [usrInventoryReceiptSync].([ShopifyInventoryMonsterId]) (FK_usrInventoryReceiptSync_usrShopifyInventoryLevels)
         /// </summary>
         public virtual UsrShopifyInventoryLevel UsrShopifyInventoryLevel { get; set; } // FK_usrInventoryReceiptSync_usrShopifyInventoryLevels
-    }
-
-    // usrJobExecutionLog
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrJobExecutionLog
-    {
-        public long Id { get; set; } // Id (Primary key)
-        public string LogContent { get; set; } // LogContent (length: 250)
-        public System.DateTime DateCreated { get; set; } // DateCreated
     }
 
     // usrPayoutPreferences
@@ -1036,20 +1053,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaTaxZone { get; set; } // AcumaticaTaxZone (length: 50)
         public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
         public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
-        public string RealTimeHangFireJobId { get; set; } // RealTimeHangFireJobId (length: 250)
         public bool? FulfillmentInAcumatica { get; set; } // FulfillmentInAcumatica
-    }
-
-    // usrQueuedJob
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrQueuedJob
-    {
-        public long Id { get; set; } // Id (Primary key)
-        public int QueuedJobType { get; set; } // QueuedJobType
-        public int JobStatus { get; set; } // JobStatus
-        public string HangFireJobId { get; set; } // HangFireJobId (length: 50)
-        public System.DateTime DateCreated { get; set; } // DateCreated
-        public System.DateTime LastUpdated { get; set; } // LastUpdated
     }
 
     // usrShopAcuCustomerSync
@@ -1568,12 +1572,28 @@ namespace Monster.Middle.Persist.Multitenant
         }
     }
 
+    // usrSystemState
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrSystemState
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public short ShopifyConnection { get; set; } // ShopifyConnection
+        public short AcumaticaConnection { get; set; } // AcumaticaConnection
+        public short AcumaticaConfig { get; set; } // AcumaticaConfig
+        public short WarehouseSync { get; set; } // WarehouseSync
+        public short InventorySync { get; set; } // InventorySync
+        public bool IsShopifyUrlFinalized { get; set; } // IsShopifyUrlFinalized
+        public bool IsAcumaticaUrlFinalized { get; set; } // IsAcumaticaUrlFinalized
+        public string RealTimeHangFireJobId { get; set; } // RealTimeHangFireJobId (length: 250)
+    }
+
     // usrTenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrTenant
     {
         public long CompanyId { get; set; } // CompanyID (Primary key)
         public string ShopifyDomain { get; set; } // ShopifyDomain (length: 500)
+        public string ShopifyAccessToken { get; set; } // ShopifyAccessToken (length: 500)
         public string ShopifyApiKey { get; set; } // ShopifyApiKey (length: 500)
         public string ShopifyApiPassword { get; set; } // ShopifyApiPassword (length: 500)
         public string ShopifyApiSecret { get; set; } // ShopifyApiSecret (length: 500)
@@ -1884,6 +1904,48 @@ namespace Monster.Middle.Persist.Multitenant
         }
     }
 
+    // usrBackgroundJob
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrBackgroundJobConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrBackgroundJob>
+    {
+        public UsrBackgroundJobConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrBackgroundJobConfiguration(string schema)
+        {
+            ToTable("usrBackgroundJob", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.BackgroundJobType).HasColumnName(@"BackgroundJobType").HasColumnType("int").IsOptional();
+            Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
+        }
+    }
+
+    // usrExecutionLog
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrExecutionLogConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrExecutionLog>
+    {
+        public UsrExecutionLogConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrExecutionLogConfiguration(string schema)
+        {
+            ToTable("usrExecutionLog", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.LogContent).HasColumnName(@"LogContent").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(250);
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+        }
+    }
+
     // usrInventoryReceiptSync
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrInventoryReceiptSyncConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrInventoryReceiptSync>
@@ -1907,26 +1969,6 @@ namespace Monster.Middle.Persist.Multitenant
             // Foreign keys
             HasRequired(a => a.UsrAcumaticaInventoryReceipt).WithMany(b => b.UsrInventoryReceiptSyncs).HasForeignKey(c => c.AcumaticaInvReceiptMonsterId).WillCascadeOnDelete(false); // FK_usrInventoryReceiptSync_usrAcumaticaInventoryReceipt
             HasRequired(a => a.UsrShopifyInventoryLevel).WithMany(b => b.UsrInventoryReceiptSyncs).HasForeignKey(c => c.ShopifyInventoryMonsterId).WillCascadeOnDelete(false); // FK_usrInventoryReceiptSync_usrShopifyInventoryLevels
-        }
-    }
-
-    // usrJobExecutionLog
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrJobExecutionLogConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrJobExecutionLog>
-    {
-        public UsrJobExecutionLogConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public UsrJobExecutionLogConfiguration(string schema)
-        {
-            ToTable("usrJobExecutionLog", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.LogContent).HasColumnName(@"LogContent").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(250);
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
         }
     }
 
@@ -1976,31 +2018,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaTaxZone).HasColumnName(@"AcumaticaTaxZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxId).HasColumnName(@"AcumaticaTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.RealTimeHangFireJobId).HasColumnName(@"RealTimeHangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(250);
             Property(x => x.FulfillmentInAcumatica).HasColumnName(@"FulfillmentInAcumatica").HasColumnType("bit").IsOptional();
-        }
-    }
-
-    // usrQueuedJob
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrQueuedJobConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrQueuedJob>
-    {
-        public UsrQueuedJobConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public UsrQueuedJobConfiguration(string schema)
-        {
-            ToTable("usrQueuedJob", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.QueuedJobType).HasColumnName(@"QueuedJobType").HasColumnType("int").IsRequired();
-            Property(x => x.JobStatus).HasColumnName(@"JobStatus").HasColumnType("int").IsRequired();
-            Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }
     }
 
@@ -2504,6 +2522,32 @@ namespace Monster.Middle.Persist.Multitenant
         }
     }
 
+    // usrSystemState
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrSystemStateConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrSystemState>
+    {
+        public UsrSystemStateConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrSystemStateConfiguration(string schema)
+        {
+            ToTable("usrSystemState", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyConnection).HasColumnName(@"ShopifyConnection").HasColumnType("smallint").IsRequired();
+            Property(x => x.AcumaticaConnection).HasColumnName(@"AcumaticaConnection").HasColumnType("smallint").IsRequired();
+            Property(x => x.AcumaticaConfig).HasColumnName(@"AcumaticaConfig").HasColumnType("smallint").IsRequired();
+            Property(x => x.WarehouseSync).HasColumnName(@"WarehouseSync").HasColumnType("smallint").IsRequired();
+            Property(x => x.InventorySync).HasColumnName(@"InventorySync").HasColumnType("smallint").IsRequired();
+            Property(x => x.IsShopifyUrlFinalized).HasColumnName(@"IsShopifyUrlFinalized").HasColumnType("bit").IsRequired();
+            Property(x => x.IsAcumaticaUrlFinalized).HasColumnName(@"IsAcumaticaUrlFinalized").HasColumnType("bit").IsRequired();
+            Property(x => x.RealTimeHangFireJobId).HasColumnName(@"RealTimeHangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(250);
+        }
+    }
+
     // usrTenant
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrTenantConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrTenant>
@@ -2520,6 +2564,7 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.CompanyId).HasColumnName(@"CompanyID").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyDomain).HasColumnName(@"ShopifyDomain").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyAccessToken).HasColumnName(@"ShopifyAccessToken").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.ShopifyApiKey).HasColumnName(@"ShopifyApiKey").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.ShopifyApiPassword).HasColumnName(@"ShopifyApiPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.ShopifyApiSecret).HasColumnName(@"ShopifyApiSecret").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);

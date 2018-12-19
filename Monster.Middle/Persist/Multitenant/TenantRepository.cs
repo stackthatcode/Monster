@@ -1,7 +1,6 @@
 ﻿using System.Data.Entity;
 using System.Linq;
 using Monster.Acumatica.Http;
-using Monster.Middle.Persist.Multitenant.Model;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Http;
@@ -138,7 +137,6 @@ namespace Monster.Middle.Persist.Multitenant
         {
             return Entities.UsrPreferences.First();
         }
-
 
     }
 }

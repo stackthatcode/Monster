@@ -2,10 +2,8 @@
 using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
-using Monster.Middle.Directors;
-using Monster.Middle.Jobs;
+using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Sys;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
@@ -14,14 +12,12 @@ using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync;
 using Monster.Middle.Processes.Sync.Directors;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Processes.Sync.Orders.Workers;
-using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
@@ -69,13 +65,13 @@ namespace Monster.Middle
 
             // System-level Persistence always uses the MonsterConfig 
             // ... for its Connection String
-            builder.Register<SystemRepository>(x =>
+            builder.Register(x =>
             {
                 // TODO - replace with Default Connections string...?
                 var connectionString
                     = MonsterConfig.Settings.SystemDatabaseConnection;
 
-                return new SystemRepository(connectionString);
+                return new Persist.Sys.Repositories.SystemRepository(connectionString);
 
             }).SingleInstance();
 
@@ -86,9 +82,10 @@ namespace Monster.Middle
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
 
             // Job Running components
-            builder.RegisterType<JobRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
-            builder.RegisterType<QueuingService>().InstancePerLifetimeScope();
+            builder.RegisterType<Persist.Sys.Repositories.SystemRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<BackgroundJobRunner>().InstancePerLifetimeScope();
+            builder.RegisterType<HangfireService>().InstancePerLifetimeScope();
 
 
             // Shopify Pull Process

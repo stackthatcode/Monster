@@ -4,7 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
 
-namespace Monster.Middle.Processes.Sync.Persist
+namespace Monster.Middle.Processes.Sync.Inventory
 {
     public class SyncInventoryRepository
     {

@@ -52,7 +52,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
         
 
-        private readonly object _lock = new object();
+        private static readonly object _lock = new object();
 
         public UsrShopifyBatchState Retrieve()
         {

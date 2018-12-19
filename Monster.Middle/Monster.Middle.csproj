@@ -101,14 +101,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
-    <Compile Include="Jobs\JobRunner.cs" />
-    <Compile Include="Persist\Multitenant\Model\QueuedJobTypeId.cs" />
-    <Compile Include="Jobs\QueuingService.cs" />
+    <Compile Include="Hangfire\BackgroundJobRunner.cs" />
+    <Compile Include="Persist\Multitenant\Model\BackgroundJobType.cs" />
+    <Compile Include="Hangfire\HangfireService.cs" />
     <Compile Include="Misc\HangFireLogger.cs" />
     <Compile Include="Misc\HangFireLogProvider.cs" />
-    <Compile Include="Jobs\NamedLock.cs" />
-    <Compile Include="Persist\Multitenant\JobRepository.cs" />
-    <Compile Include="Persist\Multitenant\Model\JobStatus.cs" />
+    <Compile Include="Hangfire\NamedLock.cs" />
+    <Compile Include="Persist\Multitenant\StateRepository.cs" />
+    <Compile Include="Persist\Multitenant\Model\SystemState.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
@@ -130,8 +130,8 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Processes\Sync\Extensions\OrderExtensions.cs" />
-    <Compile Include="Processes\Sync\Persist\SyncInventoryRepository.cs" />
-    <Compile Include="Processes\Sync\Persist\SyncOrderRepository.cs" />
+    <Compile Include="Processes\Sync\Inventory\SyncInventoryRepository.cs" />
+    <Compile Include="Processes\Sync\Orders\SyncOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\AcumaticaManager.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\WarehouseSyncState.cs" />
     <Compile Include="Processes\Sync\Inventory\Services\InventoryStatusService.cs" />

@@ -1,13 +1,15 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
-using Monster.Middle.Jobs;
+using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
+using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Push.Foundation.Web.Json;
+using SystemRepository = Monster.Middle.Persist.Sys.Repositories.SystemRepository;
 
 
 namespace Monster.Web.Controllers
@@ -16,21 +18,23 @@ namespace Monster.Web.Controllers
     public class ConfigController : Controller
     {
         private readonly TenantRepository _tenantRepository;
-        private readonly JobRepository _jobRepository;
-        private readonly QueuingService _queuingService;
+        private readonly StateRepository _stateRepository;
+        private readonly HangfireService _hangfireService;
         private readonly InventoryStatusService _inventoryStatusService;
 
+
         public ConfigController(
-                TenantRepository tenantRepository, 
-                JobRepository jobRepository,
-                QueuingService queuingService, 
+                TenantRepository tenantRepository,
+                StateRepository stateRepository,
+                HangfireService hangfireService, 
                 InventoryStatusService inventoryStatusService)
         {
             _tenantRepository = tenantRepository;
-            _jobRepository = jobRepository;
-            _queuingService = queuingService;
+            _stateRepository = stateRepository;
+            _hangfireService = hangfireService;
             _inventoryStatusService = inventoryStatusService;
         }
+
 
 
         [HttpGet]
@@ -76,15 +80,15 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult SyncWarehouses()
         {
-            _queuingService.SyncWarehouseAndLocation();
+            _hangfireService.SyncWarehouseAndLocation();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
         public ActionResult WarehouseSyncStatus()
         {
-            var job = _jobRepository
-                        .Retrieve(QueuedJobType.SyncWarehouseAndLocation);
+            var job = 
+                _stateRepository.Retrieve(BackgroundJobType.SyncWarehouseAndLocation);
 
             var output = new WarehouseSyncStatusModel()
             {
@@ -105,14 +109,14 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult LoadInventoryInAcumatica()
         {
-            _queuingService.LoadInventoryIntoAcumatica();
+            _hangfireService.PushInventoryToAcumatica();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
         public ActionResult LoadInventoryInAcumaticaStatus()
         {
-            var job = _jobRepository.Retrieve(QueuedJobType.LoadInventoryIntoAcumatica);
+            var job = _stateRepository.Retrieve(BackgroundJobType.PushInventoryToAcumatica);
             var output = new { JobStatus = job.JobStatus };            
             return new JsonNetResult(output);
         }
@@ -122,14 +126,14 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult LoadInventoryInShopify()
         {
-            _queuingService.LoadInventoryIntoShopify();
+            _hangfireService.PushInventoryToShopify();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
         public ActionResult LoadInventoryInShopifyStatus()
         {
-            var job = _jobRepository.Retrieve(QueuedJobType.LoadInventoryIntoShopify);
+            var job = _stateRepository.Retrieve(BackgroundJobType.PushInventoryIntoShopify);
             var output = new { JobStatus = job.JobStatus };
             return new JsonNetResult(output);
         }
@@ -139,13 +143,13 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult StartRealTime()
         {
-            _queuingService.StartRoutineSync();
+            _hangfireService.StartRoutineSync();
             return JsonNetResult.Success();
         }
 
         public ActionResult RealTimeStatus()
         {
-            var logs = _jobRepository.RetrieveExecutionLogs();
+            var logs = _stateRepository.RetrieveExecutionLogs();
             var logDtos = 
                 logs.Select(x => 
                     new ExecutionLog()
@@ -156,7 +160,7 @@ namespace Monster.Web.Controllers
 
             var output = new
             {
-                IsStarted = _queuingService.IsRoutineSyncStarted(),
+                IsStarted = _hangfireService.IsRoutineSyncStarted(),
                 Logs = logDtos,
             };
             return new JsonNetResult(output);
@@ -164,7 +168,7 @@ namespace Monster.Web.Controllers
 
         public ActionResult PauseRealTime()
         {
-            _queuingService.PauseRoutineSync();
+            _hangfireService.PauseRoutineSync();
             return JsonNetResult.Success();
         }
     }

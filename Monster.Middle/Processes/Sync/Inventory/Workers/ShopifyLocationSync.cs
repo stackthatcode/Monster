@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Monster.Middle.Processes.Sync.Extensions;
-using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 

@@ -3,8 +3,8 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Sync.Extensions;
-using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Transactions;
 
@@ -13,7 +13,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     public class AcumaticaPaymentSync
     {
         private readonly TenantRepository _tenantRepository;
-        private readonly JobRepository _jobRepository;
+        private readonly StateRepository _stateRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
 
@@ -21,12 +21,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 TenantRepository tenantRepository,
                 SyncOrderRepository syncOrderRepository, 
                 PaymentClient paymentClient, 
-                JobRepository jobRepository)
+                StateRepository stateRepository)
         {
             _tenantRepository = tenantRepository;
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
-            _jobRepository = jobRepository;
+            _stateRepository = stateRepository;
         }
 
         public void Run()
@@ -92,7 +92,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.InsertPayment(paymentRecord);
             var log = $"Created Payment {paymentNbr} in Acumatica " +
                       $"from Shopify Order #{order.ShopifyOrderNumber}";
-            _jobRepository.InsertExecutionLog(log);
+            _stateRepository.InsertExecutionLog(log);
         }
     }
 }

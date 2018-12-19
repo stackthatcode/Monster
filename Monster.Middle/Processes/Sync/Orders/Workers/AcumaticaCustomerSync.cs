@@ -9,8 +9,6 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
-using Monster.Middle.Processes.Sync.Orders.Model;
-using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Sync.Orders.Workers

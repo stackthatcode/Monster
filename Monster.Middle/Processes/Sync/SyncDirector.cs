@@ -1,5 +1,6 @@
 ﻿using System;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify;
@@ -28,8 +29,6 @@ namespace Monster.Middle.Processes.Sync.Directors
                 ShopifyManager shopifyManager, 
                 InventoryManager inventoryManager,
                 OrderManager orderManager,
-                InventoryStatusService inventoryStatusService, 
-                JobRepository jobRepository,
                 IPushLogger logger)
         {
             _shopifyBatchRepository = shopifyBatchRepository;

@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Persist;
 
 namespace Monster.Middle.Processes.Sync.Inventory.Services
 {
