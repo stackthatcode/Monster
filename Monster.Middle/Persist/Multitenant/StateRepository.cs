@@ -22,6 +22,11 @@ namespace Monster.Middle.Persist.Multitenant
             return Entities.Database.BeginTransaction();
         }
 
+        public void SaveChanges()
+        {
+            this.Entities.SaveChanges();
+        }
+
 
 
         public bool Exists(int backgroundJobType)
@@ -79,7 +84,8 @@ namespace Monster.Middle.Persist.Multitenant
                     newRecord.AcumaticaConnection = SystemState.None;
                     newRecord.AcumaticaConfig = SystemState.None;
                     newRecord.WarehouseSync = SystemState.None;
-                    newRecord.InventorySync = SystemState.None;
+                    newRecord.AcumaticaInventoryPush = SystemState.None;
+                    newRecord.ShopifyInventoryPush = SystemState.None;
                     newRecord.IsShopifyUrlFinalized = false;
                     newRecord.IsAcumaticaUrlFinalized = false;
                     newRecord.RealTimeHangFireJobId = null;
@@ -111,9 +117,5 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
 
-        public void SaveChanges()
-        {
-            this.Entities.SaveChanges();
-        }
     }
 }

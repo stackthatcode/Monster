@@ -16,9 +16,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class ShopifyFulfillmentSync
     {
-        private readonly ShopifyBatchRepository _shopifyBatchRepository;
-        private readonly IPushLogger _logger;
-        private readonly SystemRepository _jobRepository;
+        private readonly StateRepository _stateRepository;
         private readonly FulfillmentApi _fulfillmentApi;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
@@ -30,18 +28,14 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
 
         public ShopifyFulfillmentSync(
-                IPushLogger logger,
-                SystemRepository jobRepository,
-                ShopifyBatchRepository shopifyBatchRepository,
+                StateRepository stateRepository,
                 ShopifyOrderRepository shopifyOrderRepository,
                 AcumaticaOrderRepository acumaticaOrderRepository, 
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 FulfillmentApi fulfillmentApi)
         {
-            _logger = logger;
-            _jobRepository = jobRepository;
-            _shopifyBatchRepository = shopifyBatchRepository;
+            _stateRepository = stateRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _syncOrderRepository = syncOrderRepository;
@@ -134,7 +128,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
                 var log = $"Created Shopify Order #{shopifyOrder.order_number} Fulfillment " +
                           $"from Acumatica Shipment {shipment.ShipmentNbr.value}";
-                _jobRepository.InsertExecutionLog(log);
+                _stateRepository.InsertExecutionLog(log);
 
                 transaction.Commit();
             }

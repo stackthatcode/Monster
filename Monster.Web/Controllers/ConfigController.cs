@@ -87,19 +87,15 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult WarehouseSyncStatus()
         {
-            var job = 
-                _stateRepository.Retrieve(BackgroundJobType.SyncWarehouseAndLocation);
+            var state = _stateRepository.RetrieveSystemState();
+            var warehouseSyncStatus
+                = _inventoryStatusService.GetWarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
             {
-                JobStatus = job.JobStatus
+                JobStatus = state.WarehouseSync,
+                SyncState = warehouseSyncStatus
             };
-
-            if (job.JobStatus == JobStatus.Complete)
-            {
-                output.SyncState
-                    = _inventoryStatusService.GetWarehouseSyncStatus();
-            }
             
             return new JsonNetResult(output);
         }
@@ -116,8 +112,8 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult LoadInventoryInAcumaticaStatus()
         {
-            var job = _stateRepository.Retrieve(BackgroundJobType.PushInventoryToAcumatica);
-            var output = new { JobStatus = job.JobStatus };            
+            var state = _stateRepository.RetrieveSystemState();
+            var output = new { JobStatus = state.AcumaticaInventoryPush };            
             return new JsonNetResult(output);
         }
 
@@ -133,8 +129,8 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult LoadInventoryInShopifyStatus()
         {
-            var job = _stateRepository.Retrieve(BackgroundJobType.PushInventoryIntoShopify);
-            var output = new { JobStatus = job.JobStatus };
+            var state = _stateRepository.RetrieveSystemState();
+            var output = new { JobStatus = state.ShopifyInventoryPush };
             return new JsonNetResult(output);
         }
 

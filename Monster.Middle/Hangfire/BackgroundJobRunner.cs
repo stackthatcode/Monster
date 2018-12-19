@@ -31,57 +31,51 @@ namespace Monster.Middle.Hangfire
         }
         
 
+        // Fire-and-Forget Jobs
+        //
         public void RunSyncWarehouseAndLocation(Guid tenantId)
         {
-            FireAndForgetJob(
-                tenantId,
+            FireAndForgetJob(tenantId,
                 BackgroundJobType.SyncWarehouseAndLocation, 
                 _director.SyncWarehouseAndLocation);
         }
 
         public void RunLoadInventoryIntoAcumatica(Guid tenantId)
         {
-            FireAndForgetJob(
-                tenantId,
+            FireAndForgetJob(tenantId,
                 BackgroundJobType.PushInventoryToAcumatica,
                 _director.LoadInventoryIntoAcumatica);
         }
 
         public void RunLoadInventoryIntoShopify(Guid tenantId)
         {
-            FireAndForgetJob(
-                tenantId,
+            FireAndForgetJob(tenantId,
                 BackgroundJobType.PushInventoryToShopify,
                 _director.LoadInventoryIntoShopify);
         }
-
-
+        
+        // FaF Background Jobs do their own error handling as that is 
+        // ... reflected in System State
         private void FireAndForgetJob(
-                Guid tenantId, 
-                int queueJobTypeId, 
-                Action task)
+                Guid tenantId, int queueJobTypeId, Action task)
         {
-            try
-            {
-                _tenantContext.Initialize(tenantId);
-                task();
-                _stateRepository.RemoveBackgroundJob(queueJobTypeId);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                throw;
-            }
+            _tenantContext.Initialize(tenantId);
+            task();
+            _stateRepository.RemoveBackgroundJob(queueJobTypeId);
         }
 
 
-        static readonly NamedLock _routineSyncLock = new NamedLock("RoutineSynchHarness");
+
+        // Routine Sync
+        //
+        static readonly NamedLock 
+                RoutineSyncLock = new NamedLock("RoutineSynchHarness");
         
         public void RunRoutineSync(Guid tenantId)
         {
             try
             {
-                if (!_routineSyncLock.Acquire(tenantId.ToString()))
+                if (!RoutineSyncLock.Acquire(tenantId.ToString()))
                 {
                     _logger.Info($"Failed to acquired RoutineSynchHarness for {tenantId}");
                     return;
@@ -97,7 +91,7 @@ namespace Monster.Middle.Hangfire
             }
             finally
             {
-                _routineSyncLock.Free(tenantId.ToString());
+                RoutineSyncLock.Free(tenantId.ToString());
             }
         }
 
