@@ -299,7 +299,7 @@
     <Content Include="Views\Config\RealTime.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\ShopifyAuth\Start.cshtml" />
+    <Content Include="Views\ShopifyAuth\Login.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\AcumaticaCreds.cshtml" />
@@ -312,6 +312,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\_TopBrand.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Config\Splash.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

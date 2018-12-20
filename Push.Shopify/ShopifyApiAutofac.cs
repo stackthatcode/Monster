@@ -13,8 +13,9 @@ namespace Push.Shopify
             builder.RegisterType<ShopifyHttpConfig>();
             builder.RegisterType<ShopifyCredentialsConfig>();
 
-            builder.RegisterType<ShopifyHttpContext>().InstancePerLifetimeScope(); 
+            builder.RegisterType<ShopifyHttpContext>().InstancePerLifetimeScope();
 
+            builder.RegisterType<OAuthApi>().InstancePerLifetimeScope();
             builder.RegisterType<ShopApi>().InstancePerLifetimeScope();
             builder.RegisterType<CustomerApi>().InstancePerLifetimeScope();
             builder.RegisterType<OrderApi>().InstancePerLifetimeScope();

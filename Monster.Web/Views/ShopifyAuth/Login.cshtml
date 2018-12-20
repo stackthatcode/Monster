@@ -1,0 +1,41 @@
+﻿@using Monster.Web.Plumbing
+
+@Html.Partial("_TopBrand")
+
+<hr />
+
+<h1 class="mt-5 center">Configuration - Shopify</h1>
+<p class="lead center">Choose settings to enable @GlobalConfig.AppName to properly synchronize</p>
+
+<p>The first step in configuring @GlobalConfig.AppName will be to connect with your Shopify store. 
+    Shopify will ask you for permission to let Ulysses access your store's data.
+    Start by entering your store's Shopify "myshopify.com" URL below:</p>
+
+<div style="height: 30px;"></div>
+
+<div class="card">
+    <div class="card-body">
+        <form action="@GlobalConfig.Url("ShopifyAuth/Login")">
+            <div class="form-group">
+                <label for="shop">Shopify "myshopify.com" URL</label>
+                <input type="text"
+                       class="form-control"
+                       id="shop"
+                       name="shop"
+                       placeholder="Enter yourshopname.myshopify.com">
+
+                <small id="shopifyUrlHelp" class="form-text text-muted">
+                    E.G.: "tophats-for-all.myshopify.com" or "tophats-for-all""
+                </small>
+            </div>
+            
+            <div class="center">
+                <button class="btn btn-primary btn-lg" type="submit">
+                    Connect to Shopify <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div style="height: 30px;"></div>

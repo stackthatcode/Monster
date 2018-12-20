@@ -14,7 +14,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
         }
 
 
-        public WarehouseSyncState GetWarehouseSyncStatus()
+        public WarehouseSyncState CurrentWarehouseSyncStatus()
         {
             var warehouses = _repository.RetrieveWarehouses();
             var locations = _repository.RetrieveLocations();

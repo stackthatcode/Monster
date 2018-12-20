@@ -12,12 +12,13 @@ using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync.Directors;
+using Monster.Middle.Processes.Sync;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Processes.Sync.Orders.Workers;
+using Monster.Middle.Security;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
@@ -82,7 +83,6 @@ namespace Monster.Middle
             builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
 
             // Job Running components
-            builder.RegisterType<Persist.Sys.Repositories.SystemRepository>().InstancePerLifetimeScope();
             builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
             builder.RegisterType<BackgroundJobRunner>().InstancePerLifetimeScope();
             builder.RegisterType<HangfireService>().InstancePerLifetimeScope();

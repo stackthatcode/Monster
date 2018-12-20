@@ -5,6 +5,7 @@ using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Sys.Repositories;
+using Monster.Middle.Security;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
@@ -132,7 +133,7 @@ namespace Push.Foundation
                     var repository = scope.Resolve<TenantRepository>();
 
                     repository.CreateIfMissingContext();
-                    repository.UpdateContextShopify(
+                    repository.UpdateShopifyCredentials(
                             this.textShopifyDomain.Text,
                             this.textShopifyApiKey.Text,
                             this.textShopifyApiPwd.Text,
@@ -165,7 +166,7 @@ namespace Push.Foundation
                     var repository = scope.Resolve<TenantRepository>();
 
                     repository.CreateIfMissingContext();
-                    repository.UpdateContextAcumatica(
+                    repository.UpdateAcumaticaCredentials(
                         this.textAcumaticaUrl.Text,
                         this.textAcumaticaCompany.Text,
                         this.textAcumaticaBranch.Text,

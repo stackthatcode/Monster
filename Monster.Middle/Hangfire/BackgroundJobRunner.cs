@@ -1,8 +1,9 @@
 ﻿using System;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
-using Monster.Middle.Processes.Sync.Directors;
+using Monster.Middle.Processes.Sync;
 using Monster.Middle.Processes.Sync.Inventory.Services;
+using Monster.Middle.Security;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 

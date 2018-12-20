@@ -5,6 +5,5 @@
         // Profitwise ASP.NET Role names
         public const string UserRole = "USER";
         public const string AdminRole = "ADMIN";
-        public const string FacilitatorRole = "FACILITATOR";        
     }
 }

@@ -3,27 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Monster.Middle.Persist.Multitenant;
 using Monster.Web.Plumbing;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
 using Push.Foundation.Web.Helpers;
+using Push.Shopify.Api;
 using Push.Shopify.Config;
 
 namespace Monster.Web.Controllers
 {
     public class ShopifyAuthController : Controller
     {
+        private readonly OAuthApi _oAuthApi;
+        private readonly TenantRepository _tenantRepository;
         private readonly IPushLogger _logger;
 
-        public ShopifyAuthController(IPushLogger logger)
+        private readonly
+            List<string> _shopifyScopes = new List<string>()
+                {
+                    "read_orders",
+                    "read_products",
+                    "write_products",
+                    "read_customers",
+                    "read_locations",
+                    "read_fulfillments",
+                    "write_fulfillments",
+                    "read_inventory",
+                    "write_inventory",
+                    "read_shipping",
+                    "read_shopify_payments_payouts",
+                };
+
+        public ShopifyAuthController(
+                IPushLogger logger, 
+                OAuthApi oAuthApi, 
+                TenantRepository tenantRepository)
         {
             _logger = logger;
+            _oAuthApi = oAuthApi;
+            _tenantRepository = tenantRepository;
         }
 
+
         [AllowAnonymous]
-        public ActionResult Start()
+        [HttpGet]
+        public ActionResult Login()
         {
             return View();
         }
@@ -31,6 +58,7 @@ namespace Monster.Web.Controllers
 
         // Shopify OAuth Authentication (Authorization) flow
         [AllowAnonymous]
+        [HttpPost]
         public ActionResult Login(string shop, string returnUrl)
         {
             // First strip everything off so we can standardize
@@ -43,26 +71,13 @@ namespace Monster.Web.Controllers
                 throw new Exception("Null or empty Shopify -> ApiKey - please check configuration");
             }
 
-            var scope = new List<string>()
-            {
-                "read_orders",
-                "read_products",
-                "write_products",
-                "read_customers",
-                "read_locations",
-                "read_fulfillments",
-                "write_fulfillments",
-                "read_inventory",
-                "write_inventory",
-                "read_shipping",
-                "read_shopify_payments_payouts",
-            }.ToCommaDelimited();
+            var scopes = _shopifyScopes.ToCommaDelimited();
 
             var urlBase = $"https://{fullShopDomain}/admin/oauth/authorize";
             var queryString =
                 new QueryStringBuilder()
                     .Add("client_id", ShopifyCredentialsConfig.Settings.ApiKey)
-                    .Add("scope", scope)
+                    .Add("scope", scopes)
                     .Add("redirect_uri", redirectUrl)
                     .ToString();
 
@@ -70,18 +85,19 @@ namespace Monster.Web.Controllers
             return Redirect(finalUrl);
         }
         
+
         [AllowAnonymous]
         public async Task<ActionResult> 
                     Return(string code, string shop, string returnUrl)
         {
             if (!VerifyShopifyHmac())
             {
-                _logger.Error("Warning - failed HMAC verification!");
-
                 throw new Exception("Failed HMAC verification from Shopify Return");
-                
-                //return GlobalConfig.Redirect(AuthConfig.ExternalLoginFailureUrl, returnUrl);
             }
+
+            var accessToken = _oAuthApi.RetrieveAccessToken(code);
+
+            _tenantRepository.UpdateShopifyCredentials(accessToken);
 
             // Attempt to complete Shopify Authentication
             //var profitWiseSignIn = CompleteShopifyAuth(code, shop);

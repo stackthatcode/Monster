@@ -23,11 +23,6 @@
         // Constant configuration
         var Monster = Monster || {};
         Monster.BaseUrl = '@GlobalConfig.BaseUrl';
-
-        var jobStatus = {};
-        jobStatus.Pending = @JobStatus.Pending;
-        jobStatus.Failed = @JobStatus.Failed;
-        jobStatus.Complete = @JobStatus.Complete;
     </script>
 
     @Scripts.Render("~/Scripts/jquery.min.js?tmp=" + Guid.NewGuid())

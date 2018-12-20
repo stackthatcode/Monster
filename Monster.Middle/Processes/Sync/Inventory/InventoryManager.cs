@@ -51,8 +51,8 @@ namespace Monster.Middle.Processes.Sync.Inventory
         public bool LocationStatusCheck()
         {
             // Status checkpoint
-            var status = _inventoryStatusService.GetWarehouseSyncStatus();
-            if (!status.OK)
+            var status = _inventoryStatusService.CurrentWarehouseSyncStatus();
+            if (!status.IsOk)
             {
                 _logger.Info(status.GetSynopsis());
                 return false;

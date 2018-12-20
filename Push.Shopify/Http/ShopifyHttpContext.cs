@@ -107,8 +107,7 @@ namespace Push.Shopify.Http
         }
 
         public ResponseEnvelope Get(
-                string url,
-                Dictionary<string, string> headers = null)
+                string url, Dictionary<string, string> headers = null)
         {
             _logger.Debug($"HTTP GET on {url}");
 

@@ -5,7 +5,7 @@ using Monster.Middle.Persist.Sys.Repositories;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
 
-namespace Monster.Middle.Services
+namespace Monster.Middle.Security
 {
     public class TenantContext
     {
@@ -70,24 +70,6 @@ namespace Monster.Middle.Services
             _persistContext.Initialize(
                 installation.ConnectionString, installation.CompanyId);
 
-        }
-
-
-        [Obsolete]
-        public void Initialize(
-                string connectionString, 
-                long companyId,
-                IShopifyCredentials shopifyCredentials,
-                AcumaticaCredentials acumaticaCredentials)
-        {
-            // Load the Installation into Persist 
-            _persistContext.Initialize(connectionString, companyId);
-
-            // Shopify
-            _shopifyHttpContext.Initialize(shopifyCredentials);
-
-            // Acumatica
-            _acumaticaHttpContext.Initialize(acumaticaCredentials);
-        }
+        }        
     }
 }

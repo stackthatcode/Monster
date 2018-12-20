@@ -172,20 +172,20 @@
             var ajax = new Monster.Ajax();
             ajax.HttpPost(
                 "Config/LoadInventoryInAcumatica", {},
-                self.PollLoadInventoryInAcumaticaStatus);
+                self.PollAcumaticaInventoryPushStatus);
         };
 
-        self.PollLoadInventoryInAcumaticaStatus = function () {
+        self.PollAcumaticaInventoryPushStatus = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/LoadInventoryInAcumaticaStatus", this);
+                    ajax.HttpGet("Config/AcumaticaInventoryPushStatus", this);
                 },
                 function (response) {
                     if (response.JobStatus == jobStatus.Complete) {
                         self.CompleteAcumatica();
                     } else {
-                        setTimeout(self.PollLoadInventoryInAcumaticaStatus, 1000);
+                        setTimeout(self.PollAcumaticaInventoryPushStatus, 1000);
                     }
                 });
         };
@@ -202,20 +202,20 @@
             var ajax = new Monster.Ajax();
             ajax.HttpPost(
                 "Config/LoadInventoryInShopify", {},
-                self.PollLoadInventoryInShopifyStatus);
+                self.PollShopifyInventoryPushStatus);
         };
 
-        self.PollLoadInventoryInShopifyStatus = function () {
+        self.PollShopifyInventoryPushStatus = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/LoadInventoryInShopifyStatus", this);
+                    ajax.HttpGet("Config/ShopifyInventoryPushStatus", this);
                 },
                 function (response) {
                     if (response.JobStatus == jobStatus.Complete) {
                         self.CompleteShopify();
                     } else {
-                        setTimeout(self.PollLoadInventoryInShopifyStatus, 1000);
+                        setTimeout(self.PollShopifyInventoryPushStatus, 1000);
                     }
                 });
         };

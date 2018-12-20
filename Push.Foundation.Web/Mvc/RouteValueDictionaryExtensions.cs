@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Push.Foundation.Utilities.Helpers;
+using Push.Utilities.General;
 
 namespace Push.Foundation.Web.Mvc
 {

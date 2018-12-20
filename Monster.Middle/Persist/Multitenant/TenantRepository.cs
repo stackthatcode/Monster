@@ -30,73 +30,67 @@ namespace Monster.Middle.Persist.Multitenant
 
         // TODO => implement this https://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string-in-c/10366194#10366194
 
-        public UsrTenant RetrieveRawTenant()
-        {
-            return Entities.UsrTenants.FirstOrDefault();
-        }
 
-        public AcumaticaCredentials RetrieveAcumaticaCredentials()
-        {
-            var context = RetrieveRawTenant();
-
-            var output = new AcumaticaCredentials();
-            output.InstanceUrl = context.AcumaticaInstanceUrl;
-            output.Branch = context.AcumaticaBranch;
-            output.CompanyName = context.AcumaticaCompanyName;
-
-            output.Username = 
-                context.AcumaticaUsername.IsNullOrEmpty() 
-                    ? "" : _cryptoService.Decrypt(context.AcumaticaUsername);
-
-            output.Password = 
-                context.AcumaticaPassword.IsNullOrEmpty()
-                    ? "" : _cryptoService.Decrypt(context.AcumaticaPassword);
-
-            return output;
-        }
-
+        // Tenant Context
+        //
         public void CreateIfMissingContext()
         {
             if (!Entities.UsrTenants.Any())
             {
-                this.InsertContext(new UsrTenant()
+                this.InsertTenant(new UsrTenant()
                 {
                     CompanyId = _dataContext.CompanyId
                 });
             }
         }
 
-        public PrivateAppCredentials RetrieveShopifyCredentials()
-        {
-            var context = RetrieveRawTenant();
-
-            var apiKey =
-                context.ShopifyApiKey.IsNullOrEmpty() 
-                    ? "" : _cryptoService.Decrypt(context.ShopifyApiKey);
-
-            var apiPassword = 
-                context.ShopifyApiPassword.IsNullOrEmpty()
-                    ? "" : _cryptoService.Decrypt(context.ShopifyApiPassword);
-
-            var domain = new ShopDomain(context.ShopifyDomain);
-
-            var output = 
-                new PrivateAppCredentials(apiKey, apiPassword, domain);
-            
-            return output;
-        }
-
-        public void InsertContext(UsrTenant context)
+        public void InsertTenant(UsrTenant context)
         {
             Entities.UsrTenants.Add(context);
             Entities.SaveChanges();
         }
+        
+        public UsrTenant RetrieveRawTenant()
+        {
+            return Entities.UsrTenants.FirstOrDefault();
+        }
 
-        public void UpdateContextShopify(
-            string shopifyPrivateAppDomain,
-            string shopifyApiKey,
-            string shopifyApiPassword,
-            string shopifyApiSecret)
+
+        // Shopify Credentials
+        //
+        public IShopifyCredentials RetrieveShopifyCredentials()
+        {
+            var tenant = RetrieveRawTenant();
+            
+            var accessToken =
+                tenant.ShopifyApiKey.IsNullOrEmpty()
+                    ? "" : _cryptoService.Decrypt(tenant.ShopifyAccessToken);
+            
+            var apiKey =
+                tenant.ShopifyApiKey.IsNullOrEmpty() 
+                    ? "" : _cryptoService.Decrypt(tenant.ShopifyApiKey);
+
+            var apiPassword = 
+                tenant.ShopifyApiPassword.IsNullOrEmpty()
+                    ? "" : _cryptoService.Decrypt(tenant.ShopifyApiPassword);
+
+            var domain = new ShopDomain(tenant.ShopifyDomain);
+
+            if (accessToken.IsNullOrEmpty())
+            {
+                return new PrivateAppCredentials(apiKey, apiPassword, domain);
+            }
+            else
+            {
+                return new OAuthAccessToken(tenant.ShopifyDomain, accessToken);
+            }
+        }
+        
+        public void UpdateShopifyCredentials(
+                string shopifyPrivateAppDomain,
+                string shopifyApiKey,
+                string shopifyApiPassword,
+                string shopifyApiSecret)
         {
             var context = RetrieveRawTenant();
 
@@ -112,7 +106,39 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
-        public void UpdateContextAcumatica(
+        public void UpdateShopifyCredentials(string shopifyAccessToken)
+        {
+            var context = RetrieveRawTenant();
+            var encryptedAccessToken = _cryptoService.Encrypt(shopifyAccessToken);
+            context.ShopifyAccessToken = encryptedAccessToken;
+            Entities.SaveChanges();
+        }
+
+
+
+        // Acumatica Credentials
+        //
+        public AcumaticaCredentials RetrieveAcumaticaCredentials()
+        {
+            var context = RetrieveRawTenant();
+
+            var output = new AcumaticaCredentials();
+            output.InstanceUrl = context.AcumaticaInstanceUrl;
+            output.Branch = context.AcumaticaBranch;
+            output.CompanyName = context.AcumaticaCompanyName;
+
+            output.Username =
+                context.AcumaticaUsername.IsNullOrEmpty()
+                    ? "" : _cryptoService.Decrypt(context.AcumaticaUsername);
+
+            output.Password =
+                context.AcumaticaPassword.IsNullOrEmpty()
+                    ? "" : _cryptoService.Decrypt(context.AcumaticaPassword);
+
+            return output;
+        }
+
+        public void UpdateAcumaticaCredentials(
             string acumaticaInstanceUrl,
             string acumaticaBranch,
             string acumaticaCompanyName,
@@ -133,10 +159,10 @@ namespace Monster.Middle.Persist.Multitenant
             this.Entities.SaveChanges();
         }
         
+
         public UsrPreference RetrievePreferences()
         {
             return Entities.UsrPreferences.First();
         }
-
     }
 }

@@ -3,13 +3,10 @@ using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Model;
-using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Push.Foundation.Web.Json;
-using SystemRepository = Monster.Middle.Persist.Sys.Repositories.SystemRepository;
 
 
 namespace Monster.Web.Controllers
@@ -36,7 +33,14 @@ namespace Monster.Web.Controllers
         }
 
 
-
+        // MVC Pages
+        //
+        [HttpGet]
+        public ActionResult Splash()
+        {
+            return View();
+        }
+        
         [HttpGet]
         public ActionResult Home()
         {
@@ -69,6 +73,7 @@ namespace Monster.Web.Controllers
             return View();
         }
 
+        [HttpGet]
         public ActionResult RealTime()
         {
             return View();
@@ -76,31 +81,14 @@ namespace Monster.Web.Controllers
 
 
 
-        // AJAX methods
+        // Job Launching methods
+        //
         [HttpPost]
         public ActionResult SyncWarehouses()
         {
             _hangfireService.SyncWarehouseAndLocation();
             return JsonNetResult.Success();
         }
-
-        [HttpGet]
-        public ActionResult WarehouseSyncStatus()
-        {
-            var state = _stateRepository.RetrieveSystemState();
-            var warehouseSyncStatus
-                = _inventoryStatusService.GetWarehouseSyncStatus();
-
-            var output = new WarehouseSyncStatusModel()
-            {
-                JobStatus = state.WarehouseSync,
-                SyncState = warehouseSyncStatus
-            };
-            
-            return new JsonNetResult(output);
-        }
-
-
 
         [HttpPost]
         public ActionResult LoadInventoryInAcumatica()
@@ -109,16 +97,6 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
         }
 
-        [HttpGet]
-        public ActionResult LoadInventoryInAcumaticaStatus()
-        {
-            var state = _stateRepository.RetrieveSystemState();
-            var output = new { JobStatus = state.AcumaticaInventoryPush };            
-            return new JsonNetResult(output);
-        }
-
-
-
         [HttpPost]
         public ActionResult LoadInventoryInShopify()
         {
@@ -126,8 +104,36 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
         }
 
+
+        // Status inquiries
+        // 
+
         [HttpGet]
-        public ActionResult LoadInventoryInShopifyStatus()
+        public ActionResult WarehouseSyncStatus()
+        {
+            var state = _stateRepository.RetrieveSystemState();
+            var warehouseSyncStatus
+                = _inventoryStatusService.CurrentWarehouseSyncStatus();
+
+            var output = new WarehouseSyncStatusModel()
+            {
+                JobStatus = state.WarehouseSync,
+                SyncState = warehouseSyncStatus
+            };
+
+            return new JsonNetResult(output);
+        }
+
+        [HttpGet]
+        public ActionResult AcumaticaInventoryPushStatus()
+        {
+            var state = _stateRepository.RetrieveSystemState();
+            var output = new { JobStatus = state.AcumaticaInventoryPush };
+            return new JsonNetResult(output);
+        }
+
+        [HttpGet]
+        public ActionResult ShopifyInventoryPushStatus()
         {
             var state = _stateRepository.RetrieveSystemState();
             var output = new { JobStatus = state.ShopifyInventoryPush };
@@ -135,7 +141,8 @@ namespace Monster.Web.Controllers
         }
 
 
-
+        // Real Time Sync
+        //
         [HttpPost]
         public ActionResult StartRealTime()
         {

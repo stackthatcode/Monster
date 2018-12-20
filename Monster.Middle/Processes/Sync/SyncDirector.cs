@@ -1,7 +1,6 @@
 ﻿using System;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
-using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify;
@@ -11,7 +10,7 @@ using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Orders;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.Processes.Sync.Directors
+namespace Monster.Middle.Processes.Sync
 {
     public class SyncDirector
     {
@@ -21,6 +20,7 @@ namespace Monster.Middle.Processes.Sync.Directors
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
         private readonly InventoryManager _inventoryManager;
+        private readonly InventoryStatusService _inventoryStatusService;
         private readonly OrderManager _orderManager;
         private readonly IPushLogger _logger;
 
@@ -30,6 +30,7 @@ namespace Monster.Middle.Processes.Sync.Directors
                 AcumaticaBatchRepository acumaticaBatchRepository, 
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
+                InventoryStatusService inventoryStatusService,
                 InventoryManager inventoryManager,
                 OrderManager orderManager,
                 IPushLogger logger)
@@ -40,6 +41,7 @@ namespace Monster.Middle.Processes.Sync.Directors
             _acumaticaManager = acumaticaManager;
             _shopifyManager = shopifyManager;
             _inventoryManager = inventoryManager;
+            _inventoryStatusService = inventoryStatusService;
             _orderManager = orderManager;
             _logger = logger;
         }
@@ -61,8 +63,11 @@ namespace Monster.Middle.Processes.Sync.Directors
                 // Step 2 - Synchronize Locations and Warehouses
                 _inventoryManager.SynchronizeLocationOnly();
 
-                _stateRepository.UpdateSystemState(
-                        x => x.WarehouseSync, SystemState.Ok);
+                // Step 3 - Determine resultant System State
+                var status = _inventoryStatusService.CurrentWarehouseSyncStatus();
+                var systemState = status.IsOk ? SystemState.Ok : SystemState.Invalid;
+
+                _stateRepository.UpdateSystemState(x => x.WarehouseSync, systemState);
             }
             catch (Exception ex)
             {
