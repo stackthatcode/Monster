@@ -270,7 +270,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\Home.cshtml" />
+    <Content Include="Views\ShopifyAuth\Return.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="webfonts\fa-brands-400.eot" />
@@ -299,7 +299,7 @@
     <Content Include="Views\Config\RealTime.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\ShopifyAuth\Login.cshtml" />
+    <Content Include="Views\ShopifyAuth\Domain.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\AcumaticaCreds.cshtml" />

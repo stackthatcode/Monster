@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Model;
+using Monster.Web.Attributes;
 using Monster.Web.Plumbing;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
@@ -12,17 +14,22 @@ using Push.Foundation.Utilities.Security;
 using Push.Foundation.Web.Helpers;
 using Push.Shopify.Api;
 using Push.Shopify.Config;
+using Push.Shopify.Http;
 
 namespace Monster.Web.Controllers
 {
+    [IdentityProcessor]
     public class ShopifyAuthController : Controller
     {
         private readonly OAuthApi _oAuthApi;
         private readonly TenantRepository _tenantRepository;
+        private readonly ShopifyHttpContext _shopifyHttpContext;
+        private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
 
+
         private readonly
-            List<string> _shopifyScopes = new List<string>()
+            List<string> _shopifyOAuthScopes = new List<string>()
                 {
                     "read_orders",
                     "read_products",
@@ -40,17 +47,21 @@ namespace Monster.Web.Controllers
         public ShopifyAuthController(
                 IPushLogger logger, 
                 OAuthApi oAuthApi, 
-                TenantRepository tenantRepository)
+                TenantRepository tenantRepository, 
+                ShopifyHttpContext shopifyHttpContext, StateRepository stateRepository)
         {
             _logger = logger;
             _oAuthApi = oAuthApi;
             _tenantRepository = tenantRepository;
+            _shopifyHttpContext = shopifyHttpContext;
+            _stateRepository = stateRepository;
         }
+
 
 
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult Login()
+        public ActionResult Domain()
         {
             return View();
         }
@@ -58,7 +69,6 @@ namespace Monster.Web.Controllers
 
         // Shopify OAuth Authentication (Authorization) flow
         [AllowAnonymous]
-        [HttpPost]
         public ActionResult Login(string shop, string returnUrl)
         {
             // First strip everything off so we can standardize
@@ -71,7 +81,7 @@ namespace Monster.Web.Controllers
                 throw new Exception("Null or empty Shopify -> ApiKey - please check configuration");
             }
 
-            var scopes = _shopifyScopes.ToCommaDelimited();
+            var scopes = _shopifyOAuthScopes.ToCommaDelimited();
 
             var urlBase = $"https://{fullShopDomain}/admin/oauth/authorize";
             var queryString =
@@ -94,52 +104,34 @@ namespace Monster.Web.Controllers
             {
                 throw new Exception("Failed HMAC verification from Shopify Return");
             }
+            
+            // Get Key and Secret credentials from config file
+            var credentials = ShopifyCredentialsConfig.Settings.ToApiKeyAndSecret(shop);
+            _shopifyHttpContext.Initialize(credentials);
 
-            var accessToken = _oAuthApi.RetrieveAccessToken(code);
+            try
+            {
+                // Get Access Token from Shopify and store
+                var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
 
-            _tenantRepository.UpdateShopifyCredentials(accessToken);
+                // Save Access Token and update State
+                _tenantRepository.UpdateShopifyCredentials(accessToken);
 
-            // Attempt to complete Shopify Authentication
-            //var profitWiseSignIn = CompleteShopifyAuth(code, shop);
+                _stateRepository
+                    .UpdateSystemState(x => x.ShopifyConnection, SystemState.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
 
-            return GlobalConfig.Redirect("");
+                _stateRepository
+                    .UpdateSystemState(x => x.ShopifyConnection, SystemState.SystemFault);
+            }
+
+            return View();
         }
-
-
-        // TODO - wire in using current framework
-        //
-        //private async Task<ProfitWiseSignIn> CompleteShopifyAuth(string code, string shopDomain)
-        //{
-        //    var apikey = ProfitWiseConfiguration.Settings.ShopifyApiKey;
-        //    var apisecret = ProfitWiseConfiguration.Settings.ShopifyApiSecret;
-
-        //    try
-        //    {
-        //        var nonAccessTokenCredentials =
-        //            ShopifyCredentials.Build(shopDomain, apikey, apisecret);
-
-        //        var oauthRepository = _factory.MakeOAuthRepository(nonAccessTokenCredentials);
-
-        //        var accessToken = oauthRepository.RetrieveAccessToken(code);
-
-        //        var credentials = ShopifyCredentials.Build(shopDomain, accessToken);
-        //        var shopApiRepository = _factory.MakeShopApiRepository(credentials);
-        //        var shopFromShopify = shopApiRepository.Retrieve();
-
-        //        return new ProfitWiseSignIn
-        //        {
-        //            AccessToken = accessToken,
-        //            Shop = shopFromShopify,
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error(ex);
-        //        return null;
-        //    }
-        //}
-
-
+        
+        
         private bool VerifyShopifyHmac()
         {
             // Extract and remove Shopify's HMAC parameter

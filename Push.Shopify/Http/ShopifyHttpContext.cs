@@ -33,7 +33,7 @@ namespace Push.Shopify.Http
         public void Initialize(IShopifyCredentials credentials)
         {
             var baseAddress = new Uri(credentials.Domain.BaseUrl);
-            
+
             _executorContext = new ExecutorContext()
             {
                 NumberOfAttempts = _settings.RetryLimit,

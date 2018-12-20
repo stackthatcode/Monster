@@ -57,5 +57,10 @@ namespace Push.Shopify.Config
             var domain = new ShopDomain(PrivateAppDomain);
             return new PrivateAppCredentials(ApiKey, ApiPassword, domain);
         }
+
+        public ApiKeyAndSecret ToApiKeyAndSecret(string domain)
+        {
+            return new ApiKeyAndSecret(ApiKey, ApiSecret, new ShopDomain(domain));
+        }
     }
 }

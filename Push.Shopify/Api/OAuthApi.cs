@@ -8,6 +8,7 @@ using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 using Push.Shopify.Config;
 using Push.Shopify.Http;
+using Push.Shopify.Http.Credentials;
 
 namespace Push.Shopify.Api
 {
@@ -25,14 +26,12 @@ namespace Push.Shopify.Api
         }
 
 
-        public string RetrieveAccessToken(string code)
+        public string RetrieveAccessToken(string code, ApiKeyAndSecret credentials)
         {
-            var config = ShopifyCredentialsConfig.Settings;
-
             var queryString
                 = new QueryStringBuilder()
-                    .Add("client_id", config.ApiKey)
-                    .Add("client_secret", config.ApiSecret)
+                    .Add("client_id", credentials.ApiKey)
+                    .Add("client_secret", credentials.ApiSecret)
                     .Add("code", code)
                     .ToString();
 
