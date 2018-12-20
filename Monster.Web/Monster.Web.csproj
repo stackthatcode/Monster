@@ -209,6 +209,7 @@
     </Compile>
     <Compile Include="Models\ExecutionLog.cs" />
     <Compile Include="Models\Preferences.cs" />
+    <Compile Include="Models\ShopifyAuth\DomainModel.cs" />
     <Compile Include="Models\WarehouseSyncStatusModel.cs" />
     <Compile Include="Plumbing\GlobalConfig.cs" />
     <Compile Include="Plumbing\RequestActivityIdLogFormatter.cs" />

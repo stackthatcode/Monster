@@ -90,6 +90,7 @@ namespace Monster.Middle.Persist.Multitenant
                     newRecord.ShopifyInventoryPush = SystemState.None;
                     newRecord.IsShopifyUrlFinalized = false;
                     newRecord.IsAcumaticaUrlFinalized = false;
+                    newRecord.IsRandomAccessMode = false;
                     newRecord.RealTimeHangFireJobId = null;
 
                     Entities.UsrSystemStates.Add(newRecord);

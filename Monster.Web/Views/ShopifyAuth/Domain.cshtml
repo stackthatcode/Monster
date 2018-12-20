@@ -1,4 +1,5 @@
 ﻿@using Monster.Web.Plumbing
+@model Monster.Web.Models.ShopifyAuth.DomainModel
 
 @Html.Partial("_TopBrand")
 
@@ -7,9 +8,40 @@
 <h1 class="mt-5 center">Configuration - Shopify</h1>
 <p class="lead center">Connect @GlobalConfig.AppName to your Shopify Store</p>
 
-<p>The first step in configuring @GlobalConfig.AppName will be to connect with your Shopify store. 
-    Shopify will ask you for permission to let Ulysses access your store's data.
-    Start by entering your store's Shopify "myshopify.com" URL below:</p>
+<!-- Current Shop State -->
+@if (Model.IsShopifyConnectionBroken)
+{
+    <div class="alert alert-danger">
+        <strong>Shopify Connection - Broken</strong> - 
+        @GlobalConfig.AppName connection to your shop is currently not working.
+        Please try reconnecting, and if it fails, contact our customer support team.
+    </div>
+}
+
+@if (!Model.IsRandomAccessMode)
+{
+    <p>In this step we're going to configure @GlobalConfig.AppName to connect with your Shopify store.
+        Shopify will ask you for permission to let Ulysses access your store's data.</p>
+    
+}
+
+@if (Model.IsShopifyUrlFinalized)
+{
+    <p>
+        Your Shopify domain is already set for this instance.
+        If you want to connect to a different shop, 
+        contact us and we can easily provision a new @GlobalConfig.AppName instance for you.
+    </p>
+}
+else
+{
+    <p>Enter your Shopify store domain below and hit the "Connect to Shopify" button.</p>
+
+    <div class="alert alert-warning">
+        <strong>IMPORTANT</strong> - you'll only be able to set your Shopify store domain once. 
+        If you want aim @GlobalConfig.AppName at a different store, you'll need a new instance.
+    </div>
+}
 
 <div style="height: 30px;"></div>
 
@@ -17,17 +49,31 @@
     <div class="card-body">
         <form action="@GlobalConfig.Url("ShopifyAuth/Login")">
             <div class="form-group">
-                <label for="shop">Shopify "myshopify.com" URL</label>
+            
+                <label for="shop">Shopify "myshopify.com" Domain</label>
+
+            @if (Model.IsShopifyUrlFinalized)
+            {
+                <input type="text"
+                       class="form-control"
+                       disabled="disabled"
+                       id="shop"
+                       name="shop"
+                       value ="@Model.ShopDomain">
+            }
+            else
+            {
                 <input type="text"
                        class="form-control"
                        id="shop"
                        name="shop"
-                       value ="@(GlobalConfig.DebugMode ? "bridge-over-monsters" : "")"
+                       value="@(GlobalConfig.DebugMode ? "bridge-over-monsters" : "")"
                        placeholder="Enter yourshopname.myshopify.com">
 
                 <small id="shopifyUrlHelp" class="form-text text-muted">
                     E.G.: "tophats-for-all.myshopify.com" or "tophats-for-all""
                 </small>
+            }
             </div>
             
             <div class="center">

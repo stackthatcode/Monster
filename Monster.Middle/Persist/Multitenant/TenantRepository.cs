@@ -50,7 +50,7 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
         
-        public UsrTenant RetrieveRawTenant()
+        public UsrTenant Retrieve()
         {
             return Entities.UsrTenants.FirstOrDefault();
         }
@@ -60,7 +60,7 @@ namespace Monster.Middle.Persist.Multitenant
         //
         public IShopifyCredentials RetrieveShopifyCredentials()
         {
-            var tenant = RetrieveRawTenant();
+            var tenant = Retrieve();
             
             var accessToken =
                 tenant.ShopifyApiKey.IsNullOrEmpty()
@@ -92,7 +92,7 @@ namespace Monster.Middle.Persist.Multitenant
                 string shopifyApiPassword,
                 string shopifyApiSecret)
         {
-            var context = RetrieveRawTenant();
+            var context = Retrieve();
 
             var encryptedKey = _cryptoService.Encrypt(shopifyApiKey);
             var encryptedPassword = _cryptoService.Encrypt(shopifyApiPassword);
@@ -108,7 +108,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         public void UpdateShopifyCredentials(string shopifyAccessToken)
         {
-            var context = RetrieveRawTenant();
+            var context = Retrieve();
             var encryptedAccessToken = _cryptoService.Encrypt(shopifyAccessToken);
             context.ShopifyAccessToken = encryptedAccessToken;
             Entities.SaveChanges();
@@ -120,7 +120,7 @@ namespace Monster.Middle.Persist.Multitenant
         //
         public AcumaticaCredentials RetrieveAcumaticaCredentials()
         {
-            var context = RetrieveRawTenant();
+            var context = Retrieve();
 
             var output = new AcumaticaCredentials();
             output.InstanceUrl = context.AcumaticaInstanceUrl;
@@ -145,7 +145,7 @@ namespace Monster.Middle.Persist.Multitenant
             string acumaticaUsername,
             string acumaticaPassword)
         {
-            var context = RetrieveRawTenant();
+            var context = Retrieve();
 
             var encryptedUsername = _cryptoService.Encrypt(acumaticaUsername);
             var encryptedPassword = _cryptoService.Encrypt(acumaticaPassword);

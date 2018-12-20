@@ -69,6 +69,6 @@ SELECT * FROM usrPreferences;
 
 SELECT * FROM usrAcumaticaInvoice;
 
-
+DELETE FROM usrSystemState;
 
 

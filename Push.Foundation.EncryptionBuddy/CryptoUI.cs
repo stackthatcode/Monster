@@ -242,7 +242,7 @@ namespace Push.Foundation
                 var persistContext = scope.Resolve<PersistContext>();
 
                 var repository = scope.Resolve<TenantRepository>();
-                var tenantContext = repository.RetrieveRawTenant();
+                var tenantContext = repository.Retrieve();
 
                 var output =
                     $"System Connection = {MonsterConfig.Settings.SystemDatabaseConnection}" + Environment.NewLine +

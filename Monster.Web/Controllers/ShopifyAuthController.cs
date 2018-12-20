@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
 using Monster.Web.Attributes;
+using Monster.Web.Models.ShopifyAuth;
 using Monster.Web.Plumbing;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
@@ -59,29 +60,48 @@ namespace Monster.Web.Controllers
 
 
 
-        [AllowAnonymous]
         [HttpGet]
         public ActionResult Domain()
         {
-            return View();
+            var tenant = _tenantRepository.Retrieve();
+            var state = _stateRepository.RetrieveSystemState();
+
+            var model = new DomainModel
+            {
+                IsShopifyConnectionBroken = state.ShopifyConnection.IsBroken(),
+                IsRandomAccessMode = state.IsRandomAccessMode,
+                IsShopifyUrlFinalized = state.IsShopifyUrlFinalized,
+                ShopDomain = tenant.ShopifyDomain,
+            };
+
+            return View(model);
         }
 
-
-        // Shopify OAuth Authentication (Authorization) flow
-        [AllowAnonymous]
+        // Shopify OAuth Authentication (Authorization) flow        
         public ActionResult Login(string shop, string returnUrl)
         {
-            // First strip everything off so we can standardize
-            var fullShopDomain = shop.CorrectedShopUrl();
-
-            var redirectUrl = GlobalConfig.Url("ShopifyAuth/Return");
-
             if (ShopifyCredentialsConfig.Settings.ApiKey.IsNullOrEmpty())
             {
                 throw new Exception("Null or empty Shopify -> ApiKey - please check configuration");
             }
 
+            // Guard against attempts to change finalized Shopify Domain
+            string fullShopDomain;
+            var state = _stateRepository.RetrieveSystemState();
+            
+            if (state.IsShopifyUrlFinalized)
+            {
+                var tenant = _tenantRepository.Retrieve();
+                fullShopDomain = tenant.ShopifyDomain;
+            }
+            else
+            {
+                fullShopDomain = shop.CorrectedShopUrl();
+            }
+            
+            // Build the Shopify OAuth request 
             var scopes = _shopifyOAuthScopes.ToCommaDelimited();
+            var redirectUrl = GlobalConfig.Url("ShopifyAuth/Return");
 
             var urlBase = $"https://{fullShopDomain}/admin/oauth/authorize";
             var queryString =
@@ -96,21 +116,20 @@ namespace Monster.Web.Controllers
         }
         
 
-        [AllowAnonymous]
         public async Task<ActionResult> 
                     Return(string code, string shop, string returnUrl)
-        {
-            if (!VerifyShopifyHmac())
-            {
-                throw new Exception("Failed HMAC verification from Shopify Return");
-            }
-            
+        {            
             // Get Key and Secret credentials from config file
             var credentials = ShopifyCredentialsConfig.Settings.ToApiKeyAndSecret(shop);
             _shopifyHttpContext.Initialize(credentials);
 
             try
             {
+                if (!VerifyShopifyHmac())
+                {
+                    throw new Exception("Failed HMAC verification from Shopify Return");
+                }
+
                 // Get Access Token from Shopify and store
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
 
@@ -123,14 +142,14 @@ namespace Monster.Web.Controllers
             catch (Exception ex)
             {
                 _logger.Error(ex);
-
                 _stateRepository
                     .UpdateSystemState(x => x.ShopifyConnection, SystemState.SystemFault);
+
+                return Redirect("Domain");
             }
 
             return View();
         }
-        
         
         private bool VerifyShopifyHmac()
         {
