@@ -2,9 +2,9 @@
 using System.Linq.Expressions;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Push.Utilities.Helpers;
+using Push.Foundation.Utilities.Helpers;
 
-namespace Push.Foundation.Web.Helpers
+namespace Push.Foundation.Web.Mvc
 {
     public static class RouteValueDictionaryExtensions
     {

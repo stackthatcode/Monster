@@ -1,5 +1,6 @@
 ﻿using System;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Multitenant.Model;
 using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -14,6 +15,7 @@ namespace Monster.Middle.Processes.Sync.Directors
 {
     public class SyncDirector
     {
+        private readonly StateRepository _stateRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
         private readonly AcumaticaManager _acumaticaManager;
@@ -23,6 +25,7 @@ namespace Monster.Middle.Processes.Sync.Directors
         private readonly IPushLogger _logger;
 
         public SyncDirector(
+                StateRepository stateRepository,
                 ShopifyBatchRepository shopifyBatchRepository, 
                 AcumaticaBatchRepository acumaticaBatchRepository, 
                 AcumaticaManager acumaticaManager, 
@@ -31,6 +34,7 @@ namespace Monster.Middle.Processes.Sync.Directors
                 OrderManager orderManager,
                 IPushLogger logger)
         {
+            _stateRepository = stateRepository;
             _shopifyBatchRepository = shopifyBatchRepository;
             _acumaticaBatchRepository = acumaticaBatchRepository;
             _acumaticaManager = acumaticaManager;
@@ -48,33 +52,73 @@ namespace Monster.Middle.Processes.Sync.Directors
         
         public void SyncWarehouseAndLocation()
         {
-            // Step 1 - Pull Locations and Warehouses
-            _acumaticaManager.PullWarehouses();
-            _shopifyManager.PullLocations();
+            try
+            {
+                // Step 1 - Pull Locations and Warehouses
+                _acumaticaManager.PullWarehouses();
+                _shopifyManager.PullLocations();
 
-            // Step 2 - Synchronize Locations and Warehouses
-            _inventoryManager.SynchronizeLocationOnly();
+                // Step 2 - Synchronize Locations and Warehouses
+                _inventoryManager.SynchronizeLocationOnly();
+
+                _stateRepository.UpdateSystemState(
+                        x => x.WarehouseSync, SystemState.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+
+                _stateRepository.UpdateSystemState(
+                        x => x.WarehouseSync, SystemState.SystemFault);
+            }
         }
 
+
         public void LoadInventoryIntoAcumatica()
-        { 
-            // Step 1 - Pull Shopify Inventory
-            _shopifyManager.PullInventory();
+        {
+            try
+            {
+                // Step 1 - Pull Shopify Inventory
+                _shopifyManager.PullInventory();
 
-            // Step 2 - Pull Acumatica Inventory
-            _acumaticaManager.PullInventory();
+                // Step 2 - Pull Acumatica Inventory
+                _acumaticaManager.PullInventory();
 
-            // Step 3 - Load Shopify Inventory into Acumatica as baseline
-            _inventoryManager.PushShopifyInventoryIntoAcumatica();
+                // Step 3 - Load Shopify Inventory into Acumatica as baseline
+                _inventoryManager.PushInventoryIntoAcumatica();
+
+                _stateRepository.UpdateSystemState(
+                    x => x.AcumaticaInventoryPush, SystemState.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+
+                _stateRepository.UpdateSystemState(
+                    x => x.AcumaticaInventoryPush, SystemState.SystemFault);
+            }
         }
         
         public void LoadInventoryIntoShopify()
         {
-            // Step 1 - Pull Shopify Inventory
-            _acumaticaManager.PullInventory();
+            try
+            {
+                // Step 1 - Pull Shopify Inventory
+                _acumaticaManager.PullInventory();
 
-            // Step 2 - Load Acumatica Inventory into Shopify
-            _inventoryManager.PushAcumaticaInventoryIntoShopify();
+                // Step 2 - Load Acumatica Inventory into Shopify
+                _inventoryManager.PushAcumaticaInventoryIntoShopify();
+
+                _stateRepository.UpdateSystemState(
+                    x => x.ShopifyInventoryPush, SystemState.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+
+                _stateRepository.UpdateSystemState(
+                    x => x.ShopifyInventoryPush, SystemState.SystemFault);
+            }
         }
         
         public void RoutineSync()

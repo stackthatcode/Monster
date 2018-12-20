@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Hangfire;
-using Hangfire.Storage;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Multitenant.Model;
-using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
@@ -72,8 +70,7 @@ namespace Monster.Middle.Hangfire
 
             return true;
         }
-
-
+        
         public void SyncWarehouseAndLocation()
         {
             var tenantId = _tenantContext.InstallationId;
@@ -113,17 +110,13 @@ namespace Monster.Middle.Hangfire
             {
                 using (var transaction = _stateRepository.BeginTransaction())
                 {
-                    if (_stateRepository.Exists(backgroundJobType))
+                    if (IsJobRunning(backgroundJobType))
                     {
                         _logger.Info($"Job (BackgroundJobType = {backgroundJobType}) already running");
                         return;
                     }
-
-                    var tenantId = _tenantContext.InstallationId;
-                    var jobId = BackgroundJob
-                        .Enqueue<BackgroundJobRunner>(x => x.RunSyncWarehouseAndLocation(tenantId));
-
-                    BackgroundJob.Enqueue<BackgroundJobRunner>(action);
+                    
+                    var jobId = BackgroundJob.Enqueue<BackgroundJobRunner>(action);
 
                     _stateRepository.InsertBackgroundJob(backgroundJobType, jobId);
 
@@ -131,16 +124,18 @@ namespace Monster.Middle.Hangfire
                 }
             }
         }
-        
 
+
+
+
+
+
+        // Recurring Job - separate category
         public string RoutineSyncJobId()
         {
             return "RoutineSync:" + _tenantContext.InstallationId;
         }
 
-
-
-        // Recurring Job - separate category
         private static readonly object LockStartRoutineSync = new object();
 
         public void StartRoutineSync()

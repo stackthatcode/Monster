@@ -63,7 +63,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
             }
         }
         
-        public void PushShopifyInventoryIntoAcumatica()
+        public void PushInventoryIntoAcumatica()
         {
             _acumaticaContext.Login();
 

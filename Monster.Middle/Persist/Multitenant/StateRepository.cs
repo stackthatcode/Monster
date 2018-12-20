@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
 using Monster.Middle.Persist.Multitenant.Model;
+using Push.Foundation.Utilities.General;
 
 namespace Monster.Middle.Persist.Multitenant
 {
@@ -73,7 +75,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         static readonly object SystemStateLock = new object();
 
-        public UsrSystemState RetrieveSystemState()
+        public void EnsureSystemState()
         {
             lock (SystemStateLock)
             {
@@ -93,9 +95,22 @@ namespace Monster.Middle.Persist.Multitenant
                     Entities.UsrSystemStates.Add(newRecord);
                     Entities.SaveChanges();
                 }
-
-                return Entities.UsrSystemStates.First();
             }
+        }
+        
+        public UsrSystemState RetrieveSystemState()
+        {
+            EnsureSystemState();
+            return Entities.UsrSystemStates.First();
+        }
+
+        public void UpdateSystemState(
+                Expression<Func<UsrSystemState, int>> memberExpression,
+                int newValue)
+        {
+            var state = RetrieveSystemState();
+            state.SetPropertyValue(memberExpression, newValue);
+            Entities.SaveChanges();
         }
 
 

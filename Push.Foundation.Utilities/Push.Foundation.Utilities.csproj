@@ -112,7 +112,6 @@
     <Compile Include="General\PropertyReflection.cs" />
     <Compile Include="General\StringExtensions.cs" />
     <Compile Include="Helpers\DateTimeExtensions.cs" />
-    <Compile Include="Helpers\ExpressionHelpers.cs" />
     <Compile Include="Helpers\HelperMethods.cs" />
     <Compile Include="Helpers\LinqExtensions.cs" />
     <Compile Include="Helpers\NameValueCollectionExtensions.cs" />
