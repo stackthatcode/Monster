@@ -1,6 +1,6 @@
 ﻿using System;
+using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Model;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify;
@@ -51,7 +51,24 @@ namespace Monster.Middle.Processes.Sync
             _shopifyBatchRepository.Reset();
             _acumaticaBatchRepository.Reset();
         }
-        
+
+        public void PullAcumaticaSettings()
+        {
+            try
+            {
+                _acumaticaManager.PullSettings();
+                _stateRepository
+                    .UpdateSystemState(x => x.WarehouseSync, SystemState.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+
+                _stateRepository.UpdateSystemState(
+                    x => x.WarehouseSync, SystemState.SystemFault);
+            }
+        }
+
         public void SyncWarehouseAndLocation()
         {
             try
@@ -77,8 +94,7 @@ namespace Monster.Middle.Processes.Sync
                         x => x.WarehouseSync, SystemState.SystemFault);
             }
         }
-
-
+        
         public void LoadInventoryIntoAcumatica()
         {
             try

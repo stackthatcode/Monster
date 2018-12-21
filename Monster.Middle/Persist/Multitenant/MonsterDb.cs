@@ -1579,12 +1579,15 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public int ShopifyConnection { get; set; } // ShopifyConnection
         public int AcumaticaConnection { get; set; } // AcumaticaConnection
-        public int AcumaticaConfig { get; set; } // AcumaticaConfig
+        public int Preferences { get; set; } // Preferences
         public int WarehouseSync { get; set; } // WarehouseSync
         public int AcumaticaInventoryPush { get; set; } // AcumaticaInventoryPush
         public int ShopifyInventoryPush { get; set; } // ShopifyInventoryPush
         public bool IsShopifyUrlFinalized { get; set; } // IsShopifyUrlFinalized
         public bool IsAcumaticaUrlFinalized { get; set; } // IsAcumaticaUrlFinalized
+        public string ArePreferencesComplete { get; set; } // ArePreferencesComplete (length: 10)
+        public string IsAcuInventoryPushComplete { get; set; } // IsAcuInventoryPushComplete (length: 10)
+        public string IsShopInventoryPushComplete { get; set; } // IsShopInventoryPushComplete (length: 10)
         public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
         public string RealTimeHangFireJobId { get; set; } // RealTimeHangFireJobId (length: 250)
     }
@@ -2541,12 +2544,15 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyConnection).HasColumnName(@"ShopifyConnection").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaConnection).HasColumnName(@"AcumaticaConnection").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaConfig).HasColumnName(@"AcumaticaConfig").HasColumnType("int").IsRequired();
+            Property(x => x.Preferences).HasColumnName(@"Preferences").HasColumnType("int").IsRequired();
             Property(x => x.WarehouseSync).HasColumnName(@"WarehouseSync").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaInventoryPush).HasColumnName(@"AcumaticaInventoryPush").HasColumnType("int").IsRequired();
             Property(x => x.ShopifyInventoryPush).HasColumnName(@"ShopifyInventoryPush").HasColumnType("int").IsRequired();
             Property(x => x.IsShopifyUrlFinalized).HasColumnName(@"IsShopifyUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.IsAcumaticaUrlFinalized).HasColumnName(@"IsAcumaticaUrlFinalized").HasColumnType("bit").IsRequired();
+            Property(x => x.ArePreferencesComplete).HasColumnName(@"ArePreferencesComplete").HasColumnType("nchar").IsOptional().IsFixedLength().HasMaxLength(10);
+            Property(x => x.IsAcuInventoryPushComplete).HasColumnName(@"IsAcuInventoryPushComplete").HasColumnType("nchar").IsOptional().IsFixedLength().HasMaxLength(10);
+            Property(x => x.IsShopInventoryPushComplete).HasColumnName(@"IsShopInventoryPushComplete").HasColumnType("nchar").IsOptional().IsFixedLength().HasMaxLength(10);
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
             Property(x => x.RealTimeHangFireJobId).HasColumnName(@"RealTimeHangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(250);
         }

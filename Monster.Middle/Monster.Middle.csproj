@@ -102,13 +102,13 @@
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Hangfire\BackgroundJobRunner.cs" />
-    <Compile Include="Persist\Multitenant\Model\BackgroundJobType.cs" />
+    <Compile Include="Hangfire\BackgroundJobType.cs" />
     <Compile Include="Hangfire\HangfireService.cs" />
     <Compile Include="Misc\HangFireLogger.cs" />
     <Compile Include="Misc\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
     <Compile Include="Persist\Multitenant\StateRepository.cs" />
-    <Compile Include="Persist\Multitenant\Model\SystemState.cs" />
+    <Compile Include="Hangfire\SystemState.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />

@@ -33,6 +33,15 @@ namespace Monster.Middle.Processes.Acumatica
             _acumaticaInvoicePull = acumaticaInvoicePull;
         }
 
+
+        public void PullSettings()
+        {
+            _acumaticaHttpContext.Login();
+
+            _acumaticaHttpContext.Logout();
+        }
+
+
         public void PullWarehouses()
         {
             _acumaticaHttpContext.Login();

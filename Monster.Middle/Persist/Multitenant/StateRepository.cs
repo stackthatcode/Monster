@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using Monster.Middle.Persist.Multitenant.Model;
+using Monster.Middle.Hangfire;
 using Push.Foundation.Utilities.General;
 
 namespace Monster.Middle.Persist.Multitenant
@@ -82,15 +82,18 @@ namespace Monster.Middle.Persist.Multitenant
                 if (!Entities.UsrSystemStates.Any())
                 {
                     var newRecord = new UsrSystemState();
+
                     newRecord.ShopifyConnection = SystemState.None;
                     newRecord.AcumaticaConnection = SystemState.None;
-                    newRecord.AcumaticaConfig = SystemState.None;
+                    newRecord.Preferences = SystemState.None;
                     newRecord.WarehouseSync = SystemState.None;
                     newRecord.AcumaticaInventoryPush = SystemState.None;
                     newRecord.ShopifyInventoryPush = SystemState.None;
+
                     newRecord.IsShopifyUrlFinalized = false;
                     newRecord.IsAcumaticaUrlFinalized = false;
                     newRecord.IsRandomAccessMode = false;
+
                     newRecord.RealTimeHangFireJobId = null;
 
                     Entities.UsrSystemStates.Add(newRecord);

@@ -6,6 +6,8 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
+using Monster.Web.Models.Config;
+using Monster.Web.Models.ShopifyAuth;
 using Push.Foundation.Web.Json;
 
 
@@ -32,26 +34,81 @@ namespace Monster.Web.Controllers
             _inventoryStatusService = inventoryStatusService;
         }
 
-
-        // MVC Pages
-        //
+        
+        // The welcome page
         [HttpGet]
         public ActionResult Splash()
         {
             return View();
         }
         
+        // TODO *** Where's this view?
         [HttpGet]
         public ActionResult Home()
         {
             return View();
         }
 
+
+        // Acumatica Connection stuff...
+        //
         [HttpGet]
-        public ActionResult AcumaticaCreds()
+        public ActionResult Acumatica()
         {
             return View();
         }
+
+        [HttpGet]
+        public ActionResult AcumaticaState()
+        {
+            var isRunning =
+                _hangfireService.IsJobRunning(
+                    BackgroundJobType.ConnectToAcumaticaAndPullSettings);
+
+            var state = _stateRepository.RetrieveSystemState();
+
+            var model = new AcumaticaStateModel()
+            {
+                ConnectionState = state.AcumaticaConnection,
+                IsUrlFinalized = state.IsAcumaticaUrlFinalized,
+                IsRandomAccessMode = state.IsRandomAccessMode,
+                IsBackgroundJobRunning = isRunning,
+            };
+
+            return new JsonNetResult(model);
+        }
+
+        [HttpGet]
+        public ActionResult AcumaticaInstance()
+        {
+            var tenant = _tenantRepository.Retrieve();
+
+            var model = new AcumaticaCredentialsModel()
+            {
+                InstanceUrl = tenant.AcumaticaInstanceUrl,
+                Branch = tenant.AcumaticaBranch,
+                Company = tenant.AcumaticaCompanyName,
+            };
+
+            return new JsonNetResult(model);
+        }
+
+        [HttpPost]
+        public ActionResult AcumaticaInstance(AcumaticaCredentialsModel model)
+        {
+            _tenantRepository
+                .UpdateAcumaticaCredentials(
+                        model.InstanceUrl,
+                        model.Company,
+                        model.Branch,
+                        model.UserName,
+                        model.Password);
+
+            _hangfireService.ConnectToAcumaticaAndPullSettings();
+
+            return JsonNetResult.Success();
+        }
+
 
         [HttpGet]
         public ActionResult Preferences()
@@ -60,6 +117,7 @@ namespace Monster.Web.Controllers
             var model = Mapper.Map<Preferences>(preferencesData);
             return View(model);
         }
+
 
         [HttpGet]
         public ActionResult Warehouses()

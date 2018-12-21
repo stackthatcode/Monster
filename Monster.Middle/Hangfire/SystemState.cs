@@ -1,4 +1,4 @@
-﻿namespace Monster.Middle.Persist.Multitenant.Model
+﻿namespace Monster.Middle.Hangfire
 {
     public class SystemState
     {

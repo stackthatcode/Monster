@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using Hangfire;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Multitenant.Model;
 using Monster.Middle.Security;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
@@ -69,6 +68,16 @@ namespace Monster.Middle.Hangfire
             }
 
             return true;
+        }
+
+        public void ConnectToAcumaticaAndPullSettings()
+        {            
+            var tenantId = _tenantContext.InstallationId;
+
+            SafelyEnqueueBackgroundJob(
+                LockSyncWarehouseAndLocation,
+                BackgroundJobType.ConnectToAcumaticaAndPullSettings,
+                x => x.RunPullAcumaticaSettings(tenantId));
         }
         
         public void SyncWarehouseAndLocation()
