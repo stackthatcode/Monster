@@ -139,11 +139,11 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
         public void UpdateAcumaticaCredentials(
-            string acumaticaInstanceUrl,
-            string acumaticaBranch,
-            string acumaticaCompanyName,
-            string acumaticaUsername,
-            string acumaticaPassword)
+                string acumaticaInstanceUrl,
+                string acumaticaBranch,
+                string acumaticaCompanyName,
+                string acumaticaUsername,
+                string acumaticaPassword)
         {
             var context = Retrieve();
 
@@ -159,6 +159,21 @@ namespace Monster.Middle.Persist.Multitenant
             this.Entities.SaveChanges();
         }
         
+        public void UpdateAcumaticaCredentials(
+                string acumaticaUsername,
+                string acumaticaPassword)
+        {
+            var context = Retrieve();
+
+            var encryptedUsername = _cryptoService.Encrypt(acumaticaUsername);
+            var encryptedPassword = _cryptoService.Encrypt(acumaticaPassword);
+
+            context.AcumaticaUsername = encryptedUsername;
+            context.AcumaticaPassword = encryptedPassword;
+
+            this.Entities.SaveChanges();
+        }
+
 
         public UsrPreference RetrievePreferences()
         {

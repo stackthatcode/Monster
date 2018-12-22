@@ -11,21 +11,22 @@
 
 @Html.Partial("_TopBrand")
 
-<hr/>
+<hr />
+
 <h1 class="mt-5 center">Configuration - Acumatica</h1>
 <p class="lead center">Manage your Acumatica Credentials and Pull Config Settings</p>
 
+<div data-bind="ifnot: IsRandomAccessMode">
+    <p>
+        Now, we will connect @GlobalConfig.AppName to your Acumatica instance.
+        In preparation, make sure you have selected the correct Acumatica instance
+        and have the appropriate security credentials for access.
+    </p>
+</div>
 
 <div data-bind="if: DataEntryVisible">
     <div class="std-padding">
-        <div data-bind="ifnot: IsRandomAccessMode">
-            <p>
-                Now, we will connect @GlobalConfig.AppName to your Acumatica instance.
-                In preparation, make sure you have selected the correct Acumatica instance
-                and have the appropriate security credentials for access.
-            </p>
-        </div>
-
+        
         <div class="card text-center">
             <div class="card-body" style="text-align: left;">
                 <div class="form-group">
@@ -35,7 +36,7 @@
                         <input type="url"
                                class="form-control"
                                disabled="disabled"
-                               data-bind="Value: AcumaticaInstanceUrl" />
+                               data-bind="value: AcumaticaInstanceUrl" />
                     </div>
 
                     <div data-bind="ifnot: IsUrlFinalized">
@@ -43,10 +44,33 @@
                                class="form-control"
                                id="instanceUrl"
                                placeholder="Enter your Acumatica Instance URL" 
-                               data-bind="Value: AcumaticaInstanceUrl" />
+                               data-bind="value: AcumaticaInstanceUrl" />
 
                         <small id="urlHelp" class="form-text text-muted">
                             E.G.: https://acucode.acumaticacloud.com
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="branch">Acumatica Company</label>
+
+                    <div data-bind="if: IsUrlFinalized">
+                        <input type="url"
+                               class="form-control"
+                               disabled="disabled"
+                               data-bind="value: AcumaticaCompany" />
+                    </div>
+
+                    <div data-bind="ifnot: IsUrlFinalized">
+                        <input type="text"
+                               class="form-control"
+                               id="company"
+                               placeholder="Enter the Acumatica Company"
+                               data-bind="value: AcumaticaCompany" />
+
+                        <small id="companyHelp" class="form-text text-muted">
+                            E.G.: MYCOMPANY
                         </small>
                     </div>
                 </div>
@@ -58,7 +82,7 @@
                         <input type="url"
                                class="form-control"
                                disabled="disabled"
-                               data-bind="Value: AcumaticaBranch" />
+                               data-bind="value: AcumaticaBranch" />
                     </div>
 
                     <div data-bind="ifnot: IsUrlFinalized">
@@ -66,21 +90,21 @@
                                class="form-control"
                                id="branch"
                                placeholder="Enter the Acumatica Branch"
-                               data-bind="Value: AcumaticaBranch" />
+                               data-bind="value: AcumaticaBranch" />
 
                         <small id="branchHelp" class="form-text text-muted">
                             E.G.: MYCOMPANY
                         </small>
                     </div>
                 </div>
-
+                
                 <div class="form-group">
                     <label for="username">Acumatica User Name</label>
                     <input type="text"
                            class="form-control"
                            id="username"
                            placeholder="Enter the Acumatica User Name"
-                           data-bind="Value: AcumaticaUserName" />
+                           data-bind="value: AcumaticaUserName" />
                 </div>
 
                 <div class="form-group">
@@ -89,19 +113,18 @@
                            class="form-control"
                            id="password"
                            placeholder="Enter the Acumatica Password"
-                           data-bind="Value: AcumaticaPassword" />
+                           data-bind="value: AcumaticaPassword" />
                 </div>
 
-                <div class="center std-padding">
-                    <a href="@GlobalConfig.Url("Config/Preferences")"
-                       class="btn btn-dark btn-lg">
-                        Cancel
-                        <i class="fas fa-undo"></i>
+                <div class="center std-padding">                    
+                    <a href="#" class="btn btn-secondary btn-lg"
+                       data-bind="click: ShowStatusPanel">
+                        Cancel <i class="fas fa-undo"></i>
                     </a>
 
                     <a href="#" class="btn btn-primary btn-lg"
                        data-bind="click: ConnectToAcumatica">
-                        Connect to Acumatica <i class="fas fa-sign-in-alt"></i>
+                        Connect to Acumatica <i class="fas fa-bolt"></i>
                     </a>
                 </div>
             </div>
@@ -145,25 +168,68 @@
         <div class="card text-center">
             <div class="card-body" style="text-align: left;">
 
-            <div class="center std-padding">
-                <a href="@GlobalConfig.Url("Config/Preferences")"
-                   class="btn btn-dark btn-lg">
-                    Go Back
-                    <i class="fas fa-undo"></i>
-                </a>
+                <div class="form-group">
+                    <label for="instanceUrl">Acumatica Instance URL</label>
 
-                <a href="@GlobalConfig.Url("Config/Preferences")"
-                   class="btn btn-primary btn-lg"
-                   data-bind="click: ChangeSettingsClick">
-                    Change Settings
-                    <i class="fas fa-pencil-alt"></i>
-                </a>
+                    <input type="url"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: AcumaticaInstanceUrl" />
+                </div>
 
-                <a href="@GlobalConfig.Url("Config/Preferences")"
-                   class="btn btn-success btn-lg">
-                    Go to Next Step
-                    <i class="fas fa-sign-in-alt"></i>
-                </a>
+                <div class="form-group">
+                    <label for="branch">Acumatica Company</label>
+
+                    <input type="url"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: AcumaticaCompany" />
+                </div>
+
+                <div class="form-group">
+                    <label for="branch">Acumatica Branch</label>
+
+                    <input type="url"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: AcumaticaBranch" />
+                </div>
+                
+                <div class="center std-padding">
+                    <span data-bind="if: IsPrevButtonVisible">
+                        <a href="@GlobalConfig.Url("Config/Preferences")"
+                           class="btn btn-secondary btn-lg">
+                            Previous Step <i class="fas fa-undo"></i>
+                        </a>
+                    </span>
+                    
+                    <span data-bind="if: IsReturnButtonVisible">
+                        <a href="@GlobalConfig.Url("Config/RealTime")"
+                           class="btn btn-secondary btn-lg">
+                            Back to Dashboard <i class="fas fa-undo"></i>
+                        </a>
+                    </span>
+                    
+                    <span data-bind="if: HasConnectionBeenSet">
+                        <a href="#" class="btn btn-primary btn-lg"
+                           data-bind="click: ChangeSettingsClick">
+                            Change Credentials <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    </span>
+
+                    <span data-bind="ifnot: HasConnectionBeenSet">
+                        <a href="#" class="btn btn-primary btn-lg"
+                           data-bind="click: ChangeSettingsClick">
+                            Enter Credentials <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    </span>
+
+                    <span data-bind="if: IsNextButtonVisible">
+                        <a href="@GlobalConfig.Url("Config/Preferences")"
+                           class="btn btn-success btn-lg">
+                            Next Step <i class="fas fa-sign-in-alt"></i>
+                        </a>
+                    </span>
                 </div>
             </div>
         </div>
@@ -179,6 +245,7 @@
     SystemState.Invalid = @SystemState.Invalid;
     SystemState.SystemFault = @SystemState.SystemFault;
 
+
     Monster.AcumaticaCredsModel = function() {
         var self = this;
 
@@ -187,60 +254,105 @@
         self.BackgroundJobRunning = ko.observable();
         self.StatusVisible = ko.observable();
 
-        self.ClearVisibility = function () {
+        self.ClearVisibility = function() {
             self.DataEntryVisible(false);
             self.BackgroundJobRunning(false);
             self.StatusVisible(false);
         };
 
-        
+
         // System State
         self.ConnectionState = ko.observable();
         self.IsUrlFinalized = ko.observable();
         self.IsRandomAccessMode = ko.observable();
 
-        self.IsConnectionOk = ko.computed(function() {
-            //console.log("Connection State", self.ConnectionState());
 
+        self.HasConnectionBeenSet = ko.computed(function() {
+            return self.ConnectionState() != SystemState.None;
+        });
+
+        self.IsConnectionOk = ko.computed(function() {
             return self.ConnectionState() == SystemState.Ok;
         });
 
         self.IsConnectionBroken = ko.computed(function() {
-            //console.log("Connection State", self.ConnectionState());
-            
             return self.ConnectionState() == SystemState.SystemFault 
                 || self.ConnectionState() == SystemState.Invalid;
         });
 
 
         // Control-visibility
+        self.IsNextButtonVisible = ko.computed(function() {
+            return !self.IsRandomAccessMode() && self.IsConnectionOk();
+        });
+
+        self.IsPrevButtonVisible = ko.computed(function() {
+            return !self.IsRandomAccessMode();
+        });
+
+        self.IsCancelButtonVisible = ko.computed(function() {
+            return self.IsRandomAccessMode();
+        });
+
+        self.IsReturnButtonVisible = ko.computed(function() {
+            return self.IsRandomAccessMode();
+        });
 
 
 
         // Data-entry State
         self.AcumaticaInstanceUrl = ko.observable();
-        self.AcumaticaBranch = ko.observable();
         self.AcumaticaCompany = ko.observable();
+        self.AcumaticaBranch = ko.observable();
         self.AcumaticaUserName = ko.observable();
         self.AcumaticaPassword = ko.observable();
 
 
         // Actions
-        self.ChangeSettingsClick = function() {
+        self.ChangeSettingsClick = function() {            
             self.ClearVisibility();
+            @{
+                // Debugging stuff - fast and easy - my way!
+                if (GlobalConfig.DebugMode)
+                {
+                    <text>
+                        self.AcumaticaInstanceUrl("http://localhost/AcuInst2");
+                        self.AcumaticaCompany("MYCOMPANY");
+                        self.AcumaticaBranch("MYCOMPANY");
+                        self.AcumaticaUserName("admin");
+                        self.AcumaticaPassword("l0c4lInstance");
+                    </text>
+                }
+            }
             self.DataEntryVisible(true);
         };
 
-        self.ConnectToAcumatica = function () {
+        self.ShowStatusPanel = function() {
+            flow.exec(
+                function() {
+                    self.ClearVisibility();
+                    self.StatusVisible(true);
+
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/AcumaticaInstance", this);
+                }, 
+                function(response) {
+                    self.AcumaticaInstanceUrl(response.InstanceUrl);
+                    self.AcumaticaCompany(response.Company);
+                    self.AcumaticaBranch(response.Branch);
+                });
+        }
+
+        self.ConnectToAcumatica = function() {
             var model = {
-                AcumaticaInstanceUrl: self.AcumaticaInstanceUrl(),
-                AcumaticaCompany: self.AcumaticaCompany(),
-                AcumaticaBranch: self.AcumaticaBranch(),
-                AcumaticaUserName: self.AcumaticaUserName(),
-                AcumaticaPassword: self.AcumaticaPassword()
+                InstanceUrl: self.AcumaticaInstanceUrl(),
+                Company: self.AcumaticaCompany(),
+                Branch: self.AcumaticaBranch(),
+                UserName: self.AcumaticaUserName(),
+                Password: self.AcumaticaPassword()
             };
 
-            var ajax = new Monster.Ajax();                
+            var ajax = new Monster.Ajax();
             ajax.HttpPost("Config/AcumaticaInstance", model, self.PollStatus);
         };
 
@@ -252,10 +364,10 @@
             };
             ajax.HttpGet("Config/AcumaticaState", self.ProcessStatus);
         };
-            
+
         self.ProcessStatus = function(response) {
             self.ClearVisibility();
-            
+
             // If still running, then show AJAX...
             if (response.IsBackgroundJobRunning) {
                 self.BackgroundJobRunning(true);
@@ -263,16 +375,17 @@
                 return;
             }
 
-
             // Else process System State info
             self.ConnectionState(response.ConnectionState);
             self.IsUrlFinalized(response.IsUrlFinalized);
             self.IsRandomAccessMode(response.IsRandomAccessMode);
 
+            console.log(response);
+
             if (self.ConnectionState() == SystemState.None) {
-                self.DataEntryVisible(true);
+                self.ChangeSettingsClick();
             } else {
-                self.StatusVisible(true);
+                self.ShowStatusPanel();
             }
         };
 
@@ -286,7 +399,7 @@
                     self.AcumaticaBranch(response.AcumaticaBranch);
                     self.AcumaticaCompany(response.AcumaticaCompany);
                 });
-            };
+        };
 
         self.Initialize = function() {
             self.ClearVisibility();

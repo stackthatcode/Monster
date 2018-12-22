@@ -43,6 +43,9 @@ namespace Monster.Web.Plumbing
             return $"{BaseUrl}{relativepath}";
         }        
 
-        public static string LoginPage => Url("Config/Home");
+        public static string LoginPage => Url("Config/NotYetDetermined");
+
+        public static string DashboardHomePage => Url("Config/RealTime");
     }
 }
+
