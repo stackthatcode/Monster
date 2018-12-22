@@ -49,7 +49,8 @@ namespace Monster.Web.Controllers
                 IPushLogger logger, 
                 OAuthApi oAuthApi, 
                 TenantRepository tenantRepository, 
-                ShopifyHttpContext shopifyHttpContext, StateRepository stateRepository)
+                ShopifyHttpContext shopifyHttpContext, 
+                StateRepository stateRepository)
         {
             _logger = logger;
             _oAuthApi = oAuthApi;
@@ -118,13 +119,20 @@ namespace Monster.Web.Controllers
 
         public async Task<ActionResult> 
                     Return(string code, string shop, string returnUrl)
-        {            
+        {
+            // Did the User hit the Back Button...?
+            if (_tenantRepository.IsSameAuthCode(code))
+            {
+                return Redirect("Domain");
+            }
+
             // Get Key and Secret credentials from config file
             var credentials = ShopifyCredentialsConfig.Settings.ToApiKeyAndSecret(shop);
             _shopifyHttpContext.Initialize(credentials);
 
             try
             {
+
                 if (!VerifyShopifyHmac())
                 {
                     throw new Exception("Failed HMAC verification from Shopify Return");
@@ -134,7 +142,7 @@ namespace Monster.Web.Controllers
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
 
                 // Save Access Token and update State
-                _tenantRepository.UpdateShopifyCredentials(accessToken);
+                _tenantRepository.UpdateShopifyCredentials(accessToken, code);
 
                 _stateRepository
                     .UpdateSystemState(x => x.ShopifyConnection, SystemState.Ok);
@@ -148,7 +156,13 @@ namespace Monster.Web.Controllers
                 return Redirect("Domain");
             }
 
-            return View();
+            var state = _stateRepository.RetrieveSystemState();
+            var model = new ReturnModel()
+            {
+                IsWizardMode = !state.IsRandomAccessMode
+            };
+
+            return View(model);
         }
         
         private bool VerifyShopifyHmac()

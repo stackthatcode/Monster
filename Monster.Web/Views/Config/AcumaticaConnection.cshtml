@@ -197,7 +197,7 @@
                 
                 <div class="center std-padding">
                     <span data-bind="if: IsPrevButtonVisible">
-                        <a href="@GlobalConfig.Url("Config/Preferences")"
+                        <a href="@GlobalConfig.Url("Config/AcumaticaInstructions")"
                            class="btn btn-secondary btn-lg">
                             Previous Step <i class="fas fa-undo"></i>
                         </a>
@@ -379,8 +379,6 @@
             self.ConnectionState(response.ConnectionState);
             self.IsUrlFinalized(response.IsUrlFinalized);
             self.IsRandomAccessMode(response.IsRandomAccessMode);
-
-            console.log(response);
 
             if (self.ConnectionState() == SystemState.None) {
                 self.ChangeSettingsClick();

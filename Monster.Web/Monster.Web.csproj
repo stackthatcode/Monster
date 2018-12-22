@@ -212,6 +212,7 @@
     <Compile Include="Models\ExecutionLog.cs" />
     <Compile Include="Models\Preferences.cs" />
     <Compile Include="Models\ShopifyAuth\DomainModel.cs" />
+    <Compile Include="Models\ShopifyAuth\ReturnModel.cs" />
     <Compile Include="Models\WarehouseSyncStatusModel.cs" />
     <Compile Include="Plumbing\GlobalConfig.cs" />
     <Compile Include="Plumbing\RequestActivityIdLogFormatter.cs" />
@@ -305,7 +306,7 @@
     <Content Include="Views\ShopifyAuth\Domain.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\Acumatica.cshtml" />
+    <Content Include="Views\Config\AcumaticaConnection.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Ulysses-AcumaticaConfiguration.pdf" />
@@ -318,6 +319,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\Splash.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Config\AcumaticaInstructions.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

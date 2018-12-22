@@ -1,4 +1,5 @@
 ﻿@using Monster.Web.Plumbing
+@model Monster.Web.Models.ShopifyAuth.ReturnModel
 
 @Html.Partial("_TopBrand")
 
@@ -13,18 +14,26 @@
 </div>
 
 
-<!-- TODO - Begin Wizard Mode -->
+
 <p>The next step in setup will be to connect @GlobalConfig.AppName with your Acumatica instance,
     and to prepare your Acumatica instance for automated synchronization.</p>
 
-<div class="center std-padding">
-    <a href="@GlobalConfig.Url("Config/Acumatica")" 
-       class="btn btn-success btn-lg">Go to Acumatica Configuration
-        <i class="fas fa-sign-in-alt"></i>
-    </a>
-</div>
-<!-- TODO - End Wizard Mode -->
-
-
-<!-- TODO Random Access Mode -->
+@if (Model.IsWizardMode)
+{
+    <div class="center std-padding">
+        <a href="@GlobalConfig.Url("Config/AcumaticaInstructions")"
+           class="btn btn-success btn-lg">Go to Acumatica Configuration
+            <i class="fas fa-sign-in-alt"></i>
+        </a>
+    </div>
+}
+else
+{
+    <div class="center std-padding">
+        <a href="@GlobalConfig.Url("Config/RealTime")"
+           class="btn btn-secondary btn-lg">
+            Back to Dashboard <i class="fas fa-undo"></i>
+        </a>
+    </div>
+}
 

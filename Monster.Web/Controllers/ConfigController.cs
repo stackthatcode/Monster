@@ -7,7 +7,6 @@ using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
-using Monster.Web.Models.ShopifyAuth;
 using Push.Foundation.Web.Json;
 
 
@@ -53,7 +52,13 @@ namespace Monster.Web.Controllers
         // Acumatica Connection stuff...
         //
         [HttpGet]
-        public ActionResult Acumatica()
+        public ActionResult AcumaticaInstructions()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult AcumaticaConnection()
         {
             return View();
         }

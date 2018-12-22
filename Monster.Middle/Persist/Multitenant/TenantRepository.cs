@@ -23,6 +23,7 @@ namespace Monster.Middle.Persist.Multitenant
             _cryptoService = cryptoService;
         }
 
+
         public DbContextTransaction BeginTransaction()
         {
             return Entities.Database.BeginTransaction();
@@ -55,9 +56,18 @@ namespace Monster.Middle.Persist.Multitenant
             return Entities.UsrTenants.FirstOrDefault();
         }
 
+        
 
         // Shopify Credentials
         //
+        public bool IsSameAuthCode(string code)
+        {
+            var tenant = Retrieve();
+
+            return tenant.ShopifyAuthCodeHash == code;
+                    //_hmacCryptoService.ToBase64EncodedSha256(code);
+        }
+
         public IShopifyCredentials RetrieveShopifyCredentials()
         {
             var tenant = Retrieve();
@@ -106,11 +116,16 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
-        public void UpdateShopifyCredentials(string shopifyAccessToken)
+        public void UpdateShopifyCredentials(
+                string shopifyAccessToken,
+                string shopifyAuthCode)
         {
             var context = Retrieve();
             var encryptedAccessToken = _cryptoService.Encrypt(shopifyAccessToken);
+            //var hashedAuthCode = _hmacService.Encrypt(shopifyAuthCode);
+
             context.ShopifyAccessToken = encryptedAccessToken;
+            context.ShopifyAuthCodeHash = shopifyAuthCode;
             Entities.SaveChanges();
         }
 

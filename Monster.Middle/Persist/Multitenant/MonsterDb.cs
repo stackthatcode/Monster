@@ -1598,6 +1598,7 @@ namespace Monster.Middle.Persist.Multitenant
     {
         public long CompanyId { get; set; } // CompanyID (Primary key)
         public string ShopifyDomain { get; set; } // ShopifyDomain (length: 500)
+        public string ShopifyAuthCodeHash { get; set; } // ShopifyAuthCodeHash (length: 500)
         public string ShopifyAccessToken { get; set; } // ShopifyAccessToken (length: 500)
         public string ShopifyApiKey { get; set; } // ShopifyApiKey (length: 500)
         public string ShopifyApiPassword { get; set; } // ShopifyApiPassword (length: 500)
@@ -2574,6 +2575,7 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.CompanyId).HasColumnName(@"CompanyID").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyDomain).HasColumnName(@"ShopifyDomain").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyAuthCodeHash).HasColumnName(@"ShopifyAuthCodeHash").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.ShopifyAccessToken).HasColumnName(@"ShopifyAccessToken").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.ShopifyApiKey).HasColumnName(@"ShopifyApiKey").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
             Property(x => x.ShopifyApiPassword).HasColumnName(@"ShopifyApiPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
