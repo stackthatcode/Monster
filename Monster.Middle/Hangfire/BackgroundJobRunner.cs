@@ -66,7 +66,7 @@ namespace Monster.Middle.Hangfire
         {
             _tenantContext.Initialize(tenantId);
             task();
-            _stateRepository.RemoveBackgroundJob(queueJobTypeId);
+            _stateRepository.RemoveBackgroundJobs(queueJobTypeId);
         }
 
 

@@ -96,13 +96,13 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult AcumaticaInstance(AcumaticaCredentialsModel model)
         {
-            _tenantRepository
-                .UpdateAcumaticaCredentials(
-                        model.InstanceUrl,
-                        model.Company,
-                        model.Branch,
-                        model.UserName,
-                        model.Password);
+            //_tenantRepository
+            //    .UpdateAcumaticaCredentials(
+            //            model.InstanceUrl,
+            //            model.Company,
+            //            model.Branch,
+            //            model.UserName,
+            //            model.Password);
 
             _hangfireService.ConnectToAcumaticaAndPullSettings();
 

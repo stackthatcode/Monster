@@ -31,14 +31,14 @@
                 <div class="form-group">
                     <label for="instanceUrl">Acumatica Instance URL</label>
 
-                    <div data-bind="if: UrlFinalized">
+                    <div data-bind="if: IsUrlFinalized">
                         <input type="url"
                                class="form-control"
                                disabled="disabled"
                                data-bind="Value: AcumaticaInstanceUrl" />
                     </div>
 
-                    <div data-bind="ifnot: UrlFinalized">
+                    <div data-bind="ifnot: IsUrlFinalized">
                         <input type="url"
                                class="form-control"
                                id="instanceUrl"
@@ -54,14 +54,14 @@
                 <div class="form-group">
                     <label for="branch">Acumatica Branch</label>
 
-                    <div data-bind="if: UrlFinalized">
+                    <div data-bind="if: IsUrlFinalized">
                         <input type="url"
                                class="form-control"
                                disabled="disabled"
                                data-bind="Value: AcumaticaBranch" />
                     </div>
 
-                    <div data-bind="ifnot: UrlFinalized">
+                    <div data-bind="ifnot: IsUrlFinalized">
                         <input type="text"
                                class="form-control"
                                id="branch"
@@ -93,6 +93,12 @@
                 </div>
 
                 <div class="center std-padding">
+                    <a href="@GlobalConfig.Url("Config/Preferences")"
+                       class="btn btn-dark btn-lg">
+                        Cancel
+                        <i class="fas fa-undo"></i>
+                    </a>
+
                     <a href="#" class="btn btn-primary btn-lg"
                        data-bind="click: ConnectToAcumatica">
                         Connect to Acumatica <i class="fas fa-sign-in-alt"></i>
@@ -136,13 +142,30 @@
             </div>
         </div>
 
+        <div class="card text-center">
+            <div class="card-body" style="text-align: left;">
 
-        <div class="center std-padding">
-            <a href="@GlobalConfig.Url("Config/Preferences")"
-               class="btn btn-success btn-lg">
-                Go to Next Step
-                <i class="fas fa-sign-in-alt"></i>
-            </a>
+            <div class="center std-padding">
+                <a href="@GlobalConfig.Url("Config/Preferences")"
+                   class="btn btn-dark btn-lg">
+                    Go Back
+                    <i class="fas fa-undo"></i>
+                </a>
+
+                <a href="@GlobalConfig.Url("Config/Preferences")"
+                   class="btn btn-primary btn-lg"
+                   data-bind="click: ChangeSettingsClick">
+                    Change Settings
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+
+                <a href="@GlobalConfig.Url("Config/Preferences")"
+                   class="btn btn-success btn-lg">
+                    Go to Next Step
+                    <i class="fas fa-sign-in-alt"></i>
+                </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -173,16 +196,26 @@
         
         // System State
         self.ConnectionState = ko.observable();
-        self.UrlFinalized = ko.observable();
+        self.IsUrlFinalized = ko.observable();
         self.IsRandomAccessMode = ko.observable();
 
-        self.IsConnectionOk = ko.observable(function() {
+        self.IsConnectionOk = ko.computed(function() {
+            //console.log("Connection State", self.ConnectionState());
+
             return self.ConnectionState() == SystemState.Ok;
         });
 
-        self.IsConnectionBroken = ko.observable(function() {
-            return self.ConnectionState() == SystemState.SystemFault;
+        self.IsConnectionBroken = ko.computed(function() {
+            //console.log("Connection State", self.ConnectionState());
+            
+            return self.ConnectionState() == SystemState.SystemFault 
+                || self.ConnectionState() == SystemState.Invalid;
         });
+
+
+        // Control-visibility
+
+
 
         // Data-entry State
         self.AcumaticaInstanceUrl = ko.observable();
@@ -193,6 +226,11 @@
 
 
         // Actions
+        self.ChangeSettingsClick = function() {
+            self.ClearVisibility();
+            self.DataEntryVisible(true);
+        };
+
         self.ConnectToAcumatica = function () {
             var model = {
                 AcumaticaInstanceUrl: self.AcumaticaInstanceUrl(),
@@ -203,7 +241,7 @@
             };
 
             var ajax = new Monster.Ajax();                
-            ajax.HttpPost("Config/AcumaticaState", model, self.PollStatus);
+            ajax.HttpPost("Config/AcumaticaInstance", model, self.PollStatus);
         };
 
         self.PollStatus = function() {
@@ -224,6 +262,7 @@
                 setTimeout(self.PollStatus, 1000);
                 return;
             }
+
 
             // Else process System State info
             self.ConnectionState(response.ConnectionState);

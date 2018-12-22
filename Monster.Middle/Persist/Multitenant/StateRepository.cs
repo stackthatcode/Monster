@@ -51,6 +51,12 @@ namespace Monster.Middle.Persist.Multitenant
         public UsrBackgroundJob 
                     InsertBackgroundJob(int backgroundJobType, string hangFireJobId)
         {
+            if (Exists(backgroundJobType))
+            {
+                RemoveBackgroundJobs(backgroundJobType);
+            }
+
+
             var newJob = new UsrBackgroundJob()
             {
                 BackgroundJobType = backgroundJobType,
@@ -64,7 +70,7 @@ namespace Monster.Middle.Persist.Multitenant
             return newJob;
         }
 
-        public void RemoveBackgroundJob(int backgroundJobType)
+        public void RemoveBackgroundJobs(int backgroundJobType)
         {
             var job = RetrieveBackgroundJob(backgroundJobType);
             Entities.UsrBackgroundJobs.Remove(job);
