@@ -58,8 +58,7 @@ namespace Monster.Web.Controllers
             _shopifyHttpContext = shopifyHttpContext;
             _stateRepository = stateRepository;
         }
-
-
+        
 
         [HttpGet]
         public ActionResult Domain()

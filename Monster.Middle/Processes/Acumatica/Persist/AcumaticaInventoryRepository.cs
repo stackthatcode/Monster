@@ -17,6 +17,20 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         }
 
 
+        // Reference data
+        public UsrAcumaticaReference RetrieveReferenceData()
+        {
+            if (!_dataContext.Entities.UsrAcumaticaReferences.Any())
+            {
+                var newdata = new UsrAcumaticaReference();
+                _dataContext.Entities.UsrAcumaticaReferences.Add(newdata);
+                _dataContext.Entities.SaveChanges();
+            }
+
+            return _dataContext.Entities.UsrAcumaticaReferences.First();
+        }
+
+
 
         public void InsertAcumaticaWarehouse(UsrAcumaticaWarehouse warehouse)
         {

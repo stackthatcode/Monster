@@ -7,6 +7,7 @@ namespace Monster.Middle.Processes.Acumatica
     {
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
 
+        private readonly AcumaticaReferencePull _acumaticaReferencePull;
         private readonly AcumaticaWarehousePull _acumaticaWarehousePull;
         private readonly AcumaticaInventoryPull _acumaticaInventoryPull;
 
@@ -22,7 +23,8 @@ namespace Monster.Middle.Processes.Acumatica
                 AcumaticaShipmentPull acumaticaShipmentPull, 
                 AcumaticaWarehousePull acumaticaWarehousePull, 
                 AcumaticaInventoryPull acumaticaInventoryPull, 
-                AcumaticaInvoicePull acumaticaInvoicePull)
+                AcumaticaInvoicePull acumaticaInvoicePull, 
+                AcumaticaReferencePull acumaticaReferencePull)
         {
             _acumaticaHttpContext = acumaticaHttpContext;
             _acumaticaCustomerPull = acumaticaCustomerPull;
@@ -31,12 +33,20 @@ namespace Monster.Middle.Processes.Acumatica
             _acumaticaWarehousePull = acumaticaWarehousePull;
             _acumaticaInventoryPull = acumaticaInventoryPull;
             _acumaticaInvoicePull = acumaticaInvoicePull;
+            _acumaticaReferencePull = acumaticaReferencePull;
         }
 
 
         public void PullSettings()
         {
             _acumaticaHttpContext.Login();
+            
+            _acumaticaReferencePull.RunItemClass();
+            _acumaticaReferencePull.RunPaymentMethod();
+
+            _acumaticaReferencePull.RunTaxCategories();
+            _acumaticaReferencePull.RunTaxIds();
+            _acumaticaReferencePull.RunTaxZones();
 
             _acumaticaHttpContext.Logout();
         }

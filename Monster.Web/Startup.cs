@@ -2,6 +2,7 @@
 using Microsoft.Owin;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Web.Models;
+using Monster.Web.Models.Config;
 using Owin;
 
 [assembly: OwinStartupAttribute(typeof(Monster.Web.Startup))]

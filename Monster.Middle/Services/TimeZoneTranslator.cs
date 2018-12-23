@@ -2,11 +2,15 @@
 using Push.Foundation.Utilities.Helpers;
 using TimeZoneConverter;
 
-namespace Monster.Middle.Misc
+namespace Monster.Middle.Services
 {
 
     public class TimeZoneTranslator
     {
+        public TimeZoneTranslator()
+        {
+        }
+
         // Returns Date + Midnight of that Date in another Time Zone based on *now* in UTC
         public DateTime Today(string shopifyTimeZone)
         {

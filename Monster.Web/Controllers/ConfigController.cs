@@ -182,7 +182,6 @@ namespace Monster.Web.Controllers
 
         // Status inquiries
         // 
-
         [HttpGet]
         public ActionResult WarehouseSyncStatus()
         {

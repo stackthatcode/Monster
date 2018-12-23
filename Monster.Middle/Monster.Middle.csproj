@@ -107,6 +107,11 @@
     <Compile Include="Misc\HangFireLogger.cs" />
     <Compile Include="Misc\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
+    <Compile Include="Persist\Multitenant\MonsterDb.cs">
+      <DependentUpon>MonsterDb.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Include="Persist\Multitenant\StateRepository.cs" />
     <Compile Include="Hangfire\SystemState.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
@@ -114,6 +119,7 @@
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInvoicePull.cs" />
+    <Compile Include="Processes\Acumatica\Workers\AcumaticaReferencePull.cs" />
     <Compile Include="Processes\Shopify\Persist\OrderExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Extensions\CustomerExtensions.cs" />
@@ -124,11 +130,6 @@
     <Compile Include="Processes\Shopify\Persist\FinancialStatus.cs" />
     <Compile Include="Processes\Sync\Extensions\LocationExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyOrderRepository.cs" />
-    <Compile Include="Persist\Multitenant\MonsterDb.cs">
-      <DependentUpon>MonsterDb.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
     <Compile Include="Processes\Sync\Extensions\OrderExtensions.cs" />
     <Compile Include="Processes\Sync\Inventory\SyncInventoryRepository.cs" />
     <Compile Include="Processes\Sync\Orders\SyncOrderRepository.cs" />
@@ -179,7 +180,7 @@
     <Compile Include="Persist\Multitenant\PersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persist\Multitenant\TenantRepository.cs" />
-    <Compile Include="Misc\TimeZoneTranslator.cs" />
+    <Compile Include="Services\TimeZoneTranslator.cs" />
     <Compile Include="Services\TimeZoneService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -211,7 +212,6 @@
       <Name>Push.Shopify</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="Persist\Multitenant\MonsterDb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

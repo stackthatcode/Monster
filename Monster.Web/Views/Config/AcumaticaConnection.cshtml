@@ -1,6 +1,6 @@
 ﻿@using Monster.Middle.Hangfire
 @using Monster.Web.Plumbing
-@model Monster.Web.Models.Preferences
+@model Monster.Web.Models.Config.Preferences
 
 
 <style>
@@ -17,6 +17,14 @@
 <p class="lead center">Manage your Acumatica Credentials and Pull Config Settings</p>
 
 <div data-bind="ifnot: IsRandomAccessMode">
+    <p>
+        By now, you will have configured your Acumatica instance in preparation for
+        Real-Time Synchronization. If you haven't already, please follow the steps
+        outlined in <a href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")" 
+                       style="font-weight: bold;">
+            "Configuring Acumatica for Ulysses Synchronization"
+        </a>. Make sure you have everything properly setup in your Acumatica instance.
+    </p>
     <p>
         Now, we will connect @GlobalConfig.AppName to your Acumatica instance.
         In preparation, make sure you have selected the correct Acumatica instance

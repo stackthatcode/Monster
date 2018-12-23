@@ -1,5 +1,5 @@
 ﻿@using Monster.Web.Plumbing
-@model Monster.Web.Models.Preferences
+@model Monster.Web.Models.Config.Preferences
 
 @Html.Partial("_TopBrand")
 
@@ -7,284 +7,214 @@
 <h1 class="mt-5 center">Configuration - Preferences</h1>
 <p class="lead center">Choose settings to enable @GlobalConfig.AppName to properly synchronize</p>
 
-<div data-bind="if: Step1Visible">
-    <p>
-        By now, you will have configured your Acumatica instance in preparation for
-        Real-Time Synchronization. If you haven't already, please follow the steps
-        outlined in <a href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")" 
-           style="font-weight: bold;">
-            "Configuring Acumatica for Ulysses Synchronization"
-        </a>. Make sure you have everything properly setup in your Acumatica instance.
-    </p>
-    <p>
-        As soon as your Acumatica instance is ready, hit the "Load Settings" button.
-        If you want to use a different Acumatica instance, hit the "Acumatica Connection" button.
-    </p>
-
-    <div class="std-padding center">
-        <a href="@GlobalConfig.Url("Config/AcumaticaCreds")"
-           class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Acumatica Connection
-        </a>
-
-        <a href="#" class="btn btn-primary btn-lg"
-           data-bind="click: ConnectToAcumatica">
-            Load Settings <i class="fas fa-sign-in-alt"></i>
-        </a>
-    </div>
-</div>
-
-<div data-bind="if: Step2Visible">
-    <div class="std-padding">
-        <div class="card">
-            <div class="card-body center std-padding">
-                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-                <div style="height: 30px;"></div>
-                <p class="center">
-                    Please wait while @GlobalConfig.AppName connects to your Acumatica instance
-                    to collect data for Preferences. 
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
     .form-group label { font-weight: 700; }
 </style>
 
-<div data-bind="if: Step3Visible">
-    <p>@GlobalConfig.AppName is now ready for you to set your Preferences.
-        When @GlobalConfig.AppName is running in Real-Time Sync Mode, it
-        will produce a large volume of work. It is critical that you make 
-        sure your Preferences match your business objectives.</p>
+<p>@GlobalConfig.AppName is now ready for you to set your Preferences.
+    When @GlobalConfig.AppName is running in Real-Time Sync Mode, it
+    will produce a large volume of work. It is critical that you make 
+    sure your Preferences match your business objectives.</p>
 
-    <div class="std-padding">
-        <div class="card text-center">
-            <div class="card-body left"> 
-                <div class="form-group">
-                    <label for="datepicker">Starting Date for Shopify Orders</label>
-                    <input id="datepicker"
-                           class="form-control" />
-                    
-                    <small id="datepickerHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will only load Shopify Orders
-                        that are created on or after this date into Acumatica.
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label for="timeZone">Acumatica Instance Time Zone</label>
-
-                    <select type="url"
-                            class="form-control"
-                            name="timeZone"
-                            id="timeZone">
-                        <option>UTC-10: Hawaii-Aleutian Standard Time (HAST)</option>
-                        <option>UTC-9: Alaska Standard Time (AKST)</option>
-                        <option>UTC-8: Pacific Standard Time (PST)</option>
-                        <option>UTC-7: Mountain Standard Time (MST)</option>
-                        <option selected="selected">UTC-6: Central Standard Time (CST)</option>
-                        <option>UTC-5: Eastern Standard Time (EST)</option>
-                        <option>UTC-4: Atlantic Standard Time (AST)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="itemClass">Default Item Class</label>
-                    
-                    <select type="url"
-                            class="form-control"
-                            name="itemClass"
-                            id="itemClass">
-                        <option>(Select an Item Class)</option>
-                        <option>STOCK ITEM</option>
-                        <option>NSTOCK ITEM</option>
-                    </select>
-
-                    <small id="urlHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection 
-                        when it creates Stock Items from Shopify Products
-                    </small>
-                </div>
+<div class="std-padding">
+    <div class="card text-center">
+        <div class="card-body left"> 
+            <div class="form-group">
+                <label for="datepicker">Starting Date for Shopify Orders</label>
+                <input id="datepicker"
+                       class="form-control" />
                 
-                <div class="form-group">
-                    <label for="postingClass">Default Posting Class</label>
-
-                    <select type="url"
-                            class="form-control"
-                            name="postingClass"
-                            id="postingClass">
-                        <option>(Select Posting Class)</option>
-                        <option>CMPSERVICE</option>
-                        <option>LAPTOP</option>
-                        <option>SHOPIFY</option>
-                        <option>SUPPDEVICE</option>
-                    </select>
-
-                    <small id="postingClassHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection
-                        when it creates Stock Items from Shopify Products
-                    </small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="paymentMethod">Payment Method</label>
-
-                    <select type="url"
-                            class="form-control"
-                            name="paymentMethod"
-                            id="paymentMethod">
-                        <option>(Select Payment Method)</option>
-                        <option>CASH</option>                        
-                        <option>CHECK</option>
-                        <option>FEDWIRE</option>
-                        <option>FEDWIREBA</option>
-                        <option>ONLINE</option>
-                        <option>WIRE</option>
-                    </select>
-                    
-                    <small id="paymentMethodHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection
-                        when it creates Payments in Acumatica.
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label for="cashAccountMethod">Payment Cash Account</label>
-
-                    <select type="url"
-                            class="form-control"
-                            name="cashAccountMethod"
-                            id="cashAccountMethod">
-                        <option>(Select Cash Account)</option>
-                        <option>101000 - Cash on Hand</option>
-                        <option>102000 - Checking Account</option>
-                        <option>102050 - Merchant Account</option>
-                        <option>104000 - Savings Account</option>
-                    </select>
-
-                    <small id="cashAccountMethodHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection
-                        when it creates Payments in Acumatica.
-                    </small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="taxZone">Tax Zone</label>
-
-                    <select type="url"
-                            class="form-control"
-                            name="taxZone"
-                            id="taxZone">
-                        <option>ONLINE</option>
-                    </select>
-
-                    <small id="taxZoneHelp"
-                           class="form-text text-muted">
-                        @GlobalConfig.AppName uses this selection for sales tax
-                        in Sales Orders and Credit Memos.
-                    </small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="taxCategory">Tax Category</label>
-
-                    <select type="url"
-                            class="form-control"
-                            name="taxCategory"
-                            id="taxCategory">
-                        <option>ONLINE</option>
-                    </select>
-
-                    <small id="taxCategoryHelp"
-                           class="form-text text-muted">
-                        @GlobalConfig.AppName uses this selection for sales tax
-                        in Sales Orders and Credit Memos.
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label for="taxId">Tax ID</label>
-
-                    <select type="url"
-                            class="form-control"
-                            name="taxId"
-                            id="taxId">
-                        <option>ONLINE</option>
-                    </select>
-
-                    <small id="taxIdHelp"
-                           class="form-text text-muted">
-                        @GlobalConfig.AppName uses this selection for sales tax
-                        in Sales Orders and Credit Memos.
-                    </small>
-                </div>
+                <small id="datepickerHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will only load Shopify Orders
+                    that are created on or after this date into Acumatica.
+                </small>
             </div>
-            <div class="card-footer text-muted">
-                @GlobalConfig.AppName Preferences Editor
+
+            <div class="form-group">
+                <label for="timeZone">Acumatica Instance Time Zone</label>
+
+                <select type="url"
+                        class="form-control"
+                        name="timeZone"
+                        id="timeZone">
+                    <option>UTC-10: Hawaii-Aleutian Standard Time (HAST)</option>
+                    <option>UTC-9: Alaska Standard Time (AKST)</option>
+                    <option>UTC-8: Pacific Standard Time (PST)</option>
+                    <option>UTC-7: Mountain Standard Time (MST)</option>
+                    <option selected="selected">UTC-6: Central Standard Time (CST)</option>
+                    <option>UTC-5: Eastern Standard Time (EST)</option>
+                    <option>UTC-4: Atlantic Standard Time (AST)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="itemClass">Default Item Class</label>
+                
+                <select type="url"
+                        class="form-control"
+                        name="itemClass"
+                        id="itemClass">
+                    <option>(Select an Item Class)</option>
+                    <option>STOCK ITEM</option>
+                    <option>NSTOCK ITEM</option>
+                </select>
+
+                <small id="urlHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection 
+                    when it creates Stock Items from Shopify Products
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="postingClass">Default Posting Class</label>
+
+                <select type="url"
+                        class="form-control"
+                        name="postingClass"
+                        id="postingClass">
+                    <option>(Select Posting Class)</option>
+                    <option>CMPSERVICE</option>
+                    <option>LAPTOP</option>
+                    <option>SHOPIFY</option>
+                    <option>SUPPDEVICE</option>
+                </select>
+
+                <small id="postingClassHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection
+                    when it creates Stock Items from Shopify Products
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="paymentMethod">Payment Method</label>
+
+                <select type="url"
+                        class="form-control"
+                        name="paymentMethod"
+                        id="paymentMethod">
+                    <option>(Select Payment Method)</option>
+                    <option>CASH</option>                        
+                    <option>CHECK</option>
+                    <option>FEDWIRE</option>
+                    <option>FEDWIREBA</option>
+                    <option>ONLINE</option>
+                    <option>WIRE</option>
+                </select>
+                
+                <small id="paymentMethodHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection
+                    when it creates Payments in Acumatica.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="cashAccountMethod">Payment Cash Account</label>
+
+                <select type="url"
+                        class="form-control"
+                        name="cashAccountMethod"
+                        id="cashAccountMethod">
+                    <option>(Select Cash Account)</option>
+                    <option>101000 - Cash on Hand</option>
+                    <option>102000 - Checking Account</option>
+                    <option>102050 - Merchant Account</option>
+                    <option>104000 - Savings Account</option>
+                </select>
+
+                <small id="cashAccountMethodHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection
+                    when it creates Payments in Acumatica.
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="taxZone">Tax Zone</label>
+
+                <select type="url"
+                        class="form-control"
+                        name="taxZone"
+                        id="taxZone">
+                    <option>ONLINE</option>
+                </select>
+
+                <small id="taxZoneHelp"
+                       class="form-text text-muted">
+                    @GlobalConfig.AppName uses this selection for sales tax
+                    in Sales Orders and Credit Memos.
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="taxCategory">Tax Category</label>
+
+                <select type="url"
+                        class="form-control"
+                        name="taxCategory"
+                        id="taxCategory">
+                    <option>ONLINE</option>
+                </select>
+
+                <small id="taxCategoryHelp"
+                       class="form-text text-muted">
+                    @GlobalConfig.AppName uses this selection for sales tax
+                    in Sales Orders and Credit Memos.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="taxId">Tax ID</label>
+
+                <select type="url"
+                        class="form-control"
+                        name="taxId"
+                        id="taxId">
+                    <option>ONLINE</option>
+                </select>
+
+                <small id="taxIdHelp"
+                       class="form-text text-muted">
+                    @GlobalConfig.AppName uses this selection for sales tax
+                    in Sales Orders and Credit Memos.
+                </small>
             </div>
         </div>
-    </div>
-    
-    <div class="std-padding-bottom center">
-        <a href="@GlobalConfig.Url("Config/AcumaticaCreds")"
-           class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Acumatica Connection
-        </a>
-
-        <a href="@GlobalConfig.Url("Config/Warehouses")"
-           class="btn btn-success btn-lg">Go to Next Step
-            <i class="fas fa-sign-in-alt"></i></a>
+        <div class="card-footer text-muted">
+            @GlobalConfig.AppName Preferences Editor
+        </div>
     </div>
 </div>
 
-<script>
-</script>
+<div class="std-padding-bottom center">
+    <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
+       class="btn btn-secondary btn-lg">
+        <i class="fas fa-undo"></i> Previous Step
+    </a>
+
+    <a href="@GlobalConfig.Url("Config/Warehouses")"
+       class="btn btn-success btn-lg">Go to Next Step
+        <i class="fas fa-sign-in-alt"></i></a>
+</div>
 
 <script>
     var Monster = Monster || {};
 
-    Monster.AcumaticaCredsModel = function () {
+    Monster.PreferencesModel = function () {
         var self = this;
 
-        self.Step1Visible = ko.observable();
-        self.Step2Visible = ko.observable();
-        self.Step3Visible = ko.observable();
-        self.Step4Visible = ko.observable();
-
-        self.ClearVisibility = function () {
-            self.Step1Visible(false);
-            self.Step2Visible(false);
-            self.Step3Visible(false);
-            self.Step4Visible(false);
-        };
-
-        self.ConnectToAcumatica = function () {
-            self.ClearVisibility();
-            self.Step2Visible(true);
-            setTimeout(self.ConnectionComplete, 10000);
-        };
-
         self.ConnectionComplete = function () {
-            self.ClearVisibility();
-            self.Step3Visible(true);
 
+        };
+        
+        self.Initialize = function () {
             $('#datepicker').datepicker({
                 uiLibrary: 'bootstrap4'
             });
         };
 
-        self.Initialize = function () {
-            self.ClearVisibility();
-            self.Step1Visible(true);
-        };
-
         return self;
     };
 
-    var model = new Monster.AcumaticaCredsModel();
+    var model = new Monster.PreferencesModel();
     model.Initialize();
     ko.applyBindings(model);
 </script>

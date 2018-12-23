@@ -1,6 +1,6 @@
 ﻿using Monster.Middle.Processes.Sync.Inventory.Model;
 
-namespace Monster.Web.Models
+namespace Monster.Web.Models.Config
 {
     public class WarehouseSyncStatusModel
     {

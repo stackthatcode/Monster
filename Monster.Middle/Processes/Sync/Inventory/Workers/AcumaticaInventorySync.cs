@@ -4,11 +4,13 @@ using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Distribution;
+using Monster.Middle.Misc;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Product;
@@ -18,27 +20,31 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 {
     public class AcumaticaInventorySync
     {
-        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
+        private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly TenantRepository _tenantRepository;
+        private readonly TimeZoneService _timeZoneService;
 
         private readonly DistributionClient _distributionClient;
         private readonly IPushLogger _logger;
 
         public AcumaticaInventorySync(
-                    AcumaticaInventoryRepository acumaticaInventoryRepository,
+                    AcumaticaInventoryRepository inventoryRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     TenantRepository tenantRepository,
                     
                     DistributionClient distributionClient,
+                    TimeZoneService timeZoneService,
                     IPushLogger logger)
         {
+
             _tenantRepository = tenantRepository;
             _syncInventoryRepository = syncInventoryRepository;
-            _acumaticaInventoryRepository = acumaticaInventoryRepository;
+            _inventoryRepository = inventoryRepository;
 
             _distributionClient = distributionClient;
             _logger = logger;
+            _timeZoneService = timeZoneService;
         }
 
         public void Run()
@@ -135,7 +141,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 LastUpdated = DateTime.UtcNow,
             };
 
-            _acumaticaInventoryRepository.InsertStockItems(newStockItemRecord);
+            _inventoryRepository.InsertStockItems(newStockItemRecord);
             _syncInventoryRepository.InsertItemSync(variant, newStockItemRecord);
         }
 
@@ -143,9 +149,6 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         {            
             var preferences = _tenantRepository.RetrievePreferences();
 
-            if (preferences.AcumaticaPostingDate == null)
-                throw new ArgumentException(
-                    "Preferences -> AcumaticaPostDate is not set");
 
             if (preferences.DefaultCoGsMargin == null)
                 throw new ArgumentException(
@@ -187,7 +190,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 monsterReceipt.DateCreated = DateTime.UtcNow;
                 monsterReceipt.LastUpdate = DateTime.UtcNow;
                 
-                _acumaticaInventoryRepository
+                _inventoryRepository
                     .InsertInventoryReceipt(monsterReceipt);
 
                 foreach (var level in inventoryByProduct)
@@ -201,7 +204,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         public void RunInventoryReceiptsRelease()
         {
             var receipts = 
-                _acumaticaInventoryRepository
+                _inventoryRepository
                     .RetrieveUnreleasedInventoryReceipts();
 
             foreach (var receipt in receipts)
@@ -213,7 +216,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 _distributionClient.ReleaseInventoryReceipt(releaseEntity.SerializeToJson());
 
                 receipt.IsReleased = true;
-                _acumaticaInventoryRepository.SaveChanges();
+                _inventoryRepository.SaveChanges();
             }
         }
 
@@ -221,8 +224,9 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                     List<UsrShopifyInventoryLevel> inventory)
         {
             var preferences = _tenantRepository.RetrievePreferences();
-            var postingDate = preferences.AcumaticaPostingDate.Value;
             var defaultCogs = preferences.DefaultCoGsMargin.Value;
+
+            var postingDate = System.DateTime.UtcNow.Date;
 
             var controlQty = inventory.ControlQty();
             var controlCost = inventory.ControlCost(defaultCogs);

@@ -113,6 +113,8 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaOrderPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaShipmentPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInvoicePull>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaReferencePull>().InstancePerLifetimeScope();
+
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();
             
 
@@ -146,6 +148,7 @@ namespace Monster.Middle
 
             // Misc
             builder.RegisterType<TimeZoneService>().InstancePerLifetimeScope();
+            builder.RegisterType<TimeZoneTranslator>().InstancePerLifetimeScope();
 
             return builder;
         }
