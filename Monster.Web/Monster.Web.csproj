@@ -210,7 +210,7 @@
     <Compile Include="Models\Config\AcumaticaCredentialsModel.cs" />
     <Compile Include="Models\Config\AcumaticaStateModel.cs" />
     <Compile Include="Models\ExecutionLog.cs" />
-    <Compile Include="Models\Config\Preferences.cs" />
+    <Compile Include="Models\Config\PreferencesModel.cs" />
     <Compile Include="Models\ShopifyAuth\DomainModel.cs" />
     <Compile Include="Models\ShopifyAuth\ReturnModel.cs" />
     <Compile Include="Models\Config\WarehouseSyncStatusModel.cs" />
@@ -253,6 +253,10 @@
     <Content Include="webfonts\fa-solid-900.svg" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.csproj">
+      <Project>{E31F2A05-6346-48D5-B323-3D048AB0E392}</Project>
+      <Name>Monster.Acumatica</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Monster.Middle\Monster.Middle.csproj">
       <Project>{df155c7d-78c2-4d81-9af5-654725dda7b6}</Project>
       <Name>Monster.Middle</Name>

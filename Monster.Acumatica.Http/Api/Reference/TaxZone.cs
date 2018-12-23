@@ -8,7 +8,6 @@ namespace Monster.Acumatica.Api.Reference
         public StringValue Description { get; set; }
         public DateValue LastModifiedDateTime { get; set; }
         public StringValue TaxZoneID { get; set; }
-        public string custom { get; set; }
         public string id { get; set; }
         public string note { get; set; }
         public int rowNumber { get; set; }        

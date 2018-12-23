@@ -1,6 +1,6 @@
 ﻿namespace Monster.Web.Models.Config
 {
-    public class Preferences
+    public class PreferencesModel
     {
         public string DataPullStart { get; set; }
         public string ShopifyOrderPushStart { get; set; }

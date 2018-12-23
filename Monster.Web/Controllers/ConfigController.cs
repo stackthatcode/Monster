@@ -1,13 +1,18 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
+using Monster.Acumatica.Api.Reference;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
+using Push.Foundation.Utilities.Json;
 using Push.Foundation.Web.Json;
+using ItemClass = Monster.Acumatica.Api.Customer.ItemClass;
 
 
 namespace Monster.Web.Controllers
@@ -18,6 +23,8 @@ namespace Monster.Web.Controllers
         private readonly TenantRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly HangfireService _hangfireService;
+
+        private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly InventoryStatusService _inventoryStatusService;
 
 
@@ -25,12 +32,15 @@ namespace Monster.Web.Controllers
                 TenantRepository tenantRepository,
                 StateRepository stateRepository,
                 HangfireService hangfireService, 
-                InventoryStatusService inventoryStatusService)
+                InventoryStatusService inventoryStatusService, 
+                AcumaticaInventoryRepository inventoryRepository)
         {
+
             _tenantRepository = tenantRepository;
             _stateRepository = stateRepository;
             _hangfireService = hangfireService;
             _inventoryStatusService = inventoryStatusService;
+            _inventoryRepository = inventoryRepository;
         }
 
         
@@ -127,12 +137,51 @@ namespace Monster.Web.Controllers
         }
 
 
+        // Preference-selection of Reference Data
         [HttpGet]
         public ActionResult Preferences()
         {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult CurrentPreferences()
+        {
             var preferencesData = _tenantRepository.RetrievePreferences();
-            var model = Mapper.Map<Preferences>(preferencesData);
-            return View(model);
+            var output = Mapper.Map<PreferencesModel>(preferencesData);
+            return new JsonNetResult(output);
+        }
+
+        [HttpGet]
+        public ActionResult ReferenceData()
+        {
+            var data = _inventoryRepository.RetrieveReferenceData();
+
+            var itemClasses =
+                data.ItemClass.DeserializeFromJson<List<ItemClass>>();
+
+            var paymentMethods =
+                data.PaymentMethod.DeserializeFromJson<List<PaymentMethod>>();
+
+            var taxIds =
+                data.TaxId.DeserializeFromJson<List<Tax>>();
+
+            var taxCategory =
+                data.TaxCategory.DeserializeFromJson<List<TaxCategory>>();
+
+            var taxZone =
+                data.TaxZone.DeserializeFromJson<List<TaxZone>>();
+
+            var output = new
+            {
+                itemClasses,
+                paymentMethods,
+                taxIds,
+                taxCategory,
+                taxZone
+            };
+
+            return new JsonNetResult(output);
         }
 
 

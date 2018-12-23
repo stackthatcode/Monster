@@ -1,5 +1,4 @@
 ﻿@using Monster.Web.Plumbing
-@model Monster.Web.Models.Config.Preferences
 
 @Html.Partial("_TopBrand")
 
@@ -201,14 +200,19 @@
     Monster.PreferencesModel = function () {
         var self = this;
 
-        self.ConnectionComplete = function () {
-
-        };
-        
         self.Initialize = function () {
             $('#datepicker').datepicker({
                 uiLibrary: 'bootstrap4'
             });
+
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/ReferenceData", this);
+                },
+                function (response) {
+                    console.log(response);
+                });
         };
 
         return self;

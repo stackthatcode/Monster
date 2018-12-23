@@ -4,24 +4,22 @@ namespace Monster.Acumatica.Api.Reference
 {
     public class Tax
     {
-        private StringValue CalculateOn { get; set; }
-        StringValue CashDiscount { get; set; }
-        DateValue CreatedDateTime { get; set; }
-        StringValue Description { get; set; }
-        BoolValue EnterFromTaxBill { get; set; }
-        BoolValue ExcludeFromTaxonTaxCalculation { get; set; }
-        DateValue LastModifiedDateTime { get; set; }
-        DateValue NotValidAfter { get; set; }
-        StringValue TaxAgency { get; set; }
-        StringValue TaxClaimableAccount { get; set; }
-        StringValue TaxExpenseAccount { get; set; }
-        StringValue TaxID { get; set; }
-        StringValue TaxPayableAccount { get; set; }
+        public StringValue CalculateOn { get; set; }
+        public StringValue CashDiscount { get; set; }
+        public DateValue CreatedDateTime { get; set; }
+        public StringValue Description { get; set; }
+        public BoolValue EnterFromTaxBill { get; set; }
+        public BoolValue ExcludeFromTaxonTaxCalculation { get; set; }
+        public DateValue LastModifiedDateTime { get; set; }
+        public DateValue NotValidAfter { get; set; }
+        public StringValue TaxAgency { get; set; }
+        public StringValue TaxClaimableAccount { get; set; }
+        public StringValue TaxExpenseAccount { get; set; }
+        public StringValue TaxID { get; set; }
+        public StringValue TaxPayableAccount { get; set; }
         StringValue TaxType { get; set; }
-        string custom { get; set; }
-        string id { get; set; }
-        string note { get; set; }
-        int rowNumber { get; set; }
-        
+        public string id { get; set; }
+        public string note { get; set; }
+        public int rowNumber { get; set; }        
     }
 }
