@@ -15,117 +15,134 @@
     will produce a large volume of work. It is critical that you make 
     sure your Preferences match your business objectives.</p>
 
+<style>
+    #preferences .form-group { height: 120px; }
+</style>
 <div class="std-padding">
     <div class="card text-center">
-        <div class="card-body left"> 
+        <div id="preferences" class="card-body left">
+
+            <!-- Starting Date for Orders -->
             <div class="form-group">
                 <label for="datepicker">Starting Date for Shopify Orders</label>
-                <input id="datepicker"
-                       class="form-control" />
-                
+
+                <input id="datepicker" 
+                       class="form-control"
+                       placeholder="Choose a valid date..."
+                       data-bind="value: SelectedStartingDate"
+                       />
+
                 <small id="datepickerHelp" class="form-text text-muted">
                     @GlobalConfig.AppName will only load Shopify Orders
                     that are created on or after this date into Acumatica.
                 </small>
             </div>
 
+            <!-- Time Zone -->
             <div class="form-group">
                 <label for="timeZone">Acumatica Instance Time Zone</label>
 
-                <select type="url"
-                        class="form-control"
-                        name="timeZone"
-                        id="timeZone">
-                    <option>UTC-10: Hawaii-Aleutian Standard Time (HAST)</option>
-                    <option>UTC-9: Alaska Standard Time (AKST)</option>
-                    <option>UTC-8: Pacific Standard Time (PST)</option>
-                    <option>UTC-7: Mountain Standard Time (MST)</option>
-                    <option selected="selected">UTC-6: Central Standard Time (CST)</option>
-                    <option>UTC-5: Eastern Standard Time (EST)</option>
-                    <option>UTC-4: Atlantic Standard Time (AST)</option>
+                <select id="timeZone" class="form-control"
+                        data-bind="value: SelectedTimeZone,
+                                options: TimeZones,
+                                optionsText: 'Name',
+                                optionsValue: 'TimeZoneId',
+                                optionsCaption: 'Choose...'">
                 </select>
+                
+                <small id="timeZoneHelp" class="form-text text-muted">
+                    In order to synchronize properly, @GlobalConfig.AppName 
+                    needs to translate between time zones properly
+                </small>
             </div>
 
+            <!-- Item Class -->
             <div class="form-group">
                 <label for="itemClass">Default Item Class</label>
-                
-                <select type="url"
-                        class="form-control"
-                        name="itemClass"
-                        id="itemClass">
-                    <option>(Select an Item Class)</option>
-                    <option>STOCK ITEM</option>
-                    <option>NSTOCK ITEM</option>
+
+                <select class="form-control"
+                        id="itemClass"
+                        data-bind="optionsCaption: 'Choose...',
+                                value: SelectedItemClass,
+                                options: ItemClasses,
+                                optionsText: 'ItemClass'">
                 </select>
 
-                <small id="urlHelp" class="form-text text-muted">
-                    @GlobalConfig.AppName will use this selection 
+                <small id="itemClassHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection
                     when it creates Stock Items from Shopify Products
                 </small>
             </div>
-            
+
+            <!-- Posting Class -->
             <div class="form-group">
                 <label for="postingClass">Default Posting Class</label>
 
-                <select type="url"
-                        class="form-control"
-                        name="postingClass"
-                        id="postingClass">
-                    <option>(Select Posting Class)</option>
-                    <option>CMPSERVICE</option>
-                    <option>LAPTOP</option>
-                    <option>SHOPIFY</option>
-                    <option>SUPPDEVICE</option>
-                </select>
+                <div data-bind="ifnot: SelectedPostingClass">
+                    <input type="text"
+                           id="postingClass"
+                           class="form-control"
+                           disabled="disabled"
+                           value="(Select an Item Class that has a Posting Class)"/>
+                </div>
+
+
+                <div data-bind="if: SelectedPostingClass">
+                    <input type="text"
+                           id="postingClass"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: SelectedPostingClass"/>
+                </div>
 
                 <small id="postingClassHelp" class="form-text text-muted">
                     @GlobalConfig.AppName will use this selection
                     when it creates Stock Items from Shopify Products
                 </small>
             </div>
-            
+
+            <!-- Payment Method -->
             <div class="form-group">
                 <label for="paymentMethod">Payment Method</label>
 
-                <select type="url"
-                        class="form-control"
-                        name="paymentMethod"
-                        id="paymentMethod">
-                    <option>(Select Payment Method)</option>
-                    <option>CASH</option>                        
-                    <option>CHECK</option>
-                    <option>FEDWIRE</option>
-                    <option>FEDWIREBA</option>
-                    <option>ONLINE</option>
-                    <option>WIRE</option>
+                <select class="form-control"
+                        id="paymentMethod"
+                        data-bind="optionsCaption: 'Choose...',
+                                    options: PaymentMethods,
+                                    optionsText: 'PaymentMethod',
+                                    value: SelectedPaymentMethod">
                 </select>
-                
+
                 <small id="paymentMethodHelp" class="form-text text-muted">
                     @GlobalConfig.AppName will use this selection
                     when it creates Payments in Acumatica.
                 </small>
             </div>
 
+            <!-- Payment Cash Account -->
             <div class="form-group">
                 <label for="cashAccountMethod">Payment Cash Account</label>
 
-                <select type="url"
-                        class="form-control"
-                        name="cashAccountMethod"
-                        id="cashAccountMethod">
-                    <option>(Select Cash Account)</option>
-                    <option>101000 - Cash on Hand</option>
-                    <option>102000 - Checking Account</option>
-                    <option>102050 - Merchant Account</option>
-                    <option>104000 - Savings Account</option>
-                </select>
+                <div data-bind="if: CashAccounts().length == 0">
+                    <input type="text"
+                           class="form-control"
+                           disabled="disabled"
+                           value="(Select a Payment Method that has a Cash Account)" />
+                </div>
+
+                <div data-bind="if: CashAccounts().length">
+                    <select class="form-control"
+                            id="cashAccountMethod"
+                            data-bind="options: CashAccounts"></select>
+                </div>
 
                 <small id="cashAccountMethodHelp" class="form-text text-muted">
                     @GlobalConfig.AppName will use this selection
                     when it creates Payments in Acumatica.
                 </small>
             </div>
-            
+
+            <!-- Tax Zone -->
             <div class="form-group">
                 <label for="taxZone">Tax Zone</label>
 
@@ -142,7 +159,8 @@
                     in Sales Orders and Credit Memos.
                 </small>
             </div>
-            
+
+            <!-- Tax Category -->
             <div class="form-group">
                 <label for="taxCategory">Tax Category</label>
 
@@ -160,13 +178,12 @@
                 </small>
             </div>
 
+            <!-- Tax ID -->
             <div class="form-group">
                 <label for="taxId">Tax ID</label>
 
-                <select type="url"
-                        class="form-control"
-                        name="taxId"
-                        id="taxId">
+                <select type="url" class="form-control"
+                        name="taxId" id="taxId">
                     <option>ONLINE</option>
                 </select>
 
@@ -200,6 +217,40 @@
     Monster.PreferencesModel = function () {
         var self = this;
 
+        // Reference data
+        self.TimeZones = ko.observableArray();
+        self.ItemClasses = ko.observableArray();
+        self.PaymentMethods = ko.observableArray();
+        self.TaxIds = ko.observableArray();
+        self.TaxCategories = ko.observableArray();
+        self.TaxZones = ko.observableArray();
+        self.CashAccounts = ko.observableArray(); // Updates when SelectedPaymentMethod changes
+
+        // Selected options
+        self.SelectedTimeZone = ko.observable();
+        self.SelectedStartingDate = ko.observable();
+        self.SelectedItemClass = ko.observable();
+        self.SelectedPaymentMethod = ko.observable();
+        self.SelectedCashAccount = ko.observable();
+        self.SelectedTaxId = ko.observable();
+        self.SelectedTaxCategory = ko.observable();
+        self.SelectedTaxZone = ko.observable();
+        self.SelectedCashAccount = ko.observable();
+
+        self.SelectedPostingClass = ko.computed(function() {
+            return self.SelectedItemClass()
+                    ? self.SelectedItemClass().PostingClass : null;
+        });
+        
+        self.SelectedPaymentMethod.subscribe(function () {
+            if (self.SelectedPaymentMethod()) {
+                self.CashAccounts(self.SelectedPaymentMethod().CashAccounts);
+            } else {
+                self.CashAccounts([]);
+            }
+        });
+
+
         self.Initialize = function () {
             $('#datepicker').datepicker({
                 uiLibrary: 'bootstrap4'
@@ -212,6 +263,14 @@
                 },
                 function (response) {
                     console.log(response);
+
+                    self.TimeZones(response.timeZones);
+                    self.ItemClasses(response.itemClasses);
+                    self.PaymentMethods(response.paymentMethods);
+                    self.CashAccounts([]);
+                    self.TaxIds(response.taxIds);
+                    self.TaxCategories(response.taxCategories);
+                    self.TaxZones(response.taxZones);
                 });
         };
 

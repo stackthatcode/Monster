@@ -180,6 +180,7 @@
     <Compile Include="Persist\Multitenant\PersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persist\Multitenant\TenantRepository.cs" />
+    <Compile Include="Services\TimeZone.cs" />
     <Compile Include="Services\TimeZoneTranslator.cs" />
     <Compile Include="Services\TimeZoneService.cs" />
   </ItemGroup>

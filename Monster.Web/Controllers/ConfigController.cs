@@ -7,12 +7,12 @@ using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Services;
+using Monster.Middle.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Web.Json;
-using ItemClass = Monster.Acumatica.Api.Customer.ItemClass;
 
 
 namespace Monster.Web.Controllers
@@ -23,6 +23,7 @@ namespace Monster.Web.Controllers
         private readonly TenantRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly HangfireService _hangfireService;
+        private readonly TimeZoneService _timeZoneService;
 
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly InventoryStatusService _inventoryStatusService;
@@ -31,7 +32,9 @@ namespace Monster.Web.Controllers
         public ConfigController(
                 TenantRepository tenantRepository,
                 StateRepository stateRepository,
-                HangfireService hangfireService, 
+                HangfireService hangfireService,
+                TimeZoneService timeZoneService,
+
                 InventoryStatusService inventoryStatusService, 
                 AcumaticaInventoryRepository inventoryRepository)
         {
@@ -39,6 +42,8 @@ namespace Monster.Web.Controllers
             _tenantRepository = tenantRepository;
             _stateRepository = stateRepository;
             _hangfireService = hangfireService;
+            _timeZoneService = timeZoneService;
+
             _inventoryStatusService = inventoryStatusService;
             _inventoryRepository = inventoryRepository;
         }
@@ -155,30 +160,49 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ReferenceData()
         {
-            var data = _inventoryRepository.RetrieveReferenceData();
+            var reference = _inventoryRepository.RetrieveReferenceData();
 
             var itemClasses =
-                data.ItemClass.DeserializeFromJson<List<ItemClass>>();
+                reference.ItemClass
+                    .DeserializeFromJson<List<ItemClass>>()
+                    .Select(x => new ItemClassModel(x))
+                    .ToList();
 
             var paymentMethods =
-                data.PaymentMethod.DeserializeFromJson<List<PaymentMethod>>();
+                reference.PaymentMethod
+                    .DeserializeFromJson<List<PaymentMethod>>()
+                    .Select(x => new PaymentMethodModel(x))
+                    .ToList();
 
             var taxIds =
-                data.TaxId.DeserializeFromJson<List<Tax>>();
+                reference.TaxId
+                    .DeserializeFromJson<List<Tax>>()
+                    .Select(x => x.TaxID.value)
+                    .ToList();
 
-            var taxCategory =
-                data.TaxCategory.DeserializeFromJson<List<TaxCategory>>();
+            var taxCategories =
+                reference.TaxCategory
+                    .DeserializeFromJson<List<TaxCategory>>()
+                    .Select(x => x.TaxCategoryID.value)
+                    .ToList();
 
-            var taxZone =
-                data.TaxZone.DeserializeFromJson<List<TaxZone>>();
+            var taxZones =
+                reference.TaxZone
+                    .DeserializeFromJson<List<TaxZone>>()
+                    .Select(x => x.TaxZoneID.value)
+                    .ToList();
+
+            var timeZones = _timeZoneService.RetrieveTimeZones();
+
 
             var output = new
             {
                 itemClasses,
                 paymentMethods,
                 taxIds,
-                taxCategory,
-                taxZone
+                taxCategories,
+                taxZones,
+                timeZones,
             };
 
             return new JsonNetResult(output);

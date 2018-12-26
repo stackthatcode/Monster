@@ -3,7 +3,7 @@ using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.Customer
 {
-    public class ItemClass
+    public class ItemClassDuplicate
     {
         public string id { get; set; }
         public int rowNumber { get; set; }

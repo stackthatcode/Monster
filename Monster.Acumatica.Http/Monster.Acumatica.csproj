@@ -102,7 +102,7 @@
     <Compile Include="Api\CustomerClient.cs" />
     <Compile Include="Api\Customer\Contact.cs" />
     <Compile Include="Api\Customer\Customer.cs" />
-    <Compile Include="Api\Customer\ItemClass.cs" />
+    <Compile Include="Api\Customer\ItemClassDuplicate.cs" />
     <Compile Include="Http\AcumaticaHttpContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AcumaticaAutofac.cs" />

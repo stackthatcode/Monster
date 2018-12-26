@@ -209,6 +209,8 @@
     </Compile>
     <Compile Include="Models\Config\AcumaticaCredentialsModel.cs" />
     <Compile Include="Models\Config\AcumaticaStateModel.cs" />
+    <Compile Include="Models\Config\ItemClassModel.cs" />
+    <Compile Include="Models\Config\PaymentMethodModel.cs" />
     <Compile Include="Models\ExecutionLog.cs" />
     <Compile Include="Models\Config\PreferencesModel.cs" />
     <Compile Include="Models\ShopifyAuth\DomainModel.cs" />
