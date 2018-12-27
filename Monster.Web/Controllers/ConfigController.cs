@@ -193,16 +193,15 @@ namespace Monster.Web.Controllers
                     .ToList();
 
             var timeZones = _timeZoneService.RetrieveTimeZones();
-
-
-            var output = new
+            
+            var output = new ReferenceData()
             {
-                itemClasses,
-                paymentMethods,
-                taxIds,
-                taxCategories,
-                taxZones,
-                timeZones,
+                ItemClasses = itemClasses,
+                PaymentMethods = paymentMethods,
+                TaxIds = taxIds,
+                TaxCategories = taxCategories,
+                TaxZones = taxZones,
+                TimeZones = timeZones,
             };
 
             return new JsonNetResult(output);

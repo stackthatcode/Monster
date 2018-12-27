@@ -1,5 +1,6 @@
 ﻿@using Monster.Web.Plumbing
 
+
 @Html.Partial("_TopBrand")
 
 <hr/>
@@ -15,9 +16,12 @@
     will produce a large volume of work. It is critical that you make 
     sure your Preferences match your business objectives.</p>
 
+
+<script type="text/html" id="Preferences-Editor">
 <style>
     #preferences .form-group { height: 120px; }
 </style>
+
 <div class="std-padding">
     <div class="card text-center">
         <div id="preferences" class="card-body left">
@@ -26,16 +30,20 @@
             <div class="form-group">
                 <label for="datepicker">Starting Date for Shopify Orders</label>
 
-                <input id="datepicker" 
+                <input id="datepicker"
                        class="form-control"
                        placeholder="Choose a valid date..."
-                       data-bind="value: SelectedStartingDate"
-                       />
+                       data-bind="value: SelectedStartingDate" />
 
                 <small id="datepickerHelp" class="form-text text-muted">
                     @GlobalConfig.AppName will only load Shopify Orders
                     that are created on or after this date into Acumatica.
                 </small>
+
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !StartingDateValid()">
+                    Please select a valid date
+                </div>
             </div>
 
             <!-- Time Zone -->
@@ -44,16 +52,20 @@
 
                 <select id="timeZone" class="form-control"
                         data-bind="value: SelectedTimeZone,
-                                options: TimeZones,
-                                optionsText: 'Name',
-                                optionsValue: 'TimeZoneId',
-                                optionsCaption: 'Choose...'">
-                </select>
-                
+                        options: TimeZones,
+                        optionsText: 'Name',
+                        optionsValue: 'TimeZoneId',
+                        optionsCaption: 'Choose...'"></select>
+
                 <small id="timeZoneHelp" class="form-text text-muted">
-                    In order to synchronize properly, @GlobalConfig.AppName 
+                    In order to synchronize properly, @GlobalConfig.AppName
                     needs to translate between time zones properly
                 </small>
+                
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !TimeZoneValid()">
+                    Please select the right Time Zone for your Acumatica Instance
+                </div>
             </div>
 
             <!-- Item Class -->
@@ -63,15 +75,19 @@
                 <select class="form-control"
                         id="itemClass"
                         data-bind="optionsCaption: 'Choose...',
-                                value: SelectedItemClass,
-                                options: ItemClasses,
-                                optionsText: 'ItemClass'">
-                </select>
+                        value: SelectedItemClass,
+                        options: ItemClasses,
+                        optionsText: 'ItemClass'"></select>
 
                 <small id="itemClassHelp" class="form-text text-muted">
                     @GlobalConfig.AppName will use this selection
                     when it creates Stock Items from Shopify Products
                 </small>
+            
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !ItemClassValid()">
+                    Please select an Item Class with a valid Posting Class
+                </div>
             </div>
 
             <!-- Posting Class -->
@@ -83,16 +99,15 @@
                            id="postingClass"
                            class="form-control"
                            disabled="disabled"
-                           value="(Select an Item Class that has a Posting Class)"/>
+                           value="(Select an Item Class that has a Posting Class)" />
                 </div>
-
 
                 <div data-bind="if: SelectedPostingClass">
                     <input type="text"
                            id="postingClass"
                            class="form-control"
                            disabled="disabled"
-                           data-bind="value: SelectedPostingClass"/>
+                           data-bind="value: SelectedPostingClass" />
                 </div>
 
                 <small id="postingClassHelp" class="form-text text-muted">
@@ -108,15 +123,19 @@
                 <select class="form-control"
                         id="paymentMethod"
                         data-bind="optionsCaption: 'Choose...',
-                                    options: PaymentMethods,
-                                    optionsText: 'PaymentMethod',
-                                    value: SelectedPaymentMethod">
-                </select>
+                            options: PaymentMethods,
+                            optionsText: 'PaymentMethod',
+                            value: SelectedPaymentMethod"></select>
 
                 <small id="paymentMethodHelp" class="form-text text-muted">
                     @GlobalConfig.AppName will use this selection
                     when it creates Payments in Acumatica.
                 </small>
+            
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !PaymentMethodValid()">
+                    Please select a Payment Method with a valid Cash Account
+                </div>
             </div>
 
             <!-- Payment Cash Account -->
@@ -133,7 +152,8 @@
                 <div data-bind="if: CashAccounts().length">
                     <select class="form-control"
                             id="cashAccountMethod"
-                            data-bind="options: CashAccounts"></select>
+                            data-bind="options: CashAccounts,
+                                    value: SelectedCashAccount"></select>
                 </div>
 
                 <small id="cashAccountMethodHelp" class="form-text text-muted">
@@ -146,54 +166,66 @@
             <div class="form-group">
                 <label for="taxZone">Tax Zone</label>
 
-                <select type="url"
-                        class="form-control"
-                        name="taxZone"
-                        id="taxZone">
-                    <option>ONLINE</option>
-                </select>
+                <select class="form-control" id="taxZone"
+                        data-bind="optionsCaption: 'Choose...',
+                            value: SelectedTaxZone,
+                            options: TaxZones"></select>
 
                 <small id="taxZoneHelp"
                        class="form-text text-muted">
                     @GlobalConfig.AppName uses this selection for sales tax
                     in Sales Orders and Credit Memos.
                 </small>
+                    
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !SelectedTaxZone()">
+                    Please select a Tax Zone
+                </div>
             </div>
 
             <!-- Tax Category -->
             <div class="form-group">
                 <label for="taxCategory">Tax Category</label>
 
-                <select type="url"
-                        class="form-control"
-                        name="taxCategory"
-                        id="taxCategory">
-                    <option>ONLINE</option>
-                </select>
+                <select class="form-control" id="taxCategory"
+                        data-bind="optionsCaption: 'Choose...',
+                            value: SelectedTaxCategory,
+                            options: TaxCategories"></select>
 
                 <small id="taxCategoryHelp"
                        class="form-text text-muted">
                     @GlobalConfig.AppName uses this selection for sales tax
                     in Sales Orders and Credit Memos.
                 </small>
+                    
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !SelectedTaxCategory()">
+                    Please select a Tax Category
+                </div>
             </div>
 
             <!-- Tax ID -->
             <div class="form-group">
                 <label for="taxId">Tax ID</label>
 
-                <select type="url" class="form-control"
-                        name="taxId" id="taxId">
-                    <option>ONLINE</option>
-                </select>
+                <select class="form-control" id="taxId"
+                        data-bind="optionsCaption: 'Choose...',
+                            value: SelectedTaxId,
+                            options: TaxIds"></select>
 
                 <small id="taxIdHelp"
                        class="form-text text-muted">
                     @GlobalConfig.AppName uses this selection for sales tax
                     in Sales Orders and Credit Memos.
                 </small>
+                
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !SelectedTaxId()">
+                    Please select a Tax ID
+                </div>
             </div>
         </div>
+
         <div class="card-footer text-muted">
             @GlobalConfig.AppName Preferences Editor
         </div>
@@ -206,17 +238,24 @@
         <i class="fas fa-undo"></i> Previous Step
     </a>
 
-    <a href="@GlobalConfig.Url("Config/Warehouses")"
-       class="btn btn-success btn-lg">Go to Next Step
-        <i class="fas fa-sign-in-alt"></i></a>
+    <a href="#" data-bind="click: GotoNextStepClick" class="btn btn-success btn-lg">
+        Go to Next Step <i class="fas fa-sign-in-alt"></i>
+    </a>
 </div>
+</script>
+
+<div data-bind="template: { 
+     name: 'Preferences-Editor', 
+     afterRender: InitializePreferencesEditor }">
+</div>
+
 
 <script>
     var Monster = Monster || {};
 
     Monster.PreferencesModel = function () {
         var self = this;
-
+        
         // Reference data
         self.TimeZones = ko.observableArray();
         self.ItemClasses = ko.observableArray();
@@ -235,8 +274,7 @@
         self.SelectedTaxId = ko.observable();
         self.SelectedTaxCategory = ko.observable();
         self.SelectedTaxZone = ko.observable();
-        self.SelectedCashAccount = ko.observable();
-
+        
         self.SelectedPostingClass = ko.computed(function() {
             return self.SelectedItemClass()
                     ? self.SelectedItemClass().PostingClass : null;
@@ -245,33 +283,61 @@
         self.SelectedPaymentMethod.subscribe(function () {
             if (self.SelectedPaymentMethod()) {
                 self.CashAccounts(self.SelectedPaymentMethod().CashAccounts);
+                if (!self.CashAccounts().length) {
+                    self.SelectedCashAccount(null);
+                }
             } else {
-                self.CashAccounts([]);
+                self.CashAccounts.removeAll();
             }
         });
 
+        // Validation
+        self.ShowValidation = ko.observable(false);
 
-        self.Initialize = function () {
+        self.StartingDateValid = ko.computed(function() {
+            return Monster.IsDate(self.SelectedStartingDate());
+        });
+        self.TimeZoneValid = ko.computed(function() {
+            return self.SelectedTimeZone();
+        });
+        self.ItemClassValid = ko.computed(function () {
+            return self.SelectedItemClass() && self.SelectedPostingClass();
+        });
+        self.PaymentMethodValid = ko.computed(function () {
+            return self.SelectedPaymentMethod() && self.SelectedCashAccount();
+        });
+
+        self.IsValid = ko.computed(function() {
+            return self.StartingDateValid();
+        });
+
+
+        // Initialization stuff
+        self.InitializePreferencesEditor = function() {
             $('#datepicker').datepicker({
                 uiLibrary: 'bootstrap4'
             });
+        };
 
+        self.Initialize = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("Config/ReferenceData", this);
                 },
                 function (response) {
-                    console.log(response);
-
-                    self.TimeZones(response.timeZones);
-                    self.ItemClasses(response.itemClasses);
-                    self.PaymentMethods(response.paymentMethods);
+                    self.TimeZones(response.TimeZones);
+                    self.ItemClasses(response.ItemClasses);
+                    self.PaymentMethods(response.PaymentMethods);
                     self.CashAccounts([]);
-                    self.TaxIds(response.taxIds);
-                    self.TaxCategories(response.taxCategories);
-                    self.TaxZones(response.taxZones);
+                    self.TaxIds(response.TaxIds);
+                    self.TaxCategories(response.TaxCategories);
+                    self.TaxZones(response.TaxZones);
                 });
+        };
+
+        self.GotoNextStepClick = function() {
+            self.ShowValidation(true);
         };
 
         return self;

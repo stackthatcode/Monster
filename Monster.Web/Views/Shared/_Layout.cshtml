@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="@GlobalConfig.Url("favicon.ico")">
 
     <title>@GlobalConfig.AppName</title>
+    <link rel="icon" href="@GlobalConfig.Url("favicon.ico")">
 
     <!-- CSS -->
     <link href="@GlobalConfig.Url("Content/bootstrap.css")" rel="stylesheet">
@@ -27,6 +27,7 @@
     @Scripts.Render("~/Scripts/jquery.min.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/flow.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/AjaxFunctions.js?tmp=" + Guid.NewGuid())
+    @Scripts.Render("~/Scripts/UtilityFunctions.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/knockout-3.4.2.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/gijgo.min.js?tmp=" + Guid.NewGuid())    
 </head>

@@ -211,6 +211,7 @@
     <Compile Include="Models\Config\AcumaticaStateModel.cs" />
     <Compile Include="Models\Config\ItemClassModel.cs" />
     <Compile Include="Models\Config\PaymentMethodModel.cs" />
+    <Compile Include="Models\Config\ReferenceData.cs" />
     <Compile Include="Models\ExecutionLog.cs" />
     <Compile Include="Models\Config\PreferencesModel.cs" />
     <Compile Include="Models\ShopifyAuth\DomainModel.cs" />
@@ -228,6 +229,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\DetailGraphic.png" />
     <Content Include="Content\gijgo.min.css" />
+    <Content Include="Scripts\UtilityFunctions.js" />
     <Content Include="Scripts\gijgo.min.js" />
     <Content Include="Content\pdf-icon.png" />
     <Content Include="Content\ShopifySyncWithAcumatica.png" />
@@ -240,6 +242,7 @@
     <Content Include="Scripts\flow.js" />
     <Content Include="Scripts\jquery.min.js" />
     <Content Include="Scripts\knockout-3.4.2.js" />
+    <Content Include="Scripts\knockout.validation.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
