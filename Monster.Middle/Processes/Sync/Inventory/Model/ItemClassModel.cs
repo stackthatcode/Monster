@@ -1,6 +1,6 @@
 ﻿using Monster.Acumatica.Api.Reference;
 
-namespace Monster.Web.Models.Config
+namespace Monster.Middle.Processes.Acumatica.Model
 {
     public class ItemClassModel
     {

@@ -34,7 +34,7 @@ namespace Monster.Middle.Hangfire
         public void RunPullAcumaticaSettings(Guid tenantId)
         {
             FireAndForgetJob(tenantId,
-                BackgroundJobType.ConnectToAcumaticaAndPullSettings,
+                BackgroundJobType.ConnectToAcumatica,
                 _director.PullAcumaticaSettings);
         }
 

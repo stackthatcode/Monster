@@ -21,7 +21,7 @@ namespace Monster.Middle.Processes.Sync
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
         private readonly InventoryManager _inventoryManager;
-        private readonly InventoryStatusService _inventoryStatusService;
+        private readonly StatusService _inventoryStatusService;
         private readonly OrderManager _orderManager;
         private readonly IPushLogger _logger;
 
@@ -31,7 +31,7 @@ namespace Monster.Middle.Processes.Sync
                 AcumaticaBatchRepository acumaticaBatchRepository, 
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
-                InventoryStatusService inventoryStatusService,
+                StatusService inventoryStatusService,
                 InventoryManager inventoryManager,
                 OrderManager orderManager,
                 IPushLogger logger)
@@ -82,7 +82,7 @@ namespace Monster.Middle.Processes.Sync
                 _inventoryManager.SynchronizeLocationOnly();
 
                 // Step 3 - Determine resultant System State
-                var status = _inventoryStatusService.CurrentWarehouseSyncStatus();
+                var status = _inventoryStatusService.WarehouseSyncStatus();
                 var systemState = status.IsOk ? SystemState.Ok : SystemState.Invalid;
 
                 _stateRepository.UpdateSystemState(x => x.WarehouseSync, systemState);

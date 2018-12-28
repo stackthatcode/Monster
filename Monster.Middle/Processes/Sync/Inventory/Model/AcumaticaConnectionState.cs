@@ -1,6 +1,6 @@
-﻿namespace Monster.Web.Models.Config
+﻿namespace Monster.Middle.Processes.Sync.Inventory.Model
 {
-    public class AcumaticaStateModel
+    public class AcumaticaConnectionState
     {
         public int ConnectionState { get; set; }
         public bool IsUrlFinalized { get; set; }

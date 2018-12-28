@@ -4,7 +4,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
 using Monster.Middle.Security;
 
-namespace Monster.Web.Attributes
+namespace Monster.Middle.Attributes
 {
     public class HangFireAuthorizationFilter : IDashboardAuthorizationFilter
     {

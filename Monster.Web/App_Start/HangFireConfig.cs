@@ -1,10 +1,10 @@
 ﻿using Hangfire;
 using Hangfire.SqlServer;
-using Monster.Web.Attributes;
+using Monster.Middle.Attributes;
 using Monster.Web.Plumbing;
 using Owin;
 
-namespace Monster.Web
+namespace Monster.Middle
 {
     public class HangFireConfig
     {

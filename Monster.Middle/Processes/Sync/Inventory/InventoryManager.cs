@@ -15,7 +15,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
         private readonly ShopifyLocationSync _shopifyLocationSync;
         private readonly ShopifyInventorySync _shopifyInventorySync;
 
-        private readonly InventoryStatusService _inventoryStatusService;
+        private readonly StatusService _inventoryStatusService;
         private readonly IPushLogger _logger;
 
 
@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 ShopifyLocationSync shopifyLocationSync,
                 ShopifyInventorySync shopifyInventorySync,
 
-                InventoryStatusService inventoryStatusService,
+                StatusService inventoryStatusService,
                 IPushLogger logger)
         {
             _acumaticaContext = acumaticaContext;
@@ -51,7 +51,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
         public bool LocationStatusCheck()
         {
             // Status checkpoint
-            var status = _inventoryStatusService.CurrentWarehouseSyncStatus();
+            var status = _inventoryStatusService.WarehouseSyncStatus();
             if (!status.IsOk)
             {
                 _logger.Info(status.GetSynopsis());

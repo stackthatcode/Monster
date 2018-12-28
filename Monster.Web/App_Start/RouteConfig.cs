@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace Monster.Web
+namespace Monster.Middle
 {
     public class RouteConfig
     {
@@ -12,7 +12,7 @@ namespace Monster.Web
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Config", action = "Home", id = UrlParameter.Optional }
+                defaults: new { controller = "Config", action = "Splash", id = UrlParameter.Optional }
             );
         }
     }

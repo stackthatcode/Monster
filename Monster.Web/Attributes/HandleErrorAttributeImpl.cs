@@ -3,7 +3,7 @@ using System.Web.Mvc;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 
-namespace Monster.Web.Attributes
+namespace Monster.Middle.Attributes
 {
     public class HandleErrorAttributeImpl : HandleErrorAttribute
     {

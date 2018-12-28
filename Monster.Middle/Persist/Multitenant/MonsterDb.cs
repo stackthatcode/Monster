@@ -1596,7 +1596,8 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public int ShopifyConnection { get; set; } // ShopifyConnection
         public int AcumaticaConnection { get; set; } // AcumaticaConnection
-        public int Preferences { get; set; } // Preferences
+        public int AcumaticaReferenceData { get; set; } // AcumaticaReferenceData
+        public int PreferenceSelections { get; set; } // PreferenceSelections
         public int WarehouseSync { get; set; } // WarehouseSync
         public int AcumaticaInventoryPush { get; set; } // AcumaticaInventoryPush
         public int ShopifyInventoryPush { get; set; } // ShopifyInventoryPush
@@ -2584,7 +2585,8 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyConnection).HasColumnName(@"ShopifyConnection").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaConnection).HasColumnName(@"AcumaticaConnection").HasColumnType("int").IsRequired();
-            Property(x => x.Preferences).HasColumnName(@"Preferences").HasColumnType("int").IsRequired();
+            Property(x => x.AcumaticaReferenceData).HasColumnName(@"AcumaticaReferenceData").HasColumnType("int").IsRequired();
+            Property(x => x.PreferenceSelections).HasColumnName(@"PreferenceSelections").HasColumnType("int").IsRequired();
             Property(x => x.WarehouseSync).HasColumnName(@"WarehouseSync").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaInventoryPush).HasColumnName(@"AcumaticaInventoryPush").HasColumnType("int").IsRequired();
             Property(x => x.ShopifyInventoryPush).HasColumnName(@"ShopifyInventoryPush").HasColumnType("int").IsRequired();

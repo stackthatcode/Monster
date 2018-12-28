@@ -120,7 +120,6 @@ namespace Monster.Middle
 
             // Sync Inventory Persistence
             builder.RegisterType<SyncInventoryRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyLocationSync>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
@@ -136,7 +135,11 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaRefundSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaPaymentSync>().InstancePerLifetimeScope();
             builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
-            
+
+            // Synchronization services
+            builder.RegisterType<StatusService>().InstancePerLifetimeScope();
+            builder.RegisterType<ReferenceDataService>().InstancePerLifetimeScope();
+
             // Payout Processes
             builder.RegisterType<Screen>().InstancePerLifetimeScope();
             builder.RegisterType<BankImportService>().InstancePerLifetimeScope();

@@ -1,19 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
-using Monster.Acumatica.Api.Reference;
+using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Services;
-using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
-using Push.Foundation.Utilities.Json;
 using Push.Foundation.Web.Json;
-
 
 namespace Monster.Web.Controllers
 {
@@ -26,7 +22,8 @@ namespace Monster.Web.Controllers
         private readonly TimeZoneService _timeZoneService;
 
         private readonly AcumaticaInventoryRepository _inventoryRepository;
-        private readonly InventoryStatusService _inventoryStatusService;
+        private readonly StatusService _statusService;
+        private readonly ReferenceDataService _referenceDataService;
 
 
         public ConfigController(
@@ -34,8 +31,8 @@ namespace Monster.Web.Controllers
                 StateRepository stateRepository,
                 HangfireService hangfireService,
                 TimeZoneService timeZoneService,
-
-                InventoryStatusService inventoryStatusService, 
+                StatusService statusService, 
+                ReferenceDataService referenceDataService, 
                 AcumaticaInventoryRepository inventoryRepository)
         {
 
@@ -44,7 +41,8 @@ namespace Monster.Web.Controllers
             _hangfireService = hangfireService;
             _timeZoneService = timeZoneService;
 
-            _inventoryStatusService = inventoryStatusService;
+            _statusService = statusService;
+            _referenceDataService = referenceDataService;
             _inventoryRepository = inventoryRepository;
         }
 
@@ -56,12 +54,6 @@ namespace Monster.Web.Controllers
             return View();
         }
         
-        // TODO *** Where's this view?
-        [HttpGet]
-        public ActionResult Home()
-        {
-            return View();
-        }
 
 
         // Acumatica Connection stuff...
@@ -79,27 +71,14 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult AcumaticaState()
+        public ActionResult AcumaticaConnectionStatus()
         {
-            var isRunning =
-                _hangfireService.IsJobRunning(
-                    BackgroundJobType.ConnectToAcumaticaAndPullSettings);
-
-            var state = _stateRepository.RetrieveSystemState();
-
-            var model = new AcumaticaStateModel()
-            {
-                ConnectionState = state.AcumaticaConnection,
-                IsUrlFinalized = state.IsAcumaticaUrlFinalized,
-                IsRandomAccessMode = state.IsRandomAccessMode,
-                IsBackgroundJobRunning = isRunning,
-            };
-
+            var model = _statusService.AcumaticaConnectionStatus();
             return new JsonNetResult(model);
         }
 
         [HttpGet]
-        public ActionResult AcumaticaInstance()
+        public ActionResult AcumaticaCredentials()
         {
             var tenant = _tenantRepository.Retrieve();
 
@@ -114,7 +93,7 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult AcumaticaInstance(AcumaticaCredentialsModel model)
+        public ActionResult AcumaticaCredentials(AcumaticaCredentialsModel model)
         {
             var state = _stateRepository.RetrieveSystemState();
 
@@ -150,7 +129,7 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult CurrentPreferences()
+        public ActionResult PreferenceSelections()
         {
             var preferencesData = _tenantRepository.RetrievePreferences();
             var output = Mapper.Map<PreferencesModel>(preferencesData);
@@ -158,53 +137,17 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult ReferenceData()
+        public ActionResult AcumaticaReferenceData()
         {
-            var reference = _inventoryRepository.RetrieveReferenceData();
+            var data = _referenceDataService.Retrieve();
+            return new JsonNetResult(data);
+        }
 
-            var itemClasses =
-                reference.ItemClass
-                    .DeserializeFromJson<List<ItemClass>>()
-                    .Select(x => new ItemClassModel(x))
-                    .ToList();
-
-            var paymentMethods =
-                reference.PaymentMethod
-                    .DeserializeFromJson<List<PaymentMethod>>()
-                    .Select(x => new PaymentMethodModel(x))
-                    .ToList();
-
-            var taxIds =
-                reference.TaxId
-                    .DeserializeFromJson<List<Tax>>()
-                    .Select(x => x.TaxID.value)
-                    .ToList();
-
-            var taxCategories =
-                reference.TaxCategory
-                    .DeserializeFromJson<List<TaxCategory>>()
-                    .Select(x => x.TaxCategoryID.value)
-                    .ToList();
-
-            var taxZones =
-                reference.TaxZone
-                    .DeserializeFromJson<List<TaxZone>>()
-                    .Select(x => x.TaxZoneID.value)
-                    .ToList();
-
-            var timeZones = _timeZoneService.RetrieveTimeZones();
-            
-            var output = new ReferenceData()
-            {
-                ItemClasses = itemClasses,
-                PaymentMethods = paymentMethods,
-                TaxIds = taxIds,
-                TaxCategories = taxCategories,
-                TaxZones = taxZones,
-                TimeZones = timeZones,
-            };
-
-            return new JsonNetResult(output);
+        [HttpGet]
+        public ActionResult AcumaticaReferenceDataStatus()
+        {
+            var status = _statusService.AcumaticaReferenceDataStatus();
+            return new JsonNetResult(status);
         }
 
 
@@ -252,6 +195,7 @@ namespace Monster.Web.Controllers
         }
 
 
+
         // Status inquiries
         // 
         [HttpGet]
@@ -259,7 +203,7 @@ namespace Monster.Web.Controllers
         {
             var state = _stateRepository.RetrieveSystemState();
             var warehouseSyncStatus
-                = _inventoryStatusService.CurrentWarehouseSyncStatus();
+                = _statusService.WarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
             {
@@ -285,6 +229,7 @@ namespace Monster.Web.Controllers
             var output = new { JobStatus = state.ShopifyInventoryPush };
             return new JsonNetResult(output);
         }
+
 
 
         // Real Time Sync

@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
-using Monster.Web.Attributes;
+using Monster.Middle.Attributes;
 
-namespace Monster.Web
+namespace Monster.Middle
 {
     public class FilterConfig
     {

@@ -114,10 +114,14 @@
     </Compile>
     <Compile Include="Persist\Multitenant\StateRepository.cs" />
     <Compile Include="Hangfire\SystemState.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\ItemClassModel.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\PaymentMethodModel.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\ReferenceData.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
+    <Compile Include="Processes\Sync\Inventory\Services\ReferenceDataService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInvoicePull.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferencePull.cs" />
     <Compile Include="Processes\Shopify\Persist\OrderExtensions.cs" />
@@ -131,11 +135,13 @@
     <Compile Include="Processes\Sync\Extensions\LocationExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyOrderRepository.cs" />
     <Compile Include="Processes\Sync\Extensions\OrderExtensions.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\AcumaticaConnectionState.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\AcumaticaReferenceDataState.cs" />
     <Compile Include="Processes\Sync\Inventory\SyncInventoryRepository.cs" />
     <Compile Include="Processes\Sync\Orders\SyncOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\AcumaticaManager.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\WarehouseSyncState.cs" />
-    <Compile Include="Processes\Sync\Inventory\Services\InventoryStatusService.cs" />
+    <Compile Include="Processes\Sync\Inventory\Services\StatusService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInventoryPull.cs" />
     <Compile Include="Processes\Sync\Inventory\InventoryManager.cs" />
     <Compile Include="Processes\Sync\Inventory\Workers\ShopifyInventorySync.cs" />
@@ -219,6 +225,7 @@
       <LastGenOutput>MonsterDb.cs</LastGenOutput>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

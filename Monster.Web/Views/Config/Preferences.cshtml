@@ -5,13 +5,15 @@
 
 <hr/>
 <h1 class="mt-5 center">Configuration - Preferences</h1>
-<p class="lead center">Choose settings to enable @GlobalConfig.AppName to properly synchronize</p>
+<p class="lead center">
+    Choose settings to enable @GlobalConfig.AppName to properly synchronize
+</p>
 
 <style>
     .form-group label { font-weight: 700; }
 </style>
 
-<p>@GlobalConfig.AppName is now ready for you to set your Preferences.
+<p>The next step in configuration is to set your Preferences.
     When @GlobalConfig.AppName is running in Real-Time Sync Mode, it
     will produce a large volume of work. It is critical that you make 
     sure your Preferences match your business objectives.</p>
@@ -323,7 +325,7 @@
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/ReferenceData", this);
+                    ajax.HttpGet("Config/AcumaticaReferenceData", this);
                 },
                 function (response) {
                     self.TimeZones(response.TimeZones);

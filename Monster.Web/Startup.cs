@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.Owin;
+using Monster.Middle;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Owin;
+using Startup = Monster.Web.Startup;
 
-[assembly: OwinStartupAttribute(typeof(Monster.Web.Startup))]
+[assembly: OwinStartup(typeof(Startup))]
 namespace Monster.Web
 {
     public partial class Startup

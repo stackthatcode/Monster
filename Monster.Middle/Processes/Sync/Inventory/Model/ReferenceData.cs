@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Processes.Acumatica.Model;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Helpers;
 
-namespace Monster.Web.Models.Config
+namespace Monster.Middle.Processes.Sync.Inventory.Model
 {
     public class ReferenceData
     {
@@ -26,49 +27,49 @@ namespace Monster.Web.Models.Config
 
         public bool IsValid => Validation.Count == 0;
 
-        public List<RefDataValidation> Validation {
+        public List<string> Validation {
             get
             {
-                var output = new List<RefDataValidation>();
+                var output = new List<string>();
 
                 if (TimeZones.Count == 0)
                 {
-                    output.Add(RefDataValidation.Invalid("Time Zones are empty"));
+                    output.Add("Time Zones are empty");
                 }
 
                 if (ItemClasses.Count == 0)
                 {
-                    output.Add(RefDataValidation.Invalid("Item Classes are empty"));
+                    output.Add("Item Classes are empty");
                 }
 
                 if (ItemClasses.All(x => x.PostingClass.IsNullOrEmpty()))
                 {
-                    output.Add(RefDataValidation.Invalid("None of the Item Classes contain valid Posting Class"));
+                    output.Add("None of the Item Classes contain valid Posting Class");
                 }
                 
                 if (PaymentMethods.Count == 0)
                 {
-                    output.Add(RefDataValidation.Invalid("Payment Methods are empty"));
+                    output.Add("Payment Methods are empty");
                 }
 
                 if (PaymentMethods.All(x => x.CashAccounts == null || x.CashAccounts.Count == 0))
                 {
-                    output.Add(RefDataValidation.Invalid("Non of the Payment Methods contain valid Allowed Cash Accounts"));
+                    output.Add("Non of the Payment Methods contain valid Allowed Cash Accounts");
                 }
 
                 if (TaxCategories.Count == 0)
                 {
-                    output.Add(RefDataValidation.Invalid("Tax Categories are empty"));
+                    output.Add("Tax Categories are empty");
                 }
 
                 if (TaxIds.Count == 0)
                 {
-                    output.Add(RefDataValidation.Invalid("Tax Ids are empty"));
+                    output.Add("Tax Ids are empty");
                 }
 
                 if (TaxZones.Count == 0)
                 {
-                    output.Add(RefDataValidation.Invalid("Tax Zones are empty"));
+                    output.Add("Tax Zones are empty");
                 }
 
                 return output;
@@ -88,15 +89,6 @@ namespace Monster.Web.Models.Config
                 IsValid = false,
                 Message = message
             };
-        }
-
-        public static RefDataValidation Ok(string message)
-        {
-            return new RefDataValidation
-            {
-                IsValid = true,
-                Message = message
-            };
-        }
+        }        
     }
 }

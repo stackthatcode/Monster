@@ -5,7 +5,7 @@ using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 
 
-namespace Monster.Web.Attributes
+namespace Monster.Middle.Attributes
 {
     public class IdentityProcessorAttribute : ActionFilterAttribute, IActionFilter
     {

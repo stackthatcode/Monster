@@ -1,4 +1,5 @@
-﻿@using Monster.Web.Plumbing
+﻿@using Monster.Middle.Hangfire
+@using Monster.Web.Plumbing
 <!DOCTYPE html>
 
 <html lang="en">
@@ -22,6 +23,12 @@
         // Constant configuration
         var Monster = Monster || {};
         Monster.BaseUrl = '@GlobalConfig.BaseUrl';
+
+        var SystemState = SystemState || {};
+        SystemState.None = @SystemState.None;
+        SystemState.Ok = @SystemState.Ok;
+        SystemState.Invalid = @SystemState.Invalid;
+        SystemState.SystemFault = @SystemState.SystemFault;
     </script>
 
     @Scripts.Render("~/Scripts/jquery.min.js?tmp=" + Guid.NewGuid())

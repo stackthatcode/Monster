@@ -76,7 +76,7 @@ namespace Monster.Middle.Hangfire
 
             SafelyEnqueueBackgroundJob(
                 LockSyncWarehouseAndLocation,
-                BackgroundJobType.ConnectToAcumaticaAndPullSettings,
+                BackgroundJobType.ConnectToAcumatica,
                 x => x.RunPullAcumaticaSettings(tenantId));
         }
         

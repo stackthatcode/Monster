@@ -2,7 +2,7 @@
 using System.Web.Helpers;
 using System.Web.Mvc;
 
-namespace Monster.Web.Attributes
+namespace Monster.Middle.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class ValidateJsonAntiForgeryTokenAttribute : FilterAttribute, IAuthorizationFilter

@@ -24,4 +24,3 @@ SELECT * FROM usrAcumaticaReferences;
 SELECT * FROM usrTenant;
 
 
-

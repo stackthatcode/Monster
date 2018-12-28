@@ -1,5 +1,4 @@
-﻿@using Monster.Middle.Hangfire
-@using Monster.Web.Plumbing
+﻿@using Monster.Web.Plumbing
 @model Monster.Web.Models.Config.PreferencesModel
 
 
@@ -175,7 +174,6 @@
 
         <div class="card text-center">
             <div class="card-body" style="text-align: left;">
-
                 <div class="form-group">
                     <label for="instanceUrl">Acumatica Instance URL</label>
 
@@ -202,26 +200,35 @@
                            disabled="disabled"
                            data-bind="value: AcumaticaBranch" />
                 </div>
-                
+
+                <div data-bind="if: HasConnectionBeenSet"
+                     style="text-align: center; width: 100%; margin-bottom: 15px;">
+                    <a href="#" class="btn btn-light btn-sm"
+                       data-bind="click: ConnectToAcumatica">
+                        Change your Acumatica Credentials  <i class="fas fa-pencil-alt"></i>
+                    </a>
+                    <hr />
+                </div>
+
                 <div class="center std-padding">
                     <span data-bind="if: IsPrevButtonVisible">
-                        <a href="@GlobalConfig.Url("Config/AcumaticaInstructions")"
+                        <a href="@GlobalConfig.Url("ShopifyAuth/Domain")"
                            class="btn btn-secondary btn-lg">
                             Previous Step <i class="fas fa-undo"></i>
                         </a>
                     </span>
-                    
+
                     <span data-bind="if: IsReturnButtonVisible">
                         <a href="@GlobalConfig.Url("Config/RealTime")"
                            class="btn btn-secondary btn-lg">
                             Back to Dashboard <i class="fas fa-undo"></i>
                         </a>
                     </span>
-                    
+
                     <span data-bind="if: HasConnectionBeenSet">
                         <a href="#" class="btn btn-primary btn-lg"
-                           data-bind="click: ChangeSettingsClick">
-                            Change Credentials <i class="fas fa-pencil-alt"></i>
+                           data-bind="click: ConnectToAcumatica">
+                            Re-connect to Acumatica <i class="fas fa-bolt"></i>
                         </a>
                     </span>
 
@@ -246,13 +253,6 @@
 
 <script>
     var Monster = Monster || {};
-
-    var SystemState = SystemState || {};
-    SystemState.None = @SystemState.None;
-    SystemState.Ok = @SystemState.Ok;
-    SystemState.Invalid = @SystemState.Invalid;
-    SystemState.SystemFault = @SystemState.SystemFault;
-
 
     Monster.AcumaticaCredsModel = function() {
         var self = this;
@@ -342,7 +342,7 @@
                     self.StatusVisible(true);
 
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/AcumaticaInstance", this);
+                    ajax.HttpGet("Config/AcumaticaCredentials", this);
                 }, 
                 function(response) {
                     self.AcumaticaInstanceUrl(response.InstanceUrl);
@@ -361,7 +361,7 @@
             };
 
             var ajax = new Monster.Ajax();
-            ajax.HttpPost("Config/AcumaticaInstance", model, self.PollStatus);
+            ajax.HttpPost("Config/AcumaticaCredentials", model, self.PollStatus);
         };
 
         self.PollStatus = function() {
@@ -370,7 +370,7 @@
             ajax.ErrorCallback = function(jqXHR, textStatus, errorThrown) {
                 console.log(textStatus, errorThrown);
             };
-            ajax.HttpGet("Config/AcumaticaState", self.ProcessStatus);
+            ajax.HttpGet("Config/AcumaticaConnectionStatus", self.ProcessStatus);
         };
 
         self.ProcessStatus = function(response) {
@@ -395,10 +395,10 @@
             }
         };
 
-        self.FetchInstance = function() {
+        self.FetchStatus = function() {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();                                        
-                    ajax.HttpGet("Config/AcumaticaState", this);
+                    ajax.HttpGet("Config/AcumaticaConnectionStatus", this);
                 },
                 function (response) {
                     self.AcumaticaInstanceUrl(response.AcumaticaInstanceUrl);
@@ -411,7 +411,7 @@
             self.ClearVisibility();
             self.PollStatus();
         };
-
+        
         return self;
     };
 

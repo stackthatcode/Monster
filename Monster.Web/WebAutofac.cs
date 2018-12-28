@@ -7,8 +7,7 @@ using Autofac;
 using Autofac.Integration.Mvc;
 using Monster.Web.Controllers;
 using Push.Foundation.Utilities.Logging;
-using RequestActivityIdLogFormatter 
-        = Monster.Web.Plumbing.RequestActivityIdLogFormatter;
+using RequestActivityIdLogFormatter = Monster.Web.Plumbing.RequestActivityIdLogFormatter;
 
 
 namespace Monster.Web
