@@ -15,6 +15,7 @@
             return state == SystemState.Invalid ||
                    state == SystemState.SystemFault;
         }
+        
     }
 }
 

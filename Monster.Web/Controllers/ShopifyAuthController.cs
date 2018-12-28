@@ -68,6 +68,7 @@ namespace Monster.Web.Controllers
 
             var model = new DomainModel
             {
+                IsShopifyConnectionOk = state.ShopifyConnection == SystemState.Ok,
                 IsShopifyConnectionBroken = state.ShopifyConnection.IsBroken(),
                 IsRandomAccessMode = state.IsRandomAccessMode,
                 IsShopifyUrlFinalized = state.IsShopifyUrlFinalized,

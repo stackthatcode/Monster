@@ -18,7 +18,7 @@
     </div>
 }
 
-@if (!Model.IsRandomAccessMode)
+@if (!Model.IsRandomAccessMode && !Model.IsShopifyConnectionOk)
 {
     <p>In this step we're going to configure @GlobalConfig.AppName to connect with your Shopify store.
         Shopify will ask you for permission to let Ulysses access your store's data.</p>
@@ -78,9 +78,27 @@ else
             
             <div class="center">
                 <button class="btn btn-primary btn-lg" type="submit">
-                    Connect to Shopify <i class="fas fa-sign-in-alt"></i>
+                    Connect to Shopify <i class="fas fa-bolt"></i>
                 </button>
+                
+                @if (Model.IsRandomAccessMode)
+                {
+                    <a href="@GlobalConfig.Url("Config/RealTime")"
+                       class="btn btn-secondary btn-lg">
+                        Back to Dashboard <i class="fas fa-undo"></i>
+                    </a>
+                }
+                
+                @if (Model.IsNextButtonEnabled)
+                {
+                    <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
+                       class="btn btn-success btn-lg">
+                        Next Step <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                }
             </div>
+            
+
         </form>
     </div>
 </div>
