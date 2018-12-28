@@ -53,20 +53,41 @@ namespace Monster.Middle.Processes.Sync
             _acumaticaBatchRepository.Reset();
         }
 
-        public void PullAcumaticaSettings()
+
+        public void ConnectToAcumatica()
         {
             try
             {
-                _acumaticaManager.PullSettings();
+                _acumaticaManager.TestConnection();
                 _stateRepository
-                    .UpdateSystemState(x => x.WarehouseSync, SystemState.Ok);
+                    .UpdateSystemState(
+                        x => x.AcumaticaConnection, SystemState.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                _stateRepository
+                    .UpdateSystemState(
+                        x => x.AcumaticaConnection, SystemState.SystemFault);
+            }
+        }
+
+        public void PullAcumaticaReferenceData()
+        {
+            try
+            {
+                _acumaticaManager.PullReferenceData();
+                _stateRepository
+                    .UpdateSystemState(
+                        x => x.AcumaticaReferenceData, SystemState.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
 
-                _stateRepository.UpdateSystemState(
-                    x => x.WarehouseSync, SystemState.SystemFault);
+                _stateRepository
+                    .UpdateSystemState(
+                        x => x.AcumaticaReferenceData, SystemState.SystemFault);
             }
         }
 

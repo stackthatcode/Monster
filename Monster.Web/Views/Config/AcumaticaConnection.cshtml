@@ -13,17 +13,11 @@
 <hr />
 
 <h1 class="mt-5 center">Configuration - Acumatica</h1>
-<p class="lead center">Manage your Acumatica Credentials and Pull Config Settings</p>
+<p class="lead center">
+    Manage credentials and connect to your Acumatica instance
+</p>
 
 <div data-bind="ifnot: IsRandomAccessMode">
-    <p>
-        By now, you will have configured your Acumatica instance in preparation for
-        Real-Time Synchronization. If you haven't already, please follow the steps
-        outlined in <a href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")" 
-                       style="font-weight: bold;">
-            "Configuring Acumatica for Ulysses Synchronization"
-        </a>. Make sure you have everything properly setup in your Acumatica instance.
-    </p>
     <p>
         Now, we will connect @GlobalConfig.AppName to your Acumatica instance.
         In preparation, make sure you have selected the correct Acumatica instance
@@ -33,7 +27,7 @@
 
 <div data-bind="if: DataEntryVisible">
     <div class="std-padding">
-        
+
         <div class="card text-center">
             <div class="card-body" style="text-align: left;">
                 <div class="form-group">
@@ -43,15 +37,15 @@
                         <input type="url"
                                class="form-control"
                                disabled="disabled"
-                               data-bind="value: AcumaticaInstanceUrl" />
+                               data-bind="value: AcumaticaInstanceUrl"/>
                     </div>
 
                     <div data-bind="ifnot: IsUrlFinalized">
                         <input type="url"
                                class="form-control"
                                id="instanceUrl"
-                               placeholder="Enter your Acumatica Instance URL" 
-                               data-bind="value: AcumaticaInstanceUrl" />
+                               placeholder="Enter your Acumatica Instance URL"
+                               data-bind="value: AcumaticaInstanceUrl"/>
 
                         <small id="urlHelp" class="form-text text-muted">
                             E.G.: https://acucode.acumaticacloud.com
@@ -66,7 +60,7 @@
                         <input type="url"
                                class="form-control"
                                disabled="disabled"
-                               data-bind="value: AcumaticaCompany" />
+                               data-bind="value: AcumaticaCompany"/>
                     </div>
 
                     <div data-bind="ifnot: IsUrlFinalized">
@@ -74,7 +68,7 @@
                                class="form-control"
                                id="company"
                                placeholder="Enter the Acumatica Company"
-                               data-bind="value: AcumaticaCompany" />
+                               data-bind="value: AcumaticaCompany"/>
 
                         <small id="companyHelp" class="form-text text-muted">
                             E.G.: MYCOMPANY
@@ -89,7 +83,7 @@
                         <input type="url"
                                class="form-control"
                                disabled="disabled"
-                               data-bind="value: AcumaticaBranch" />
+                               data-bind="value: AcumaticaBranch"/>
                     </div>
 
                     <div data-bind="ifnot: IsUrlFinalized">
@@ -97,21 +91,21 @@
                                class="form-control"
                                id="branch"
                                placeholder="Enter the Acumatica Branch"
-                               data-bind="value: AcumaticaBranch" />
+                               data-bind="value: AcumaticaBranch"/>
 
                         <small id="branchHelp" class="form-text text-muted">
                             E.G.: MYCOMPANY
                         </small>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="username">Acumatica User Name</label>
                     <input type="text"
                            class="form-control"
                            id="username"
                            placeholder="Enter the Acumatica User Name"
-                           data-bind="value: AcumaticaUserName" />
+                           data-bind="value: AcumaticaUserName"/>
                 </div>
 
                 <div class="form-group">
@@ -120,10 +114,10 @@
                            class="form-control"
                            id="password"
                            placeholder="Enter the Acumatica Password"
-                           data-bind="value: AcumaticaPassword" />
+                           data-bind="value: AcumaticaPassword"/>
                 </div>
 
-                <div class="center std-padding">                    
+                <div class="center std-padding">
                     <a href="#" class="btn btn-secondary btn-lg"
                        data-bind="click: ShowStatusPanel">
                         Cancel <i class="fas fa-undo"></i>
@@ -155,8 +149,7 @@
 </div>
 
 <div data-bind="if: StatusVisible">
-    <div class="std-padding">
-        
+    <div class="std-padding">        
         <div data-bind="if: IsConnectionOk">
             <div class="alert alert-primary">
                 <strong>Acumatica Connection - Successful</strong>
@@ -240,7 +233,7 @@
                     </span>
 
                     <span data-bind="if: IsNextButtonVisible">
-                        <a href="@GlobalConfig.Url("Config/Preferences")"
+                        <a href="@GlobalConfig.Url("Config/AcumaticaSettings")"
                            class="btn btn-success btn-lg">
                             Next Step <i class="fas fa-sign-in-alt"></i>
                         </a>
@@ -254,7 +247,7 @@
 <script>
     var Monster = Monster || {};
 
-    Monster.AcumaticaCredsModel = function() {
+    Monster.AcumaticaConnectionModel = function() {
         var self = this;
 
         // View visibility
@@ -415,7 +408,7 @@
         return self;
     };
 
-    var model = new Monster.AcumaticaCredsModel();
+    var model = new Monster.AcumaticaConnectionModel();
     model.Initialize();
     ko.applyBindings(model);
 </script>

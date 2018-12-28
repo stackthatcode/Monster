@@ -56,14 +56,8 @@ namespace Monster.Web.Controllers
         
 
 
-        // Acumatica Connection stuff...
-        //
-        [HttpGet]
-        public ActionResult AcumaticaInstructions()
-        {
-            return View();
-        }
-
+        // Acumatica Connection (credentials stuff...)
+        //        
         [HttpGet]
         public ActionResult AcumaticaConnection()
         {
@@ -115,13 +109,37 @@ namespace Monster.Web.Controllers
                         model.Password);
             }
 
-            _hangfireService.ConnectToAcumaticaAndPullSettings();
+            _hangfireService.ConnectToAcumatica();
 
             return JsonNetResult.Success();
         }
 
 
+        // Acumatica Settings Pull
+        //
+        [HttpGet]
+        public ActionResult AcumaticaSettings()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AcumaticaSettingsPull()
+        {
+            _hangfireService.PullAcumaticaReferenceData();
+            return JsonNetResult.Success();
+        }
+
+        [HttpGet]
+        public ActionResult AcumaticaSettingsStatus()
+        {
+            var status = _statusService.AcumaticaReferenceDataStatus();
+            return new JsonNetResult(status);
+        }
+
+
         // Preference-selection of Reference Data
+        //
         [HttpGet]
         public ActionResult Preferences()
         {

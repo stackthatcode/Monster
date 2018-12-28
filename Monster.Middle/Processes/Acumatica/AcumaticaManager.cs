@@ -37,7 +37,13 @@ namespace Monster.Middle.Processes.Acumatica
         }
 
 
-        public void PullSettings()
+        public void TestConnection()
+        {
+            _acumaticaHttpContext.Login();
+            _acumaticaHttpContext.Logout();
+        }
+
+        public void PullReferenceData()
         {
             _acumaticaHttpContext.Login();
             

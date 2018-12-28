@@ -326,7 +326,7 @@
     <Content Include="Views\Config\Splash.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\AcumaticaInstructions.cshtml" />
+    <Content Include="Views\Config\AcumaticaSettings.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

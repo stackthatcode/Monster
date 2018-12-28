@@ -29,7 +29,9 @@ namespace Monster.Middle.Hangfire
             _stateRepository = stateRepository;
         }
 
-        
+
+        static readonly object LockConnectToAcumatica = new object();
+        static readonly object LockPullAcumaticaReferenceData = new object();
         static readonly object LockSyncWarehouseAndLocation = new object();
         static readonly object LockPushInventoryToAcumatica = new object();
         static readonly object LockPushInventoryToShopify = new object();
@@ -70,16 +72,26 @@ namespace Monster.Middle.Hangfire
             return true;
         }
 
-        public void ConnectToAcumaticaAndPullSettings()
+        public void ConnectToAcumatica()
         {            
             var tenantId = _tenantContext.InstallationId;
 
             SafelyEnqueueBackgroundJob(
-                LockSyncWarehouseAndLocation,
+                LockConnectToAcumatica,
                 BackgroundJobType.ConnectToAcumatica,
+                x => x.RunConnectToAcumatica(tenantId));
+        }
+
+        public void PullAcumaticaReferenceData()
+        {
+            var tenantId = _tenantContext.InstallationId;
+
+            SafelyEnqueueBackgroundJob(
+                LockPullAcumaticaReferenceData,
+                BackgroundJobType.PullAcumaticaReferenceData,
                 x => x.RunPullAcumaticaSettings(tenantId));
         }
-        
+
         public void SyncWarehouseAndLocation()
         {
             var tenantId = _tenantContext.InstallationId;

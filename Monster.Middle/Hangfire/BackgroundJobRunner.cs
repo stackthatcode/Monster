@@ -27,15 +27,22 @@ namespace Monster.Middle.Hangfire
             _stateRepository = stateRepository;
             _logger = logger;
         }
-        
+
 
         // Fire-and-Forget Jobs
         //
-        public void RunPullAcumaticaSettings(Guid tenantId)
+        public void RunConnectToAcumatica(Guid tenantId)
         {
             FireAndForgetJob(tenantId,
                 BackgroundJobType.ConnectToAcumatica,
-                _director.PullAcumaticaSettings);
+                _director.ConnectToAcumatica);
+        }
+
+        public void RunPullAcumaticaSettings(Guid tenantId)
+        {
+            FireAndForgetJob(tenantId,
+                BackgroundJobType.PullAcumaticaReferenceData,
+                _director.PullAcumaticaReferenceData);
         }
 
         public void RunSyncWarehouseAndLocation(Guid tenantId)

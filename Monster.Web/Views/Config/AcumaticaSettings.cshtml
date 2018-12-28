@@ -1,0 +1,191 @@
+﻿@using Monster.Web.Plumbing
+@model Monster.Web.Models.Config.PreferencesModel
+
+
+<style>
+    .form-group label { font-weight: 700; }
+</style>
+
+@Html.Partial("_TopBrand")
+
+<hr />
+
+<h1 class="mt-5 center">Configuration - Acumatica</h1>
+<p class="lead center">Configuration of Acumatica reference data for @GlobalConfig.AppName</p>
+
+
+<div data-bind="ifnot: BackgroundJobRunning">
+    <div data-bind="if: true">
+        <p>
+            This next step will require you to configure Acumatica so that
+            @GlobalConfig.AppName can properly push Shopify data during
+            real-time synchronization. This will involve creating
+            Item Classes, Payment Methods, Cash Accounts, Tax Categories, etc.
+            in Acumatica.
+        </p>
+
+        <p>
+            Download the following PDF document and execute all of the steps contained
+            therein to prepare your Acumatica instance for synchronization.
+            Once you have completed all steps, click the "Connect to Acumatica"
+            button to pull these settings.
+        </p>
+
+        <div class="card">
+            <div class="card-body center">
+                <a target="_blank"
+                   href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")">
+                    <img style="width: 125px;" src="@GlobalConfig.Url("Content/pdf-icon.png")"/>
+                </a>
+
+                <p class="center" style="font-weight: 700;">
+                    Download - Configuring Acumatica for Ulysses Synchronization
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div>
+        <div class="center std-padding">
+            <span data-bind="if: IsPrevButtonVisible">
+                <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
+                   class="btn btn-secondary btn-lg">
+                    Previous Step <i class="fas fa-undo"></i>
+                </a>
+            </span>
+
+            <span data-bind="if: IsReturnButtonVisible">
+                <a href="@GlobalConfig.Url("Config/RealTime")"
+                   class="btn btn-secondary btn-lg">
+                    Back to Dashboard <i class="fas fa-undo"></i>
+                </a>
+            </span>
+
+            <span data-bind="ifnot: HasReferenceDataBeenPulled">
+                <a href="#" class="btn btn-primary btn-lg"
+                   data-bind="click: ConnectToAcumatica">
+                    Connect to Acumatica <i class="fas fa-bolt"></i>
+                </a>
+            </span>
+
+            <span data-bind="if: HasReferenceDataBeenPulled">
+                <a href="#" class="btn btn-primary btn-lg"
+                   data-bind="click: ConnectToAcumatica">
+                    Re-connect to Acumatica <i class="fas fa-bolt"></i>
+                </a>
+            </span>
+
+            <span data-bind="if: IsNextButtonVisible">
+                <a href="@GlobalConfig.Url("Config/Preferences")"
+                   class="btn btn-success btn-lg">
+                    Next Step <i class="fas fa-sign-in-alt"></i>
+                </a>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div data-bind="if: BackgroundJobRunning">
+    <div class="std-padding">
+        <div class="card">
+            <div class="card-body center std-padding">
+                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+                <div style="height: 30px;"></div>
+                <p class="center">
+                    Please wait while @GlobalConfig.AppName connects to your Acumatica instance.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.AcumaticaSettingsModel = function() {
+        var self = this;
+
+        // View visibility
+        self.BackgroundJobRunning = ko.observable();
+
+        // System State
+        self.ReferenceDataState = ko.observable();
+        self.IsRandomAccessMode = ko.observable();
+        self.Validations = ko.observable();
+
+
+        self.HasReferenceDataBeenPulled = ko.computed(function() {
+            return self.ReferenceDataState() != SystemState.None;
+        });
+
+        self.IsReferenceDataOk = ko.computed(function() {
+            return self.ReferenceDataState() == SystemState.Ok;
+        });
+        
+        self.IsReferenceDataBroken = ko.computed(function() {
+            return self.ReferenceDataState() == SystemState.SystemFault
+                || self.ReferenceDataState() == SystemState.Invalid;
+        });
+
+
+        // Control-visibility
+        self.IsNextButtonVisible = ko.computed(function() {
+            return !self.IsRandomAccessMode() && self.IsReferenceDataOk();
+        });
+
+        self.IsPrevButtonVisible = ko.computed(function() {
+            return !self.IsRandomAccessMode();
+        });
+
+        self.IsReturnButtonVisible = ko.computed(function() {
+            return self.IsRandomAccessMode();
+        });
+
+
+
+        // Actions
+        self.ConnectToAcumatica = function() {
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("Config/AcumaticaSettingsPull", {}, self.PollStatus);
+        };
+
+        self.PollStatus = function() {
+            var ajax = new Monster.Ajax();
+            // TODO - move this to the AJAX module
+            ajax.ErrorCallback = function(jqXHR, textStatus, errorThrown) {
+                console.log(textStatus, errorThrown);
+            };
+            ajax.HttpGet("Config/AcumaticaSettingsStatus", self.ProcessStatus);
+        };
+
+        self.ProcessStatus = function(response) {            
+            self.BackgroundJobRunning(response.IsBackgroundJobRunning);
+
+            // If still running, then show AJAX...
+            if (self.BackgroundJobRunning()) {
+                setTimeout(self.PollStatus, 1000);
+                return;
+            }
+
+            // Else process System State info
+            self.ReferenceDataState(response.AcumaticaReferenceDataState);
+            self.IsRandomAccessMode(response.IsRandomAccessMode);
+            self.Validations(response.Validations);
+        };
+
+        self.Initialize = function () {
+            self.BackgroundJobRunning(false);
+            self.PollStatus();
+        };
+
+        return self;
+    };
+
+    var model = new Monster.AcumaticaSettingsModel();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
+
