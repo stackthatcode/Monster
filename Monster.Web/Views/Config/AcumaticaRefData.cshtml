@@ -14,8 +14,30 @@
 <p class="lead center">Configuration of Acumatica reference data for @GlobalConfig.AppName</p>
 
 
+<script type="text/html" id="Pdf-Download">
+    <p>
+        Download the following PDF document and execute all of the steps contained
+        therein to prepare your Acumatica instance for synchronization.
+        Once you have completed all steps, you can proceed with
+        connecting to Acumatica to pull these settings.
+    </p>
+
+    <div class="card">
+        <div class="card-body center">
+            <a target="_blank"
+               href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")">
+                <img style="width: 100px;" src="@GlobalConfig.Url("Content/pdf-icon.png")"/>
+
+                <p class="center" style="font-weight: 700; margin-top: 20px;">
+                    Download - Configuring Acumatica for Ulysses Synchronization
+                </p>
+            </a>
+        </div>
+    </div>
+</script>
+
 <div data-bind="ifnot: BackgroundJobRunning">
-    <div data-bind="if: true">
+    <div data-bind="if: ReferenceDataState() == SystemState.None">
         <p>
             This next step will require you to configure Acumatica so that
             @GlobalConfig.AppName can properly push Shopify data during
@@ -30,21 +52,41 @@
             Once you have completed all steps, click the "Connect to Acumatica"
             button to pull these settings.
         </p>
+        
+        <div data-bind="template: { name: 'Pdf-Download' }"></div>
+    </div>
 
-        <div class="card">
-            <div class="card-body center">
-                <a target="_blank"
-                   href="@GlobalConfig.Url("Content/Ulysses-AcumaticaConfiguration.pdf")">
-                    <img style="width: 125px;" src="@GlobalConfig.Url("Content/pdf-icon.png")"/>
-                </a>
-
-                <p class="center" style="font-weight: 700;">
-                    Download - Configuring Acumatica for Ulysses Synchronization
-                </p>
-            </div>
+    <div data-bind="if: ReferenceDataState() == SystemState.Ok">
+        <div class="alert alert-primary">
+            <strong>Acumatica Reference Data Pull - Successful</strong>
+            <br />
+            Your Acumatica reference data was properly configured and has been loaded.
         </div>
     </div>
     
+    <div data-bind="if: ReferenceDataState() == SystemState.SystemFault">
+        <div class="alert alert-danger">
+            <strong>Acumatica Reference Data Pull - System Fault</strong><br />
+            Something is wrong with your Acumatica Connection.
+        </div>
+        
+        <p>
+            @GlobalConfig.AppName encounter an error while attempting
+            to pull reference data from your Acumatica instance.
+            You can try reconnecting, but if the problem persists,
+            you may consider re-entering your Acumatica credentials.
+        </p>
+    </div>
+    
+    <div data-bind="if: ReferenceDataState() == SystemState.Invalid">
+        <div class="alert alert-danger">
+            <strong>Acumatica Reference Data Pull - Invalid Data</strong><br />
+            Your Acumatica instance data is not properly configured.
+        </div>
+
+        <div data-bind="template: { name: 'Pdf-Download' }"></div>
+    </div>
+
     <div>
         <div class="center std-padding">
             <span data-bind="if: IsPrevButtonVisible">
@@ -89,7 +131,8 @@
     <div class="std-padding">
         <div class="card">
             <div class="card-body center std-padding">
-                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+                <img style="width: 125px;" 
+                     src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
                 <div style="height: 30px;"></div>
                 <p class="center">
@@ -105,7 +148,7 @@
 <script>
     var Monster = Monster || {};
 
-    Monster.AcumaticaSettingsModel = function() {
+    Monster.AcumaticaRefDataModel = function() {
         var self = this;
 
         // View visibility
@@ -149,7 +192,7 @@
         // Actions
         self.ConnectToAcumatica = function() {
             var ajax = new Monster.Ajax();
-            ajax.HttpPost("Config/AcumaticaSettingsPull", {}, self.PollStatus);
+            ajax.HttpPost("Config/AcumaticaRefDataPull", {}, self.PollStatus);
         };
 
         self.PollStatus = function() {
@@ -158,10 +201,13 @@
             ajax.ErrorCallback = function(jqXHR, textStatus, errorThrown) {
                 console.log(textStatus, errorThrown);
             };
-            ajax.HttpGet("Config/AcumaticaSettingsStatus", self.ProcessStatus);
+
+            ajax.HttpGet("Config/AcumaticaRefDataStatus", self.ProcessStatus);
         };
 
-        self.ProcessStatus = function(response) {            
+        self.ProcessStatus = function (response) {
+            console.log(response);
+
             self.BackgroundJobRunning(response.IsBackgroundJobRunning);
 
             // If still running, then show AJAX...
@@ -171,7 +217,7 @@
             }
 
             // Else process System State info
-            self.ReferenceDataState(response.AcumaticaReferenceDataState);
+            self.ReferenceDataState(response.ReferenceDataState);
             self.IsRandomAccessMode(response.IsRandomAccessMode);
             self.Validations(response.Validations);
         };
@@ -184,7 +230,7 @@
         return self;
     };
 
-    var model = new Monster.AcumaticaSettingsModel();
+    var model = new Monster.AcumaticaRefDataModel();
     model.Initialize();
     ko.applyBindings(model);
 </script>

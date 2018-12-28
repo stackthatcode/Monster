@@ -118,20 +118,20 @@ namespace Monster.Web.Controllers
         // Acumatica Settings Pull
         //
         [HttpGet]
-        public ActionResult AcumaticaSettings()
+        public ActionResult AcumaticaRefData()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult AcumaticaSettingsPull()
+        public ActionResult AcumaticaRefDataPull()
         {
             _hangfireService.PullAcumaticaReferenceData();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
-        public ActionResult AcumaticaSettingsStatus()
+        public ActionResult AcumaticaRefDataStatus()
         {
             var status = _statusService.AcumaticaReferenceDataStatus();
             return new JsonNetResult(status);
