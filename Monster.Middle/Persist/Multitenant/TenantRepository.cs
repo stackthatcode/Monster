@@ -194,5 +194,10 @@ namespace Monster.Middle.Persist.Multitenant
         {
             return Entities.UsrPreferences.First();
         }
+
+        public void SaveChanges()
+        {
+            this.Entities.SaveChanges();
+        }
     }
 }

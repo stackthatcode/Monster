@@ -14,13 +14,24 @@
 <p class="lead center">Configuration of Acumatica reference data for @GlobalConfig.AppName</p>
 
 
-<script type="text/html" id="Pdf-Download">
-    <p>
-        Download the following PDF document and execute all of the steps contained
-        therein to prepare your Acumatica instance for synchronization.
-        Once you have completed all steps, you can proceed with
-        connecting to Acumatica to pull these settings.
-    </p>
+<script type="text/html" id="Pdf-Download">    
+    
+    <div data-bind="if: ReferenceDataState() != SystemState.Ok">
+        <p>
+            Download the following PDF document and execute all of the steps contained
+            therein to prepare your Acumatica instance for synchronization.
+            Once you have completed all steps, click the "Connect to Acumatica"
+            button to pull these settings.
+        </p>
+    </div>
+
+    <div data-bind="if: ReferenceDataState() == SystemState.Ok">
+        <p>
+            You can download the following PDF document as a reference
+            in case you want to change the way your Acumatica instance 
+            is configured.
+        </p>
+    </div>
 
     <div class="card">
         <div class="card-body center">
@@ -36,6 +47,7 @@
     </div>
 </script>
 
+
 <div data-bind="ifnot: BackgroundJobRunning">
     <div data-bind="if: ReferenceDataState() == SystemState.None">
         <p>
@@ -46,13 +58,6 @@
             in Acumatica.
         </p>
 
-        <p>
-            Download the following PDF document and execute all of the steps contained
-            therein to prepare your Acumatica instance for synchronization.
-            Once you have completed all steps, click the "Connect to Acumatica"
-            button to pull these settings.
-        </p>
-        
         <div data-bind="template: { name: 'Pdf-Download' }"></div>
     </div>
 
@@ -62,6 +67,8 @@
             <br />
             Your Acumatica reference data was properly configured and has been loaded.
         </div>
+        
+        <div data-bind="template: { name: 'Pdf-Download' }"></div>
     </div>
     
     <div data-bind="if: ReferenceDataState() == SystemState.SystemFault">
@@ -83,7 +90,6 @@
             <strong>Acumatica Reference Data Pull - Invalid Data</strong><br />
             Your Acumatica instance data is not properly configured.
         </div>
-
         <div data-bind="template: { name: 'Pdf-Download' }"></div>
     </div>
 
@@ -150,7 +156,7 @@
 
     Monster.AcumaticaRefDataModel = function() {
         var self = this;
-
+        
         // View visibility
         self.BackgroundJobRunning = ko.observable();
 
@@ -197,11 +203,7 @@
 
         self.PollStatus = function() {
             var ajax = new Monster.Ajax();
-            // TODO - move this to the AJAX module
-            ajax.ErrorCallback = function(jqXHR, textStatus, errorThrown) {
-                console.log(textStatus, errorThrown);
-            };
-
+            ajax.SuppressErrorPopup = true;
             ajax.HttpGet("Config/AcumaticaRefDataStatus", self.ProcessStatus);
         };
 

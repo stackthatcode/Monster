@@ -13,18 +13,38 @@
     .form-group label { font-weight: 700; }
 </style>
 
-<p>The next step in configuration is to set your Preferences.
-    When @GlobalConfig.AppName is running in Real-Time Sync Mode, it
-    will produce a large volume of work. It is critical that you make 
-    sure your Preferences match your business objectives.</p>
-
+<div data-bind="ifnot: IsRandomAccessMode">
+    <p>
+        The next step in configuration is to set your Preferences.
+        When @GlobalConfig.AppName is running in Real-Time Sync Mode, it
+        will produce a large volume of work. It is critical that you make
+        sure your Preferences match your business objectives.
+    </p>
+</div>
 
 <script type="text/html" id="Preferences-Editor">
 <style>
     #preferences .form-group { height: 120px; }
 </style>
+    
+<div data-bind="if: ShowRefDataErrorMessage">
+    <div class="std-padding">
+        <div class="alert alert-danger">
+            <strong>Acumatica Reference Data Pull - Broken</strong>
+            <br />
+            There's something wrong with your Acumatica reference data.
+        </div>
 
-<div class="std-padding">
+        <p>
+            Before setting preferences, your Acumatica reference data
+            needs to be properly configured.
+            You can address that now by 
+            <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
+        </p>
+    </div>
+</div>
+    
+<div data-bind="if: ShowDataEntry">
     <div class="card text-center">
         <div id="preferences" class="card-body left">
 
@@ -56,7 +76,7 @@
                         data-bind="value: SelectedTimeZone,
                         options: TimeZones,
                         optionsText: 'Name',
-                        optionsValue: 'TimeZoneId',
+                        value: SelectedTimeZone,
                         optionsCaption: 'Choose...'"></select>
 
                 <small id="timeZoneHelp" class="form-text text-muted">
@@ -72,7 +92,7 @@
 
             <!-- Item Class -->
             <div class="form-group">
-                <label for="itemClass">Default Item Class</label>
+                <label for="itemClass">Acumatica Default Item Class</label>
 
                 <select class="form-control"
                         id="itemClass"
@@ -94,7 +114,7 @@
 
             <!-- Posting Class -->
             <div class="form-group">
-                <label for="postingClass">Default Posting Class</label>
+                <label for="postingClass">Acumatica Default Posting Class</label>
 
                 <div data-bind="ifnot: SelectedPostingClass">
                     <input type="text"
@@ -120,7 +140,7 @@
 
             <!-- Payment Method -->
             <div class="form-group">
-                <label for="paymentMethod">Payment Method</label>
+                <label for="paymentMethod">Acumatica Payment Method</label>
 
                 <select class="form-control"
                         id="paymentMethod"
@@ -142,7 +162,7 @@
 
             <!-- Payment Cash Account -->
             <div class="form-group">
-                <label for="cashAccountMethod">Payment Cash Account</label>
+                <label for="cashAccountMethod">Acumatica Payment Cash Account</label>
 
                 <div data-bind="if: CashAccounts().length == 0">
                     <input type="text"
@@ -166,7 +186,7 @@
 
             <!-- Tax Zone -->
             <div class="form-group">
-                <label for="taxZone">Tax Zone</label>
+                <label for="taxZone">Acumatica Tax Zone</label>
 
                 <select class="form-control" id="taxZone"
                         data-bind="optionsCaption: 'Choose...',
@@ -187,7 +207,7 @@
 
             <!-- Tax Category -->
             <div class="form-group">
-                <label for="taxCategory">Tax Category</label>
+                <label for="taxCategory">Acumatica Tax Category</label>
 
                 <select class="form-control" id="taxCategory"
                         data-bind="optionsCaption: 'Choose...',
@@ -208,7 +228,7 @@
 
             <!-- Tax ID -->
             <div class="form-group">
-                <label for="taxId">Tax ID</label>
+                <label for="taxId">Acumatica Tax ID</label>
 
                 <select class="form-control" id="taxId"
                         data-bind="optionsCaption: 'Choose...',
@@ -234,13 +254,14 @@
     </div>
 </div>
 
-<div class="std-padding-bottom center">
-    <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
+<div class="std-padding center">
+    <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"
        class="btn btn-secondary btn-lg">
         <i class="fas fa-undo"></i> Previous Step
     </a>
 
-    <a href="#" data-bind="click: GotoNextStepClick" class="btn btn-success btn-lg">
+    <a href="#" data-bind="click: GotoNextStepClick" 
+            class="btn btn-success btn-lg">
         Go to Next Step <i class="fas fa-sign-in-alt"></i>
     </a>
 </div>
@@ -257,7 +278,11 @@
 
     Monster.PreferencesModel = function () {
         var self = this;
-        
+
+        self.ShowRefDataErrorMessage = ko.observable(false);
+        self.ShowDataEntry = ko.observable(false);
+        self.IsRandomAccessMode = ko.observable();
+
         // Reference data
         self.TimeZones = ko.observableArray();
         self.ItemClasses = ko.observableArray();
@@ -292,19 +317,22 @@
                 self.CashAccounts.removeAll();
             }
         });
-
+        
         // Validation
         self.ShowValidation = ko.observable(false);
 
         self.StartingDateValid = ko.computed(function() {
             return Monster.IsDate(self.SelectedStartingDate());
         });
-        self.TimeZoneValid = ko.computed(function() {
+
+        self.TimeZoneValid = ko.computed(function () {
             return self.SelectedTimeZone();
         });
+
         self.ItemClassValid = ko.computed(function () {
             return self.SelectedItemClass() && self.SelectedPostingClass();
         });
+
         self.PaymentMethodValid = ko.computed(function () {
             return self.SelectedPaymentMethod() && self.SelectedCashAccount();
         });
@@ -323,7 +351,18 @@
 
         self.Initialize = function () {
             flow.exec(
-                function () {
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/AcumaticaRefDataStatus", this);
+                },
+                function (response) {
+                    self.IsRandomAccessMode(response.IsRandomAccessMode);
+
+                    if (response.IsBroken) {
+                        self.ShowRefDataErrorMessage(true);
+                        return;
+                    }
+
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("Config/AcumaticaReferenceData", this);
                 },
@@ -335,11 +374,72 @@
                     self.TaxIds(response.TaxIds);
                     self.TaxCategories(response.TaxCategories);
                     self.TaxZones(response.TaxZones);
+
+                    self.ShowDataEntry(true);
+                    self.InitializePreferencesEditor();
+
+                    // Pull selections
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/PreferenceSelections", this);
+                },
+                function (response) {
+                    self.SelectedStartingDate(response.ShopifyDataPullStartFormatted);
+
+                    self.SelectedTaxId(response.AcumaticaTaxId);
+                    self.SelectedTaxCategory(response.AcumaticaTaxCategory);
+                    self.SelectedTaxZone(response.AcumaticaTaxZone);
+
+                    var itemClass =
+                        Monster.FindByField(
+                            self.ItemClasses(), 'ItemClass', response.AcumaticaDefaultItemClass);
+
+                    self.SelectedItemClass(itemClass);
+
+                    var timeZone =
+                        Monster.FindByField(
+                            self.TimeZones(), 'TimeZoneId', response.AcumaticaTimeZone);
+
+                    self.SelectedTimeZone(timeZone);
+
+                    var paymentMethod =
+                        Monster.FindByField(
+                            self.PaymentMethods(), 'PaymentMethod', response.AcumaticaPaymentMethod);
+
+                    self.SelectedPaymentMethod(paymentMethod);
+
+                    self.SelectedCashAccount(response.AcumaticaPaymentCashAccount);
                 });
         };
+        
+        self.SaveChanges = function() {
+
+        }
 
         self.GotoNextStepClick = function() {
             self.ShowValidation(true);
+            if (!self.IsValid()) {
+                 return;
+            }
+
+            var model = {};
+
+            model.ShopifyDataPullStart = self.SelectedStartingDate();            
+            model.AcumaticaTimeZone = self.SelectedTimeZone().TimeZoneId;
+            model.AcumaticaDefaultItemClass = self.SelectedItemClass().ItemClass;
+            model.AcumaticaDefaultPostingClass = self.SelectedPostingClass();
+
+            model.AcumaticaPaymentMethod = self.SelectedPaymentMethod().PaymentMethod;
+            model.AcumaticaPaymentCashAccount = self.SelectedCashAccount();
+
+            model.AcumaticaTaxZone = self.SelectedTaxZone();
+            model.AcumaticaTaxId = self.SelectedTaxId();
+            model.AcumaticaTaxCategory = self.SelectedTaxCategory();
+            
+            console.log(model);
+
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("Config/PreferenceSelections", model, this);
+
         };
 
         return self;

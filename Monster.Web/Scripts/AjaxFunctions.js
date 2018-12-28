@@ -43,6 +43,8 @@ Monster.Ajax = function (settings) {
 
     self.Settings = settings || new Monster.AjaxSettings();
 
+    self.SuppressErrorPopup = false;
+
     self.ErrorCallback = function (jqXHR, textStatus, errorThrown) {        
         self.HideLoading();
 
@@ -50,21 +52,19 @@ Monster.Ajax = function (settings) {
             var message = Monster.StandardErrorMessage;
 
             if (jqXHR.status == 401) {
-                alert(Monster.Http401ErrorMessage);
-
-                window.location.href =
-                    PushConfig.BaseUrl + "?ReturnUrl=" +
-                        encodeURIComponent(window.location.href);
-
-                return;
+                message = Monster.Http401ErrorMessage;
             }
 
             if (jqXHR.status == 403) {
                 message = Monster.Http403ErrorMessage;
             }
             
+            if (self.SuppressErrorPopup) {
+                console.log(jqXHR, textStatus, message);
+                return;
+            }
+
             if (self.Settings.Modal) {
-                // Avoid nested modals and use browser alert when one is present, already
                 alert(message);
             } else {
                 Monster.ErrorPopup(message);
@@ -140,5 +140,7 @@ Monster.Ajax = function (settings) {
             Monster.HideLoading();
         }
     };
+
+    return self;
 };
 

@@ -115,6 +115,7 @@ namespace Monster.Web.Controllers
         }
 
 
+
         // Acumatica Settings Pull
         //
         [HttpGet]
@@ -138,20 +139,13 @@ namespace Monster.Web.Controllers
         }
 
 
+
         // Preference-selection of Reference Data
         //
         [HttpGet]
         public ActionResult Preferences()
         {
             return View();
-        }
-
-        [HttpGet]
-        public ActionResult PreferenceSelections()
-        {
-            var preferencesData = _tenantRepository.RetrievePreferences();
-            var output = Mapper.Map<PreferencesModel>(preferencesData);
-            return new JsonNetResult(output);
         }
 
         [HttpGet]
@@ -162,11 +156,33 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult AcumaticaReferenceDataStatus()
+        public ActionResult PreferenceSelections()
         {
-            var status = _statusService.AcumaticaReferenceDataStatus();
-            return new JsonNetResult(status);
+            var preferencesData = _tenantRepository.RetrievePreferences();
+            var output = Mapper.Map<PreferencesModel>(preferencesData);
+            return new JsonNetResult(output);
         }
+
+        [HttpPost]
+        public ActionResult PreferenceSelections(PreferencesModel model)
+        {
+            var data = _tenantRepository.RetrievePreferences();
+            
+            data.ShopifyDataPullStart = model.ShopifyDataPullStart;
+            data.AcumaticaTimeZone = model.AcumaticaTimeZone;
+            data.AcumaticaDefaultItemClass = model.AcumaticaDefaultItemClass;
+            data.AcumaticaDefaultPostingClass = model.AcumaticaDefaultPostingClass;
+            data.AcumaticaPaymentMethod = model.AcumaticaPaymentMethod;
+            data.AcumaticaPaymentCashAccount = model.AcumaticaPaymentCashAccount;
+            data.AcumaticaTaxCategory = model.AcumaticaTaxCategory;
+            data.AcumaticaTaxId = model.AcumaticaTaxId;
+            data.AcumaticaTaxZone = model.AcumaticaTaxZone;
+
+            _tenantRepository.SaveChanges();
+
+            return JsonNetResult.Success();
+        }
+
 
 
         [HttpGet]

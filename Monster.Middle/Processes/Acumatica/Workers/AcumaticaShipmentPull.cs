@@ -60,7 +60,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private void RunAll()
         {
             var preferences = _tenantRepository.RetrievePreferences();
-            var shipmentUpdateMin = preferences.DataPullStart;
+            var shipmentUpdateMin = preferences.ShopifyDataPullStart;
 
             var json = _shipmentClient.RetrieveShipments(shipmentUpdateMin);
 

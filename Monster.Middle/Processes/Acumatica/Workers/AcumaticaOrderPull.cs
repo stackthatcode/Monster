@@ -64,7 +64,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private void RunAll()
         {
             var preferences = _tenantRepository.RetrievePreferences();
-            var orderUpdateMin = preferences.DataPullStart;
+            var orderUpdateMin = preferences.ShopifyDataPullStart;
 
             var json = _salesOrderClient.RetrieveSalesOrders(orderUpdateMin);
             var orders = json.DeserializeFromJson<List<SalesOrder>>();

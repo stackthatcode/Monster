@@ -33,6 +33,7 @@
 
     @Scripts.Render("~/Scripts/jquery.min.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/flow.js?tmp=" + Guid.NewGuid())
+    @Scripts.Render("~/Scripts/aQuery-1.0-min.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/AjaxFunctions.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/UtilityFunctions.js?tmp=" + Guid.NewGuid())
     @Scripts.Render("~/Scripts/knockout-3.4.2.js?tmp=" + Guid.NewGuid())
@@ -50,5 +51,13 @@
             <span class="text-muted">@GlobalConfig.Organization - All rights reserved</span>
         </div>
     </footer>
+
+    <div id="spinner-layer" class="spinner-layer" style="display: none;">
+        <div id="spinner" class="spinner">
+            <img id="img-spinner"
+                 style="width: 80px; height: 80px;"
+                 src="@GlobalConfig.Url("Content/spinner-new.gif")" />
+        </div>
+    </div>
 </body>
 </html>

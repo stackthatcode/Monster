@@ -1059,7 +1059,7 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrPreference
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? DataPullStart { get; set; } // DataPullStart
+        public System.DateTime? ShopifyDataPullStart { get; set; } // ShopifyDataPullStart
         public double? DefaultCoGsMargin { get; set; } // DefaultCoGSMargin
         public int? ShopifyOrderPushStart { get; set; } // ShopifyOrderPushStart
         public string AcumaticaTimeZone { get; set; } // AcumaticaTimeZone (length: 50)
@@ -2053,7 +2053,7 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.DataPullStart).HasColumnName(@"DataPullStart").HasColumnType("date").IsOptional();
+            Property(x => x.ShopifyDataPullStart).HasColumnName(@"ShopifyDataPullStart").HasColumnType("date").IsOptional();
             Property(x => x.DefaultCoGsMargin).HasColumnName(@"DefaultCoGSMargin").HasColumnType("float").IsOptional();
             Property(x => x.ShopifyOrderPushStart).HasColumnName(@"ShopifyOrderPushStart").HasColumnType("int").IsOptional();
             Property(x => x.AcumaticaTimeZone).HasColumnName(@"AcumaticaTimeZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
@@ -2582,7 +2582,7 @@ namespace Monster.Middle.Persist.Multitenant
             ToTable("usrSystemState", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyConnection).HasColumnName(@"ShopifyConnection").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaConnection).HasColumnName(@"AcumaticaConnection").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaReferenceData).HasColumnName(@"AcumaticaReferenceData").HasColumnType("int").IsRequired();

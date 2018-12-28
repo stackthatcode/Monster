@@ -359,10 +359,7 @@
 
         self.PollStatus = function() {
             var ajax = new Monster.Ajax();
-            // TODO - move this to the AJAX module
-            ajax.ErrorCallback = function(jqXHR, textStatus, errorThrown) {
-                console.log(textStatus, errorThrown);
-            };
+            ajax.SuppressErrorPopup = true;
             ajax.HttpGet("Config/AcumaticaConnectionStatus", self.ProcessStatus);
         };
 

@@ -66,7 +66,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             var firstFilter = new SearchFilter();
             firstFilter.OrderByCreatedAt();
-            firstFilter.CreatedAtMinUtc = preferences.DataPullStart;
+            firstFilter.CreatedAtMinUtc = preferences.ShopifyDataPullStart;
             
             var firstJson = _orderApi.Retrieve(firstFilter);
             var firstOrders = firstJson.DeserializeToOrderList().orders;

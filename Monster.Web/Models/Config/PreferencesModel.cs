@@ -1,22 +1,33 @@
-﻿namespace Monster.Web.Models.Config
+﻿using System;
+
+namespace Monster.Web.Models.Config
 {
     public class PreferencesModel
     {
-        public string DataPullStart { get; set; }
+        public DateTime ShopifyDataPullStart { get; set; }
+        public string 
+            ShopifyDataPullStartFormatted 
+                => ShopifyDataPullStart.Date.ToString("MM/dd/yyyy");
+        public string AcumaticaTimeZone { get; set; }
+
+        [Obsolete("Maybe/maybe not")]
         public string ShopifyOrderPushStart { get; set; }
+        [Obsolete]
         public string DefaultCoGsMargin { get; set; }
         
-        public string AcumaticaTimeZone { get; set; }
+
         public string AcumaticaDefaultItemClass { get; set; }
         public string AcumaticaDefaultPostingClass { get; set; }
+
         public string AcumaticaPaymentMethod { get; set; }
         public string AcumaticaPaymentCashAccount { get; set; }
+
         public string AcumaticaTaxZone { get; set; }
         public string AcumaticaTaxCategory { get; set; }
         public string AcumaticaTaxId { get; set; }
 
-        public bool FulfillmentInAcumatica { get; set; }
+        //public bool FulfillmentInAcumatica { get; set; }
 
-        public string FulfillmentSystem => FulfillmentInAcumatica ? "ACUMATICA" : "SHOPIFY";
+        //public string FulfillmentSystem => FulfillmentInAcumatica ? "ACUMATICA" : "SHOPIFY";
     }
 }

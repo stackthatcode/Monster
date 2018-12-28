@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Payouts.Workers
 
             var minDate
                 = batchState.ShopifyPayoutPullEnd 
-                    ?? preferences.DataPullStart.Value;
+                    ?? preferences.ShopifyDataPullStart.Value;
             
 
             // First stage is to import Payouts based on Date 
