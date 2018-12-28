@@ -124,7 +124,7 @@
                     </a>
 
                     <a href="#" class="btn btn-primary btn-lg"
-                       data-bind="click: ConnectToAcumatica">
+                       data-bind="click: PushCredentials">
                         Connect to Acumatica <i class="fas fa-bolt"></i>
                     </a>
                 </div>
@@ -197,7 +197,7 @@
                 <div data-bind="if: HasConnectionBeenSet"
                      style="text-align: center; width: 100%; margin-bottom: 15px;">
                     <a href="#" class="btn btn-light btn-sm"
-                       data-bind="click: ConnectToAcumatica">
+                       data-bind="click: ChangeSettingsClick">
                         Change your Acumatica Credentials  <i class="fas fa-pencil-alt"></i>
                     </a>
                     <hr />
@@ -220,7 +220,7 @@
 
                     <span data-bind="if: HasConnectionBeenSet">
                         <a href="#" class="btn btn-primary btn-lg"
-                           data-bind="click: ConnectToAcumatica">
+                           data-bind="click: AcumaticaTestConnection">
                             Re-connect to Acumatica <i class="fas fa-bolt"></i>
                         </a>
                     </span>
@@ -310,7 +310,8 @@
 
 
         // Actions
-        self.ChangeSettingsClick = function() {            
+        self.ChangeSettingsClick = function () {
+            console.log('like whut?')
             self.ClearVisibility();
             @{
                 // Debugging stuff - fast and easy - my way!
@@ -344,7 +345,7 @@
                 });
         }
 
-        self.ConnectToAcumatica = function() {
+        self.PushCredentials = function() {
             var model = {
                 InstanceUrl: self.AcumaticaInstanceUrl(),
                 Company: self.AcumaticaCompany(),
@@ -357,9 +358,15 @@
             ajax.HttpPost("Config/AcumaticaCredentials", model, self.PollStatus);
         };
 
+        self.AcumaticaTestConnection = function() {
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("Config/AcumaticaTestConnection", {});
+        };
+
+
         self.PollStatus = function() {
             var ajax = new Monster.Ajax();
-            ajax.SuppressErrorPopup = true;
+            ajax.DisablePopupsAndSpinners();
             ajax.HttpGet("Config/AcumaticaConnectionStatus", self.ProcessStatus);
         };
 

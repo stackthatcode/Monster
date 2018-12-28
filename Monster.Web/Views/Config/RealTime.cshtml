@@ -151,7 +151,7 @@
         self.PollStatus = function() {
             flow.exec(function () {
                 var ajax = new Monster.Ajax();
-                ajax.SuppressErrorPopup = true;                    
+                ajax.DisablePopupsAndSpinners();
                 ajax.HttpGet("Config/RealTimeStatus", this);
             },
             function (response) {

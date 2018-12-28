@@ -156,6 +156,7 @@
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
                     ajax.HttpGet("Config/WarehouseSyncStatus", this);
                 },
                 function (response) {

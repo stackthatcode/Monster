@@ -87,6 +87,13 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
+        public ActionResult AcumaticaTestConnection()
+        {
+            _hangfireService.ConnectToAcumatica();
+            return JsonNetResult.Success();
+        }
+
+        [HttpPost]
         public ActionResult AcumaticaCredentials(AcumaticaCredentialsModel model)
         {
             var state = _stateRepository.RetrieveSystemState();
@@ -110,7 +117,6 @@ namespace Monster.Web.Controllers
             }
 
             _hangfireService.ConnectToAcumatica();
-
             return JsonNetResult.Success();
         }
 

@@ -45,6 +45,12 @@ Monster.Ajax = function (settings) {
 
     self.SuppressErrorPopup = false;
 
+    self.DisablePopupsAndSpinners = function() {
+        self.SuppressErrorPopup = false;
+        self.Settings.UseSpinner = false;
+    };
+
+
     self.ErrorCallback = function (jqXHR, textStatus, errorThrown) {        
         self.HideLoading();
 

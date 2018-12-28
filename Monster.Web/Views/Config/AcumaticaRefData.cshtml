@@ -203,12 +203,12 @@
 
         self.PollStatus = function() {
             var ajax = new Monster.Ajax();
-            ajax.SuppressErrorPopup = true;
+            ajax.DisablePopupsAndSpinners();
             ajax.HttpGet("Config/AcumaticaRefDataStatus", self.ProcessStatus);
         };
 
         self.ProcessStatus = function (response) {
-            console.log(response);
+            //console.log(response);
 
             self.BackgroundJobRunning(response.IsBackgroundJobRunning);
 
