@@ -4,8 +4,9 @@ namespace Monster.Web.Models.Config
 {
     public class WarehouseSyncStatusModel
     {
-        public int JobStatus { get; set; }
-        public WarehouseSyncState SyncState { get; set; }        
+        public bool IsBackgroundJobRunning { get; set; }
+        public int WarehouseSyncState { get; set; }
+        public WarehouseSyncStateDetails Details { get; set; }
     }
 }
 

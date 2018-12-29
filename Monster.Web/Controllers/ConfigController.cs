@@ -191,33 +191,50 @@ namespace Monster.Web.Controllers
 
 
 
+        // Warehouse synchronization
+        //
         [HttpGet]
         public ActionResult Warehouses()
         {
             return View();
         }
 
-        [HttpGet]
-        public ActionResult Inventory()
-        {
-            return View();
-        }
-
-        [HttpGet]
-        public ActionResult RealTime()
-        {
-            return View();
-        }
-
-
-
-        // Job Launching methods
-        //
         [HttpPost]
         public ActionResult SyncWarehouses()
         {
             _hangfireService.SyncWarehouseAndLocation();
             return JsonNetResult.Success();
+        }
+
+        [HttpGet]
+        public ActionResult WarehouseSyncStatus()
+        {
+            var isBackgroundJobRunning
+                = _hangfireService.IsJobRunning(
+                    BackgroundJobType.SyncWarehouseAndLocation);
+
+            var state = _stateRepository.RetrieveSystemState();
+            var warehouseSyncStatus
+                = _statusService.WarehouseSyncStatus();
+
+            var output = new WarehouseSyncStatusModel()
+            {
+                IsBackgroundJobRunning = isBackgroundJobRunning,
+                WarehouseSyncState = state.WarehouseSync,
+                Details = warehouseSyncStatus
+            };
+
+            return new JsonNetResult(output);
+        }
+
+
+
+        // Inventory 
+        //
+        [HttpGet]
+        public ActionResult Inventory()
+        {
+            return View();
         }
 
         [HttpPost]
@@ -232,26 +249,6 @@ namespace Monster.Web.Controllers
         {
             _hangfireService.PushInventoryToShopify();
             return JsonNetResult.Success();
-        }
-
-
-
-        // Status inquiries
-        // 
-        [HttpGet]
-        public ActionResult WarehouseSyncStatus()
-        {
-            var state = _stateRepository.RetrieveSystemState();
-            var warehouseSyncStatus
-                = _statusService.WarehouseSyncStatus();
-
-            var output = new WarehouseSyncStatusModel()
-            {
-                JobStatus = state.WarehouseSync,
-                SyncState = warehouseSyncStatus
-            };
-
-            return new JsonNetResult(output);
         }
 
         [HttpGet]
@@ -272,6 +269,15 @@ namespace Monster.Web.Controllers
 
 
 
+
+        // Status inquiries
+        // 
+        [HttpGet]
+        public ActionResult RealTime()
+        {
+            return View();
+        }
+        
         // Real Time Sync
         //
         [HttpPost]

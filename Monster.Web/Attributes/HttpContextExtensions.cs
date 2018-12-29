@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using Monster.Middle.Security;
 
-namespace Monster.Middle.Attributes
+namespace Monster.Web.Attributes
 {
     public static class HttpContextExtensions
     {

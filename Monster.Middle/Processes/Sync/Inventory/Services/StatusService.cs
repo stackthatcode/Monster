@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -33,12 +32,12 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
 
         // TODO - include whether job faulted out or not
         //
-        public WarehouseSyncState WarehouseSyncStatus()
+        public WarehouseSyncStateDetails WarehouseSyncStatus()
         {
             var warehouses = _syncInventoryRepository.RetrieveWarehouses();
             var locations = _syncInventoryRepository.RetrieveLocations();
 
-            var output = new WarehouseSyncState();
+            var output = new WarehouseSyncStateDetails();
 
             output.UnmatchedAcumaticaWarehouses
                 = warehouses

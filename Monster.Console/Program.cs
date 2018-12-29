@@ -5,7 +5,7 @@ using Hangfire;
 using Hangfire.Logging;
 using Hangfire.SqlServer;
 using Monster.Middle;
-using Monster.Middle.Misc;
+using Monster.Middle.Hangfire;
 using Push.Foundation.Utilities.Helpers;
 
 

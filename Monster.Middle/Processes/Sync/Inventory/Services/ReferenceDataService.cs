@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api.Reference;
-using Monster.Middle.Processes.Acumatica.Model;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Services;

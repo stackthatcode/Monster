@@ -1,10 +1,6 @@
-﻿using System.Web.Mvc;
-using Hangfire.Dashboard;
-using Microsoft.AspNet.Identity;
-using Microsoft.Owin;
-using Monster.Middle.Security;
+﻿using Hangfire.Dashboard;
 
-namespace Monster.Middle.Attributes
+namespace Monster.Web.Attributes
 {
     public class HangFireAuthorizationFilter : IDashboardAuthorizationFilter
     {

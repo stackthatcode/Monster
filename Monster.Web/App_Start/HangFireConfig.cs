@@ -1,6 +1,7 @@
 ﻿using Hangfire;
 using Hangfire.SqlServer;
 using Monster.Middle.Attributes;
+using Monster.Web.Attributes;
 using Monster.Web.Plumbing;
 using Owin;
 

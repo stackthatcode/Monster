@@ -4,11 +4,13 @@ using Push.Foundation.Utilities.General;
 
 namespace Monster.Middle.Processes.Sync.Inventory.Model
 {
-    public class WarehouseSyncState
+    public class WarehouseSyncStateDetails
     {
         public IList<string> MatchedWarehouseLocations { get; set; }
         public IList<string> UnmatchedShopifyLocations { get; set; }
         public IList<string> UnmatchedAcumaticaWarehouses { get; set; }
+
+        // To be used...
         public IList<string> MismatchedWarehouseLocations { get; set; }
 
         public string GetSynopsis(string delimiter = null)
