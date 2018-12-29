@@ -1,0 +1,141 @@
+﻿@using Monster.Web.Plumbing
+
+
+@Html.Partial("_TopBrand")
+
+<hr/>
+<h1 class="mt-5 center">Inventory - Load into Acumatica</h1>
+<p class="lead center">Optional step to load your Shopify Inventory into Acumatica</p>
+
+<div data-bind="ifnot: IsBackgroundJobRunning">
+    <div class="std-padding">
+        <div data-bind="if: AcumaticaInventoryPushState() == SystemState.None">
+            <div class="alert alert-warning">
+                <strong>OPTIONAL</strong> - this function is strictly-for users
+                that intend to copy their Shopify catalog and inventory counts into Acumatica.
+            </div>
+            <p>
+                @GlobalConfig.AppName can load your complete Shopify catalog of Products and Variants into Acumatica,
+                and creates corresponding Stock Items in Acumatica.
+                If you elect to use this function,
+                @GlobalConfig.AppName will also load your entire Inventory counts
+                from Shopify into Acumatica via Inventory Receipts.
+            </p>
+        </div>
+        
+        <div data-bind="if: AcumaticaInventoryPushState() == SystemState.SystemFault">
+            <div class="alert alert-danger">
+                <strong>Load Inventory into Acumatica - System Fault</strong>
+            </div>
+            <p>
+                Something went wrong while running this process. 
+                You may consider reviewing your configuration before 
+                re-running. If issue persists, contact support.
+            </p>
+        </div>
+
+        <div data-bind="if: AcumaticaInventoryPushState() == SystemState.Ok">
+            <div class="alert alert-info">
+                <strong>Load Inventory into Acumatica - OK</strong>
+            </div>
+            <p>
+                This process has successfully completed. You can re-run
+                it at anytime to ensure that all of your Shopify products 
+                and variants are loaded into Acumatica.
+            </p>
+        </div>
+    </div>
+
+    <div class="std-padding-bottom center">
+        <span data-bind="ifnot: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/Warehouses")"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Previous Step
+            </a>
+        </span>
+
+        <span data-bind="if: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/Realtime")"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Back to Dashboard
+            </a>
+        </span>
+
+        <a href="#" class="btn btn-primary btn-lg"
+           data-bind="click: PushInventoryToAcumaticaClick">
+            Synchronize Now <i class="fas fa-bolt"></i>
+        </a>
+
+        <span data-bind="ifnot: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/InventoryToShopify")"
+               class="btn btn-success btn-lg">
+                Next Step <i class="fas fa-sign-in-alt"></i>
+            </a>
+        </span>
+    </div>
+</div>
+
+<div data-bind="if: IsBackgroundJobRunning">
+    <div class="std-padding">
+        <div class="card">
+            <div class="card-body center std-padding">
+                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+                <div style="height: 30px;"></div>
+                <p class="center">
+                    Please wait while @GlobalConfig.AppName loads your Shopify Products and Variants
+                    into Acumatica. Depending on size, this process may take several minutes.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.InventoryConfigModel = function () {
+        var self = this;
+
+        self.IsBackgroundJobRunning = ko.observable();
+        self.IsRandomAccessMode = ko.observable();
+        self.AcumaticaInventoryPushState = ko.observable();
+        
+        self.PushInventoryToAcumaticaClick = function () {
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("Config/PushInventoryToAcumatica", {}, self.PollStatus);
+        };
+
+        self.PollStatus = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("Config/AcumaticaInventoryPushStatus", this);
+                },
+                function (response) {
+                    console.log(response);
+
+                    self.IsBackgroundJobRunning(response.IsBackgroundJobRunning);
+                    self.AcumaticaInventoryPushState(response.SystemState);
+                    self.IsRandomAccessMode(response.IsRandomAccessMode);
+
+                    if (self.IsBackgroundJobRunning()) {
+                        setTimeout(self.PollStatus, 1000);
+                    }
+                });
+        };
+
+        self.Initialize = function () {
+            self.PollStatus();
+        };
+
+        return self;
+    };
+
+    var model = new Monster.InventoryConfigModel();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
+

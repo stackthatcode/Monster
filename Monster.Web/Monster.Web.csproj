@@ -303,7 +303,7 @@
     <Content Include="Views\Config\Warehouses.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\Inventory.cshtml" />
+    <Content Include="Views\Config\InventoryToAcumatica.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\RealTime.cshtml" />
@@ -328,6 +328,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\AcumaticaRefData.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Config\InventoryToShopify.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

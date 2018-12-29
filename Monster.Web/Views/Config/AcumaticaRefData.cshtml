@@ -11,7 +11,9 @@
 <hr />
 
 <h1 class="mt-5 center">Configuration - Acumatica</h1>
-<p class="lead center">Configuration of Acumatica reference data for @GlobalConfig.AppName</p>
+<p class="lead center">
+    Configuration of Acumatica reference data for @GlobalConfig.AppName
+</p>
 
 
 <div data-bind="ifnot: BackgroundJobRunning">
@@ -99,9 +101,7 @@
     </div>
 </div>
 
-
 <script type="text/html" id="Pdf-Download">
-
     <div data-bind="if: ReferenceDataState() != SystemState.Ok">
         <p>
             Download the following PDF document and execute all of the steps contained

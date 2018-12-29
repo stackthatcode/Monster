@@ -6,8 +6,8 @@
 <hr/>
 
 <div data-bind="if: Step1Visible">
-    <h1 class="mt-5 center">Inventory Synchronization - Step 1</h1>
-    <p class="lead center">Load your Shopify Inventory into Acumatica</p>
+    <h1 class="mt-5 center">Configuration - Inventory to Acumatica</h1>
+    <p class="lead center">Optional step to load your Shopify Inventory into Acumatica</p>
 
     <div class="std-padding">        
         <p>
@@ -23,7 +23,7 @@
                 <i class="fas fa-undo"></i> Go Back to Warehouses
             </a>
 
-            <a href="#" data-bind="click: LoadInventoryInAcumaticaClick"
+            <a href="#" data-bind="click: PushInventoryToAcumaticaClick"
                class="btn btn-primary btn-lg">
                 Synchronize Now
                 <i class="fas fa-bolt"></i>
@@ -165,13 +165,13 @@
             self.Step5Visible(false);
         };
 
-        self.LoadInventoryInAcumaticaClick = function () {
+        self.PushInventoryToAcumaticaClick = function () {
             self.ClearVisibility();
             self.Step2Visible(true);
 
             var ajax = new Monster.Ajax();
             ajax.HttpPost(
-                "Config/LoadInventoryInAcumatica", {},
+                "Config/PushInventoryToAcumatica", {},
                 self.PollAcumaticaInventoryPushStatus);
         };
 

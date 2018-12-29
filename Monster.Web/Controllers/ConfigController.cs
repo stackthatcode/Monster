@@ -221,7 +221,8 @@ namespace Monster.Web.Controllers
             {
                 IsBackgroundJobRunning = isBackgroundJobRunning,
                 WarehouseSyncState = state.WarehouseSync,
-                Details = warehouseSyncStatus
+                Details = warehouseSyncStatus,
+                IsRandomAccessMode = state.IsRandomAccessMode,
             };
 
             return new JsonNetResult(output);
@@ -232,31 +233,43 @@ namespace Monster.Web.Controllers
         // Inventory 
         //
         [HttpGet]
-        public ActionResult Inventory()
+        public ActionResult InventoryToAcumatica()
         {
             return View();
         }
-
+        
         [HttpPost]
-        public ActionResult LoadInventoryInAcumatica()
+        public ActionResult PushInventoryToAcumatica()
         {
             _hangfireService.PushInventoryToAcumatica();
-            return JsonNetResult.Success();
-        }
-
-        [HttpPost]
-        public ActionResult LoadInventoryInShopify()
-        {
-            _hangfireService.PushInventoryToShopify();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
         public ActionResult AcumaticaInventoryPushStatus()
         {
+            var isRunning = 
+                _hangfireService.IsJobRunning(
+                    BackgroundJobType.PushInventoryToAcumatica);
+
             var state = _stateRepository.RetrieveSystemState();
-            var output = new { JobStatus = state.AcumaticaInventoryPush };
+
+            var output = new
+            {
+                IsBackgroundJobRunning = isRunning,
+                SystemState = state.AcumaticaInventoryPush,
+                IsRandomAccessMode = state.IsRandomAccessMode
+            };
+
             return new JsonNetResult(output);
+        }
+
+
+        [HttpPost]
+        public ActionResult LoadInventoryInShopify()
+        {
+            _hangfireService.PushInventoryToShopify();
+            return JsonNetResult.Success();
         }
 
         [HttpGet]
@@ -277,9 +290,7 @@ namespace Monster.Web.Controllers
         {
             return View();
         }
-        
-        // Real Time Sync
-        //
+
         [HttpPost]
         public ActionResult StartRealTime()
         {

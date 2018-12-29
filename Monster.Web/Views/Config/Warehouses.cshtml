@@ -72,7 +72,7 @@
 </div>
 
 <script type="text/html" id="Sync-State-Details">
-    <div class="std-padding" data-bind="with: Details">
+    <div data-bind="with: Details">
         <div class="card">
             <div class="card-body center std-padding">                
                 
@@ -120,20 +120,32 @@
 </script>
 
 <div class="center std-padding">
-    <a href="@GlobalConfig.Url("Config/Preferences")" 
-       class="btn btn-secondary btn-lg">
-        <i class="fas fa-undo"></i> Go Back to Config
-    </a>
+    <span data-bind="ifnot: IsRandomAccessMode">
+        <a href="@GlobalConfig.Url("Config/Preferences")"
+           class="btn btn-secondary btn-lg">
+            <i class="fas fa-undo"></i> Previous Step
+        </a>
+    </span>
     
-    <a href="@GlobalConfig.Url("Config/Inventory")" 
-       class="btn btn-success btn-lg">
-        Go to Next Step <i class="fas fa-sign-in-alt"></i>
-    </a>
-     
-    <a href="#" class="btn btn-primary btn-lg"
-       data-bind="click: SynchronizeClick">Synchronize Now
-        <i class="fas fa-bolt"></i>
-    </a>    
+    <span data-bind="if: IsRandomAccessMode">
+        <a href="@GlobalConfig.Url("Config/Realtime")"
+           class="btn btn-secondary btn-lg">
+            <i class="fas fa-undo"></i> Back to Dashboard
+        </a>
+    </span>
+
+        <a href="#" class="btn btn-primary btn-lg"
+           data-bind="click: SynchronizeClick">
+            Synchronize Now
+            <i class="fas fa-bolt"></i>
+        </a>
+    
+    <span data-bind="if: NextButtonVisible">
+        <a href="@GlobalConfig.Url("Config/InventoryToAcumatica")"
+           class="btn btn-success btn-lg">
+            Next Step <i class="fas fa-sign-in-alt"></i>
+        </a>
+    </span>
 </div>
 
 <script>
@@ -145,6 +157,12 @@
         self.BackgroundJobRunning = ko.observable();
         self.WarehouseSyncState = ko.observable();
         self.Details = ko.observable();
+        self.IsRandomAccessMode = ko.observable();
+        
+        self.NextButtonVisible = ko.computed(function() {
+            return !self.IsRandomAccessMode()
+                && self.WarehouseSyncState() == SystemState.Ok;
+        });
 
         self.SynchronizeClick = function() {
             var ajax = new Monster.Ajax();
@@ -173,8 +191,9 @@
             self.Details(model.Details);
             self.WarehouseSyncState(model.WarehouseSyncState);
             self.BackgroundJobRunning(model.IsBackgroundJobRunning);
-            
-            console.log(model);
+            self.IsRandomAccessMode(model.IsRandomAccessMode);
+
+            //console.log(model);
         };
 
         self.Initialize = function () {
