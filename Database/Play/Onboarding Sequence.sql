@@ -28,18 +28,22 @@ SELECT * FROM usrTenant;
 
 SELECT * FROM usrSystemState;
 
+UPDATE usrSystemState SET IsRandomAccessMode = 0;
+
 UPDATE usrSystemState SET ShopifyConnection = 2;
 UPDATE usrSystemState SET AcumaticaConnection = 2;
 UPDATE usrSystemState SET AcumaticaReferenceData = 2;
 UPDATE usrSystemState SET PreferenceSelections = 2;
-UPDATE usrSystemState SET WarehouseSync = 3;
+UPDATE usrSystemState SET WarehouseSync = 2;
+UPDATE usrSystemState SET AcumaticaInventoryPush = 4;
+UPDATE usrSystemState SET ShopifyInventoryPush = 4;
 
 DELETE FROM usrBackgroundJob
 
 
 UPDATE usrSystemState SET IsShopifyUrlFinalized = 1;
 UPDATE usrSystemState SET IsAcumaticaUrlFinalized = 1;
-UPDATE usrSystemState SET IsRandomAccessMode = 0;
+
 
 SELECT * FROM usrPreferences;
 

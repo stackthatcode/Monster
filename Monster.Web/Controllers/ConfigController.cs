@@ -230,7 +230,7 @@ namespace Monster.Web.Controllers
 
 
 
-        // Inventory 
+        // Inventory - to Acumatica
         //
         [HttpGet]
         public ActionResult InventoryToAcumatica()
@@ -265,8 +265,16 @@ namespace Monster.Web.Controllers
         }
 
 
+        // Inventory - to Shopify
+        //
+        [HttpGet]
+        public ActionResult InventoryToShopify()
+        {
+            return View();
+        }
+
         [HttpPost]
-        public ActionResult LoadInventoryInShopify()
+        public ActionResult PushInventoryToShopify()
         {
             _hangfireService.PushInventoryToShopify();
             return JsonNetResult.Success();
@@ -275,8 +283,19 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ShopifyInventoryPushStatus()
         {
+            var isRunning =
+                _hangfireService
+                    .IsJobRunning(BackgroundJobType.PushInventoryToShopify);
+
             var state = _stateRepository.RetrieveSystemState();
-            var output = new { JobStatus = state.ShopifyInventoryPush };
+
+            var output = new
+            {
+                IsBackgroundJobRunning = isRunning,
+                SystemState = state.ShopifyInventoryPush,
+                IsRandomAccessMode = state.IsRandomAccessMode
+            };
+
             return new JsonNetResult(output);
         }
 

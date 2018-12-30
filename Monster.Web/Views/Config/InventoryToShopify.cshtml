@@ -1,103 +1,75 @@
 ﻿@using Monster.Web.Plumbing
 
-
 @Html.Partial("_TopBrand")
+<hr />
+<h1 class="mt-5 center">Inventory - Load into Shopify</h1>
+<p class="lead center">Synchronize Shopify with Acumatica inventory counts</p>
 
-<hr/>
 
-<div data-bind="if: Step1Visible">
-    <h1 class="mt-5 center">Configuration - Inventory to Acumatica</h1>
-    <p class="lead center">Optional step to load your Shopify Inventory into Acumatica</p>
-
-    <div class="std-padding">        
-        <p>
-            @GlobalConfig.AppName loads your complete Shopify catalog of Products and Variants into Acumatica,
-            and creates corresponding Stock Items in Acumatica.
-            @GlobalConfig.AppName will also load your entire Inventory counts
-            from Shopify into Acumatica via Inventory Receipts.
-        </p>
-
-        <div class="center std-padding">
-            <a href="@GlobalConfig.Url("Config/Warehouses")"
-               class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Go Back to Warehouses
-            </a>
-
-            <a href="#" data-bind="click: PushInventoryToAcumaticaClick"
-               class="btn btn-primary btn-lg">
-                Synchronize Now
-                <i class="fas fa-bolt"></i>
-            </a>
-        </div>
-    </div>
-</div>
-
-<div data-bind="if: Step2Visible">
+<div data-bind="ifnot: IsBackgroundJobRunning">
     <div class="std-padding">
-        <div class="card">
-            <div class="card-body center std-padding">
-                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+        <div data-bind="if: ShopifyInventoryPushState() == SystemState.None">
+            <p>
+                @GlobalConfig.AppName is now ready to complete the first update of
+                Shopify Inventory counts with Acumatica Inventory.
+                During this run, the entire contains of Acumatica's Inventory will be used.
+                After this step, @GlobalConfig.AppName will only incrementally 
+                synchronize that has changed.
+            </p>
+        </div>
 
-                <div style="height: 30px;"></div>
-                <p>
-                    Please wait while @GlobalConfig.AppName loads your Shopify Products and Variants
-                    into Acumatica. Depending on size, this process may take several minutes.
-                </p>
+        <div data-bind="if: ShopifyInventoryPushState() == SystemState.SystemFault">
+            <div class="alert alert-danger">
+                <strong>Load Inventory into Shopify - System Fault</strong>
             </div>
+            <p>
+                Something went wrong while running this process.
+                You may consider reviewing your configuration before
+                re-running. If issue persists, contact support.
+            </p>
+        </div>
+
+        <div data-bind="if: ShopifyInventoryPushState() == SystemState.Ok">
+            <div class="alert alert-info">
+                <strong>Load Inventory into Shopify - OK</strong>
+            </div>
+            <p>
+                This process has successfully completed. 
+                Real-time Synchronziation can now run incremental updates.
+            </p>
         </div>
     </div>
-</div>
 
-<div data-bind="if: Step3Visible">
-    <h1 class="mt-5 center">Inventory Synchronization - Step 2</h1>
-    <p class="lead center">Connect Acumatica Inventory to Shopify</p>
-
-    <div class="std-padding">
-        <div class="card">
-            <div class="card-body center std-padding">
-                <h5 class="card-title">Synchronization Complete!</h5>
-
-                <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Created Stock Items in Acumatica
-                        <i class="fas fa-check"></i>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Created Warehouse Receipts in Acumatica
-                        <i class="fas fa-check"></i>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Released Warehouse Receipts in Acumatica
-                        <i class="fas fa-check"></i>
-                    </li>
-                </ul>
-
-                <div style="height: 40px;"></div>
-
-                <p>
-                    There's one final step: connecting the Acumatica Inventory
-                    you've just created back to Shopify. After this,
-                    your two systems will be ready for real-time synchronization.
-                </p>
-            </div>
-        </div>
-
-        <div class="center std-padding">
-            <a href="@GlobalConfig.Url("Config/Warehouses")"
+    <div class="std-padding-bottom center">
+        <span data-bind="ifnot: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/InventoryToAcumatica")"
                class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Go Back to Warehouses
+                <i class="fas fa-undo"></i> Previous Step
             </a>
+        </span>
 
-            <a href="#" class="btn btn-primary btn-lg"
-               data-bind="click: LoadInventoryInShopifyClick">
-                Synchronize Now
-                <i class="fas fa-bolt"></i>
+        <span data-bind="if: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/Realtime")"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Back to Dashboard
             </a>
-        </div>
+        </span>
+
+        <a href="#" class="btn btn-primary btn-lg"
+           data-bind="click: PushInventoryToShopifyClick">
+            Synchronize Now <i class="fas fa-bolt"></i>
+        </a>
+
+        <span data-bind="ifnot: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/RealTime")"
+               class="btn btn-success btn-lg">
+                Next Step <i class="fas fa-sign-in-alt"></i>
+            </a>
+        </span>
     </div>
 </div>
 
-<div data-bind="if: Step4Visible">
+<div data-bind="if: IsBackgroundJobRunning">
     <div class="std-padding">
         <div class="card">
             <div class="card-body center std-padding">
@@ -105,45 +77,13 @@
 
                 <div style="height: 30px;"></div>
                 <p class="center">
-                    Please wait while @GlobalConfig.AppName connects your Acumatica Inventory to Shopify.
+                    Please wait while @GlobalConfig.AppName loads your Acumatica inventory counts
+                    into Shopify. Depending on the size of your catalog, this process may take several minutes.
                 </p>
             </div>
         </div>
     </div>
 </div>
-
-<div data-bind="if: Step5Visible">
-    <div class="std-padding">
-        <div class="card">
-            <div class="card-body center std-padding">
-                <h5 class="card-title">
-                    Warehouse &amp; Location<br/> Synchronization Complete!
-                </h5>
-
-                <p>
-                    Excellent! You are now ready to run @GlobalConfig.AppName in Real-Time Mode.
-                    @GlobalConfig.AppName will maintain synchronization between Shopify
-                    and Acumatica for you.
-                </p>
-                <div style="height: 40px;"></div>
-            </div>
-        </div>
-
-        <div class="center std-padding">
-            <a href="@GlobalConfig.Url("Config/Warehouses")"
-               class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Go Back to Warehouses
-            </a>
-
-            <a href="@GlobalConfig.Url("Config/RealTime")"
-               class="btn btn-success btn-lg">
-                Go to Real Time, Now!
-                <i class="fas fa-sign-in-alt"></i>
-            </a>
-        </div>
-    </div>
-</div>
-
 
 <script>
     var Monster = Monster || {};
@@ -151,84 +91,42 @@
     Monster.InventoryConfigModel = function () {
         var self = this;
 
-        self.Step1Visible = ko.observable();
-        self.Step2Visible = ko.observable();
-        self.Step3Visible = ko.observable();
-        self.Step4Visible = ko.observable();
-        self.Step5Visible = ko.observable();
+        self.IsBackgroundJobRunning = ko.observable();
+        self.IsRandomAccessMode = ko.observable();
+        self.ShopifyInventoryPushState = ko.observable();
 
-        self.ClearVisibility = function () {
-            self.Step1Visible(false);
-            self.Step2Visible(false);
-            self.Step3Visible(false);
-            self.Step4Visible(false);
-            self.Step5Visible(false);
-        };
+        self.IsNextButtonVisible = ko.computed(function() {
+            return !self.IsRandomAccessMode()
+                    && self.ShopifyInventoryPushState() == SystemState.Ok;
+        });
 
-        self.PushInventoryToAcumaticaClick = function () {
-            self.ClearVisibility();
-            self.Step2Visible(true);
-
+        self.PushInventoryToShopifyClick = function () {
             var ajax = new Monster.Ajax();
-            ajax.HttpPost(
-                "Config/PushInventoryToAcumatica", {},
-                self.PollAcumaticaInventoryPushStatus);
+            ajax.HttpPost("Config/PushInventoryToShopify", {}, self.PollStatus);
         };
 
-        self.PollAcumaticaInventoryPushStatus = function () {
+        self.PollStatus = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/AcumaticaInventoryPushStatus", this);
-                },
-                function (response) {
-                    if (response.JobStatus == jobStatus.Complete) {
-                        self.CompleteAcumatica();
-                    } else {
-                        setTimeout(self.PollAcumaticaInventoryPushStatus, 1000);
-                    }
-                });
-        };
-
-        self.CompleteAcumatica = function () {
-            self.ClearVisibility();
-            self.Step3Visible(true);
-        };
-
-        self.LoadInventoryInShopifyClick = function () {
-            self.ClearVisibility();
-            self.Step4Visible(true);
-
-            var ajax = new Monster.Ajax();
-            ajax.HttpPost(
-                "Config/LoadInventoryInShopify", {},
-                self.PollShopifyInventoryPushStatus);
-        };
-
-        self.PollShopifyInventoryPushStatus = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
                     ajax.HttpGet("Config/ShopifyInventoryPushStatus", this);
                 },
                 function (response) {
-                    if (response.JobStatus == jobStatus.Complete) {
-                        self.CompleteShopify();
-                    } else {
-                        setTimeout(self.PollShopifyInventoryPushStatus, 1000);
+                    // console.log(response);
+
+                    self.IsBackgroundJobRunning(response.IsBackgroundJobRunning);
+                    self.ShopifyInventoryPushState(response.SystemState);
+                    self.IsRandomAccessMode(response.IsRandomAccessMode);
+
+                    if (self.IsBackgroundJobRunning()) {
+                        setTimeout(self.PollStatus, 1000);
                     }
                 });
         };
 
-        self.CompleteShopify = function () {
-            self.ClearVisibility();
-            self.Step5Visible(true);
-        };
-
-
         self.Initialize = function () {
-            self.ClearVisibility();
-            self.Step1Visible(true);
+            self.PollStatus();
         };
 
         return self;
@@ -238,4 +136,3 @@
     model.Initialize();
     ko.applyBindings(model);
 </script>
-
