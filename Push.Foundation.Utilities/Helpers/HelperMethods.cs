@@ -28,6 +28,11 @@
             return string.IsNullOrEmpty(input) ? alternative : input;
         }
 
+        public static bool HasValue(this string input)
+        {
+            return !string.IsNullOrEmpty(input);
+        }
+
         public static string Truncate(this string value, int maxLength)
         {
             if (string.IsNullOrEmpty(value)) return value;

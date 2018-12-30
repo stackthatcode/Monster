@@ -6,6 +6,7 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Inventory;
+using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Orders;
 using Push.Foundation.Utilities.Logging;
@@ -15,9 +16,11 @@ namespace Monster.Middle.Processes.Sync
 {
     public class SyncDirector
     {
+        private readonly TenantRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
+        private readonly ReferenceDataService _referenceDataService;
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
         private readonly InventoryManager _inventoryManager;
@@ -26,6 +29,7 @@ namespace Monster.Middle.Processes.Sync
         private readonly IPushLogger _logger;
 
         public SyncDirector(
+                TenantRepository tenantRepository,
                 StateRepository stateRepository,
                 ShopifyBatchRepository shopifyBatchRepository, 
                 AcumaticaBatchRepository acumaticaBatchRepository, 
@@ -34,8 +38,10 @@ namespace Monster.Middle.Processes.Sync
                 StatusService inventoryStatusService,
                 InventoryManager inventoryManager,
                 OrderManager orderManager,
+                ReferenceDataService referenceDataService,
                 IPushLogger logger)
         {
+            _tenantRepository = tenantRepository;
             _stateRepository = stateRepository;
             _shopifyBatchRepository = shopifyBatchRepository;
             _acumaticaBatchRepository = acumaticaBatchRepository;
@@ -43,8 +49,10 @@ namespace Monster.Middle.Processes.Sync
             _shopifyManager = shopifyManager;
             _inventoryManager = inventoryManager;
             _inventoryStatusService = inventoryStatusService;
+
             _orderManager = orderManager;
             _logger = logger;
+            _referenceDataService = referenceDataService;
         }
         
         public void ResetBatchStates()
@@ -77,9 +85,21 @@ namespace Monster.Middle.Processes.Sync
             try
             {
                 _acumaticaManager.PullReferenceData();
+
                 _stateRepository
                     .UpdateSystemState(
                         x => x.AcumaticaReferenceData, SystemState.Ok);
+
+                var preferences = _tenantRepository.RetrievePreferences();
+                _referenceDataService.FilterPreferencesAgainstRefData(preferences);
+                _tenantRepository.SaveChanges();
+
+                var preferencesState =
+                        preferences.AreValid() 
+                            ? SystemState.Ok : SystemState.Invalid;
+
+                _stateRepository.UpdateSystemState(
+                        x => x.PreferenceSelections, preferencesState);
             }
             catch (Exception ex)
             {

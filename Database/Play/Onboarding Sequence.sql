@@ -35,11 +35,11 @@ UPDATE usrSystemState SET AcumaticaConnection = 2;
 UPDATE usrSystemState SET AcumaticaReferenceData = 2;
 UPDATE usrSystemState SET PreferenceSelections = 2;
 UPDATE usrSystemState SET WarehouseSync = 2;
-UPDATE usrSystemState SET AcumaticaInventoryPush = 4;
-UPDATE usrSystemState SET ShopifyInventoryPush = 4;
+UPDATE usrSystemState SET AcumaticaInventoryPush = 2;
+UPDATE usrSystemState SET ShopifyInventoryPush =2;
+
 
 DELETE FROM usrBackgroundJob
-
 
 UPDATE usrSystemState SET IsShopifyUrlFinalized = 1;
 UPDATE usrSystemState SET IsAcumaticaUrlFinalized = 1;

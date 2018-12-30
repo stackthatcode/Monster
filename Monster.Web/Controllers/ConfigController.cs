@@ -5,6 +5,7 @@ using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Services;
 using Monster.Web.Models;
@@ -19,9 +20,7 @@ namespace Monster.Web.Controllers
         private readonly TenantRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly HangfireService _hangfireService;
-        private readonly TimeZoneService _timeZoneService;
 
-        private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly StatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
 
@@ -39,11 +38,9 @@ namespace Monster.Web.Controllers
             _tenantRepository = tenantRepository;
             _stateRepository = stateRepository;
             _hangfireService = hangfireService;
-            _timeZoneService = timeZoneService;
 
             _statusService = statusService;
             _referenceDataService = referenceDataService;
-            _inventoryRepository = inventoryRepository;
         }
 
         
@@ -185,6 +182,10 @@ namespace Monster.Web.Controllers
             data.AcumaticaTaxZone = model.AcumaticaTaxZone;
 
             _tenantRepository.SaveChanges();
+
+            var state = _stateRepository.RetrieveSystemState();
+            state.PreferenceSelections
+                = data.AreValid() ? SystemState.Ok : SystemState.Invalid;
 
             return JsonNetResult.Success();
         }

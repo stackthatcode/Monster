@@ -116,6 +116,7 @@
     <Compile Include="Hangfire\SystemState.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\ItemClassModel.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\PaymentMethodModel.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\PreferencesValidationExtensions.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\ReferenceData.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />

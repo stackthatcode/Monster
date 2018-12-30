@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api.Reference;
+using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Services;
@@ -71,6 +72,51 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
             };
 
             return output;
+        }
+
+        public void FilterPreferencesAgainstRefData(UsrPreference preference)
+        {
+            var referenceData = Retrieve();
+
+            if (referenceData
+                    .TimeZones
+                    .All(x => x.TimeZoneId != preference.AcumaticaTimeZone))
+            {
+                preference.AcumaticaTimeZone = null;
+            }
+
+            if (!referenceData
+                    .ItemClasses
+                    .Any(x => x.ItemClass == preference.AcumaticaDefaultItemClass
+                            && x.PostingClass == preference.AcumaticaDefaultPostingClass))
+            {
+                preference.AcumaticaDefaultItemClass = null;
+                preference.AcumaticaDefaultPostingClass = null;
+            }
+            
+            if (!referenceData
+                    .PaymentMethods
+                    .Any(x => x.PaymentMethod == preference.AcumaticaPaymentMethod
+                              && x.CashAccounts.Contains(preference.AcumaticaPaymentCashAccount)))
+            {
+                preference.AcumaticaPaymentMethod = null;
+                preference.AcumaticaPaymentCashAccount = null;
+            }
+
+            if (referenceData.TaxCategories.All(x => x != preference.AcumaticaTaxCategory))
+            {
+                preference.AcumaticaTaxCategory = null;
+            }
+
+            if (referenceData.TaxIds.All(x => x != preference.AcumaticaTaxId))
+            {
+                preference.AcumaticaTaxId = null;
+            }
+
+            if (referenceData.TaxZones.All(x => x != preference.AcumaticaTaxZone))
+            {
+                preference.AcumaticaTaxZone = null;
+            }
         }
     }
 }
