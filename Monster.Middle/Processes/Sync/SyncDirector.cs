@@ -216,7 +216,6 @@ namespace Monster.Middle.Processes.Sync
                 _logger.Error(ex);
             }
         }
-
     }
 }
 
