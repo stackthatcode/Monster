@@ -66,6 +66,14 @@ namespace Monster.Middle.Hangfire
                 _director.LoadInventoryIntoShopify);
         }
         
+        public void RunDiagnostics(Guid tenantId)
+        {
+            FireAndForgetJob(tenantId,
+                BackgroundJobType.Diagnostics,
+                _director.Diagnostics);
+        }
+
+
         // FaF Background Jobs do their own error handling as that is 
         // ... reflected in System State
         private void FireAndForgetJob(
@@ -94,7 +102,7 @@ namespace Monster.Middle.Hangfire
                 }
 
                 _tenantContext.Initialize(tenantId);
-                _director.RoutineSync();
+                _director.RealTimeSynchronization();
             }
             catch (Exception ex)
             {

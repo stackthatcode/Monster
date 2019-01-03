@@ -2,7 +2,7 @@
 
 namespace Monster.Middle.Persist.Multitenant
 {
-    public class PersistContext
+    public class PersistContext : IDisposable
     {
         public string ConnectionString { get; private set; }
         public long CompanyId { get; private set; }
@@ -20,6 +20,11 @@ namespace Monster.Middle.Persist.Multitenant
             ConnectionString = connectionString;
             CompanyId = companyId;
             Entities = new MonsterDataContext(ConnectionString);
+        }
+
+        public void Dispose()
+        {
+            Entities?.Dispose();
         }
     }
 }

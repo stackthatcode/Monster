@@ -122,6 +122,7 @@
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\SystemStateValidation.cs" />
     <Compile Include="Processes\Sync\Inventory\Services\ReferenceDataService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInvoicePull.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferencePull.cs" />

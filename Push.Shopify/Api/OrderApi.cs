@@ -40,6 +40,13 @@ namespace Push.Shopify.Api
             return response.Body;
         }
 
+        public virtual string RetrieveCount()
+        {
+            var path = $"/admin/orders/count.json";
+            var response = _httpClient.Get(path);
+            return response.Body;
+        }
+
         public virtual string RetrieveTransactions(long orderId)
         {
             var path = $"/admin/orders/{orderId}/transactions.json";

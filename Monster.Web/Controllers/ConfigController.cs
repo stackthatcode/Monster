@@ -266,6 +266,7 @@ namespace Monster.Web.Controllers
         }
 
 
+
         // Inventory - to Shopify
         //
         [HttpGet]
@@ -318,29 +319,54 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
         }
 
+        [HttpPost]
+        public ActionResult PauseRealTime()
+        {
+            _hangfireService.PauseRoutineSync();
+            return JsonNetResult.Success();
+        }
+
+
+        [HttpGet]
         public ActionResult RealTimeStatus()
         {
             var logs = _stateRepository.RetrieveExecutionLogs();
-            var logDtos = 
-                logs.Select(x => 
+            var logDtos =
+                logs.Select(x =>
                     new ExecutionLog()
                     {
                         LogTime = x.DateCreated.ToString(),
                         Content = x.LogContent,
                     }).ToList();
 
+            var isConfigDiagnosisRunning 
+                = _hangfireService
+                    .IsJobRunning(BackgroundJobType.Diagnostics);
+            
             var output = new
             {
-                IsStarted = _hangfireService.IsRoutineSyncStarted(),
+                IsRealTimeSyncRunning = _hangfireService.IsRealTimeSyncRunning(),
+                IsConfigDiagnosisRunning = isConfigDiagnosisRunning,
                 Logs = logDtos,
             };
             return new JsonNetResult(output);
         }
 
-        public ActionResult PauseRealTime()
+        [HttpPost]
+        public ActionResult TriggerConfigDiagnosis()
         {
-            _hangfireService.PauseRoutineSync();
+            _hangfireService.TriggerConfigDiagnosis();
             return JsonNetResult.Success();
+        }
+
+        [HttpGet]
+        public ActionResult ConfigDiagnosis()
+        {
+            var state = _stateRepository.RetrieveSystemState();
+            var output = Mapper.Map<SystemStateSummaryModel>(state);
+            output.IsReadyForRealTimeSync = state.IsReadyForRealTimeSync();
+
+            return new JsonNetResult(output);
         }
     }
 }

@@ -30,8 +30,6 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
         }
 
 
-        // TODO - include whether job faulted out or not
-        //
         public WarehouseSyncStateDetails WarehouseSyncStatus()
         {
             var warehouses = _syncInventoryRepository.RetrieveWarehouses();

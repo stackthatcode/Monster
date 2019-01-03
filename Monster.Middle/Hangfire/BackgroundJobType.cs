@@ -7,6 +7,6 @@
         public const int SyncWarehouseAndLocation = 3;
         public const int PushInventoryToAcumatica = 4;
         public const int PushInventoryToShopify = 5;
-        public const int RealTimeSync = 6;
+        public const int Diagnostics = 6;
     }
 }

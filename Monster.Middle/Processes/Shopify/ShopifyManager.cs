@@ -1,4 +1,5 @@
 ﻿using Monster.Middle.Processes.Shopify.Workers;
+using Push.Shopify.Api;
 
 
 namespace Monster.Middle.Processes.Shopify
@@ -10,23 +11,31 @@ namespace Monster.Middle.Processes.Shopify
         private readonly ShopifyCustomerPull _shopifyCustomerPull;
         private readonly ShopifyOrderPull _shopifyOrderPull;
         private readonly ShopifyTransactionPull _shopifyTransactionPull;
+        private readonly OrderApi _orderApi;
 
         public ShopifyManager(
             ShopifyLocationPull shopifyLocationPull,
             ShopifyInventoryPull shopifyInventoryPull, 
             ShopifyCustomerPull shopifyCustomerPull, 
             ShopifyOrderPull shopifyOrderPull, 
-            ShopifyTransactionPull shopifyTransactionPull)
+            ShopifyTransactionPull shopifyTransactionPull, 
+            OrderApi orderApi)
         {
             _shopifyLocationPull = shopifyLocationPull;
             _shopifyInventoryPull = shopifyInventoryPull;
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyOrderPull = shopifyOrderPull;
             _shopifyTransactionPull = shopifyTransactionPull;
+            _orderApi = orderApi;
+        }
+
+
+
+        public void TestConnection()
+        {
+            _orderApi.RetrieveCount();
         }
         
-
-
         public void PullLocations()
         {
             _shopifyLocationPull.Run();

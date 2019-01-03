@@ -208,6 +208,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Config\AcumaticaCredentialsModel.cs" />
+    <Compile Include="Models\Config\SystemStateSummaryModel.cs" />
     <Compile Include="Models\ExecutionLog.cs" />
     <Compile Include="Models\Config\PreferencesModel.cs" />
     <Compile Include="Models\ShopifyAuth\DomainModel.cs" />

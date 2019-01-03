@@ -35,6 +35,7 @@ namespace Monster.Middle.Hangfire
         static readonly object LockSyncWarehouseAndLocation = new object();
         static readonly object LockPushInventoryToAcumatica = new object();
         static readonly object LockPushInventoryToShopify = new object();
+        static readonly object LockConfigDiagnosis = new object();
 
 
         // TODO - wire this shit up!!!
@@ -122,6 +123,17 @@ namespace Monster.Middle.Hangfire
                 x => x.RunLoadInventoryIntoShopify(tenantId));
         }
         
+        public void TriggerConfigDiagnosis()
+        {
+            var tenantId = _tenantContext.InstallationId;
+
+            SafelyEnqueueBackgroundJob(
+                LockConfigDiagnosis,
+                BackgroundJobType.Diagnostics,
+                x => x.RunDiagnostics(tenantId));
+
+        }
+
         private void SafelyEnqueueBackgroundJob(
                 object lockObject,
                 int backgroundJobType, 
@@ -178,7 +190,7 @@ namespace Monster.Middle.Hangfire
             }
         }
 
-        public bool IsRoutineSyncStarted()
+        public bool IsRealTimeSyncRunning()
         {
             var state = _stateRepository.RetrieveSystemState();
             return !state.RealTimeHangFireJobId.IsNullOrEmpty();

@@ -15,24 +15,23 @@
 <hr/>
 
 <div>
-    <h1 class="mt-5 center">@GlobalConfig.AppName Real-Time Mode</h1>
+    <h1 class="mt-5 center">@GlobalConfig.AppName Real-Time Synchronization</h1>
     <p class="lead center">
         Active Synchronization between Shopify and Acumatica
     </p>
 </div>
 
-<div data-bind="if: IsStarted">
+<div data-bind="if: IsRealTimeSyncRunning">
     <div class="std-padding">    
         <div class="card">
-            <!-- If Real Time Synchronization is Enabled -->
-            <div class="card-body std-padding">
+            <div class="card-body std-padding">                
                 <h4 class="card-title center">Real-Time Synchronization Enabled</h4>
-                
+
                 <div style="height: 30px;"></div>
 
                 <div style="text-align: center;">
-                    <img style="width: 80px;" 
-                         src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+                    <img style="width: 80px;"
+                         src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
                 </div>
 
                 <div style="height: 30px;"></div>
@@ -41,10 +40,10 @@
                     Shopify storefront and your Acumatica ERP system synchronized.
                     No more person-hours wasted copying and loading data between systems.
                     Now you can focus on growing your business!
-                </p> 
-                
+                </p>
+
                 <div style="height: 30px;"></div>
-                
+
                 <div style="text-align: center;">
                     <a href="#"
                        data-bind="click: PauseRealTimeClick"
@@ -52,12 +51,12 @@
                         <i class="fas fa-bolt"></i>
                     </a>
                 </div>
-                
+
                 <div style="height: 30px;"></div>
-                
+
                 <h6 class="card-title" style="text-align: center;">Real-Time Monitoring</h6>
                 <div style="overflow-y: scroll; height: 300px;">
-                    
+
                     <div data-bind="if: Logs().length">
                         <table class="table table-striped">
                             <tbody data-bind="foreach: Logs">
@@ -70,38 +69,140 @@
                         </table>
                     </div>
                 </div>
-
             </div>
         </div>
-
     </div>
 </div>
 
-<div data-bind="ifnot: IsStarted">
-    <div class="std-padding">
+<!-- Will yield to showing Real Time Sync in case somehow both got triggered -->
+<div data-bind="if: IsConfigDiagnosisRunning() && !IsRealTimeSyncRunning()">
+    <div class="std-padding">    
         <div class="card">
-            <!-- If Real Time Synchronization is Enabled -->
             <div class="card-body std-padding">
-                <h5 class="card-title center">Real-Time Synchronization Not-Running</h5>
+                <img style="width: 125px;" 
+                     src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
-                <p>
-                    When you are ready to begin @GlobalConfig.AppName Real-Time Synchronization,
-                    please hit the "Start Real Time Sync" below.
+                <div style="height: 30px;"></div>
+                <p class="center">
+                    Please wait while @GlobalConfig.AppName runs Configuration Diagnostics.
                 </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div data-bind="ifnot: AreAnyBackgroundJobsRunning">
+    <div class="std-padding-bottom">
+        <div class="card">
+            <div class="card-body std-padding">
+                <div data-bind="if: IsReadyForRealTimeSync">
+                    <div class="alert alert-info">
+                        <strong>Real-Time Synchronization - Ready to Start</strong>
+                    </div>
+
+                    <p>
+                        Your @GlobalConfig.AppName diagnostics appear healthy (see summary below).
+                        You can modify your configuration and re-run diagnostics, as needed.
+                        Else, you can now start Real-Time Synchronization.
+                    </p>
+                </div>
                 
+                <div data-bind="ifnot: IsReadyForRealTimeSync">
+                    <div class="alert alert-danger">
+                        <strong>Real-Time Synchronization - Disabled</strong>
+                    </div>
+
+                    <p>
+                        Something is wrong with your current @GlobalConfig.AppName configuration.
+                        Review the diagnostics summary below and identify which areas of 
+                        configuration need to be fixed or amended.
+                    </p>
+                </div>
+
+                <div style="height: 30px;"></div>
+
                 <div class="center">
+                    <span data-bind="ifnot: IsReadyForRealTimeSync">
+                        <button type="button" class="btn btn-secondary btn-lg"
+                                disable="disabled">
+                            Start Real-Time Sync
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </span>
+
+                    <span data-bind="if: IsReadyForRealTimeSync">
+                        <a href="#"
+                           data-bind="click: StartRealTimeClick"
+                           class="btn btn-primary btn-lg">
+                            Start Real-Time Sync
+                            <i class="fas fa-bolt"></i>
+                        </a>
+                    </span>
+
                     <a href="#"
                        data-bind="click: StartRealTimeClick"
                        class="btn btn-primary btn-lg">
-                        Start Real-Time Sync
-                        <i class="fas fa-bolt"></i>
+                        Run Diagnostics
+                        <i class="fas fa-user-md"></i>
                     </a>
                 </div>
+                
+                <div style="height: 60px;"></div>
+                <h6 class="card-title center"
+                    style="text-transform: uppercase; letter-spacing: 0.2em;">
+                    @GlobalConfig.AppName Diagnostics
+                </h6>
+                
+                <ul class="list-group" 
+                    data-bind="foreach: ConfigDiagnosis">
+                    
+                    <li class="list-group-item d-flex justify-content-between align-items-center"
+                        data-bind="template: { name: 'Configuration-Diagnostic' }">
+                    </li>
+                </ul>
             </div>
         </div>
-
     </div>
 </div>
+
+<style>
+    .diagnosis-item .badge {
+        padding: 8px;
+    }
+</style>
+
+<script type="text/html" id="Configuration-Diagnostic">
+    <span data-bind="text: Name"></span>
+
+    <span class="diagnosis-item">
+        <span data-bind="if: ConfigState == SystemState.Ok">
+            <span class="badge badge-success">
+                OK <i class="fas fa-check"></i>
+            </span>
+        </span>
+        <span data-bind="if: ConfigState == SystemState.None">
+            <span class="badge badge-danger">
+                None <i class="fas fa-times"></i>
+            </span>
+        </span>
+        <span data-bind="if: ConfigState == SystemState.SystemFault">
+            <span class="badge badge-danger">
+                System Fault <i class="fas fa-times"></i>
+            </span>
+        </span>
+        <span data-bind="if: ConfigState == SystemState.Invalid">
+            <span class="badge badge-danger">
+                Invalid <i class="fas fa-times"></i>
+            </span>
+        </span>
+
+        <span style="display: inline-block; width: 40px;"></span>
+        <strong>
+            <a href="#" data-bind="attr: { href: Url }">Click to Modify</a>
+        </strong>
+    </span>
+</script>
 
 
 
@@ -111,8 +212,18 @@
     Monster.InventoryConfigModel = function() {
         var self = this;
 
-        self.IsStarted = ko.observable(false);
+        self.IsRealTimeSyncRunning = ko.observable(false);
+        self.IsConfigDiagnosisRunning = ko.observable(false);
         self.Logs = ko.observableArray();
+
+        self.AreAnyBackgroundJobsRunning = ko.computed(function() {
+            return self.IsRealTimeSyncRunning()
+                || self.IsConfigDiagnosisRunning();
+        });
+
+        // Diagnosis
+        self.ConfigDiagnosis = ko.observableArray();
+        self.IsReadyForRealTimeSync = ko.observable(false);
 
         self.StartRealTimeClick = function () {
             flow.exec(
@@ -121,7 +232,7 @@
                     ajax.HttpPost("Config/StartRealTime", {}, this);
                 },
                 function(response) {
-                    self.IsStarted(true);
+                    self.IsRealTimeSyncRunning(true);
                 });
         };
         
@@ -132,7 +243,7 @@
                     ajax.HttpPost("Config/PauseRealTime", {}, this);
                 },
                 function (response) {
-                    self.IsStarted(false);
+                    self.IsRealTimeSyncRunning(false);
                 });
         };
 
@@ -140,18 +251,69 @@
         // Add Polling Function
         self.PollStatus = function() {
             flow.exec(function () {
-                var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("Config/RealTimeStatus", this);
-            },
-            function (response) {
-                console.log(response);
-                self.IsStarted(response.IsStarted);
-                self.Logs(response.Logs);
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("Config/RealTimeStatus", this);
+                },
+                function (response) {
+                    console.log(response);
 
-                setTimeout(self.PollStatus, 1000);
-            });
+                    self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
+                    self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
+                    self.Logs(response.Logs);
+
+                    if (self.AreAnyBackgroundJobsRunning()) {
+                        setTimeout(self.PollStatus, 1000);
+                    } else {
+                        self.PollConfigDiagnosis();
+                    }
+                });
         };
+
+        self.PollConfigDiagnosis = function() {
+            flow.exec(function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/ConfigDiagnosis", this);
+                },
+                function (response) {
+                    var configData = [
+                        {
+                            Name: "Shopify Connection",
+                            ConfigState: response.ShopifyConnection,
+                            Url: "@GlobalConfig.Url("ShopifyAuth/Domain")",
+                        },
+                        {
+                            Name: "Acumatica Connection",
+                            ConfigState: response.AcumaticaConnection,
+                            Url: "@GlobalConfig.Url("Config/AcumaticaConnection")",
+                        },
+                        {
+                            Name: "Acumatica Reference Data",
+                            ConfigState: response.AcumaticaReferenceData,
+                            Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
+                        },
+                        {
+                            Name: "Preference Selections",
+                            ConfigState: response.PreferenceSelections,
+                            Url: "@GlobalConfig.Url("Config/Preferences")",
+                        },
+                        {
+                            Name: "Warehouse Synchronization",
+                            ConfigState: response.WarehouseSync,
+                            Url: "@GlobalConfig.Url("Config/Warehouses")",
+                        },
+                        {
+                            Name: "Shopify Inventory Synchronization",
+                            ConfigState: response.ShopifyInventoryPush,
+                            Url: "@GlobalConfig.Url("Config/InventoryToShopify")",
+                        },
+                    ];
+
+                    self.ConfigDiagnosis(configData);
+                    self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
+                });
+        };
+
 
         self.Initialize = function() {
             self.PollStatus();

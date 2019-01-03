@@ -62,6 +62,24 @@ namespace Monster.Middle.Processes.Sync
         }
 
 
+        public void ConnectToShopify()
+        {
+            try
+            {
+                _shopifyManager.TestConnection();
+                _stateRepository
+                    .UpdateSystemState(
+                        x => x.ShopifyConnection, SystemState.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                _stateRepository
+                    .UpdateSystemState(
+                        x => x.ShopifyConnection, SystemState.SystemFault);
+            }
+        }
+
         public void ConnectToAcumatica()
         {
             try
@@ -184,7 +202,17 @@ namespace Monster.Middle.Processes.Sync
             }
         }
         
-        public void RoutineSync()
+
+        public void Diagnostics()
+        {
+            ConnectToShopify();
+            ConnectToAcumatica();
+            PullAcumaticaReferenceData();
+            SyncWarehouseAndLocation();
+        }
+
+
+        public void RealTimeSynchronization()
         {
             RunImpervious(() => _shopifyManager.PullOrdersAndCustomers());
 

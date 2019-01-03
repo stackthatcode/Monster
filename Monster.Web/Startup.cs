@@ -25,7 +25,11 @@ namespace Monster.Web
 
         public static void AutomapperConfigure()
         {
-            Mapper.Initialize(x => x.CreateMap<UsrPreference, PreferencesModel>());
+            Mapper.Initialize(x =>
+            {
+                x.CreateMap<UsrPreference, PreferencesModel>();
+                x.CreateMap<UsrSystemState, SystemStateSummaryModel>();
+            });
         }
     }
 }
