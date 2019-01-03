@@ -118,14 +118,14 @@ namespace Monster.Middle.Persist.Multitenant
 
         public void UpdateShopifyCredentials(
                 string shopifyAccessToken,
-                string shopifyAuthCode)
+                string shopifyAuthCodeHash)
         {
             var context = Retrieve();
             var encryptedAccessToken = _cryptoService.Encrypt(shopifyAccessToken);
             //var hashedAuthCode = _hmacService.Encrypt(shopifyAuthCode);
 
             context.ShopifyAccessToken = encryptedAccessToken;
-            context.ShopifyAuthCodeHash = shopifyAuthCode;
+            context.ShopifyAuthCodeHash = shopifyAuthCodeHash;
             Entities.SaveChanges();
         }
 

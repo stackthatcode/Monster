@@ -167,8 +167,6 @@ namespace Monster.Middle.Hangfire
             return "RoutineSync:" + _tenantContext.InstallationId;
         }
 
-        private static readonly object LockStartRoutineSync = new object();
-
         public void StartRoutineSync()
         {
             var routineSyncJobId = RoutineSyncJobId();
@@ -179,7 +177,7 @@ namespace Monster.Middle.Hangfire
 
                 RecurringJob.AddOrUpdate<BackgroundJobRunner>(  
                     routineSyncJobId,
-                    x => x.RunRoutineSync(_tenantContext.InstallationId),
+                    x => x.RunRealTimeSynchronization(_tenantContext.InstallationId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 

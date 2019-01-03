@@ -27,7 +27,8 @@ namespace Monster.Web.Controllers
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
-
+        private readonly HmacCryptoService _hmacCrypto;
+        
 
         private readonly
             List<string> _shopifyOAuthScopes = new List<string>()
@@ -50,13 +51,15 @@ namespace Monster.Web.Controllers
                 OAuthApi oAuthApi, 
                 TenantRepository tenantRepository, 
                 ShopifyHttpContext shopifyHttpContext, 
-                StateRepository stateRepository)
+                StateRepository stateRepository, 
+                HmacCryptoService hmacCrypto)
         {
             _logger = logger;
             _oAuthApi = oAuthApi;
             _tenantRepository = tenantRepository;
             _shopifyHttpContext = shopifyHttpContext;
             _stateRepository = stateRepository;
+            _hmacCrypto = hmacCrypto;
         }
         
 
@@ -117,11 +120,15 @@ namespace Monster.Web.Controllers
         }
         
 
-        public async Task<ActionResult> 
-                    Return(string code, string shop, string returnUrl)
+        public ActionResult Return(string code, string shop, string returnUrl)
         {
+            // Not to be confused with the Shopify HMAC security check
+            // We'll store this so we can verify that we're not hitting this
+            // ... action repeatedly i.e. browser back button
+            var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
+
             // Did the User hit the Back Button...?
-            if (_tenantRepository.IsSameAuthCode(code))
+            if (_tenantRepository.IsSameAuthCode(codeHash))
             {
                 return Redirect("Domain");
             }
@@ -132,7 +139,6 @@ namespace Monster.Web.Controllers
 
             try
             {
-
                 if (!VerifyShopifyHmac())
                 {
                     throw new Exception("Failed HMAC verification from Shopify Return");
@@ -142,7 +148,7 @@ namespace Monster.Web.Controllers
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
 
                 // Save Access Token and update State
-                _tenantRepository.UpdateShopifyCredentials(accessToken, code);
+                _tenantRepository.UpdateShopifyCredentials(accessToken, codeHash);
 
                 _stateRepository
                     .UpdateSystemState(x => x.ShopifyConnection, SystemState.Ok);
@@ -180,8 +186,7 @@ namespace Monster.Web.Controllers
             var queryString = builder.ToString();
 
             // Build HMAC digestion of query string...
-            var hmacCrypto = new HmacCryptoService(ShopifyCredentialsConfig.Settings.ApiSecret);
-            var hashedResult = hmacCrypto. ToHexStringSha256(queryString);
+            var hashedResult = _hmacCrypto. ToHexStringSha256(queryString);
 
             // ... and compare
             return hashedResult == shopifyHmacHash;

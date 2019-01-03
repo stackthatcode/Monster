@@ -3,14 +3,14 @@ using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Persist.Sys.Repositories;
 using Push.Shopify.Http;
-using Push.Shopify.Http.Credentials;
+
 
 namespace Monster.Middle.Security
 {
     public class TenantContext
     {
-        private readonly SystemRepository _accountRepository;
-        private readonly TenantRepository _tenantContextRepository;
+        private readonly SystemRepository _systemRepository;
+        private readonly TenantRepository _tenantRepository;
         private readonly PersistContext _persistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
@@ -21,14 +21,14 @@ namespace Monster.Middle.Security
 
 
         public TenantContext(
-                TenantRepository tenantContextRepository, 
-                SystemRepository accountRepository, 
+                TenantRepository tenantRepository, 
+                SystemRepository systemRepository, 
                 PersistContext persistContext, 
                 ShopifyHttpContext shopifyHttpContext,
                 AcumaticaHttpContext acumaticaHttpContext)
         {
-            _tenantContextRepository = tenantContextRepository;
-            _accountRepository = accountRepository;
+            _tenantRepository = tenantRepository;
+            _systemRepository = systemRepository;
             _persistContext = persistContext;
             _shopifyHttpContext = shopifyHttpContext;
             _acumaticaHttpContext = acumaticaHttpContext;
@@ -41,7 +41,7 @@ namespace Monster.Middle.Security
             _tenantId = installationId;
 
             var installation = 
-                    _accountRepository
+                    _systemRepository
                         .RetrieveInstallation(installationId);
 
             // Load the Installation into Persist 
@@ -50,12 +50,12 @@ namespace Monster.Middle.Security
 
             // Shopify
             var shopifyCredentials
-                    = _tenantContextRepository.RetrieveShopifyCredentials();
+                    = _tenantRepository.RetrieveShopifyCredentials();
             _shopifyHttpContext.Initialize(shopifyCredentials);
 
             // Acumatica
             var acumaticaCredentials
-                    = _tenantContextRepository.RetrieveAcumaticaCredentials();
+                    = _tenantRepository.RetrieveAcumaticaCredentials();
             _acumaticaHttpContext.Initialize(acumaticaCredentials);
         }
 
@@ -64,7 +64,7 @@ namespace Monster.Middle.Security
             _tenantId = installationId;
 
             var installation = 
-                    _accountRepository.RetrieveInstallation(installationId);
+                    _systemRepository.RetrieveInstallation(installationId);
 
             // Load the Installation into Persist 
             _persistContext.Initialize(

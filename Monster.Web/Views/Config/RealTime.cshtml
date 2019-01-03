@@ -7,6 +7,10 @@
         max-width: 860px;
         padding: 0 15px;
     }
+
+    .diagnosis-item .badge {
+        padding: 8px;
+    }
 </style>
 
 
@@ -78,7 +82,7 @@
 <div data-bind="if: IsConfigDiagnosisRunning() && !IsRealTimeSyncRunning()">
     <div class="std-padding">    
         <div class="card">
-            <div class="card-body std-padding">
+            <div class="card-body center std-padding">
                 <img style="width: 125px;" 
                      src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
@@ -90,7 +94,6 @@
         </div>
     </div>
 </div>
-
 
 <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
     <div class="std-padding-bottom">
@@ -141,7 +144,7 @@
                     </span>
 
                     <a href="#"
-                       data-bind="click: StartRealTimeClick"
+                       data-bind="click: StartConfigDiagnosisClick"
                        class="btn btn-primary btn-lg">
                         Run Diagnostics
                         <i class="fas fa-user-md"></i>
@@ -165,12 +168,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    .diagnosis-item .badge {
-        padding: 8px;
-    }
-</style>
 
 <script type="text/html" id="Configuration-Diagnostic">
     <span data-bind="text: Name"></span>
@@ -232,7 +229,7 @@
                     ajax.HttpPost("Config/StartRealTime", {}, this);
                 },
                 function(response) {
-                    self.IsRealTimeSyncRunning(true);
+                    self.PollStatus();
                 });
         };
         
@@ -247,6 +244,16 @@
                 });
         };
 
+        self.StartConfigDiagnosisClick = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("Config/TriggerConfigDiagnosis", {}, this);
+                },
+                function (response) {
+                    self.PollStatus();
+                });
+        };
 
         // Add Polling Function
         self.PollStatus = function() {

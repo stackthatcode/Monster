@@ -91,7 +91,7 @@ namespace Monster.Middle.Hangfire
         static readonly NamedLock 
                 RoutineSyncLock = new NamedLock("RoutineSynchHarness");
         
-        public void RunRoutineSync(Guid tenantId)
+        public void RunRealTimeSynchronization(Guid tenantId)
         {
             try
             {

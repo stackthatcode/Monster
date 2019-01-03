@@ -4,6 +4,7 @@ using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
@@ -43,15 +44,6 @@ namespace Monster.Middle
             // Register Shopify library and inject settings
             ShopifyApiAutofac.Build(builder);
             
-
-            // Crypto faculties
-            builder.Register<ICryptoService>(
-                x =>
-                {
-                    var settings = MonsterConfig.Settings;
-                    return new AesCrypto(settings.EncryptKey, settings.EncryptIv);
-                });
-            
             // Logging registrations
             builder.RegisterType<DefaultFormatter>()
                 .As<ILogFormatter>()
@@ -72,11 +64,19 @@ namespace Monster.Middle
                 var connectionString
                     = MonsterConfig.Settings.SystemDatabaseConnection;
 
-                return new Persist.Sys.Repositories.SystemRepository(connectionString);
+                return new SystemRepository(connectionString);
 
             }).SingleInstance();
 
-            
+            // Crypto faculties
+            builder.Register<ICryptoService>(
+                x =>
+                {
+                    var settings = MonsterConfig.Settings;
+                    return new AesCrypto(settings.EncryptKey, settings.EncryptIv);
+                });
+
+
             // Multitenant Persistence
             builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();

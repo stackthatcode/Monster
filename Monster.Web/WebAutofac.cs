@@ -7,6 +7,8 @@ using Autofac;
 using Autofac.Integration.Mvc;
 using Monster.Web.Controllers;
 using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Utilities.Security;
+using Push.Shopify.Config;
 using RequestActivityIdLogFormatter = Monster.Web.Plumbing.RequestActivityIdLogFormatter;
 
 
@@ -40,6 +42,9 @@ namespace Monster.Web
             builder.RegisterType<ShopifyAuthController>();
             builder.RegisterType<ConfigController>();
 
+            // HMAC Service - used to hash Auth Code and verify Shopify response
+            builder.Register(x => new HmacCryptoService(
+                        ShopifyCredentialsConfig.Settings.ApiSecret));
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

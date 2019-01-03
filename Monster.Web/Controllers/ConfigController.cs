@@ -301,8 +301,7 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
-
-
+        
 
         // Status inquiries
         // 
@@ -325,8 +324,7 @@ namespace Monster.Web.Controllers
             _hangfireService.PauseRoutineSync();
             return JsonNetResult.Success();
         }
-
-
+        
         [HttpGet]
         public ActionResult RealTimeStatus()
         {
