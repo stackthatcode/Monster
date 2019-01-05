@@ -402,7 +402,7 @@
                     ajax.HttpGet("Config/PreferenceSelections", this);
                 },
                 function (response) {
-                    self.SelectedStartingDate(response.ShopifyDataPullStartFormatted);
+                    self.SelectedStartingDate(response.ShopifyOrderDateStartFormatted);
 
                     self.SelectedTaxId(response.AcumaticaTaxId);
                     self.SelectedTaxCategory(response.AcumaticaTaxCategory);
@@ -439,7 +439,7 @@
                     
                     var model = {};
 
-                    model.ShopifyDataPullStart = self.SelectedStartingDate();
+                    model.ShopifyOrderDateStart = self.SelectedStartingDate();
                     model.AcumaticaTimeZone = self.SelectedTimeZone().TimeZoneId;
                     model.AcumaticaDefaultItemClass = self.SelectedItemClass().ItemClass;
                     model.AcumaticaDefaultPostingClass = self.SelectedPostingClass();

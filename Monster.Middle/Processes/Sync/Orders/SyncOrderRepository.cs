@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Sync.Orders
             
             return Entities
                 .UsrShopifyOrders
-                .Where(x => x.ShopifyOrderNumber >= preferences.ShopifyOrderPushStart 
+                .Where(x => x.ShopifyOrderNumber >= preferences.ShopifyOrderNumberStart 
                             && !x.UsrShopAcuOrderSyncs.Any())
                 .Include(x => x.UsrShopifyCustomer)
                 .ToList();

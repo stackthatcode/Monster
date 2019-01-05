@@ -57,7 +57,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             var preferences = _tenantRepository.RetrievePreferences();
 
             var firstFilter = new SearchFilter();
-            firstFilter.CreatedAtMinUtc = preferences.ShopifyDataPullStart;
+            firstFilter.CreatedAtMinUtc = preferences.ShopifyOrderDateStart;
 
             var firstJson = _customerApi.Retrieve(firstFilter);
             var firstCustomers 

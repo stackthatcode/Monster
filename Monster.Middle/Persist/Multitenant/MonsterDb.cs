@@ -1059,10 +1059,10 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrPreference
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? ShopifyDataPullStart { get; set; } // ShopifyDataPullStart
-        public double? DefaultCoGsMargin { get; set; } // DefaultCoGSMargin
-        public int? ShopifyOrderPushStart { get; set; } // ShopifyOrderPushStart
+        public System.DateTime? ShopifyOrderDateStart { get; set; } // ShopifyOrderDateStart
+        public int? ShopifyOrderNumberStart { get; set; } // ShopifyOrderNumberStart
         public string AcumaticaTimeZone { get; set; } // AcumaticaTimeZone (length: 50)
+        public double? DefaultCoGsMargin { get; set; } // DefaultCoGSMargin
         public string AcumaticaDefaultItemClass { get; set; } // AcumaticaDefaultItemClass (length: 50)
         public string AcumaticaDefaultPostingClass { get; set; } // AcumaticaDefaultPostingClass (length: 50)
         public string AcumaticaPaymentMethod { get; set; } // AcumaticaPaymentMethod (length: 50)
@@ -2050,10 +2050,10 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyDataPullStart).HasColumnName(@"ShopifyDataPullStart").HasColumnType("date").IsOptional();
-            Property(x => x.DefaultCoGsMargin).HasColumnName(@"DefaultCoGSMargin").HasColumnType("float").IsOptional();
-            Property(x => x.ShopifyOrderPushStart).HasColumnName(@"ShopifyOrderPushStart").HasColumnType("int").IsOptional();
+            Property(x => x.ShopifyOrderDateStart).HasColumnName(@"ShopifyOrderDateStart").HasColumnType("date").IsOptional();
+            Property(x => x.ShopifyOrderNumberStart).HasColumnName(@"ShopifyOrderNumberStart").HasColumnType("int").IsOptional();
             Property(x => x.AcumaticaTimeZone).HasColumnName(@"AcumaticaTimeZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.DefaultCoGsMargin).HasColumnName(@"DefaultCoGSMargin").HasColumnType("float").IsOptional();
             Property(x => x.AcumaticaDefaultItemClass).HasColumnName(@"AcumaticaDefaultItemClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDefaultPostingClass).HasColumnName(@"AcumaticaDefaultPostingClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaPaymentMethod).HasColumnName(@"AcumaticaPaymentMethod").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);

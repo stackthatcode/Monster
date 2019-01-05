@@ -47,11 +47,11 @@ UPDATE usrSystemState SET IsAcumaticaUrlFinalized = 1;
 
 SELECT * FROM usrSystemState;
 
-
 SELECT * FROM usrBackgroundJob
 
 SELECT * FROM usrAcumaticaReferences;
 
 SELECT * FROM usrTenant;
+
 
 

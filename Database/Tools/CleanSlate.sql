@@ -2,31 +2,23 @@ USE Monster0001;
 GO
 
 
--- Clear out Monster
 
-DELETE FROM usrJobExecutionLog;
-
-UPDATE usrPreferences SET RealTimeHangFireJobId = NULL;
-
-DELETE FROM usrQueuedJob;
-
-DELETE FROM usrAcumaticaBatchState;
-DELETE FROM usrShopifyBatchState;
-
-
-
--- Synchronization
+-- Clean Synchronization 
+--
 DELETE FROM usrShopAcuRefundCM;
 DELETE FROM usrShopifyAcuPayment;
 DELETE FROM usrShopAcuShipmentSync;
 DELETE FROM usrShopAcuOrderSync;
 DELETE FROM usrShopAcuCustomerSync;
+
 DELETE FROM usrInventoryReceiptSync;
 DELETE FROM usrShopAcuItemSync;
 DELETE FROM usrShopAcuWarehouseSync;
 
 
--- Acumatica
+
+-- Acumatica data
+--
 DELETE FROM usrAcumaticaInvoice;
 DELETE FROM usrAcumaticaShipmentSalesOrderRef;
 DELETE FROM usrAcumaticaShipment;
@@ -39,7 +31,8 @@ DELETE FROM usrAcumaticaStockItem;
 DELETE FROM usrAcumaticaWarehouse;
 
 
--- Shopify
+-- Shopify data
+--
 DELETE FROM usrShopifyPayout;
 DELETE FROM usrShopifyPayoutTransaction;
 
@@ -56,8 +49,25 @@ DELETE FROM usrShopifyLocation;
 
 
 
-ALTER DATABASE AcuInst2 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
-ALTER DATABASE AcuInst2 SET MULTI_USER
+
+-- Clear out System tables
+DELETE FROM usrAcumaticaReferences
+DELETE FROM usrPreferences;
+
+DELETE FROM usrSystemState;
+DELETE FROM usrBackgroundJob;
+DELETE FROM usrExecutionLog;
+
+DELETE FROM usrAcumaticaBatchState;
+DELETE FROM usrShopifyBatchState;
+
+
+-- Clear out User Credentials
+-- DELETE FROM usrTenant
+
+
+ALTER DATABASE AcuInst4 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
+ALTER DATABASE AcuInst4 SET MULTI_USER
 
 
 /*

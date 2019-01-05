@@ -8,7 +8,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Model
         // Seems obvious that we'll provide more detail for the future..
         public static bool AreValid(this UsrPreference preferences)
         {
-            return preferences.ShopifyDataPullStart.HasValue
+            return preferences.ShopifyOrderDateStart.HasValue
                    && preferences.AcumaticaTimeZone.HasValue()
                    && preferences.AcumaticaDefaultItemClass.HasValue()
                    && preferences.AcumaticaDefaultPostingClass.HasValue()
