@@ -34,7 +34,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         // Tenant Context
         //
-        public void CreateIfMissingContext()
+        public void CreateIfMissing()
         {
             if (!Entities.UsrTenants.Any())
             {
@@ -53,6 +53,7 @@ namespace Monster.Middle.Persist.Multitenant
         
         public UsrTenant Retrieve()
         {
+            CreateIfMissing();
             return Entities.UsrTenants.FirstOrDefault();
         }
 
@@ -97,7 +98,7 @@ namespace Monster.Middle.Persist.Multitenant
         }
         
         public void UpdateShopifyCredentials(
-                string shopifyPrivateAppDomain,
+                string shopifyDomain,
                 string shopifyApiKey,
                 string shopifyApiPassword,
                 string shopifyApiSecret)
@@ -108,7 +109,7 @@ namespace Monster.Middle.Persist.Multitenant
             var encryptedPassword = _cryptoService.Encrypt(shopifyApiPassword);
             var encryptedSecret = _cryptoService.Encrypt(shopifyApiSecret);
 
-            context.ShopifyDomain = shopifyPrivateAppDomain;
+            context.ShopifyDomain = shopifyDomain;
             context.ShopifyApiKey = encryptedKey;
             context.ShopifyApiPassword = encryptedPassword;
             context.ShopifyApiSecret = encryptedSecret;
@@ -117,6 +118,7 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
         public void UpdateShopifyCredentials(
+                string shopifyDomain,
                 string shopifyAccessToken,
                 string shopifyAuthCodeHash)
         {
@@ -124,8 +126,10 @@ namespace Monster.Middle.Persist.Multitenant
             var encryptedAccessToken = _cryptoService.Encrypt(shopifyAccessToken);
             //var hashedAuthCode = _hmacService.Encrypt(shopifyAuthCode);
 
+            context.ShopifyDomain = shopifyDomain;
             context.ShopifyAccessToken = encryptedAccessToken;
             context.ShopifyAuthCodeHash = shopifyAuthCodeHash;
+
             Entities.SaveChanges();
         }
 

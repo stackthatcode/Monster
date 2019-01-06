@@ -17,18 +17,28 @@ DELETE FROM usrShopAcuWarehouseSync;
 
 
 
--- Acumatica data
+-- Acumatica Sales Order data
 --
 DELETE FROM usrAcumaticaInvoice;
+DELETE FROM usrAcumaticaCreditMemo;
+
 DELETE FROM usrAcumaticaShipmentSalesOrderRef;
 DELETE FROM usrAcumaticaShipment;
+
+DELETE FROM usrAcumaticaSoShipmentInvoice;
 DELETE FROM usrAcumaticaSalesOrder;
+
 DELETE FROM usrAcumaticaCustomer;
 
+
+
+-- Acumatica Inventory data
+--
 DELETE FROM usrAcumaticaInventoryReceipt;
 DELETE FROM usrAcumaticaWarehouseDetails;
 DELETE FROM usrAcumaticaStockItem;
 DELETE FROM usrAcumaticaWarehouse;
+
 
 
 -- Shopify data
@@ -49,20 +59,19 @@ DELETE FROM usrShopifyLocation;
 
 
 
-
 -- Clear out System tables
+--
+
 DELETE FROM usrAcumaticaReferences
 DELETE FROM usrPreferences;
-
-DELETE FROM usrSystemState;
-DELETE FROM usrBackgroundJob;
-DELETE FROM usrExecutionLog;
 
 DELETE FROM usrAcumaticaBatchState;
 DELETE FROM usrShopifyBatchState;
 
+DELETE FROM usrBackgroundJob;
+DELETE FROM usrExecutionLog;
 
--- Clear out User Credentials
+DELETE FROM usrSystemState;
 -- DELETE FROM usrTenant
 
 

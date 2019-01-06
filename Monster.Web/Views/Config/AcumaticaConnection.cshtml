@@ -118,10 +118,12 @@
                 </div>
 
                 <div class="center std-padding">
-                    <a href="#" class="btn btn-secondary btn-lg"
-                       data-bind="click: ShowStatusPanel">
-                        Cancel <i class="fas fa-undo"></i>
-                    </a>
+                    <span data-bind="if: IsCancelButtonVisible">
+                        <a href="#" class="btn btn-secondary btn-lg"
+                           data-bind="click: ShowStatusPanel">
+                            Cancel <i class="fas fa-undo"></i>
+                        </a>
+                    </span>
 
                     <a href="#" class="btn btn-primary btn-lg"
                        data-bind="click: PushCredentials">
@@ -162,6 +164,7 @@
             <div class="alert alert-danger">
                 <strong>Acumatica Connection - Broken</strong>
                 - Something is wrong with your Acumatica Connection.
+                Try re-connecting or possibly changing your credentials.
             </div>
         </div>
 
@@ -291,13 +294,18 @@
             return !self.IsRandomAccessMode();
         });
 
-        self.IsCancelButtonVisible = ko.computed(function() {
+        self.IsBackToDashboardButtonVisible = ko.computed(function() {
             return self.IsRandomAccessMode();
         });
 
         self.IsReturnButtonVisible = ko.computed(function() {
             return self.IsRandomAccessMode();
         });
+
+        self.IsCancelButtonVisible = ko.computed(function() {
+            return self.HasConnectionBeenSet();
+        });
+
 
 
 
@@ -311,14 +319,14 @@
 
         // Actions
         self.ChangeSettingsClick = function () {
-            console.log('like whut?')
+
             self.ClearVisibility();
             @{
                 // Debugging stuff - fast and easy - my way!
                 if (GlobalConfig.DebugMode)
                 {
                     <text>
-                        self.AcumaticaInstanceUrl("http://localhost/AcuInst2");
+                        self.AcumaticaInstanceUrl("http://localhost/AcuInst4");
                         self.AcumaticaCompany("MYCOMPANY");
                         self.AcumaticaBranch("MYCOMPANY");
                         self.AcumaticaUserName("admin");
@@ -360,7 +368,7 @@
 
         self.AcumaticaTestConnection = function() {
             var ajax = new Monster.Ajax();
-            ajax.HttpPost("Config/AcumaticaTestConnection", {});
+            ajax.HttpPost("Config/AcumaticaTestConnection", {}, self.PollStatus);
         };
 
 

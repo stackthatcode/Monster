@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
@@ -16,6 +15,7 @@ using Push.Foundation.Web.Helpers;
 using Push.Shopify.Api;
 using Push.Shopify.Config;
 using Push.Shopify.Http;
+
 
 namespace Monster.Web.Controllers
 {
@@ -69,14 +69,12 @@ namespace Monster.Web.Controllers
             var tenant = _tenantRepository.Retrieve();
             var state = _stateRepository.RetrieveSystemState();
 
-            var model = new DomainModel
-            {
-                IsShopifyConnectionOk = state.ShopifyConnection == SystemState.Ok,
-                IsShopifyConnectionBroken = state.ShopifyConnection.IsBroken(),
-                IsRandomAccessMode = state.IsRandomAccessMode,
-                IsShopifyUrlFinalized = state.IsShopifyUrlFinalized,
-                ShopDomain = tenant.ShopifyDomain,
-            };
+            var model = new DomainModel();
+            model.IsShopifyConnectionOk = state.ShopifyConnection == SystemState.Ok;
+            model.IsShopifyConnectionBroken = state.ShopifyConnection.IsBroken();
+            model.IsRandomAccessMode = state.IsRandomAccessMode;
+            model.IsShopifyUrlFinalized = state.IsShopifyUrlFinalized;
+            model.ShopDomain = tenant.ShopifyDomain;
 
             return View(model);
         }
@@ -148,7 +146,8 @@ namespace Monster.Web.Controllers
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
 
                 // Save Access Token and update State
-                _tenantRepository.UpdateShopifyCredentials(accessToken, codeHash);
+                _tenantRepository
+                    .UpdateShopifyCredentials(shop, accessToken, codeHash);
 
                 _stateRepository
                     .UpdateSystemState(x => x.ShopifyConnection, SystemState.Ok);

@@ -131,7 +131,7 @@ namespace Push.Foundation
 
                     var repository = scope.Resolve<TenantRepository>();
 
-                    repository.CreateIfMissingContext();
+                    repository.CreateIfMissing();
                     repository.UpdateShopifyCredentials(
                             this.textShopifyDomain.Text,
                             this.textShopifyApiKey.Text,
@@ -164,7 +164,7 @@ namespace Push.Foundation
 
                     var repository = scope.Resolve<TenantRepository>();
 
-                    repository.CreateIfMissingContext();
+                    repository.CreateIfMissing();
                     repository.UpdateAcumaticaCredentials(
                         this.textAcumaticaUrl.Text,
                         this.textAcumaticaCompany.Text,
