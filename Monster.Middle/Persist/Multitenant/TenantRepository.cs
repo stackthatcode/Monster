@@ -74,7 +74,7 @@ namespace Monster.Middle.Persist.Multitenant
             var tenant = Retrieve();
             
             var accessToken =
-                tenant.ShopifyApiKey.IsNullOrEmpty()
+                tenant.ShopifyAccessToken.IsNullOrEmpty()
                     ? "" : _cryptoService.Decrypt(tenant.ShopifyAccessToken);
             
             var apiKey =
@@ -192,10 +192,22 @@ namespace Monster.Middle.Persist.Multitenant
 
             this.Entities.SaveChanges();
         }
-
+        
+        static readonly object PreferencesLock = new object();
 
         public UsrPreference RetrievePreferences()
         {
+            lock (PreferencesLock)
+            {
+                if (!Entities.UsrPreferences.Any())
+                {
+                    var preferences = new UsrPreference();
+                    preferences.FulfillmentInAcumatica = true;
+                    Entities.UsrPreferences.Add(preferences);
+                    return preferences;
+                }
+            }
+
             return Entities.UsrPreferences.First();
         }
 

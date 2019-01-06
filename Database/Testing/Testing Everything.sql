@@ -6,7 +6,22 @@ GO
 SELECT * FROM usrTenant;
 SELECT * FROM usrSystemState;
 
-UPDATE usrSystemState SET IsRandomAccessMode = 0;
+SELECT * FROM usrAcumaticaReferences
+SELECT * FROM usrPreferences;
+
+UPDATE usrTenant SET AcumaticaPassword = '';
+
+--MYCOMPANY
+
+
+
+-- Shopify Products & Variants
+SELECT * FROM usrShopifyProduct;
+SELECT * FROM usrShopifyVariant;
+SELECT * FROM usrShopifyInventoryLevels;
+
+
+
 
 
 

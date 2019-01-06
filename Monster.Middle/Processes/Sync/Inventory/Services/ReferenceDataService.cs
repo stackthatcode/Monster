@@ -5,6 +5,7 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Services;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Sync.Inventory.Services
@@ -30,31 +31,31 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
             var reference = _inventoryRepository.RetrieveReferenceData();
 
             var itemClasses =
-                reference.ItemClass
+                reference.ItemClass.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<ItemClass>>()
                     .Select(x => new ItemClassModel(x))
                     .ToList();
 
             var paymentMethods =
-                reference.PaymentMethod
+                reference.PaymentMethod.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<PaymentMethod>>()
                     .Select(x => new PaymentMethodModel(x))
                     .ToList();
 
             var taxIds =
-                reference.TaxId
+                reference.TaxId.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<Tax>>()
                     .Select(x => x.TaxID.value)
                     .ToList();
 
             var taxCategories =
-                reference.TaxCategory
+                reference.TaxCategory.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<TaxCategory>>()
                     .Select(x => x.TaxCategoryID.value)
                     .ToList();
 
             var taxZones =
-                reference.TaxZone
+                reference.TaxZone.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<TaxZone>>()
                     .Select(x => x.TaxZoneID.value)
                     .ToList();

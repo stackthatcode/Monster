@@ -172,6 +172,7 @@ namespace Monster.Web.Controllers
             var data = _tenantRepository.RetrievePreferences();
             
             data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
+            data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;
             data.AcumaticaTimeZone = model.AcumaticaTimeZone;
             data.AcumaticaDefaultItemClass = model.AcumaticaDefaultItemClass;
             data.AcumaticaDefaultPostingClass = model.AcumaticaDefaultPostingClass;

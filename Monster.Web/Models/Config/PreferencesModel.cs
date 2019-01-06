@@ -4,15 +4,16 @@ namespace Monster.Web.Models.Config
 {
     public class PreferencesModel
     {
-        public DateTime ShopifyOrderDateStart { get; set; }
-        public string 
-            ShopifyOrderDateStartFormatted 
-                => ShopifyOrderDateStart.Date.ToString("MM/dd/yyyy");
         public string AcumaticaTimeZone { get; set; }
 
-        [Obsolete("Maybe/maybe not")]
-        public string ShopifyOrderNumberStart { get; set; }
-        [Obsolete]
+        public DateTime? ShopifyOrderDateStart { get; set; }
+        public string 
+            ShopifyOrderDateStartFormatted 
+                => (ShopifyOrderDateStart ?? DateTime.Today).Date.ToString("MM/dd/yyyy");
+
+        public int? ShopifyOrderNumberStart { get; set; }
+        
+        [Obsolete("Need to use Shopify's CoGS margin data")]
         public string DefaultCoGsMargin { get; set; }
         
 

@@ -24,7 +24,7 @@ namespace Monster.Acumatica.Api
         
         public string RetrievePaymentMethod()
         {
-            var response = _httpContext.Get($"PaymentMethod?$expand=PaymentMethodAllowedCashAccountDetail");
+            var response = _httpContext.Get($"PaymentMethod?$expand=AllowedCashAccounts");
             return response.Body;
         }
 
