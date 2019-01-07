@@ -224,13 +224,14 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         private InventoryReceipt BuildReceipt(
                     List<UsrShopifyInventoryLevel> inventory)
         {
-            var preferences = _tenantRepository.RetrievePreferences();
-            var defaultCogs = preferences.DefaultCoGsMargin.Value;
+            // TODO - determine is this is required
+            //var preferences = _tenantRepository.RetrievePreferences();
+            //var defaultCogs = preferences.DefaultCoGsMargin.Value;
 
-            var postingDate = System.DateTime.UtcNow.Date;
+            var postingDate = DateTime.UtcNow.Date;
 
             var controlQty = inventory.ControlQty();
-            var controlCost = inventory.ControlCost(defaultCogs);
+            var controlCost = inventory.CogsControlTotal();
 
             var receipt = new InventoryReceipt();
             receipt.Date = postingDate.ToValue();
@@ -245,13 +246,14 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 var location = inventoryLevel.UsrShopifyLocation;
                 var stockItemId = variant.AcumaticaStockItemId();
 
-                var unitCogs =
-                    inventoryLevel.UsrShopifyVariant.CogsByMarginPercent(defaultCogs);
+                var unitCogs = (double)inventoryLevel.UsrShopifyVariant.ShopifyCost;
+
+                // TODO - determine if this type of function is useful or necessary
+                //CogsByMarginPercent(defaultCogs);
 
                 var qty = (double) inventoryLevel.ShopifyAvailableQuantity;
                 var warehouseId = location.AcumaticaWarehouseId();
-
-
+                
                 var detail = new InventoryReceiptDetails();
                 detail.InventoryID = stockItemId.ToValue();
                 detail.UnitCost = unitCogs.ToValue();

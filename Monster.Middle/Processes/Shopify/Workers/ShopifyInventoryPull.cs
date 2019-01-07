@@ -277,32 +277,49 @@ namespace Monster.Middle.Processes.Shopify.Workers
             var inventoryItemIds
                 = variants.Select(x => x.ShopifyInventoryItemId).ToList();
 
-            var inventoryJson =
-                _inventoryApi.RetrieveInventoryLevels(inventoryItemIds);
+            var inventoryLevelsJson 
+                = _inventoryApi.RetrieveInventoryLevels(inventoryItemIds);
 
             var inventoryLevels
-                = inventoryJson
+                = inventoryLevelsJson
                     .DeserializeFromJson<InventoryLevelList>()
                     .inventory_levels;
+            
+            var inventoryItemsJson
+                = _inventoryApi.RetrieveInventoryItems(inventoryItemIds);
+
+            var inventoryItems
+                = inventoryItemsJson
+                    .DeserializeFromJson<InventoryItemList>()
+                    .inventory_items;
+
 
             foreach (var variant in variants)
             {
+                var variantItem =
+                    inventoryItems
+                        .First(x => x.id == variant.ShopifyInventoryItemId);
+
                 var variantLevels =
                     inventoryLevels
                         .Where(x => x.inventory_item_id == variant.ShopifyInventoryItemId)
                         .ToList();
 
-                UpsertInventory(variant, variantLevels);
+                variant.ShopifyCost = variantItem.cost ?? 0m;
+                _inventoryRepository.SaveChanges();
+                
+                UpsertInventory(variant, variantItem, variantLevels);
             }
         }
 
         public void UpsertInventory(
                     UsrShopifyVariant variant, 
+                    InventoryItem shopifyItem,
                     List<InventoryLevel> shopifyLevels)
         {
             var existingLevels =
                 _inventoryRepository
-                    .RetrieveInventoryLevels(variant.ShopifyInventoryItemId);
+                    .RetrieveInventory(variant.ShopifyInventoryItemId);
 
             var locations = _inventoryRepository.RetreiveLocations();
 
@@ -325,7 +342,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     newLevel.DateCreated = DateTime.UtcNow;
                     newLevel.LastUpdated = DateTime.UtcNow;
 
-                    _inventoryRepository.InsertInventoryLevel(newLevel);
+                    _inventoryRepository.InsertInventory(newLevel);
                 }
                 else
                 {

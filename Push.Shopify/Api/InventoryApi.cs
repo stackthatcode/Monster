@@ -32,6 +32,15 @@ namespace Push.Shopify.Api
             return response.Body;
         }
 
+        public string RetrieveInventoryItems(IList<long> itemIds)
+        {
+            var path =
+                $"/admin/inventory_items.json?" +
+                $"ids={itemIds.ToCommaSeparatedList()}";
+            var response = _httpClient.Get(path);
+            return response.Body;
+        }
+
         public string SetInventoryLevels(string content)
         {
             var path = "/admin/inventory_levels/set.json";            

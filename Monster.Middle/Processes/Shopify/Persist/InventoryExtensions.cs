@@ -70,6 +70,13 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return variantObject.price * marginPercent;
         }
 
+        public static double CogsControlTotal(this List<UsrShopifyInventoryLevel> inventory)
+        {
+            return (double)inventory.Sum(
+                x => x.ShopifyAvailableQuantity * x.UsrShopifyVariant.ShopifyCost);
+        }
+
+
         public static List<UsrShopifyInventoryLevel> ByParentId(
                         this IEnumerable<UsrShopifyInventoryLevel> input, 
                         long parentMonsterId)

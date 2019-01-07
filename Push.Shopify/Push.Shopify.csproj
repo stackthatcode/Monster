@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="Api\Event\Event.cs" />
     <Compile Include="Api\InventoryApi.cs" />
+    <Compile Include="Api\Inventory\InventoryItem.cs" />
     <Compile Include="Api\Inventory\Location.cs" />
     <Compile Include="Api\CustomerApi.cs" />
     <Compile Include="Api\FulfillmentApi.cs" />

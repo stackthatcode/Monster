@@ -65,7 +65,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopifyBatchState> UsrShopifyBatchStates { get; set; } // usrShopifyBatchState
         System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; } // usrShopifyCustomer
         System.Data.Entity.DbSet<UsrShopifyFulfillment> UsrShopifyFulfillments { get; set; } // usrShopifyFulfillment
-        System.Data.Entity.DbSet<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevels
+        System.Data.Entity.DbSet<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevel
         System.Data.Entity.DbSet<UsrShopifyLocation> UsrShopifyLocations { get; set; } // usrShopifyLocation
         System.Data.Entity.DbSet<UsrShopifyOrder> UsrShopifyOrders { get; set; } // usrShopifyOrder
         System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; } // usrShopifyPayout
@@ -126,7 +126,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyBatchState> UsrShopifyBatchStates { get; set; } // usrShopifyBatchState
         public System.Data.Entity.DbSet<UsrShopifyCustomer> UsrShopifyCustomers { get; set; } // usrShopifyCustomer
         public System.Data.Entity.DbSet<UsrShopifyFulfillment> UsrShopifyFulfillments { get; set; } // usrShopifyFulfillment
-        public System.Data.Entity.DbSet<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevels
+        public System.Data.Entity.DbSet<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevel
         public System.Data.Entity.DbSet<UsrShopifyLocation> UsrShopifyLocations { get; set; } // usrShopifyLocation
         public System.Data.Entity.DbSet<UsrShopifyOrder> UsrShopifyOrders { get; set; } // usrShopifyOrder
         public System.Data.Entity.DbSet<UsrShopifyPayout> UsrShopifyPayouts { get; set; } // usrShopifyPayout
@@ -1299,7 +1299,7 @@ namespace Monster.Middle.Persist.Multitenant
         }
     }
 
-    // usrShopifyInventoryLevels
+    // usrShopifyInventoryLevel
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrShopifyInventoryLevel
     {
@@ -1323,12 +1323,12 @@ namespace Monster.Middle.Persist.Multitenant
         // Foreign keys
 
         /// <summary>
-        /// Parent UsrShopifyLocation pointed by [usrShopifyInventoryLevels].([LocationMonsterId]) (FK_usrShopifyInventoryLevels_usrShopifyLocation)
+        /// Parent UsrShopifyLocation pointed by [usrShopifyInventoryLevel].([LocationMonsterId]) (FK_usrShopifyInventoryLevels_usrShopifyLocation)
         /// </summary>
         public virtual UsrShopifyLocation UsrShopifyLocation { get; set; } // FK_usrShopifyInventoryLevels_usrShopifyLocation
 
         /// <summary>
-        /// Parent UsrShopifyVariant pointed by [usrShopifyInventoryLevels].([ParentMonsterId]) (FK_usrShopifyInventoryLevels_usrShopifyVariant)
+        /// Parent UsrShopifyVariant pointed by [usrShopifyInventoryLevel].([ParentMonsterId]) (FK_usrShopifyInventoryLevels_usrShopifyVariant)
         /// </summary>
         public virtual UsrShopifyVariant UsrShopifyVariant { get; set; } // FK_usrShopifyInventoryLevels_usrShopifyVariant
 
@@ -1356,9 +1356,9 @@ namespace Monster.Middle.Persist.Multitenant
         /// </summary>
         public virtual System.Collections.Generic.ICollection<UsrShopAcuWarehouseSync> UsrShopAcuWarehouseSyncs { get; set; } // usrShopAcuWarehouseSync.FK_usrShopAcuWarehouseSync_usrShopifyLocation
         /// <summary>
-        /// Child UsrShopifyInventoryLevels where [usrShopifyInventoryLevels].[LocationMonsterId] point to this entity (FK_usrShopifyInventoryLevels_usrShopifyLocation)
+        /// Child UsrShopifyInventoryLevels where [usrShopifyInventoryLevel].[LocationMonsterId] point to this entity (FK_usrShopifyInventoryLevels_usrShopifyLocation)
         /// </summary>
-        public virtual System.Collections.Generic.ICollection<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevels.FK_usrShopifyInventoryLevels_usrShopifyLocation
+        public virtual System.Collections.Generic.ICollection<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevel.FK_usrShopifyInventoryLevels_usrShopifyLocation
 
         public UsrShopifyLocation()
         {
@@ -1559,6 +1559,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long ShopifyInventoryItemId { get; set; } // ShopifyInventoryItemId
         public string ShopifyVariantJson { get; set; } // ShopifyVariantJson
         public string ShopifySku { get; set; } // ShopifySku (length: 100)
+        public decimal ShopifyCost { get; set; } // ShopifyCost
         public bool ShopifyIsTracked { get; set; } // ShopifyIsTracked
         public bool IsMissing { get; set; } // IsMissing
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -1571,9 +1572,9 @@ namespace Monster.Middle.Persist.Multitenant
         /// </summary>
         public virtual System.Collections.Generic.ICollection<UsrShopAcuItemSync> UsrShopAcuItemSyncs { get; set; } // usrShopAcuItemSync.FK_usrShopAcuItemSync_usrShopifyVariant
         /// <summary>
-        /// Child UsrShopifyInventoryLevels where [usrShopifyInventoryLevels].[ParentMonsterId] point to this entity (FK_usrShopifyInventoryLevels_usrShopifyVariant)
+        /// Child UsrShopifyInventoryLevels where [usrShopifyInventoryLevel].[ParentMonsterId] point to this entity (FK_usrShopifyInventoryLevels_usrShopifyVariant)
         /// </summary>
-        public virtual System.Collections.Generic.ICollection<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevels.FK_usrShopifyInventoryLevels_usrShopifyVariant
+        public virtual System.Collections.Generic.ICollection<UsrShopifyInventoryLevel> UsrShopifyInventoryLevels { get; set; } // usrShopifyInventoryLevel.FK_usrShopifyInventoryLevels_usrShopifyVariant
 
         // Foreign keys
 
@@ -2320,7 +2321,7 @@ namespace Monster.Middle.Persist.Multitenant
         }
     }
 
-    // usrShopifyInventoryLevels
+    // usrShopifyInventoryLevel
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrShopifyInventoryLevelConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrShopifyInventoryLevel>
     {
@@ -2331,7 +2332,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         public UsrShopifyInventoryLevelConfiguration(string schema)
         {
-            ToTable("usrShopifyInventoryLevels", schema);
+            ToTable("usrShopifyInventoryLevel", schema);
             HasKey(x => x.MonsterId);
 
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
@@ -2555,6 +2556,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.ShopifyInventoryItemId).HasColumnName(@"ShopifyInventoryItemId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyVariantJson).HasColumnName(@"ShopifyVariantJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifySku).HasColumnName(@"ShopifySku").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.ShopifyCost).HasColumnName(@"ShopifyCost").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.ShopifyIsTracked).HasColumnName(@"ShopifyIsTracked").HasColumnType("bit").IsRequired();
             Property(x => x.IsMissing).HasColumnName(@"IsMissing").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();

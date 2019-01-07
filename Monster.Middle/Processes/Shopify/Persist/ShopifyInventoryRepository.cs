@@ -75,7 +75,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
         public List<UsrShopifyInventoryLevel> 
-                    RetrieveInventoryLevels(long shopifyInventoryItemId)
+                    RetrieveInventory(long shopifyInventoryItemId)
         {
             return Entities
                     .UsrShopifyInventoryLevels
@@ -83,9 +83,9 @@ namespace Monster.Middle.Processes.Shopify.Persist
                     .ToList();
         }
 
-        public void InsertInventoryLevel(UsrShopifyInventoryLevel level)
+        public void InsertInventory(UsrShopifyInventoryLevel inventory)
         {
-            Entities.UsrShopifyInventoryLevels.Add(level);
+            Entities.UsrShopifyInventoryLevels.Add(inventory);
             Entities.SaveChanges();
         }
 
