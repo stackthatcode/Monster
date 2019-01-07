@@ -12,9 +12,10 @@
             <p>
                 @GlobalConfig.AppName is now ready to complete the first update of
                 Shopify Inventory counts with Acumatica Inventory.
-                During this run, the entire contains of Acumatica's Inventory will be used.
+                During this run, the complete counts from Acumatica's Inventory 
+                will be brought over to Shopify.
                 After this step, @GlobalConfig.AppName will only incrementally 
-                synchronize that has changed.
+                synchronize counts that have changed since the last update.
             </p>
         </div>
 
@@ -60,7 +61,7 @@
             Synchronize Now <i class="fas fa-bolt"></i>
         </a>
 
-        <span data-bind="ifnot: IsRandomAccessMode">
+        <span data-bind="if: IsNextButtonVisible">
             <a href="@GlobalConfig.Url("Config/RealTime")"
                class="btn btn-success btn-lg">
                 Next Step <i class="fas fa-sign-in-alt"></i>
@@ -104,6 +105,7 @@
             var ajax = new Monster.Ajax();
             ajax.HttpPost("Config/PushInventoryToShopify", {}, self.PollStatus);
         };
+
 
         self.PollStatus = function () {
             flow.exec(

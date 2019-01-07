@@ -187,6 +187,7 @@ namespace Monster.Web.Controllers
             var state = _stateRepository.RetrieveSystemState();
             state.PreferenceSelections
                 = data.AreValid() ? SystemState.Ok : SystemState.Invalid;
+            _stateRepository.SaveChanges();
 
             return JsonNetResult.Success();
         }
@@ -301,7 +302,7 @@ namespace Monster.Web.Controllers
 
             return new JsonNetResult(output);
         }
-
+        
         
 
         // Status inquiries
@@ -309,6 +310,10 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult RealTime()
         {
+            var state = _stateRepository.RetrieveSystemState();
+            state.IsRandomAccessMode = true;
+            _stateRepository.SaveChanges();
+
             return View();
         }
 

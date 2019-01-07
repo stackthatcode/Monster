@@ -46,34 +46,36 @@
     
 <div data-bind="if: ShowDataEntry">
 <div class="card text-center">
-    <div id="preferences" class="card-body left">
+<div id="preferences" class="card-body left">
 
-        <!-- Starting Date for Orders -->
-        <div class="form-group">
-            <label for="datepicker">Starting Date for Shopify Orders</label>
+    <!-- Starting Date for Orders -->
+    <div class="form-group">
+        <label for="datepicker">Starting Date for Shopify Orders</label>
 
-            <input id="datepicker"
-                   type="text"
-                   class="form-control"
-                   placeholder="Choose..."
-                   data-bind="value: SelectedStartingDate" />
+        <input id="datepicker"
+               type="text"
+               class="form-control"
+               placeholder="Choose..."
+               data-bind="value: SelectedStartingDate" />
 
-            <small id="datepickerHelp" class="form-text text-muted">
-                @GlobalConfig.AppName will only load Shopify Orders
-                that are created on or after this date into Acumatica.
-            </small>
+        <small id="datepickerHelp" class="form-text text-muted">
+            @GlobalConfig.AppName will only load Shopify Orders
+            that are created on or after this date into Acumatica.
+        </small>
 
-        </div>
+    </div>
                                         
-        <div class="form-group">
-            <label for="orderNumber">Starting Shopify Order Number 
-                <span style="font-weight:400;">(OPTIONAL)</span>
-            </label>
+    <div class="form-group">
+        <label for="orderNumber">Starting Shopify Order Number 
+            <span style="font-weight:400;">(OPTIONAL)</span>
+        </label>
 
-            <input id="orderNumber"
-                   class="form-control"
-                   placeholder="Enter a Shopify Order Number..."
-                   data-bind="value: ShopifyOrderNumberStart" />
+        <input id="orderNumber"
+               class="form-control"
+               placeholder="Enter a Shopify Order Number..."
+               maxlength="12"
+               data-bind="value: ShopifyOrderNumberStart,
+                event: { blur: ShopifyOrderNumberStartBlur }" />
 
             <small id="orderNumberHelp" class="form-text text-muted">
                 @GlobalConfig.AppName will only load Shopify Orders
@@ -324,6 +326,19 @@
         self.SelectedTimeZone = ko.observable();
         self.SelectedStartingDate = ko.observable();
         self.ShopifyOrderNumberStart = ko.observable();
+
+        self.ShopifyOrderNumberStartBlur = function () {            
+            if (Number.isInteger(parseInt(self.ShopifyOrderNumberStart()))) {
+                self.ShopifyOrderNumberStart(parseInt(self.ShopifyOrderNumberStart()));
+            } else {
+                self.ShopifyOrderNumberStart(null);
+            }
+        };
+
+        self.ShopifyOrderNumberStart.subscribe(function () {
+            self.ShopifyOrderNumberStartBlur();
+        });
+
         self.SelectedItemClass = ko.observable();
         self.SelectedPaymentMethod = ko.observable();
         self.SelectedCashAccount = ko.observable();
