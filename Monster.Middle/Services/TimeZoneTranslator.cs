@@ -19,16 +19,16 @@ namespace Monster.Middle.Services
 
         public DateTime FromUtcToTimeZone(DateTime dateTimeUtc, string timeZone)
         {
-            var timeZoneId = TZConvert.IanaToWindows(timeZone);
-            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            //var timeZoneId = TZConvert.IanaToWindows(timeZone);
+            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
             return TimeZoneInfo.ConvertTimeFromUtc(dateTimeUtc, timeZoneInfo);
         }
 
         public DateTime ToUtcFromTimeZone(DateTime dateTimeLocal, string timeZone)
         {
             var dateTimeLocalTz = DateTime.SpecifyKind(dateTimeLocal, DateTimeKind.Unspecified);
-            var timeZoneId = TZConvert.IanaToWindows(timeZone);
-            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+           // var timeZoneId = TZConvert.IanaToWindows(timeZone);
+            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
             return TimeZoneInfo.ConvertTimeToUtc(dateTimeLocalTz, timeZoneInfo);
         }
     }

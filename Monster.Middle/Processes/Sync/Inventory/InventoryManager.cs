@@ -70,7 +70,6 @@ namespace Monster.Middle.Processes.Sync.Inventory
             // Synchronize Shopify Inventory to Acumatica
             _acumaticaInventorySync.Run();
 
-            // TODO - control this via a Preference
             _acumaticaInventorySync.RunInventoryReceipts();
 
             // TODO - control this via a Preference

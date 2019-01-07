@@ -147,13 +147,12 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         }
 
         public void RunInventoryReceipts()
-        {            
-            var preferences = _tenantRepository.RetrievePreferences();
-
-
-            if (preferences.DefaultCoGsMargin == null)
-                throw new ArgumentException(
-                    "Preferences -> DefaultCoGsMargin is not set");
+        {
+            // ON HOLD
+            //var preferences = _tenantRepository.RetrievePreferences();
+            //if (preferences.DefaultCoGsMargin == null)
+            //    throw new ArgumentException(
+            //        "Preferences -> DefaultCoGsMargin is not set");
 
             var inventory =
                 _syncInventoryRepository.RetrieveInventoryLevelsNotSynced();
