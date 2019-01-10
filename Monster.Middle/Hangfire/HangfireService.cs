@@ -12,7 +12,7 @@ namespace Monster.Middle.Hangfire
     public class HangfireService
     {
         private readonly TenantContext _tenantContext;
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
 
@@ -20,7 +20,7 @@ namespace Monster.Middle.Hangfire
         public HangfireService(
                 IPushLogger logger,
                 TenantContext tenantContext, 
-                TenantRepository tenantRepository,
+                ConnectionRepository tenantRepository,
                 StateRepository stateRepository)
         {
             _tenantContext = tenantContext;

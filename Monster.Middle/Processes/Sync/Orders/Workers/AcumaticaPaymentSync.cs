@@ -12,13 +12,13 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaPaymentSync
     {
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
 
         public AcumaticaPaymentSync(
-                TenantRepository tenantRepository,
+                ConnectionRepository tenantRepository,
                 SyncOrderRepository syncOrderRepository, 
                 PaymentClient paymentClient, 
                 StateRepository stateRepository)

@@ -7,7 +7,7 @@ namespace Monster.Middle.Processes.Sync.Orders
 {
     public class OrderManager
     {
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly AcumaticaHttpContext _acumaticaContext;
 
         private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
@@ -20,7 +20,7 @@ namespace Monster.Middle.Processes.Sync.Orders
         private readonly AcumaticaRefundSync _acumaticaRefundSync;
 
         public OrderManager(
-                TenantRepository tenantRepository,
+                ConnectionRepository tenantRepository,
 
                 AcumaticaHttpContext acumaticaContext,
                 AcumaticaCustomerSync acumaticaCustomerSync,

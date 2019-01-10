@@ -51,6 +51,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
         System.Data.Entity.DbSet<UsrBackgroundJob> UsrBackgroundJobs { get; set; } // usrBackgroundJob
+        System.Data.Entity.DbSet<UsrConnection> UsrConnections { get; set; } // usrConnections
         System.Data.Entity.DbSet<UsrExecutionLog> UsrExecutionLogs { get; set; } // usrExecutionLog
         System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; } // usrInventoryReceiptSync
         System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
@@ -75,7 +76,6 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrShopifyTransaction> UsrShopifyTransactions { get; set; } // usrShopifyTransaction
         System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
         System.Data.Entity.DbSet<UsrSystemState> UsrSystemStates { get; set; } // usrSystemState
-        System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
 
         int SaveChanges();
         System.Threading.Tasks.Task<int> SaveChangesAsync();
@@ -112,6 +112,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; } // usrAcumaticaWarehouse
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; } // usrAcumaticaWarehouseDetails
         public System.Data.Entity.DbSet<UsrBackgroundJob> UsrBackgroundJobs { get; set; } // usrBackgroundJob
+        public System.Data.Entity.DbSet<UsrConnection> UsrConnections { get; set; } // usrConnections
         public System.Data.Entity.DbSet<UsrExecutionLog> UsrExecutionLogs { get; set; } // usrExecutionLog
         public System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; } // usrInventoryReceiptSync
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; } // usrPayoutPreferences
@@ -136,7 +137,6 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyTransaction> UsrShopifyTransactions { get; set; } // usrShopifyTransaction
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; } // usrShopifyVariant
         public System.Data.Entity.DbSet<UsrSystemState> UsrSystemStates { get; set; } // usrSystemState
-        public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; } // usrTenant
 
         static MonsterDataContext()
         {
@@ -200,6 +200,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration());
             modelBuilder.Configurations.Add(new UsrBackgroundJobConfiguration());
+            modelBuilder.Configurations.Add(new UsrConnectionConfiguration());
             modelBuilder.Configurations.Add(new UsrExecutionLogConfiguration());
             modelBuilder.Configurations.Add(new UsrInventoryReceiptSyncConfiguration());
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration());
@@ -224,7 +225,6 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyTransactionConfiguration());
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration());
             modelBuilder.Configurations.Add(new UsrSystemStateConfiguration());
-            modelBuilder.Configurations.Add(new UsrTenantConfiguration());
         }
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
@@ -243,6 +243,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaWarehouseDetailConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrBackgroundJobConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrConnectionConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrExecutionLogConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrInventoryReceiptSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrPayoutPreferenceConfiguration(schema));
@@ -267,7 +268,6 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrShopifyTransactionConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrShopifyVariantConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrSystemStateConfiguration(schema));
-            modelBuilder.Configurations.Add(new UsrTenantConfiguration(schema));
             return modelBuilder;
         }
     }
@@ -304,6 +304,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouse> UsrAcumaticaWarehouses { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaWarehouseDetail> UsrAcumaticaWarehouseDetails { get; set; }
         public System.Data.Entity.DbSet<UsrBackgroundJob> UsrBackgroundJobs { get; set; }
+        public System.Data.Entity.DbSet<UsrConnection> UsrConnections { get; set; }
         public System.Data.Entity.DbSet<UsrExecutionLog> UsrExecutionLogs { get; set; }
         public System.Data.Entity.DbSet<UsrInventoryReceiptSync> UsrInventoryReceiptSyncs { get; set; }
         public System.Data.Entity.DbSet<UsrPayoutPreference> UsrPayoutPreferences { get; set; }
@@ -328,7 +329,6 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrShopifyTransaction> UsrShopifyTransactions { get; set; }
         public System.Data.Entity.DbSet<UsrShopifyVariant> UsrShopifyVariants { get; set; }
         public System.Data.Entity.DbSet<UsrSystemState> UsrSystemStates { get; set; }
-        public System.Data.Entity.DbSet<UsrTenant> UsrTenants { get; set; }
 
         public FakeMonsterDataContext()
         {
@@ -350,6 +350,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaWarehouses = new FakeDbSet<UsrAcumaticaWarehouse>("Id");
             UsrAcumaticaWarehouseDetails = new FakeDbSet<UsrAcumaticaWarehouseDetail>("MonsterId");
             UsrBackgroundJobs = new FakeDbSet<UsrBackgroundJob>("Id");
+            UsrConnections = new FakeDbSet<UsrConnection>("Id");
             UsrExecutionLogs = new FakeDbSet<UsrExecutionLog>("Id");
             UsrInventoryReceiptSyncs = new FakeDbSet<UsrInventoryReceiptSync>("Id");
             UsrPayoutPreferences = new FakeDbSet<UsrPayoutPreference>("Id");
@@ -374,7 +375,6 @@ namespace Monster.Middle.Persist.Multitenant
             UsrShopifyTransactions = new FakeDbSet<UsrShopifyTransaction>("Id");
             UsrShopifyVariants = new FakeDbSet<UsrShopifyVariant>("MonsterId");
             UsrSystemStates = new FakeDbSet<UsrSystemState>("Id");
-            UsrTenants = new FakeDbSet<UsrTenant>("CompanyId");
         }
 
         public int SaveChangesCount { get; private set; }
@@ -1014,6 +1014,24 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime? LastUpdated { get; set; } // LastUpdated
     }
 
+    // usrConnections
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrConnection
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public string ShopifyDomain { get; set; } // ShopifyDomain (length: 500)
+        public string ShopifyAuthCodeHash { get; set; } // ShopifyAuthCodeHash (length: 500)
+        public string ShopifyAccessToken { get; set; } // ShopifyAccessToken (length: 500)
+        public string ShopifyApiKey { get; set; } // ShopifyApiKey (length: 500)
+        public string ShopifyApiPassword { get; set; } // ShopifyApiPassword (length: 500)
+        public string ShopifyApiSecret { get; set; } // ShopifyApiSecret (length: 500)
+        public string AcumaticaInstanceUrl { get; set; } // AcumaticaInstanceUrl (length: 500)
+        public string AcumaticaBranch { get; set; } // AcumaticaBranch (length: 500)
+        public string AcumaticaCompanyName { get; set; } // AcumaticaCompanyName (length: 500)
+        public string AcumaticaUsername { get; set; } // AcumaticaUsername (length: 500)
+        public string AcumaticaPassword { get; set; } // AcumaticaPassword (length: 500)
+    }
+
     // usrExecutionLog
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class UsrExecutionLog
@@ -1608,24 +1626,6 @@ namespace Monster.Middle.Persist.Multitenant
         public string RealTimeHangFireJobId { get; set; } // RealTimeHangFireJobId (length: 250)
     }
 
-    // usrTenant
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrTenant
-    {
-        public long CompanyId { get; set; } // CompanyID (Primary key)
-        public string ShopifyDomain { get; set; } // ShopifyDomain (length: 500)
-        public string ShopifyAuthCodeHash { get; set; } // ShopifyAuthCodeHash (length: 500)
-        public string ShopifyAccessToken { get; set; } // ShopifyAccessToken (length: 500)
-        public string ShopifyApiKey { get; set; } // ShopifyApiKey (length: 500)
-        public string ShopifyApiPassword { get; set; } // ShopifyApiPassword (length: 500)
-        public string ShopifyApiSecret { get; set; } // ShopifyApiSecret (length: 500)
-        public string AcumaticaInstanceUrl { get; set; } // AcumaticaInstanceUrl (length: 500)
-        public string AcumaticaBranch { get; set; } // AcumaticaBranch (length: 500)
-        public string AcumaticaCompanyName { get; set; } // AcumaticaCompanyName (length: 500)
-        public string AcumaticaUsername { get; set; } // AcumaticaUsername (length: 500)
-        public string AcumaticaPassword { get; set; } // AcumaticaPassword (length: 500)
-    }
-
     #endregion
 
     #region POCO Configuration
@@ -1968,6 +1968,35 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
+        }
+    }
+
+    // usrConnections
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class UsrConnectionConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrConnection>
+    {
+        public UsrConnectionConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public UsrConnectionConfiguration(string schema)
+        {
+            ToTable("usrConnections", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyDomain).HasColumnName(@"ShopifyDomain").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyAuthCodeHash).HasColumnName(@"ShopifyAuthCodeHash").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyAccessToken).HasColumnName(@"ShopifyAccessToken").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyApiKey).HasColumnName(@"ShopifyApiKey").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyApiPassword).HasColumnName(@"ShopifyApiPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.ShopifyApiSecret).HasColumnName(@"ShopifyApiSecret").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaInstanceUrl).HasColumnName(@"AcumaticaInstanceUrl").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaBranch).HasColumnName(@"AcumaticaBranch").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaCompanyName).HasColumnName(@"AcumaticaCompanyName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaUsername).HasColumnName(@"AcumaticaUsername").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
+            Property(x => x.AcumaticaPassword).HasColumnName(@"AcumaticaPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
         }
     }
 
@@ -2593,35 +2622,6 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.IsAcumaticaUrlFinalized).HasColumnName(@"IsAcumaticaUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
             Property(x => x.RealTimeHangFireJobId).HasColumnName(@"RealTimeHangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(250);
-        }
-    }
-
-    // usrTenant
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrTenantConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrTenant>
-    {
-        public UsrTenantConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public UsrTenantConfiguration(string schema)
-        {
-            ToTable("usrTenant", schema);
-            HasKey(x => x.CompanyId);
-
-            Property(x => x.CompanyId).HasColumnName(@"CompanyID").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.ShopifyDomain).HasColumnName(@"ShopifyDomain").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.ShopifyAuthCodeHash).HasColumnName(@"ShopifyAuthCodeHash").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.ShopifyAccessToken).HasColumnName(@"ShopifyAccessToken").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.ShopifyApiKey).HasColumnName(@"ShopifyApiKey").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.ShopifyApiPassword).HasColumnName(@"ShopifyApiPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.ShopifyApiSecret).HasColumnName(@"ShopifyApiSecret").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.AcumaticaInstanceUrl).HasColumnName(@"AcumaticaInstanceUrl").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.AcumaticaBranch).HasColumnName(@"AcumaticaBranch").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.AcumaticaCompanyName).HasColumnName(@"AcumaticaCompanyName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.AcumaticaUsername).HasColumnName(@"AcumaticaUsername").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
-            Property(x => x.AcumaticaPassword).HasColumnName(@"AcumaticaPassword").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(500);
         }
     }
 

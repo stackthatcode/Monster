@@ -8,14 +8,14 @@ using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Persist.Multitenant
 {
-    public class TenantRepository
+    public class ConnectionRepository
     {
         private readonly PersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
         private readonly ICryptoService _cryptoService;
 
-        public TenantRepository(
+        public ConnectionRepository(
                 PersistContext dataContext,
                 ICryptoService cryptoService)
         {
@@ -36,22 +36,22 @@ namespace Monster.Middle.Persist.Multitenant
         //
         public void CreateIfMissing()
         {
-            if (!Entities.UsrTenants.Any())
+            if (!Entities.UsrConnections.Any())
             {
-                this.InsertTenant(new UsrTenant());
+                this.InsertTenant(new UsrConnection());
             }
         }
 
-        public void InsertTenant(UsrTenant context)
+        public void InsertTenant(UsrConnection context)
         {
-            Entities.UsrTenants.Add(context);
+            Entities.UsrConnections.Add(context);
             Entities.SaveChanges();
         }
         
-        public UsrTenant Retrieve()
+        public UsrConnection Retrieve()
         {
             CreateIfMissing();
-            return Entities.UsrTenants.FirstOrDefault();
+            return Entities.UsrConnections.FirstOrDefault();
         }
 
         

@@ -17,7 +17,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly TimeZoneService _timeZoneService;
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly IPushLogger _logger;
 
         public const int InitialBatchStateFudgeMin = -15;
@@ -28,7 +28,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaOrderRepository orderRepository,
                 AcumaticaBatchRepository batchStateRepository,
                 TimeZoneService timeZoneService,
-                TenantRepository tenantRepository,
+                ConnectionRepository tenantRepository,
                 IPushLogger logger)
         {
             _customerClient = customerClient;

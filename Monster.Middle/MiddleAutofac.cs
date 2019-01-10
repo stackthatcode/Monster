@@ -85,7 +85,7 @@ namespace Monster.Middle
             // Multitenant Persistence
             builder.RegisterType<TenantContext>().InstancePerLifetimeScope();
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
-            builder.RegisterType<TenantRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<ConnectionRepository>().InstancePerLifetimeScope();
 
             // Job Running components
             builder.RegisterType<StateRepository>().InstancePerLifetimeScope();

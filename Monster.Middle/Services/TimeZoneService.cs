@@ -6,9 +6,9 @@ namespace Monster.Middle.Services
 {
     public class TimeZoneService
     {
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
 
-        public TimeZoneService(TenantRepository tenantRepository)
+        public TimeZoneService(ConnectionRepository tenantRepository)
         {
             _tenantRepository = tenantRepository;
         }

@@ -10,7 +10,7 @@ namespace Monster.Middle.Security
     public class TenantContext
     {
         private readonly SystemRepository _systemRepository;
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly PersistContext _persistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
@@ -22,7 +22,7 @@ namespace Monster.Middle.Security
 
 
         public TenantContext(
-                TenantRepository tenantRepository, 
+                ConnectionRepository tenantRepository, 
                 SystemRepository systemRepository, 
                 PersistContext persistContext, 
                 ShopifyHttpContext shopifyHttpContext,

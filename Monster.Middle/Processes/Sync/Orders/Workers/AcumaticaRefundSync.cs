@@ -17,7 +17,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaRefundSync
     {
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly SalesOrderClient _salesOrderClient;
@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     SalesOrderClient salesOrderClient, 
-                    TenantRepository tenantRepository,
+                    ConnectionRepository tenantRepository,
                     StateRepository stateRepository)
         {
             _syncOrderRepository = syncOrderRepository;

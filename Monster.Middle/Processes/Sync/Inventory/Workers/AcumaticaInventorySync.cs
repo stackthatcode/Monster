@@ -21,7 +21,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
     {
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly TimeZoneService _timeZoneService;
 
         private readonly DistributionClient _distributionClient;
@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         public AcumaticaInventorySync(
                     AcumaticaInventoryRepository inventoryRepository,
                     SyncInventoryRepository syncInventoryRepository,
-                    TenantRepository tenantRepository,
+                    ConnectionRepository tenantRepository,
                     
                     DistributionClient distributionClient,
                     TimeZoneService timeZoneService,

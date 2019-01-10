@@ -16,7 +16,7 @@ namespace Monster.Middle.Processes.Sync
 {
     public class SyncDirector
     {
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
@@ -29,7 +29,7 @@ namespace Monster.Middle.Processes.Sync
         private readonly IPushLogger _logger;
 
         public SyncDirector(
-                TenantRepository tenantRepository,
+                ConnectionRepository tenantRepository,
                 StateRepository stateRepository,
                 ShopifyBatchRepository shopifyBatchRepository, 
                 AcumaticaBatchRepository acumaticaBatchRepository, 

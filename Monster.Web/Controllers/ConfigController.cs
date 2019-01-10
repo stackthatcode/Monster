@@ -17,7 +17,7 @@ namespace Monster.Web.Controllers
     [IdentityProcessor]
     public class ConfigController : Controller
     {
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly HangfireService _hangfireService;
 
@@ -26,7 +26,7 @@ namespace Monster.Web.Controllers
 
 
         public ConfigController(
-                TenantRepository tenantRepository,
+                ConnectionRepository tenantRepository,
                 StateRepository stateRepository,
                 HangfireService hangfireService,
                 TimeZoneService timeZoneService,

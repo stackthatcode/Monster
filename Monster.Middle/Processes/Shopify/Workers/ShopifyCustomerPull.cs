@@ -14,7 +14,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly CustomerApi _customerApi;
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly IPushLogger _logger;
 
         // Possibly expand - this is a one-time thing...
@@ -25,7 +25,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 CustomerApi customerApi,
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository shopifyBatchRepository,
-                TenantRepository tenantRepository,
+                ConnectionRepository tenantRepository,
                 IPushLogger logger)
         {
             _customerApi = customerApi;

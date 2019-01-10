@@ -129,7 +129,7 @@ namespace Push.Foundation
                     var contextLoader = scope.Resolve<TenantContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<TenantRepository>();
+                    var repository = scope.Resolve<ConnectionRepository>();
 
                     repository.CreateIfMissing();
                     repository.UpdateShopifyCredentials(
@@ -162,7 +162,7 @@ namespace Push.Foundation
                     var contextLoader = scope.Resolve<TenantContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<TenantRepository>();
+                    var repository = scope.Resolve<ConnectionRepository>();
 
                     repository.CreateIfMissing();
                     repository.UpdateAcumaticaCredentials(
@@ -240,7 +240,7 @@ namespace Push.Foundation
 
                 var persistContext = scope.Resolve<PersistContext>();
 
-                var repository = scope.Resolve<TenantRepository>();
+                var repository = scope.Resolve<ConnectionRepository>();
                 var tenantContext = repository.Retrieve();
 
                 var output =

@@ -14,7 +14,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
     public class AcumaticaInvoicePull
     {
         private readonly SalesOrderClient _salesOrderClient;
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly TimeZoneService _timeZoneService;
@@ -29,7 +29,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaBatchRepository batchStateRepository,
                 TimeZoneService timeZoneService,
                 SalesOrderClient salesOrderClient,
-                TenantRepository tenantRepository,
+                ConnectionRepository tenantRepository,
                 IPushLogger logger)
         {
             _orderRepository = orderRepository;

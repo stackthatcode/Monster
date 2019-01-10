@@ -23,7 +23,7 @@ namespace Monster.Web.Controllers
     public class ShopifyAuthController : Controller
     {
         private readonly OAuthApi _oAuthApi;
-        private readonly TenantRepository _tenantRepository;
+        private readonly ConnectionRepository _tenantRepository;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
@@ -49,7 +49,7 @@ namespace Monster.Web.Controllers
         public ShopifyAuthController(
                 IPushLogger logger, 
                 OAuthApi oAuthApi, 
-                TenantRepository tenantRepository, 
+                ConnectionRepository tenantRepository, 
                 ShopifyHttpContext shopifyHttpContext, 
                 StateRepository stateRepository, 
                 HmacCryptoService hmacCrypto)
