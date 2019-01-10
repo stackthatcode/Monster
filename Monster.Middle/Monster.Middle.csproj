@@ -179,6 +179,7 @@
     <Compile Include="Processes\Sync\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Processes\Sync\SyncDirector.cs" />
     <Compile Include="Security\IdentityContext.cs" />
+    <Compile Include="Security\IdentityService.cs" />
     <Compile Include="Security\SecurityConfig.cs" />
     <Compile Include="Security\ConnectionContext.cs" />
     <Compile Include="Persist\Sys\SystemRepository.cs" />
