@@ -27,10 +27,11 @@ namespace Monster.Middle.Processes.Sync.Orders
         public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
             var preferences = Entities.UsrPreferences.First();
-            
+            var orderNumberStart = preferences.ShopifyOrderNumberStart ?? 0;
+
             return Entities
                 .UsrShopifyOrders
-                .Where(x => x.ShopifyOrderNumber >= preferences.ShopifyOrderNumberStart 
+                .Where(x => x.ShopifyOrderNumber >= orderNumberStart
                             && !x.UsrShopAcuOrderSyncs.Any())
                 .Include(x => x.UsrShopifyCustomer)
                 .ToList();

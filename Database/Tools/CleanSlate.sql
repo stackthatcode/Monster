@@ -52,7 +52,7 @@ DELETE FROM usrShopifyFulfillment;
 DELETE FROM usrShopifyOrder;
 DELETE FROM usrShopifyCustomer;
 
-DELETE FROM usrShopifyInventoryLevels;
+DELETE FROM usrShopifyInventoryLevel;
 DELETE FROM usrShopifyVariant;
 DELETE FROM usrShopifyProduct;
 DELETE FROM usrShopifyLocation;
@@ -75,6 +75,9 @@ DELETE FROM usrSystemState;
 -- DELETE FROM usrTenant
 
 
+ALTER DATABASE Monster0001 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
+ALTER DATABASE Monster0001 SET MULTI_USER
+
 ALTER DATABASE AcuInst4 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
 ALTER DATABASE AcuInst4 SET MULTI_USER
 
@@ -87,4 +90,8 @@ GO
 RESTORE DATABASE AcuInst2
 FROM DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\Backup\AcuInst2.bak'
 */
+
+SELECT * FROM AcuInst4..Users;
+UPDATE AcuInst4..Users SET Password = '123456'
+
 

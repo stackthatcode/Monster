@@ -8,11 +8,12 @@ namespace Monster.Web.Plumbing
     {
 
 #if DEBUG
-        public const bool DebugMode = true;
-        public const bool ReleaseMode = false;
+        public static readonly bool DebugMode = 
+            (ConfigurationManager.AppSettings["demodata"] ?? "") == "demodata";
+        public static readonly bool ReleaseMode = false;
 #else
-        public const bool DebugMode = false;
-        public const bool ReleaseMode = true;
+        public static readonly  bool DebugMode = false;
+        public static readonly  bool ReleaseMode = true;
 #endif
 
         public static readonly string BaseUrl = ConfigurationManager.AppSettings["application_root_url"];

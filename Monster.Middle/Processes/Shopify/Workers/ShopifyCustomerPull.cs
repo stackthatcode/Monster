@@ -106,10 +106,10 @@ namespace Monster.Middle.Processes.Shopify.Workers
             if (!batchState.ShopifyCustomersPullEnd.HasValue)
             {
                 throw new Exception(
-                    "ShopifyOrdersPullEnd not set - must run Baseline Pull first");
+                    "ShopifyCustomersPullEnd not set - must run Baseline Pull first");
             }
 
-            var lastBatchStateEnd = batchState.ShopifyOrdersPullEnd.Value;
+            var lastBatchStateEnd = batchState.ShopifyCustomersPullEnd.Value;
             var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
 
             var firstFilter = new SearchFilter();

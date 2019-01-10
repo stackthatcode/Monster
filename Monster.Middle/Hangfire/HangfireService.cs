@@ -152,6 +152,7 @@ namespace Monster.Middle.Hangfire
                     var jobId = BackgroundJob.Enqueue<BackgroundJobRunner>(action);
 
                     _stateRepository.InsertBackgroundJob(backgroundJobType, jobId);
+                    
 
                     transaction.Commit();
                 }
@@ -184,6 +185,7 @@ namespace Monster.Middle.Hangfire
                 state.RealTimeHangFireJobId = routineSyncJobId;;
                 _tenantRepository.Entities.SaveChanges();
 
+                RecurringJob.Trigger(routineSyncJobId);
                 transaction.Commit();
             }
         }
