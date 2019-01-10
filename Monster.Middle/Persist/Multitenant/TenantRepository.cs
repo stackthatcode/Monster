@@ -38,10 +38,7 @@ namespace Monster.Middle.Persist.Multitenant
         {
             if (!Entities.UsrTenants.Any())
             {
-                this.InsertTenant(new UsrTenant()
-                {
-                    CompanyId = _dataContext.CompanyId
-                });
+                this.InsertTenant(new UsrTenant());
             }
         }
 

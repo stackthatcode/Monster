@@ -15,19 +15,12 @@ namespace Push.Foundation.Web
 {
     public class FoundationWebAutofac
     {
-        //
-        // Registration of HttpClient and Entity-framework backed OWIN Identity
-        //
-        // Note: needs a DbConnection registration for OWIN piece to work properly
-        // ALSO: excludes EncryptionService, as each consumer will inject different keys
         public static void Build(ContainerBuilder builder)
         {
-            builder.RegisterType<HttpFacade>();
-
             RegisterOwinIdentity(builder);
-            
-            // The Hmac Service will be used to validate Webhooks from Shopify
-            builder.RegisterType<HmacCryptoService>();            
+
+            // Misc
+            builder.RegisterType<HttpFacade>();
         }
 
 
@@ -35,14 +28,13 @@ namespace Push.Foundation.Web
         {
             // OWIN framework objects
             builder
-                .RegisterType<ApplicationDbContext>()
-                .As<DbContext>()
-                .As<ApplicationDbContext>()
+                .RegisterType<Identity.IdentityDbContext>()
+                .As<Identity.IdentityDbContext>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<ApplicationRoleManager>();
-            builder.RegisterType<ApplicationUserManager>();
-            builder.RegisterType<ApplicationSignInManager>();
+            builder.RegisterType<IdentityRoleManager>();
+            builder.RegisterType<IdentityUserManager>();
+            builder.RegisterType<IdentitySignInManager>();
             builder.RegisterType<ClaimsRepository>();
 
             builder
@@ -56,10 +48,14 @@ namespace Push.Foundation.Web
 
             builder.RegisterType<RoleStore<IdentityRole>>();
 
-            // We need to pull the DataProtectionProvider from the App Builder
-            builder.RegisterType<MachineKeyProtectionProvider>()
+
+            // Standard ASP.NET OWIN data protection dependencies
+            builder
+                .RegisterType<MachineKeyProtectionProvider>()
                 .As<IDataProtectionProvider>();
-            builder.RegisterType<MachineKeyDataProtector>()
+
+            builder
+                .RegisterType<MachineKeyDataProtector>()
                 .As<IDataProtector>();
 
             builder.RegisterType<DataProtectorTokenProvider<ApplicationUser>>();

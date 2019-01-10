@@ -172,10 +172,10 @@
     <Compile Include="Http\HttpSettings.cs" />
     <Compile Include="Http\ResponseEnvelope.cs" />
     <Compile Include="Http\Extensions.cs" />
-    <Compile Include="Identity\ApplicationDbContext.cs" />
-    <Compile Include="Identity\ApplicationRoleManager.cs" />
-    <Compile Include="Identity\ApplicationSignInManager.cs" />
-    <Compile Include="Identity\ApplicationUserManager.cs" />
+    <Compile Include="Identity\IdentityDbContext.cs" />
+    <Compile Include="Identity\IdentityRoleManager.cs" />
+    <Compile Include="Identity\IdentitySignInManager.cs" />
+    <Compile Include="Identity\IdentityUserManager.cs" />
     <Compile Include="Identity\ClaimsRepository.cs" />
     <Compile Include="Identity\EmailService.cs" />
     <Compile Include="Identity\IdentityExtensions.cs" />

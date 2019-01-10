@@ -15,8 +15,9 @@ namespace Monster.Middle.Security
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
         
-        // Why not add pass throughs Shopify and Acumatica...?
+        // Why not add pass throughs to Shopify and Acumatica...?
         // Lifetime Scope says we're safe
+        
         private Guid? _tenantId;
 
 
@@ -34,6 +35,7 @@ namespace Monster.Middle.Security
             _acumaticaHttpContext = acumaticaHttpContext;
         }
 
+        
         public Guid InstallationId => _tenantId.Value;
 
         public void Initialize(Guid installationId)
@@ -42,11 +44,10 @@ namespace Monster.Middle.Security
 
             var installation = 
                     _systemRepository
-                        .RetrieveInstallation(installationId);
+                        .RetrieveInstance(installationId);
 
             // Load the Installation into Persist 
-            _persistContext.Initialize(
-                    installation.ConnectionString, installation.CompanyId);
+            _persistContext.Initialize(installation.ConnectionString);
 
             // Shopify
             var shopifyCredentials
@@ -64,12 +65,10 @@ namespace Monster.Middle.Security
             _tenantId = installationId;
 
             var installation = 
-                    _systemRepository.RetrieveInstallation(installationId);
+                    _systemRepository.RetrieveInstance(installationId);
 
             // Load the Installation into Persist 
-            _persistContext.Initialize(
-                installation.ConnectionString, installation.CompanyId);
-
+            _persistContext.Initialize(installation.ConnectionString);
         }        
     }
 }

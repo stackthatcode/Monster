@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Web.Mvc;
 using Autofac;
 using Autofac.Integration.Mvc;
+using Monster.Middle.Config;
 using Monster.Web.Controllers;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
@@ -35,8 +36,20 @@ namespace Monster.Web
                     .As<IPushLogger>()
                     .InstancePerLifetimeScope();
 
-            // Database Connection for ... OWIN stuff...?
-            //ConfigureDatabaseConnection(builder);
+            // Database Connection for OWIN stuff
+            var systemDbConnection = MonsterConfig.Settings.SystemDatabaseConnection;
+            builder
+                .Register(ctx =>
+                {
+                    var connection = new SqlConnection(systemDbConnection);
+                    connection.Open();
+                    return connection;
+                })
+                .As<SqlConnection>()
+                .As<DbConnection>()
+                .As<IDbConnection>()
+                .InstancePerLifetimeScope();
+
 
             // ASP.NET MVC Controller registration
             builder.RegisterType<ShopifyAuthController>();
@@ -52,28 +65,14 @@ namespace Monster.Web
         }
 
 
-        // TODO - figure out who needs this...?
         public static void ConfigureDatabaseConnection(ContainerBuilder builder)
         {
             // Database connection string...
-            var connectionString =
-                ConfigurationManager
-                    .ConnectionStrings["DefaultConnection"]
-                    .ConnectionString;
-            
+            var systemDbConnection 
+                    = MonsterConfig.Settings.SystemDatabaseConnection;
+
             // ... and register configuration
-            builder
-                .Register(ctx =>
-                {
-                    var connectionstring = connectionString;
-                    var connection = new SqlConnection(connectionstring);
-                    connection.Open();
-                    return connection;
-                })
-                .As<SqlConnection>()
-                .As<DbConnection>()
-                .As<IDbConnection>()
-                .InstancePerLifetimeScope();
+
         }
     }
 }

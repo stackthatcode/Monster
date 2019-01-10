@@ -53,8 +53,9 @@ namespace Monster.Middle
                 .As<IPushLogger>()
                 .InstancePerLifetimeScope();
             
-            // TODO *** Need to implement this for Batch stuff!!
+            // TODO *** decide if it's necessary to implement this for Batch stuff!!
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
+
 
             // System-level Persistence always uses the MonsterConfig 
             // ... for its Connection String
@@ -66,7 +67,11 @@ namespace Monster.Middle
 
                 return new SystemRepository(connectionString);
 
-            }).SingleInstance();
+            }).InstancePerLifetimeScope();
+
+
+
+
 
             // Crypto faculties
             builder.Register<ICryptoService>(

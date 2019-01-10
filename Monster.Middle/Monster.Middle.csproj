@@ -181,7 +181,7 @@
     <Compile Include="Security\SecurityConfig.cs" />
     <Compile Include="Security\TenantContext.cs" />
     <Compile Include="Persist\Sys\Repositories\SystemRepository.cs" />
-    <Compile Include="Persist\Sys\Installation.cs" />
+    <Compile Include="Persist\Sys\Instance.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyInventoryRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyPayoutRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />

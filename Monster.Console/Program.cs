@@ -5,6 +5,7 @@ using Hangfire;
 using Hangfire.Logging;
 using Hangfire.SqlServer;
 using Monster.Middle;
+using Monster.Middle.Config;
 using Monster.Middle.Hangfire;
 using Push.Foundation.Utilities.Helpers;
 
@@ -49,10 +50,11 @@ namespace Monster.ConsoleApp
             
             // *** Inject
             var container = builder.Build();
-
-
+            
             // Set the HangFire storage
-            JobStorage.Current = new SqlServerStorage("DefaultConnection");
+            var systemDbConnection = MonsterConfig.Settings.SystemDatabaseConnection;
+            
+            JobStorage.Current = new SqlServerStorage(systemDbConnection);
             
             // Wire in the Autofac container
             GlobalConfiguration.Configuration.UseAutofacActivator(container);

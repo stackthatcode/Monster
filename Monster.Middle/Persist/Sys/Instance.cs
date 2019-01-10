@@ -2,11 +2,11 @@
 
 namespace Monster.Middle.Persist.Sys
 {
-    public class Installation
+    public class Instance
     {
-        public Guid InstallationId { get; set; }
+        public Guid Id { get; set; }
         public string ConnectionString { get; set; }
-        public long CompanyId { get; set; }
         public string Nickname { get; set; }
+        public Guid OwnerUserId { get; set; }
     }
 }

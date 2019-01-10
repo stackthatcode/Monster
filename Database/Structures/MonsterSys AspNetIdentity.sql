@@ -161,5 +161,14 @@ ALTER TABLE [dbo].[AspNetUserRoles] CHECK CONSTRAINT [FK_AspNetUserRoles_AspNetU
 GO
 
 
+IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] WHERE Name = 'ADMIN')
+BEGIN
+	INSERT INTO [dbo].[AspNetRoles]  VALUES ('2fe92131-c529-4819-8ecd-f6fbb3011ddb', 'ADMIN');
+END
 
+IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] WHERE Name = 'USER')
+BEGIN
+	INSERT INTO [dbo].[AspNetRoles]  VALUES ('d884c7fd-86b8-4acf-8fdf-c0e2c7efd009', 'USER');
+END
 
+SELECT * FROM [dbo].[AspNetRoles];

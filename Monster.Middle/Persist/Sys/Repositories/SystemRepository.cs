@@ -17,36 +17,34 @@ namespace Monster.Middle.Persist.Sys.Repositories
             _connection.Open();
         }
 
-        public IList<Installation> RetrieveTenants()
+        public IList<Instance> RetrieveInstances()
         {
-            var sql = @"SELECT * FROM usrInstallation;";
-            return _connection.Query<Installation>(sql).ToList();
+            var sql = @"SELECT * FROM Instance;";
+            return _connection.Query<Instance>(sql).ToList();
         }
 
-        public Installation RetrieveInstallation(Guid installationId)
+        public Instance RetrieveInstance(Guid installationId)
         {
             var sql = 
                 @"SELECT * FROM usrInstallation 
                 WHERE InstallationId = @installationId";
 
             return _connection
-                    .QueryFirstOrDefault<Installation>(
+                    .QueryFirstOrDefault<Instance>(
                         sql, new { installationId = installationId });
         }
 
-        public Installation InsertTenant(
-                        string connectionString, long companyId)
+        public Instance InsertInstance(string connectionString, string nickName = null)
         {
-            var tenant = new Installation()
+            var tenant = new Instance()
             {
-                InstallationId = Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 ConnectionString = connectionString,
-                CompanyId = companyId
+                Nickname = nickName,
             };
 
             var sql =
-                @"INSERT INTO usrInstallation VALUES ( " +
-                @"@InstallationId, @ConnectionString, @CompanyId )";
+                @"INSERT INTO Instance VALUES ( @Id, @ConnectionString )";
 
             _connection.Execute(sql, tenant);
             return tenant;

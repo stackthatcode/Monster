@@ -17,7 +17,7 @@ namespace Push.Foundation.Web.Identity
 
             var emailAddress = await manager.GetEmailAsync(userIdentity.GetUserId());
             userIdentity.AddClaim(new Claim(EmailAddressClaim, emailAddress));
-            
+
             // Add custom user claims here
             return userIdentity;
         }

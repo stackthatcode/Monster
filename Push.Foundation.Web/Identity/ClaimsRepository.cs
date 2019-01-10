@@ -8,9 +8,9 @@ namespace Push.Foundation.Web.Identity
 {
     public class ClaimsRepository
     {
-        private readonly ApplicationUserManager _userManager;
+        private readonly IdentityUserManager _userManager;
 
-        public ClaimsRepository(ApplicationUserManager userManager)
+        public ClaimsRepository(IdentityUserManager userManager)
         {
             _userManager = userManager;
         }

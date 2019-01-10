@@ -4,9 +4,9 @@ using Microsoft.AspNet.Identity.Owin;
 
 namespace Push.Foundation.Web.Identity
 {
-    public class ApplicationUserManager : UserManager<ApplicationUser>
+    public class IdentityUserManager : UserManager<ApplicationUser>
     {
-        public ApplicationUserManager(
+        public IdentityUserManager(
                 IUserStore<ApplicationUser> store,
                 DataProtectorTokenProvider<ApplicationUser> userTokenProvider,
                 IIdentityMessageService emailService, 
@@ -20,7 +20,7 @@ namespace Push.Foundation.Web.Identity
         }
 
 
-        public static void ApplyDefaultSettings(ApplicationUserManager manager)
+        public static void ApplyDefaultSettings(IdentityUserManager manager)
         {
             // Configure validation logic for usernames
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)

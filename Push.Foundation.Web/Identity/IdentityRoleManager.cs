@@ -3,9 +3,9 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Push.Foundation.Web.Identity
 {
-    public class ApplicationRoleManager : RoleManager<IdentityRole>
+    public class IdentityRoleManager : RoleManager<IdentityRole>
     {
-        public ApplicationRoleManager(RoleStore<IdentityRole> roleStore)
+        public IdentityRoleManager(RoleStore<IdentityRole> roleStore)
             : base(roleStore)
         {
         }

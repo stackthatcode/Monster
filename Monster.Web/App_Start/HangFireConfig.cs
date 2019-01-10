@@ -1,19 +1,21 @@
 ﻿using Hangfire;
 using Hangfire.SqlServer;
-using Monster.Middle.Attributes;
+using Monster.Middle.Config;
 using Monster.Web.Attributes;
 using Monster.Web.Plumbing;
 using Owin;
 
-namespace Monster.Middle
+namespace Monster.Web
 {
     public class HangFireConfig
     {
         public static void Configure(IAppBuilder app)
         {
+            var systemDbConnection = MonsterConfig.Settings.SystemDatabaseConnection;
+
             GlobalConfiguration
                 .Configuration
-                .UseSqlServerStorage("DefaultConnection",
+                .UseSqlServerStorage(systemDbConnection,
                     new SqlServerStorageOptions
                     {
                         PrepareSchemaIfNecessary = false
