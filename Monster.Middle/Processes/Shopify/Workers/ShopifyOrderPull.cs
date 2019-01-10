@@ -16,10 +16,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly OrderApi _orderApi;
         private readonly CustomerApi _customerApi;
         private readonly ShopifyOrderRepository _orderRepository;
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly IPushLogger _logger;
+        private readonly PreferencesRepository _preferencesRepository;
 
         // Possibly expand - this is a one-time thing...
         //
@@ -31,8 +32,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     CustomerApi customerApi,
                     ShopifyOrderRepository orderRepository,
                     ShopifyBatchRepository shopifyBatchRepository,
-                    ConnectionRepository tenantRepository,
-                    ShopifyInventoryRepository inventoryRepository)
+                    ConnectionRepository connectionRepository,
+                    ShopifyInventoryRepository inventoryRepository, 
+                    PreferencesRepository preferencesRepository)
         {
             _logger = logger;
             _orderApi = orderApi;
@@ -40,7 +42,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _orderRepository = orderRepository;
             _shopifyBatchRepository = shopifyBatchRepository;
             _inventoryRepository = inventoryRepository;
-            _tenantRepository = tenantRepository;
+            _preferencesRepository = preferencesRepository;
+            _connectionRepository = connectionRepository;
         }
 
         public void RunAutomatic()
@@ -60,7 +63,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         {
             _logger.Debug("ShopifyOrderPull -> RunAll()");
 
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
 
             var startOfPullRun = DateTime.UtcNow;
 

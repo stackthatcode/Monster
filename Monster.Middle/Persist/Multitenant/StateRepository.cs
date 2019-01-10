@@ -81,7 +81,7 @@ namespace Monster.Middle.Persist.Multitenant
 
         static readonly object SystemStateLock = new object();
 
-        public void EnsureSystemState()
+        public void CreateSystemStateIfNotExists()
         {
             lock (SystemStateLock)
             {
@@ -111,7 +111,7 @@ namespace Monster.Middle.Persist.Multitenant
         
         public UsrSystemState RetrieveSystemState()
         {
-            EnsureSystemState();
+            CreateSystemStateIfNotExists();
             return Entities.UsrSystemStates.First();
         }
 

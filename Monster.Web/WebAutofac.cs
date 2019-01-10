@@ -36,21 +36,6 @@ namespace Monster.Web
                     .As<IPushLogger>()
                     .InstancePerLifetimeScope();
 
-            // Database Connection for OWIN stuff
-            var systemDbConnection = MonsterConfig.Settings.SystemDatabaseConnection;
-            builder
-                .Register(ctx =>
-                {
-                    var connection = new SqlConnection(systemDbConnection);
-                    connection.Open();
-                    return connection;
-                })
-                .As<SqlConnection>()
-                .As<DbConnection>()
-                .As<IDbConnection>()
-                .InstancePerLifetimeScope();
-
-
             // ASP.NET MVC Controller registration
             builder.RegisterType<ShopifyAuthController>();
             builder.RegisterType<ConfigController>();
@@ -62,17 +47,6 @@ namespace Monster.Web
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
             return container;
-        }
-
-
-        public static void ConfigureDatabaseConnection(ContainerBuilder builder)
-        {
-            // Database connection string...
-            var systemDbConnection 
-                    = MonsterConfig.Settings.SystemDatabaseConnection;
-
-            // ... and register configuration
-
         }
     }
 }

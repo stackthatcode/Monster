@@ -1,16 +1,16 @@
 ﻿using System;
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Sys.Repositories;
+using Monster.Middle.Persist.Sys;
 using Push.Shopify.Http;
 
 
 namespace Monster.Middle.Security
 {
-    public class TenantContext
+    public class ConnectionContext
     {
         private readonly SystemRepository _systemRepository;
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly PersistContext _persistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
@@ -18,17 +18,17 @@ namespace Monster.Middle.Security
         // Why not add pass throughs to Shopify and Acumatica...?
         // Lifetime Scope says we're safe
         
-        private Guid? _tenantId;
+        private Guid? _instanceId;
 
 
-        public TenantContext(
-                ConnectionRepository tenantRepository, 
+        public ConnectionContext(
+                ConnectionRepository connectionRepository, 
                 SystemRepository systemRepository, 
                 PersistContext persistContext, 
                 ShopifyHttpContext shopifyHttpContext,
                 AcumaticaHttpContext acumaticaHttpContext)
         {
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _systemRepository = systemRepository;
             _persistContext = persistContext;
             _shopifyHttpContext = shopifyHttpContext;
@@ -36,38 +36,29 @@ namespace Monster.Middle.Security
         }
 
         
-        public Guid InstallationId => _tenantId.Value;
+        public Guid InstanceId => _instanceId.Value;
 
-        public void Initialize(Guid installationId)
+        public void Initialize(Guid instanceId)
         {
-            _tenantId = installationId;
-
-            var installation = 
-                    _systemRepository
-                        .RetrieveInstance(installationId);
+            _instanceId = instanceId;
+            var instance = _systemRepository.RetrieveInstance(instanceId);
 
             // Load the Installation into Persist 
-            _persistContext.Initialize(installation.ConnectionString);
+            _persistContext.Initialize(instance.ConnectionString);
 
             // Shopify
-            var shopifyCredentials
-                    = _tenantRepository.RetrieveShopifyCredentials();
+            var shopifyCredentials = _connectionRepository.RetrieveShopifyCredentials();
             _shopifyHttpContext.Initialize(shopifyCredentials);
 
             // Acumatica
-            var acumaticaCredentials
-                    = _tenantRepository.RetrieveAcumaticaCredentials();
+            var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
             _acumaticaHttpContext.Initialize(acumaticaCredentials);
         }
 
-        public void InitializePersistOnly(Guid installationId)
+        public void InitializePersistOnly(Guid instanceId)
         {
-            _tenantId = installationId;
-
-            var installation = 
-                    _systemRepository.RetrieveInstance(installationId);
-
-            // Load the Installation into Persist 
+            _instanceId = instanceId;
+            var installation = _systemRepository.RetrieveInstance(instanceId);
             _persistContext.Initialize(installation.ConnectionString);
         }        
     }

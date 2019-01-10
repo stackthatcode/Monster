@@ -11,20 +11,20 @@ namespace Monster.Middle.Hangfire
 {
     public class HangfireService
     {
-        private readonly TenantContext _tenantContext;
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionContext _tenantContext;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
 
 
         public HangfireService(
                 IPushLogger logger,
-                TenantContext tenantContext, 
-                ConnectionRepository tenantRepository,
+                ConnectionContext tenantContext, 
+                ConnectionRepository connectionRepository,
                 StateRepository stateRepository)
         {
             _tenantContext = tenantContext;
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _logger = logger;
             _stateRepository = stateRepository;
         }
@@ -75,7 +75,7 @@ namespace Monster.Middle.Hangfire
 
         public void ConnectToAcumatica()
         {            
-            var tenantId = _tenantContext.InstallationId;
+            var tenantId = _tenantContext.InstanceId;
 
             SafelyEnqueueBackgroundJob(
                 LockConnectToAcumatica,
@@ -85,7 +85,7 @@ namespace Monster.Middle.Hangfire
 
         public void PullAcumaticaReferenceData()
         {
-            var tenantId = _tenantContext.InstallationId;
+            var tenantId = _tenantContext.InstanceId;
 
             SafelyEnqueueBackgroundJob(
                 LockPullAcumaticaReferenceData,
@@ -95,7 +95,7 @@ namespace Monster.Middle.Hangfire
 
         public void SyncWarehouseAndLocation()
         {
-            var tenantId = _tenantContext.InstallationId;
+            var tenantId = _tenantContext.InstanceId;
 
             SafelyEnqueueBackgroundJob(
                 LockSyncWarehouseAndLocation,
@@ -105,7 +105,7 @@ namespace Monster.Middle.Hangfire
         
         public void PushInventoryToAcumatica()
         {
-            var tenantId = _tenantContext.InstallationId;
+            var tenantId = _tenantContext.InstanceId;
 
             SafelyEnqueueBackgroundJob(
                 LockPushInventoryToAcumatica,
@@ -115,7 +115,7 @@ namespace Monster.Middle.Hangfire
         
         public void PushInventoryToShopify()
         {
-            var tenantId = _tenantContext.InstallationId;
+            var tenantId = _tenantContext.InstanceId;
 
             SafelyEnqueueBackgroundJob(
                 LockPushInventoryToShopify,
@@ -125,7 +125,7 @@ namespace Monster.Middle.Hangfire
         
         public void TriggerConfigDiagnosis()
         {
-            var tenantId = _tenantContext.InstallationId;
+            var tenantId = _tenantContext.InstanceId;
 
             SafelyEnqueueBackgroundJob(
                 LockConfigDiagnosis,
@@ -165,7 +165,7 @@ namespace Monster.Middle.Hangfire
         // Recurring Job - separate category
         public string RoutineSyncJobId()
         {
-            return "RoutineSync:" + _tenantContext.InstallationId;
+            return "RoutineSync:" + _tenantContext.InstanceId;
         }
 
         public void StartRoutineSync()
@@ -178,12 +178,12 @@ namespace Monster.Middle.Hangfire
 
                 RecurringJob.AddOrUpdate<BackgroundJobRunner>(  
                     routineSyncJobId,
-                    x => x.RunRealTimeSynchronization(_tenantContext.InstallationId),
+                    x => x.RunRealTimeSynchronization(_tenantContext.InstanceId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 
                 state.RealTimeHangFireJobId = routineSyncJobId;;
-                _tenantRepository.Entities.SaveChanges();
+                _connectionRepository.Entities.SaveChanges();
 
                 RecurringJob.Trigger(routineSyncJobId);
                 transaction.Commit();
@@ -198,7 +198,7 @@ namespace Monster.Middle.Hangfire
 
         public void PauseRoutineSync()
         {
-            using (var transaction = _tenantRepository.BeginTransaction())
+            using (var transaction = _connectionRepository.BeginTransaction())
             {
                 var state = _stateRepository.RetrieveSystemState();
                 

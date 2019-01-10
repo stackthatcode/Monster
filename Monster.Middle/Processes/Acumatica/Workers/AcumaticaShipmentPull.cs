@@ -16,10 +16,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
 
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
-        private readonly TimeZoneService _timeZoneService;
+        private readonly InstanceTimeZoneService _instanceTimeZoneService;
         private readonly IPushLogger _logger;
+        private readonly PreferencesRepository _preferencesRepository;
 
         public const int InitialBatchStateFudgeMin = -15;
 
@@ -28,18 +29,20 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaOrderRepository orderRepository,
                 AcumaticaCustomerPull acumaticaCustomerPull,
                 AcumaticaBatchRepository batchStateRepository,
-                TimeZoneService timeZoneService,
+                InstanceTimeZoneService instanceTimeZoneService,
                 ShipmentClient shipmentClient,
-                ConnectionRepository tenantRepository,
-                IPushLogger logger)
+                ConnectionRepository connectionRepository,
+                IPushLogger logger, 
+                PreferencesRepository preferencesRepository)
         {
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
-            _timeZoneService = timeZoneService;
+            _instanceTimeZoneService = instanceTimeZoneService;
             _shipmentClient = shipmentClient;
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _logger = logger;
+            _preferencesRepository = preferencesRepository;
         }
 
 
@@ -59,7 +62,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         private void RunAll()
         {
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var shipmentUpdateMin = preferences.ShopifyOrderDateStart;
 
             var json = _shipmentClient.RetrieveShipments(shipmentUpdateMin);
@@ -83,7 +86,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var batchState = _batchStateRepository.Retrieve();
             var updateMinUtc = batchState.AcumaticaShipmentsPullEnd;
-            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+            var updateMin = _instanceTimeZoneService.ToInstanceAcumaticaTimeZone(updateMinUtc.Value);
 
             var pullRunStartTime = DateTime.UtcNow;
 

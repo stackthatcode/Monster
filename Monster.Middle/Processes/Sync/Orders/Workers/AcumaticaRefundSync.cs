@@ -17,23 +17,26 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaRefundSync
     {
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly StateRepository _stateRepository;
+        private readonly PreferencesRepository _preferencesRepository;
 
         public AcumaticaRefundSync(
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     SalesOrderClient salesOrderClient, 
-                    ConnectionRepository tenantRepository,
-                    StateRepository stateRepository)
+                    ConnectionRepository connectionRepository,
+                    StateRepository stateRepository, 
+                    PreferencesRepository preferencesRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _salesOrderClient = salesOrderClient;
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _stateRepository = stateRepository;
+            _preferencesRepository = preferencesRepository;
             _syncInventoryRepository = syncInventoryRepository;
         }
 
@@ -125,7 +128,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         
         public void WriteCreditMemoForRestocks(UsrShopifyRefund refundRecord)
         {
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
 
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();

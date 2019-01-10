@@ -12,16 +12,16 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
 {
     public class ReferenceDataService
     {
-        private readonly TimeZoneService _timeZoneService;
+        private readonly InstanceTimeZoneService _instanceTimeZoneService;
         private readonly AcumaticaInventoryRepository _inventoryRepository;
 
 
         public ReferenceDataService(
-                TimeZoneService timeZoneService,
+                InstanceTimeZoneService instanceTimeZoneService,
                 AcumaticaInventoryRepository inventoryRepository)
         {
 
-            _timeZoneService = timeZoneService;
+            _instanceTimeZoneService = instanceTimeZoneService;
             _inventoryRepository = inventoryRepository;
         }
 
@@ -60,7 +60,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
                     .Select(x => x.TaxZoneID.value)
                     .ToList();
 
-            var timeZones = _timeZoneService.RetrieveTimeZones();
+            var timeZones = _instanceTimeZoneService.RetrieveTimeZones();
 
             var output = new ReferenceData()
             {

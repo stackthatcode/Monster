@@ -5,7 +5,6 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
@@ -18,9 +17,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaOrderSync
     {
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
-
+        private readonly PreferencesRepository _preferencesRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
 
@@ -30,20 +29,21 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
 
         public AcumaticaOrderSync(
-                    ConnectionRepository tenantRepository,
+                    ConnectionRepository connectionRepository,
                     StateRepository stateRepository,
-
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     SalesOrderClient salesOrderClient,
                     AcumaticaOrderPull acumaticaOrderPull, 
-                    AcumaticaCustomerSync acumaticaCustomerSync)
+                    AcumaticaCustomerSync acumaticaCustomerSync, 
+                    PreferencesRepository preferencesRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _salesOrderClient = salesOrderClient;
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaCustomerSync = acumaticaCustomerSync;
-            _tenantRepository = tenantRepository;
+            _preferencesRepository = preferencesRepository;
+            _connectionRepository = connectionRepository;
             _stateRepository = stateRepository;
             _syncInventoryRepository = syncInventoryRepository;
         }
@@ -53,7 +53,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         {
             var shopifyOrders 
                 = _syncOrderRepository.RetrieveShopifyOrdersNotSynced();
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var orderStart = preferences.ShopifyOrderNumberStart ?? 1000;
 
             foreach (var shopifyOrder in shopifyOrders)
@@ -124,7 +124,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         
         private void PushOrderToAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var customer = SyncCustomerToAcumatica(shopifyOrderRecord);
 
             var shopifyOrder
@@ -238,7 +238,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             {
                 return;
             }
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
             var acumaticaRecord = syncRecord.UsrAcumaticaSalesOrder;
             

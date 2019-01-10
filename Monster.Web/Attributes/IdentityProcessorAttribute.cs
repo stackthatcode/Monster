@@ -13,7 +13,7 @@ namespace Monster.Middle.Attributes
         void IActionFilter.OnActionExecuting(ActionExecutingContext filterContext)
         {
             var logger = DependencyResolver.Current.GetService<IPushLogger>();
-            var tenantContext = DependencyResolver.Current.GetService<TenantContext>();
+            var tenantContext = DependencyResolver.Current.GetService<ConnectionContext>();
 
             //var userId = filterContext.HttpContext.User.ExtractUserId();
             //if (userId != null)

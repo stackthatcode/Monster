@@ -112,6 +112,7 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Persist\Multitenant\PreferencesRepository.cs" />
     <Compile Include="Persist\Multitenant\StateRepository.cs" />
     <Compile Include="Hangfire\SystemState.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\ItemClassModel.cs" />
@@ -179,8 +180,8 @@
     <Compile Include="Processes\Sync\SyncDirector.cs" />
     <Compile Include="Security\IdentityContext.cs" />
     <Compile Include="Security\SecurityConfig.cs" />
-    <Compile Include="Security\TenantContext.cs" />
-    <Compile Include="Persist\Sys\Repositories\SystemRepository.cs" />
+    <Compile Include="Security\ConnectionContext.cs" />
+    <Compile Include="Persist\Sys\SystemRepository.cs" />
     <Compile Include="Persist\Sys\Instance.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyInventoryRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyPayoutRepository.cs" />
@@ -190,7 +191,7 @@
     <Compile Include="Persist\Multitenant\ConnectionRepository.cs" />
     <Compile Include="Services\TimeZone.cs" />
     <Compile Include="Services\TimeZoneTranslator.cs" />
-    <Compile Include="Services\TimeZoneService.cs" />
+    <Compile Include="Services\InstanceTimeZoneService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

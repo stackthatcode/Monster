@@ -16,7 +16,7 @@ namespace Monster.Middle.Processes.Sync
 {
     public class SyncDirector
     {
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
@@ -27,9 +27,10 @@ namespace Monster.Middle.Processes.Sync
         private readonly StatusService _inventoryStatusService;
         private readonly OrderManager _orderManager;
         private readonly IPushLogger _logger;
+        private readonly PreferencesRepository _preferencesRepository;
 
         public SyncDirector(
-                ConnectionRepository tenantRepository,
+                ConnectionRepository connectionRepository,
                 StateRepository stateRepository,
                 ShopifyBatchRepository shopifyBatchRepository, 
                 AcumaticaBatchRepository acumaticaBatchRepository, 
@@ -39,9 +40,10 @@ namespace Monster.Middle.Processes.Sync
                 InventoryManager inventoryManager,
                 OrderManager orderManager,
                 ReferenceDataService referenceDataService,
+                PreferencesRepository preferencesRepository,
                 IPushLogger logger)
         {
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _stateRepository = stateRepository;
             _shopifyBatchRepository = shopifyBatchRepository;
             _acumaticaBatchRepository = acumaticaBatchRepository;
@@ -52,6 +54,7 @@ namespace Monster.Middle.Processes.Sync
 
             _orderManager = orderManager;
             _logger = logger;
+            _preferencesRepository = preferencesRepository;
             _referenceDataService = referenceDataService;
         }
         
@@ -108,9 +111,9 @@ namespace Monster.Middle.Processes.Sync
                     .UpdateSystemState(
                         x => x.AcumaticaReferenceData, SystemState.Ok);
 
-                var preferences = _tenantRepository.RetrievePreferences();
+                var preferences = _preferencesRepository.RetrievePreferences();
                 _referenceDataService.FilterPreferencesAgainstRefData(preferences);
-                _tenantRepository.SaveChanges();
+                _connectionRepository.SaveChanges();
 
                 var preferencesState =
                         preferences.AreValid() 

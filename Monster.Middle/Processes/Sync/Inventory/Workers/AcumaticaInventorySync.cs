@@ -21,29 +21,31 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
     {
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly ConnectionRepository _tenantRepository;
-        private readonly TimeZoneService _timeZoneService;
-
+        private readonly ConnectionRepository _connectionRepository;
+        private readonly InstanceTimeZoneService _instanceTimeZoneService;
         private readonly DistributionClient _distributionClient;
         private readonly IPushLogger _logger;
+        private readonly PreferencesRepository _preferencesRepository;
 
         public AcumaticaInventorySync(
                     AcumaticaInventoryRepository inventoryRepository,
                     SyncInventoryRepository syncInventoryRepository,
-                    ConnectionRepository tenantRepository,
+                    ConnectionRepository connectionRepository,
                     
                     DistributionClient distributionClient,
-                    TimeZoneService timeZoneService,
-                    IPushLogger logger)
+                    InstanceTimeZoneService instanceTimeZoneService,
+                    IPushLogger logger, 
+                    PreferencesRepository preferencesRepository)
         {
 
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _inventoryRepository = inventoryRepository;
 
             _distributionClient = distributionClient;
             _logger = logger;
-            _timeZoneService = timeZoneService;
+            _preferencesRepository = preferencesRepository;
+            _instanceTimeZoneService = instanceTimeZoneService;
         }
 
         public void Run()
@@ -100,7 +102,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
         public void PushStockItem(UsrShopifyVariant variant)
         {
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var defaultItemClass = preferences.AcumaticaDefaultItemClass;
             var defaultPostingClass = preferences.AcumaticaDefaultPostingClass;
             var defaultTaxCategory = preferences.AcumaticaTaxCategory;
@@ -149,7 +151,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         public void RunInventoryReceipts()
         {
             // ON HOLD
-            //var preferences = _tenantRepository.RetrievePreferences();
+            //var preferences = _connectionRepository.RetrievePreferences();
             //if (preferences.DefaultCoGsMargin == null)
             //    throw new ArgumentException(
             //        "Preferences -> DefaultCoGsMargin is not set");
@@ -224,7 +226,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                     List<UsrShopifyInventoryLevel> inventory)
         {
             // TODO - determine is this is required
-            //var preferences = _tenantRepository.RetrievePreferences();
+            //var preferences = _connectionRepository.RetrievePreferences();
             //var defaultCogs = preferences.DefaultCoGsMargin.Value;
 
             var postingDate = DateTime.UtcNow.Date;

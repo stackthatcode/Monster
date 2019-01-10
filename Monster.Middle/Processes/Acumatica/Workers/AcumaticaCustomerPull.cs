@@ -16,8 +16,9 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly CustomerClient _customerClient;
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
-        private readonly TimeZoneService _timeZoneService;
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly InstanceTimeZoneService _instanceTimeZoneService;
+        private readonly ConnectionRepository _connectionRepository;
+        private readonly PreferencesRepository _preferencesRepository;
         private readonly IPushLogger _logger;
 
         public const int InitialBatchStateFudgeMin = -15;
@@ -27,16 +28,18 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 CustomerClient customerClient,
                 AcumaticaOrderRepository orderRepository,
                 AcumaticaBatchRepository batchStateRepository,
-                TimeZoneService timeZoneService,
-                ConnectionRepository tenantRepository,
-                IPushLogger logger)
+                InstanceTimeZoneService instanceTimeZoneService,
+                ConnectionRepository connectionRepository,
+                IPushLogger logger, 
+                PreferencesRepository preferencesRepository)
         {
             _customerClient = customerClient;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
-            _timeZoneService = timeZoneService;
-            _tenantRepository = tenantRepository;
+            _instanceTimeZoneService = instanceTimeZoneService;
+            _connectionRepository = connectionRepository;
             _logger = logger;
+            _preferencesRepository = preferencesRepository;
         }
 
 
@@ -55,7 +58,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         private void RunAll()
         {
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var customerUpdateMin = preferences.ShopifyOrderDateStart;
             
             var json = _customerClient.RetrieveCustomers(customerUpdateMin);
@@ -85,7 +88,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
 
             var updateMinUtc = batchState.AcumaticaCustomersPullEnd;
-            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+            var updateMin = _instanceTimeZoneService.ToInstanceAcumaticaTimeZone(updateMinUtc.Value);
 
 
             var pullRunStartTime = DateTime.UtcNow;

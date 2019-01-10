@@ -14,8 +14,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly CustomerApi _customerApi;
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly IPushLogger _logger;
+        private readonly PreferencesRepository _preferencesRepository;
 
         // Possibly expand - this is a one-time thing...
         //
@@ -25,14 +26,16 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 CustomerApi customerApi,
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository shopifyBatchRepository,
-                ConnectionRepository tenantRepository,
+                ConnectionRepository connectionRepository,
+                PreferencesRepository preferencesRepository,
                 IPushLogger logger)
         {
             _customerApi = customerApi;
             _orderRepository = orderRepository;
             _shopifyBatchRepository = shopifyBatchRepository;
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _logger = logger;
+            _preferencesRepository = preferencesRepository;
         }
 
 
@@ -54,7 +57,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _logger.Debug("ShopifyCustomerPull -> RunAll()");
 
             var startOfPullRun = DateTime.UtcNow;
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
 
             var firstFilter = new SearchFilter();
             firstFilter.CreatedAtMinUtc = preferences.ShopifyOrderDateStart;

@@ -23,16 +23,18 @@ namespace Monster.Web.Controllers
 
         private readonly StatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
+        private readonly PreferencesRepository _preferencesRepository;
 
 
         public ConfigController(
                 ConnectionRepository tenantRepository,
                 StateRepository stateRepository,
                 HangfireService hangfireService,
-                TimeZoneService timeZoneService,
+                InstanceTimeZoneService instanceTimeZoneService,
                 StatusService statusService, 
                 ReferenceDataService referenceDataService, 
-                AcumaticaInventoryRepository inventoryRepository)
+                AcumaticaInventoryRepository inventoryRepository, 
+                PreferencesRepository preferencesRepository)
         {
 
             _tenantRepository = tenantRepository;
@@ -41,6 +43,7 @@ namespace Monster.Web.Controllers
 
             _statusService = statusService;
             _referenceDataService = referenceDataService;
+            _preferencesRepository = preferencesRepository;
         }
 
         
@@ -161,7 +164,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult PreferenceSelections()
         {
-            var preferencesData = _tenantRepository.RetrievePreferences();
+            var preferencesData = _preferencesRepository.RetrievePreferences();
             var output = Mapper.Map<PreferencesModel>(preferencesData);
             return new JsonNetResult(output);
         }
@@ -169,7 +172,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult PreferenceSelections(PreferencesModel model)
         {
-            var data = _tenantRepository.RetrievePreferences();
+            var data = _preferencesRepository.RetrievePreferences();
             
             data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
             data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;

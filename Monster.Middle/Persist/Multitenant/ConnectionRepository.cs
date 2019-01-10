@@ -32,17 +32,16 @@ namespace Monster.Middle.Persist.Multitenant
         // TODO => implement this https://stackoverflow.com/questions/202011/encrypt-and-decrypt-a-string-in-c/10366194#10366194
 
 
-        // Tenant Context
-        //
+        
         public void CreateIfMissing()
         {
             if (!Entities.UsrConnections.Any())
             {
-                this.InsertTenant(new UsrConnection());
+                this.InsertConnection(new UsrConnection());
             }
         }
 
-        public void InsertTenant(UsrConnection context)
+        public void InsertConnection(UsrConnection context)
         {
             Entities.UsrConnections.Add(context);
             Entities.SaveChanges();
@@ -61,28 +60,26 @@ namespace Monster.Middle.Persist.Multitenant
         public bool IsSameAuthCode(string code)
         {
             var tenant = Retrieve();
-
             return tenant.ShopifyAuthCodeHash == code;
-                    //_hmacCryptoService.ToBase64EncodedSha256(code);
         }
 
         public IShopifyCredentials RetrieveShopifyCredentials()
         {
-            var tenant = Retrieve();
+            var connection = Retrieve();
             
             var accessToken =
-                tenant.ShopifyAccessToken.IsNullOrEmpty()
-                    ? "" : _cryptoService.Decrypt(tenant.ShopifyAccessToken);
+                connection.ShopifyAccessToken.IsNullOrEmpty()
+                    ? "" : _cryptoService.Decrypt(connection.ShopifyAccessToken);
             
             var apiKey =
-                tenant.ShopifyApiKey.IsNullOrEmpty() 
-                    ? "" : _cryptoService.Decrypt(tenant.ShopifyApiKey);
+                connection.ShopifyApiKey.IsNullOrEmpty() 
+                    ? "" : _cryptoService.Decrypt(connection.ShopifyApiKey);
 
             var apiPassword = 
-                tenant.ShopifyApiPassword.IsNullOrEmpty()
-                    ? "" : _cryptoService.Decrypt(tenant.ShopifyApiPassword);
+                connection.ShopifyApiPassword.IsNullOrEmpty()
+                    ? "" : _cryptoService.Decrypt(connection.ShopifyApiPassword);
 
-            var domain = new ShopDomain(tenant.ShopifyDomain);
+            var domain = new ShopDomain(connection.ShopifyDomain);
 
             if (accessToken.IsNullOrEmpty())
             {
@@ -90,7 +87,7 @@ namespace Monster.Middle.Persist.Multitenant
             }
             else
             {
-                return new OAuthAccessToken(tenant.ShopifyDomain, accessToken);
+                return new OAuthAccessToken(connection.ShopifyDomain, accessToken);
             }
         }
         
@@ -189,25 +186,7 @@ namespace Monster.Middle.Persist.Multitenant
 
             this.Entities.SaveChanges();
         }
-        
-        static readonly object PreferencesLock = new object();
-
-        public UsrPreference RetrievePreferences()
-        {
-            lock (PreferencesLock)
-            {
-                if (!Entities.UsrPreferences.Any())
-                {
-                    var preferences = new UsrPreference();
-                    preferences.FulfillmentInAcumatica = true;
-                    Entities.UsrPreferences.Add(preferences);
-                    return preferences;
-                }
-            }
-
-            return Entities.UsrPreferences.First();
-        }
-
+                
         public void SaveChanges()
         {
             this.Entities.SaveChanges();

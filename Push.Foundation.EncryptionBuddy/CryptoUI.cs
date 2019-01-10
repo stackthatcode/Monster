@@ -4,7 +4,7 @@ using Autofac;
 using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Sys.Repositories;
+using Monster.Middle.Persist.Sys;
 using Monster.Middle.Security;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
@@ -126,7 +126,7 @@ namespace Push.Foundation
                     var item = this.comboShopifyTenantId.SelectedItem as ComboboxItem;
                     var tenantId = Guid.Parse(item.Value.ToString());
 
-                    var contextLoader = scope.Resolve<TenantContext>();
+                    var contextLoader = scope.Resolve<ConnectionContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
                     var repository = scope.Resolve<ConnectionRepository>();
@@ -159,7 +159,7 @@ namespace Push.Foundation
                     var item = this.comboAcumaticaTenantId.SelectedItem as ComboboxItem;
                     var tenantId = Guid.Parse(item.Value.ToString());
 
-                    var contextLoader = scope.Resolve<TenantContext>();
+                    var contextLoader = scope.Resolve<ConnectionContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
                     var repository = scope.Resolve<ConnectionRepository>();
@@ -235,7 +235,7 @@ namespace Push.Foundation
                 var systemRepository = scope.Resolve<SystemRepository>();
                 var tenant = systemRepository.RetrieveInstance(installationId);
 
-                var tenantContextLoader = scope.Resolve<TenantContext>();
+                var tenantContextLoader = scope.Resolve<ConnectionContext>();
                 tenantContextLoader.InitializePersistOnly(installationId);
 
                 var persistContext = scope.Resolve<PersistContext>();

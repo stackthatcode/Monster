@@ -7,7 +7,9 @@ namespace Monster.Middle.Processes.Sync.Orders
 {
     public class OrderManager
     {
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
+        private readonly PreferencesRepository _preferencesRepository;
+
         private readonly AcumaticaHttpContext _acumaticaContext;
 
         private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
@@ -20,7 +22,7 @@ namespace Monster.Middle.Processes.Sync.Orders
         private readonly AcumaticaRefundSync _acumaticaRefundSync;
 
         public OrderManager(
-                ConnectionRepository tenantRepository,
+                ConnectionRepository connectionRepository,
 
                 AcumaticaHttpContext acumaticaContext,
                 AcumaticaCustomerSync acumaticaCustomerSync,
@@ -30,9 +32,10 @@ namespace Monster.Middle.Processes.Sync.Orders
                 AcumaticaRefundSync acumaticaRefundSync, 
                 AcumaticaPaymentSync acumaticaPaymentSync,
 
-                ShopifyFulfillmentSync shopifyFulfillmentSync)
+                ShopifyFulfillmentSync shopifyFulfillmentSync, 
+                PreferencesRepository preferencesRepository)
         {
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _acumaticaContext = acumaticaContext;
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaInventorySync = acumaticaInventorySync;
@@ -42,6 +45,7 @@ namespace Monster.Middle.Processes.Sync.Orders
             _acumaticaShipmentSync = acumaticaShipmentSync;
 
             _shopifyFulfillmentSync = shopifyFulfillmentSync;
+            _preferencesRepository = preferencesRepository;
         }
 
         
@@ -62,7 +66,7 @@ namespace Monster.Middle.Processes.Sync.Orders
 
         public void RoutineOrdersSync()
         {
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var fulfilledInAcumatica = preferences.FulfillmentInAcumatica.Value;
 
             _acumaticaContext.Login();

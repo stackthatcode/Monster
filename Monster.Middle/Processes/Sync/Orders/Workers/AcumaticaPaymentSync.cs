@@ -3,7 +3,6 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Sys.Repositories;
 using Monster.Middle.Processes.Sync.Extensions;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Transactions;
@@ -12,21 +11,24 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaPaymentSync
     {
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
+        private readonly PreferencesRepository _preferencesRepository;
 
         public AcumaticaPaymentSync(
-                ConnectionRepository tenantRepository,
+                ConnectionRepository connectionRepository,
                 SyncOrderRepository syncOrderRepository, 
                 PaymentClient paymentClient, 
-                StateRepository stateRepository)
+                StateRepository stateRepository, 
+                PreferencesRepository preferencesRepository)
         {
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
             _stateRepository = stateRepository;
+            _preferencesRepository = preferencesRepository;
         }
 
         public void Run()
@@ -43,7 +45,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         public void WritePayment(UsrShopifyTransaction transactionRecord)
         {
             // Arrange data from local cache
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var paymentMethod = preferences.AcumaticaPaymentMethod;
 
             var shopifyCustomerId

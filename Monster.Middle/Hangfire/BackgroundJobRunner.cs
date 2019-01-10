@@ -10,7 +10,7 @@ namespace Monster.Middle.Hangfire
     public class BackgroundJobRunner
     {
         private readonly SyncDirector _director;
-        private readonly TenantContext _tenantContext;
+        private readonly ConnectionContext _tenantContext;
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
         
@@ -18,7 +18,7 @@ namespace Monster.Middle.Hangfire
 
         public BackgroundJobRunner(
                 SyncDirector director, 
-                TenantContext tenantContext, 
+                ConnectionContext tenantContext, 
                 StateRepository stateRepository,
                 IPushLogger logger)
         {

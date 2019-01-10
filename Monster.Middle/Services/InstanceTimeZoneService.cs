@@ -4,18 +4,22 @@ using Monster.Middle.Persist.Multitenant;
 
 namespace Monster.Middle.Services
 {
-    public class TimeZoneService
+    public class InstanceTimeZoneService
     {
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
+        private readonly PreferencesRepository _preferencesRepository;
 
-        public TimeZoneService(ConnectionRepository tenantRepository)
+        public InstanceTimeZoneService(
+                ConnectionRepository connectionRepository, 
+                PreferencesRepository preferencesRepository)
         {
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
+            _preferencesRepository = preferencesRepository;
         }
 
-        public DateTime ToAcumaticaTimeZone(DateTime input)
+        public DateTime ToInstanceAcumaticaTimeZone(DateTime input)
         {
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
 
             return input.ToTimeZone(preferences.AcumaticaTimeZone);
         }

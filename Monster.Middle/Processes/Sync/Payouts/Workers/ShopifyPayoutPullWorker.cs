@@ -12,24 +12,27 @@ namespace Monster.Middle.Processes.Payouts.Workers
 {
     public class ShopifyPayoutPullWorker
     {
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly ShopifyPayoutRepository _persistRepository;
+        private readonly PreferencesRepository _preferencesRepository;
         private readonly PayoutApi _payoutApi;
         private readonly IPushLogger _logger;
 
         public int PayoutTransactionPagingLimit = 250;
 
         public ShopifyPayoutPullWorker(
-                ConnectionRepository tenantRepository,
+                ConnectionRepository connectionRepository,
                 ShopifyBatchRepository shopifyBatchRepository,
                 ShopifyPayoutRepository persistRepository,
+                PreferencesRepository preferencesRepository,
                 PayoutApi payoutApi,
                 IPushLogger logger)
         {
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _shopifyBatchRepository = shopifyBatchRepository;
             _persistRepository = persistRepository;
+            _preferencesRepository = preferencesRepository;
             _payoutApi = payoutApi;
             _logger = logger;
         }
@@ -37,14 +40,13 @@ namespace Monster.Middle.Processes.Payouts.Workers
         // Use this for Routine methods
         public void RunPayoutHeaders()
         {
-            var preferences = _tenantRepository.RetrievePreferences();
+            var preferences = _preferencesRepository.RetrievePreferences();
             var batchState = _shopifyBatchRepository.Retrieve();
 
             var minDate
                 = batchState.ShopifyPayoutPullEnd 
                     ?? preferences.ShopifyOrderDateStart.Value;
             
-
             // First stage is to import Payouts based on Date 
             var firstPayouts =
                 _payoutApi

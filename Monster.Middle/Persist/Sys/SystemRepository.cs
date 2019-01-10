@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using Dapper;
 
-namespace Monster.Middle.Persist.Sys.Repositories
+namespace Monster.Middle.Persist.Sys
 {
     public class SystemRepository
     {
@@ -23,15 +23,13 @@ namespace Monster.Middle.Persist.Sys.Repositories
             return _connection.Query<Instance>(sql).ToList();
         }
 
-        public Instance RetrieveInstance(Guid installationId)
+        public Instance RetrieveInstance(Guid instanceId)
         {
-            var sql = 
-                @"SELECT * FROM usrInstallation 
-                WHERE InstallationId = @installationId";
+            var sql = @"SELECT * FROM Instance WHERE InstanceId = @instanceId";
 
             return _connection
                     .QueryFirstOrDefault<Instance>(
-                        sql, new { installationId = installationId });
+                        sql, new { instanceId = instanceId });
         }
 
         public Instance InsertInstance(string connectionString, string nickName = null)
