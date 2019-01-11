@@ -25,7 +25,7 @@ namespace Monster.Middle.Persist.Sys
 
         public Instance RetrieveInstance(Guid instanceId)
         {
-            var sql = @"SELECT * FROM Instance WHERE InstanceId = @instanceId";
+            var sql = @"SELECT * FROM Instance WHERE Id = @instanceId";
 
             return _connection
                     .QueryFirstOrDefault<Instance>(
