@@ -10,17 +10,17 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
     public class StatusService
     {
         private readonly SyncInventoryRepository _syncInventoryRepository;
+        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
         private readonly StateRepository _stateRepository;
         private readonly HangfireService _hangfireService;
         private readonly ReferenceDataService _referenceDataService;
-        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
-
+        
         public StatusService(
                 SyncInventoryRepository syncInventoryRepository, 
-                StateRepository stateRepository,
-                HangfireService hangfireService, 
                 AcumaticaInventoryRepository acumaticaInventoryRepository, 
-                ReferenceDataService referenceDataService)
+                ReferenceDataService referenceDataService,
+                StateRepository stateRepository,
+                HangfireService hangfireService)
         {
             _syncInventoryRepository = syncInventoryRepository;
             _stateRepository = stateRepository;

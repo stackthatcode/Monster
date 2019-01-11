@@ -1,12 +1,10 @@
-﻿using System.Data.Entity;
-using System.Web;
+﻿using System.Web;
 using Autofac;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
-using Push.Foundation.Utilities.Security;
 using Push.Foundation.Web.Http;
 using Push.Foundation.Web.Identity;
 

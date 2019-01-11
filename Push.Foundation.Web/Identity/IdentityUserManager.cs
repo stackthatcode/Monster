@@ -44,6 +44,8 @@ namespace Push.Foundation.Web.Identity
             manager.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
             manager.MaxFailedAccessAttemptsBeforeLockout = 5;            
         }
+
+
     }
 }
 
