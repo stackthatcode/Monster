@@ -54,7 +54,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var shopifyOrders 
                 = _syncOrderRepository.RetrieveShopifyOrdersNotSynced();
             var preferences = _preferencesRepository.RetrievePreferences();
-            var orderStart = preferences.ShopifyOrderNumberStart ?? 1000;
+            var orderStart = preferences.ShopifyOrderNumberStart ?? 0;
 
             foreach (var shopifyOrder in shopifyOrders)
             {

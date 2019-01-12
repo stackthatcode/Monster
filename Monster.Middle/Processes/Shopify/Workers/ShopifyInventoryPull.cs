@@ -23,7 +23,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly IPushLogger _logger;
 
         // Possibly expand - this is a one-time thing...
-        public const int InitialBatchStateFudgeMin = -15;
+        public const int BatchStateFudgeMin = -15;
 
 
         public ShopifyInventoryPull(
@@ -59,7 +59,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
         {
             _logger.Debug("ShopifyInventoryPull -> RunAll()");
 
-            var startOfPullRun = DateTime.UtcNow;
+            // We've hanging on to this to compute the end of the Batch State
+            var startOfRun = DateTime.UtcNow;
 
             var firstFilter = new SearchFilter();
             var firstJson = _productApi.Retrieve(firstFilter);
@@ -87,15 +88,13 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             // Process Delete Events
-            PullDeletedEventsAndUpsert(startOfPullRun);
+            PullDeletedEventsAndUpsert(startOfRun);
 
             // Compute the Batch State end marker
-            var maxUpdatedDate = 
-                _inventoryRepository.RetrieveProductMaxUpdatedDate();
+            var maxUpdatedDate = _inventoryRepository.RetrieveProductMaxUpdatedDate();
 
             var productBatchEnd
-                = maxUpdatedDate
-                  ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
+                = (maxUpdatedDate ?? startOfRun).AddMinutes(BatchStateFudgeMin);
 
             _shopifyBatchRepository
                 .UpdateShopifyProductsPullEnd(productBatchEnd);            
@@ -105,6 +104,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         {
             _logger.Debug("ShopifyInventoryPull -> RunUpdated()");
 
+            var startOfRun = DateTime.UtcNow;
             var batchState = _shopifyBatchRepository.Retrieve();
 
             if (!batchState.ShopifyProductsPullEnd.HasValue)
@@ -113,12 +113,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     "ShopifyProductsEndDate not set - must run Baseline Pull first");
             }
 
-            var lastBatchStateEnd = batchState.ShopifyProductsPullEnd.Value;
-            var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
-
+            var lastPullEnd = batchState.ShopifyProductsPullEnd.Value;
+            
             var firstFilter = new SearchFilter();
+            firstFilter.UpdatedAtMinUtc = lastPullEnd;
             firstFilter.Page = 1;
-            firstFilter.UpdatedAtMinUtc = lastBatchStateEnd;
 
             // Pull from Shopify
             var firstJson = _productApi.Retrieve(firstFilter);
@@ -129,7 +128,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             while (true)
             {
-                var currentFilter = firstFilter.Clone();
+                var currentFilter = new SearchFilter();
+                currentFilter.UpdatedAtMinUtc = lastPullEnd;
                 currentFilter.Page = currentPage;
 
                 // Pull from Shopify
@@ -146,9 +146,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             // Get all of the Delete Events
-            PullDeletedEventsAndUpsert(lastBatchStateEnd);
+            PullDeletedEventsAndUpsert(lastPullEnd);
 
-            _shopifyBatchRepository.UpdateShopifyProductsPullEnd(startOfPullRun);
+            _shopifyBatchRepository.UpdateShopifyProductsPullEnd(startOfRun);
         }
 
         public long Run(long shopifyProductId)
@@ -245,21 +245,22 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
-
-
+        
         public void FlagMissingVariants(long parentMonsterId, Product product)
         {
-            var variants = 
+            var storedVariants = 
                 _inventoryRepository.RetrieveVariantsByParent(parentMonsterId);
 
-            foreach (var variant in variants)
+            foreach (var variant in storedVariants)
             {
-                if (product.variants.Any(x => x.id == variant.ShopifyVariantId))
+                if (product.variants.Any(
+                        x => x.id == variant.ShopifyVariantId &&
+                             x.sku == variant.ShopifySku))
                 {
                     break;
                 }
 
-                _logger.Info($"Shopify Variant {variant.ShopifyVariantId}/{variant.ShopifySku} " +
+                _logger.Debug($"Shopify Variant {variant.ShopifyVariantId}/{variant.ShopifySku} " +
                              "appears to be missing - flagged");
 
                 variant.IsMissing = true;
@@ -267,16 +268,17 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
-        public void PullAndUpsertInventory(long parentMonsterId)
+        public void PullAndUpsertInventory(long productMonsterId)
         {
             var variants =
                 _inventoryRepository
-                    .RetrieveVariantsByParent(parentMonsterId)
+                    .RetrieveVariantsByParent(productMonsterId)
                     .ExcludeMissing();
             
             var inventoryItemIds
                 = variants.Select(x => x.ShopifyInventoryItemId).ToList();
 
+            // Retrieve the Inventory Levels and Inventory Items en masse per Product
             var inventoryLevelsJson 
                 = _inventoryApi.RetrieveInventoryLevels(inventoryItemIds);
 
