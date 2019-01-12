@@ -32,4 +32,3 @@ SELECT * FROM usrShopifyVariant
 SELECT * FROM usrShopifyInventoryLevel;
 
 
-

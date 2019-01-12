@@ -30,21 +30,21 @@ namespace Monster.Middle.Processes.Shopify.Persist
             Entities.SaveChanges();
         }
         
-        public void UpdateShopifyProductsPullEnd(DateTime endTimeUtc)
+        public void UpdateProductsPullEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
             existingState.ShopifyProductsPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
-        public void UpdateShopifyOrdersPullEnd(DateTime endTimeUtc)
+        public void UpdateOrdersPullEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
             existingState.ShopifyOrdersPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
-        public void UpdateShopifyCustomersPullEnd(DateTime endTimeUtc)
+        public void UpdateCustomersPullEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
             existingState.ShopifyCustomersPullEnd = endTimeUtc;

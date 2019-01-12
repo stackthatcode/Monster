@@ -19,12 +19,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly InventoryApi _inventoryApi;
         private readonly EventApi _eventApi;
         private readonly ShopifyInventoryRepository _inventoryRepository;
-        private readonly ShopifyBatchRepository _shopifyBatchRepository;
+        private readonly ShopifyBatchRepository _batchRepository;
         private readonly IPushLogger _logger;
-
-        // Possibly expand - this is a one-time thing...
-        public const int BatchStateFudgeMin = -15;
-
+        
 
         public ShopifyInventoryPull(
                 IPushLogger logger,
@@ -32,19 +29,19 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 InventoryApi inventoryApi,
                 EventApi eventApi,
                 ShopifyInventoryRepository inventoryRepository, 
-                ShopifyBatchRepository shopifyBatchRepository)
+                ShopifyBatchRepository batchRepository)
         {
             _productApi = productApi;
             _inventoryApi = inventoryApi;
             _eventApi = eventApi;
             _inventoryRepository = inventoryRepository;
-            _shopifyBatchRepository = shopifyBatchRepository;
+            _batchRepository = batchRepository;
             _logger = logger;
         }
 
         public void RunAutomatic()
         {
-            var batchState = _shopifyBatchRepository.Retrieve();
+            var batchState = _batchRepository.Retrieve();
             if (batchState.ShopifyProductsPullEnd.HasValue)
             {
                 RunUpdated();
@@ -92,12 +89,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             // Compute the Batch State end marker
             var maxUpdatedDate = _inventoryRepository.RetrieveProductMaxUpdatedDate();
-
-            var productBatchEnd
-                = (maxUpdatedDate ?? startOfRun).AddMinutes(BatchStateFudgeMin);
-
-            _shopifyBatchRepository
-                .UpdateShopifyProductsPullEnd(productBatchEnd);            
+            var batchEnd = (maxUpdatedDate ?? startOfRun).AddBatchFudge();
+                        
+            _batchRepository.UpdateProductsPullEnd(batchEnd);            
         }
 
         private void RunUpdated()
@@ -105,7 +99,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _logger.Debug("ShopifyInventoryPull -> RunUpdated()");
 
             var startOfRun = DateTime.UtcNow;
-            var batchState = _shopifyBatchRepository.Retrieve();
+            var batchState = _batchRepository.Retrieve();
 
             if (!batchState.ShopifyProductsPullEnd.HasValue)
             {
@@ -148,7 +142,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             // Get all of the Delete Events
             PullDeletedEventsAndUpsert(lastPullEnd);
 
-            _shopifyBatchRepository.UpdateShopifyProductsPullEnd(startOfRun);
+            _batchRepository.UpdateProductsPullEnd(startOfRun);
         }
 
         public long Run(long shopifyProductId)

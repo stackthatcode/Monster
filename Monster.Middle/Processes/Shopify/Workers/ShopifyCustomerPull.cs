@@ -13,35 +13,29 @@ namespace Monster.Middle.Processes.Shopify.Workers
     {
         private readonly CustomerApi _customerApi;
         private readonly ShopifyOrderRepository _orderRepository;
-        private readonly ShopifyBatchRepository _shopifyBatchRepository;
-        private readonly ConnectionRepository _connectionRepository;
+        private readonly ShopifyBatchRepository _batchRepository;
         private readonly IPushLogger _logger;
         private readonly PreferencesRepository _preferencesRepository;
 
-        // Possibly expand - this is a one-time thing...
-        //
-        public const int InitialBatchStateFudgeMin = -15;
-
+        
         public ShopifyCustomerPull(
                 CustomerApi customerApi,
                 ShopifyOrderRepository orderRepository,
-                ShopifyBatchRepository shopifyBatchRepository,
-                ConnectionRepository connectionRepository,
+                ShopifyBatchRepository batchRepository,
                 PreferencesRepository preferencesRepository,
                 IPushLogger logger)
         {
             _customerApi = customerApi;
             _orderRepository = orderRepository;
-            _shopifyBatchRepository = shopifyBatchRepository;
-            _connectionRepository = connectionRepository;
-            _logger = logger;
+            _batchRepository = batchRepository;
             _preferencesRepository = preferencesRepository;
+            _logger = logger;
         }
 
 
         public void RunAutomatic()
         {
-            var batchState = _shopifyBatchRepository.Retrieve();
+            var batchState = _batchRepository.Retrieve();
             if (batchState.ShopifyCustomersPullEnd.HasValue)
             {
                 RunUpdated();
@@ -56,7 +50,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         {
             _logger.Debug("ShopifyCustomerPull -> RunAll()");
 
-            var startOfPullRun = DateTime.UtcNow;
+            var startOfRun = DateTime.UtcNow;
             var preferences = _preferencesRepository.RetrievePreferences();
 
             var firstFilter = new SearchFilter();
@@ -88,23 +82,19 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 currentPage++;
             }
 
-            // Compute the Batch State end marker
-            var maxUpdatedDate =
-                _orderRepository.RetrieveCustomerMaxUpdatedDate();
+            // Compute the Batch State Pull End
+            var maxUpdatedDate = _orderRepository.RetrieveCustomerMaxUpdatedDate();
 
-            var orderBatchEnd
-                = maxUpdatedDate
-                  ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
+            var batchEnd = (maxUpdatedDate ?? startOfRun).AddBatchFudge();
 
-            _shopifyBatchRepository
-                .UpdateShopifyCustomersPullEnd(orderBatchEnd);
+            _batchRepository.UpdateCustomersPullEnd(batchEnd);
         }
 
         private void RunUpdated()
         {
             _logger.Debug("ShopifyCustomerPull -> RunUpdated()");
 
-            var batchState = _shopifyBatchRepository.Retrieve();
+            var batchState = _batchRepository.Retrieve();
 
             if (!batchState.ShopifyCustomersPullEnd.HasValue)
             {
@@ -146,8 +136,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 currentPage++;
             }
 
-            _shopifyBatchRepository
-                .UpdateShopifyCustomersPullEnd(startOfPullRun);
+            _batchRepository.UpdateCustomersPullEnd(startOfPullRun);
         }
 
         private void UpsertCustomers(List<Customer> customers)

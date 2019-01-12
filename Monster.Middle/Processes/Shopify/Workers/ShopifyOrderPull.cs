@@ -13,42 +13,33 @@ namespace Monster.Middle.Processes.Shopify.Workers
 {
     public class ShopifyOrderPull
     {
+        private readonly ShopifyOrderRepository _orderRepository;
+        private readonly ShopifyBatchRepository _batchRepository;
+        private readonly PreferencesRepository _preferencesRepository;
         private readonly OrderApi _orderApi;
         private readonly CustomerApi _customerApi;
-        private readonly ShopifyOrderRepository _orderRepository;
-        private readonly ConnectionRepository _connectionRepository;
-        private readonly ShopifyBatchRepository _shopifyBatchRepository;
-        private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly IPushLogger _logger;
-        private readonly PreferencesRepository _preferencesRepository;
 
-        // Possibly expand - this is a one-time thing...
-        //
-        public const int InitialBatchStateFudgeMin = -15;
 
         public ShopifyOrderPull(
-                    IPushLogger logger,
-                    OrderApi orderApi,
-                    CustomerApi customerApi,
-                    ShopifyOrderRepository orderRepository,
-                    ShopifyBatchRepository shopifyBatchRepository,
-                    ConnectionRepository connectionRepository,
-                    ShopifyInventoryRepository inventoryRepository, 
-                    PreferencesRepository preferencesRepository)
+                ShopifyOrderRepository orderRepository,
+                ShopifyBatchRepository batchRepository,
+                PreferencesRepository preferencesRepository,
+                OrderApi orderApi,
+                CustomerApi customerApi,
+                IPushLogger logger)
         {
+            _orderRepository = orderRepository;
+            _batchRepository = batchRepository;
+            _preferencesRepository = preferencesRepository;
             _logger = logger;
             _orderApi = orderApi;
             _customerApi = customerApi;
-            _orderRepository = orderRepository;
-            _shopifyBatchRepository = shopifyBatchRepository;
-            _inventoryRepository = inventoryRepository;
-            _preferencesRepository = preferencesRepository;
-            _connectionRepository = connectionRepository;
         }
 
         public void RunAutomatic()
         {
-            var batchState = _shopifyBatchRepository.Retrieve();
+            var batchState = _batchRepository.Retrieve();
             if (batchState.ShopifyOrdersPullEnd.HasValue)
             {
                 RunUpdated();
@@ -64,8 +55,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _logger.Debug("ShopifyOrderPull -> RunAll()");
 
             var preferences = _preferencesRepository.RetrievePreferences();
-
-            var startOfPullRun = DateTime.UtcNow;
+            var startOfRun = DateTime.UtcNow;
 
             var firstFilter = new SearchFilter();
             firstFilter.OrderByCreatedAt();
@@ -98,20 +88,17 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             // Compute the Batch State end marker
-            var maxUpdatedDate =
-                _orderRepository.RetrieveOrderMaxUpdatedDate();
+            var maxUpdatedDate = _orderRepository.RetrieveOrderMaxUpdatedDate();
+            var orderBatchEnd = (maxUpdatedDate ?? startOfRun).AddBatchFudge();            
 
-            var orderBatchEnd
-                = maxUpdatedDate
-                  ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
-
-            _shopifyBatchRepository
-                .UpdateShopifyOrdersPullEnd(orderBatchEnd);
+            _batchRepository.UpdateOrdersPullEnd(orderBatchEnd);
         }
 
         private void RunUpdated()
         {
-            var batchState = _shopifyBatchRepository.Retrieve();
+            var startOfPullRun = DateTime.UtcNow;
+
+            var batchState = _batchRepository.Retrieve();
 
             if (!batchState.ShopifyOrdersPullEnd.HasValue)
             {
@@ -120,8 +107,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             var lastBatchStateEnd = batchState.ShopifyOrdersPullEnd.Value;
-            var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
-
+            
             var firstFilter = new SearchFilter();
             firstFilter.OrderByUpdatedAt();
             firstFilter.UpdatedAtMinUtc = lastBatchStateEnd;
@@ -154,7 +140,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 currentPage++;
             }
 
-            _shopifyBatchRepository.UpdateShopifyOrdersPullEnd(startOfPullRun);
+            _batchRepository.UpdateOrdersPullEnd(startOfPullRun);
         }
 
         public void Run(long shopifyOrderId)
