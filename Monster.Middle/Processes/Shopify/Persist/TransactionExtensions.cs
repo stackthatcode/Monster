@@ -19,5 +19,12 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             return input.Any(x => x.IsMatch(other));
         }
+
+        public static UsrShopifyTransaction Match(
+                    this IEnumerable<UsrShopifyTransaction> input,
+                    UsrShopifyTransaction other)
+        {
+            return input.FirstOrDefault(x => x.IsMatch(other));
+        }
     }
 }

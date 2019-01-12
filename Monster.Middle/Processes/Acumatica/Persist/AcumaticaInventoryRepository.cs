@@ -36,7 +36,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
 
 
-        public void InsertAcumaticaWarehouse(UsrAcumaticaWarehouse warehouse)
+        public void InsertWarehouse(UsrAcumaticaWarehouse warehouse)
         {
             Entities.UsrAcumaticaWarehouses.Add(warehouse);
             Entities.SaveChanges();

@@ -139,7 +139,7 @@
     <Compile Include="Persist\Multitenant\PreferencesRepository.cs" />
     <Compile Include="Persist\Multitenant\StateRepository.cs" />
     <Compile Include="Hangfire\SystemState.cs" />
-    <Compile Include="Processes\Shopify\Workers\BatchStateExtensions.cs" />
+    <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\ItemClassModel.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\PaymentMethodModel.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\PreferencesValidationExtensions.cs" />

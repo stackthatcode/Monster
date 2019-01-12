@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Shopify.Persist
 {
@@ -121,19 +122,31 @@ namespace Monster.Middle.Processes.Shopify.Persist
                     .Where(x => x.OrderMonsterId == orderMonsterId)
                     .ToList();
             
-            foreach (var newestRecord in transactions)
+            foreach (var latest in transactions)
             {
-                if (!existingRecords.AnyMatch(newestRecord))
+                var existing = existingRecords.Match(latest);
+                if (existing == null)
                 {
-                    newestRecord.DateCreated = DateTime.UtcNow;
-                    newestRecord.LastUpdated = DateTime.UtcNow;
+                    latest.DateCreated = DateTime.UtcNow;
+                    latest.LastUpdated = DateTime.UtcNow;
 
-                    Entities.UsrShopifyTransactions.Add(newestRecord);
+                    Entities.UsrShopifyTransactions.Add(latest);
+                }
+                else
+                {
+                    existing.ShopifyOrderId = latest.ShopifyOrderId;
+                    existing.ShopifyTransactionId = latest.ShopifyTransactionId;
+                    existing.ShopifyStatus = latest.ShopifyStatus;
+                    existing.ShopifyKind = latest.ShopifyKind;
+                    existing.ShopifyJson = latest.ShopifyJson;
+                    existing.OrderMonsterId = latest.OrderMonsterId;
+                    existing.LastUpdated = DateTime.UtcNow;
                 }
             }
 
             var order = Entities.UsrShopifyOrders.First(x => x.Id == orderMonsterId);
             order.AreTransactionsUpdated = true;
+
             Entities.SaveChanges();
         }
 

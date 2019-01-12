@@ -24,20 +24,18 @@ namespace Monster.Middle.Processes.Shopify.Workers
         public void RunAutomatic()
         {
             var orders = 
-                _orderRepository
-                    .RetrieveOrdersNeedingTransactionPull();
+                _orderRepository.RetrieveOrdersNeedingTransactionPull();
 
             foreach (var orderRecord in orders)
             {
                 var transactionsJson = _orderApi.RetrieveTransactions(orderRecord.ShopifyOrderId);
-                var transactions 
-                    = transactionsJson.DeserializeFromJson<TransactionList>();
-
+                var transactions = transactionsJson.DeserializeFromJson<TransactionList>();
                 var transactionRecords = new List<UsrShopifyTransaction>();
 
                 foreach (var transaction in transactions.transactions)
                 {
                     var record = new UsrShopifyTransaction();
+
                     record.ShopifyOrderId = transaction.order_id;
                     record.ShopifyTransactionId = transaction.id;
                     record.ShopifyStatus = transaction.status;
@@ -48,8 +46,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     transactionRecords.Add(record);
                 }
 
-                _orderRepository
-                    .ImprintTransactions(orderRecord.Id, transactionRecords);
+                _orderRepository.ImprintTransactions(orderRecord.Id, transactionRecords);
             }
         }    
     }

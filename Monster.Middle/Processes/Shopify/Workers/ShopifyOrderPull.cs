@@ -16,6 +16,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _batchRepository;
         private readonly PreferencesRepository _preferencesRepository;
+        private readonly ShopifyCustomerPull _shopifyCustomerPull;
         private readonly OrderApi _orderApi;
         private readonly CustomerApi _customerApi;
         private readonly IPushLogger _logger;
@@ -25,6 +26,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository batchRepository,
                 PreferencesRepository preferencesRepository,
+                ShopifyCustomerPull shopifyCustomerPull,
                 OrderApi orderApi,
                 CustomerApi customerApi,
                 IPushLogger logger)
@@ -32,9 +34,10 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
             _preferencesRepository = preferencesRepository;
-            _logger = logger;
+            _shopifyCustomerPull = shopifyCustomerPull;
             _orderApi = orderApi;
             _customerApi = customerApi;
+            _logger = logger;
         }
 
         public void RunAutomatic()
@@ -169,10 +172,10 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         private void UpsertOrderAndCustomer(Order order)
         {
-            var monsterCustomerRecord = UpsertOrderCustomer(order);
-
-            var existingOrder
-                = _orderRepository.RetrieveOrder(order.id);
+            var monsterCustomerRecord =
+                _shopifyCustomerPull.UpsertCustomer(order.customer);
+             
+            var existingOrder = _orderRepository.RetrieveOrder(order.id);
 
             if (existingOrder == null)
             {
@@ -200,38 +203,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 _orderRepository.SaveChanges();
             }
         }
-
-        private UsrShopifyCustomer UpsertOrderCustomer(Order order)
-        {
-            var existingCustomer =
-                _orderRepository
-                    .RetrieveCustomer(order.customer.id);
-
-            if (existingCustomer == null)
-            {
-                var customerJson = _customerApi.Retrieve(order.customer.id);
-                var customer
-                    = customerJson.DeserializeFromJson<CustomerParent>()
-                        .customer;
-
-                var newCustomer = new UsrShopifyCustomer();
-                newCustomer.ShopifyCustomerId = customer.id;
-                newCustomer.ShopifyJson = customer.SerializeToJson();
-                newCustomer.ShopifyPrimaryEmail = customer.email;
-                newCustomer.DateCreated = DateTime.UtcNow;
-                newCustomer.LastUpdated = DateTime.UtcNow;
-                _orderRepository.InsertCustomer(newCustomer);
-
-                return newCustomer;
-            }
-            else
-            {
-                return existingCustomer;
-                // Don't worry about updating customer record - it'll be
-                // updated in that next run by ShopifyCustomerPull
-            }
-        }
         
+
         public void UpsertOrderFulfillments(Order order)
         {
             var orderRecord = _orderRepository.RetrieveOrder(order.id);

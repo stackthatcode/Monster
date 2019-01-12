@@ -37,9 +37,9 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             foreach (var warehouse in warehouses)
             {
-                var dataWarehouse = warehouseRecords.FindByAcumaticaId(warehouse);
+                var warehouseRecord = warehouseRecords.FindByAcumaticaId(warehouse);
 
-                if (dataWarehouse == null)
+                if (warehouseRecord == null)
                 {
                     var newDataWarehouse = new UsrAcumaticaWarehouse
                     {
@@ -49,18 +49,16 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                         LastUpdated = DateTime.UtcNow,
                     };
 
-                    _dataRepository.InsertAcumaticaWarehouse(newDataWarehouse);
+                    _dataRepository.InsertWarehouse(newDataWarehouse);
                 }
                 else
                 {
-                    dataWarehouse.AcumaticaJson = warehouse.SerializeToJson();
-                    dataWarehouse.LastUpdated = DateTime.UtcNow;
+                    warehouseRecord.AcumaticaJson = warehouse.SerializeToJson();
+                    warehouseRecord.LastUpdated = DateTime.UtcNow;
                     _dataRepository.SaveChanges();
                 }
             }
         }
-        
-        
     }
 }
 

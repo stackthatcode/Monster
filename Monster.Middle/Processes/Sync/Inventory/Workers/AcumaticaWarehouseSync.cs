@@ -126,7 +126,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 LastUpdated = DateTime.UtcNow,
             };
 
-            _acumaticaInventoryRepository.InsertAcumaticaWarehouse(newWarehouseRecord);
+            _acumaticaInventoryRepository.InsertWarehouse(newWarehouseRecord);
 
             _syncInventoryRepository.InsertWarehouseSync(location, newWarehouseRecord);
         }

@@ -147,7 +147,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
-        private void UpsertCustomer(Customer customer)
+        public UsrShopifyCustomer UpsertCustomer(Customer customer)
         {
             var existingCustomer 
                 = _orderRepository.RetrieveCustomer(customer.id);
@@ -161,7 +161,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newCustomer.DateCreated = DateTime.UtcNow;
                 newCustomer.LastUpdated = DateTime.UtcNow;
                 newCustomer.IsUpdatedInAcumatica = false;
-                _orderRepository.InsertCustomer(newCustomer);                
+
+                _orderRepository.InsertCustomer(newCustomer);
+                return newCustomer;
             }
             else
             {
@@ -169,8 +171,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existingCustomer.ShopifyPrimaryEmail = customer.email;
                 existingCustomer.IsUpdatedInAcumatica = false;
                 existingCustomer.LastUpdated = DateTime.UtcNow;
-                
+
                 _orderRepository.SaveChanges();
+                return existingCustomer;
             }
         }        
     }

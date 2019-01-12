@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Monster.Middle.Processes.Shopify.Workers
+namespace Monster.Middle.Processes.Shopify.Persist
 {
     public static class BatchStateExtensions
     {
