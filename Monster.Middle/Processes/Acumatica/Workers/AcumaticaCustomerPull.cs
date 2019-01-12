@@ -30,21 +30,22 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaBatchRepository batchStateRepository,
                 InstanceTimeZoneService instanceTimeZoneService,
                 ConnectionRepository connectionRepository,
-                IPushLogger logger, 
-                PreferencesRepository preferencesRepository)
+                PreferencesRepository preferencesRepository,
+                IPushLogger logger)
         {
             _customerClient = customerClient;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
             _instanceTimeZoneService = instanceTimeZoneService;
             _connectionRepository = connectionRepository;
-            _logger = logger;
             _preferencesRepository = preferencesRepository;
+            _logger = logger;
         }
 
 
         public void RunAutomatic()
         {
+            var startOfRun = DateTime.UtcNow;
             var batchState = _batchStateRepository.Retrieve();
             if (batchState.AcumaticaCustomersPullEnd.HasValue)
             {
@@ -54,6 +55,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             {
                 RunAll();
             }
+
+            // Set the Batch State Pull End marker
+            var maxCustomerDate = _orderRepository.RetrieveCustomerMaxUpdatedDate();
+            var pullEnd = (maxCustomerDate ?? startOfRun).AddAcumaticaBatchFudge();
+            _batchStateRepository.UpdateCustomersPullEnd(pullEnd);
         }
 
         private void RunAll()
@@ -65,17 +71,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var customers = json.DeserializeFromJson<List<Customer>>();
 
             UpsertCustomersToPersist(customers);
-
-            // Set the Batch State Pull End marker
-            var maxCustomerDate =
-                _orderRepository
-                    .RetrieveCustomerMaxUpdatedDate();
-
-            var batchStateEnd 
-                = maxCustomerDate 
-                    ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
-
-            _batchStateRepository.UpdateCustomersPullEnd(batchStateEnd);
         }
 
         private void RunUpdated()
@@ -88,19 +83,13 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
 
             var updateMinUtc = batchState.AcumaticaCustomersPullEnd;
-            var updateMin = _instanceTimeZoneService.ToInstanceAcumaticaTimeZone(updateMinUtc.Value);
-
-
-            var pullRunStartTime = DateTime.UtcNow;
+            var updateMin = _instanceTimeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
             var json = _customerClient.RetrieveCustomers(updateMin);
             var customers = json.DeserializeFromJson<List<Customer>>();
             UpsertCustomersToPersist(customers);
-
-            _batchStateRepository.UpdateCustomersPullEnd(pullRunStartTime);
         }
-
-
+        
         public void UpsertCustomersToPersist(List<Customer> customers)
         {
             foreach (var customer in customers)
@@ -112,8 +101,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public UsrAcumaticaCustomer UpsertCustomerToPersist(Customer customer)
         {
             var existingData
-                = _orderRepository
-                    .RetrieveCustomer(customer.CustomerID.value);
+                = _orderRepository.RetrieveCustomer(customer.CustomerID.value);
 
             if (existingData == null)
             {
@@ -132,21 +120,19 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
         }
         
-        public long RunAndUpsertCustomer(string acumaticaCustomerId)
+        public long RunAndUpsertCustomerIfNotExists(string acumaticaCustomerId)
         {
             var existingCustomer
-                = _orderRepository.RetrieveCustomer(acumaticaCustomerId);
+                    = _orderRepository.RetrieveCustomer(acumaticaCustomerId);
 
             if (existingCustomer == null)
             {
                 var customerJson
                     = _customerClient.RetrieveCustomer(acumaticaCustomerId);
-
                 var customer = customerJson.DeserializeFromJson<Customer>();
-
                 var newData = customer.ToMonsterRecord();
-                _orderRepository.InsertCustomer(newData);
 
+                _orderRepository.InsertCustomer(newData);
                 return newData.Id;
             }
             else

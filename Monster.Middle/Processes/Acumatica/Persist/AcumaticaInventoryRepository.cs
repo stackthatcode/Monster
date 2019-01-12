@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Entities.SaveChanges();
         }
 
-        public IList<UsrAcumaticaWarehouse> RetreiveWarehouses()
+        public IList<UsrAcumaticaWarehouse> RetrieveWarehouses()
         {
             return Entities.UsrAcumaticaWarehouses.ToList();
         }

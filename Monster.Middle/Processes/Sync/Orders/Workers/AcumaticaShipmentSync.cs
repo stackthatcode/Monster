@@ -39,8 +39,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _acumaticaShipmentPull = acumaticaShipmentPull;
             _shipmentClient = shipmentClient;
             _stateRepository = stateRepository;
-              _syncInventoryRepository = syncInventoryRepository;
-            
+            _syncInventoryRepository = syncInventoryRepository;            
         }
 
 

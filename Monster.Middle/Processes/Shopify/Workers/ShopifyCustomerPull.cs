@@ -85,7 +85,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             // Compute the Batch State Pull End
             var maxUpdatedDate = _orderRepository.RetrieveCustomerMaxUpdatedDate();
 
-            var batchEnd = (maxUpdatedDate ?? startOfRun).AddBatchFudge();
+            var batchEnd = (maxUpdatedDate ?? startOfRun).AddShopifyBatchFudge();
 
             _batchRepository.UpdateCustomersPullEnd(batchEnd);
         }

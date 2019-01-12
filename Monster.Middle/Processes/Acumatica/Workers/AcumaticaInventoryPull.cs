@@ -52,6 +52,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void RunAll()
         {
+            var startOfRun = DateTime.UtcNow;
+
             var json = _inventoryClient.RetreiveStockItems();
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
 
@@ -61,15 +63,16 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 _inventoryRepository
                     .RetrieveStockItemsMaxUpdatedDate();
 
-            var batchStateEnd 
-                = maxProductDate 
-                    ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
-
+            var batchStateEnd
+                = (maxProductDate ?? startOfRun).AddAcumaticaBatchFudge();
+            
             _batchStateRepository.UpdateProductsEnd(batchStateEnd);
         }
         
         public void RunUpdated()
         {
+            var startOfRun = DateTime.UtcNow;
+
             var batchState = _batchStateRepository.Retrieve();
             if (!batchState.AcumaticaProductsPullEnd.HasValue)
             {
@@ -78,16 +81,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
 
             var updateMinUtc = batchState.AcumaticaProductsPullEnd;
-            var updateMin = _instanceTimeZoneService.ToInstanceAcumaticaTimeZone(updateMinUtc.Value);
-
-            var pullRunStartTime = DateTime.UtcNow;
+            var updateMin = _instanceTimeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
             var json = _inventoryClient.RetreiveStockItems(updateMin);
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
 
             UpsertStockItemToPersist(stockItems);
 
-            _batchStateRepository.UpdateProductsEnd(pullRunStartTime);
+            _batchStateRepository.UpdateProductsEnd(startOfRun);
         }
 
         public void UpsertStockItemToPersist(List<StockItem> items)
@@ -134,7 +135,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 _inventoryRepository
                     .RetrieveWarehouseDetails(stockItemMonsterId);
 
-            var warehouses = _inventoryRepository.RetreiveWarehouses();
+            var warehouses = _inventoryRepository.RetrieveWarehouses();
 
             foreach (var acumaticaDetail in stockItem.WarehouseDetails)
             {

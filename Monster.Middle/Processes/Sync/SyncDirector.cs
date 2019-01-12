@@ -219,7 +219,7 @@ namespace Monster.Middle.Processes.Sync
         {
             RunImpervious(() => _shopifyManager.PullOrdersAndCustomers());
 
-            RunImpervious(() => _acumaticaManager.PullCustomerAndOrdersAndShipments());
+            RunImpervious(() => _acumaticaManager.PullCustomersAndOrdersAndShipments());
 
             RunImpervious(() =>
             {

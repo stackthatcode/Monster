@@ -107,9 +107,89 @@ FROM usrShopifyOrder t1
 GO
 
 
+-- Acumatica Workers checks
+--
+
+DROP VIEW IF EXISTS vw_AcumaticaInventory 
+GO
+CREATE VIEW vw_AcumaticaInventory
+AS
+SELECT	t1.MonsterId, 
+		t1.ItemId,
+		t2.AcumaticaWarehouseId,
+		t2.AcumaticaQtyOnHand,
+		t2.IsShopifySynced,
+		t1.LastUpdated AS StockItemLastUpdated,
+		t2.LastUpdated AS WarehouseDetailsLastUpdated
+FROM usrAcumaticaStockItem t1
+	LEFT JOIN usrAcumaticaWarehouseDetails t2
+		ON t2.ParentMonsterId = t1.MonsterId
+GO
+
+
+DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndCustomer
+GO
+CREATE VIEW vw_AcumaticaSalesOrderAndCustomer
+AS
+	SELECT t1.Id, 
+		t1.AcumaticaOrderNbr, 
+		t1.AcumaticaStatus,
+		t2.AcumaticaCustomerId,
+		t1.LastUpdated AS SalesOrderLastUpdated,
+		t2.LastUpdated AS CustomerLastUpdated
+	FROM usrAcumaticaSalesOrder t1
+		LEFT OUTER JOIN usrAcumaticaCustomer t2
+			ON t2.Id = t1.CustomerMonsterId;
+GO
+
+
+DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndShipmentInvoices
+GO
+
+CREATE VIEW vw_AcumaticaSalesOrderAndShipmentInvoices
+AS
+	SELECT t1.Id, 
+		t1.AcumaticaOrderNbr, 
+		t1.AcumaticaStatus,
+		t2.AcumaticaShipmentNbr,
+		t2.AcumaticaInvoiceNbr,
+		t1.LastUpdated AS SalesOrderLastUpdated,
+		t2.LastUpdated AS ShipmentLastUpdated
+	FROM usrAcumaticaSalesOrder t1
+		LEFT OUTER JOIN usrAcumaticaSoShipmentInvoice t2
+			ON t2.SalesOrderMonsterId = t1.Id;
+GO
+
+
+
+DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndShipments
+GO
+
+CREATE VIEW vw_AcumaticaSalesOrderAndShipments
+AS
+	SELECT t1.Id,
+		t1.AcumaticaShipmentNbr, 
+		t1.AcumaticaStatus,
+		t1.AcumaticaReleasedInvoiceNbr,
+		t2.AcumaticaOrderNbr,
+		t1.LastUpdated AS ShipmentLastUpdated,
+		t2.LastUpdated AS SalesOrderRefLastUpdated
+	FROM usrAcumaticaShipment t1
+		LEFT OUTER JOIN usrAcumaticaShipmentSalesOrderRef t2
+			ON t1.Id = t2.ShipmentMonsterId
+GO
+
+
+
+
 SELECT * FROM vw_ShopifyInventory;
 SELECT * FROM vw_ShopifyOrderCustomer;
 SELECT * FROM vw_ShopifyOrderRefunds;
 SELECT * FROM vw_ShopifyOrderFulfillments;
 SELECT * FROM vw_ShopifyOrderTransactions;
+
+SELECT * FROM vw_AcumaticaInventory;
+SELECT * FROM vw_AcumaticaSalesOrderAndCustomer;
+SELECT * FROM vw_AcumaticaSalesOrderAndShipmentInvoices;
+SELECT * FROM vw_AcumaticaSalesOrderAndShipments;
 

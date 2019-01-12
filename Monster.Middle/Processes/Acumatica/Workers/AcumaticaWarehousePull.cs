@@ -33,7 +33,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     .RetrieveWarehouses()
                     .DeserializeFromJson<List<Warehouse>>();
             
-            var warehouseRecords = _dataRepository.RetreiveWarehouses();
+            var warehouseRecords = _dataRepository.RetrieveWarehouses();
 
             foreach (var warehouse in warehouses)
             {

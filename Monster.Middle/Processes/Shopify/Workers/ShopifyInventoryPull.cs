@@ -89,7 +89,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             // Compute the Batch State end marker
             var maxUpdatedDate = _inventoryRepository.RetrieveProductMaxUpdatedDate();
-            var batchEnd = (maxUpdatedDate ?? startOfRun).AddBatchFudge();
+            var batchEnd = (maxUpdatedDate ?? startOfRun).AddShopifyBatchFudge();
                         
             _batchRepository.UpdateProductsPullEnd(batchEnd);            
         }

@@ -17,7 +17,7 @@ namespace Monster.Middle.Services
             _preferencesRepository = preferencesRepository;
         }
 
-        public DateTime ToInstanceAcumaticaTimeZone(DateTime input)
+        public DateTime ToAcumaticaTimeZone(DateTime input)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
 

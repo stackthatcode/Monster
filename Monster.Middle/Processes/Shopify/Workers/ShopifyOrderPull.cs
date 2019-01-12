@@ -6,8 +6,8 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
-using Push.Shopify.Api.Customer;
 using Push.Shopify.Api.Order;
+
 
 namespace Monster.Middle.Processes.Shopify.Workers
 {
@@ -18,7 +18,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly PreferencesRepository _preferencesRepository;
         private readonly ShopifyCustomerPull _shopifyCustomerPull;
         private readonly OrderApi _orderApi;
-        private readonly CustomerApi _customerApi;
         private readonly IPushLogger _logger;
 
 
@@ -28,7 +27,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 PreferencesRepository preferencesRepository,
                 ShopifyCustomerPull shopifyCustomerPull,
                 OrderApi orderApi,
-                CustomerApi customerApi,
                 IPushLogger logger)
         {
             _orderRepository = orderRepository;
@@ -36,7 +34,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _preferencesRepository = preferencesRepository;
             _shopifyCustomerPull = shopifyCustomerPull;
             _orderApi = orderApi;
-            _customerApi = customerApi;
             _logger = logger;
         }
 
@@ -92,7 +89,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             // Compute the Batch State end marker
             var maxUpdatedDate = _orderRepository.RetrieveOrderMaxUpdatedDate();
-            var orderBatchEnd = (maxUpdatedDate ?? startOfRun).AddBatchFudge();            
+            var orderBatchEnd = (maxUpdatedDate ?? startOfRun).AddShopifyBatchFudge();            
 
             _batchRepository.UpdateOrdersPullEnd(orderBatchEnd);
         }
@@ -117,8 +114,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             // Pull from Shopify
             var firstJson = _orderApi.Retrieve(firstFilter);
-            var firstOrders
-                = firstJson.DeserializeFromJson<OrderList>().orders;
+            var firstOrders 
+                    = firstJson.DeserializeFromJson<OrderList>().orders;
             UpsertOrders(firstOrders);
 
             var currentPage = 2;
@@ -267,8 +264,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 }
             }
         }
-
-
     }
 }
 

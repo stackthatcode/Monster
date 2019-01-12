@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Api.Shipment;
@@ -9,6 +10,13 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 {
     public static class Extensions
     {
+        public const int PullEndFudgeMinutes = -10;
+
+        public static DateTime AddAcumaticaBatchFudge(this DateTime input)
+        {
+            return input.AddMinutes(PullEndFudgeMinutes);
+        }
+
         public static bool IsReadyForShipment(this UsrAcumaticaSalesOrder order)
         {
             return order.AcumaticaStatus == "Open" || order.AcumaticaStatus == "Back Order";

@@ -13,39 +13,27 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 {
     public class AcumaticaOrderPull
     {
-        private readonly CustomerClient _customerClient;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly AcumaticaOrderRepository _orderRepository;
-        private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
-        private readonly InstanceTimeZoneService _instanceTimeZoneService;
-        private readonly ConnectionRepository _connectionRepository;
+        private readonly AcumaticaCustomerPull _customerPull;
+        private readonly InstanceTimeZoneService _timeZoneService;
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly IPushLogger _logger;
-
-        public const int InitialBatchStateFudgeMin = -15;
 
 
         public AcumaticaOrderPull(
                 AcumaticaOrderRepository orderRepository,
-                AcumaticaCustomerPull acumaticaCustomerPull,
-                InstanceTimeZoneService instanceTimeZoneService,
+                AcumaticaCustomerPull customerPull,
+                InstanceTimeZoneService timeZoneService,
                 AcumaticaBatchRepository batchStateRepository,
-                CustomerClient customerClient,
                 SalesOrderClient salesOrderClient,
-                ConnectionRepository connectionRepository,
-                PreferencesRepository preferencesRepository,
-                IPushLogger logger)
+                PreferencesRepository preferencesRepository)
         {
-            _customerClient = customerClient;
             _orderRepository = orderRepository;
-            _acumaticaCustomerPull = acumaticaCustomerPull;
-            _instanceTimeZoneService = instanceTimeZoneService;
+            _customerPull = customerPull;
+            _timeZoneService = timeZoneService;
             _batchStateRepository = batchStateRepository;
             _salesOrderClient = salesOrderClient;
-            _connectionRepository = connectionRepository;
-            
-            _logger = logger;
             _preferencesRepository = preferencesRepository;
         }
 
@@ -65,39 +53,40 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         private void RunAll()
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
-            var orderUpdateMin = preferences.ShopifyOrderDateStart;
+            var startOfRun = DateTime.UtcNow;
 
+            var preferences = _preferencesRepository.RetrievePreferences();
+            var orderStartDate = preferences.ShopifyOrderDateStart.Value;
+            var orderUpdateMin = 
+                    _timeZoneService.ToAcumaticaTimeZone(orderStartDate);
+            
             var json = _salesOrderClient.RetrieveSalesOrders(orderUpdateMin);
             var orders = json.DeserializeFromJson<List<SalesOrder>>();
 
             UpsertOrdersToPersist(orders);
 
             // Set the Batch State Pull End marker
-            var maxOrderDate =
-                _orderRepository.RetrieveOrderMaxUpdatedDate();
-
-            var batchStateEnd 
-                = maxOrderDate
-                    ?? DateTime.UtcNow.AddMinutes(InitialBatchStateFudgeMin);
-
-            _batchStateRepository.UpdateOrdersPullEnd(batchStateEnd);
+            var maxOrderDate = _orderRepository.RetrieveOrderMaxUpdatedDate();
+            var pullEnd = (maxOrderDate ?? startOfRun).AddAcumaticaBatchFudge();
+                
+            _batchStateRepository.UpdateOrdersPullEnd(pullEnd);
         }
 
         private void RunUpdated()
         {
+            var startOfRun = DateTime.UtcNow;
+
             var batchState = _batchStateRepository.Retrieve();
             var updateMinUtc = batchState.AcumaticaOrdersPullEnd;
-            var updateMin = _instanceTimeZoneService.ToInstanceAcumaticaTimeZone(updateMinUtc.Value);
-
-            var pullRunStartTime = DateTime.UtcNow;
+            var updateMin = 
+                _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
             var json = _salesOrderClient.RetrieveSalesOrders(updateMin);
             var orders = json.DeserializeFromJson<List<SalesOrder>>();
 
             UpsertOrdersToPersist(orders);
 
-            _batchStateRepository.UpdateOrdersPullEnd(pullRunStartTime);
+            _batchStateRepository.UpdateOrdersPullEnd(startOfRun);
         }
 
         
@@ -106,23 +95,21 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             foreach (var order in orders)
             {
                 UpsertOrderToPersist(order);
-                PullAndStubNewShipments(order.OrderNbr.value);
+                PullAndUpsertShipmentInvoiceRefs(order.OrderNbr.value);
             }
         }
 
         public UsrAcumaticaSalesOrder UpsertOrderToPersist(SalesOrder order)
         {
             var orderNbr = order.OrderNbr.value;
-
             var existingData = _orderRepository.RetrieveSalesOrder(orderNbr);
 
             if (existingData == null)
             {
                 // Locate Acumatica Customer..
                 var customerId = order.CustomerID.value;
-
                 var customerMonsterId
-                    = _acumaticaCustomerPull.RunAndUpsertCustomer(customerId);
+                    = _customerPull.RunAndUpsertCustomerIfNotExists(customerId);
 
                 var newData = new UsrAcumaticaSalesOrder();
                 newData.AcumaticaOrderNbr = orderNbr;
@@ -130,12 +117,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 newData.ShipmentsJson = null;
                 newData.AcumaticaStatus = order.Status.value;
                 newData.CustomerMonsterId = customerMonsterId;
-
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.InsertSalesOrder(newData);
-
                 return newData;
             }
             else
@@ -145,12 +130,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 existingData.LastUpdated = DateTime.UtcNow;
                 
                 _orderRepository.SaveChanges();
-
                 return existingData;
             }
         }
         
-        public void PullAndStubNewShipments(string orderNbr)
+        public void PullAndUpsertShipmentInvoiceRefs(string orderNbr)
         {
             var json = _salesOrderClient.RetrieveSalesOrderShipments(orderNbr);
             var orderRecord = _orderRepository.RetrieveSalesOrder(orderNbr);
@@ -182,8 +166,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 translation.Add(record);
             }
 
-            _orderRepository
-                .ImprintSoShipmentInvoices(orderRecord.Id, translation);
+            _orderRepository.ImprintSoShipmentInvoices(orderRecord.Id, translation);
         }
     }
 }
