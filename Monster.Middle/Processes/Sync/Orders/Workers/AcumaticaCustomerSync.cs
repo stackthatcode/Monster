@@ -85,7 +85,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             customer.AccountRef = 
                 $"Shopify Customer #{shopifyCustomer.id}".ToValue();
 
-            var acumaticaCustomerRecord = shopifyCustomerRecord.MatchingCustomer();
+            var acumaticaCustomerRecord = shopifyCustomerRecord.Match();
             if (acumaticaCustomerRecord != null)
             {
                 customer.CustomerID 

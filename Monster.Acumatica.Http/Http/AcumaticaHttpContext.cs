@@ -24,6 +24,8 @@ namespace Monster.Acumatica.Http
         private ExecutorContext _executorContext;
         private AcumaticaCredentials _credentials;
 
+        public bool IsLoggedIn { get; private set; } = false;
+
         public AcumaticaHttpContext(
                 AcumaticaHttpConfig settings, 
                 IPushLogger logger)
@@ -78,12 +80,14 @@ namespace Monster.Acumatica.Http
             var path = $"/entity/auth/login";
             var content = _credentials.AuthenticationJson;
             var response = Post(path, content, excludeVersion:true);
+            IsLoggedIn = true;
         }
 
         public void Logout()
         {
             var path = $"/entity/auth/logout";
             var response = Post(path, "", excludeVersion: true);
+            IsLoggedIn = false;
         }
 
         public string MakePath(string path, bool excludeVersion = false)

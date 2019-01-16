@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Extensions;
+using Monster.Middle.Processes.Sync.Orders.Model;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Transactions;
 
@@ -11,24 +14,24 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaPaymentSync
     {
-        private readonly ConnectionRepository _connectionRepository;
+        private readonly ExecutionLogRepository _logRepository;
         private readonly StateRepository _stateRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
         private readonly PreferencesRepository _preferencesRepository;
 
         public AcumaticaPaymentSync(
-                ConnectionRepository connectionRepository,
                 SyncOrderRepository syncOrderRepository, 
                 PaymentClient paymentClient, 
                 StateRepository stateRepository, 
-                PreferencesRepository preferencesRepository)
+                PreferencesRepository preferencesRepository, 
+                ExecutionLogRepository logRepository)
         {
-            _connectionRepository = connectionRepository;
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
             _stateRepository = stateRepository;
             _preferencesRepository = preferencesRepository;
+            _logRepository = logRepository;
         }
 
         public void Run()
@@ -42,8 +45,27 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             }
         }
 
+        public void WriteUnsyncedPayments(IEnumerable<UsrShopifyTransaction> transactions)
+        {
+            foreach (var transaction in transactions.Where(x => x.ShouldCreatePayment()))
+            {
+                if (transaction.ShouldCreatePayment())
+                {
+                    WritePayment(transaction);
+                }
+            }
+        }
+
         public void WritePayment(UsrShopifyTransaction transactionRecord)
         {
+            // Extract the Transaction Amount
+            var transaction
+                = transactionRecord
+                    .ShopifyJson
+                    .DeserializeFromJson<Transaction>();
+            var paymentAmount = transaction.amount;
+            
+
             // Arrange data from local cache
             var preferences = _preferencesRepository.RetrievePreferences();
             var paymentMethod = preferences.AcumaticaPaymentMethod;
@@ -53,14 +75,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     .UsrShopifyOrder.UsrShopifyCustomer.ShopifyCustomerId;
 
             var customer = _syncOrderRepository.RetrieveCustomer(shopifyCustomerId);
-            var acumaticaCustomerId = customer.MatchingCustomer().AcumaticaCustomerId;
-
-            // Extract the Transaction Amount
-            var transaction 
-                = transactionRecord
-                    .ShopifyJson
-                    .DeserializeFromJson<Transaction>();
-            var paymentAmount = transaction.amount;
+            var acumaticaCustomerId = customer.Match().AcumaticaCustomerId;
 
             // Build the Payment Ref and Description
             var order = _syncOrderRepository.RetrieveShopifyOrder(transactionRecord.UsrShopifyOrder.ShopifyOrderId);
@@ -90,11 +105,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             paymentRecord.ShopifyPaymentNbr = paymentNbr;
             paymentRecord.DateCreated = DateTime.UtcNow;
             paymentRecord.LastUpdated = DateTime.UtcNow;
-
             _syncOrderRepository.InsertPayment(paymentRecord);
+
             var log = $"Created Payment {paymentNbr} in Acumatica " +
                       $"from Shopify Order #{order.ShopifyOrderNumber}";
-            _stateRepository.InsertExecutionLog(log);
+            _logRepository.InsertExecutionLog(log);
         }
     }
 }

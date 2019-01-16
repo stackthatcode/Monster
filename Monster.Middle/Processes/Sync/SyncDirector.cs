@@ -23,7 +23,7 @@ namespace Monster.Middle.Processes.Sync
         private readonly ReferenceDataService _referenceDataService;
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
-        private readonly InventoryManager _inventoryManager;
+        private readonly InventorySyncManager _inventorySyncManager;
         private readonly StatusService _inventoryStatusService;
         private readonly OrderManager _orderManager;
         private readonly IPushLogger _logger;
@@ -37,7 +37,7 @@ namespace Monster.Middle.Processes.Sync
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
                 StatusService inventoryStatusService,
-                InventoryManager inventoryManager,
+                InventorySyncManager inventorySyncManager,
                 OrderManager orderManager,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
@@ -49,7 +49,7 @@ namespace Monster.Middle.Processes.Sync
             _acumaticaBatchRepository = acumaticaBatchRepository;
             _acumaticaManager = acumaticaManager;
             _shopifyManager = shopifyManager;
-            _inventoryManager = inventoryManager;
+            _inventorySyncManager = inventorySyncManager;
             _inventoryStatusService = inventoryStatusService;
 
             _orderManager = orderManager;
@@ -107,6 +107,7 @@ namespace Monster.Middle.Processes.Sync
             {
                 _acumaticaManager.PullReferenceData();
 
+
                 _stateRepository
                     .UpdateSystemState(
                         x => x.AcumaticaReferenceData, SystemState.Ok);
@@ -141,7 +142,7 @@ namespace Monster.Middle.Processes.Sync
                 _shopifyManager.PullLocations();
 
                 // Step 2 - Synchronize Locations and Warehouses
-                _inventoryManager.SynchronizeLocationOnly();
+                _inventorySyncManager.SynchronizeWarehouseLocation();
 
                 // Step 3 - Determine resultant System State
                 var status = _inventoryStatusService.WarehouseSyncStatus();
@@ -164,12 +165,12 @@ namespace Monster.Middle.Processes.Sync
             {
                 // Step 1 - Pull Shopify Inventory
                 _shopifyManager.PullInventory();
-
+                
                 // Step 2 - Pull Acumatica Inventory
                 _acumaticaManager.PullInventory();
 
                 // Step 3 - Load Shopify Inventory into Acumatica as baseline
-                _inventoryManager.PushInventoryIntoAcumatica();
+                _inventorySyncManager.PushInventoryIntoAcumatica();
 
                 _stateRepository.UpdateSystemState(
                     x => x.AcumaticaInventoryPush, SystemState.Ok);
@@ -191,7 +192,7 @@ namespace Monster.Middle.Processes.Sync
                 _acumaticaManager.PullInventory();
 
                 // Step 2 - Load Acumatica Inventory into Shopify
-                _inventoryManager.PushAcumaticaInventoryIntoShopify();
+                _inventorySyncManager.PushAcumaticaInventoryIntoShopify();
 
                 _stateRepository.UpdateSystemState(
                     x => x.ShopifyInventoryPush, SystemState.Ok);
@@ -205,11 +206,9 @@ namespace Monster.Middle.Processes.Sync
             }
         }
         
-
-        public void Diagnostics()
+        public void RunDiagnostics()
         {
             ConnectToShopify();
-            ConnectToAcumatica();
             PullAcumaticaReferenceData();
             SyncWarehouseAndLocation();
         }
@@ -220,17 +219,14 @@ namespace Monster.Middle.Processes.Sync
             RunImpervious(() => _shopifyManager.PullOrdersAndCustomers());
 
             RunImpervious(() => _acumaticaManager.PullCustomersAndOrdersAndShipments());
-
+            
             RunImpervious(() =>
-            {
-                // Step 1 - Load Acumatica Inventory into Shopify
-                _inventoryManager.PushAcumaticaInventoryIntoShopify();
-
-                // Step 2 (optional) - Load Products into Acumatica
-                //_orderManager.LoadShopifyProductsIntoAcumatica();
-
-                // Step 3 - Load Orders, Refunds, Payments and Shipments
+            { 
+                // Orders, Refunds, Payments
                 _orderManager.RoutineOrdersSync();
+
+                // Shipments / Fulfillments
+                _orderManager.RoutineFulfillmentSync();
             });
         }
 

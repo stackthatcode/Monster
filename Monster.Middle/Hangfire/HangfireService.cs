@@ -38,12 +38,6 @@ namespace Monster.Middle.Hangfire
         static readonly object LockConfigDiagnosis = new object();
 
 
-        // TODO - wire this shit up!!!
-        public void KillAllBackgroundJobs()
-        {
-            throw new NotImplementedException();
-        }
-
         public bool IsJobRunning(int backgroundJobId)
         {
             // If Background Job Record is missing, return false
@@ -153,7 +147,6 @@ namespace Monster.Middle.Hangfire
 
                     _stateRepository.InsertBackgroundJob(backgroundJobType, jobId);
                     
-
                     transaction.Commit();
                 }
             }

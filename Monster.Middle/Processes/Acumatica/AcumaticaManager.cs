@@ -1,29 +1,31 @@
-﻿using Monster.Acumatica.Http;
+﻿using System;
+using Monster.Acumatica.Http;
 using Monster.Middle.Processes.Acumatica.Workers;
+using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Acumatica
 {
     public class AcumaticaManager
     {
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
-
         private readonly AcumaticaReferencePull _acumaticaReferencePull;
         private readonly AcumaticaWarehousePull _acumaticaWarehousePull;
         private readonly AcumaticaInventoryPull _acumaticaInventoryPull;
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
-        
+        private readonly IPushLogger _logger;
+
+
         public AcumaticaManager(
                 AcumaticaHttpContext acumaticaHttpContext,
-
                 AcumaticaReferencePull acumaticaReferencePull,
                 AcumaticaCustomerPull acumaticaCustomerPull, 
-                AcumaticaOrderPull acumaticaOrderPull, 
-                
+                AcumaticaOrderPull acumaticaOrderPull,                 
                 AcumaticaShipmentPull acumaticaShipmentPull, 
                 AcumaticaWarehousePull acumaticaWarehousePull, 
-                AcumaticaInventoryPull acumaticaInventoryPull)
+                AcumaticaInventoryPull acumaticaInventoryPull,                 
+                IPushLogger logger)
         {
             _acumaticaHttpContext = acumaticaHttpContext;
             _acumaticaCustomerPull = acumaticaCustomerPull;
@@ -32,6 +34,7 @@ namespace Monster.Middle.Processes.Acumatica
             _acumaticaWarehousePull = acumaticaWarehousePull;
             _acumaticaInventoryPull = acumaticaInventoryPull;
             _acumaticaReferencePull = acumaticaReferencePull;
+            _logger = logger;
         }
 
 
@@ -43,39 +46,54 @@ namespace Monster.Middle.Processes.Acumatica
 
         public void PullReferenceData()
         {
-            _acumaticaHttpContext.Login();
-            
-            _acumaticaReferencePull.RunItemClass();
-            _acumaticaReferencePull.RunPaymentMethod();
-            _acumaticaReferencePull.RunTaxCategories();
-            _acumaticaReferencePull.RunTaxIds();
-            _acumaticaReferencePull.RunTaxZones();
-
-            _acumaticaHttpContext.Logout();
+            SessionRun(() =>
+            {
+                _acumaticaReferencePull.RunItemClass();
+                _acumaticaReferencePull.RunPaymentMethod();
+                _acumaticaReferencePull.RunTaxCategories();
+                _acumaticaReferencePull.RunTaxIds();
+                _acumaticaReferencePull.RunTaxZones();
+            });
         }
         
-
         public void PullWarehouses()
         {
-            _acumaticaHttpContext.Login();
-            _acumaticaWarehousePull.Run();
-            _acumaticaHttpContext.Logout();
+            SessionRun(() => { _acumaticaWarehousePull.Run(); });
         }
 
         public void PullInventory()
         {
-            _acumaticaHttpContext.Login();
-            _acumaticaInventoryPull.RunAutomatic();
-            _acumaticaHttpContext.Logout();
+            SessionRun(() => { _acumaticaInventoryPull.RunAutomatic(); });
         }
 
         public void PullCustomersAndOrdersAndShipments()
         {
-            _acumaticaHttpContext.Login();
-            _acumaticaCustomerPull.RunAutomatic();
-            _acumaticaOrderPull.RunAutomatic();
-            _acumaticaShipmentPull.RunAutomatic();
-            _acumaticaHttpContext.Logout();
+            SessionRun(() =>
+            {
+                _acumaticaCustomerPull.RunAutomatic();
+                _acumaticaOrderPull.RunAutomatic();
+                _acumaticaShipmentPull.RunAutomatic();
+            });
+        }
+
+        public void SessionRun(Action action)
+        {
+            try
+            {
+                _acumaticaHttpContext.Login();
+                action();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+            finally
+            {
+                if (_acumaticaHttpContext.IsLoggedIn)
+                {
+                    _acumaticaHttpContext.Logout();
+                }
+            }
         }
     }
 }

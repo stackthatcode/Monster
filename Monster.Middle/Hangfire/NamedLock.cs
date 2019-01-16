@@ -6,11 +6,11 @@ namespace Monster.Middle.Hangfire
 {
     public class NamedLock
     {
-        private readonly
-            ConcurrentDictionary<string, string>
-                _processing = new ConcurrentDictionary<string, string>();
+        private static readonly
+                ConcurrentDictionary<string, string>
+                    _processing = new ConcurrentDictionary<string, string>();
 
-        private readonly object _lock = new object();
+        private static readonly object _lock = new object();
 
         private readonly string _methodName;
 

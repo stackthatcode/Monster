@@ -40,6 +40,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     record.ShopifyTransactionId = transaction.id;
                     record.ShopifyStatus = transaction.status;
                     record.ShopifyKind = transaction.kind;
+                    record.ShopifyGateway = transaction.gateway;
                     record.ShopifyJson = transaction.SerializeToJson();
                     record.OrderMonsterId = orderRecord.Id;
 

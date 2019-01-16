@@ -5,13 +5,18 @@ namespace Monster.Middle.Processes.Sync.Extensions
 {
     public static class CustomerExtensions
     {
-        public static UsrAcumaticaCustomer
-                MatchingCustomer(this UsrShopifyCustomer input)
+        public static 
+                UsrAcumaticaCustomer Match(this UsrShopifyCustomer input)
         {
             return input
                 .UsrShopAcuCustomerSyncs
                 .FirstOrDefault()?
                 .UsrAcumaticaCustomer;
+        }
+
+        public static bool HasMatch(this UsrShopifyCustomer input)
+        {
+            return input.Match() != null;
         }
     }
 }

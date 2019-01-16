@@ -78,6 +78,7 @@ namespace Monster.Middle
             builder.RegisterType<ConnectionContext>().InstancePerLifetimeScope();
             builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
             builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<ExecutionLogRepository>().InstancePerLifetimeScope();
 
             // Job Running components
             builder.RegisterType<BackgroundJobRunner>().InstancePerLifetimeScope();
@@ -132,7 +133,6 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaCustomerPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaShipmentPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaInvoicePull>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaReferencePull>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();
@@ -142,11 +142,10 @@ namespace Monster.Middle
         {
             // Inventory 
             builder.RegisterType<SyncInventoryRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyLocationSync>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaWarehouseSync>().InstancePerLifetimeScope();
-            builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
+            builder.RegisterType<WarehouseLocationSync>().InstancePerLifetimeScope();
+            builder.RegisterType<InventorySyncManager>().InstancePerLifetimeScope();
 
             // Orders
             builder.RegisterType<SyncOrderRepository>().InstancePerLifetimeScope();

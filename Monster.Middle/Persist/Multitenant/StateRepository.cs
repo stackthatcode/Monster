@@ -123,25 +123,5 @@ namespace Monster.Middle.Persist.Multitenant
             state.SetPropertyValue(memberExpression, newValue);
             Entities.SaveChanges();
         }
-
-
-        public void InsertExecutionLog(string content)
-        {
-            var logEntry = new UsrExecutionLog();
-            logEntry.LogContent = content;
-            logEntry.DateCreated = DateTime.UtcNow;
-            Entities.UsrExecutionLogs.Add(logEntry);
-            Entities.SaveChanges();
-        }
-
-        public List<UsrExecutionLog> RetrieveExecutionLogs()
-        {
-            return Entities
-                .UsrExecutionLogs
-                .OrderByDescending(x => x.DateCreated)
-                .ToList();
-        }
-
-
     }
 }

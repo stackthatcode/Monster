@@ -70,7 +70,7 @@ namespace Monster.Middle.Hangfire
         {
             FireAndForgetJob(tenantId,
                 BackgroundJobType.Diagnostics,
-                _director.Diagnostics);
+                _director.RunDiagnostics);
         }
 
 
@@ -103,17 +103,15 @@ namespace Monster.Middle.Hangfire
 
                 _tenantContext.Initialize(tenantId);
                 _director.RealTimeSynchronization();
+                RoutineSyncLock.Free(tenantId.ToString());
             }
             catch (Exception ex)
             {
+                RoutineSyncLock.Free(tenantId.ToString());
                 _logger.Error(ex);
                 throw;
             }
-            finally
-            {
-                RoutineSyncLock.Free(tenantId.ToString());
-            }
         }
-
     }
 }
+

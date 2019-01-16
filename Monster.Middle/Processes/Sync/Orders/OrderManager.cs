@@ -1,19 +1,18 @@
-﻿using Monster.Acumatica.Http;
+﻿using System;
+using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders.Workers;
+using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Sync.Orders
 {
     public class OrderManager
     {
-        private readonly ConnectionRepository _connectionRepository;
         private readonly PreferencesRepository _preferencesRepository;
-
-        private readonly AcumaticaHttpContext _acumaticaContext;
-
         private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
 
+        private readonly AcumaticaHttpContext _acumaticaContext;
         private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
         private readonly AcumaticaOrderSync _acumaticaOrderSync;
         private readonly AcumaticaShipmentSync _acumaticaShipmentSync;
@@ -21,9 +20,10 @@ namespace Monster.Middle.Processes.Sync.Orders
         private readonly AcumaticaPaymentSync _acumaticaPaymentSync;
         private readonly AcumaticaRefundSync _acumaticaRefundSync;
 
-        public OrderManager(
-                ConnectionRepository connectionRepository,
+        private readonly IPushLogger _logger;
 
+
+        public OrderManager(
                 AcumaticaHttpContext acumaticaContext,
                 AcumaticaCustomerSync acumaticaCustomerSync,
                 AcumaticaOrderSync acumaticaOrderSync,
@@ -33,9 +33,10 @@ namespace Monster.Middle.Processes.Sync.Orders
                 AcumaticaPaymentSync acumaticaPaymentSync,
 
                 ShopifyFulfillmentSync shopifyFulfillmentSync, 
-                PreferencesRepository preferencesRepository)
+                PreferencesRepository preferencesRepository,
+                
+                IPushLogger logger)
         {
-            _connectionRepository = connectionRepository;
             _acumaticaContext = acumaticaContext;
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaInventorySync = acumaticaInventorySync;
@@ -46,6 +47,7 @@ namespace Monster.Middle.Processes.Sync.Orders
 
             _shopifyFulfillmentSync = shopifyFulfillmentSync;
             _preferencesRepository = preferencesRepository;
+            _logger = logger;
         }
 
         
@@ -66,29 +68,32 @@ namespace Monster.Middle.Processes.Sync.Orders
 
         public void RoutineOrdersSync()
         {
+            AcumaticaSessionRun(() =>
+            {
+                _acumaticaCustomerSync.Run();
+                _acumaticaOrderSync.Run();
+
+                // Synchronize Payments and Refunds
+                _acumaticaPaymentSync.Run();
+                _acumaticaRefundSync.Run();
+            });
+        }
+
+        public void RoutineFulfillmentSync()
+        {
             var preferences = _preferencesRepository.RetrievePreferences();
             var fulfilledInAcumatica = preferences.FulfillmentInAcumatica.Value;
 
-            _acumaticaContext.Login();
-
-            _acumaticaCustomerSync.Run();
-            
-            _acumaticaOrderSync.Run();
-
+            // Sync Fulfillments to Acumatica Shipments
             if (!fulfilledInAcumatica)
-            { 
-                // Sync Fulfillments to Acumatica Shipments
-                _acumaticaShipmentSync.RunShipments();
-                _acumaticaShipmentSync.RunConfirmShipments();
-                _acumaticaShipmentSync.RunSingleInvoicePerShipmentSalesRef();
+            {
+                AcumaticaSessionRun(() =>
+                {
+                    _acumaticaShipmentSync.RunShipments();
+                    _acumaticaShipmentSync.RunConfirmShipments();
+                    _acumaticaShipmentSync.RunSingleInvoicePerShipmentSalesRef();
+                });
             }
-
-            // Synchronize Payments and Refunds
-            _acumaticaPaymentSync.Run();
-            _acumaticaRefundSync.Run();
-
-            _acumaticaContext.Logout();
-
 
             // Sync Shipments to Shopify Fulfillments
             if (fulfilledInAcumatica)
@@ -99,9 +104,30 @@ namespace Monster.Middle.Processes.Sync.Orders
 
         public void SingleOrderPush(long shopifyOrderId)
         {
-            _acumaticaContext.Login();
-            _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
-            _acumaticaContext.Logout();
+            AcumaticaSessionRun(() =>
+            {
+                _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
+            });
+        }
+
+        public void AcumaticaSessionRun(Action action)
+        {
+            try
+            {
+                _acumaticaContext.Login();
+                action();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+            finally
+            {
+                if (_acumaticaContext.IsLoggedIn)
+                {
+                    _acumaticaContext.Logout();
+                }
+            }
         }
     }
 }

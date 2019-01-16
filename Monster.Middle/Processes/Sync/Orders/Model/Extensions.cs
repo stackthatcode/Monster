@@ -2,6 +2,7 @@
 using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Multitenant;
 using Push.Foundation.Utilities.Json;
+using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Orders.Model
 {
@@ -17,6 +18,15 @@ namespace Monster.Middle.Processes.Sync.Orders.Model
             output.DateCreated = DateTime.UtcNow;
             output.LastUpdated = DateTime.UtcNow;
             return output;
+        }
+
+        public static bool ShouldCreatePayment(this UsrShopifyTransaction input)
+        {
+            return input.ShopifyGateway != Gateway.Manual
+                   && input.UsrShopifyAcuPayment == null
+                   && input.ShopifyStatus == TransactionStatus.Success
+                   && (input.ShopifyKind == TransactionKind.Capture
+                       || input.ShopifyKind == TransactionKind.Sale);
         }
     }
 }

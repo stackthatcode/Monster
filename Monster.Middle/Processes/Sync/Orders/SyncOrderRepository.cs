@@ -34,6 +34,8 @@ namespace Monster.Middle.Processes.Sync.Orders
                 .Where(x => x.ShopifyOrderNumber >= orderNumberStart
                             && !x.UsrShopAcuOrderSyncs.Any())
                 .Include(x => x.UsrShopifyCustomer)
+                .Include(x => x.UsrShopifyTransactions)
+                .Include(x => x.UsrShopifyTransactions.Select(y => y.UsrShopifyAcuPayment))
                 .ToList();
         }
         
@@ -161,7 +163,6 @@ namespace Monster.Middle.Processes.Sync.Orders
             return Entities
                 .UsrAcumaticaShipments
                 .Where(x => x.IsCreatedByMonster 
-                            && x.AcumaticaReleasedInvoiceNbr == null
                             && x.AcumaticaStatus == "Confirmed")
                 .ToList();
         }
@@ -197,6 +198,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 .Include(x => x.UsrShopifyOrder)
                 .Include(x => x.UsrShopifyOrder.UsrShopifyCustomer)
                 .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any()
+                            && x.ShopifyStatus != Gateway.Manual
                             && x.ShopifyStatus == TransactionStatus.Success
                             && (x.ShopifyKind == TransactionKind.Capture
                                 || x.ShopifyKind == TransactionKind.Sale)

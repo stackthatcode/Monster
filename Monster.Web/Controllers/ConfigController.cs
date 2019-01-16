@@ -19,6 +19,7 @@ namespace Monster.Web.Controllers
     {
         private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
+        private readonly ExecutionLogRepository _logRepository;
         private readonly HangfireService _hangfireService;
 
         private readonly StatusService _statusService;
@@ -34,7 +35,8 @@ namespace Monster.Web.Controllers
                 StatusService statusService, 
                 ReferenceDataService referenceDataService, 
                 AcumaticaInventoryRepository inventoryRepository, 
-                PreferencesRepository preferencesRepository)
+                PreferencesRepository preferencesRepository, 
+                ExecutionLogRepository logRepository)
         {
 
             _tenantRepository = tenantRepository;
@@ -44,6 +46,7 @@ namespace Monster.Web.Controllers
             _statusService = statusService;
             _referenceDataService = referenceDataService;
             _preferencesRepository = preferencesRepository;
+            _logRepository = logRepository;
         }
 
         
@@ -337,7 +340,8 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult RealTimeStatus()
         {
-            var logs = _stateRepository.RetrieveExecutionLogs();
+            var logs = _logRepository.RetrieveExecutionLogs();
+
             var logDtos =
                 logs.Select(x =>
                     new ExecutionLog()

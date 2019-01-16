@@ -7,7 +7,6 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory;
 using Push.Foundation.Utilities.Json;
-using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
 using Push.Shopify.Api.Order;
@@ -22,9 +21,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-
-        // Possibly expand - this is a one-time thing...
-        public const int InitialBatchStateFudgeMin = -15;
+        private readonly ExecutionLogRepository _logRepository;
 
 
         public ShopifyFulfillmentSync(
@@ -33,7 +30,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 AcumaticaOrderRepository acumaticaOrderRepository, 
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
-                FulfillmentApi fulfillmentApi)
+                FulfillmentApi fulfillmentApi, 
+                ExecutionLogRepository logRepository)
         {
             _stateRepository = stateRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
@@ -41,6 +39,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _fulfillmentApi = fulfillmentApi;
+            _logRepository = logRepository;
         }
 
 
@@ -128,8 +127,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
                 var log = $"Created Shopify Order #{shopifyOrder.order_number} Fulfillment " +
                           $"from Acumatica Shipment {shipment.ShipmentNbr.value}";
-                _stateRepository.InsertExecutionLog(log);
 
+                _logRepository.InsertExecutionLog(log);
                 transaction.Commit();
             }
         }

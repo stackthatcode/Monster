@@ -131,6 +131,7 @@
     <Compile Include="Hangfire\HangFireLogger.cs" />
     <Compile Include="Hangfire\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
+    <Compile Include="Persist\Multitenant\ExecutionLogRepository.cs" />
     <Compile Include="Persist\Multitenant\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -170,10 +171,9 @@
     <Compile Include="Processes\Sync\Inventory\Model\WarehouseSyncStateDetails.cs" />
     <Compile Include="Processes\Sync\Inventory\Services\StatusService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInventoryPull.cs" />
-    <Compile Include="Processes\Sync\Inventory\InventoryManager.cs" />
+    <Compile Include="Processes\Sync\Inventory\InventorySyncManager.cs" />
     <Compile Include="Processes\Sync\Inventory\Workers\ShopifyInventorySync.cs" />
-    <Compile Include="Processes\Sync\Inventory\Workers\ShopifyLocationSync.cs" />
-    <Compile Include="Processes\Sync\Inventory\Workers\AcumaticaWarehouseSync.cs" />
+    <Compile Include="Processes\Sync\Inventory\Workers\WarehouseLocationSync.cs" />
     <Compile Include="Processes\Shopify\ShopifyManager.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyInventoryPull.cs" />
     <Compile Include="Processes\Shopify\Persist\InventoryExtensions.cs" />

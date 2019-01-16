@@ -14,21 +14,15 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         private readonly InventoryApi _inventoryApi;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ShopifyInventoryRepository _inventoryRepository;
-        private readonly AcumaticaInventoryRepository _acumaticaInventoryRepository;
-
-        // Possibly expand - this is a one-time thing...
-        public const int InitialBatchStateFudgeMin = -15;
-
+        
 
         public ShopifyInventorySync(
                 InventoryApi inventoryApi,
                 ShopifyInventoryRepository inventoryRepository, 
-                AcumaticaInventoryRepository acumaticaInventoryRepository, 
                 SyncInventoryRepository syncInventoryRepository)
         {
             _inventoryApi = inventoryApi;
             _inventoryRepository = inventoryRepository;
-            _acumaticaInventoryRepository = acumaticaInventoryRepository;
             _syncInventoryRepository = syncInventoryRepository;
         }
 

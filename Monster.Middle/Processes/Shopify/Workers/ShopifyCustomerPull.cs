@@ -139,6 +139,17 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _batchRepository.UpdateCustomersPullEnd(startOfPullRun);
         }
 
+        public UsrShopifyCustomer Run(long shopifyCustomerId)
+        {
+           var customerJson = _customerApi.Retrieve(shopifyCustomerId);
+            var customer
+                = customerJson
+                    .DeserializeFromJson<CustomerParent>()
+                    .customer;
+
+           return UpsertCustomer(customer);
+        }
+
         private void UpsertCustomers(List<Customer> customers)
         {
             foreach (var customer in customers)

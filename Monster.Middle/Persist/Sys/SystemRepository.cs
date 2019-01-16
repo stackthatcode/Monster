@@ -7,10 +7,13 @@ using Dapper;
 
 namespace Monster.Middle.Persist.Sys
 {
-    public class SystemRepository
+    public class SystemRepository :IDisposable
     {
         private readonly IDbConnection _connection;
 
+        // TODO (BIG ONE!!!) - create a wrapper for the connection that 
+        // ... allows us to reuse and control within same Autofac scope
+        //
         public SystemRepository(string connectionString)
         {
             _connection = new SqlConnection(connectionString);
@@ -46,6 +49,11 @@ namespace Monster.Middle.Persist.Sys
 
             _connection.Execute(sql, tenant);
             return tenant;
+        }
+
+        public void Dispose()
+        {
+            _connection?.Dispose();
         }
     }
 }

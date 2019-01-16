@@ -25,6 +25,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
         private readonly StateRepository _stateRepository;
+        private readonly ExecutionLogRepository _logRepository;
 
         public AcumaticaShipmentSync(
                     SyncOrderRepository syncOrderRepository,
@@ -32,13 +33,15 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     ShopifyOrderRepository shopifyOrderRepository,
                     AcumaticaShipmentPull acumaticaShipmentPull,
                     ShipmentClient shipmentClient, 
-                    StateRepository stateRepository)
+                    StateRepository stateRepository, 
+                    ExecutionLogRepository logRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
             _acumaticaShipmentPull = acumaticaShipmentPull;
             _shipmentClient = shipmentClient;
             _stateRepository = stateRepository;
+            _logRepository = logRepository;
             _syncInventoryRepository = syncInventoryRepository;            
         }
 
@@ -212,7 +215,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     $"Created Shipment {resultShipment.ShipmentNbr.value} in Acumatica from "+ 
                     $"Shopify Order #{shopifyOrder.order_number}";
 
-                _stateRepository.InsertExecutionLog(log);
+                _logRepository.InsertExecutionLog(log);
                 
                 transaction.Commit();
             }
@@ -248,7 +251,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             var log = $"Confirmed Shipment {shipmentRecord.AcumaticaShipmentNbr} in Acumatica";
 
-            _stateRepository.InsertExecutionLog(log);
+            _logRepository.InsertExecutionLog(log);
 
         }
 
