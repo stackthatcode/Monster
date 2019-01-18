@@ -44,8 +44,6 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 // TODO - control this via a Preference
                 _acumaticaInventorySync.RunInventoryReceiptsRelease();
             });
-
-            _acumaticaContext.Logout();
         }
 
         public void PushAcumaticaInventoryIntoShopify()
@@ -63,6 +61,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
             catch (Exception ex)
             {
                 _pushLogger.Error(ex);
+                throw;
             }
             finally
             {

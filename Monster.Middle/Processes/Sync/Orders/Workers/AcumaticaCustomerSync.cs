@@ -16,21 +16,20 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     public class AcumaticaCustomerSync
     {
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
-        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly CustomerClient _customerClient;
+        private readonly ExecutionLogRepository _executionLogRepository;
 
         public AcumaticaCustomerSync(
                 AcumaticaCustomerPull acumaticaCustomerPull,
-                AcumaticaOrderRepository acumaticaOrderRepository, 
-                ShopifyOrderRepository shopifyOrderRepository, 
                 SyncOrderRepository syncOrderRepository, 
-                CustomerClient customerClient)
+                CustomerClient customerClient, 
+                ExecutionLogRepository executionLogRepository)
         {
             _acumaticaCustomerPull = acumaticaCustomerPull;
-            _acumaticaOrderRepository = acumaticaOrderRepository;
             _syncOrderRepository = syncOrderRepository;
             _customerClient = customerClient;
+            _executionLogRepository = executionLogRepository;
         }
 
         public void Run()
@@ -82,8 +81,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             mainContact.Email = shopifyCustomer.email.ToValue();
 
             customer.MainContact = mainContact;
-            customer.AccountRef = 
-                $"Shopify Customer #{shopifyCustomer.id}".ToValue();
+            customer.AccountRef = $"Shopify Customer #{shopifyCustomer.id}".ToValue();
 
             var acumaticaCustomerRecord = shopifyCustomerRecord.Match();
             if (acumaticaCustomerRecord != null)
@@ -93,16 +91,17 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             }
 
             // Push Customer to Acumatica API
-            var customerResultJson
-                = _customerClient.WriteCustomer(customer.SerializeToJson());
-            var customerResult = customerResultJson.DeserializeFromJson<Customer>();
+            var resultJson = _customerClient.WriteCustomer(customer.SerializeToJson());
+            var customerResult = resultJson.DeserializeFromJson<Customer>();
+
+            var log = $"Wrote Customer {customerResult.CustomerID.value} to Acumatica";
+            _executionLogRepository.InsertExecutionLog(log);
             
+
             // Create SQL footprint
             using (var transaction = _syncOrderRepository.BeginTransaction())
             {
-                var output = 
-                    _acumaticaCustomerPull.UpsertCustomerToPersist(customerResult);
-
+                var output = _acumaticaCustomerPull.UpsertCustomerToPersist(customerResult);
                 var existingSync = output.UsrShopAcuCustomerSyncs.FirstOrDefault();
 
                 if (existingSync == null)

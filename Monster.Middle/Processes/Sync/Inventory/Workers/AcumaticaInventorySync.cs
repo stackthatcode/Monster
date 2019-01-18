@@ -19,35 +19,36 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
     public class AcumaticaInventorySync
     {
         private readonly AcumaticaInventoryRepository _inventoryRepository;
-        private readonly SyncInventoryRepository _syncInventoryRepository;
+        private readonly SyncInventoryRepository _syncRepository;
         private readonly DistributionClient _distributionClient;
         private readonly PreferencesRepository _preferencesRepository;
+        private readonly ExecutionLogRepository _executionLogRepository;
         private readonly IPushLogger _logger;
 
         public AcumaticaInventorySync(
                 AcumaticaInventoryRepository inventoryRepository,
-                SyncInventoryRepository syncInventoryRepository,                    
+                SyncInventoryRepository syncRepository,                    
                 DistributionClient distributionClient,
                 PreferencesRepository preferencesRepository,
+                ExecutionLogRepository executionLogRepository,
                 IPushLogger logger)
         {
-            _syncInventoryRepository = syncInventoryRepository;
+            _syncRepository = syncRepository;
             _inventoryRepository = inventoryRepository;
             _distributionClient = distributionClient;
             _preferencesRepository = preferencesRepository;
             _logger = logger;
+            _executionLogRepository = executionLogRepository;
         }
 
         public void Run()
         {
-            var variants = _syncInventoryRepository.RetrieveVariants();
+            var variants = _syncRepository.RetrieveVariants(false);
 
             foreach (var variant in variants)
             {
-                // Attempt to identify duplicates
-                // TODO - refactor this into 
                 var matchingShopifySkus =
-                    _syncInventoryRepository
+                    _syncRepository
                         .RetrieveVariantsWithStockItems(variant.StandardizedSku())
                         .ExcludeMissing()
                         .ExcludeMatched();
@@ -60,8 +61,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 }
 
                 // Attempt to Auto-match
-                var stockItem =
-                    _syncInventoryRepository.RetrieveStockItem(variant.StandardizedSku());
+                var stockItem = _syncRepository.RetrieveStockItem(variant.StandardizedSku());
 
                 if (stockItem != null)
                 {
@@ -79,7 +79,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                             $"Auto-matching Stock Item {stockItem.ItemId} " +
                             $"to Shopify Variant {variant.ShopifyVariantId}");
 
-                        _syncInventoryRepository.InsertItemSync(variant, stockItem);
+                        _syncRepository.InsertItemSync(variant, stockItem);
                         continue;
                     }
                 }
@@ -134,20 +134,20 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 LastUpdated = DateTime.UtcNow,
             };
 
-            _inventoryRepository.InsertStockItems(newStockItemRecord);
-            _syncInventoryRepository.InsertItemSync(variant, newStockItemRecord);
+            using (var transaction = _syncRepository.BeginTransaction())
+            {
+                _inventoryRepository.InsertStockItems(newStockItemRecord);
+                _syncRepository.InsertItemSync(variant, newStockItemRecord);
+
+                var log = $"Creating Stock Item {item.InventoryID.value} in Acumatica";
+                _executionLogRepository.InsertExecutionLog(log);
+                transaction.Commit();
+            }
         }
 
         public void RunInventoryReceipts()
         {
-            // ON HOLD
-            //var preferences = _connectionRepository.RetrievePreferences();
-            //if (preferences.DefaultCoGsMargin == null)
-            //    throw new ArgumentException(
-            //        "Preferences -> DefaultCoGsMargin is not set");
-
-            var inventory =
-                _syncInventoryRepository.RetrieveInventoryLevelsNotSynced();
+            var inventory = _syncRepository.RetrieveInventoryLevelsNotSynced();
 
             var matchedInventory =
                 inventory
@@ -182,12 +182,11 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 monsterReceipt.DateCreated = DateTime.UtcNow;
                 monsterReceipt.LastUpdate = DateTime.UtcNow;
                 
-                _inventoryRepository
-                    .InsertInventoryReceipt(monsterReceipt);
+                _inventoryRepository.InsertInventoryReceipt(monsterReceipt);
 
                 foreach (var level in inventoryByProduct)
                 {
-                    _syncInventoryRepository
+                    _syncRepository
                         .InsertInventoryReceiptSync(level, monsterReceipt);
                 }
             }
@@ -196,13 +195,11 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         public void RunInventoryReceiptsRelease()
         {
             var receipts = 
-                _inventoryRepository
-                    .RetrieveUnreleasedInventoryReceipts();
+                _inventoryRepository.RetrieveUnreleasedInventoryReceipts();
 
             foreach (var receipt in receipts)
             {
-                var releaseEntity
-                    = ReleaseInventoryReceipt.Build(receipt.AcumaticaRefNumber);
+                var releaseEntity = ReleaseInventoryReceipt.Build(receipt.AcumaticaRefNumber);
 
                 // Finally, Release the Inventory Receipt
                 _distributionClient.ReleaseInventoryReceipt(releaseEntity.SerializeToJson());
@@ -212,8 +209,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             }
         }
 
-        private InventoryReceipt BuildReceipt(
-                    List<UsrShopifyInventoryLevel> inventory)
+        private InventoryReceipt BuildReceipt(List<UsrShopifyInventoryLevel> inventory)
         {
             // TODO - determine is this is required
             //var preferences = _connectionRepository.RetrievePreferences();

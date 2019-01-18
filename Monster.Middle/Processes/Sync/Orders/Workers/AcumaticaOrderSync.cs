@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
         private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
 
-
+         
         public AcumaticaOrderSync(
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncInventoryRepository,
@@ -51,42 +51,38 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
         public void Run()
         {
-            var shopifyOrders 
-                = _syncOrderRepository.RetrieveShopifyOrdersNotSynced();
+            var orders = _syncOrderRepository.RetrieveShopifyOrdersNotSynced();
             var preferences = _preferencesRepository.RetrievePreferences();
             var orderStart = preferences.ShopifyOrderNumberStart ?? 0;
 
-            foreach (var shopifyOrder in shopifyOrders)
+            foreach (var order in orders)
             {
-                if (shopifyOrder.ShopifyOrderNumber < orderStart)
+                if (order.ShopifyOrderNumber < orderStart)
                 {
                     continue;
                 }
 
-                if (!shopifyOrder.IsPaid())
+                if (!order.IsPaid())
                 {
                     continue;
                 }
 
-                if (!AreLineItemsReadyToSync(shopifyOrder))
+                if (!AreLineItemsReadyToSync(order))
                 {
                     continue;
                 }
 
-                SyncOrderWithAcumatica(shopifyOrder);
+                SyncOrderWithAcumatica(order);
                 
-                _acumaticaPaymentSync.WriteUnsyncedPayments(shopifyOrder.UsrShopifyTransactions);
+                _acumaticaPaymentSync.WriteUnsyncedPayments(order.UsrShopifyTransactions);
             }
         }
 
         public bool AreLineItemsReadyToSync(UsrShopifyOrder shopifyOrderRecord)
         {
-            var shopifyOrder
-                = shopifyOrderRecord
-                    .ShopifyJson
-                    .DeserializeToOrder();
+            var order = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
 
-            foreach (var lineItem in shopifyOrder.line_items)
+            foreach (var lineItem in order.line_items)
             {
                 if (lineItem.variant_id == null)
                 {
@@ -108,10 +104,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         
         public void RunByShopifyId(long shopifyOrderId)
         {
-            var shopifyOrder 
-                = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var record = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
 
-            SyncOrderWithAcumatica(shopifyOrder);
+            SyncOrderWithAcumatica(record);
         }
 
         private void SyncOrderWithAcumatica(UsrShopifyOrder shopifyOrderRecord)
@@ -128,11 +123,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         {
             var preferences = _preferencesRepository.RetrievePreferences();
             var customer = SyncCustomerToAcumatica(shopifyOrderRecord);
-
-            var shopifyOrder
-                = shopifyOrderRecord
-                    .ShopifyJson
-                    .DeserializeToOrder();
+            var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
 
             // Sales Order Header
             var salesOrder = BuildNewSalesOrderHeader(shopifyOrder, customer, preferences);
@@ -155,24 +146,18 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
                 var stockItem = variant.MatchedStockItem();
                 
-                var salesOrderDetail = new SalesOrderDetail();
+                var detail = new SalesOrderDetail();
 
-                salesOrderDetail.InventoryID = stockItem.ItemId.ToValue();
-                salesOrderDetail.OrderQty 
-                    = ((double)lineItem.RefundCancelAdjustedQuantity).ToValue();
-                salesOrderDetail.ExtendedPrice =
-                    ((double) lineItem.TotalAfterDiscount).ToValue();                
-                salesOrderDetail.TaxCategory 
-                        = preferences.AcumaticaTaxCategory.ToValue();
+                detail.InventoryID = stockItem.ItemId.ToValue();
+                detail.OrderQty = ((double)lineItem.RefundCancelAdjustedQuantity).ToValue();
+                detail.ExtendedPrice = ((double) lineItem.TotalAfterDiscount).ToValue();                
+                detail.TaxCategory = preferences.AcumaticaTaxCategory.ToValue();
 
-                salesOrder.Details.Add(salesOrderDetail);
+                salesOrder.Details.Add(detail);
             }
             
             // Record the Sales Order Record to SQL
-            var resultJson
-                = _salesOrderClient
-                    .WriteSalesOrder(salesOrder.SerializeToJson());
-
+            var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
             var resultSalesOrder = resultJson.DeserializeFromJson<SalesOrder>();
             var acumaticaRecord = _acumaticaOrderPull.UpsertOrderToPersist(resultSalesOrder);
             
@@ -182,8 +167,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     shopifyOrderRecord, acumaticaRecord, taxDetailsId, false);
 
             _logRepository.InsertExecutionLog(
-                $"Created Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
-                $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
+                    $"Created Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
+                    $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }
 
         private static SalesOrder BuildNewSalesOrderHeader(
@@ -204,10 +189,16 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 OverrideTaxZone = true.ToValue(),
                 CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
             };
+            
 
-            var taxDetail = new TaxDetails();
-            taxDetail.TaxID = preferences.AcumaticaTaxId.ToValue();
-            salesOrder.TaxDetails = new List<TaxDetails> { taxDetail };
+            // Create Tax Details payload
+            var taxDetails = new TaxDetails();
+            taxDetails.TaxID = preferences.AcumaticaTaxId.ToValue();
+            taxDetails.TaxRate = ((double)0).ToValue();
+            taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
+            taxDetails.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
+
+            salesOrder.TaxDetails = new List<TaxDetails> { taxDetails };
             
             salesOrder.ShippingSettings = new ShippingSettings
             {
@@ -221,15 +212,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private static Address BuildShippingAddress(Order shopifyOrder)
         {
             var shippingAddress = new Address();
-            shippingAddress.AddressLine1
-                = shopifyOrder.shipping_address.address1.ToValue();
-            shippingAddress.AddressLine2
-                = shopifyOrder.shipping_address.address2.ToValue();
+            shippingAddress.AddressLine1 = shopifyOrder.shipping_address.address1.ToValue();
+            shippingAddress.AddressLine2 = shopifyOrder.shipping_address.address2.ToValue();
             shippingAddress.City = shopifyOrder.shipping_address.city.ToValue();
-            shippingAddress.State
-                = shopifyOrder.shipping_address.province.ToValue();
-            shippingAddress.PostalCode
-                = shopifyOrder.shipping_address.province_code.ToValue();
+            shippingAddress.State = shopifyOrder.shipping_address.province.ToValue();
+            shippingAddress.PostalCode = shopifyOrder.shipping_address.province_code.ToValue();
             return shippingAddress;
         }
 
@@ -237,8 +224,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         {
             var shippingContact = new ContactOverride();
             shippingContact.Email = shopifyOrder.contact_email.ToValue();
-            shippingContact.Attention
-                = shopifyOrder.shipping_address.FullName.ToValue();
+            shippingContact.Attention = shopifyOrder.shipping_address.FullName.ToValue();
             shippingContact.BusinessName = shopifyOrder.shipping_address.company.ToValue();
             shippingContact.Phone1 = shopifyOrder.shipping_address.phone.ToValue();
             return shippingContact;
@@ -282,12 +268,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             //    $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }
         
-        public UsrAcumaticaCustomer
-                SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
+        public UsrAcumaticaCustomer SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
         {
             var customer =
                 _syncOrderRepository.RetrieveCustomer(
-                    shopifyOrder.UsrShopifyCustomer.ShopifyCustomerId);
+                        shopifyOrder.UsrShopifyCustomer.ShopifyCustomerId);
 
             if (!customer.HasMatch())
             {
@@ -298,7 +283,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 return customer.Match();
             }
         }
-
     }
 }
 

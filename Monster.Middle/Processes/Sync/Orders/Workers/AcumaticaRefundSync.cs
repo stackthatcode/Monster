@@ -138,8 +138,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
             var salesOrder = salesOrderRecord.ToAcuObject();
 
-            var refund =
-                shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
+            var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
 
             var creditMemo = new CreditMemoWrite();
             creditMemo.OrderType = Constants.CreditMemoType.ToValue();
@@ -165,8 +164,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     _syncInventoryRepository.RetrieveLocation(refund_line_item.location_id.Value);
 
                 var warehouse = location.MatchedWarehouse();
-
-
+                
                 var detail = new CreditMemoWriteDetail();
                 detail.InventoryID = stockItemId.ToValue();
                 detail.OrderQty = ((double) refund_line_item.quantity).ToValue();

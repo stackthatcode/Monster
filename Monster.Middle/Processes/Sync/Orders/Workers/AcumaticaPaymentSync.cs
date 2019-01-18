@@ -36,10 +36,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
         public void Run()
         {
-            var unsyncedTransactions 
-                    = _syncOrderRepository.RetrieveUnsyncedTransactions();
+            var transactions = _syncOrderRepository.RetrieveUnsyncedTransactions();
 
-            foreach (var transaction in unsyncedTransactions)
+            foreach (var transaction in transactions)
             {
                 WritePayment(transaction);
             }

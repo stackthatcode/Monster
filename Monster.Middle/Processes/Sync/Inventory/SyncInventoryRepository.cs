@@ -127,9 +127,13 @@ namespace Monster.Middle.Processes.Sync.Inventory
                     .Include(x => x.UsrShopAcuItemSyncs)
                     .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrAcumaticaStockItem));
 
-            if (isMatched.HasValue)
+            if (isMatched.HasValue && isMatched.Value == true)
             {
                 output = output.Where(x => x.UsrShopAcuItemSyncs.Any());
+            }
+            if (isMatched.HasValue && isMatched.Value == false)
+            {
+                output = output.Where(x => !x.UsrShopAcuItemSyncs.Any());
             }
 
             return output.ToList();
