@@ -263,9 +263,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             syncRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.Entities.SaveChanges();
 
-            //_logRepository.InsertExecutionLog(
-            //    $"Wrote Taxes for Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
-            //    $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
+            _logRepository.InsertExecutionLog(
+                $"Wrote Taxes for Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
+                $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }
         
         public UsrAcumaticaCustomer SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)

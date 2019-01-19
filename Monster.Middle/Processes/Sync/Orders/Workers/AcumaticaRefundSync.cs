@@ -6,7 +6,6 @@ using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory;
@@ -30,7 +29,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncRepository,
                     SalesOrderClient salesOrderClient, 
-                    ConnectionRepository connectionRepository,
                     StateRepository stateRepository, 
                     PreferencesRepository preferencesRepository, 
                     ExecutionLogRepository logRepository)
@@ -62,7 +60,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _salesOrderClient.WriteSalesOrder(updatePayload.SerializeToJson());
 
             // Second, write a Credit Memo to Acumatica for restocked items
-            WriteCreditMemoForRestocks(refundRecord);
+            PushCreditMemoForRestocks(refundRecord);
+            PushCreditMemoTaxesForRestocks(refundRecord);
         }
 
         public SalesOrderWrite BuildUpdateForCancellations(UsrShopifyRefund refundRecord)
@@ -83,7 +82,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             // TODO *** this would be basic application of the Sync Map
 
-            // Isolate the corresponding Acumatica Sales Order and Customer
             foreach (var cancelledItem in refund.CancelledLineItems)
             {
                 var line_item = shopifyOrder.LineItem(cancelledItem.line_item_id);
@@ -106,45 +104,61 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             return salesOrderUpdate;
         }
         
-        public void WriteCreditMemoForRestocks(UsrShopifyRefund refundRecord)
+        public void PushCreditMemoForRestocks(UsrShopifyRefund refundRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
             var creditMemo = BuildReturn(refundRecord, preferences);
-
             var result = _salesOrderClient.WriteSalesOrder(creditMemo.SerializeToJson());
-            var resultCM = result.DeserializeFromJson<SalesOrder>();
+            var resultCmOrder = result.DeserializeFromJson<SalesOrder>();
 
             var syncRecord = new UsrShopAcuRefundCm();
-            syncRecord.AcumaticaCreditMemoNbr = resultCM.OrderNbr.value;
+            syncRecord.AcumaticaCreditMemoNbr = resultCmOrder.OrderNbr.value;
+            syncRecord.AcumaticaTaxDetailId = resultCmOrder.TaxDetails.First().id;
+            syncRecord.IsTaxLoadedToAcumatica = false;
             syncRecord.UsrShopifyRefund = refundRecord;
             syncRecord.DateCreated = DateTime.UtcNow;
             syncRecord.LastUpdated = DateTime.UtcNow;
-
             _syncOrderRepository.InsertRefundSync(syncRecord);
 
             var log =
-                $"Created Refund {resultCM.OrderNbr.value} in Acumatica from " +
-                $"Shopify Order #{shopifyOrder.order_number}";
+                $"Created Refund {resultCmOrder.OrderNbr.value} in Acumatica from " +
+                $"Shopify Refund {refundRecord.ShopifyRefundId} " + 
+                $"(Order #{shopifyOrder.order_number})";
 
             _logRepository.InsertExecutionLog(log);
+        }
 
+        public void PushCreditMemoTaxesForRestocks(UsrShopifyRefund refundRecord)
+        {
+            var preferences = _preferencesRepository.RetrievePreferences();
+            var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+            
+            var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
+            
             // Write the Sales Tax 
-            if (resultCM.TaxDetails.Any())
-            {
-                var updateCM = new CreditMemoWrite();
-                var taxUpdate = new TaxDetails();
-                taxUpdate.id = resultCM.TaxDetails.First().id;
-                taxUpdate.TaxID = preferences.AcumaticaTaxId.ToValue();
-                taxUpdate.TaxRate = ((double) 0).ToValue();
-                taxUpdate.TaxableAmount = ((double) shopifyOrder.TaxableAmountTotal).ToValue();
-                taxUpdate.TaxAmount = ((double) shopifyOrder.total_tax).ToValue();
+            var taxUpdate = new TaxDetails();
+            taxUpdate.id = syncRecord.AcumaticaTaxDetailId;
+            taxUpdate.TaxID = preferences.AcumaticaTaxId.ToValue();
+            taxUpdate.TaxRate = ((double)0).ToValue();
+            taxUpdate.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
+            taxUpdate.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
 
-                var resultJson2 = _salesOrderClient.WriteSalesOrder(updateCM.SerializeToJson());
-            }
+            var creditMemoWrite = new CreditMemoWrite();
+            creditMemoWrite.OrderNbr = syncRecord.AcumaticaCreditMemoNbr.ToValue();
+            creditMemoWrite.TaxDetails = new List<TaxDetails>() {taxUpdate};
+
+            var result = _salesOrderClient.WriteSalesOrder(creditMemoWrite.SerializeToJson());
+
+            var log = $"Wrote taxes for Refund {syncRecord.AcumaticaCreditMemoNbr} in Acumatica";
+            _logRepository.InsertExecutionLog(log);
+
+            syncRecord.IsTaxLoadedToAcumatica = true;
+            syncRecord.LastUpdated = DateTime.Today;
+            _syncOrderRepository.SaveChanges();
         }
 
         private CreditMemoWrite BuildReturn(UsrShopifyRefund refundRecord, UsrPreference preferences)
