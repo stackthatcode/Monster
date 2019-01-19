@@ -371,6 +371,7 @@ FROM usrShopifyOrder t0
 GO
 
 
+
 DROP VIEW IF EXISTS vw_SyncRefundAndCreditMemo
 GO
 CREATE VIEW vw_SyncRefundAndCreditMemo

@@ -10,11 +10,11 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 {
     public static class Extensions
     {
-        public const int PullEndFudgeMinutes = -10;
+        public const int FudgeFactorMinutes = -10;
 
         public static DateTime AddAcumaticaBatchFudge(this DateTime input)
         {
-            return input.AddMinutes(PullEndFudgeMinutes);
+            return input.AddMinutes(FudgeFactorMinutes);
         }
 
         public static bool IsReadyForShipment(this UsrAcumaticaSalesOrder order)

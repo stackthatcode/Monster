@@ -57,8 +57,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             var preferences = _preferencesRepository.RetrievePreferences();
             var orderStartDate = preferences.ShopifyOrderDateStart.Value;
-            var orderUpdateMin = 
-                    _timeZoneService.ToAcumaticaTimeZone(orderStartDate);
+            var orderUpdateMin = _timeZoneService.ToAcumaticaTimeZone(orderStartDate);
             
             var json = _salesOrderClient.RetrieveSalesOrders(orderUpdateMin);
             var orders = json.DeserializeFromJson<List<SalesOrder>>();
@@ -78,8 +77,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             var batchState = _batchStateRepository.Retrieve();
             var updateMinUtc = batchState.AcumaticaOrdersPullEnd;
-            var updateMin = 
-                _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
             var json = _salesOrderClient.RetrieveSalesOrders(updateMin);
             var orders = json.DeserializeFromJson<List<SalesOrder>>();
@@ -140,7 +138,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var orderRecord = _orderRepository.RetrieveSalesOrder(orderNbr);
             var order = json.DeserializeFromJson<SalesOrder>();
 
-            // First, update the Sales Order record
             orderRecord.ShipmentsJson = json;
             orderRecord.LastUpdated = DateTime.UtcNow;
 

@@ -155,7 +155,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 currentDetailRecords.Add(currentDetailRecord);
             }
 
-            _orderRepository.ImprintShipmentDetail(monsterShipmentId, currentDetailRecords);
+            _orderRepository.ImprintShipmentOrderRefs(monsterShipmentId, currentDetailRecords);
         }
     }
 }

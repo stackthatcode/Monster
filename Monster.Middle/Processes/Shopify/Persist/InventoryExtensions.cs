@@ -50,6 +50,13 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 .ToList();
         }
 
+        public static UsrShopifyInventoryLevel InventoryLevel(this UsrShopifyVariant input, long locationId)
+        {
+            return input
+                .UsrShopifyInventoryLevels
+                .FirstOrDefault(x => x.ShopifyLocationId == locationId);
+        }
+
         public static bool IsMatched(this UsrShopifyVariant variant)
         {
             return variant.UsrShopAcuItemSyncs.Any();

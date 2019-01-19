@@ -5,11 +5,10 @@ using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
 using Push.Foundation.Utilities.Json;
+
 
 namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
@@ -35,7 +34,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         public void Run()
         {
             var notLoadedCustomers 
-                = _syncOrderRepository.RetrieveCustomersWithOrdersNotLoaded();
+                    = _syncOrderRepository.RetrieveCustomersWithOrdersNotLoaded();
 
             foreach (var shopifyCustomer in notLoadedCustomers)
             {
@@ -43,7 +42,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             }
 
             var customersNeedingUpdate 
-                = _syncOrderRepository.RetrieveCustomersNeedingUpdate();
+                    = _syncOrderRepository.RetrieveCustomersNeedingUpdate();
 
             foreach (var shopifyCustomer in customersNeedingUpdate)
             {
@@ -53,7 +52,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
 
         public UsrAcumaticaCustomer
-                PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
+                    PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
         {
             var shopifyCustomer =
                 shopifyCustomerRecord
@@ -97,7 +96,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var log = $"Wrote Customer {customerResult.CustomerID.value} to Acumatica";
             _executionLogRepository.InsertExecutionLog(log);
             
-
             // Create SQL footprint
             using (var transaction = _syncOrderRepository.BeginTransaction())
             {

@@ -7,11 +7,14 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
     public class WarehouseLocationSync
     {
         private readonly SyncInventoryRepository _repository;
-        private readonly StateRepository _stateRepository;
+        private readonly ExecutionLogRepository _executionLogRepository;
 
-        public WarehouseLocationSync(SyncInventoryRepository repository)
+        public WarehouseLocationSync(
+                SyncInventoryRepository repository, 
+                ExecutionLogRepository executionLogRepository)
         {
             _repository = repository;
+            _executionLogRepository = executionLogRepository;
         }
 
         public void Run()
@@ -19,8 +22,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             RunLocationMatch();
             RunWarehouseMatch();
         }
-
-
+        
         private void RunLocationMatch()
         {
             var shopifyLocations = _repository.RetrieveLocations();
@@ -41,13 +43,15 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 }
 
                 // Attempt to automatically match
-                var automatchedWarehouse = warehouses
+                var matchedWarehouse = warehouses
                         .FirstOrDefault(x => x.AutoMatches(shopifyLocation));
 
-                if (automatchedWarehouse != null)
+                if (matchedWarehouse != null)
                 {
-                    _repository
-                        .InsertWarehouseSync(shopifyLocation, automatchedWarehouse);
+                    var log = $"Matched Location {shopifyLocation.ShopifyLocationName} " 
+                        + $"with Warehouse {matchedWarehouse.AcumaticaWarehouseId}";
+                    _executionLogRepository.InsertExecutionLog(log);
+                    _repository.InsertWarehouseSync(shopifyLocation, matchedWarehouse);
                     continue;
                 }
             }
@@ -84,6 +88,10 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
                 if (automatchLocation != null)
                 {
+                    var log = $"Matched Location {automatchLocation.ShopifyLocationName} "
+                              + $"with Warehouse {warehouse.AcumaticaWarehouseId}";
+                    _executionLogRepository.InsertExecutionLog(log);
+
                     _repository.InsertWarehouseSync(automatchLocation, warehouse);
                     continue;
                 }

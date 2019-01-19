@@ -111,7 +111,6 @@ namespace Monster.Middle.Processes.Sync.Orders
                             x.IsUpdatedInAcumatica == false)
                 .ToList();
         }
-
         
         public void InsertCustomerSync(UsrShopAcuCustomerSync input)
         {
@@ -176,10 +175,9 @@ namespace Monster.Middle.Processes.Sync.Orders
                     .UsrShopifyRefunds
                     .Include(x => x.UsrShopifyOrder)
                     .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
-                    .Include(x => x.UsrShopifyOrder
-                                    .UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
-                    .Where(x => !x.UsrShopAcuRefundCms.Any()
-                                && x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
+                    .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
+                    .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
+                    .Where(x => !x.UsrShopAcuRefundCms.Any())
                     .ToList();
         }
 
@@ -198,7 +196,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 .Include(x => x.UsrShopifyOrder)
                 .Include(x => x.UsrShopifyOrder.UsrShopifyCustomer)
                 .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any()
-                            && x.ShopifyStatus != Gateway.Manual
+                            && x.ShopifyGateway != Gateway.Manual
                             && x.ShopifyStatus == TransactionStatus.Success
                             && (x.ShopifyKind == TransactionKind.Capture
                                 || x.ShopifyKind == TransactionKind.Sale)

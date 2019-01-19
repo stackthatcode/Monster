@@ -12,6 +12,7 @@ using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Orders.Model;
 using Push.Foundation.Utilities.Json;
+using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
@@ -19,7 +20,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     {
         private readonly ExecutionLogRepository _logRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
-        private readonly SyncInventoryRepository _syncInventoryRepository;
+        private readonly SyncInventoryRepository _syncRepository;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly StateRepository _stateRepository;
         private readonly PreferencesRepository _preferencesRepository;
@@ -27,7 +28,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         public AcumaticaRefundSync(
 
                     SyncOrderRepository syncOrderRepository,
-                    SyncInventoryRepository syncInventoryRepository,
+                    SyncInventoryRepository syncRepository,
                     SalesOrderClient salesOrderClient, 
                     ConnectionRepository connectionRepository,
                     StateRepository stateRepository, 
@@ -39,7 +40,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _stateRepository = stateRepository;
             _preferencesRepository = preferencesRepository;
             _logRepository = logRepository;
-            _syncInventoryRepository = syncInventoryRepository;
+            _syncRepository = syncRepository;
         }
 
 
@@ -56,16 +57,15 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         
         private void SyncRefund(UsrShopifyRefund refundRecord)
         {
-            // First write the cancelled items to the Sales Order
+            // First, update the Sales Order based on the cancelled items 
             var updatePayload = BuildUpdateForCancellations(refundRecord);
             _salesOrderClient.WriteSalesOrder(updatePayload.SerializeToJson());
 
-            // Second, write Credit Memo to Acumatica for restocked items
+            // Second, write a Credit Memo to Acumatica for restocked items
             WriteCreditMemoForRestocks(refundRecord);
         }
 
-        public SalesOrderWrite 
-                BuildUpdateForCancellations(UsrShopifyRefund refundRecord)
+        public SalesOrderWrite BuildUpdateForCancellations(UsrShopifyRefund refundRecord)
         {
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -74,32 +74,27 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var salesOrder = salesOrderRecord.ToAcuObject();
 
             var refund =
-                shopifyOrder
-                    .refunds.First(x => x.id == refundRecord.ShopifyRefundId);
+                shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
 
             var salesOrderUpdate = new SalesOrderWrite();
             salesOrderUpdate.OrderType = salesOrder.OrderType.Copy();
             salesOrderUpdate.OrderNbr = salesOrder.OrderNbr.Copy();
             salesOrderUpdate.Hold = false.ToValue();
 
-            // Isolate the corresponding Acumatica Sales Order and Customer
-            foreach (var refund_line_item in refund.CancelledLineItems)
-            {
-                var line_item 
-                    = shopifyOrder.LineItem(refund_line_item.line_item_id);
+            // TODO *** this would be basic application of the Sync Map
 
-                // TODO *** this needs to be replaced by the Sync Map
+            // Isolate the corresponding Acumatica Sales Order and Customer
+            foreach (var cancelledItem in refund.CancelledLineItems)
+            {
+                var line_item = shopifyOrder.LineItem(cancelledItem.line_item_id);
+                
                 var variant =
-                    _syncInventoryRepository
-                        .RetrieveVariant(
-                            line_item.variant_id.Value, line_item.sku);
+                    _syncRepository
+                        .RetrieveVariant(line_item.variant_id.Value, line_item.sku);
 
                 var stockItemId = variant.MatchedStockItem().ItemId;
-
-                var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);
-                
-                var newQuantity =
-                    salesOrderDetail.OrderQty.value - refund_line_item.quantity;
+                var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);                
+                var newQuantity = salesOrderDetail.OrderQty.value - cancelledItem.quantity;
 
                 var detail = new SalesOrderUpdateDetail();
                 detail.id = salesOrderDetail.id;                
@@ -111,23 +106,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             return salesOrderUpdate;
         }
         
-        public bool ValidateCancellationRequest(
-                    SalesOrderWrite updatePayload, SalesOrder salesOrder)
-        {
-            // *** NOTE - please be advised this needs to be tested
-            foreach (var updateDetail in updatePayload.Details)
-            {
-                var orderLineItem = salesOrder.DetailByDetailId(updateDetail.id);
-
-                if (updateDetail.Quantity.value < orderLineItem.QtyOnShipments.value)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        
         public void WriteCreditMemoForRestocks(UsrShopifyRefund refundRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
@@ -135,45 +113,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
-            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
-            var salesOrder = salesOrderRecord.ToAcuObject();
+            var creditMemo = BuildReturn(refundRecord, preferences);
 
-            var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
-
-            var creditMemo = new CreditMemoWrite();
-            creditMemo.OrderType = Constants.CreditMemoType.ToValue();
-            creditMemo.CustomerID = salesOrder.CustomerID.Copy();
-            
-            var taxDetail = new TaxDetails();
-            taxDetail.TaxID = preferences.AcumaticaTaxId.ToValue();
-            creditMemo.TaxDetails = new List<TaxDetails> { taxDetail };
-            
-            foreach (var refund_line_item in refund.Returns)
-            {
-                var line_item
-                    = shopifyOrder.LineItem(refund_line_item.line_item_id);
-
-                // TODO *** this needs to be replaced by the Sync Map
-                var variant =
-                    _syncInventoryRepository
-                        .RetrieveVariant(line_item.variant_id.Value, line_item.sku);
-
-                var stockItemId = variant.MatchedStockItem().ItemId;
-
-                var location =
-                    _syncInventoryRepository.RetrieveLocation(refund_line_item.location_id.Value);
-
-                var warehouse = location.MatchedWarehouse();
-                
-                var detail = new CreditMemoWriteDetail();
-                detail.InventoryID = stockItemId.ToValue();
-                detail.OrderQty = ((double) refund_line_item.quantity).ToValue();
-                detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
-                creditMemo.Details.Add(detail);
-            }
-
-            var result 
-                = _salesOrderClient.WriteSalesOrder(creditMemo.SerializeToJson());
+            var result = _salesOrderClient.WriteSalesOrder(creditMemo.SerializeToJson());
             var resultCM = result.DeserializeFromJson<SalesOrder>();
 
             var syncRecord = new UsrShopAcuRefundCm();
@@ -198,12 +140,57 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 taxUpdate.id = resultCM.TaxDetails.First().id;
                 taxUpdate.TaxID = preferences.AcumaticaTaxId.ToValue();
                 taxUpdate.TaxRate = ((double) 0).ToValue();
-                taxUpdate.TaxableAmount = ((double) 0).ToValue();
+                taxUpdate.TaxableAmount = ((double) shopifyOrder.TaxableAmountTotal).ToValue();
                 taxUpdate.TaxAmount = ((double) shopifyOrder.total_tax).ToValue();
 
-                var resultJson2
-                    = _salesOrderClient.WriteSalesOrder(updateCM.SerializeToJson());
+                var resultJson2 = _salesOrderClient.WriteSalesOrder(updateCM.SerializeToJson());
             }
+        }
+
+        private CreditMemoWrite BuildReturn(UsrShopifyRefund refundRecord, UsrPreference preferences)
+        {
+            var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+
+            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
+            var salesOrder = salesOrderRecord.ToAcuObject();
+
+            var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
+
+            var creditMemo = new CreditMemoWrite();
+            creditMemo.OrderType = AcumaticaConstants.CreditMemoType.ToValue();
+            creditMemo.CustomerID = salesOrder.CustomerID.Copy();
+
+            var taxDetail = new TaxDetails();
+            taxDetail.TaxID = preferences.AcumaticaTaxId.ToValue();
+            creditMemo.TaxDetails = new List<TaxDetails> {taxDetail};
+
+            foreach (var _return in refund.Returns)
+            {
+                var detail = BuildReturnDetail(shopifyOrder, _return);
+                creditMemo.Details.Add(detail);
+            }
+
+            return creditMemo;
+        }
+
+        private CreditMemoWriteDetail BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
+        {
+            var lineItem = shopifyOrder.LineItem(_return.line_item_id);
+
+            var variant =
+                _syncRepository
+                    .RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
+
+            var stockItemId = variant.MatchedStockItem().ItemId;
+            var location = _syncRepository.RetrieveLocation(_return.location_id.Value);
+            var warehouse = location.MatchedWarehouse();
+
+            var detail = new CreditMemoWriteDetail();
+            detail.InventoryID = stockItemId.ToValue();
+            detail.OrderQty = ((double) _return.quantity).ToValue();
+            detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
+            return detail;
         }
     }
 }

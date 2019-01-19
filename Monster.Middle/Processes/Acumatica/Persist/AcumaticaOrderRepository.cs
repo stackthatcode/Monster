@@ -197,24 +197,17 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 return (DateTime?)null;
             }
         }
+        
 
-        public List<long> RetrieveUnsyncedShipmentIds()
-        {
-            var sql = @"SELECT * FROM vw_AcumaticaUnsyncedShipmentIds";
-            return Entities
-                .Database
-                .SqlQuery<long>(sql)
-                .ToList();
-        }
+        public const string StatusCompleted = "Completed";
 
-
-        // TODO - death to all magic strings e.g. "Completed"!!!
         public List<UsrAcumaticaShipmentSalesOrderRef> 
-                            RetrieveUnsyncedShipmentSalesOrderRefs()
+                                RetrieveUnsyncedShipmentSalesOrderRefs()
         {            
             return Entities
                 .UsrAcumaticaShipmentSalesOrderRefs
-                .Where(x => x.UsrAcumaticaShipment.AcumaticaStatus == "Completed")
+                .Include(x => x.UsrAcumaticaShipment)
+                .Where(x => x.UsrAcumaticaShipment.AcumaticaStatus == StatusCompleted)
                 .Where(x => !Entities
                                 .UsrShopAcuShipmentSyncs
                                 .Select(y => y.AcumaticaShipDetailMonsterId)
@@ -224,7 +217,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
 
         
-        public void ImprintShipmentDetail(
+        public void ImprintShipmentOrderRefs(
                 long monsterShipmentId, 
                 List<UsrAcumaticaShipmentSalesOrderRef> newestRecords)
         {

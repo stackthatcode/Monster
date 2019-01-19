@@ -15,7 +15,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     public class AcumaticaPaymentSync
     {
         private readonly ExecutionLogRepository _logRepository;
-        private readonly StateRepository _stateRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
         private readonly PreferencesRepository _preferencesRepository;
@@ -23,13 +22,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         public AcumaticaPaymentSync(
                 SyncOrderRepository syncOrderRepository, 
                 PaymentClient paymentClient, 
-                StateRepository stateRepository, 
                 PreferencesRepository preferencesRepository, 
                 ExecutionLogRepository logRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
-            _stateRepository = stateRepository;
             _preferencesRepository = preferencesRepository;
             _logRepository = logRepository;
         }
@@ -80,12 +77,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var order = _syncOrderRepository.RetrieveShopifyOrder(transactionRecord.UsrShopifyOrder.ShopifyOrderId);
             var acumaticaOrderRef = order.MatchingSalesOrder().AcumaticaOrderNbr;
             var paymentRef = $"{acumaticaOrderRef}".ToValue();
-            var description = $"Payment for Shopify Order #{order.ShopifyOrderNumber}";
+            var description = $"Created payment for Shopify Order #{order.ShopifyOrderNumber}";
 
             // Create the payload for Acumatica
             var payment = new PaymentWrite();
             payment.CustomerID = acumaticaCustomerId.ToValue();
-            payment.Type = "Payment".ToValue();
+            payment.Type = AcumaticaConstants.PaymentType.ToValue();
             payment.PaymentMethod = paymentMethod.ToValue();
             payment.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
             payment.PaymentRef = paymentRef;
@@ -107,7 +104,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.InsertPayment(paymentRecord);
 
             var log = $"Created Payment {paymentNbr} in Acumatica " +
-                      $"from Shopify Order #{order.ShopifyOrderNumber}";
+                      $"from Transaction {transactionRecord.Id} " +
+                      $"(Shopify Order #{order.ShopifyOrderNumber})";
             _logRepository.InsertExecutionLog(log);
         }
     }

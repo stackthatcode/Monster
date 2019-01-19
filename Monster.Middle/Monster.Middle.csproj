@@ -189,7 +189,7 @@
     <Compile Include="Processes\Sync\Orders\Workers\AcumaticaRefundSync.cs" />
     <Compile Include="Processes\Sync\Orders\Workers\AcumaticaShipmentSync.cs" />
     <Compile Include="Processes\Sync\Orders\Workers\AcumaticaOrderSync.cs" />
-    <Compile Include="Processes\Sync\Orders\Model\Constants.cs" />
+    <Compile Include="Processes\Sync\Orders\Model\AcumaticaConstants.cs" />
     <Compile Include="Processes\Sync\Orders\Model\Extensions.cs" />
     <Compile Include="Processes\Sync\Orders\Model\ShipmentSyncReadiness.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyTransactionPull.cs" />
