@@ -19,7 +19,6 @@ DELETE FROM usrShopAcuWarehouseSync;
 
 -- Acumatica Sales Order data
 --
-DELETE FROM usrAcumaticaInvoice;
 DELETE FROM usrAcumaticaCreditMemo;
 
 DELETE FROM usrAcumaticaShipmentSalesOrderRef;
@@ -83,15 +82,14 @@ ALTER DATABASE AcuInst4 SET MULTI_USER
 
 
 /*
-DROP DATABASE AcuInst2;
+DROP DATABASE AcuInst6;
 GO
 
 -- TODO - RESTORE DATABASE FROM FILE
-RESTORE DATABASE AcuInst2
+RESTORE DATABASE AcuInst6
 FROM DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\Backup\AcuInst2.bak'
 */
 
-SELECT * FROM AcuInst4..Users;
-UPDATE AcuInst4..Users SET Password = '123456'
+UPDATE AcuInst6..Users SET Password = '123456'
 
 

@@ -21,7 +21,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncRepository;
         private readonly SalesOrderClient _salesOrderClient;
-        private readonly StateRepository _stateRepository;
         private readonly PreferencesRepository _preferencesRepository;
 
         public AcumaticaRefundSync(
@@ -29,13 +28,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncRepository,
                     SalesOrderClient salesOrderClient, 
-                    StateRepository stateRepository, 
                     PreferencesRepository preferencesRepository, 
                     ExecutionLogRepository logRepository)
         {
             _syncOrderRepository = syncOrderRepository;
             _salesOrderClient = salesOrderClient;
-            _stateRepository = stateRepository;
             _preferencesRepository = preferencesRepository;
             _logRepository = logRepository;
             _syncRepository = syncRepository;
@@ -56,6 +53,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private void SyncRefund(UsrShopifyRefund refundRecord)
         {
             // First, update the Sales Order based on the cancelled items 
+            // *** NOTE - this is idempotent
             var updatePayload = BuildUpdateForCancellations(refundRecord);
             _salesOrderClient.WriteSalesOrder(updatePayload.SerializeToJson());
 
@@ -80,8 +78,10 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             salesOrderUpdate.OrderNbr = salesOrder.OrderNbr.Copy();
             salesOrderUpdate.Hold = false.ToValue();
 
-            // TODO *** this would be basic application of the Sync Map
-
+            // TODO *** this could be one application of the Sync Map
+            // i.e. Detect changes in the order anatomy, and adjust the 
+            // Acumatica Sales Order accordingly -- or trigger an alert
+            // 
             foreach (var cancelledItem in refund.CancelledLineItems)
             {
                 var line_item = shopifyOrder.LineItem(cancelledItem.line_item_id);
@@ -91,8 +91,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                         .RetrieveVariant(line_item.variant_id.Value, line_item.sku);
 
                 var stockItemId = variant.MatchedStockItem().ItemId;
-                var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);                
-                var newQuantity = salesOrderDetail.OrderQty.value - cancelledItem.quantity;
+                var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);
+
+                var newQuantity = (double)line_item.RefundCancelAdjustedQuantity;
 
                 var detail = new SalesOrderUpdateDetail();
                 detail.id = salesOrderDetail.id;                

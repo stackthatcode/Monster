@@ -257,38 +257,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
 
 
-        // Sales Order Invoices
-        //
-        public bool InvoiceExists(string invoiceNbr)
-        {
-            return Entities
-                .UsrAcumaticaInvoices
-                .Any(x => x.AcumaticaInvoiceRefNbr == invoiceNbr);
-        }
-
-        public void InsertInvoice(UsrAcumaticaInvoice invoice)
-        {
-            Entities.UsrAcumaticaInvoices.Add(invoice);
-            Entities.SaveChanges();
-        }
-
-        public UsrAcumaticaInvoice RetrieveInvoice(string invoiceNbr)
-        {
-            return Entities
-                .UsrAcumaticaInvoices
-                .FirstOrDefault(x => x.AcumaticaInvoiceRefNbr == invoiceNbr);
-        }
-
-        public List<UsrAcumaticaInvoice> RetrieveStubbedInvoices()
-        {
-            return Entities
-                .UsrAcumaticaInvoices
-                .Where(x => x.IsPulledFromAcumatica == false)
-                .ToList();
-        }
-        
-
-
         public void SaveChanges()
         {
             Entities.SaveChanges();
