@@ -186,6 +186,7 @@ CREATE VIEW vw_SyncWarehousesAndLocations
 AS
 SELECT t1.MonsterId AS ShopifyLocationMonsterId, 
 		t1.ShopifyLocationName,
+		t1.ShopifyLocationId,
 		t2.Id AS AcumaticaWarehouseMonsterId,
 		t2.AcumaticaWarehouseId
 FROM usrShopifyLocation t1
@@ -281,7 +282,9 @@ DROP VIEW IF EXISTS vw_SyncInventoryLevelAndReceipts
 GO
 CREATE VIEW vw_SyncInventoryLevelAndReceipts
 AS
-	SELECT t1.MonsterId,
+	SELECT 
+		t4.ShopifySku,
+		t1.MonsterId,
 		t1.ShopifyInventoryItemId,
 		t1.ShopifyLocationId,
 		t1.ShopifyAvailableQuantity,
@@ -290,10 +293,12 @@ AS
 		t1.LastUpdated AS InventoryLevelLastUpdated,
 		t3.LastUpdate AS InventoryReceiptLastUpdated
 	FROM usrShopifyInventoryLevel t1
-		FULL JOIN usrInventoryReceiptSync t2
+		FULL OUTER JOIN usrInventoryReceiptSync t2
 			ON t2.ShopifyInventoryMonsterId = t1.MonsterId
-		FULL JOIN usrAcumaticaInventoryReceipt t3
+		FULL OUTER JOIN usrAcumaticaInventoryReceipt t3
 			ON t3.MonsterId = t2.AcumaticaInvReceiptMonsterId
+		FULL OUTER JOIN usrShopifyVariant t4
+			ON t4.MonsterId = t1.ParentMonsterId
 GO
 
 

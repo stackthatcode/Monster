@@ -82,11 +82,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             customer.MainContact = mainContact;
             customer.AccountRef = $"Shopify Customer #{shopifyCustomer.id}".ToValue();
 
-            var acumaticaCustomerRecord = shopifyCustomerRecord.Match();
-            if (acumaticaCustomerRecord != null)
+            var customerRecord = shopifyCustomerRecord.Match();
+            if (customerRecord != null)
             {
                 customer.CustomerID 
-                    = acumaticaCustomerRecord.AcumaticaCustomerId.ToValue();
+                    = customerRecord.AcumaticaCustomerId.ToValue();
             }
 
             // Push Customer to Acumatica API
@@ -118,6 +118,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 }
 
                 shopifyCustomerRecord.IsUpdatedInAcumatica = true;
+                _syncOrderRepository.SaveChanges();
                 transaction.Commit();
 
                 return output;

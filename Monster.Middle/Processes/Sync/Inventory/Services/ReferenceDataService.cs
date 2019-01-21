@@ -33,6 +33,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
             var itemClasses =
                 reference.ItemClass.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<ItemClass>>()
+                    .Where(x => x.DefaultWarehouseID?.value != null)
                     .Select(x => new ItemClassModel(x))
                     .ToList();
 

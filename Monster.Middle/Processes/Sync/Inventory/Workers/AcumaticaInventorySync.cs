@@ -97,6 +97,9 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             var defaultPostingClass = preferences.AcumaticaDefaultPostingClass;
             var defaultTaxCategory = preferences.AcumaticaTaxCategory;
 
+            var warehouses = _inventoryRepository.RetrieveWarehouses();
+            var defaultWarehouseId = warehouses.First().AcumaticaWarehouseId;
+
             var shopifyVariant
                 = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
 
@@ -115,6 +118,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             newStockItem.DefaultPrice 
                     = ((double)shopifyVariant.price).ToValue();
 
+            newStockItem.DefaultWarehouseID = defaultWarehouseId.ToValue();
             newStockItem.ItemClass = defaultItemClass.ToValue();
             newStockItem.PostingClass = defaultPostingClass.ToValue();
             newStockItem.TaxCategory = defaultTaxCategory.ToValue();

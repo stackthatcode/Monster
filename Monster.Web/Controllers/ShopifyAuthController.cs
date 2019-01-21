@@ -34,6 +34,7 @@ namespace Monster.Web.Controllers
             List<string> _shopifyOAuthScopes = new List<string>()
                 {
                     "read_orders",
+                    "write_orders",
                     "read_products",
                     "write_products",
                     "read_customers",

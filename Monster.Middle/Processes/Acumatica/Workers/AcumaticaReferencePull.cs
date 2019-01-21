@@ -27,7 +27,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var reference = _dataRepository.RetrieveReferenceData();
             reference.ItemClass = json;
             _dataRepository.SaveChanges();
-
         }
 
 

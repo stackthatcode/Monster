@@ -341,10 +341,10 @@
     <Content Include="Views\Config\InventoryToShopify.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Ulysses-AcumaticaConfiguration.pdf" />
+    <Content Include="Views\Shared\_NumberEditorWidget.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Shared\_NumberEditorWidget.cshtml" />
+    <Content Include="Content\Configuring Acumatica for Synchronization.pdf" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

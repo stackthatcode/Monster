@@ -183,7 +183,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
             salesOrder.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();
             salesOrder.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
-            
+
             salesOrder.FinancialSettings = new FinancialSettings()
             {
                 OverrideTaxZone = true.ToValue(),

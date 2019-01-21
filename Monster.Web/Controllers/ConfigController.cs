@@ -25,18 +25,18 @@ namespace Monster.Web.Controllers
         private readonly StatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
         private readonly PreferencesRepository _preferencesRepository;
+        private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
 
 
         public ConfigController(
                 ConnectionRepository tenantRepository,
                 StateRepository stateRepository,
                 HangfireService hangfireService,
-                InstanceTimeZoneService instanceTimeZoneService,
                 StatusService statusService, 
                 ReferenceDataService referenceDataService, 
-                AcumaticaInventoryRepository inventoryRepository, 
                 PreferencesRepository preferencesRepository, 
-                ExecutionLogRepository logRepository)
+                ExecutionLogRepository logRepository, 
+                AcumaticaBatchRepository acumaticaBatchRepository)
         {
 
             _tenantRepository = tenantRepository;
@@ -47,6 +47,7 @@ namespace Monster.Web.Controllers
             _referenceDataService = referenceDataService;
             _preferencesRepository = preferencesRepository;
             _logRepository = logRepository;
+            _acumaticaBatchRepository = acumaticaBatchRepository;
         }
 
         
@@ -176,6 +177,12 @@ namespace Monster.Web.Controllers
         public ActionResult PreferenceSelections(PreferencesModel model)
         {
             var data = _preferencesRepository.RetrievePreferences();
+
+            if (data.ShopifyOrderDateStart.Value.Date !=
+                model.ShopifyOrderDateStart.Value.Date)
+            {
+                _acumaticaBatchRepository.Reset();
+            }
             
             data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
             data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;

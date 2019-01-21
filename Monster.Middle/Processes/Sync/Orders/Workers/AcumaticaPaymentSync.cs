@@ -104,8 +104,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.InsertPayment(paymentRecord);
 
             var log = $"Created Payment {paymentNbr} in Acumatica " +
-                      $"from Transaction {transactionRecord.Id} " +
-                      $"(Shopify Order #{order.ShopifyOrderNumber})";
+                      $"for Shopify Order #{order.ShopifyOrderNumber}";
             _logRepository.InsertExecutionLog(log);
         }
     }

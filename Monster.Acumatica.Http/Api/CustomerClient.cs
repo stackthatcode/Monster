@@ -1,5 +1,6 @@
 ﻿using System;
 using Monster.Acumatica.Http;
+using Monster.Acumatica.Utility;
 
 
 namespace Monster.Acumatica.Api
@@ -16,6 +17,13 @@ namespace Monster.Acumatica.Api
         public string RetrieveCustomers(DateTime? lastModified = null)
         {
             var queryString = "$expand=MainContact";
+
+            if (lastModified.HasValue)
+            {
+                var restDate = lastModified.Value.ToAcumaticaRestDate();
+                queryString += $"&$filter=LastModifiedDateTime gt datetimeoffset'{restDate}'";
+            }
+
             var response = _httpContext.Get($"Customer?{queryString}");
             return response.Body;
         }
