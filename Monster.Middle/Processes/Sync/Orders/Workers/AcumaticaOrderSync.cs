@@ -194,7 +194,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             // Create Tax Details payload
             var taxDetails = new TaxDetails();
             taxDetails.TaxID = preferences.AcumaticaTaxId.ToValue();
-            taxDetails.TaxRate = ((double)0).ToValue();
+            taxDetails.TaxRate
+                = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotal)).ToValue();
             taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
             taxDetails.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
 
@@ -246,7 +247,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var taxDetails = new TaxDetails();
             taxDetails.id = syncRecord.AcumaticaTaxDetailId;
             taxDetails.TaxID = preferences.AcumaticaTaxId.ToValue();
-            taxDetails.TaxRate = ((double)0).ToValue();
+            taxDetails.TaxRate 
+                = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotal)).ToValue();
             taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
             taxDetails.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
 
