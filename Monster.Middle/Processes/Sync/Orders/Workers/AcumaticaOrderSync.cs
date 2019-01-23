@@ -11,6 +11,7 @@ using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Orders.Model;
 using Push.Foundation.Utilities.Json;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Orders.Workers
@@ -22,6 +23,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly AcumaticaPaymentSync _acumaticaPaymentSync;
+        private readonly IPushLogger _logger;
 
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
@@ -36,7 +38,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     AcumaticaCustomerSync acumaticaCustomerSync, 
                     PreferencesRepository preferencesRepository, 
                     ExecutionLogRepository logRepository,
-                    AcumaticaPaymentSync acumaticaPaymentSync)
+                    AcumaticaPaymentSync acumaticaPaymentSync,
+                    IPushLogger _logger)
         {
             _syncOrderRepository = syncOrderRepository;
             _salesOrderClient = salesOrderClient;
@@ -46,6 +49,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _logRepository = logRepository;
             _acumaticaPaymentSync = acumaticaPaymentSync;
             _syncInventoryRepository = syncInventoryRepository;
+            _logger = _logger;
         }
 
 
@@ -253,11 +257,10 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             taxDetails.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
 
             // Create Sales Order payload
-            var orderUpdate = new SalesOrderWrite();
+            var orderUpdate = new SalesOrderTaxUpdate();
             orderUpdate.OrderNbr = acumaticaRecord.AcumaticaOrderNbr.ToValue();
             orderUpdate.TaxDetails = new List<TaxDetails> { taxDetails };
-            var result = 
-                _salesOrderClient.WriteSalesOrder(orderUpdate.SerializeToJson());
+            var result = _salesOrderClient.WriteSalesOrder(orderUpdate.SerializeToJson());
 
             // Update the Sync Record
             acumaticaRecord.DetailsJson = result;
@@ -270,6 +273,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }
         
+
         public UsrAcumaticaCustomer SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
         {
             var customer =

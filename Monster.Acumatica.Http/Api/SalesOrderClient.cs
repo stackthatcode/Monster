@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
+using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Acumatica.Api
@@ -32,6 +35,7 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+
         public string RetrieveSalesOrderShipments(string salesOrderId)
         {
             var url = $"SalesOrder/SO/{salesOrderId}?$expand=Shipments";
@@ -39,12 +43,41 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+        public string RetrieveSalesOrderDetails(string salesOrderId)
+        {
+            var url = $"SalesOrder/SO/{salesOrderId}?$expand=Details,ShippingSettings";
+            var response = _httpContext.Get(url);
+            LogSalesOrderDetailIds(response.Body);
+            return response.Body;
+        }
+
         public string WriteSalesOrder(string json)
         {
             var response = _httpContext.Put("SalesOrder", json);
+            LogSalesOrderDetailIds(response.Body);
             return response.Body;
         }
-        
+
+        private void LogSalesOrderDetailIds(string resultJson)
+        {
+            var order = resultJson.DeserializeFromJson<SalesOrder.SalesOrder>();
+            var details = order.Details ?? new List<SalesOrderDetail>();
+            _logger.Trace($"Sales Order {order.OrderNbr.value} Detail");
+
+            if (details.Count == 0)
+            {
+                _logger.Trace("(No details returned)");
+                return;
+            }
+
+            foreach (var detail in details)
+            {
+                _logger.Trace(
+                    $"{detail.InventoryID.value} - {detail.id}" + 
+                    $" - OrderQty {detail.OrderQty.value}");
+            }
+        }
+
         public string RetrieveSalesOrderInvoice(string invoiceRefNbr)
         {
             var url = $"SalesInvoice/Invoice/{invoiceRefNbr}?$expand=Details";

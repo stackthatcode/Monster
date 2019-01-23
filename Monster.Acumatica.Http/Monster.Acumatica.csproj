@@ -87,7 +87,8 @@
     <Compile Include="Api\SalesOrder\SalesOrder.cs" />
     <Compile Include="Api\SalesOrder\SalesOrderInvoice.cs" />
     <Compile Include="Api\SalesOrder\SalesOrderShipment.cs" />
-    <Compile Include="Api\SalesOrder\SalesOrderWrite.cs" />
+    <Compile Include="Api\SalesOrder\SalesOrderUpdateHeader.cs" />
+    <Compile Include="Api\SalesOrder\SalesOrderTaxUpdate.cs" />
     <Compile Include="Api\SalesOrder\ShippingSettings.cs" />
     <Compile Include="Api\SalesOrder\TaxDetails.cs" />
     <Compile Include="Api\ShipmentClient.cs" />

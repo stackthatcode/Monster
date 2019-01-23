@@ -3,15 +3,14 @@ using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.SalesOrder
 {
-    public class SalesOrderWrite
+    public class SalesOrderUpdateHeader
     {
         public StringValue OrderNbr  { get; set; }
         public StringValue OrderType { get; set; }
         public List<SalesOrderUpdateDetail> Details { get; set; }
-        public List<TaxDetails> TaxDetails { get; set; }
         public BoolValue Hold { get; set; }
 
-        public SalesOrderWrite()
+        public SalesOrderUpdateHeader()
         {
             Details = new List<SalesOrderUpdateDetail>();
         }
@@ -20,6 +19,7 @@ namespace Monster.Acumatica.Api.SalesOrder
     public class SalesOrderUpdateDetail
     {
         public string id { get; set; }
+        //public StringValue InventoryID { get; set; }
         public DoubleValue Quantity { get; set; }
     }
 }

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNet.Identity;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Orders.Model;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
+using Push.Shopify.Api.Order;
 
 
 namespace Monster.Middle.Processes.Acumatica.Workers
@@ -86,11 +89,23 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository.UpdateOrdersPullEnd(startOfRun);
         }
 
-        
+
+
+        public void RunAcumaticaOrderDetails(string orderId)
+        {
+            var salesOrder = _salesOrderClient.RetrieveSalesOrderDetails(orderId);
+            UpsertOrderToPersist(salesOrder.DeserializeFromJson<SalesOrder>());
+        }
+
         public void UpsertOrdersToPersist(List<SalesOrder> orders)
         {
             foreach (var order in orders)
             {
+                if (order.OrderType.value != AcumaticaConstants.SalesOrderType)
+                {
+                    continue;
+                }
+
                 UpsertOrderToPersist(order);
                 PullAndUpsertShipmentInvoiceRefs(order.OrderNbr.value);
             }

@@ -8,6 +8,7 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue OrderNbr { get; set; }
         public StringValue OrderType { get; set; }
         public StringValue CustomerID { get; set; }
+        public StringValue Description { get; set; }
 
         public List<CreditMemoWriteDetail> Details { get; set; }
         public List<TaxDetails> TaxDetails { get; set; }
