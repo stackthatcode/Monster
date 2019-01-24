@@ -144,12 +144,16 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             foreach (var detail in shipment.Details)
             {
+                var isMonsterSyncedOrder 
+                        =  _orderRepository.IsMonsterSyncedOrder(detail.OrderNbr.value);
+                    
                 var currentDetailRecord =
                     new UsrAcumaticaShipmentSalesOrderRef
                     {
                         ShipmentMonsterId = monsterShipmentId,
                         AcumaticaShipmentNbr = shipment.ShipmentNbr.value,
                         AcumaticaOrderNbr = detail.OrderNbr.value,
+                        IsMonsterOrder = isMonsterSyncedOrder,
                     };
 
                 currentDetailRecords.Add(currentDetailRecord);

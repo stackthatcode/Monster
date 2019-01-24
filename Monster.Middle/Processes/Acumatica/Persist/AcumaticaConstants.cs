@@ -8,6 +8,7 @@
         public const string ShipmentType = "Shipment";
 
         public const string StatusOpen = "Open";
+        public const string StatusCompleted = "Completed";
     }
 
     public class PaymentType

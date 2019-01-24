@@ -186,15 +186,16 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         }
         
 
-        public const string StatusCompleted = "Completed";
-
+        // These don't necessarily belong here
+        //
         public List<UsrAcumaticaShipmentSalesOrderRef> 
                                 RetrieveUnsyncedShipmentSalesOrderRefs()
         {            
             return Entities
                 .UsrAcumaticaShipmentSalesOrderRefs
                 .Include(x => x.UsrAcumaticaShipment)
-                .Where(x => x.UsrAcumaticaShipment.AcumaticaStatus == StatusCompleted)
+                .Where(x => 
+                    x.UsrAcumaticaShipment.AcumaticaStatus == AcumaticaConstants.StatusCompleted)
                 .Where(x => !Entities
                                 .UsrShopAcuShipmentSyncs
                                 .Select(y => y.AcumaticaShipDetailMonsterId)
@@ -202,8 +203,15 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 .ToList();
         }
 
+        public bool IsMonsterSyncedOrder(string orderNbr)
+        {
+            return Entities
+                .UsrAcumaticaSalesOrders
+                .Any(x => x.AcumaticaOrderNbr == orderNbr
+                          && x.UsrShopAcuOrderSyncs.Any());
+        }
 
-        
+
         public void ImprintShipmentOrderRefs(
                 long monsterShipmentId, 
                 List<UsrAcumaticaShipmentSalesOrderRef> newestRecords)

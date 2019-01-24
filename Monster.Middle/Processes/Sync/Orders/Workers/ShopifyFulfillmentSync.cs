@@ -47,7 +47,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
         public void Run()
         {
-            var salesOrderRefs = _orderRepository.RetrieveUnsyncedShipmentSalesOrderRefs();
+            var salesOrderRefs 
+                = _orderRepository.RetrieveUnsyncedShipmentSalesOrderRefs();
             
             foreach (var salesOrderRef in salesOrderRefs)
             {
@@ -113,7 +114,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var shopifyOrderRecord = orderRecord.MatchingShopifyOrder();
             var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();            
             var shipmentRecord = shipmentSalesOrderRef.UsrAcumaticaShipment;
-            var shipment = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
+            var shipment 
+                = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
             
             var location = RetrieveMatchingLocation(shipment);
 
@@ -122,6 +124,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var fulfillment = new Fulfillment();
             fulfillment.line_items = new List<LineItem>();
             fulfillment.location_id = location.id;
+
             // TODO - add Tracking Number...?
 
             // Build the Detail
