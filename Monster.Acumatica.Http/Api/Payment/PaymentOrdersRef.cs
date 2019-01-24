@@ -6,12 +6,17 @@ namespace Monster.Acumatica.Api.Payment
     public class PaymentOrdersRef
     {
         public StringValue OrderNbr { get; set; }
+        public StringValue OrderType { get; set; }
 
-        public static List<PaymentOrdersRef> ForOrder(string orderNbr)
+        public static List<PaymentOrdersRef> ForOrder(string orderNbr, string orderType)
         {
             return new List<PaymentOrdersRef>()
             {
-                new PaymentOrdersRef() { OrderNbr = orderNbr.ToValue() }
+                new PaymentOrdersRef()
+                {
+                    OrderNbr = orderNbr.ToValue(),
+                    OrderType = orderType.ToValue()
+                }
             };
         }
     }

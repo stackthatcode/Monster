@@ -12,6 +12,7 @@ using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Orders.Model;
 using Push.Foundation.Utilities.Json;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Orders.Workers
@@ -22,47 +23,51 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncRepository;
         private readonly SalesOrderClient _salesOrderClient;
+        private readonly PaymentClient _paymentClient;
         private readonly PreferencesRepository _preferencesRepository;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
+        private readonly IPushLogger _logger;
 
         public AcumaticaRefundSync(
 
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncRepository,
                     SalesOrderClient salesOrderClient, 
+                    PaymentClient paymentClient,
                     PreferencesRepository preferencesRepository, 
                     ExecutionLogRepository logRepository, 
-                    AcumaticaOrderPull acumaticaOrderPull)
+                    AcumaticaOrderPull acumaticaOrderPull, 
+                    IPushLogger logger)
         {
             _syncOrderRepository = syncOrderRepository;
             _salesOrderClient = salesOrderClient;
+            _paymentClient = paymentClient;
             _preferencesRepository = preferencesRepository;
             _logRepository = logRepository;
             _acumaticaOrderPull = acumaticaOrderPull;
             _syncRepository = syncRepository;
+            _logger = logger;
         }
 
 
         public void Run()
         {
-            var refunds = _syncOrderRepository.RetrieveRefundsNotSynced();
-
-            foreach (var refund in refunds)
+            var restocks = _syncOrderRepository.RetrieveRefundRestocksNotSynced();
+            foreach (var restock in restocks)
             {
-                SyncRefund(refund);
+                // Write a Credit Memo and Taxes (ha!) to Acumatica for restocked items
+                PushCreditMemo(restock);
+                //PushCreditMemoTaxesForRestocks(restock);
+            }
+
+            var cancellations = _syncOrderRepository.RetrieveRefundCancellationsNotSynced();
+            foreach (var cancellation in cancellations)
+            {
+                // Update the Sales Order based on the cancelled items 
+                PushCancellationQuantityChanges(cancellation);
             }
         }
         
-        
-        private void SyncRefund(UsrShopifyRefund refundRecord)
-        {
-            // First, update the Sales Order based on the cancelled items 
-            PushCancellationQuantityChanges(refundRecord);
-
-            // Second, write a Credit Memo to Acumatica for restocked items
-            PushCreditMemo(refundRecord);
-            PushCreditMemoTaxesForRestocks(refundRecord);
-        }
         
         public void PushCancellationQuantityChanges(UsrShopifyRefund refundRecord)
         {
@@ -73,14 +78,52 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var updatePayload = BuildUpdateForCancellations(refundRecord);
             var result = _salesOrderClient.WriteSalesOrder(updatePayload.SerializeToJson());
             salesOrderRecord.DetailsJson = result;
+            refundRecord.IsCancellationSynced = true;
             _syncOrderRepository.SaveChanges();
         }
+        
+        public SalesOrderUpdateHeader BuildUpdateForCancellations(UsrShopifyRefund refundRecord)
+        {
+            var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+
+            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
+            var salesOrder = salesOrderRecord.ToAcuObject();
+            var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
+
+            var salesOrderUpdate = new SalesOrderUpdateHeader();
+            salesOrderUpdate.OrderType = salesOrder.OrderType.Copy();
+            salesOrderUpdate.OrderNbr = salesOrder.OrderNbr.Copy();
+            salesOrderUpdate.Hold = false.ToValue();
+
+            foreach (var cancelledItem in refund.CancelledLineItems)
+            {
+                var line_item = shopifyOrder.LineItem(cancelledItem.line_item_id);
+
+                var variant =
+                    _syncRepository.RetrieveVariant(line_item.variant_id.Value, line_item.sku);
+
+                var stockItemId = variant.MatchedStockItem().ItemId;
+                var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);
+
+                var newQuantity = (double)line_item.RefundCancelAdjustedQuantity;
+
+                var detail = new SalesOrderUpdateDetail();
+                detail.id = salesOrderDetail.id;
+                //detail.InventoryID = variant.MatchedStockItem().ItemId.ToValue();
+                detail.Quantity = newQuantity.ToValue();
+
+                salesOrderUpdate.Details.Add(detail);
+            }
+
+            return salesOrderUpdate;
+        }
+
 
         public void PushCreditMemo(UsrShopifyRefund refundRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-            var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+            var shopifyOrder = refundRecord.UsrShopifyOrder.ToShopifyObj();
 
             var creditMemo = BuildCreditMemo(refundRecord, preferences);
 
@@ -89,7 +132,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             var syncRecord = new UsrShopAcuRefundCm();
             syncRecord.AcumaticaCreditMemoNbr = resultCmOrder.OrderNbr.value;
-            syncRecord.AcumaticaTaxDetailId = resultCmOrder.TaxDetails.First().id;
+            
+            //syncRecord.AcumaticaTaxDetailId = resultCmOrder.TaxDetails.First().id;
+
             syncRecord.IsTaxLoadedToAcumatica = false;
             syncRecord.UsrShopifyRefund = refundRecord;
             syncRecord.DateCreated = DateTime.UtcNow;
@@ -97,8 +142,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.InsertRefundSync(syncRecord);
 
             var log =
-                $"Created Refund {resultCmOrder.OrderNbr.value} in Acumatica from " +
-                $"(Order #{shopifyOrder.order_number})";
+                $"Created Credit Memo {resultCmOrder.OrderNbr.value} in Acumatica from " +
+                $"Order #{shopifyOrder.order_number}";
 
             _logRepository.InsertExecutionLog(log);
         }
@@ -132,47 +177,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             syncRecord.LastUpdated = DateTime.Today;
             _syncOrderRepository.SaveChanges();
         }
-
-
-
-        public SalesOrderUpdateHeader BuildUpdateForCancellations(UsrShopifyRefund refundRecord)
-        {
-            var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-
-            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
-            var salesOrder = salesOrderRecord.ToAcuObject();
-            var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
-
-            var salesOrderUpdate = new SalesOrderUpdateHeader();
-            salesOrderUpdate.OrderType = salesOrder.OrderType.Copy();
-            salesOrderUpdate.OrderNbr = salesOrder.OrderNbr.Copy();
-            salesOrderUpdate.Hold = false.ToValue();
-            
-            foreach (var cancelledItem in refund.CancelledLineItems)
-            {
-                var line_item = shopifyOrder.LineItem(cancelledItem.line_item_id);
-
-                var variant =
-                    _syncRepository.RetrieveVariant(line_item.variant_id.Value, line_item.sku);
-
-                var stockItemId = variant.MatchedStockItem().ItemId;
-                var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);
-
-                var newQuantity = (double)line_item.RefundCancelAdjustedQuantity;
-
-                var detail = new SalesOrderUpdateDetail();
-                detail.id = salesOrderDetail.id;
-                //detail.InventoryID = variant.MatchedStockItem().ItemId.ToValue();
-                detail.Quantity = newQuantity.ToValue();
-
-                salesOrderUpdate.Details.Add(detail);
-            }
-
-            return salesOrderUpdate;
-        }
-
-        private CreditMemoWrite BuildCreditMemo(UsrShopifyRefund refundRecord, UsrPreference preferences)
+        
+        private CreditMemoWrite 
+                    BuildCreditMemo(UsrShopifyRefund refundRecord, UsrPreference preferences)
         {
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -187,9 +194,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             creditMemo.CustomerID = salesOrder.CustomerID.Copy();
             creditMemo.Description = $"Shopify Order #{shopifyOrder.order_number} Refund {refund.id}".ToValue();
 
-            var taxDetail = new TaxDetails();
-            taxDetail.TaxID = preferences.AcumaticaTaxId.ToValue();
-            creditMemo.TaxDetails = new List<TaxDetails> {taxDetail};
+            //var taxDetail = new TaxDetails();
+            //taxDetail.TaxID = preferences.AcumaticaTaxId.ToValue();
+            //creditMemo.TaxDetails = new List<TaxDetails> {taxDetail};
 
             foreach (var _return in refund.Returns)
             {
@@ -200,7 +207,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             return creditMemo;
         }
 
-        private CreditMemoWriteDetail BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
+        private CreditMemoWriteDetail 
+                    BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
         {
             var lineItem = shopifyOrder.LineItem(_return.line_item_id);
             var variant = _syncRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);

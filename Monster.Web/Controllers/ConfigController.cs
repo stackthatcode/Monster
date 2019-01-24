@@ -178,7 +178,8 @@ namespace Monster.Web.Controllers
         {
             var data = _preferencesRepository.RetrievePreferences();
 
-            if (data.ShopifyOrderDateStart.Value.Date !=
+            if (data.ShopifyOrderDateStart.HasValue &&
+                data.ShopifyOrderDateStart.Value.Date !=
                 model.ShopifyOrderDateStart.Value.Date)
             {
                 _acumaticaBatchRepository.Reset();

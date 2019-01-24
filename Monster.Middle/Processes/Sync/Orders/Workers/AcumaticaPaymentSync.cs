@@ -5,6 +5,7 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Orders.Model;
 using Push.Foundation.Utilities.Json;
@@ -55,20 +56,15 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         public void WritePayment(UsrShopifyTransaction transactionRecord)
         {
             // Extract the Transaction Amount
-            var transaction
-                = transactionRecord
-                    .ShopifyJson
-                    .DeserializeFromJson<Transaction>();
+            var transaction = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
             var paymentAmount = transaction.amount;
             
-
             // Arrange data from local cache
             var preferences = _preferencesRepository.RetrievePreferences();
             var paymentMethod = preferences.AcumaticaPaymentMethod;
 
             var shopifyCustomerId
-                = transactionRecord
-                    .UsrShopifyOrder.UsrShopifyCustomer.ShopifyCustomerId;
+                = transactionRecord.UsrShopifyOrder.UsrShopifyCustomer.ShopifyCustomerId;
 
             var customer = _syncOrderRepository.RetrieveCustomer(shopifyCustomerId);
             var acumaticaCustomerId = customer.Match().AcumaticaCustomerId;
@@ -76,19 +72,34 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             // Build the Payment Ref and Description
             var order = _syncOrderRepository.RetrieveShopifyOrder(transactionRecord.UsrShopifyOrder.ShopifyOrderId);
             var acumaticaOrderRef = order.MatchingSalesOrder().AcumaticaOrderNbr;
-            var paymentRef = $"{acumaticaOrderRef}".ToValue();
-            var description = $"Created payment for Shopify Order #{order.ShopifyOrderNumber}";
+            var acumaticaOrderType = AcumaticaConstants.SalesOrderType;
+
+            var paymentRef = $"Acumatica {acumaticaOrderRef}".ToValue();
 
             // Create the payload for Acumatica
             var payment = new PaymentWrite();
             payment.CustomerID = acumaticaCustomerId.ToValue();
-            payment.Type = AcumaticaConstants.PaymentType.ToValue();
+
+            if (transactionRecord.ShopifyKind == TransactionKind.Refund)
+            {
+                payment.Type = PaymentType.CustomerRefund.ToValue();
+                payment.Description =
+                    $"Refund for Shopify Refund {transaction.parent_id} - Order #{order.ShopifyOrderNumber}".ToValue();
+            }
+            else
+            {
+                payment.Type = PaymentType.Payment.ToValue();
+                payment.Description =
+                    $"Payment for Shopify Order #{order.ShopifyOrderNumber}".ToValue();
+            }
+
             payment.PaymentMethod = paymentMethod.ToValue();
             payment.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
             payment.PaymentRef = paymentRef;
-            payment.Description = description.ToValue();
             payment.PaymentAmount = ((double)paymentAmount).ToValue();
-            payment.OrdersToApply = PaymentOrdersRef.ForOrder(acumaticaOrderRef);
+
+            //payment.OrdersToApply = 
+            //    PaymentOrdersRef.ForOrder(acumaticaOrderRef, acumaticaOrderType);
 
             // Push to Acumatica
             var resultJson = _paymentClient.WritePayment(payment.SerializeToJson());
@@ -99,11 +110,13 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var paymentRecord = new UsrShopifyAcuPayment();
             paymentRecord.UsrShopifyTransaction = transactionRecord;
             paymentRecord.ShopifyPaymentNbr = paymentNbr;
+            paymentRecord.AcumaticaPaymentType = payment.Type.value;
+
             paymentRecord.DateCreated = DateTime.UtcNow;
             paymentRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.InsertPayment(paymentRecord);
 
-            var log = $"Created Payment {paymentNbr} in Acumatica " +
+            var log = $"Created {payment.Type.value} {paymentNbr} in Acumatica " +
                       $"for Shopify Order #{order.ShopifyOrderNumber}";
             _logRepository.InsertExecutionLog(log);
         }

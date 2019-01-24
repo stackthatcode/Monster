@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNet.Identity;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Orders.Model;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
-using Push.Shopify.Api.Order;
 
 
 namespace Monster.Middle.Processes.Acumatica.Workers

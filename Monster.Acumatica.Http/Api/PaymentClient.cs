@@ -20,5 +20,11 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Put("Payment", json);
             return response.Body;
         }
+
+        public string RetrievePayments()
+        {
+            var response = _httpContext.Get("Payment");
+            return response.Body;
+        }
     }
 }

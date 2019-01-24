@@ -84,6 +84,13 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get(url);
             return response.Body;
         }
+
+        public string RetrieveInvoices()
+        {
+            var url = $"Invoice";
+            var response = _httpContext.Get(url);
+            return response.Body;
+        }
     }
 }
 

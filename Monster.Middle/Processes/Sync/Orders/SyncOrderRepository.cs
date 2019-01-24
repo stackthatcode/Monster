@@ -169,17 +169,30 @@ namespace Monster.Middle.Processes.Sync.Orders
 
         // Shopify Refunds
         //
-        public List<UsrShopifyRefund> RetrieveRefundsNotSynced()
+        public List<UsrShopifyRefund> RetrieveRefundRestocksNotSynced()
         {
-            return Entities
-                    .UsrShopifyRefunds
-                    .Include(x => x.UsrShopifyOrder)
-                    .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
-                    .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
+            return RefundRecordGraph
                     .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
-                    .Where(x => !x.UsrShopAcuRefundCms.Any())
+                    .Where(x => !x.ShopifyIsCancellation && !x.UsrShopAcuRefundCms.Any())
                     .ToList();
         }
+
+        public List<UsrShopifyRefund> RetrieveRefundCancellationsNotSynced()
+        {
+            return RefundRecordGraph
+                .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
+                .Where(x => x.ShopifyIsCancellation && !x.IsCancellationSynced)
+                .ToList();
+        }
+
+
+        private IQueryable<UsrShopifyRefund> RefundRecordGraph => 
+            Entities
+                .UsrShopifyRefunds
+                .Include(x => x.UsrShopifyOrder)
+                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
+                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder));
+
 
         public void InsertRefundSync(UsrShopAcuRefundCm input)
         {
@@ -199,7 +212,8 @@ namespace Monster.Middle.Processes.Sync.Orders
                             && x.ShopifyGateway != Gateway.Manual
                             && x.ShopifyStatus == TransactionStatus.Success
                             && (x.ShopifyKind == TransactionKind.Capture
-                                || x.ShopifyKind == TransactionKind.Sale)
+                                || x.ShopifyKind == TransactionKind.Sale
+                                || x.ShopifyKind == TransactionKind.Refund)
                             && x.UsrShopifyAcuPayment == null)
                 .ToList();
         }

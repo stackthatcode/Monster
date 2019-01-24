@@ -85,20 +85,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 return (DateTime?)null;
             }
         }
-
-        public DateTime? RetrieveInvoiceMaxUpdatedDate()
-        {
-            if (Entities.UsrAcumaticaInvoices.Any())
-            {
-                return Entities.UsrAcumaticaInvoices
-                    .Select(x => x.LastUpdated)
-                    .Max();
-            }
-            else
-            {
-                return (DateTime?)null;
-            }
-        }
+        
 
         public void InsertSalesOrder(UsrAcumaticaSalesOrder order)
         {

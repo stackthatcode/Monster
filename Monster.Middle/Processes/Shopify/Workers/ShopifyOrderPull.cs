@@ -251,6 +251,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     var newRecord = new UsrShopifyRefund();
                     newRecord.ShopifyRefundId = refund.id;
                     newRecord.ShopifyOrderId = order.id;
+                    newRecord.ShopifyIsCancellation = !order.fulfillments.Any();
                     newRecord.UsrShopifyOrder = orderRecord;
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;

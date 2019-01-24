@@ -20,13 +20,15 @@ namespace Monster.Middle.Processes.Sync.Orders.Model
             return output;
         }
 
+        // Only create Payments for Capture/Sale or Refund
         public static bool ShouldCreatePayment(this UsrShopifyTransaction input)
         {
             return input.ShopifyGateway != Gateway.Manual
                    && input.UsrShopifyAcuPayment == null
                    && input.ShopifyStatus == TransactionStatus.Success
                    && (input.ShopifyKind == TransactionKind.Capture
-                       || input.ShopifyKind == TransactionKind.Sale);
+                       || input.ShopifyKind == TransactionKind.Sale
+                       || input.ShopifyKind == TransactionKind.Refund);
         }
     }
 }
