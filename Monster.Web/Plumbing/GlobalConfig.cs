@@ -19,11 +19,11 @@ namespace Monster.Web.Plumbing
         public static readonly string BaseUrl = ConfigurationManager.AppSettings["application_root_url"];
         public static readonly string AppName = ConfigurationManager.AppSettings["application_name"];
 
-        public static readonly string Organization = "Logic Automated LLC";
+        public static readonly string Organization = "Logic Automated Co.";
         public static readonly string SupportEmail = "aleksjones@gmail.com";
 
         public static string FullAppName 
-                => $"{AppName} - Automated Shopify to Acumatica Synchronization";
+                => $"{AppName} for Shopify-Acumatica";
 
 
 
