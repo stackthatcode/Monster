@@ -32,6 +32,20 @@ namespace Push.Shopify.Api
             return response.Body;
         }
 
+        public string Search(string query)
+        {
+            var path = $"/admin/customers/search.json?query={query}";
+            var response = _httpClient.Get(path);
+            return response.Body;
 
+        }
+
+        public string Create(string json)
+        {
+            var path = $"/admin/customers.json";
+            var response = _httpClient.Post(path,json);
+            return response.Body;
+        }
     }
 }
+

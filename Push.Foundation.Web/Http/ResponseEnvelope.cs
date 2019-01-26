@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 
@@ -28,7 +29,8 @@ namespace Push.Foundation.Web.Http
                     && this.StatusCode != HttpStatusCode.Created
                     && this.StatusCode != HttpStatusCode.Accepted)
             {
-                throw new BadStatusCodeException(this.StatusCode, this.Body);
+                throw new Exception(
+                    $"Bad Status Code - HTTP {(int)this.StatusCode} ({this.StatusCode})");
             }
 
             return this;

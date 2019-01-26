@@ -54,14 +54,20 @@ namespace Push.Shopify.Api
 
             return response.Body;
         }
-
         
-        
-        public void Insert(string orderJson)
+        public string Insert(string json)
         {
             var path = "/admin/orders.json";
-            var clientResponse = _httpClient.Get(path);
+            var response = _httpClient.Post(path, json);
+            return response.Body;
         }
 
+        public string InsertTransaction(long order_id, string json)
+        {
+            var path = $"/admin/orders/{order_id}/transactions.json";
+            var response = _httpClient.Post(path, json);
+            return response.Body;
+        }
     }
 }
+

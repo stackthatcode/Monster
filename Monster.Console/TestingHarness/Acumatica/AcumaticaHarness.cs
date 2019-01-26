@@ -5,7 +5,7 @@ using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Push.Foundation.Utilities.Json;
 
-namespace Monster.ConsoleApp.Acumatica
+namespace Monster.ConsoleApp.TestingHarness.Acumatica
 {
     public class AcumaticaHarness
     {

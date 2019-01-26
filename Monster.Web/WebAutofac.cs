@@ -39,6 +39,7 @@ namespace Monster.Web
             // ASP.NET MVC Controller registration
             builder.RegisterType<ShopifyAuthController>();
             builder.RegisterType<ConfigController>();
+            builder.RegisterType<RealTimeController>();
 
             // HMAC Service - used to hash Auth Code and verify Shopify response
             builder.Register(x => new HmacCryptoService(

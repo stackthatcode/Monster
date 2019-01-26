@@ -16,6 +16,7 @@ namespace Push.Shopify.Api
         public DateTime? UpdatedAtMaxUtc { get; set; }
         public string OrderBy { get; set; }
         public string Status { get; set; }
+        
 
         public SearchFilter()
         {
@@ -52,7 +53,7 @@ namespace Push.Shopify.Api
         public QueryStringBuilder ToQueryStringBuilder()
         {
             var builder = new QueryStringBuilder();
-
+            
             if (Status != null)
             {
                 builder.Add("status", Status);

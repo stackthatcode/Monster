@@ -212,6 +212,7 @@
     <Compile Include="Attributes\HttpContextExtensions.cs" />
     <Compile Include="Attributes\IdentityProcessorAttribute.cs" />
     <Compile Include="Attributes\ValidateJsonAntiForgeryTokenAttribute.cs" />
+    <Compile Include="Controllers\RealTimeController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\ShopifyAuthController.cs" />
     <Compile Include="Global.asax.cs">
@@ -234,6 +235,8 @@
   <ItemGroup>
     <Content Include="Content\all.css" />
     <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\Bridge-logo-1-smaller.jpg" />
+    <Content Include="Content\Bridge-logo-2.jpg" />
     <Content Include="Content\DetailGraphic.png" />
     <Content Include="Content\gijgo.min.css" />
     <Content Include="Content\Logic-Automated-logo-horizontal-transparent-white.png" />
@@ -318,7 +321,7 @@
     <Content Include="Views\Config\InventoryToAcumatica.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\RealTime.cshtml" />
+    <Content Include="Views\RealTime\RealTime.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\ShopifyAuth\Domain.cshtml" />
@@ -346,6 +349,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Configuring Acumatica for Synchronization.pdf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Scripts.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\RealTime\Diagnostics.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

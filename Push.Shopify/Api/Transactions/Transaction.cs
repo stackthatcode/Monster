@@ -34,6 +34,11 @@ namespace Push.Shopify.Api.Transactions
         public bool IsSuccess => status == TransactionStatus.Success;
     }
 
+    public class TransactionParent
+    {
+        public Transaction transaction { get; set; }
+    }
+
     public class TransactionList
     {
         public List<Transaction> transactions { get; set; }

@@ -46,7 +46,7 @@ namespace Monster.Web.Plumbing
 
         public static string LoginPage => Url("Config/NotYetDetermined");
 
-        public static string DashboardHomePage => Url("Config/RealTime");
+        public static string DashboardHomePage => Url("RealTime/RealTime");
     }
 }
 

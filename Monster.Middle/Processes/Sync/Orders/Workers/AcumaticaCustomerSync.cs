@@ -66,11 +66,14 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             customer.CustomerName = name.ToValue();
 
             var address = new Address();
-            address.AddressLine1 = shopifyAddress.address1.ToValue();
-            address.AddressLine2 = shopifyAddress.address2.ToValue();
-            address.City = shopifyAddress.city.ToValue();
-            address.State = shopifyAddress.province.ToValue();
-            address.PostalCode = shopifyAddress.zip.ToValue();
+            if (shopifyAddress != null)
+            {
+                address.AddressLine1 = shopifyAddress.address1.ToValue();
+                address.AddressLine2 = shopifyAddress.address2.ToValue();
+                address.City = shopifyAddress.city.ToValue();
+                address.State = shopifyAddress.province.ToValue();
+                address.PostalCode = shopifyAddress.zip.ToValue();
+            }
 
             var mainContact = new Contact();
             mainContact.Address = address;

@@ -15,67 +15,14 @@
 
 
 @Html.Partial("_TopBrand")
-
 <hr/>
 
+
 <div>
-    <h1 class="mt-5 center">@GlobalConfig.AppName Real-Time Synchronization</h1>
+    <h1 class="mt-5 center">@GlobalConfig.AppName Config Diagnostics</h1>
     <p class="lead center">
-        Active Synchronization between Shopify and Acumatica
+        Configuration Inspection Tool
     </p>
-</div>
-
-<div data-bind="if: IsRealTimeSyncRunning">
-    <div class="std-padding">    
-        <div class="card">
-            <div class="card-body std-padding">                
-                <h4 class="card-title center">Real-Time Synchronization Enabled</h4>
-
-                <div style="height: 30px;"></div>
-
-                <div style="text-align: center;">
-                    <img style="width: 80px;"
-                         src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
-                </div>
-
-                <div style="height: 30px;"></div>
-
-                <p>@GlobalConfig.AppName is busy working behind the scenes keeping your
-                    Shopify storefront and your Acumatica ERP system synchronized.
-                    No more person-hours wasted copying and loading data between systems.
-                    Now you can focus on growing your business!
-                </p>
-
-                <div style="height: 30px;"></div>
-
-                <div style="text-align: center;">
-                    <a href="#"
-                       data-bind="click: PauseRealTimeClick"
-                       class="btn btn-primary btn-lg">Pause Real-Time Sync
-                        <i class="fas fa-bolt"></i>
-                    </a>
-                </div>
-
-                <div style="height: 30px;"></div>
-
-                <h6 class="card-title" style="text-align: center;">Real-Time Monitoring</h6>
-                <div style="overflow-y: scroll; height: 300px;">
-
-                    <div data-bind="if: Logs().length">
-                        <table class="table table-striped">
-                            <tbody data-bind="foreach: Logs">
-                            <tr>
-                                <td style="width: 200px;"
-                                    data-bind="text: LogTime"></td>
-                                <td data-bind="text: Content"></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Will yield to showing Real Time Sync in case somehow both got triggered -->
@@ -101,7 +48,7 @@
             <div class="card-body std-padding">
                 <div data-bind="if: IsReadyForRealTimeSync">
                     <div class="alert alert-info">
-                        <strong>Real-Time Synchronization - Ready to Start</strong>
+                        <strong>System OK - Ready to Start Real-Time Sync</strong>
                     </div>
 
                     <p>
@@ -126,27 +73,10 @@
                 <div style="height: 30px;"></div>
 
                 <div class="center">
-                    <span data-bind="ifnot: IsReadyForRealTimeSync">
-                        <button type="button" class="btn btn-secondary btn-lg"
-                                disable="disabled">
-                            Start Real-Time Sync
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </span>
-
-                    <span data-bind="if: IsReadyForRealTimeSync">
-                        <a href="#"
-                           data-bind="click: StartRealTimeClick"
-                           class="btn btn-primary btn-lg">
-                            Start Real-Time Sync
-                            <i class="fas fa-bolt"></i>
-                        </a>
-                    </span>
-
                     <a href="#"
                        data-bind="click: StartConfigDiagnosisClick"
                        class="btn btn-primary btn-lg">
-                        Run Diagnostics
+                        Run Config Diagnostics
                         <i class="fas fa-user-md"></i>
                     </a>
                 </div>
@@ -217,33 +147,11 @@
             return self.IsRealTimeSyncRunning()
                 || self.IsConfigDiagnosisRunning();
         });
-
+        
         // Diagnosis
         self.ConfigDiagnosis = ko.observableArray();
         self.IsReadyForRealTimeSync = ko.observable(false);
-
-        self.StartRealTimeClick = function () {
-            flow.exec(
-                function() {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Config/StartRealTime", {}, this);
-                },
-                function(response) {
-                    self.PollStatus();
-                });
-        };
         
-        self.PauseRealTimeClick = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Config/PauseRealTime", {}, this);
-                },
-                function (response) {
-                    self.IsRealTimeSyncRunning(false);
-                });
-        };
-
         self.StartConfigDiagnosisClick = function () {
             flow.exec(
                 function () {
@@ -260,7 +168,7 @@
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("Config/RealTimeStatus", this);
+                    ajax.HttpGet("RealTime/RealTimeStatus", this);
                 },
                 function (response) {
                     console.log(response);
@@ -280,7 +188,7 @@
         self.PollConfigDiagnosis = function() {
             flow.exec(function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/ConfigDiagnosis", this);
+                    ajax.HttpGet("RealTime/ConfigDiagnosis", this);
                 },
                 function (response) {
                     var configData = [

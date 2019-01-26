@@ -217,11 +217,14 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private static Address BuildShippingAddress(Order shopifyOrder)
         {
             var shippingAddress = new Address();
-            shippingAddress.AddressLine1 = shopifyOrder.shipping_address.address1.ToValue();
-            shippingAddress.AddressLine2 = shopifyOrder.shipping_address.address2.ToValue();
-            shippingAddress.City = shopifyOrder.shipping_address.city.ToValue();
-            shippingAddress.State = shopifyOrder.shipping_address.province.ToValue();
-            shippingAddress.PostalCode = shopifyOrder.shipping_address.province_code.ToValue();
+            if (shopifyOrder.shipping_address != null)
+            {
+                shippingAddress.AddressLine1 = shopifyOrder.shipping_address.address1.ToValue();
+                shippingAddress.AddressLine2 = shopifyOrder.shipping_address.address2.ToValue();
+                shippingAddress.City = shopifyOrder.shipping_address.city.ToValue();
+                shippingAddress.State = shopifyOrder.shipping_address.province.ToValue();
+                shippingAddress.PostalCode = shopifyOrder.shipping_address.province_code.ToValue();
+            }
             return shippingAddress;
         }
 
@@ -229,9 +232,14 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         {
             var shippingContact = new ContactOverride();
             shippingContact.Email = shopifyOrder.contact_email.ToValue();
-            shippingContact.Attention = shopifyOrder.shipping_address.FullName.ToValue();
-            shippingContact.BusinessName = shopifyOrder.shipping_address.company.ToValue();
-            shippingContact.Phone1 = shopifyOrder.shipping_address.phone.ToValue();
+
+            if (shopifyOrder.shipping_address != null)
+            {
+                shippingContact.Attention = shopifyOrder.shipping_address.FullName.ToValue();
+                shippingContact.BusinessName = shopifyOrder.shipping_address.company.ToValue();
+                shippingContact.Phone1 = shopifyOrder.shipping_address.phone.ToValue();
+            }
+
             return shippingContact;
         }
 

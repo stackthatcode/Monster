@@ -1,0 +1,260 @@
+﻿@using Monster.Web.Plumbing
+
+
+<style>
+    .container {
+        width: auto;
+        max-width: 860px;
+        padding: 0 15px;
+    }
+
+    .diagnosis-item .badge {
+        padding: 8px;
+    }
+</style>
+
+
+@Html.Partial("_TopBrand")
+<hr />
+
+<div>
+    <h1 class="mt-5 center">@GlobalConfig.AppName Real-Time Synchronization</h1>
+    <p class="lead center">
+        Active Synchronization between Shopify and Acumatica
+    </p>
+</div>
+
+<div class="std-padding">
+    <div class="card">
+        <div class="card-body std-padding">
+            <div data-bind="if: IsRealTimeSyncRunning">
+                <div class="alert alert-success">
+                    <strong>Real-Time Synchronization - Enabled</strong>
+                </div>
+
+                <div style="text-align: center; padding-top: 10px;">
+                    <img style="width: 80px;"
+                         src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
+                </div>
+
+                <div style="height: 30px;"></div>
+
+                <div style="text-align: center;">
+                    <a href="#"
+                       data-bind="click: PauseRealTimeClick"
+                       class="btn btn-primary btn-lg">
+                        Pause Real-Time Sync
+                        <i class="fas fa-bolt"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
+                <div data-bind="if: IsReadyForRealTimeSync">
+                    <div class="alert alert-info">
+                        <strong>Real-Time Synchronization - Ready to Start</strong>
+                    </div>
+                </div>
+
+                <div data-bind="ifnot: IsReadyForRealTimeSync">
+                    <div class="alert alert-danger">
+                        <strong>Real-Time Synchronization - Disabled</strong>
+                    </div>
+
+                    <p>
+                        Something is wrong with your current @GlobalConfig.AppName configuration. You'll need to run 
+                        <a href="@GlobalConfig.Url("RealTime/Diagnostics")">Configuration Diagnostics</a>
+                        to identify and correct the issue.
+                    </p>
+                </div>
+
+                <div style="height: 30px;"></div>
+
+                <div class="center">
+                    <span data-bind="ifnot: IsReadyForRealTimeSync">
+                        <button type="button" 
+                                class="btn btn-secondary btn-lg" 
+                                disable="disabled">
+                            Start Real-Time Sync
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </span>
+
+                    <span data-bind="if: IsReadyForRealTimeSync">
+                        <a href="#"
+                           data-bind="click: StartRealTimeClick"
+                           class="btn btn-primary btn-lg">
+                            Start Real-Time Sync
+                            <i class="fas fa-bolt"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+
+            <div style="height: 30px;"></div>
+
+            <div data-bind="template: { name: 'Real-Time-Monitoring'}"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="Real-Time-Monitoring">
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Execution Logs</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Metrics</a>
+    </div>
+    
+    <div style="height:40px;">
+
+    </div>
+    <div style="overflow-y: scroll; height: 600px;">
+        <div data-bind="if: Logs().length">
+            <table class="table table-striped">
+                <tbody data-bind="foreach: Logs">
+                <tr>
+                    <td>
+                        <div style="font-size:14px; letter-spacing: 1px; color:#777;">
+                            <span data-bind="text: LogTime"></span> (UTC)
+                        </div>
+                        <div data-bind="text: Content"></div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</script>
+
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.InventoryConfigModel = function() {
+        var self = this;
+
+        self.IsRealTimeSyncRunning = ko.observable(false);
+        self.IsConfigDiagnosisRunning = ko.observable(false);
+        self.Logs = ko.observableArray();
+
+        self.AreAnyBackgroundJobsRunning = ko.computed(function() {
+            return self.IsRealTimeSyncRunning()
+                || self.IsConfigDiagnosisRunning();
+        });
+
+        // Diagnosis
+        self.ConfigDiagnosis = ko.observableArray();
+        self.IsReadyForRealTimeSync = ko.observable(false);
+
+        self.StartRealTimeClick = function () {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("RealTime/StartRealTime", {}, this);
+                },
+                function(response) {
+                    self.PollStatus();
+                });
+        };
+
+        self.PauseRealTimeClick = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("RealTime/PauseRealTime", {}, this);
+                },
+                function (response) {
+                    self.IsRealTimeSyncRunning(false);
+                });
+        };
+
+        self.StartConfigDiagnosisClick = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("RealTime/TriggerConfigDiagnosis", {}, this);
+                },
+                function (response) {
+                    self.PollStatus();
+                });
+        };
+
+        // Add Polling Function
+        self.PollStatus = function() {
+            flow.exec(function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("RealTime/RealTimeStatus", this);
+                },
+                function (response) {
+                    console.log(response);
+
+                    self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
+                    self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
+                    self.Logs(response.Logs);
+
+                    if (self.AreAnyBackgroundJobsRunning()) {
+                        setTimeout(self.PollStatus, 1000);
+                    } else {
+                        self.PollConfigDiagnosis();
+                    }
+                });
+        };
+
+        self.PollConfigDiagnosis = function() {
+            flow.exec(function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("RealTime/ConfigDiagnosis", this);
+                },
+                function (response) {
+                    var configData = [
+                        {
+                            Name: "Shopify Connection",
+                            ConfigState: response.ShopifyConnection,
+                            Url: "@GlobalConfig.Url("ShopifyAuth/Domain")",
+                        },
+                        {
+                            Name: "Acumatica Connection",
+                            ConfigState: response.AcumaticaConnection,
+                            Url: "@GlobalConfig.Url("Config/AcumaticaConnection")",
+                        },
+                        {
+                            Name: "Acumatica Reference Data",
+                            ConfigState: response.AcumaticaReferenceData,
+                            Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
+                        },
+                        {
+                            Name: "Preference Selections",
+                            ConfigState: response.PreferenceSelections,
+                            Url: "@GlobalConfig.Url("Config/Preferences")",
+                        },
+                        {
+                            Name: "Warehouse Synchronization",
+                            ConfigState: response.WarehouseSync,
+                            Url: "@GlobalConfig.Url("Config/Warehouses")",
+                        },
+                        {
+                            Name: "Shopify Inventory Synchronization",
+                            ConfigState: response.ShopifyInventoryPush,
+                            Url: "@GlobalConfig.Url("Config/InventoryToShopify")",
+                        },
+                    ];
+
+                    self.ConfigDiagnosis(configData);
+                    self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
+                });
+        };
+
+
+        self.Initialize = function() {
+            self.PollStatus();
+        };
+
+        return self;
+    }
+
+
+    var model = new Monster.InventoryConfigModel();
+    model.Initialize();
+    ko.applyBindings(model);
+    model.Initialize();
+</script>

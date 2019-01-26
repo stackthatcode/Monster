@@ -7,7 +7,7 @@ using Push.Shopify.Config;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
 
-namespace Monster.ConsoleApp.Shopify
+namespace Monster.ConsoleApp.TestingHarness.Shopify
 {
     public class ShopifyHarness
     {

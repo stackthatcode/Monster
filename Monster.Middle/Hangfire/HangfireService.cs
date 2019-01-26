@@ -46,7 +46,7 @@ namespace Monster.Middle.Hangfire
             {
                 return false;
             }
-
+        
             // This should hit the System Database
             var hangfireJobId = jobRecord.HangFireJobId;
             var connection = JobStorage.Current.GetConnection();

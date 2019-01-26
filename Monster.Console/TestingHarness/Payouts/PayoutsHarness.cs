@@ -1,18 +1,4 @@
-﻿using System;
-using Autofac;
-using Monster.Acumatica.Http;
-using Monster.Middle;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Payouts;
-using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Services;
-using Push.Foundation.Utilities.Json;
-using Push.Foundation.Utilities.Logging;
-using Push.Shopify.Api.Payout;
-using Push.Shopify.Http;
-using Push.Shopify.Http.Credentials;
-
-namespace Monster.ConsoleApp.Payouts
+﻿namespace Monster.ConsoleApp.TestingHarness.Payouts
 {
     public class PayoutsHarness
     {

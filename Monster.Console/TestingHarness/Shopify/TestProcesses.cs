@@ -6,7 +6,7 @@ using Push.Shopify.Api.Order;
 using Push.Shopify.Api.Product;
 using Push.Shopify.Api.Transactions;
 
-namespace Monster.ConsoleApp.Shopify
+namespace Monster.ConsoleApp.TestingHarness.Shopify
 {
     public class TestProcesses
     {

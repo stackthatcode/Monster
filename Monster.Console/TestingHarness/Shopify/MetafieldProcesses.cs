@@ -5,7 +5,7 @@ using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Product;
 
-namespace Monster.ConsoleApp.Shopify
+namespace Monster.ConsoleApp.TestingHarness.Shopify
 {
     public class MetafieldProcesses
     {
