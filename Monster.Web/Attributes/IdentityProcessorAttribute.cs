@@ -25,7 +25,7 @@ namespace Monster.Middle.Attributes
             identity.Email = "aleksjones@gmail.com";
             identity.AspNetRoles.Add(SecurityConfig.AdminRole);
             identity.InstallationId = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
-            identity.NickName = "Bridge-Over-Monsters";
+            identity.NickName = "onemoreteststorecanthurt";
 
             filterContext.HttpContext.SetIdentity(identity);
             logger.Debug($"Successfully hydrated Identity {identity.AspNetUserId} / {identity.Email}");

@@ -30,6 +30,35 @@ SELECT * FROM vw_SyncRefundAndCreditMemo;		-- Shows Orders with/out Refunds, and
 SELECT * FROM vw_SyncTransactionAndPayment;		-- Shows Transactions with/out Payment syncs
 
 
+
+SELECT ShopifyOrderId, ShopifyOrderNumber, AcumaticaOrderNbr, AcumaticaInvoiceNbr, AcumaticaShipmentNbr
+FROM vw_SyncOrdersAndSalesOrders;
+
+
+-- Total Orders Detected
+SELECT COUNT(*) FROM vw_SyncOrdersAndSalesOrders WHERE ShopifyOrderId IS NOT NULL;
+
+-- Orders loaded into Acumatica
+SELECT COUNT(*) FROM vw_SyncOrdersAndSalesOrders 
+WHERE ShopifyOrderId IS NOT NULL 
+AND AcumaticaOrderNbr IS NOT NULL
+
+-- Orders that are on Shipments
+SELECT COUNT(*) FROM vw_SyncOrdersAndSalesOrders 
+WHERE ShopifyOrderId IS NOT NULL 
+AND AcumaticaOrderNbr IS NOT NULL
+AND AcumaticaShipmentNbr IS NOT NULL
+
+-- Orders that are Invoiced
+SELECT COUNT(*) FROM vw_SyncOrdersAndSalesOrders 
+WHERE ShopifyOrderId IS NOT NULL 
+AND AcumaticaOrderNbr IS NOT NULL
+AND AcumaticaShipmentNbr IS NOT NULL
+AND AcumaticaInvoiceNbr IS NOT NULL
+
+
+
+
 SELECT * FROM usrShopifyBatchState;
 
 DELETE FROM usrShopifyBatchState;

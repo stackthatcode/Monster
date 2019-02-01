@@ -100,31 +100,87 @@
 
 <script type="text/html" id="Real-Time-Monitoring">
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Execution Logs</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Metrics</a>
+        <a class="nav-item nav-link" id="nav-home-tab"
+           data-toggle="tab" data-bind="css: ExecutionTabActive, click: ExectionTabClick"
+           href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Execution Logs</a>
+
+        <a class="nav-item nav-link" id="nav-profile-tab"
+           data-toggle="tab" data-bind="css: OrderViewTabActive, click: OrderViewTabClick"
+           href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Orders</a>
+    </div>
+
+    <div style="height:40px;"></div>
+
+
+        <div data-bind="template: { name: 'Order-Summary' } "></div>
+        <div style="height:20px;"></div>
+
+        <div style="overflow-y: scroll; height: 600px;">
+            <div data-bind="if: Logs().length">
+                <table class="table table-striped">
+                    <tbody data-bind="foreach: Logs">
+                        <tr>
+                            <td>
+                                <div style="font-size:14px; letter-spacing: 1px; color:#777;">
+                                    <span data-bind="text: LogTime"></span> (UTC)
+                                </div>
+                                <div data-bind="text: Content"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</script>
+
+<script type="text/html" id="Order-Summary">
+    <div class="row" data-bind="with: OrderSummary">
+        <div class="col-4" style="">
+            <div style="margin:0px; padding:20px; background-color:#d4edda;">
+                <div style="">Shopify Orders</div>
+                <div style="font-weight:800; font-size:36px;" data-bind="text: TotalOrders"></div>
+            </div>
+        </div>
+        <div class="col-4" style="">
+            <div style="margin:0px; padding:20px;" 
+                 data-bind="css: SalesOrdersClass">
+                <div style="">Acumatica Orders</div>
+                <div style="font-weight:800; font-size:36px;" data-bind="text: TotalOrdersWithSalesOrders"></div>
+            </div>
+        </div>
+        <div class="col-4" style="">
+            <div style="margin:0px; padding:20px;"
+                 data-bind="css: OrdersInvoicedClass">
+                <div style="">Invoiced Shipments</div>
+                <div style="font-weight:800; font-size:36px;" data-bind="text: TotalOrdersWithInvoices"></div>
+            </div>
+        </div>
     </div>
     
-    <div style="height:40px;">
-
-    </div>
+    <div style="height:20px;"></div>
+    
     <div style="overflow-y: scroll; height: 600px;">
-        <div data-bind="if: Logs().length">
-            <table class="table table-striped">
-                <tbody data-bind="foreach: Logs">
-                <tr>
-                    <td>
-                        <div style="font-size:14px; letter-spacing: 1px; color:#777;">
-                            <span data-bind="text: LogTime"></span> (UTC)
-                        </div>
-                        <div data-bind="text: Content"></div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <table class="table table-striped">            
+            <tbody data-bind="foreach: OrderSyncView">
+            <tr>
+                <td>
+                    <div style="">Shopify Order #</div>
+                    <span data-bind="text: ShopifyOrderNumber"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </script>
 
+<style>
+    .not-synced {
+        background-color: #fff3cd
+    } 
+    .synced {
+        background-color:#d4edda;
+    }
+</style>
 
 <script>
     var Monster = Monster || {};
@@ -134,12 +190,48 @@
 
         self.IsRealTimeSyncRunning = ko.observable(false);
         self.IsConfigDiagnosisRunning = ko.observable(false);
+        self.OrderSummary = ko.observable();
+        self.OrderSyncView = ko.observableArray();
         self.Logs = ko.observableArray();
 
         self.AreAnyBackgroundJobsRunning = ko.computed(function() {
             return self.IsRealTimeSyncRunning()
                 || self.IsConfigDiagnosisRunning();
         });
+
+        
+        self.SyncedClass = "synced";
+        self.NotSyncedClass = "not-synced";
+
+        self.DecorateOrderSummary = function(summary) {
+            summary.ShopifyOrdersClass
+                = summary.TotalOrders ? self.SyncedClass : self.NotSyncedClass;
+
+            summary.SalesOrdersClass
+                = summary.SalesOrdersSynced ? self.SyncedClass : self.NotSyncedClass;
+
+            summary.OrdersInvoicedClass
+                = summary.SalesOrdersInvoiced ? self.SyncedClass : self.NotSyncedClass;
+        };
+
+
+        self.ActiveTabIndex = ko.observable(0);
+
+        self.ExectionTabClick = function () { self.ActiveTabIndex(0); }
+
+        self.OrderViewTabClick = function () { self.ActiveTabIndex(1); }
+
+        self.TabCss = function(index) {
+            return self.ActiveTabIndex() == index
+                    ? "nav-item nav-link active" : "nav-item nav-link";
+        };
+
+        // Evaluates to a positive value, so initially we apply the "profitPositive" class
+        self.ExecutionTabActive = ko.pureComputed(function() { return self.TabCss(0); }, self);
+
+        self.OrderViewTabActive = ko.pureComputed(function() { return self.TabCss(1); }, self);
+
+        
 
         // Diagnosis
         self.ConfigDiagnosis = ko.observableArray();
@@ -191,6 +283,12 @@
                     self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
                     self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
                     self.Logs(response.Logs);
+                    self.DecorateOrderSummary(response.OrderSummary);
+                    self.OrderSummary(response.OrderSummary);
+                    self.OrderSyncView(response.OrderSyncView);
+
+                    //console.log(self.OrderSummary());
+
 
                     if (self.AreAnyBackgroundJobsRunning()) {
                         setTimeout(self.PollStatus, 1000);
@@ -243,7 +341,6 @@
                     self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
                 });
         };
-
 
         self.Initialize = function() {
             self.PollStatus();

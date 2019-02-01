@@ -23,6 +23,7 @@ namespace Monster.Acumatica.Http
         private HttpClient _httpClient;
         private ExecutorContext _executorContext;
         private AcumaticaCredentials _credentials;
+        public Uri BaseAddress { private set; get; }
 
         public bool IsLoggedIn { get; private set; } = false;
 
@@ -38,7 +39,7 @@ namespace Monster.Acumatica.Http
         {
             _credentials = credentials;
 
-            var baseAddress = new Uri(credentials.InstanceUrl);
+            BaseAddress = new Uri(credentials.InstanceUrl);
             _instanceUrl = credentials.InstanceUrl;
 
             _executorContext = new ExecutorContext()
@@ -56,7 +57,7 @@ namespace Monster.Acumatica.Http
                         CookieContainer = new CookieContainer(),
                     })
                     {
-                        BaseAddress = baseAddress,
+                        BaseAddress = BaseAddress,
                         DefaultRequestHeaders =
                         {
                             Accept =

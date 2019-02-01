@@ -20,11 +20,10 @@ namespace Push.Shopify.Http
         // Hydrated by calls to Initialize()
         private HttpClient _httpClient;
         private ExecutorContext _executorContext;
+        public Uri BaseAddress { private set; get; }
 
 
-        public ShopifyHttpContext(
-                ShopifyHttpConfig settings, 
-                IPushLogger logger)
+        public ShopifyHttpContext(ShopifyHttpConfig settings, IPushLogger logger)
         {
             _settings = settings;
             _logger = logger;
@@ -32,7 +31,7 @@ namespace Push.Shopify.Http
         
         public void Initialize(IShopifyCredentials credentials)
         {
-            var baseAddress = new Uri(credentials.Domain.BaseUrl);
+            BaseAddress = new Uri(credentials.Domain.BaseUrl);
 
             _executorContext = new ExecutorContext()
             {
@@ -50,7 +49,7 @@ namespace Push.Shopify.Http
                         CookieContainer = new CookieContainer()
                     })
                     {
-                        BaseAddress = baseAddress,
+                        BaseAddress = this.BaseAddress,
                         DefaultRequestHeaders =
                         {
                             Accept =

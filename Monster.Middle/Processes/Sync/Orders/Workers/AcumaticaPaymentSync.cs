@@ -98,8 +98,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             payment.PaymentRef = paymentRef;
             payment.PaymentAmount = ((double)paymentAmount).ToValue();
 
-            //payment.OrdersToApply = 
-            //    PaymentOrdersRef.ForOrder(acumaticaOrderRef, acumaticaOrderType);
+            payment.OrdersToApply =
+                PaymentOrdersRef.ForOrder(acumaticaOrderRef, acumaticaOrderType);
 
             // Push to Acumatica
             var resultJson = _paymentClient.WritePayment(payment.SerializeToJson());

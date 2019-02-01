@@ -1,16 +1,18 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
+using Monster.Acumatica.Http;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Inventory.Services;
-using Monster.Middle.Services;
+using Monster.Middle.Processes.Sync.Orders;
+using Monster.Middle.Security;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
+using Monster.Web.Models.RealTime;
 using Push.Foundation.Web.Json;
+using Push.Shopify.Http;
 
 namespace Monster.Web.Controllers
 {
@@ -21,33 +23,23 @@ namespace Monster.Web.Controllers
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogRepository _logRepository;
         private readonly HangfireService _hangfireService;
-
-        private readonly StatusService _statusService;
-        private readonly ReferenceDataService _referenceDataService;
-        private readonly PreferencesRepository _preferencesRepository;
-        private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
-
+        private readonly SyncOrderRepository _syncOrderRepository;
+        private readonly AcumaticaHttpContext _acumaticaHttpContext;
+        private readonly ShopifyHttpContext _shopifyHttpContext;
 
         public RealTimeController(
                 ConnectionRepository tenantRepository,
                 StateRepository stateRepository,
                 HangfireService hangfireService,
-                StatusService statusService, 
-                ReferenceDataService referenceDataService, 
-                PreferencesRepository preferencesRepository, 
                 ExecutionLogRepository logRepository, 
-                AcumaticaBatchRepository acumaticaBatchRepository)
+                SyncOrderRepository syncOrderRepository)
         {
 
             _tenantRepository = tenantRepository;
             _stateRepository = stateRepository;
-            _hangfireService = hangfireService;
-
-            _statusService = statusService;
-            _referenceDataService = referenceDataService;
-            _preferencesRepository = preferencesRepository;
+            _hangfireService = hangfireService;            
             _logRepository = logRepository;
-            _acumaticaBatchRepository = acumaticaBatchRepository;
+            _syncOrderRepository = syncOrderRepository;
         }
 
         
@@ -103,17 +95,35 @@ namespace Monster.Web.Controllers
                     }).ToList();
 
             var isConfigDiagnosisRunning 
-                = _hangfireService
-                    .IsJobRunning(BackgroundJobType.Diagnostics);
+                = _hangfireService.IsJobRunning(BackgroundJobType.Diagnostics);
+
+            var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
             
+            //var orderSyncModel = 
+
+
             var output = new
             {
                 IsRealTimeSyncRunning = _hangfireService.IsRealTimeSyncRunning(),
                 IsConfigDiagnosisRunning = isConfigDiagnosisRunning,
                 Logs = logDtos,
+                OrderSummary = BuildOrderSummary(),
+                OrderSyncView = orderSyncView,
             };
+
             return new JsonNetResult(output);
         }
+
+        private OrderSyncSummary BuildOrderSummary()
+        {
+            var output = new OrderSyncSummary();
+            output.TotalOrders = _syncOrderRepository.RetrieveTotalOrders();
+            output.TotalOrdersWithSalesOrders = _syncOrderRepository.RetrieveTotalOrdersSynced();
+            output.TotalOrdersWithShipments = _syncOrderRepository.RetrieveTotalOrdersOnShipments();
+            output.TotalOrdersWithInvoices = _syncOrderRepository.RetrieveTotalOrdersInvoiced();
+            return output;
+        }
+
 
         [HttpPost]
         public ActionResult TriggerConfigDiagnosis()
@@ -131,6 +141,7 @@ namespace Monster.Web.Controllers
 
             return new JsonNetResult(output);
         }
+
     }
 }
 

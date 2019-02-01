@@ -78,7 +78,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
                 SyncOrderWithAcumatica(order);
                 
-                _acumaticaPaymentSync.WriteUnsyncedPayments(order.UsrShopifyTransactions);
+                //_acumaticaPaymentSync.WriteUnsyncedPayments(order.UsrShopifyTransactions);
             }
         }
 

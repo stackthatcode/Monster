@@ -131,6 +131,7 @@
     <Compile Include="Hangfire\HangFireLogger.cs" />
     <Compile Include="Hangfire\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
+    <Compile Include="Persist\Multitenant\Extensions.cs" />
     <Compile Include="Persist\Multitenant\ExecutionLogRepository.cs" />
     <Compile Include="Persist\Multitenant\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
@@ -166,6 +167,7 @@
     <Compile Include="Processes\Sync\Inventory\Model\AcumaticaConnectionState.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\AcumaticaReferenceDataState.cs" />
     <Compile Include="Processes\Sync\Inventory\SyncInventoryRepository.cs" />
+    <Compile Include="Processes\Sync\Orders\Model\OrderSummaryViewDto.cs" />
     <Compile Include="Processes\Sync\Orders\SyncOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\AcumaticaManager.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\WarehouseSyncStateDetails.cs" />

@@ -77,8 +77,13 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                     stockItem.MatchedVariant().UsrShopifyInventoryLevels;
 
                 var inventoryLevel =
-                    inventoryLevels.First(
+                    inventoryLevels.FirstOrDefault(
                         x => x.LocationMonsterId == locationMonsterId);
+
+                if (inventoryLevel == null)
+                {
+                    continue;
+                }
 
                 var level = new InventoryLevel
                 {

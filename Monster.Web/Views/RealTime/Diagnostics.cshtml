@@ -156,7 +156,7 @@
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Config/TriggerConfigDiagnosis", {}, this);
+                    ajax.HttpPost("RealTime/TriggerConfigDiagnosis", {}, this);
                 },
                 function (response) {
                     self.PollStatus();

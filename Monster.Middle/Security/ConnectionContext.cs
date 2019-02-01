@@ -61,5 +61,6 @@ namespace Monster.Middle.Security
             var installation = _systemRepository.RetrieveInstance(instanceId);
             _persistContext.Initialize(installation.ConnectionString);
         }        
+        
     }
 }
