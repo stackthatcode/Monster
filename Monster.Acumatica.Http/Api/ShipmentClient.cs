@@ -30,6 +30,21 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+        public string ShipmentUrl(string shipmentNbr)
+        {
+            return
+                $"{_httpContext.BaseAddress}" +
+                $"/Main?ScreenId=SO301000&OrderType=SO&ShipmentNbr={shipmentNbr}";
+        }
+
+        public string ShipmentInvoiceUrl(string invoiceNbr)
+        {
+            return
+                $"{_httpContext.BaseAddress}" +
+                $"/Main?ScreenId=SO303000&DocType=INV&RefNbr={invoiceNbr}";
+        }
+
+
         public string RetrieveShipment(string shipmentNbr)
         {
             var queryString = "$expand=Details";

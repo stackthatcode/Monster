@@ -31,7 +31,7 @@ namespace Monster.Middle.Attributes
             logger.Debug($"Successfully hydrated Identity {identity.AspNetUserId} / {identity.Email}");
 
             // Step 2 - hydrate Tenant Context
-            tenantContext.InitializePersistOnly(identity.InstallationId);
+            tenantContext.Initialize(identity.InstallationId);
         }
     }
 }

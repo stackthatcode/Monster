@@ -100,37 +100,24 @@
 
 <script type="text/html" id="Real-Time-Monitoring">
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link" id="nav-home-tab"
-           data-toggle="tab" data-bind="css: ExecutionTabActive, click: ExectionTabClick"
-           href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Execution Logs</a>
-
         <a class="nav-item nav-link" id="nav-profile-tab"
            data-toggle="tab" data-bind="css: OrderViewTabActive, click: OrderViewTabClick"
            href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Orders</a>
+
+        <a class="nav-item nav-link" id="nav-home-tab"
+           data-toggle="tab" data-bind="css: ExecutionTabActive, click: ExectionTabClick"
+           href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Execution Logs</a>
     </div>
 
     <div style="height:40px;"></div>
 
-
+    <div data-bind="if: ActiveTabIndex() == OrderViewTabIndex">
         <div data-bind="template: { name: 'Order-Summary' } "></div>
-        <div style="height:20px;"></div>
+    </div>
 
-        <div style="overflow-y: scroll; height: 600px;">
-            <div data-bind="if: Logs().length">
-                <table class="table table-striped">
-                    <tbody data-bind="foreach: Logs">
-                        <tr>
-                            <td>
-                                <div style="font-size:14px; letter-spacing: 1px; color:#777;">
-                                    <span data-bind="text: LogTime"></span> (UTC)
-                                </div>
-                                <div data-bind="text: Content"></div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div data-bind="if: ActiveTabIndex() == ExecutionTabIndex">
+        <div data-bind="template: { name: 'Execution-Logs' } "></div>
+    </div>
 </script>
 
 <script type="text/html" id="Order-Summary">
@@ -142,7 +129,7 @@
             </div>
         </div>
         <div class="col-4" style="">
-            <div style="margin:0px; padding:20px;" 
+            <div style="margin:0px; padding:20px;"
                  data-bind="css: SalesOrdersClass">
                 <div style="">Acumatica Orders</div>
                 <div style="font-weight:800; font-size:36px;" data-bind="text: TotalOrdersWithSalesOrders"></div>
@@ -156,11 +143,11 @@
             </div>
         </div>
     </div>
-    
+
     <div style="height:20px;"></div>
-    
+
     <div style="overflow-y: scroll; height: 600px;">
-        <table class="table table-striped">            
+        <table class="table table-striped">
             <tbody data-bind="foreach: OrderSyncView">
             <tr>
                 <td>
@@ -173,185 +160,208 @@
     </div>
 </script>
 
+<script type="text/html" id="Execution-Logs">    
+    <div style="overflow-y: scroll; height: 600px;">
+        <div data-bind="if: Logs().length">
+            <table class="table table-striped">
+                <tbody data-bind="foreach: Logs">
+                <tr>
+                    <td>
+                        <div style="font-size:14px; letter-spacing: 1px; color:#777;">
+                            <span data-bind="text: LogTime"></span> (UTC)
+                        </div>
+                        <div data-bind="text: Content"></div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</script>
+
 <style>
     .not-synced {
         background-color: #fff3cd
-    } 
+    }
+
     .synced {
-        background-color:#d4edda;
+        background-color: #d4edda;
     }
 </style>
 
 <script>
-    var Monster = Monster || {};
+var Monster = Monster || {};
 
-    Monster.InventoryConfigModel = function() {
-        var self = this;
+Monster.InventoryConfigModel = function() {
+    var self = this;
 
-        self.IsRealTimeSyncRunning = ko.observable(false);
-        self.IsConfigDiagnosisRunning = ko.observable(false);
-        self.OrderSummary = ko.observable();
-        self.OrderSyncView = ko.observableArray();
-        self.Logs = ko.observableArray();
+    self.IsRealTimeSyncRunning = ko.observable(false);
+    self.IsConfigDiagnosisRunning = ko.observable(false);
+    self.OrderSummary = ko.observable();
+    self.OrderSyncView = ko.observableArray();
+    self.Logs = ko.observableArray();
 
-        self.AreAnyBackgroundJobsRunning = ko.computed(function() {
-            return self.IsRealTimeSyncRunning()
-                || self.IsConfigDiagnosisRunning();
-        });
-
-        
-        self.SyncedClass = "synced";
-        self.NotSyncedClass = "not-synced";
-
-        self.DecorateOrderSummary = function(summary) {
-            summary.ShopifyOrdersClass
-                = summary.TotalOrders ? self.SyncedClass : self.NotSyncedClass;
-
-            summary.SalesOrdersClass
-                = summary.SalesOrdersSynced ? self.SyncedClass : self.NotSyncedClass;
-
-            summary.OrdersInvoicedClass
-                = summary.SalesOrdersInvoiced ? self.SyncedClass : self.NotSyncedClass;
-        };
+    self.AreAnyBackgroundJobsRunning = ko.computed(function() {
+        return self.IsRealTimeSyncRunning()
+            || self.IsConfigDiagnosisRunning();
+    });
 
 
-        self.ActiveTabIndex = ko.observable(0);
+    self.SyncedClass = "synced";
+    self.NotSyncedClass = "not-synced";
 
-        self.ExectionTabClick = function () { self.ActiveTabIndex(0); }
+    self.DecorateOrderSummary = function(summary) {
+        summary.ShopifyOrdersClass
+            = summary.TotalOrders ? self.SyncedClass : self.NotSyncedClass;
 
-        self.OrderViewTabClick = function () { self.ActiveTabIndex(1); }
+        summary.SalesOrdersClass
+            = summary.SalesOrdersSynced ? self.SyncedClass : self.NotSyncedClass;
 
-        self.TabCss = function(index) {
-            return self.ActiveTabIndex() == index
-                    ? "nav-item nav-link active" : "nav-item nav-link";
-        };
+        summary.OrdersInvoicedClass
+            = summary.SalesOrdersInvoiced ? self.SyncedClass : self.NotSyncedClass;
+    };
 
-        // Evaluates to a positive value, so initially we apply the "profitPositive" class
-        self.ExecutionTabActive = ko.pureComputed(function() { return self.TabCss(0); }, self);
+    self.OrderViewTabIndex = 0;
+    self.ExecutionTabIndex = 1;
 
-        self.OrderViewTabActive = ko.pureComputed(function() { return self.TabCss(1); }, self);
+    self.ActiveTabIndex = ko.observable(self.OrderViewTabIndex);
 
-        
+    self.ExectionTabClick = function () { self.ActiveTabIndex(self.ExecutionTabIndex); }
 
-        // Diagnosis
-        self.ConfigDiagnosis = ko.observableArray();
-        self.IsReadyForRealTimeSync = ko.observable(false);
+    self.OrderViewTabClick = function () { self.ActiveTabIndex(self.OrderViewTabIndex); }
 
-        self.StartRealTimeClick = function () {
-            flow.exec(
-                function() {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("RealTime/StartRealTime", {}, this);
-                },
-                function(response) {
-                    self.PollStatus();
-                });
-        };
+    self.TabCss = function(index) {
+        return self.ActiveTabIndex() == index
+                ? "nav-item nav-link active" : "nav-item nav-link";
+    };
 
-        self.PauseRealTimeClick = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("RealTime/PauseRealTime", {}, this);
-                },
-                function (response) {
-                    self.IsRealTimeSyncRunning(false);
-                });
-        };
+    // Evaluates to a positive value, so initially we apply the "profitPositive" class
+    self.OrderViewTabActive
+        = ko.pureComputed(function () { return self.TabCss(self.OrderViewTabIndex); }, self);
 
-        self.StartConfigDiagnosisClick = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("RealTime/TriggerConfigDiagnosis", {}, this);
-                },
-                function (response) {
-                    self.PollStatus();
-                });
-        };
-
-        // Add Polling Function
-        self.PollStatus = function() {
-            flow.exec(function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/RealTimeStatus", this);
-                },
-                function (response) {
-                    console.log(response);
-
-                    self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
-                    self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
-                    self.Logs(response.Logs);
-                    self.DecorateOrderSummary(response.OrderSummary);
-                    self.OrderSummary(response.OrderSummary);
-                    self.OrderSyncView(response.OrderSyncView);
-
-                    //console.log(self.OrderSummary());
+    self.ExecutionTabActive
+        = ko.pureComputed(function () { return self.TabCss(self.ExecutionTabIndex); }, self);
 
 
-                    if (self.AreAnyBackgroundJobsRunning()) {
-                        setTimeout(self.PollStatus, 1000);
-                    } else {
-                        self.PollConfigDiagnosis();
-                    }
-                });
-        };
 
-        self.PollConfigDiagnosis = function() {
-            flow.exec(function() {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpGet("RealTime/ConfigDiagnosis", this);
-                },
-                function (response) {
-                    var configData = [
-                        {
-                            Name: "Shopify Connection",
-                            ConfigState: response.ShopifyConnection,
-                            Url: "@GlobalConfig.Url("ShopifyAuth/Domain")",
-                        },
-                        {
-                            Name: "Acumatica Connection",
-                            ConfigState: response.AcumaticaConnection,
-                            Url: "@GlobalConfig.Url("Config/AcumaticaConnection")",
-                        },
-                        {
-                            Name: "Acumatica Reference Data",
-                            ConfigState: response.AcumaticaReferenceData,
-                            Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
-                        },
-                        {
-                            Name: "Preference Selections",
-                            ConfigState: response.PreferenceSelections,
-                            Url: "@GlobalConfig.Url("Config/Preferences")",
-                        },
-                        {
-                            Name: "Warehouse Synchronization",
-                            ConfigState: response.WarehouseSync,
-                            Url: "@GlobalConfig.Url("Config/Warehouses")",
-                        },
-                        {
-                            Name: "Shopify Inventory Synchronization",
-                            ConfigState: response.ShopifyInventoryPush,
-                            Url: "@GlobalConfig.Url("Config/InventoryToShopify")",
-                        },
-                    ];
+    // Diagnosis
+    self.ConfigDiagnosis = ko.observableArray();
+    self.IsReadyForRealTimeSync = ko.observable(false);
 
-                    self.ConfigDiagnosis(configData);
-                    self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
-                });
-        };
+    self.StartRealTimeClick = function () {
+        flow.exec(
+            function() {
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("RealTime/StartRealTime", {}, this);
+            },
+            function(response) {
+                self.PollStatus();
+            });
+    };
 
-        self.Initialize = function() {
-            self.PollStatus();
-        };
+    self.PauseRealTimeClick = function () {
+        flow.exec(
+            function () {
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("RealTime/PauseRealTime", {}, this);
+            },
+            function (response) {
+                self.IsRealTimeSyncRunning(false);
+            });
+    };
 
-        return self;
-    }
+    self.StartConfigDiagnosisClick = function () {
+        flow.exec(
+            function () {
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("RealTime/TriggerConfigDiagnosis", {}, this);
+            },
+            function (response) {
+                self.PollStatus();
+            });
+    };
+
+    // Add Polling Function
+    self.PollStatus = function() {
+        flow.exec(function () {
+                var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
+                ajax.HttpGet("RealTime/RealTimeStatus", this);
+            },
+            function (response) {
+                console.log(response);
+
+                self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
+                self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
+                self.Logs(response.Logs);
+                self.DecorateOrderSummary(response.OrderSummary);
+                self.OrderSummary(response.OrderSummary);
+                self.OrderSyncView(response.OrderSyncView);
+
+                //console.log(self.OrderSummary());
 
 
-    var model = new Monster.InventoryConfigModel();
-    model.Initialize();
-    ko.applyBindings(model);
-    model.Initialize();
+                if (self.AreAnyBackgroundJobsRunning()) {
+                    setTimeout(self.PollStatus, 1000);
+                } else {
+                    self.PollConfigDiagnosis();
+                }
+            });
+    };
+
+    self.PollConfigDiagnosis = function() {
+        flow.exec(function() {
+                var ajax = new Monster.Ajax();
+                ajax.HttpGet("RealTime/ConfigDiagnosis", this);
+            },
+            function (response) {
+                var configData = [
+                    {
+                        Name: "Shopify Connection",
+                        ConfigState: response.ShopifyConnection,
+                        Url: "@GlobalConfig.Url("ShopifyAuth/Domain")",
+                    },
+                    {
+                        Name: "Acumatica Connection",
+                        ConfigState: response.AcumaticaConnection,
+                        Url: "@GlobalConfig.Url("Config/AcumaticaConnection")",
+                    },
+                    {
+                        Name: "Acumatica Reference Data",
+                        ConfigState: response.AcumaticaReferenceData,
+                        Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
+                    },
+                    {
+                        Name: "Preference Selections",
+                        ConfigState: response.PreferenceSelections,
+                        Url: "@GlobalConfig.Url("Config/Preferences")",
+                    },
+                    {
+                        Name: "Warehouse Synchronization",
+                        ConfigState: response.WarehouseSync,
+                        Url: "@GlobalConfig.Url("Config/Warehouses")",
+                    },
+                    {
+                        Name: "Shopify Inventory Synchronization",
+                        ConfigState: response.ShopifyInventoryPush,
+                        Url: "@GlobalConfig.Url("Config/InventoryToShopify")",
+                    },
+                ];
+
+                self.ConfigDiagnosis(configData);
+                self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
+            });
+    };
+
+    self.Initialize = function() {
+        self.PollStatus();
+    };
+
+    return self;
+}
+
+var model = new Monster.InventoryConfigModel();
+model.Initialize();
+ko.applyBindings(model);
+model.Initialize();
 </script>

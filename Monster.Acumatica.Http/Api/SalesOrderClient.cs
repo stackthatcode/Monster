@@ -19,7 +19,14 @@ namespace Monster.Acumatica.Api
             _logger = logger;
             _httpContext = httpContext;
         }
-        
+
+        public string OrderInterfaceUrlById(string salesOrderId)
+        {
+            return 
+                $"{_httpContext.BaseAddress}Main" +
+                $"?ScreenId=SO301000&OrderType=SO&OrderNbr={salesOrderId}";
+        }
+
 
         public string RetrieveSalesOrders(DateTime? lastModified = null)
         {

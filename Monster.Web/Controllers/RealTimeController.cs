@@ -1,48 +1,55 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
-using Monster.Acumatica.Http;
+using Monster.Acumatica.Api;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Orders;
-using Monster.Middle.Security;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Monster.Web.Models.RealTime;
+using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
-using Push.Shopify.Http;
+using Push.Shopify.Api;
+
 
 namespace Monster.Web.Controllers
 {
     [IdentityProcessor]
     public class RealTimeController : Controller
     {
-        private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogRepository _logRepository;
         private readonly HangfireService _hangfireService;
         private readonly SyncOrderRepository _syncOrderRepository;
-        private readonly AcumaticaHttpContext _acumaticaHttpContext;
-        private readonly ShopifyHttpContext _shopifyHttpContext;
+        private readonly OrderApi _orderApi;
+        private readonly SalesOrderClient _salesOrderClient;
+        private readonly ShipmentClient _shipmentClient;
+        private readonly IPushLogger _logger;
 
         public RealTimeController(
-                ConnectionRepository tenantRepository,
                 StateRepository stateRepository,
                 HangfireService hangfireService,
                 ExecutionLogRepository logRepository, 
-                SyncOrderRepository syncOrderRepository)
+                SyncOrderRepository syncOrderRepository, 
+                OrderApi orderApi, 
+                SalesOrderClient salesOrderClient,
+                ShipmentClient shipmentClient,
+                IPushLogger logger)
         {
-
-            _tenantRepository = tenantRepository;
             _stateRepository = stateRepository;
             _hangfireService = hangfireService;            
             _logRepository = logRepository;
             _syncOrderRepository = syncOrderRepository;
+            _orderApi = orderApi;
+            _salesOrderClient = salesOrderClient;
+            _shipmentClient = shipmentClient;
+            _logger = logger;
         }
 
-        
+
 
         // Status inquiries
         // 
@@ -98,8 +105,15 @@ namespace Monster.Web.Controllers
                 = _hangfireService.IsJobRunning(BackgroundJobType.Diagnostics);
 
             var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
-            
-            //var orderSyncModel = 
+
+            foreach (var row in orderSyncView)
+            {
+                //if (row.)
+                _logger.Debug(_orderApi.OrderInterfaceUrlById(row.ShopifyOrderId));
+                _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
+                _logger.Debug(_shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr));
+                _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
+            }
 
 
             var output = new

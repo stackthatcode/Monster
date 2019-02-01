@@ -18,36 +18,41 @@ namespace Push.Shopify.Api
         }
 
         
-        public virtual string Retrieve(SearchFilter filter)
+        public string Retrieve(SearchFilter filter)
         {
             var querystring = filter.ToQueryString();
             var path = string.Format("/admin/orders.json?" + querystring);
             var response = _httpClient.Get(path);
             return response.Body;
         }
+
+        public string OrderInterfaceUrlById(long orderId)
+        {
+            return $"{_httpClient.BaseAddress}admin/orders/{orderId}";
+        }
         
-        public virtual string Retrieve(long orderId)
+        public string Retrieve(long orderId)
         {
             var path = $"/admin/orders/{orderId}.json";
             var response = _httpClient.Get(path);
             return response.Body;
         }
         
-        public virtual string RetrieveByName(long orderName)
+        public string RetrieveByName(long orderName)
         {
             var path = $"/admin/orders.json?name={orderName}";
             var response = _httpClient.Get(path);
             return response.Body;
         }
 
-        public virtual string RetrieveCount()
+        public string RetrieveCount()
         {
             var path = $"/admin/orders/count.json";
             var response = _httpClient.Get(path);
             return response.Body;
         }
 
-        public virtual string RetrieveTransactions(long orderId)
+        public string RetrieveTransactions(long orderId)
         {
             var path = $"/admin/orders/{orderId}/transactions.json";
             var response = _httpClient.Get(path);
