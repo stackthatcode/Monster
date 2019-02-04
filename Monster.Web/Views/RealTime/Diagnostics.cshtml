@@ -13,91 +13,92 @@
     }
 </style>
 
+<main role="main" class="medium-size">
 
-@Html.Partial("_TopBrand")
-<hr/>
+    @Html.Partial("_TopBrand")
+    <hr />
 
+    <div>
+        <h1 class="mt-5 center">@GlobalConfig.AppName Config Diagnostics</h1>
+        <p class="lead center">
+            Configuration Inspection Tool
+        </p>
+    </div>
 
-<div>
-    <h1 class="mt-5 center">@GlobalConfig.AppName Config Diagnostics</h1>
-    <p class="lead center">
-        Configuration Inspection Tool
-    </p>
-</div>
+    <!-- Will yield to showing Real Time Sync in case somehow both got triggered -->
+    <div data-bind="if: IsConfigDiagnosisRunning() && !IsRealTimeSyncRunning()">
+        <div class="std-padding">
+            <div class="card">
+                <div class="card-body center std-padding">
+                    <img style="width: 125px;"
+                         src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
-<!-- Will yield to showing Real Time Sync in case somehow both got triggered -->
-<div data-bind="if: IsConfigDiagnosisRunning() && !IsRealTimeSyncRunning()">
-    <div class="std-padding">    
-        <div class="card">
-            <div class="card-body center std-padding">
-                <img style="width: 125px;" 
-                     src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-                <div style="height: 30px;"></div>
-                <p class="center">
-                    Please wait while @GlobalConfig.AppName runs Configuration Diagnostics.
-                </p>
+                    <div style="height: 30px;"></div>
+                    <p class="center">
+                        Please wait while @GlobalConfig.AppName runs Configuration Diagnostics.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div data-bind="ifnot: AreAnyBackgroundJobsRunning">
-    <div class="std-padding-bottom">
-        <div class="card">
-            <div class="card-body std-padding">
-                <div data-bind="if: IsReadyForRealTimeSync">
-                    <div class="alert alert-info">
-                        <strong>System OK - Ready to Start Real-Time Sync</strong>
+    <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
+        <div class="std-padding-bottom">
+            <div class="card">
+                <div class="card-body std-padding">
+                    <div data-bind="if: IsReadyForRealTimeSync">
+                        <div class="alert alert-info">
+                            <strong>System OK - Ready to Start Real-Time Sync</strong>
+                        </div>
+
+                        <p>
+                            Your @GlobalConfig.AppName diagnostics appear healthy (see summary below).
+                            You can modify your configuration and re-run diagnostics, as needed.
+                            Else, you can now start Real-Time Synchronization.
+                        </p>
                     </div>
 
-                    <p>
-                        Your @GlobalConfig.AppName diagnostics appear healthy (see summary below).
-                        You can modify your configuration and re-run diagnostics, as needed.
-                        Else, you can now start Real-Time Synchronization.
-                    </p>
-                </div>
-                
-                <div data-bind="ifnot: IsReadyForRealTimeSync">
-                    <div class="alert alert-danger">
-                        <strong>Real-Time Synchronization - Disabled</strong>
+                    <div data-bind="ifnot: IsReadyForRealTimeSync">
+                        <div class="alert alert-danger">
+                            <strong>Real-Time Synchronization - Disabled</strong>
+                        </div>
+
+                        <p>
+                            Something is wrong with your current @GlobalConfig.AppName configuration.
+                            Review the diagnostics summary below and identify which areas of
+                            configuration need to be fixed or amended.
+                        </p>
                     </div>
 
-                    <p>
-                        Something is wrong with your current @GlobalConfig.AppName configuration.
-                        Review the diagnostics summary below and identify which areas of 
-                        configuration need to be fixed or amended.
-                    </p>
-                </div>
+                    <div style="height: 30px;"></div>
 
-                <div style="height: 30px;"></div>
+                    <div class="center">
+                        <a href="#"
+                           data-bind="click: StartConfigDiagnosisClick"
+                           class="btn btn-primary btn-lg">
+                            Run Config Diagnostics
+                            <i class="fas fa-user-md"></i>
+                        </a>
+                    </div>
 
-                <div class="center">
-                    <a href="#"
-                       data-bind="click: StartConfigDiagnosisClick"
-                       class="btn btn-primary btn-lg">
-                        Run Config Diagnostics
-                        <i class="fas fa-user-md"></i>
-                    </a>
+                    <div style="height: 60px;"></div>
+                    <h6 class="card-title center"
+                        style="text-transform: uppercase; letter-spacing: 0.2em;">
+                        @GlobalConfig.AppName Diagnostics
+                    </h6>
+
+                    <ul class="list-group"
+                        data-bind="foreach: ConfigDiagnosis">
+
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                            data-bind="template: { name: 'Configuration-Diagnostic' }">
+                        </li>
+                    </ul>
                 </div>
-                
-                <div style="height: 60px;"></div>
-                <h6 class="card-title center"
-                    style="text-transform: uppercase; letter-spacing: 0.2em;">
-                    @GlobalConfig.AppName Diagnostics
-                </h6>
-                
-                <ul class="list-group" 
-                    data-bind="foreach: ConfigDiagnosis">
-                    
-                    <li class="list-group-item d-flex justify-content-between align-items-center"
-                        data-bind="template: { name: 'Configuration-Diagnostic' }">
-                    </li>
-                </ul>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <script type="text/html" id="Configuration-Diagnostic">
     <span data-bind="text: Name"></span>
@@ -131,115 +132,113 @@
     </span>
 </script>
 
-
-
 <script>
-    var Monster = Monster || {};
+var Monster = Monster || {};
 
-    Monster.InventoryConfigModel = function() {
-        var self = this;
+Monster.InventoryConfigModel = function() {
+    var self = this;
 
-        self.IsRealTimeSyncRunning = ko.observable(false);
-        self.IsConfigDiagnosisRunning = ko.observable(false);
-        self.Logs = ko.observableArray();
+    self.IsRealTimeSyncRunning = ko.observable(false);
+    self.IsConfigDiagnosisRunning = ko.observable(false);
+    self.Logs = ko.observableArray();
 
-        self.AreAnyBackgroundJobsRunning = ko.computed(function() {
-            return self.IsRealTimeSyncRunning()
-                || self.IsConfigDiagnosisRunning();
-        });
-        
-        // Diagnosis
-        self.ConfigDiagnosis = ko.observableArray();
-        self.IsReadyForRealTimeSync = ko.observable(false);
-        
-        self.StartConfigDiagnosisClick = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("RealTime/TriggerConfigDiagnosis", {}, this);
-                },
-                function (response) {
-                    self.PollStatus();
-                });
-        };
+    self.AreAnyBackgroundJobsRunning = ko.computed(function() {
+        return self.IsRealTimeSyncRunning()
+            || self.IsConfigDiagnosisRunning();
+    });
 
-        // Add Polling Function
-        self.PollStatus = function() {
-            flow.exec(function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/RealTimeStatus", this);
-                },
-                function (response) {
-                    console.log(response);
+    // Diagnosis
+    self.ConfigDiagnosis = ko.observableArray();
+    self.IsReadyForRealTimeSync = ko.observable(false);
 
-                    self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
-                    self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
-                    self.Logs(response.Logs);
+    self.StartConfigDiagnosisClick = function () {
+        flow.exec(
+            function () {
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("RealTime/TriggerConfigDiagnosis", {}, this);
+            },
+            function (response) {
+                self.PollStatus();
+            });
+    };
 
-                    if (self.AreAnyBackgroundJobsRunning()) {
-                        setTimeout(self.PollStatus, 1000);
-                    } else {
-                        self.PollConfigDiagnosis();
-                    }
-                });
-        };
+    // Add Polling Function
+    self.PollStatus = function() {
+        flow.exec(function () {
+                var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
+                ajax.HttpGet("RealTime/RealTimeStatus", this);
+            },
+            function (response) {
+                console.log(response);
 
-        self.PollConfigDiagnosis = function() {
-            flow.exec(function() {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpGet("RealTime/ConfigDiagnosis", this);
-                },
-                function (response) {
-                    var configData = [
-                        {
-                            Name: "Shopify Connection",
-                            ConfigState: response.ShopifyConnection,
-                            Url: "@GlobalConfig.Url("ShopifyAuth/Domain")",
-                        },
-                        {
-                            Name: "Acumatica Connection",
-                            ConfigState: response.AcumaticaConnection,
-                            Url: "@GlobalConfig.Url("Config/AcumaticaConnection")",
-                        },
-                        {
-                            Name: "Acumatica Reference Data",
-                            ConfigState: response.AcumaticaReferenceData,
-                            Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
-                        },
-                        {
-                            Name: "Preference Selections",
-                            ConfigState: response.PreferenceSelections,
-                            Url: "@GlobalConfig.Url("Config/Preferences")",
-                        },
-                        {
-                            Name: "Warehouse Synchronization",
-                            ConfigState: response.WarehouseSync,
-                            Url: "@GlobalConfig.Url("Config/Warehouses")",
-                        },
-                        {
-                            Name: "Shopify Inventory Synchronization",
-                            ConfigState: response.ShopifyInventoryPush,
-                            Url: "@GlobalConfig.Url("Config/InventoryToShopify")",
-                        },
-                    ];
+                self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
+                self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
+                self.Logs(response.Logs);
 
-                    self.ConfigDiagnosis(configData);
-                    self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
-                });
-        };
+                if (self.AreAnyBackgroundJobsRunning()) {
+                    setTimeout(self.PollStatus, 1000);
+                } else {
+                    self.PollConfigDiagnosis();
+                }
+            });
+    };
 
+    self.PollConfigDiagnosis = function() {
+        flow.exec(function() {
+                var ajax = new Monster.Ajax();
+                ajax.HttpGet("RealTime/ConfigDiagnosis", this);
+            },
+            function (response) {
+                var configData = [
+                    {
+                        Name: "Shopify Connection",
+                        ConfigState: response.ShopifyConnection,
+                        Url: "@GlobalConfig.Url("ShopifyAuth/Domain")",
+                    },
+                    {
+                        Name: "Acumatica Connection",
+                        ConfigState: response.AcumaticaConnection,
+                        Url: "@GlobalConfig.Url("Config/AcumaticaConnection")",
+                    },
+                    {
+                        Name: "Acumatica Reference Data",
+                        ConfigState: response.AcumaticaReferenceData,
+                        Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
+                    },
+                    {
+                        Name: "Preference Selections",
+                        ConfigState: response.PreferenceSelections,
+                        Url: "@GlobalConfig.Url("Config/Preferences")",
+                    },
+                    {
+                        Name: "Warehouse Synchronization",
+                        ConfigState: response.WarehouseSync,
+                        Url: "@GlobalConfig.Url("Config/Warehouses")",
+                    },
+                    {
+                        Name: "Shopify Inventory Synchronization",
+                        ConfigState: response.ShopifyInventoryPush,
+                        Url: "@GlobalConfig.Url("Config/InventoryToShopify")",
+                    },
+                ];
 
-        self.Initialize = function() {
-            self.PollStatus();
-        };
-
-        return self;
-    }
+                self.ConfigDiagnosis(configData);
+                self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
+            });
+    };
 
 
-    var model = new Monster.InventoryConfigModel();
-    model.Initialize();
-    ko.applyBindings(model);
-    model.Initialize();
+    self.Initialize = function() {
+        self.PollStatus();
+    };
+
+    return self;
+}
+
+
+var model = new Monster.InventoryConfigModel();
+model.Initialize();
+ko.applyBindings(model);
+model.Initialize();
 </script>

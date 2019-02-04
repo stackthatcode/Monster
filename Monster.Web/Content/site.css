@@ -18,11 +18,30 @@ body {
 }
 
 
+/** Main Layout options  **/
+main.medium-size {
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 75px;
+    padding-right: 75px;
+    margin-top: 0;
+}
+
+main.large-size {
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 75px;
+    padding-right: 75px;
+    margin-top: 0;
+}
+
+
 
 /* Custom page CSS
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
-
 .container {
     width: auto;
     padding: 0 15px;

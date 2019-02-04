@@ -1,108 +1,111 @@
 ﻿@using Monster.Web.Plumbing
 @model Monster.Web.Models.ShopifyAuth.DomainModel
 
-@Html.Partial("_TopBrand")
+<main role="main" class="medium-size">
 
-<hr />
+    @Html.Partial("_TopBrand")
 
-<h1 class="mt-5 center">Configuration - Shopify</h1>
-<p class="lead center">Connect @GlobalConfig.AppName to your Shopify Store</p>
+    <hr />
 
-<!-- Current Shop State -->
-@if (Model.IsShopifyConnectionBroken)
-{
-    <div class="alert alert-danger">
-        <strong>Shopify Connection - Broken</strong> - 
-        @GlobalConfig.AppName connection to your shop is currently not working.
-        Please try reconnecting, and if it fails, contact our customer support team.
+    <h1 class="mt-5 center">Configuration - Shopify</h1>
+    <p class="lead center">Connect @GlobalConfig.AppName to your Shopify Store</p>
+
+    <!-- Current Shop State -->
+    @if (Model.IsShopifyConnectionBroken)
+    {
+        <div class="alert alert-danger">
+            <strong>Shopify Connection - Broken</strong> -
+            @GlobalConfig.AppName connection to your shop is currently not working.
+            Please try reconnecting, and if it fails, contact our customer support team.
+        </div>
+    }
+
+    @if (!Model.IsRandomAccessMode && !Model.IsShopifyConnectionOk)
+    {
+        <p>
+            In this step we're going to configure @GlobalConfig.AppName to connect with your Shopify store.
+            Shopify will ask you for permission to let @GlobalConfig.AppName access your store's data.
+        </p>
+
+    }
+
+    @if (Model.IsShopifyUrlFinalized)
+    {
+        <p>
+            Your Shopify domain is already set for this instance.
+            If you want to connect to a different shop,
+            contact us and we can easily provision a new @GlobalConfig.AppName instance for you.
+        </p>
+    }
+    else
+    {
+        <p>Enter your Shopify store domain below and hit the "Connect to Shopify" button.</p>
+
+        <div class="alert alert-warning">
+            <strong>IMPORTANT</strong> - you'll only be able to set your Shopify store domain once.
+            If you want aim @GlobalConfig.AppName at a different store, you'll need a new instance.
+        </div>
+    }
+
+    <div style="height: 30px;"></div>
+
+    <div class="card">
+        <div class="card-body">
+            <form action="@GlobalConfig.Url("ShopifyAuth/Login")">
+                <div class="form-group">
+
+                    <label for="shop">Shopify "myshopify.com" Domain</label>
+
+                    @if (Model.IsShopifyUrlFinalized)
+                    {
+                        <input type="text"
+                               class="form-control"
+                               disabled="disabled"
+                               id="shop"
+                               name="shop"
+                               value="@Model.ShopDomain">
+                    }
+                    else
+                    {
+                        <input type="text"
+                               class="form-control"
+                               id="shop"
+                               name="shop"
+                               value="@(GlobalConfig.DebugMode ? "onemoreteststorecanthurt" : "")"
+                               placeholder="Enter yourshopname.myshopify.com">
+
+                        <small id="shopifyUrlHelp" class="form-text text-muted">
+                            E.G.: "tophats-for-all.myshopify.com" or "tophats-for-all""
+                        </small>
+                    }
+                </div>
+
+                <div class="center">
+                    @if (Model.IsRandomAccessMode)
+                    {
+                        <a href="@GlobalConfig.DiagnosticsHome"
+                           class="btn btn-secondary btn-lg">
+                            Back to Diagnostics <i class="fas fa-undo"></i>
+                        </a>
+                    }
+
+                    <button class="btn btn-primary btn-lg" type="submit">
+                        Connect to Shopify <i class="fas fa-bolt"></i>
+                    </button>
+
+                    @if (Model.IsNextButtonEnabled)
+                    {
+                        <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
+                           class="btn btn-success btn-lg">
+                            Next Step <i class="fas fa-sign-in-alt"></i>
+                        </a>
+                    }
+                </div>
+
+
+            </form>
+        </div>
     </div>
-}
 
-@if (!Model.IsRandomAccessMode && !Model.IsShopifyConnectionOk)
-{
-    <p>
-        In this step we're going to configure @GlobalConfig.AppName to connect with your Shopify store.
-        Shopify will ask you for permission to let @GlobalConfig.AppName access your store's data.
-    </p>
-    
-}
-
-@if (Model.IsShopifyUrlFinalized)
-{
-    <p>
-        Your Shopify domain is already set for this instance.
-        If you want to connect to a different shop, 
-        contact us and we can easily provision a new @GlobalConfig.AppName instance for you.
-    </p>
-}
-else
-{
-    <p>Enter your Shopify store domain below and hit the "Connect to Shopify" button.</p>
-
-    <div class="alert alert-warning">
-        <strong>IMPORTANT</strong> - you'll only be able to set your Shopify store domain once. 
-        If you want aim @GlobalConfig.AppName at a different store, you'll need a new instance.
-    </div>
-}
-
-<div style="height: 30px;"></div>
-
-<div class="card">
-    <div class="card-body">
-        <form action="@GlobalConfig.Url("ShopifyAuth/Login")">
-            <div class="form-group">
-            
-                <label for="shop">Shopify "myshopify.com" Domain</label>
-
-            @if (Model.IsShopifyUrlFinalized)
-            {
-                <input type="text"
-                       class="form-control"
-                       disabled="disabled"
-                       id="shop"
-                       name="shop"
-                       value ="@Model.ShopDomain">
-            }
-            else
-            {
-                <input type="text"
-                       class="form-control"
-                       id="shop"
-                       name="shop"
-                       value="@(GlobalConfig.DebugMode ? "onemoreteststorecanthurt" : "")"
-                       placeholder="Enter yourshopname.myshopify.com">
-
-                <small id="shopifyUrlHelp" class="form-text text-muted">
-                    E.G.: "tophats-for-all.myshopify.com" or "tophats-for-all""
-                </small>
-            }
-            </div>
-            
-            <div class="center">
-                @if (Model.IsRandomAccessMode)
-                {
-                    <a href="@GlobalConfig.DiagnosticsHome"
-                       class="btn btn-secondary btn-lg">
-                        Back to Diagnostics <i class="fas fa-undo"></i>
-                    </a>
-                }
-                
-                <button class="btn btn-primary btn-lg" type="submit">
-                    Connect to Shopify <i class="fas fa-bolt"></i>
-                </button>
-
-                @if (Model.IsNextButtonEnabled)
-                {
-                    <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
-                       class="btn btn-success btn-lg">
-                        Next Step <i class="fas fa-sign-in-alt"></i>
-                    </a>
-                }
-            </div>
-            
-
-        </form>
-    </div>
-</div>
-
-<div style="height: 30px;"></div>
+    <div style="height: 30px;"></div>
+</main>

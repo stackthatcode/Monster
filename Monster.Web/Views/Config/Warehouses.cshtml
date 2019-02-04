@@ -1,81 +1,110 @@
 ﻿@using Monster.Web.Plumbing
 
 
-@Html.Partial("_TopBrand")
+<main role="main" class="medium-size">
 
-<hr/>
-<h1 class="mt-5 center">Warehouse &amp; Location Mapping</h1>
-<p class="lead center">Synchronize your Acumatica Warehouses with Shopify Locations</p>
+    @Html.Partial("_TopBrand")
 
-<style>
-    #step-1 { display: none; }
-    #step-2 { display: none; }
-</style>
+    <hr />
+    <h1 class="mt-5 center">Warehouse &amp; Location Mapping</h1>
+    <p class="lead center">Synchronize your Acumatica Warehouses with Shopify Locations</p>
 
-<div data-bind="ifnot: BackgroundJobRunning">
-    <div data-bind="if: WarehouseSyncState() == SystemState.None">
-        <div class="std-padding">
-            <div class="alert alert-warning" role="alert">
-                Each of your <strong>Shopify Location Names</strong> must match identifically
-                with one <strong>Acumatica Warehouse ID</strong>, and vice-versa.
+    <div data-bind="ifnot: BackgroundJobRunning">
+        <div data-bind="if: WarehouseSyncState() == SystemState.None">
+            <div class="std-padding">
+                <div class="alert alert-warning" role="alert">
+                    Each of your <strong>Shopify Location Names</strong> must match identifically
+                    with one <strong>Acumatica Warehouse ID</strong>, and vice-versa.
+                </div>
+
+                <p>
+                    In order to work properly, @GlobalConfig.AppName needs a one-to-one mapping between
+                    all of your Shopify Locations and Acumatica Warehouses.
+                    Luckily, @GlobalConfig.AppName will automatically detect if both systems
+                    are properly in-sync, or not, and report the results to you.
+                </p>
             </div>
+        </div>
 
+        <div data-bind="if: WarehouseSyncState() == SystemState.SystemFault">
+            <div class="alert alert-danger">
+                <strong>Warehouse Location Synchronization - System Fault</strong>
+            </div>
             <p>
-                In order to work properly, @GlobalConfig.AppName needs a one-to-one mapping between
-                all of your Shopify Locations and Acumatica Warehouses.
-                Luckily, @GlobalConfig.AppName will automatically detect if both systems
-                are properly in-sync, or not, and report the results to you.
+                Something went wrong while attempting to synchronize your
+                Acumatica Warehouses and Locations. Please try re-running
+                this process.
             </p>
         </div>
-    </div>
 
-    <div data-bind="if: WarehouseSyncState() == SystemState.SystemFault">
-        <div class="alert alert-danger">
-            <strong>Warehouse Location Synchronization - System Fault</strong>
-        </div>
-        <p>
-            Something went wrong while attempting to synchronize your
-            Acumatica Warehouses and Locations. Please try re-running
-            this process.
-        </p>
-    </div>
+        <div data-bind="if: WarehouseSyncState() == SystemState.Ok">
+            <div class="alert alert-info">
+                <strong>Warehouse Location Synchronization - OK</strong>
+            </div>
 
-    <div data-bind="if: WarehouseSyncState() == SystemState.Ok">
-        <div class="alert alert-info">
-            <strong>Warehouse Location Synchronization - OK</strong>
+            <div data-bind="template: { name: 'Sync-State-Details' }"></div>
         </div>
 
-        <div data-bind="template: { name: 'Sync-State-Details' }"></div>
-    </div>
+        <div data-bind="if: WarehouseSyncState() == SystemState.Invalid">
+            <div class="alert alert-danger">
+                <strong>Warehouse Location Synchronization - Invalid</strong>
+            </div>
 
-    <div data-bind="if: WarehouseSyncState() == SystemState.Invalid">
-        <div class="alert alert-danger">
-            <strong>Warehouse Location Synchronization - Invalid</strong>
+            <div data-bind="template: { name: 'Sync-State-Details' }"></div>
         </div>
-
-        <div data-bind="template: { name: 'Sync-State-Details' }"></div>
     </div>
-</div>
 
-<div data-bind="if: BackgroundJobRunning">
-    <div class="std-padding">
-        <div class="card">
-            <div class="card-body center std-padding">
-                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+    <div data-bind="if: BackgroundJobRunning">
+        <div class="std-padding">
+            <div class="card">
+                <div class="card-body center std-padding">
+                    <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
-                <div style="height: 30px;"></div>
+                    <div style="height: 30px;"></div>
 
-                <p class="center">Please wait while @GlobalConfig.AppName synchronizes Warehouses and Locations.</p>
+                    <p class="center">Please wait while @GlobalConfig.AppName synchronizes Warehouses and Locations.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    
+    
+    <div class="center std-padding">
+        <span data-bind="ifnot: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/Preferences")"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Previous Step
+            </a>
+        </span>
+
+        <span data-bind="if: IsRandomAccessMode">
+            <a href="@GlobalConfig.DiagnosticsHome"
+               class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Back to Diagnostics
+            </a>
+        </span>
+
+        <a href="#" class="btn btn-primary btn-lg"
+           data-bind="click: SynchronizeClick">
+            Synchronize Now
+            <i class="fas fa-bolt"></i>
+        </a>
+
+        <span data-bind="if: NextButtonVisible">
+            <a href="@GlobalConfig.Url("Config/InventoryToAcumatica")"
+               class="btn btn-success btn-lg">
+                Next Step <i class="fas fa-sign-in-alt"></i>
+            </a>
+        </span>
+    </div>
+</main>
+
 
 <script type="text/html" id="Sync-State-Details">
     <div data-bind="with: Details">
         <div class="card">
-            <div class="card-body center std-padding">                
-                
+            <div class="card-body center std-padding">
+
                 <div data-bind="if: MatchedWarehouseLocations.length">
                     <p>The following Location-Warehouse combinations successfully matched:</p>
 
@@ -99,7 +128,6 @@
                             <i style="color: red;" class="fas fa-times"></i>
                         </li>
                         <!-- /ko -->
-
                         <!-- ko foreach: UnmatchedAcumaticaWarehouses -->
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Acumatica <span data-bind="text: $data"></span>
@@ -119,35 +147,6 @@
     </div>
 </script>
 
-<div class="center std-padding">
-    <span data-bind="ifnot: IsRandomAccessMode">
-        <a href="@GlobalConfig.Url("Config/Preferences")"
-           class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Previous Step
-        </a>
-    </span>
-    
-    <span data-bind="if: IsRandomAccessMode">
-        <a href="@GlobalConfig.DiagnosticsHome"
-           class="btn btn-secondary btn-lg">
-            <i class="fas fa-undo"></i> Back to Diagnostics
-        </a>
-    </span>
-
-        <a href="#" class="btn btn-primary btn-lg"
-           data-bind="click: SynchronizeClick">
-            Synchronize Now
-            <i class="fas fa-bolt"></i>
-        </a>
-    
-    <span data-bind="if: NextButtonVisible">
-        <a href="@GlobalConfig.Url("Config/InventoryToAcumatica")"
-           class="btn btn-success btn-lg">
-            Next Step <i class="fas fa-sign-in-alt"></i>
-        </a>
-    </span>
-</div>
-
 <script>
     var Monster = Monster || {};
 
@@ -158,18 +157,18 @@
         self.WarehouseSyncState = ko.observable();
         self.Details = ko.observable();
         self.IsRandomAccessMode = ko.observable();
-        
-        self.NextButtonVisible = ko.computed(function() {
+
+        self.NextButtonVisible = ko.computed(function () {
             return !self.IsRandomAccessMode()
                 && self.WarehouseSyncState() == SystemState.Ok;
         });
 
-        self.SynchronizeClick = function() {
+        self.SynchronizeClick = function () {
             var ajax = new Monster.Ajax();
             ajax.HttpPost("Config/SyncWarehouses", {}, self.PollStatus);
         };
-        
-        self.PollStatus = function() {
+
+        self.PollStatus = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
@@ -182,12 +181,12 @@
                     if (self.BackgroundJobRunning()) {
                         setTimeout(self.PollStatus, 1000);
                     } else {
-                        self.Complete(response);                        
+                        self.Complete(response);
                     }
                 });
         };
 
-        self.Complete = function(model) {
+        self.Complete = function (model) {
             self.Details(model.Details);
             self.WarehouseSyncState(model.WarehouseSyncState);
             self.BackgroundJobRunning(model.IsBackgroundJobRunning);

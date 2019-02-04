@@ -30,23 +30,68 @@ namespace Monster.Middle.Hangfire
         }
 
 
-        static readonly object LockConnectToAcumatica = new object();
-        static readonly object LockPullAcumaticaReferenceData = new object();
-        static readonly object LockSyncWarehouseAndLocation = new object();
-        static readonly object LockPushInventoryToAcumatica = new object();
-        static readonly object LockPushInventoryToShopify = new object();
-        static readonly object LockConfigDiagnosis = new object();
+        public void LaunchBackgroundJob(int jobId)
+        {
+            if (jobId == BackgroundJobType.ConnectToAcumatica)
+            {
+                QueueBackgroundJob(
+                    BackgroundJobType.ConnectToAcumatica,
+                    x => x.RunConnectToAcumatica(_tenantContext.InstanceId));
+                return;
+            }
 
+            if (jobId == BackgroundJobType.PullAcumaticaRefData)
+            {
+                QueueBackgroundJob(
+                    BackgroundJobType.PullAcumaticaRefData,
+                    x => x.RunPullAcumaticaRefData(_tenantContext.InstanceId));
+                return;
+            }
 
-        public bool IsJobRunning(int backgroundJobId)
+            if (jobId == BackgroundJobType.SyncWarehouseAndLocation)
+            {
+                QueueBackgroundJob(
+                    BackgroundJobType.SyncWarehouseAndLocation,
+                    x => x.RunSyncWarehouseAndLocation(_tenantContext.InstanceId));
+                return;
+            }
+
+            if (jobId == BackgroundJobType.Diagnostics)
+            {
+                QueueBackgroundJob(
+                    BackgroundJobType.Diagnostics,
+                    x => x.RunDiagnostics(_tenantContext.InstanceId));
+                return;
+            }
+
+            if (jobId == BackgroundJobType.PushInventoryToAcumatica)
+            {
+                QueueBackgroundJob(
+                    BackgroundJobType.PushInventoryToAcumatica,
+                    x => x.PushInventoryToAcumatica(_tenantContext.InstanceId));
+                return;
+            }
+
+            if (jobId == BackgroundJobType.PullAcumaticaRefData)
+            {
+                QueueBackgroundJob(
+                    BackgroundJobType.PushInventoryToShopify,
+                    x => x.PushInventoryToShopify(_tenantContext.InstanceId));
+                return;
+            }
+
+            throw new ArgumentException($"Unrecognized jobId {jobId}");
+        }
+
+        public bool IsBackgroundJobRunning(int jobId)
         {
             // If Background Job Record is missing, return false
-            var jobRecord = _stateRepository.RetrieveBackgroundJob(backgroundJobId);
+            var jobRecord = _stateRepository.RetrieveBackgroundJob(jobId);
             if (jobRecord == null)
             {
                 return false;
             }
-        
+
             // This should hit the System Database
             var hangfireJobId = jobRecord.HangFireJobId;
             var connection = JobStorage.Current.GetConnection();
@@ -67,111 +112,39 @@ namespace Monster.Middle.Hangfire
             return true;
         }
 
-        public void ConnectToAcumatica()
-        {            
-            var tenantId = _tenantContext.InstanceId;
-
-            SafelyEnqueueBackgroundJob(
-                LockConnectToAcumatica,
-                BackgroundJobType.ConnectToAcumatica,
-                x => x.RunConnectToAcumatica(tenantId));
-        }
-
-        public void PullAcumaticaReferenceData()
+        private void QueueBackgroundJob(
+                int backgroundJobType, Expression<Action<BackgroundJobRunner>> action)
         {
-            var tenantId = _tenantContext.InstanceId;
-
-            SafelyEnqueueBackgroundJob(
-                LockPullAcumaticaReferenceData,
-                BackgroundJobType.PullAcumaticaReferenceData,
-                x => x.RunPullAcumaticaSettings(tenantId));
-        }
-
-        public void SyncWarehouseAndLocation()
-        {
-            var tenantId = _tenantContext.InstanceId;
-
-            SafelyEnqueueBackgroundJob(
-                LockSyncWarehouseAndLocation,
-                BackgroundJobType.SyncWarehouseAndLocation,
-                x => x.RunSyncWarehouseAndLocation(tenantId));
-        }
-        
-        public void PushInventoryToAcumatica()
-        {
-            var tenantId = _tenantContext.InstanceId;
-
-            SafelyEnqueueBackgroundJob(
-                LockPushInventoryToAcumatica,
-                BackgroundJobType.PushInventoryToAcumatica,
-                x => x.RunLoadInventoryIntoAcumatica(tenantId));
-        }
-        
-        public void PushInventoryToShopify()
-        {
-            var tenantId = _tenantContext.InstanceId;
-
-            SafelyEnqueueBackgroundJob(
-                LockPushInventoryToShopify,
-                BackgroundJobType.PushInventoryToShopify,
-                x => x.RunLoadInventoryIntoShopify(tenantId));
-        }
-        
-        public void TriggerConfigDiagnosis()
-        {
-            var tenantId = _tenantContext.InstanceId;
-
-            SafelyEnqueueBackgroundJob(
-                LockConfigDiagnosis,
-                BackgroundJobType.Diagnostics,
-                x => x.RunDiagnostics(tenantId));
-
-        }
-
-        private void SafelyEnqueueBackgroundJob(
-                object lockObject,
-                int backgroundJobType, 
-                Expression<Action<BackgroundJobRunner>> action)
-        {
-            lock (lockObject)
+            using (var transaction = _stateRepository.BeginTransaction())
             {
-                using (var transaction = _stateRepository.BeginTransaction())
+                if (IsBackgroundJobRunning(backgroundJobType))
                 {
-                    if (IsJobRunning(backgroundJobType))
-                    {
-                        _logger.Info($"Job (BackgroundJobType = {backgroundJobType}) already running");
-                        return;
-                    }
-                    
-                    var jobId = BackgroundJob.Enqueue<BackgroundJobRunner>(action);
-
-                    _stateRepository.InsertBackgroundJob(backgroundJobType, jobId);
-                    
-                    transaction.Commit();
+                    _logger.Info($"Job (BackgroundJobType = {backgroundJobType}) already running");
+                    return;
                 }
+                
+                var jobId = BackgroundJob.Enqueue<BackgroundJobRunner>(action);
+
+                _stateRepository.InsertBackgroundJob(backgroundJobType, jobId);
+                
+                transaction.Commit();
             }
         }
         
 
 
-
         // Recurring Job - separate category
-        public string RoutineSyncJobId()
-        {
-            return "RoutineSync:" + _tenantContext.InstanceId;
-        }
-
+        //
         public void StartRoutineSync()
         {
-            var routineSyncJobId = RoutineSyncJobId();
-            
+            var routineSyncJobId = RoutineSyncJobId();            
             using (var transaction = _stateRepository.BeginTransaction())
             {
                 var state = _stateRepository.RetrieveSystemState();
 
                 RecurringJob.AddOrUpdate<BackgroundJobRunner>(  
                     routineSyncJobId,
-                    x => x.RunRealTimeSynchronization(_tenantContext.InstanceId),
+                    x => x.RealTimeSynchronization(_tenantContext.InstanceId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 
@@ -207,6 +180,11 @@ namespace Monster.Middle.Hangfire
 
                 transaction.Commit();
             }
+        }
+
+        private string RoutineSyncJobId()
+        {
+            return "RoutineSync:" + _tenantContext.InstanceId;
         }
     }
 }

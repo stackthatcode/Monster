@@ -6,234 +6,235 @@
     .form-group label { font-weight: 700; }
 </style>
 
-@Html.Partial("_TopBrand")
+<main role="main" class="medium-size">
 
-<hr />
+    @Html.Partial("_TopBrand")
 
-<h1 class="mt-5 center">Configuration - Acumatica</h1>
-<p class="lead center">
-    Configuration of Acumatica reference data for @GlobalConfig.AppName
-</p>
+    <hr />
+
+    <h1 class="mt-5 center">Configuration - Acumatica</h1>
+    <p class="lead center">
+        Configuration of Acumatica reference data for @GlobalConfig.AppName
+    </p>
 
 
-<div data-bind="ifnot: BackgroundJobRunning">
-    <div data-bind="if: ReferenceDataState() == SystemState.None">
-        <p>
-            This next step will require you to configure Acumatica so that
-            @GlobalConfig.AppName can properly push Shopify data during
-            real-time synchronization. This will involve creating
-            Item Classes, Payment Methods, Cash Accounts, Tax Categories, etc.
-            in Acumatica.
-        </p>
+    <div data-bind="ifnot: BackgroundJobRunning">
+        <div data-bind="if: ReferenceDataState() == SystemState.None">
+            <p>
+                This next step will require you to configure Acumatica so that
+                @GlobalConfig.AppName can properly push Shopify data during
+                real-time synchronization. This will involve creating
+                Item Classes, Payment Methods, Cash Accounts, Tax Categories, etc.
+                in Acumatica.
+            </p>
 
-        <div data-bind="template: { name: 'Pdf-Download' }"></div>
-    </div>
-
-    <div data-bind="if: ReferenceDataState() == SystemState.Ok">
-        <div class="alert alert-primary">
-            <strong>Acumatica Reference Data Pull - Successful</strong>
-            <br />
-            Your Acumatica reference data was properly configured and has been loaded.
+            <div data-bind="template: { name: 'Pdf-Download' }"></div>
         </div>
-        
-        <div data-bind="template: { name: 'Pdf-Download' }"></div>
-    </div>
-    
-    <div data-bind="if: ReferenceDataState() == SystemState.SystemFault">
-        <div class="alert alert-danger">
-            <strong>Acumatica Reference Data Pull - System Fault</strong><br />
-            Something is wrong with your Acumatica Connection.
+
+        <div data-bind="if: ReferenceDataState() == SystemState.Ok">
+            <div class="alert alert-primary">
+                <strong>Acumatica Reference Data Pull - Successful</strong>
+                <br />
+                Your Acumatica reference data was properly configured and has been loaded.
+            </div>
+
+            <div data-bind="template: { name: 'Pdf-Download' }"></div>
         </div>
-        
-        <p>
-            @GlobalConfig.AppName encounter an error while attempting
-            to pull reference data from your Acumatica instance.
-            You can try reconnecting, but if the problem persists,
-            you may consider re-entering your Acumatica credentials.
-        </p>
-    </div>
-    
-    <div data-bind="if: ReferenceDataState() == SystemState.Invalid">
-        <div class="alert alert-danger">
-            <strong>Acumatica Reference Data Pull - Invalid Data</strong><br />
-            Your Acumatica instance data is not properly configured.
+
+        <div data-bind="if: ReferenceDataState() == SystemState.SystemFault">
+            <div class="alert alert-danger">
+                <strong>Acumatica Reference Data Pull - System Fault</strong><br />
+                Something is wrong with your Acumatica Connection.
+            </div>
+
+            <p>
+                @GlobalConfig.AppName encounter an error while attempting
+                to pull reference data from your Acumatica instance.
+                You can try reconnecting, but if the problem persists,
+                you may consider re-entering your Acumatica credentials.
+            </p>
         </div>
-        <div data-bind="template: { name: 'Pdf-Download' }"></div>
-    </div>
 
-    <div>
-        <div class="center std-padding">
-            <span data-bind="if: IsPrevButtonVisible">
-                <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
-                   class="btn btn-secondary btn-lg">
-                    Previous Step <i class="fas fa-undo"></i>
-                </a>
-            </span>
-
-            <span data-bind="if: IsReturnButtonVisible">
-                <a href="@GlobalConfig.DiagnosticsHome"
-                   class="btn btn-secondary btn-lg">
-                    Back to Diagnostics <i class="fas fa-undo"></i>
-                </a>
-            </span>
-
-            <span data-bind="ifnot: HasReferenceDataBeenPulled">
-                <a href="#" class="btn btn-primary btn-lg"
-                   data-bind="click: ConnectToAcumatica">
-                    Connect to Acumatica <i class="fas fa-bolt"></i>
-                </a>
-            </span>
-
-            <span data-bind="if: HasReferenceDataBeenPulled">
-                <a href="#" class="btn btn-primary btn-lg"
-                   data-bind="click: ConnectToAcumatica">
-                    Re-connect to Acumatica <i class="fas fa-bolt"></i>
-                </a>
-            </span>
-
-            <span data-bind="if: IsNextButtonVisible">
-                <a href="@GlobalConfig.Url("Config/Preferences")"
-                   class="btn btn-success btn-lg">
-                    Next Step <i class="fas fa-sign-in-alt"></i>
-                </a>
-            </span>
+        <div data-bind="if: ReferenceDataState() == SystemState.Invalid">
+            <div class="alert alert-danger">
+                <strong>Acumatica Reference Data Pull - Invalid Data</strong><br />
+                Your Acumatica instance data is not properly configured.
+            </div>
+            <div data-bind="template: { name: 'Pdf-Download' }"></div>
         </div>
-    </div>
-</div>
 
-<script type="text/html" id="Pdf-Download">
-    <div data-bind="if: ReferenceDataState() != SystemState.Ok">
-        <p>
-            Download the following PDF document and execute all of the steps contained
-            therein to prepare your Acumatica instance for synchronization.
-            Once you have completed all steps, click the "Connect to Acumatica"
-            button to pull these settings.
-        </p>
-    </div>
+        <div>
+            <div class="center std-padding">
+                <span data-bind="if: IsPrevButtonVisible">
+                    <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
+                       class="btn btn-secondary btn-lg">
+                        Previous Step <i class="fas fa-undo"></i>
+                    </a>
+                </span>
 
-    <div data-bind="if: ReferenceDataState() == SystemState.Ok">
-        <p>
-            You can download the following PDF document as a reference
-            in case you want to change the way your Acumatica instance
-            is configured.
-        </p>
-    </div>
+                <span data-bind="if: IsReturnButtonVisible">
+                    <a href="@GlobalConfig.DiagnosticsHome"
+                       class="btn btn-secondary btn-lg">
+                        Back to Diagnostics <i class="fas fa-undo"></i>
+                    </a>
+                </span>
 
-    <div class="card">
-        <div class="card-body center">
-            <a target="_blank"
-               href="@GlobalConfig.Url("Content/Configuring Acumatica for Synchronization.pdf")">
-                <img style="width: 100px;" src="@GlobalConfig.Url("Content/pdf-icon.png")" />
+                <span data-bind="ifnot: HasReferenceDataBeenPulled">
+                    <a href="#" class="btn btn-primary btn-lg"
+                       data-bind="click: ConnectToAcumatica">
+                        Connect to Acumatica <i class="fas fa-bolt"></i>
+                    </a>
+                </span>
 
-                <p class="center" style="font-weight: 700; margin-top: 20px;">
-                    Download - Configuring Acumatica for Bridge Synchronization
-                </p>
-            </a>
-        </div>
-    </div>
-</script>
+                <span data-bind="if: HasReferenceDataBeenPulled">
+                    <a href="#" class="btn btn-primary btn-lg"
+                       data-bind="click: ConnectToAcumatica">
+                        Re-connect to Acumatica <i class="fas fa-bolt"></i>
+                    </a>
+                </span>
 
-<div data-bind="if: BackgroundJobRunning">
-    <div class="std-padding">
-        <div class="card">
-            <div class="card-body center std-padding">
-                <img style="width: 125px;" 
-                     src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-                <div style="height: 30px;"></div>
-                <p class="center">
-                    Please wait while @GlobalConfig.AppName connects to your Acumatica instance.
-                </p>
+                <span data-bind="if: IsNextButtonVisible">
+                    <a href="@GlobalConfig.Url("Config/Preferences")"
+                       class="btn btn-success btn-lg">
+                        Next Step <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                </span>
             </div>
         </div>
     </div>
-</div>
+
+    <script type="text/html" id="Pdf-Download">
+        <div data-bind="if: ReferenceDataState() != SystemState.Ok">
+            <p>
+                Download the following PDF document and execute all of the steps contained
+                therein to prepare your Acumatica instance for synchronization.
+                Once you have completed all steps, click the "Connect to Acumatica"
+                button to pull these settings.
+            </p>
+        </div>
+
+        <div data-bind="if: ReferenceDataState() == SystemState.Ok">
+            <p>
+                You can download the following PDF document as a reference
+                in case you want to change the way your Acumatica instance
+                is configured.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-body center">
+                <a target="_blank"
+                   href="@GlobalConfig.Url("Content/Configuring Acumatica for Synchronization.pdf")">
+                    <img style="width: 100px;" src="@GlobalConfig.Url("Content/pdf-icon.png")" />
+
+                    <p class="center" style="font-weight: 700; margin-top: 20px;">
+                        Download - Configuring Acumatica for Bridge Synchronization
+                    </p>
+                </a>
+            </div>
+        </div>
+    </script>
+
+    <div data-bind="if: BackgroundJobRunning">
+        <div class="std-padding">
+            <div class="card">
+                <div class="card-body center std-padding">
+                    <img style="width: 125px;"
+                         src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+                    <div style="height: 30px;"></div>
+                    <p class="center">
+                        Please wait while @GlobalConfig.AppName connects to your Acumatica instance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+    <script>
+        var Monster = Monster || {};
+
+        Monster.AcumaticaRefDataModel = function () {
+            var self = this;
+
+            // View visibility
+            self.BackgroundJobRunning = ko.observable();
+
+            // System State
+            self.ReferenceDataState = ko.observable();
+            self.IsRandomAccessMode = ko.observable();
+            self.Validations = ko.observable();
+
+
+            self.HasReferenceDataBeenPulled = ko.computed(function () {
+                return self.ReferenceDataState() != SystemState.None;
+            });
+
+            self.IsReferenceDataOk = ko.computed(function () {
+                return self.ReferenceDataState() == SystemState.Ok;
+            });
+
+            self.IsReferenceDataBroken = ko.computed(function () {
+                return self.ReferenceDataState() == SystemState.SystemFault
+                    || self.ReferenceDataState() == SystemState.Invalid;
+            });
+
+
+            // Control-visibility
+            self.IsNextButtonVisible = ko.computed(function () {
+                return !self.IsRandomAccessMode() && self.IsReferenceDataOk();
+            });
+
+            self.IsPrevButtonVisible = ko.computed(function () {
+                return !self.IsRandomAccessMode();
+            });
+
+            self.IsReturnButtonVisible = ko.computed(function () {
+                return self.IsRandomAccessMode();
+            });
 
 
 
-<script>
-    var Monster = Monster || {};
+            // Actions
+            self.ConnectToAcumatica = function () {
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("Config/AcumaticaRefDataPull", {}, self.PollStatus);
+            };
 
-    Monster.AcumaticaRefDataModel = function() {
-        var self = this;
-        
-        // View visibility
-        self.BackgroundJobRunning = ko.observable();
+            self.PollStatus = function () {
+                var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
+                ajax.HttpGet("Config/AcumaticaRefDataStatus", self.ProcessStatus);
+            };
 
-        // System State
-        self.ReferenceDataState = ko.observable();
-        self.IsRandomAccessMode = ko.observable();
-        self.Validations = ko.observable();
+            self.ProcessStatus = function (response) {
+                //console.log(response);
 
+                self.BackgroundJobRunning(response.IsBackgroundJobRunning);
 
-        self.HasReferenceDataBeenPulled = ko.computed(function() {
-            return self.ReferenceDataState() != SystemState.None;
-        });
+                // If still running, then show AJAX...
+                if (self.BackgroundJobRunning()) {
+                    setTimeout(self.PollStatus, 1000);
+                    return;
+                }
 
-        self.IsReferenceDataOk = ko.computed(function() {
-            return self.ReferenceDataState() == SystemState.Ok;
-        });
-        
-        self.IsReferenceDataBroken = ko.computed(function() {
-            return self.ReferenceDataState() == SystemState.SystemFault
-                || self.ReferenceDataState() == SystemState.Invalid;
-        });
+                // Else process System State info
+                self.ReferenceDataState(response.ReferenceDataState);
+                self.IsRandomAccessMode(response.IsRandomAccessMode);
+                self.Validations(response.Validations);
+            };
 
+            self.Initialize = function () {
+                self.BackgroundJobRunning(false);
+                self.PollStatus();
+            };
 
-        // Control-visibility
-        self.IsNextButtonVisible = ko.computed(function() {
-            return !self.IsRandomAccessMode() && self.IsReferenceDataOk();
-        });
-
-        self.IsPrevButtonVisible = ko.computed(function() {
-            return !self.IsRandomAccessMode();
-        });
-
-        self.IsReturnButtonVisible = ko.computed(function() {
-            return self.IsRandomAccessMode();
-        });
-
-
-
-        // Actions
-        self.ConnectToAcumatica = function() {
-            var ajax = new Monster.Ajax();
-            ajax.HttpPost("Config/AcumaticaRefDataPull", {}, self.PollStatus);
+            return self;
         };
 
-        self.PollStatus = function() {
-            var ajax = new Monster.Ajax();
-            ajax.DisablePopupsAndSpinners();
-            ajax.HttpGet("Config/AcumaticaRefDataStatus", self.ProcessStatus);
-        };
-
-        self.ProcessStatus = function (response) {
-            //console.log(response);
-
-            self.BackgroundJobRunning(response.IsBackgroundJobRunning);
-
-            // If still running, then show AJAX...
-            if (self.BackgroundJobRunning()) {
-                setTimeout(self.PollStatus, 1000);
-                return;
-            }
-
-            // Else process System State info
-            self.ReferenceDataState(response.ReferenceDataState);
-            self.IsRandomAccessMode(response.IsRandomAccessMode);
-            self.Validations(response.Validations);
-        };
-
-        self.Initialize = function () {
-            self.BackgroundJobRunning(false);
-            self.PollStatus();
-        };
-
-        return self;
-    };
-
-    var model = new Monster.AcumaticaRefDataModel();
-    model.Initialize();
-    ko.applyBindings(model);
-</script>
+        var model = new Monster.AcumaticaRefDataModel();
+        model.Initialize();
+        ko.applyBindings(model);
+    </script>
 

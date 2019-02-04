@@ -1,90 +1,93 @@
 ﻿@using Monster.Web.Plumbing
 
-@Html.Partial("_TopBrand")
-<hr />
-<h1 class="mt-5 center">Inventory - Load into Shopify</h1>
-<p class="lead center">Synchronize Shopify with Acumatica inventory counts</p>
+<main role="main" class="medium-size">
+
+    @Html.Partial("_TopBrand")
+    <hr />
+    <h1 class="mt-5 center">Inventory - Load into Shopify</h1>
+    <p class="lead center">Synchronize Shopify with Acumatica inventory counts</p>
 
 
-<div data-bind="ifnot: IsBackgroundJobRunning">
-    <div class="std-padding">
-        <div data-bind="if: ShopifyInventoryPushState() == SystemState.None">
-            <p>
-                @GlobalConfig.AppName is now ready to complete the first update of
-                Shopify Inventory counts with Acumatica Inventory.
-                During this run, the complete counts from Acumatica's Inventory 
-                will be brought over to Shopify.
-                After this step, @GlobalConfig.AppName will only incrementally 
-                synchronize counts that have changed since the last update.
-            </p>
-        </div>
-
-        <div data-bind="if: ShopifyInventoryPushState() == SystemState.SystemFault">
-            <div class="alert alert-danger">
-                <strong>Load Inventory into Shopify - System Fault</strong>
+    <div data-bind="ifnot: IsBackgroundJobRunning">
+        <div class="std-padding">
+            <div data-bind="if: ShopifyInventoryPushState() == SystemState.None">
+                <p>
+                    @GlobalConfig.AppName is now ready to complete the first update of
+                    Shopify Inventory counts with Acumatica Inventory.
+                    During this run, the complete counts from Acumatica's Inventory
+                    will be brought over to Shopify.
+                    After this step, @GlobalConfig.AppName will only incrementally
+                    synchronize counts that have changed since the last update.
+                </p>
             </div>
-            <p>
-                Something went wrong while running this process.
-                You may consider reviewing your configuration before
-                re-running. If issue persists, contact support.
-            </p>
-        </div>
 
-        <div data-bind="if: ShopifyInventoryPushState() == SystemState.Ok">
-            <div class="alert alert-info">
-                <strong>Load Inventory into Shopify - OK</strong>
+            <div data-bind="if: ShopifyInventoryPushState() == SystemState.SystemFault">
+                <div class="alert alert-danger">
+                    <strong>Load Inventory into Shopify - System Fault</strong>
+                </div>
+                <p>
+                    Something went wrong while running this process.
+                    You may consider reviewing your configuration before
+                    re-running. If issue persists, contact support.
+                </p>
             </div>
-            <p>
-                This process has successfully completed. 
-                Real-time Synchronziation can now run incremental updates.
-            </p>
-        </div>
-    </div>
 
-    <div class="std-padding-bottom center">
-        <span data-bind="ifnot: IsRandomAccessMode">
-            <a href="@GlobalConfig.Url("Config/InventoryToAcumatica")"
-               class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Previous Step
-            </a>
-        </span>
-
-        <span data-bind="if: IsRandomAccessMode">
-            <a href="@GlobalConfig.DiagnosticsHome"
-               class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Back to Diagnostics
-            </a>
-        </span>
-
-        <a href="#" class="btn btn-primary btn-lg"
-           data-bind="click: PushInventoryToShopifyClick">
-            Synchronize Now <i class="fas fa-bolt"></i>
-        </a>
-
-        <span data-bind="if: IsNextButtonVisible">
-            <a href="@GlobalConfig.DiagnosticsHome"
-               class="btn btn-success btn-lg">
-                Next Step <i class="fas fa-sign-in-alt"></i>
-            </a>
-        </span>
-    </div>
-</div>
-
-<div data-bind="if: IsBackgroundJobRunning">
-    <div class="std-padding">
-        <div class="card">
-            <div class="card-body center std-padding">
-                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-                <div style="height: 30px;"></div>
-                <p class="center">
-                    Please wait while @GlobalConfig.AppName loads your Acumatica inventory counts
-                    into Shopify. Depending on the size of your catalog, this process may take several minutes.
+            <div data-bind="if: ShopifyInventoryPushState() == SystemState.Ok">
+                <div class="alert alert-info">
+                    <strong>Load Inventory into Shopify - OK</strong>
+                </div>
+                <p>
+                    This process has successfully completed.
+                    Real-time Synchronziation can now run incremental updates.
                 </p>
             </div>
         </div>
+
+        <div class="std-padding-bottom center">
+            <span data-bind="ifnot: IsRandomAccessMode">
+                <a href="@GlobalConfig.Url("Config/InventoryToAcumatica")"
+                   class="btn btn-secondary btn-lg">
+                    <i class="fas fa-undo"></i> Previous Step
+                </a>
+            </span>
+
+            <span data-bind="if: IsRandomAccessMode">
+                <a href="@GlobalConfig.DiagnosticsHome"
+                   class="btn btn-secondary btn-lg">
+                    <i class="fas fa-undo"></i> Back to Diagnostics
+                </a>
+            </span>
+
+            <a href="#" class="btn btn-primary btn-lg"
+               data-bind="click: PushInventoryToShopifyClick">
+                Synchronize Now <i class="fas fa-bolt"></i>
+            </a>
+
+            <span data-bind="if: IsNextButtonVisible">
+                <a href="@GlobalConfig.DiagnosticsHome"
+                   class="btn btn-success btn-lg">
+                    Next Step <i class="fas fa-sign-in-alt"></i>
+                </a>
+            </span>
+        </div>
     </div>
-</div>
+
+    <div data-bind="if: IsBackgroundJobRunning">
+        <div class="std-padding">
+            <div class="card">
+                <div class="card-body center std-padding">
+                    <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+                    <div style="height: 30px;"></div>
+                    <p class="center">
+                        Please wait while @GlobalConfig.AppName loads your Acumatica inventory counts
+                        into Shopify. Depending on the size of your catalog, this process may take several minutes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
 
 <script>
     var Monster = Monster || {};
@@ -96,9 +99,9 @@
         self.IsRandomAccessMode = ko.observable();
         self.ShopifyInventoryPushState = ko.observable();
 
-        self.IsNextButtonVisible = ko.computed(function() {
+        self.IsNextButtonVisible = ko.computed(function () {
             return !self.IsRandomAccessMode()
-                    && self.ShopifyInventoryPushState() == SystemState.Ok;
+                && self.ShopifyInventoryPushState() == SystemState.Ok;
         });
 
         self.PushInventoryToShopifyClick = function () {

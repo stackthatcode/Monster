@@ -90,7 +90,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult AcumaticaTestConnection()
         {
-            _hangfireService.ConnectToAcumatica();
+            _hangfireService.LaunchBackgroundJob(BackgroundJobType.ConnectToAcumatica);
             return JsonNetResult.Success();
         }
 
@@ -117,7 +117,7 @@ namespace Monster.Web.Controllers
                         model.Password);
             }
 
-            _hangfireService.ConnectToAcumatica();
+            _hangfireService.LaunchBackgroundJob(BackgroundJobType.ConnectToAcumatica);
             return JsonNetResult.Success();
         }
 
@@ -134,7 +134,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult AcumaticaRefDataPull()
         {
-            _hangfireService.PullAcumaticaReferenceData();
+            _hangfireService.LaunchBackgroundJob(BackgroundJobType.PullAcumaticaRefData);
             return JsonNetResult.Success();
         }
 
@@ -216,7 +216,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult SyncWarehouses()
         {
-            _hangfireService.SyncWarehouseAndLocation();
+            _hangfireService.LaunchBackgroundJob(BackgroundJobType.SyncWarehouseAndLocation);
             return JsonNetResult.Success();
         }
 
@@ -224,7 +224,7 @@ namespace Monster.Web.Controllers
         public ActionResult WarehouseSyncStatus()
         {
             var isBackgroundJobRunning
-                = _hangfireService.IsJobRunning(
+                = _hangfireService.IsBackgroundJobRunning(
                     BackgroundJobType.SyncWarehouseAndLocation);
 
             var state = _stateRepository.RetrieveSystemState();
@@ -255,7 +255,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult PushInventoryToAcumatica()
         {
-            _hangfireService.PushInventoryToAcumatica();
+            _hangfireService.LaunchBackgroundJob(BackgroundJobType.PushInventoryToAcumatica);
             return JsonNetResult.Success();
         }
 
@@ -263,7 +263,7 @@ namespace Monster.Web.Controllers
         public ActionResult AcumaticaInventoryPushStatus()
         {
             var isRunning = 
-                _hangfireService.IsJobRunning(
+                _hangfireService.IsBackgroundJobRunning(
                     BackgroundJobType.PushInventoryToAcumatica);
 
             var state = _stateRepository.RetrieveSystemState();
@@ -291,7 +291,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult PushInventoryToShopify()
         {
-            _hangfireService.PushInventoryToShopify();
+            _hangfireService.LaunchBackgroundJob(BackgroundJobType.PushInventoryToShopify);
             return JsonNetResult.Success();
         }
 
@@ -300,7 +300,7 @@ namespace Monster.Web.Controllers
         {
             var isRunning =
                 _hangfireService
-                    .IsJobRunning(BackgroundJobType.PushInventoryToShopify);
+                    .IsBackgroundJobRunning(BackgroundJobType.PushInventoryToShopify);
 
             var state = _stateRepository.RetrieveSystemState();
 

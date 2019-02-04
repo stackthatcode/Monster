@@ -1,53 +1,55 @@
 ﻿@using Monster.Web.Plumbing
 
-<div class="center" style="padding-top: 40px; padding-bottom:20px">
-    <img style="width: 400px;"
-         src="@GlobalConfig.Url("Content/Bridge-logo-1-smaller.jpg")" />
+<main role="main" class="medium-size">
+    <div class="center" style="padding-top: 40px; padding-bottom:20px">
+        <img style="width: 400px;"
+             src="@GlobalConfig.Url("Content/Bridge-logo-1-smaller.jpg")" />
 
-    <div style="">
-        <div style="font-size: 1.1em; font-weight: 200; text-transform: uppercase; letter-spacing: 6px;" class="text-muted">
-            Powered by @GlobalConfig.Organization
+        <div style="">
+            <div style="font-size: 1.1em; font-weight: 200; text-transform: uppercase; letter-spacing: 6px;" class="text-muted">
+                Powered by @GlobalConfig.Organization
+            </div>
         </div>
     </div>
-</div>
 
-<hr />
+    <hr />
 
-<h1 class="mt-5 center">Welcome to @GlobalConfig.AppName!</h1>
+    <h1 class="mt-5 center">Welcome to @GlobalConfig.AppName!</h1>
 
-<div class="center top-tagline">
-    <p class="lead center">Cloud-based Shopify-to-Acumatica Synchronization</p>
-</div>
+    <div class="center top-tagline">
+        <p class="lead center">Cloud-based Shopify-to-Acumatica Synchronization</p>
+    </div>
 
-<p style="text-align: justify">
-    Welcome to @GlobalConfig.AppName, the 100% cloud-based, automated
-    Shopify-to-Acumatica synchronization tool.
-</p>
+    <p style="text-align: justify">
+        Welcome to @GlobalConfig.AppName, the 100% cloud-based, automated
+        Shopify-to-Acumatica synchronization tool.
+    </p>
 
-<p>
-    @GlobalConfig.AppName has been carefully designed to maximize your autonomy
-    by making the on-boarding process as pain-free as possible.
-</p>
+    <p>
+        @GlobalConfig.AppName has been carefully designed to maximize your autonomy
+        by making the on-boarding process as pain-free as possible.
+    </p>
 
-<div style="height: 30px;"></div>
+    <div style="height: 30px;"></div>
 
-<div class="card">
-    <div class="card-body">
+    <div class="card">
+        <div class="card-body">
 
-        <div class="center" style="padding: 15px;">
-            <p class="center" style="font-weight: bold; color: #555;">
-                @GlobalConfig.AppName will now guide you through the process of configuring
-                your Shopify store and your Acumatica instance for automated synchronization.
-            </p>
+            <div class="center" style="padding: 15px;">
+                <p class="center" style="font-weight: bold; color: #555;">
+                    @GlobalConfig.AppName will now guide you through the process of configuring
+                    your Shopify store and your Acumatica instance for automated synchronization.
+                </p>
 
-            <div style="height: 30px;"></div>
+                <div style="height: 30px;"></div>
 
-            <a href="@GlobalConfig.Url("ShopifyAuth/Domain")"
-               class="btn btn-primary btn-lg">
-                Let's Get Started <i class="fas fa-sign-in-alt"></i>
-            </a>
+                <a href="@GlobalConfig.Url("ShopifyAuth/Domain")"
+                   class="btn btn-primary btn-lg">
+                    Let's Get Started <i class="fas fa-sign-in-alt"></i>
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
-<div style="height: 30px;"></div>
+    <div style="height: 30px;"></div>
+</main>

@@ -14,7 +14,6 @@ namespace Monster.Middle.Hangfire
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
         
-        
 
         public BackgroundJobRunner(
                 SyncDirector director, 
@@ -31,85 +30,113 @@ namespace Monster.Middle.Hangfire
 
         // Fire-and-Forget Jobs
         //
-        public void RunConnectToAcumatica(Guid tenantId)
+        public void RunConnectToAcumatica(Guid instanceId)
         {
-            FireAndForgetJob(tenantId,
+            FireAndForgetJob(instanceId,
                 BackgroundJobType.ConnectToAcumatica,
                 _director.ConnectToAcumatica);
         }
 
-        public void RunPullAcumaticaSettings(Guid tenantId)
+        public void RunPullAcumaticaRefData(Guid instanceId)
         {
-            FireAndForgetJob(tenantId,
-                BackgroundJobType.PullAcumaticaReferenceData,
+            FireAndForgetJob(instanceId,
+                BackgroundJobType.PullAcumaticaRefData,
                 _director.PullAcumaticaReferenceData);
         }
 
-        public void RunSyncWarehouseAndLocation(Guid tenantId)
+        public void RunSyncWarehouseAndLocation(Guid instanceId)
         {
-            FireAndForgetJob(tenantId,
+            FireAndForgetJob(instanceId,
                 BackgroundJobType.SyncWarehouseAndLocation, 
                 _director.SyncWarehouseAndLocation);
         }
 
-        public void RunLoadInventoryIntoAcumatica(Guid tenantId)
+        public void RunDiagnostics(Guid instanceId)
         {
-            FireAndForgetJob(tenantId,
-                BackgroundJobType.PushInventoryToAcumatica,
-                _director.LoadInventoryIntoAcumatica);
-        }
-
-        public void RunLoadInventoryIntoShopify(Guid tenantId)
-        {
-            FireAndForgetJob(tenantId,
-                BackgroundJobType.PushInventoryToShopify,
-                _director.LoadInventoryIntoShopify);
-        }
-        
-        public void RunDiagnostics(Guid tenantId)
-        {
-            FireAndForgetJob(tenantId,
+            FireAndForgetJob(instanceId,
                 BackgroundJobType.Diagnostics,
                 _director.RunDiagnostics);
         }
 
 
-        // FaF Background Jobs do their own error handling as that is 
-        // ... reflected in System State
-        private void FireAndForgetJob(
-                Guid tenantId, int queueJobTypeId, Action task)
+        // Longer running processes - we'll use NamedLocks
+        //
+        public void PushInventoryToAcumatica(Guid instanceId)
         {
-            _tenantContext.Initialize(tenantId);
-            task();
-            _stateRepository.RemoveBackgroundJobs(queueJobTypeId);
+            FireAndForgetJob(
+                instanceId,
+                BackgroundJobType.PushInventoryToAcumatica,
+                _director.LoadInventoryIntoAcumatica,
+                InventorySyncLock);
+        }
+
+        public void PushInventoryToShopify(Guid instanceId)
+        {
+            FireAndForgetJob(
+                instanceId,
+                BackgroundJobType.PushInventoryToShopify,
+                _director.LoadInventoryIntoShopify,
+                InventorySyncLock);
+        }
+
+        public void RealTimeSynchronization(Guid instanceId)
+        {
+            _tenantContext.Initialize(instanceId);
+
+            RunOneTaskPerInstance(
+                instanceId, RealTimeSyncLock, () => _director.RealTimeSynchronization());
         }
 
 
 
-        // Routine Sync
+        // Execution plumbing
         //
-        static readonly NamedLock 
-                RoutineSyncLock = new NamedLock("RoutineSynchHarness");
-        
-        public void RunRealTimeSynchronization(Guid tenantId)
+
+        // FaF Background Jobs do their own error handling, as reflected in System State
+        //
+        private void FireAndForgetJob(Guid instanceId, int queueJobTypeId, Action task)
+        {
+            _tenantContext.Initialize(instanceId);
+            task();
+            _stateRepository.RemoveBackgroundJobs(queueJobTypeId);
+        }
+
+        private void FireAndForgetJob(
+                Guid instanceId, int queueJobTypeId, Action task, NamedLock namedLock)
+        {
+            _tenantContext.Initialize(instanceId);
+            RunOneTaskPerInstance(instanceId, namedLock, () => task());
+            _stateRepository.RemoveBackgroundJobs(queueJobTypeId);
+        }
+
+
+        // Concurrent task locking for longer running jobs
+        //
+        static readonly NamedLock RealTimeSyncLock = new NamedLock("RealTimeSync");
+        static readonly NamedLock InventorySyncLock = new NamedLock("InventorySync");
+
+        private void RunOneTaskPerInstance(
+                Guid instanceId, NamedLock methodLock, Action action)
         {
             try
             {
-                if (!RoutineSyncLock.Acquire(tenantId.ToString()))
+                if (!methodLock.Acquire(instanceId.ToString()))
                 {
-                    _logger.Info($"Failed to acquired RoutineSynchHarness for {tenantId}");
+                    var msg = $"Failed to acquire {methodLock.MethodName} lock for {instanceId}";
+                    _logger.Info(msg);
                     return;
                 }
 
-                _tenantContext.Initialize(tenantId);
-                _director.RealTimeSynchronization();
-                RoutineSyncLock.Free(tenantId.ToString());
+                action();
             }
             catch (Exception ex)
             {
-                RoutineSyncLock.Free(tenantId.ToString());
                 _logger.Error(ex);
                 throw;
+            }
+            finally
+            {
+                methodLock.Free(instanceId.ToString());
             }
         }
     }
