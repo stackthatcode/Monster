@@ -73,8 +73,10 @@ namespace Monster.Web.Controllers
             var state = _stateRepository.RetrieveSystemState();
 
             var model = new DomainModel();
+
             model.IsShopifyConnectionOk = state.ShopifyConnection == SystemState.Ok;
             model.IsShopifyConnectionBroken = state.ShopifyConnection.IsBroken();
+
             model.IsRandomAccessMode = state.IsRandomAccessMode;
             model.IsShopifyUrlFinalized = state.IsShopifyUrlFinalized;
             model.ShopDomain = tenant.ShopifyDomain;

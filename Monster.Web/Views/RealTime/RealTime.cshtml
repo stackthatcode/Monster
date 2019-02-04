@@ -224,7 +224,7 @@ Monster.InventoryConfigModel = function() {
     self.OrderViewTabIndex = 0;
     self.ExecutionTabIndex = 1;
 
-    self.ActiveTabIndex = ko.observable(self.OrderViewTabIndex);
+    self.ActiveTabIndex = ko.observable(self.ExecutionTabIndex);
 
     self.ExectionTabClick = function () { self.ActiveTabIndex(self.ExecutionTabIndex); }
 

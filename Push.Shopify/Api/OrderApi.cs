@@ -10,8 +10,7 @@ namespace Push.Shopify.Api
         private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
 
-        public OrderApi(
-                    IPushLogger logger, ShopifyHttpContext httpClient)
+        public OrderApi(IPushLogger logger, ShopifyHttpContext httpClient)
         {
             _logger = logger;
             _httpClient = httpClient;

@@ -187,7 +187,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
             salesOrder.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();
             salesOrder.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
-
+            
             salesOrder.FinancialSettings = new FinancialSettings()
             {
                 OverrideTaxZone = true.ToValue(),
@@ -198,13 +198,16 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             // Create Tax Details payload
             var taxDetails = new TaxDetails();
             taxDetails.TaxID = preferences.AcumaticaTaxId.ToValue();
-            taxDetails.TaxRate
-                = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotal)).ToValue();
+            //taxDetails.TaxRate
+            //    = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotal)).ToValue();
             taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
             taxDetails.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
 
             salesOrder.TaxDetails = new List<TaxDetails> { taxDetails };
+            salesOrder.TaxTotal = ((double)shopifyOrder.total_tax).ToValue();
+            salesOrder.IsTaxValid = true.ToValue();
             
+            // Shipping Settings
             salesOrder.ShippingSettings = new ShippingSettings
             {
                 ShipSeparately = true.ToValue(),
@@ -259,8 +262,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var taxDetails = new TaxDetails();
             taxDetails.id = syncRecord.AcumaticaTaxDetailId;
             taxDetails.TaxID = preferences.AcumaticaTaxId.ToValue();
-            taxDetails.TaxRate 
-                = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotal)).ToValue();
+            //taxDetails.TaxRate 
+            //    = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotal)).ToValue();
             taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
             taxDetails.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
 
@@ -268,6 +271,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var orderUpdate = new SalesOrderTaxUpdate();
             orderUpdate.OrderNbr = acumaticaRecord.AcumaticaOrderNbr.ToValue();
             orderUpdate.TaxDetails = new List<TaxDetails> { taxDetails };
+
+            // PUT to Acumatica
             var result = _salesOrderClient.WriteSalesOrder(orderUpdate.SerializeToJson());
 
             // Update the Sync Record

@@ -50,9 +50,9 @@
         </span>
 
         <span data-bind="if: IsRandomAccessMode">
-            <a href="@GlobalConfig.Url("RealTime/RealTime")"
+            <a href="@GlobalConfig.DiagnosticsHome"
                class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Back to Dashboard
+                <i class="fas fa-undo"></i> Back to Diagnostics
             </a>
         </span>
 
@@ -62,7 +62,7 @@
         </a>
 
         <span data-bind="if: IsNextButtonVisible">
-            <a href="@GlobalConfig.Url("RealTime/RealTime")"
+            <a href="@GlobalConfig.DiagnosticsHome"
                class="btn btn-success btn-lg">
                 Next Step <i class="fas fa-sign-in-alt"></i>
             </a>

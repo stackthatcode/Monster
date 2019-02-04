@@ -10,6 +10,7 @@ using Monster.Middle.Processes.Sync.Orders;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Monster.Web.Models.RealTime;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
 using Push.Shopify.Api;
@@ -106,14 +107,24 @@ namespace Monster.Web.Controllers
 
             var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
 
-            foreach (var row in orderSyncView)
-            {
-                //if (row.)
-                _logger.Debug(_orderApi.OrderInterfaceUrlById(row.ShopifyOrderId));
-                _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
-                _logger.Debug(_shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr));
-                _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
-            }
+            //foreach (var row in orderSyncView)
+            //{
+            //    //row.ShopifyOrderUrl = _orderApi.OrderInterfaceUrlById(row.ShopifyOrderId);
+
+            //    //if (row.AcumaticaOrderNbr.HasValue())
+            //    //{
+            //    //    row.AcumaticaOrderUrl = _orderApi.OrderInterfaceUrlById(row.ShopifyOrderId);
+            //    //}
+            //    //if (row.AcumaticaShipmentNbr.HasValue())
+            //    //{
+            //    //    row.AcumaticaShipmentUrl = _shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr);
+            //    //}
+
+            //    _logger.Debug(_orderApi.OrderInterfaceUrlById(row.ShopifyOrderId));
+            //    _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
+            //    _logger.Debug(_shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr));
+            //    _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
+            //}
 
 
             var output = new

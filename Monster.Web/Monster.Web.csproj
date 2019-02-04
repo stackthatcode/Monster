@@ -242,6 +242,7 @@
     <Content Include="Content\gijgo.min.css" />
     <Content Include="Content\Logic-Automated-logo-horizontal-transparent-white.png" />
     <Content Include="Content\spinner-new.gif" />
+    <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\UtilityFunctions.js" />
     <Content Include="Scripts\gijgo.min.js" />
     <Content Include="Content\pdf-icon.png" />
@@ -352,10 +353,16 @@
     <Content Include="Content\Configuring Acumatica for Synchronization.pdf" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Shared\_Scripts.cshtml" />
+    <Content Include="Views\Shared\_CustomScripts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\RealTime\Diagnostics.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Dependencies.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Navigation.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -47,6 +47,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var startOfRun = DateTime.UtcNow;
             var batchState = _batchStateRepository.Retrieve();
+            
             if (batchState.AcumaticaCustomersPullEnd.HasValue)
             {
                 RunUpdated();
@@ -127,8 +128,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             if (existingCustomer == null)
             {
-                var customerJson
-                    = _customerClient.RetrieveCustomer(acumaticaCustomerId);
+                var customerJson = _customerClient.RetrieveCustomer(acumaticaCustomerId);
                 var customer = customerJson.DeserializeFromJson<Customer>();
                 var newData = customer.ToMonsterRecord();
 
