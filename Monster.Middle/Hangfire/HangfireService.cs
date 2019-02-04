@@ -30,52 +30,52 @@ namespace Monster.Middle.Hangfire
         }
 
 
-        public void LaunchBackgroundJob(int jobId)
+        public void LaunchJob(int jobId)
         {
-            if (jobId == BackgroundJobType.ConnectToAcumatica)
+            if (jobId == JobType.ConnectToAcumatica)
             {
                 QueueBackgroundJob(
-                    BackgroundJobType.ConnectToAcumatica,
+                    JobType.ConnectToAcumatica,
                     x => x.RunConnectToAcumatica(_tenantContext.InstanceId));
                 return;
             }
 
-            if (jobId == BackgroundJobType.PullAcumaticaRefData)
+            if (jobId == JobType.PullAcumaticaRefData)
             {
                 QueueBackgroundJob(
-                    BackgroundJobType.PullAcumaticaRefData,
+                    JobType.PullAcumaticaRefData,
                     x => x.RunPullAcumaticaRefData(_tenantContext.InstanceId));
                 return;
             }
 
-            if (jobId == BackgroundJobType.SyncWarehouseAndLocation)
+            if (jobId == JobType.SyncWarehouseAndLocation)
             {
                 QueueBackgroundJob(
-                    BackgroundJobType.SyncWarehouseAndLocation,
+                    JobType.SyncWarehouseAndLocation,
                     x => x.RunSyncWarehouseAndLocation(_tenantContext.InstanceId));
                 return;
             }
 
-            if (jobId == BackgroundJobType.Diagnostics)
+            if (jobId == JobType.Diagnostics)
             {
                 QueueBackgroundJob(
-                    BackgroundJobType.Diagnostics,
+                    JobType.Diagnostics,
                     x => x.RunDiagnostics(_tenantContext.InstanceId));
                 return;
             }
 
-            if (jobId == BackgroundJobType.PushInventoryToAcumatica)
+            if (jobId == JobType.PushInventoryToAcumatica)
             {
                 QueueBackgroundJob(
-                    BackgroundJobType.PushInventoryToAcumatica,
+                    JobType.PushInventoryToAcumatica,
                     x => x.PushInventoryToAcumatica(_tenantContext.InstanceId));
                 return;
             }
 
-            if (jobId == BackgroundJobType.PullAcumaticaRefData)
+            if (jobId == JobType.PullAcumaticaRefData)
             {
                 QueueBackgroundJob(
-                    BackgroundJobType.PushInventoryToShopify,
+                    JobType.PushInventoryToShopify,
                     x => x.PushInventoryToShopify(_tenantContext.InstanceId));
                 return;
             }
@@ -113,20 +113,19 @@ namespace Monster.Middle.Hangfire
         }
 
         private void QueueBackgroundJob(
-                int backgroundJobType, Expression<Action<BackgroundJobRunner>> action)
+                int backgroundJobType, Expression<Action<JobRunner>> action)
         {
             using (var transaction = _stateRepository.BeginTransaction())
             {
-                if (IsBackgroundJobRunning(backgroundJobType))
-                {
-                    _logger.Info($"Job (BackgroundJobType = {backgroundJobType}) already running");
-                    return;
-                }
+                // This is no longer necessary since execution will be blocked by the Job Runner
+                //if (IsBackgroundJobRunning(backgroundJobType))
+                //{
+                //    _logger.Info($"Job (BackgroundJobType = {backgroundJobType}) already running");
+                //    return;
+                //}
                 
-                var jobId = BackgroundJob.Enqueue<BackgroundJobRunner>(action);
-
-                _stateRepository.InsertBackgroundJob(backgroundJobType, jobId);
-                
+                var jobId = BackgroundJob.Enqueue<JobRunner>(action);
+                _stateRepository.InsertBackgroundJob(backgroundJobType, jobId);                
                 transaction.Commit();
             }
         }
@@ -142,7 +141,7 @@ namespace Monster.Middle.Hangfire
             {
                 var state = _stateRepository.RetrieveSystemState();
 
-                RecurringJob.AddOrUpdate<BackgroundJobRunner>(  
+                RecurringJob.AddOrUpdate<JobRunner>(  
                     routineSyncJobId,
                     x => x.RealTimeSynchronization(_tenantContext.InstanceId),
                     "*/1 * * * *",

@@ -2,9 +2,11 @@
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Extensions;
+using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Processes.Sync.Inventory.Services;
 
-namespace Monster.Middle.Processes.Sync.Inventory.Services
+namespace Monster.Middle.Processes.Sync.Status
 {
     public class StatusService
     {
@@ -64,7 +66,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
         {
             var isRunning =
                 _hangfireService.IsBackgroundJobRunning(
-                    BackgroundJobType.ConnectToAcumatica);
+                    JobType.ConnectToAcumatica);
 
             var state = _stateRepository.RetrieveSystemState();
 
@@ -83,7 +85,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Services
         {
             var isRunning =
                 _hangfireService.IsBackgroundJobRunning(
-                    BackgroundJobType.PullAcumaticaRefData);
+                    JobType.PullAcumaticaRefData);
 
             var state = _stateRepository.RetrieveSystemState();
             

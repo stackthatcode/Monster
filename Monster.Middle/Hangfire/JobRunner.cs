@@ -7,22 +7,21 @@ using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Hangfire
 {
-    public class BackgroundJobRunner
+    public class JobRunner
     {
         private readonly SyncDirector _director;
-        private readonly ConnectionContext _tenantContext;
+        private readonly ConnectionContext _connectionContext;
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
         
-
-        public BackgroundJobRunner(
+        public JobRunner(
                 SyncDirector director, 
-                ConnectionContext tenantContext, 
+                ConnectionContext connectionContext, 
                 StateRepository stateRepository,
                 IPushLogger logger)
         {
             _director = director;
-            _tenantContext = tenantContext;
+            _connectionContext = connectionContext;
             _stateRepository = stateRepository;
             _logger = logger;
         }
@@ -33,55 +32,56 @@ namespace Monster.Middle.Hangfire
         public void RunConnectToAcumatica(Guid instanceId)
         {
             FireAndForgetJob(instanceId,
-                BackgroundJobType.ConnectToAcumatica,
+                JobType.ConnectToAcumatica,
                 _director.ConnectToAcumatica);
         }
 
         public void RunPullAcumaticaRefData(Guid instanceId)
         {
             FireAndForgetJob(instanceId,
-                BackgroundJobType.PullAcumaticaRefData,
+                JobType.PullAcumaticaRefData,
                 _director.PullAcumaticaReferenceData);
         }
 
         public void RunSyncWarehouseAndLocation(Guid instanceId)
         {
             FireAndForgetJob(instanceId,
-                BackgroundJobType.SyncWarehouseAndLocation, 
+                JobType.SyncWarehouseAndLocation, 
                 _director.SyncWarehouseAndLocation);
         }
 
         public void RunDiagnostics(Guid instanceId)
         {
             FireAndForgetJob(instanceId,
-                BackgroundJobType.Diagnostics,
+                JobType.Diagnostics,
                 _director.RunDiagnostics);
         }
-
-
-        // Longer running processes - we'll use NamedLocks
-        //
+        
         public void PushInventoryToAcumatica(Guid instanceId)
         {
+            // Longer running processes - we'll use NamedLocks
+            //
             FireAndForgetJob(
                 instanceId,
-                BackgroundJobType.PushInventoryToAcumatica,
+                JobType.PushInventoryToAcumatica,
                 _director.LoadInventoryIntoAcumatica,
                 InventorySyncLock);
         }
 
         public void PushInventoryToShopify(Guid instanceId)
         {
+            // Longer running processes - we'll use NamedLocks
+            //
             FireAndForgetJob(
                 instanceId,
-                BackgroundJobType.PushInventoryToShopify,
+                JobType.PushInventoryToShopify,
                 _director.LoadInventoryIntoShopify,
                 InventorySyncLock);
         }
 
         public void RealTimeSynchronization(Guid instanceId)
         {
-            _tenantContext.Initialize(instanceId);
+            _connectionContext.Initialize(instanceId);
 
             RunOneTaskPerInstance(
                 instanceId, RealTimeSyncLock, () => _director.RealTimeSynchronization());
@@ -96,7 +96,7 @@ namespace Monster.Middle.Hangfire
         //
         private void FireAndForgetJob(Guid instanceId, int queueJobTypeId, Action task)
         {
-            _tenantContext.Initialize(instanceId);
+            _connectionContext.Initialize(instanceId);
             task();
             _stateRepository.RemoveBackgroundJobs(queueJobTypeId);
         }
@@ -104,7 +104,7 @@ namespace Monster.Middle.Hangfire
         private void FireAndForgetJob(
                 Guid instanceId, int queueJobTypeId, Action task, NamedLock namedLock)
         {
-            _tenantContext.Initialize(instanceId);
+            _connectionContext.Initialize(instanceId);
             RunOneTaskPerInstance(instanceId, namedLock, () => task());
             _stateRepository.RemoveBackgroundJobs(queueJobTypeId);
         }
@@ -128,15 +128,17 @@ namespace Monster.Middle.Hangfire
                 }
 
                 action();
+
+                // *** Important - do not refactor this to use finally, else it will 
+                // ... break concurrency locking
+                //
+                methodLock.Free(instanceId.ToString());
             }
             catch (Exception ex)
             {
+                methodLock.Free(instanceId.ToString());
                 _logger.Error(ex);
                 throw;
-            }
-            finally
-            {
-                methodLock.Free(instanceId.ToString());
             }
         }
     }

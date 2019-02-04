@@ -1,6 +1,6 @@
 ﻿namespace Monster.Middle.Hangfire
 {
-    public class BackgroundJobType
+    public class JobType
     {
         public const int ConnectToAcumatica = 1;
         public const int PullAcumaticaRefData = 2;

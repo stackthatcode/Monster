@@ -103,7 +103,7 @@ namespace Monster.Web.Controllers
                     }).ToList();
 
             var isConfigDiagnosisRunning 
-                = _hangfireService.IsBackgroundJobRunning(BackgroundJobType.Diagnostics);
+                = _hangfireService.IsBackgroundJobRunning(JobType.Diagnostics);
 
             var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
 
@@ -153,7 +153,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult TriggerConfigDiagnosis()
         {
-            _hangfireService.LaunchBackgroundJob(BackgroundJobType.Diagnostics);
+            _hangfireService.LaunchJob(JobType.Diagnostics);
             return JsonNetResult.Success();
         }
 

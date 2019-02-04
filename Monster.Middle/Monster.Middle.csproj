@@ -125,8 +125,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
-    <Compile Include="Hangfire\BackgroundJobRunner.cs" />
-    <Compile Include="Hangfire\BackgroundJobType.cs" />
+    <Compile Include="Hangfire\JobRunner.cs" />
+    <Compile Include="Hangfire\JobType.cs" />
     <Compile Include="Hangfire\HangfireService.cs" />
     <Compile Include="Hangfire\HangFireLogger.cs" />
     <Compile Include="Hangfire\HangFireLogProvider.cs" />
@@ -171,7 +171,7 @@
     <Compile Include="Processes\Sync\Orders\SyncOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\AcumaticaManager.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\WarehouseSyncStateDetails.cs" />
-    <Compile Include="Processes\Sync\Inventory\Services\StatusService.cs" />
+    <Compile Include="Processes\Sync\Status\StatusService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInventoryPull.cs" />
     <Compile Include="Processes\Sync\Inventory\InventorySyncManager.cs" />
     <Compile Include="Processes\Sync\Inventory\Workers\ShopifyInventorySync.cs" />

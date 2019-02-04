@@ -22,6 +22,7 @@ using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Processes.Sync.Orders.Workers;
+using Monster.Middle.Processes.Sync.Status;
 using Monster.Middle.Security;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
@@ -81,7 +82,7 @@ namespace Monster.Middle
             builder.RegisterType<ExecutionLogRepository>().InstancePerLifetimeScope();
 
             // Job Running components
-            builder.RegisterType<BackgroundJobRunner>().InstancePerLifetimeScope();
+            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
             builder.RegisterType<HangfireService>().InstancePerLifetimeScope();
 
             // Process Registrations

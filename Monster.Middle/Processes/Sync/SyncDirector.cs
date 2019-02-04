@@ -9,6 +9,7 @@ using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Orders;
+using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.Logging;
 
 
