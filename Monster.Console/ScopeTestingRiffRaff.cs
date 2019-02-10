@@ -24,7 +24,7 @@ namespace Monster.ConsoleApp
             _persist = persist;
         }
 
-        // RunPaymentsForOrders this after Hangfire persistence is setup
+        // Run this after Hangfire persistence is setup
         public static void ScheduleSomeTrouble()
         {
             // *** Testing LifeTime Scope

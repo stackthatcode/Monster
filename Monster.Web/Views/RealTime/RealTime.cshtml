@@ -37,7 +37,7 @@
     <div class="std-padding">
         <div class="card">
             <div class="card-body std-padding">
-                <div data-bind="if: IsRealTimeSyncRunReturnsPaymentsForOrdersning">
+                <div data-bind="if: IsRealTimeSyncRunning">
                     <div class="alert alert-success">
                         <strong>Real-Time Synchronization - Enabled</strong>
                     </div>
@@ -59,7 +59,7 @@
                     </div>
                 </div>
 
-                <div data-bind="ifnot: AreAnyBackgroundJobsRunReturnsPaymentsForOrdersning">
+                <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
                     <div data-bind="if: IsReadyForRealTimeSync">
                         <div class="alert alert-info">
                             <strong>Real-Time Synchronization - Ready to Start</strong>

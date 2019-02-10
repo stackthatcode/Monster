@@ -20,14 +20,14 @@ namespace Monster.Acumatica.Api
             _httpContext = httpContext;
         }
 
+
         public string OrderInterfaceUrlById(string salesOrderId)
         {
             return 
                 $"{_httpContext.BaseAddress}Main" +
                 $"?ScreenId=SO301000&OrderType=SO&OrderNbr={salesOrderId}";
         }
-
-
+        
         public string RetrieveSalesOrders(DateTime? lastModified = null)
         {
             var queryString = "$expand=Details,ShippingSettings";
@@ -41,8 +41,7 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get($"SalesOrder?{queryString}");
             return response.Body;
         }
-
-
+        
         public string RetrieveSalesOrderShipments(string salesOrderId)
         {
             var url = $"SalesOrder/SO/{salesOrderId}?$expand=Shipments";
@@ -58,12 +57,28 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+        public string RetrieveSalesOrder(string salesOrderId)
+        {
+            var path = $"SalesOrder/{salesOrderId}?$expand=Shipments";
+            var response = _httpContext.Get(path);
+            return response.Body;
+        }
+
         public string WriteSalesOrder(string json)
         {
             var response = _httpContext.Put("SalesOrder", json);
             LogSalesOrderDetailIds(response.Body);
             return response.Body;
         }
+
+        public string PrepareSalesOrderInvoice(string json)
+        {
+            var response = 
+                _httpContext.Post("SalesOrder/PrepareInvoice", json);
+
+            return response.Body;
+        }
+
 
         private void LogSalesOrderDetailIds(string resultJson)
         {

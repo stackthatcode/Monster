@@ -10,7 +10,7 @@
     <p class="lead center">Synchronize Shopify with Acumatica inventory counts</p>
 
 
-    <div data-bind="ifnot: IsBackgroundJobRunReturnsPaymentsForOrdersning">
+    <div data-bind="ifnot: IsBackgroundJobRunning">
         <div class="std-padding">
             <div data-bind="if: ShopifyInventoryPushState() == SystemState.None">
                 <p>
@@ -74,7 +74,7 @@
         </div>
     </div>
 
-    <div data-bind="if: IsBackgroundJobRunReturnsPaymentsForOrdersning">
+    <div data-bind="if: IsBackgroundJobRunning">
         <div class="std-padding">
             <div class="card">
                 <div class="card-body center std-padding">

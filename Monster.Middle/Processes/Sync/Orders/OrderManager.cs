@@ -73,9 +73,10 @@ namespace Monster.Middle.Processes.Sync.Orders
                 _acumaticaCustomerSync.Run();
                 _acumaticaOrderSync.Run();
 
-                // Synchronize Payments and Refunds
                 _acumaticaPaymentSync.RunPaymentsForOrders();
+
                 _acumaticaRefundSync.RunReturns();
+                _acumaticaRefundSync.RunCancellations();
             });
         }
 

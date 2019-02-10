@@ -205,7 +205,13 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
         public void PushReturnInvoice(UsrShopifyRefund refundRecord)
         {
+            var creditMemoRefNbr 
+                = refundRecord
+                    .UsrShopAcuRefundCms
+                    .First()
+                    .AcumaticaCreditMemoOrderNbr;
 
+            var json = _salesOrderClient.RetrieveSalesOrder(creditMemoRefNbr);
         }
 
         private ReturnForCreditWrite 

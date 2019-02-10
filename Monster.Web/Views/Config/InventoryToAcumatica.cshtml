@@ -10,7 +10,7 @@
     <h1 class="mt-5 center">Inventory - Load into Acumatica</h1>
     <p class="lead center">Optional step to load your Shopify Inventory into Acumatica</p>
 
-    <div data-bind="ifnot: IsBackgroundJobRunReturnsPaymentsForOrdersning">
+    <div data-bind="ifnot: IsBackgroundJobRunning">
         <div class="std-padding">
             <div data-bind="if: AcumaticaInventoryPushState() == SystemState.None">
                 <div class="alert alert-warning">
@@ -78,7 +78,7 @@
         </div>
     </div>
 
-    <div data-bind="if: IsBackgroundJobRunReturnsPaymentsForOrdersning">
+    <div data-bind="if: IsBackgroundJobRunning">
         <div class="std-padding">
             <div class="card">
                 <div class="card-body center std-padding">

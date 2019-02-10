@@ -9,7 +9,7 @@
     <h1 class="mt-5 center">Warehouse &amp; Location Mapping</h1>
     <p class="lead center">Synchronize your Acumatica Warehouses with Shopify Locations</p>
 
-    <div data-bind="ifnot: BackgroundJobRunReturnsPaymentsForOrdersning">
+    <div data-bind="ifnot: BackgroundJobRunning">
         <div data-bind="if: WarehouseSyncState() == SystemState.None">
             <div class="std-padding">
                 <div class="alert alert-warning" role="alert">
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <div data-bind="if: BackgroundJobRunReturnsPaymentsForOrdersning">
+    <div data-bind="if: BackgroundJobRunning">
         <div class="std-padding">
             <div class="card">
                 <div class="card-body center std-padding">
