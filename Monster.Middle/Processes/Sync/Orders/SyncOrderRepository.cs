@@ -179,7 +179,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                     .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
                     .Where(x => x.ShopifyIsCancellation == false)
                     .Where(x => x.UsrShopAcuRefundCms.Any() == false ||
-                                x.UsrShopAcuRefundCms.First().IsComplete == false)
+                                x.UsrShopAcuRefundCms.Any(y => y.IsComplete == false))
                     .ToList();
         }
 

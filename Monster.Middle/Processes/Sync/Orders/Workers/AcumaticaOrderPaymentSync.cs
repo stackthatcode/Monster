@@ -49,7 +49,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         public void WritePaymentForOrders(UsrShopifyTransaction transactionRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-            var transaction = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
+            var transaction 
+                = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
 
             // Locate the Acumatica Customer
             var shopifyCustomerId = transactionRecord.CustomerId();

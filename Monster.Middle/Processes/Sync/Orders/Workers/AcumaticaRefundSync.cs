@@ -11,6 +11,7 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Orders.Model;
+using Newtonsoft.Json;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
@@ -191,6 +192,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             var creditMemoWrite = new ReturnForCreditWrite();
             creditMemoWrite.OrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr.ToValue();
+            creditMemoWrite.OrderType = AcumaticaConstants.CreditMemoType.ToValue();
             creditMemoWrite.TaxDetails = new List<TaxDetails>() {taxUpdate};
 
             var result = _salesOrderClient.WriteSalesOrder(creditMemoWrite.SerializeToJson());
@@ -205,13 +207,20 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
         public void PushReturnInvoice(UsrShopifyRefund refundRecord)
         {
-            var creditMemoRefNbr 
+            var creditMemoOrderNbr 
                 = refundRecord
                     .UsrShopAcuRefundCms
                     .First()
                     .AcumaticaCreditMemoOrderNbr;
+            
+            var json = 
+                _salesOrderClient
+                    .RetrieveSalesOrder(creditMemoOrderNbr, AcumaticaConstants.CreditMemoType);
 
-            var json = _salesOrderClient.RetrieveSalesOrder(creditMemoRefNbr);
+            var salesOrder = json.DeserializeFromJson<SalesOrder>();
+            var entityAsString = new {entity = salesOrder}.SerializeToJson();
+
+            _salesOrderClient.PrepareSalesOrderInvoice(entityAsString);
         }
 
         private ReturnForCreditWrite 
@@ -219,9 +228,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         {
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-
             var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
             var salesOrder = salesOrderRecord.ToAcuObject();
+
 
             var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
 
@@ -233,6 +242,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var taxDetail = new TaxDetails();
             taxDetail.TaxID = preferences.AcumaticaTaxId.ToValue();
             creditMemo.TaxDetails = new List<TaxDetails> {taxDetail};
+            
+            creditMemo.FinancialSettings = new FinancialSettings()
+            {
+                OverrideTaxZone = true.ToValue(),
+                CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
+            };
 
             foreach (var _return in refund.Returns)
             {
