@@ -37,7 +37,7 @@
     <div class="std-padding">
         <div class="card">
             <div class="card-body std-padding">
-                <div data-bind="if: IsRealTimeSyncRunning">
+                <div data-bind="if: IsRealTimeSyncRunReturnsPaymentsForOrdersning">
                     <div class="alert alert-success">
                         <strong>Real-Time Synchronization - Enabled</strong>
                     </div>
@@ -59,7 +59,7 @@
                     </div>
                 </div>
 
-                <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
+                <div data-bind="ifnot: AreAnyBackgroundJobsRunReturnsPaymentsForOrdersning">
                     <div data-bind="if: IsReadyForRealTimeSync">
                         <div class="alert alert-info">
                             <strong>Real-Time Synchronization - Ready to Start</strong>
@@ -110,6 +110,8 @@
 
 </main>
 
+@Html.Partial("_SharedKnockoutViews")
+
 <script type="text/html" id="Real-Time-Monitoring">
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link" id="nav-profile-tab"
@@ -128,7 +130,7 @@
     </div>
 
     <div data-bind="if: ActiveTabIndex() == ExecutionTabIndex">
-        <div data-bind="template: { name: 'Execution-Logs' } "></div>
+        <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
     </div>
 </script>
 
@@ -172,30 +174,12 @@
     </div>
 </script>
 
-<script type="text/html" id="Execution-Logs">
-    <div style="overflow-y: scroll; height: 600px;">
-        <div data-bind="if: Logs().length">
-            <table class="table table-striped">
-                <tbody data-bind="foreach: Logs">
-                    <tr>
-                        <td>
-                            <div style="font-size:14px; letter-spacing: 1px; color:#777;">
-                                <span data-bind="text: LogTime"></span> (UTC)
-                            </div>
-                            <div data-bind="text: Content"></div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</script>
 
 
 <script>
 var Monster = Monster || {};
 
-Monster.InventoryConfigModel = function() {
+Monster.RealTimeModel = function() {
     var self = this;
 
     self.IsRealTimeSyncRunning = ko.observable(false);
@@ -302,8 +286,7 @@ Monster.InventoryConfigModel = function() {
                 self.OrderSyncView(response.OrderSyncView);
 
                 //console.log(self.OrderSummary());
-
-
+                
                 if (self.AreAnyBackgroundJobsRunning()) {
                     setTimeout(self.PollStatus, 1000);
                 } else {
@@ -317,41 +300,7 @@ Monster.InventoryConfigModel = function() {
                 var ajax = new Monster.Ajax();
                 ajax.HttpGet("RealTime/ConfigDiagnosis", this);
             },
-            function (response) {
-                var configData = [
-                    {
-                        Name: "Shopify Connection",
-                        ConfigState: response.ShopifyConnection,
-                        Url: "@GlobalConfig.Url("ShopifyAuth/Domain")",
-                    },
-                    {
-                        Name: "Acumatica Connection",
-                        ConfigState: response.AcumaticaConnection,
-                        Url: "@GlobalConfig.Url("Config/AcumaticaConnection")",
-                    },
-                    {
-                        Name: "Acumatica Reference Data",
-                        ConfigState: response.AcumaticaReferenceData,
-                        Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
-                    },
-                    {
-                        Name: "Preference Selections",
-                        ConfigState: response.PreferenceSelections,
-                        Url: "@GlobalConfig.Url("Config/Preferences")",
-                    },
-                    {
-                        Name: "Warehouse Synchronization",
-                        ConfigState: response.WarehouseSync,
-                        Url: "@GlobalConfig.Url("Config/Warehouses")",
-                    },
-                    {
-                        Name: "Shopify Inventory Synchronization",
-                        ConfigState: response.ShopifyInventoryPush,
-                        Url: "@GlobalConfig.Url("Config/InventoryToShopify")",
-                    },
-                ];
-
-                self.ConfigDiagnosis(configData);
+            function (response) {                
                 self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
             });
     };
@@ -363,7 +312,7 @@ Monster.InventoryConfigModel = function() {
     return self;
 }
 
-var model = new Monster.InventoryConfigModel();
+var model = new Monster.RealTimeModel();
 model.Initialize();
 ko.applyBindings(model);
 model.Initialize();

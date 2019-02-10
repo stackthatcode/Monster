@@ -18,5 +18,10 @@ namespace Monster.Middle.Processes.Sync.Extensions
         {
             return input.Match() != null;
         }
+
+        public static string AcumaticaCustId(this UsrShopifyCustomer input)
+        {
+            return input.HasMatch() ? input.Match().AcumaticaCustomerId : null;
+        }
     }
 }

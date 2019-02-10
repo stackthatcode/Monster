@@ -10,7 +10,6 @@ using Monster.Middle.Processes.Sync.Orders;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Monster.Web.Models.RealTime;
-using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
 using Push.Shopify.Api;
@@ -93,14 +92,7 @@ namespace Monster.Web.Controllers
         public ActionResult RealTimeStatus()
         {
             var logs = _logRepository.RetrieveExecutionLogs();
-
-            var logDtos =
-                logs.Select(x =>
-                    new ExecutionLog()
-                    {
-                        LogTime = x.DateCreated.ToString(),
-                        Content = x.LogContent,
-                    }).ToList();
+            var logDtos = logs.Select(x => new ExecutionLog(x)).ToList();
 
             var isConfigDiagnosisRunning 
                 = _hangfireService.IsBackgroundJobRunning(JobType.Diagnostics);

@@ -22,7 +22,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly PreferencesRepository _preferencesRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly AcumaticaPaymentSync _acumaticaPaymentSync;
         private readonly IPushLogger _logger;
 
         private readonly SalesOrderClient _salesOrderClient;
@@ -38,7 +37,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     AcumaticaCustomerSync acumaticaCustomerSync, 
                     PreferencesRepository preferencesRepository, 
                     ExecutionLogRepository logRepository,
-                    AcumaticaPaymentSync acumaticaPaymentSync,
                     IPushLogger _logger)
         {
             _syncOrderRepository = syncOrderRepository;
@@ -47,7 +45,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _preferencesRepository = preferencesRepository;
             _logRepository = logRepository;
-            _acumaticaPaymentSync = acumaticaPaymentSync;
             _syncInventoryRepository = syncInventoryRepository;
             _logger = _logger;
         }
@@ -183,6 +180,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             salesOrder.OrderType = AcumaticaConstants.SalesOrderType.ToValue();
             salesOrder.Status = "Open".ToValue();
             salesOrder.Hold = false.ToValue();
+            salesOrder.ExternalRef = $"{shopifyOrder.order_number}".ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
             salesOrder.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();

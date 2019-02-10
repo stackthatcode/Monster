@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Linq;
+using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
@@ -7,6 +8,7 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Status;
+using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Push.Foundation.Web.Json;
 
@@ -268,12 +270,15 @@ namespace Monster.Web.Controllers
                     JobType.PushInventoryToAcumatica);
 
             var state = _stateRepository.RetrieveSystemState();
+            var logs = _logRepository.RetrieveExecutionLogs();
+            var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
 
             var output = new
             {
                 IsBackgroundJobRunning = isRunning,
                 SystemState = state.AcumaticaInventoryPush,
-                IsRandomAccessMode = state.IsRandomAccessMode
+                IsRandomAccessMode = state.IsRandomAccessMode,
+                Logs = executionLogs,
             };
 
             return new JsonNetResult(output);
@@ -304,12 +309,15 @@ namespace Monster.Web.Controllers
                     .IsBackgroundJobRunning(JobType.PushInventoryToShopify);
 
             var state = _stateRepository.RetrieveSystemState();
+            var logs = _logRepository.RetrieveExecutionLogs();
+            var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
 
             var output = new
             {
                 IsBackgroundJobRunning = isRunning,
                 SystemState = state.ShopifyInventoryPush,
-                IsRandomAccessMode = state.IsRandomAccessMode
+                IsRandomAccessMode = state.IsRandomAccessMode,
+                Logs = executionLogs,
             };
 
             return new JsonNetResult(output);

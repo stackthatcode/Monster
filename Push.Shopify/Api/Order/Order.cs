@@ -125,6 +125,10 @@ namespace Push.Shopify.Api.Order
                 .ToList();
         }
 
+        public Refund RefundByTransaction(long transaction_id)
+        {
+            return refunds.FirstOrDefault(x => x.HasTransaction(transaction_id));
+        }
 
 
         public void Initialize()

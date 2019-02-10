@@ -24,11 +24,12 @@ namespace Monster.Middle.Persist.Multitenant
             Entities.SaveChanges();
         }
 
-        public List<UsrExecutionLog> RetrieveExecutionLogs()
+        public List<UsrExecutionLog> RetrieveExecutionLogs(int take = 1000)
         {
             return Entities
                 .UsrExecutionLogs
                 .OrderByDescending(x => x.DateCreated)
+                .Take(take)
                 .ToList();
         }
 

@@ -11,6 +11,12 @@
         public const string StatusCompleted = "Completed";
     }
 
+    public class ShipmentStatus
+    {
+        public const string Open = "Open";
+        public const string Confirmed = "Completed";
+    }
+
     public class PaymentType
     {
         public const string Payment = "Payment";

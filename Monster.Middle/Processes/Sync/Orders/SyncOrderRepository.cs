@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Orders.Model;
 using Push.Shopify.Api.Transactions;
 
@@ -154,8 +155,8 @@ namespace Monster.Middle.Processes.Sync.Orders
         {
             return Entities
                 .UsrAcumaticaShipments
-                .Where(x => x.IsCreatedByMonster
-                            && x.AcumaticaStatus == "Open")
+                .Where(x => x.IsCreatedByMonster 
+                            && x.AcumaticaStatus == ShipmentStatus.Open)
                 .ToList();
         }
 
@@ -165,38 +166,46 @@ namespace Monster.Middle.Processes.Sync.Orders
             return Entities
                 .UsrAcumaticaShipments
                 .Where(x => x.IsCreatedByMonster 
-                            && x.AcumaticaStatus == "Confirmed")
+                            && x.AcumaticaStatus == ShipmentStatus.Confirmed)
                 .ToList();
         }
 
 
         // Shopify Refunds
         //
-        public List<UsrShopifyRefund> RetrieveRefundRestocksNotSynced()
+        public List<UsrShopifyRefund> RetrieveReturnsNotSynced()
         {
             return RefundRecordGraph
                     .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
-                    .Where(x => !x.ShopifyIsCancellation && !x.UsrShopAcuRefundCms.Any())
+                    .Where(x => x.ShopifyIsCancellation == false)
+                    .Where(x => x.UsrShopAcuRefundCms.Any() == false ||
+                                x.UsrShopAcuRefundCms.First().IsComplete == false)
                     .ToList();
         }
 
-        public List<UsrShopifyRefund> RetrieveRefundCancellationsNotSynced()
+        public UsrShopifyRefund RetrieveRefundAndSync(long shopifyRefundId)
+        {
+            return Entities
+                .UsrShopifyRefunds
+                .Include(x => x.UsrShopAcuRefundCms)
+                .FirstOrDefault(x => x.ShopifyRefundId == shopifyRefundId);
+        }
+
+        public List<UsrShopifyRefund> RetrieveCancellationsNotSynced()
         {
             return RefundRecordGraph
                 .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
                 .Where(x => x.ShopifyIsCancellation && !x.IsCancellationSynced)
                 .ToList();
         }
-
-
+        
         private IQueryable<UsrShopifyRefund> RefundRecordGraph => 
             Entities
                 .UsrShopifyRefunds
                 .Include(x => x.UsrShopifyOrder)
                 .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
                 .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder));
-
-
+        
         public void InsertRefundSync(UsrShopAcuRefundCm input)
         {
             Entities.UsrShopAcuRefundCms.Add(input);
@@ -206,7 +215,7 @@ namespace Monster.Middle.Processes.Sync.Orders
 
         // Shopify Transactions
         //
-        public List<UsrShopifyTransaction> RetrieveUnsyncedTransactions()
+        public List<UsrShopifyTransaction> RetrieveUnsyncedPayments()
         {
             return Entities.UsrShopifyTransactions
                 .Include(x => x.UsrShopifyOrder)
@@ -220,6 +229,26 @@ namespace Monster.Middle.Processes.Sync.Orders
                             && x.UsrShopifyAcuPayment == null)
                 .ToList();
         }
+
+
+        // NOTE - this does not indicate whether the Credit Memo and Credit Memo Invoice
+        // ... have yet been created for this Refund - we'll need to pull the Order Refund
+        // ... and its sync record for that
+        public List<UsrShopifyTransaction> RetrieveUnsyncedRefunds()
+        {
+            return Entities.UsrShopifyTransactions
+                .Include(x => x.UsrShopifyOrder)
+                .Include(x => x.UsrShopifyOrder.UsrShopifyCustomer)
+                .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any()
+                            && x.ShopifyGateway != Gateway.Manual
+                            && x.ShopifyStatus == TransactionStatus.Success
+                            && x.ShopifyKind == TransactionKind.Refund
+                            && x.ShopifyRefundId != null
+                            && x.UsrShopifyAcuPayment == null)
+                .ToList();
+        }
+        
+
 
         public void InsertPayment(UsrShopifyAcuPayment payment)
         {

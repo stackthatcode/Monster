@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.Payment
@@ -6,6 +7,7 @@ namespace Monster.Acumatica.Api.Payment
     public class PaymentWrite
     {
         public StringValue ReferenceNbr { get; set; }
+        public BoolValue Hold { get; set; }
         public StringValue Type { get; set; }
         public StringValue CustomerID { get; set; }
         public StringValue PaymentMethod { get; set; }

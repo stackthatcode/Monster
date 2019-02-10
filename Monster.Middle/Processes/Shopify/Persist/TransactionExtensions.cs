@@ -26,5 +26,16 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             return input.FirstOrDefault(x => x.IsMatch(other));
         }
+
+        public static long CustomerId(this UsrShopifyTransaction transactionRecord)
+        {
+            return transactionRecord.UsrShopifyOrder.UsrShopifyCustomer.ShopifyCustomerId;
+        }
+
+        public static long OrderId(this UsrShopifyTransaction transactionRecord)
+        {
+            return transactionRecord.UsrShopifyOrder.ShopifyOrderId;
+        }
+
     }
 }

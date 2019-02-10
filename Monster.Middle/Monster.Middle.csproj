@@ -125,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
+    <Compile Include="Hangfire\Extensions.cs" />
     <Compile Include="Hangfire\JobRunner.cs" />
     <Compile Include="Hangfire\JobType.cs" />
     <Compile Include="Hangfire\HangfireService.cs" />
@@ -183,7 +184,7 @@
     <Compile Include="Processes\Sync\Inventory\Workers\AcumaticaInventorySync.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\Standards.cs" />
     <Compile Include="Processes\Sync\Orders\OrderManager.cs" />
-    <Compile Include="Processes\Sync\Orders\Workers\AcumaticaPaymentSync.cs" />
+    <Compile Include="Processes\Sync\Orders\Workers\AcumaticaOrderPaymentSync.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaShipmentPull.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaOrderPull.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaCustomerPull.cs" />

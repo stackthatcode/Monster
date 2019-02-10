@@ -1,5 +1,7 @@
 ﻿@using Monster.Web.Plumbing
 
+@Html.Partial("_SharedKnockoutViews")
+
 <main role="main" class="medium-size">
 
     @Html.Partial("_TopBrand")
@@ -8,7 +10,7 @@
     <h1 class="mt-5 center">Inventory - Load into Acumatica</h1>
     <p class="lead center">Optional step to load your Shopify Inventory into Acumatica</p>
 
-    <div data-bind="ifnot: IsBackgroundJobRunning">
+    <div data-bind="ifnot: IsBackgroundJobRunReturnsPaymentsForOrdersning">
         <div class="std-padding">
             <div data-bind="if: AcumaticaInventoryPushState() == SystemState.None">
                 <div class="alert alert-warning">
@@ -76,17 +78,21 @@
         </div>
     </div>
 
-    <div data-bind="if: IsBackgroundJobRunning">
+    <div data-bind="if: IsBackgroundJobRunReturnsPaymentsForOrdersning">
         <div class="std-padding">
             <div class="card">
                 <div class="card-body center std-padding">
                     <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
                     <div style="height: 30px;"></div>
+
                     <p class="center">
-                        Please wait while @GlobalConfig.AppName loads your Shopify Products and Variants
-                        into Acumatica. Depending on size, this process may take several minutes.
+                        @GlobalConfig.AppName is currently busy processing your inventory.<br />
+                        Depending on the size of your catalog, this process may take up to several hours.
                     </p>
+                    
+                    <hr />
+
+                    <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
                 </div>
             </div>
         </div>
@@ -102,6 +108,7 @@
         self.IsBackgroundJobRunning = ko.observable();
         self.IsRandomAccessMode = ko.observable();
         self.AcumaticaInventoryPushState = ko.observable();
+        self.Logs = ko.observableArray();
 
         self.PushInventoryToAcumaticaClick = function () {
             var ajax = new Monster.Ajax();
@@ -116,11 +123,12 @@
                     ajax.HttpGet("Config/AcumaticaInventoryPushStatus", this);
                 },
                 function (response) {
-                    console.log(response);
+                    //console.log(response);
 
                     self.IsBackgroundJobRunning(response.IsBackgroundJobRunning);
                     self.AcumaticaInventoryPushState(response.SystemState);
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
+                    self.Logs(response.Logs);
 
                     if (self.IsBackgroundJobRunning()) {
                         setTimeout(self.PollStatus, 1000);

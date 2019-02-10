@@ -88,10 +88,7 @@ namespace Monster.Middle.Hangfire
         }
 
 
-
-        // Execution plumbing
-        //
-
+        
         // FaF Background Jobs do their own error handling, as reflected in System State
         //
         private void FireAndForgetJob(Guid instanceId, int queueJobTypeId, Action task)

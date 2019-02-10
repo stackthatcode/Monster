@@ -1203,9 +1203,11 @@ namespace Monster.Middle.Persist.Multitenant
     {
         public long Id { get; set; } // Id (Primary key)
         public long ShopifyRefundMonsterId { get; set; } // ShopifyRefundMonsterId
-        public string AcumaticaCreditMemoNbr { get; set; } // AcumaticaCreditMemoNbr (length: 50)
-        public string AcumaticaTaxDetailId { get; set; } // AcumaticaTaxDetailId (length: 128)
-        public bool IsTaxLoadedToAcumatica { get; set; } // IsTaxLoadedToAcumatica
+        public string AcumaticaCreditMemoOrderNbr { get; set; } // AcumaticaCreditMemoOrderNbr (length: 50)
+        public bool IsCmOrderTaxLoaded { get; set; } // IsCmOrderTaxLoaded
+        public string AcumaticaCreditMemoInvoiceNbr { get; set; } // AcumaticaCreditMemoInvoiceNbr (length: 50)
+        public bool IsCmInvTaxLoaded { get; set; } // IsCmInvTaxLoaded
+        public bool IsComplete { get; set; } // IsComplete
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1589,6 +1591,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string ShopifyKind { get; set; } // ShopifyKind (length: 25)
         public string ShopifyJson { get; set; } // ShopifyJson
         public string ShopifyGateway { get; set; } // ShopifyGateway (length: 50)
+        public long? ShopifyRefundId { get; set; } // ShopifyRefundId
         public long OrderMonsterId { get; set; } // OrderMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -2507,9 +2510,11 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyRefundMonsterId).HasColumnName(@"ShopifyRefundMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.AcumaticaCreditMemoNbr).HasColumnName(@"AcumaticaCreditMemoNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaTaxDetailId).HasColumnName(@"AcumaticaTaxDetailId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(128);
-            Property(x => x.IsTaxLoadedToAcumatica).HasColumnName(@"IsTaxLoadedToAcumatica").HasColumnType("bit").IsRequired();
+            Property(x => x.AcumaticaCreditMemoOrderNbr).HasColumnName(@"AcumaticaCreditMemoOrderNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.IsCmOrderTaxLoaded).HasColumnName(@"IsCmOrderTaxLoaded").HasColumnType("bit").IsRequired();
+            Property(x => x.AcumaticaCreditMemoInvoiceNbr).HasColumnName(@"AcumaticaCreditMemoInvoiceNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.IsCmInvTaxLoaded).HasColumnName(@"IsCmInvTaxLoaded").HasColumnType("bit").IsRequired();
+            Property(x => x.IsComplete).HasColumnName(@"IsComplete").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
@@ -2878,6 +2883,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.ShopifyKind).HasColumnName(@"ShopifyKind").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyGateway).HasColumnName(@"ShopifyGateway").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsOptional();
             Property(x => x.OrderMonsterId).HasColumnName(@"OrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();

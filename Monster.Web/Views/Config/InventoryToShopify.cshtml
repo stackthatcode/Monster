@@ -1,5 +1,7 @@
 ﻿@using Monster.Web.Plumbing
 
+@Html.Partial("_SharedKnockoutViews")
+
 <main role="main" class="medium-size">
 
     @Html.Partial("_TopBrand")
@@ -8,7 +10,7 @@
     <p class="lead center">Synchronize Shopify with Acumatica inventory counts</p>
 
 
-    <div data-bind="ifnot: IsBackgroundJobRunning">
+    <div data-bind="ifnot: IsBackgroundJobRunReturnsPaymentsForOrdersning">
         <div class="std-padding">
             <div data-bind="if: ShopifyInventoryPushState() == SystemState.None">
                 <p>
@@ -64,7 +66,7 @@
             </a>
 
             <span data-bind="if: IsNextButtonVisible">
-                <a href="@GlobalConfig.DiagnosticsHome"
+                <a href="@GlobalConfig.Url("RealTime/RealTime")"
                    class="btn btn-success btn-lg">
                     Next Step <i class="fas fa-sign-in-alt"></i>
                 </a>
@@ -72,22 +74,28 @@
         </div>
     </div>
 
-    <div data-bind="if: IsBackgroundJobRunning">
+    <div data-bind="if: IsBackgroundJobRunReturnsPaymentsForOrdersning">
         <div class="std-padding">
             <div class="card">
                 <div class="card-body center std-padding">
                     <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
                     <div style="height: 30px;"></div>
+
                     <p class="center">
-                        Please wait while @GlobalConfig.AppName loads your Acumatica inventory counts
-                        into Shopify. Depending on the size of your catalog, this process may take several minutes.
+                        @GlobalConfig.AppName is currently busy processing your inventory.<br />
+                        Depending on the size of your catalog, this process may take up to several hours.
                     </p>
+                    
+                    <hr />
+
+                    <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
 
 <script>
     var Monster = Monster || {};
@@ -98,6 +106,7 @@
         self.IsBackgroundJobRunning = ko.observable();
         self.IsRandomAccessMode = ko.observable();
         self.ShopifyInventoryPushState = ko.observable();
+        self.Logs = ko.observableArray();
 
         self.IsNextButtonVisible = ko.computed(function () {
             return !self.IsRandomAccessMode()
@@ -118,11 +127,12 @@
                     ajax.HttpGet("Config/ShopifyInventoryPushStatus", this);
                 },
                 function (response) {
-                    // console.log(response);
+                    //console.log(response);
 
                     self.IsBackgroundJobRunning(response.IsBackgroundJobRunning);
                     self.ShopifyInventoryPushState(response.SystemState);
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
+                    self.Logs(response.Logs);
 
                     if (self.IsBackgroundJobRunning()) {
                         setTimeout(self.PollStatus, 1000);

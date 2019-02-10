@@ -26,7 +26,7 @@
     </div>
 
     <!-- Will yield to showing Real Time Sync in case somehow both got triggered -->
-    <div data-bind="if: IsConfigDiagnosisRunning() && !IsRealTimeSyncRunning()">
+    <div data-bind="if: IsConfigDiagnosisRunReturnsPaymentsForOrdersning() && !IsRealTimeSyncRunReturnsPaymentsForOrdersning()">
         <div class="std-padding">
             <div class="card">
                 <div class="card-body center std-padding">
@@ -42,7 +42,7 @@
         </div>
     </div>
 
-    <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
+    <div data-bind="ifnot: AreAnyBackgroundJobsRunReturnsPaymentsForOrdersning">
         <div class="std-padding-bottom">
             <div class="card">
                 <div class="card-body std-padding">
@@ -76,7 +76,7 @@
                         <a href="#"
                            data-bind="click: StartConfigDiagnosisClick"
                            class="btn btn-primary btn-lg">
-                            Run Config Diagnostics
+                            RunReturnsPaymentsForOrders Config Diagnostics
                             <i class="fas fa-user-md"></i>
                         </a>
                     </div>

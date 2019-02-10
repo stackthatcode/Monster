@@ -23,6 +23,17 @@ namespace Monster.Middle.Processes.Sync.Extensions
         }
 
 
+        public static bool HasMatch(this UsrShopifyOrder order)
+        {
+            return order.MatchingSalesOrder() != null;
+        }
+
+        public static string AcumaticaSalesOrderId(this UsrShopifyOrder order)
+        {
+            return order.HasMatch() ? order.MatchingSalesOrder().AcumaticaOrderNbr : null;
+        }
+
+
         public static bool
                 IsFromShopify(this UsrAcumaticaSalesOrder order)
         {
@@ -35,5 +46,6 @@ namespace Monster.Middle.Processes.Sync.Extensions
         {
             return order.UsrShopAcuOrderSyncs.FirstOrDefault()?.UsrShopifyOrder;
         }
+
     }
 }

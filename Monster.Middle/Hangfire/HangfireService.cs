@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Hangfire;
+using Hangfire.Storage;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Security;
 using Push.Foundation.Utilities.Helpers;
@@ -72,7 +74,7 @@ namespace Monster.Middle.Hangfire
                 return;
             }
 
-            if (jobId == JobType.PullAcumaticaRefData)
+            if (jobId == JobType.PushInventoryToShopify)
             {
                 QueueBackgroundJob(
                     JobType.PushInventoryToShopify,
@@ -82,36 +84,7 @@ namespace Monster.Middle.Hangfire
 
             throw new ArgumentException($"Unrecognized jobId {jobId}");
         }
-
-        public bool IsBackgroundJobRunning(int jobId)
-        {
-            // If Background Job Record is missing, return false
-            var jobRecord = _stateRepository.RetrieveBackgroundJob(jobId);
-            if (jobRecord == null)
-            {
-                return false;
-            }
-
-            // This should hit the System Database
-            var hangfireJobId = jobRecord.HangFireJobId;
-            var connection = JobStorage.Current.GetConnection();
-            var jobData = connection.GetJobData(hangfireJobId);
-
-            // If Hangfire Job is missing, return false
-            if (jobData == null)
-            {
-                return false;
-            }
-
-            if (jobData.State == "Succeeded" || jobData.State == "Failed" ||
-                jobData.State == "Deleted")
-            {
-                return false;
-            }
-
-            return true;
-        }
-
+        
         private void QueueBackgroundJob(
                 int backgroundJobType, Expression<Action<JobRunner>> action)
         {
@@ -129,7 +102,7 @@ namespace Monster.Middle.Hangfire
                 transaction.Commit();
             }
         }
-        
+
 
 
         // Recurring Job - separate category
@@ -153,12 +126,6 @@ namespace Monster.Middle.Hangfire
                 RecurringJob.Trigger(routineSyncJobId);
                 transaction.Commit();
             }
-        }
-
-        public bool IsRealTimeSyncRunning()
-        {
-            var state = _stateRepository.RetrieveSystemState();
-            return !state.RealTimeHangFireJobId.IsNullOrEmpty();
         }
 
         public void PauseRoutineSync()
@@ -185,6 +152,55 @@ namespace Monster.Middle.Hangfire
         {
             return "RoutineSync:" + _tenantContext.InstanceId;
         }
+
+        
+        // Status querying
+        //
+        public bool IsBackgroundJobRunning(int jobType)
+        {
+            // If Background Job Record is missing, return false
+            var jobRecord = _stateRepository.RetrieveBackgroundJob(jobType);
+            if (jobRecord == null)
+            {
+                return false;
+            }
+            else
+            {
+                return IsHangFireFafJobRunning(jobRecord.HangFireJobId);
+            }
+        }
+
+        public bool IsRealTimeSyncRunning()
+        {
+            var state = _stateRepository.RetrieveSystemState();
+            return !state.RealTimeHangFireJobId.IsNullOrEmpty();
+        }
+
+
+        // Hangfire specific methods
+        //
+        public bool IsHangFireFafJobRunning(string hangfireJobId)
+        {
+            using (var connection = JobStorage.Current.GetConnection())
+            {
+                var jobData = connection.GetJobData(hangfireJobId);
+                return jobData.IsRunning();
+            }
+        }
+
+        [Obsolete("Unsure if this actually provides the correct answer")]
+        public bool IsHangfireRecurringJobRunning(string hangFireJobId)
+        {
+            using (var connection = JobStorage.Current.GetConnection())
+            {
+                var recurringJobs = connection.GetRecurringJobs();
+                var job = recurringJobs.FirstOrDefault(p => p.Id == hangFireJobId);
+
+                var jobState = connection.GetStateData(job.LastJobId);
+                return jobState.IsRunning();
+            }
+        }
+        
     }
 }
 

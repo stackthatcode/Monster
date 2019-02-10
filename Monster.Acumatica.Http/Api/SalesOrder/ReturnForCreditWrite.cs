@@ -3,24 +3,24 @@ using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.SalesOrder
 {
-    public class CreditMemoWrite
+    public class ReturnForCreditWrite
     {
         public StringValue OrderNbr { get; set; }
         public StringValue OrderType { get; set; }
         public StringValue CustomerID { get; set; }
         public StringValue Description { get; set; }
 
-        public List<CreditMemoWriteDetail> Details { get; set; }
+        public List<ReturnForCreditWriteDetail> Details { get; set; }
         public List<TaxDetails> TaxDetails { get; set; }
 
 
-        public CreditMemoWrite()
+        public ReturnForCreditWrite()
         {
-            Details = new List<CreditMemoWriteDetail>();
+            Details = new List<ReturnForCreditWriteDetail>();
         }
     }
 
-    public class CreditMemoWriteDetail
+    public class ReturnForCreditWriteDetail
     {
         public StringValue WarehouseID;
         public StringValue InventoryID { get; set; }

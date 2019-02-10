@@ -25,8 +25,8 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"++++++++++++++++++");
             Console.WriteLine($"Logic Automated LLC - all rights reserved");
             Console.WriteLine();
-            Console.WriteLine($"{RunHangfireBackgroundOption} - Run Hangfire Background Service");
-            Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
+            Console.WriteLine($"{RunHangfireBackgroundOption} - RunPaymentsForOrders Hangfire Background Service");
+            Console.WriteLine($"{RunShopifyOrderFeederOption} - RunPaymentsForOrders Shopify Test Order Feeder");
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
             var input = Console.ReadLine();

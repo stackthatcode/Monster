@@ -155,7 +155,7 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaOrderSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaShipmentSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaRefundSync>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaPaymentSync>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaOrderPaymentSync>().InstancePerLifetimeScope();
             builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
 
             // Status

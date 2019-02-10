@@ -17,7 +17,7 @@ namespace Monster.Middle.Processes.Sync.Orders
         private readonly AcumaticaOrderSync _acumaticaOrderSync;
         private readonly AcumaticaShipmentSync _acumaticaShipmentSync;
         private readonly AcumaticaInventorySync _acumaticaInventorySync;
-        private readonly AcumaticaPaymentSync _acumaticaPaymentSync;
+        private readonly AcumaticaOrderPaymentSync _acumaticaPaymentSync;
         private readonly AcumaticaRefundSync _acumaticaRefundSync;
 
         private readonly IPushLogger _logger;
@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 AcumaticaShipmentSync acumaticaShipmentSync,
                 AcumaticaInventorySync acumaticaInventorySync,
                 AcumaticaRefundSync acumaticaRefundSync, 
-                AcumaticaPaymentSync acumaticaPaymentSync,
+                AcumaticaOrderPaymentSync acumaticaPaymentSync,
 
                 ShopifyFulfillmentSync shopifyFulfillmentSync, 
                 PreferencesRepository preferencesRepository,
@@ -74,8 +74,8 @@ namespace Monster.Middle.Processes.Sync.Orders
                 _acumaticaOrderSync.Run();
 
                 // Synchronize Payments and Refunds
-                _acumaticaPaymentSync.Run();
-                _acumaticaRefundSync.Run();
+                _acumaticaPaymentSync.RunPaymentsForOrders();
+                _acumaticaRefundSync.RunReturns();
             });
         }
 

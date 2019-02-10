@@ -23,25 +23,31 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public void RunAutomatic()
         {
-            var orders = 
-                _orderRepository.RetrieveOrdersNeedingTransactionPull();
+            var orders = _orderRepository.RetrieveOrdersNeedingTransactionPull();
 
             foreach (var orderRecord in orders)
             {
                 var transactionsJson = _orderApi.RetrieveTransactions(orderRecord.ShopifyOrderId);
                 var transactions = transactionsJson.DeserializeFromJson<TransactionList>();
                 var transactionRecords = new List<UsrShopifyTransaction>();
+                var order = orderRecord.ToShopifyObj();
 
                 foreach (var transaction in transactions.transactions)
                 {
                     var record = new UsrShopifyTransaction();
 
+                    if (transaction.kind == TransactionKind.Refund)
+                    {
+                        var refund = order.RefundByTransaction(transaction.id);
+                        record.ShopifyRefundId = refund.id;
+                    }
+
                     record.ShopifyOrderId = transaction.order_id;
                     record.ShopifyTransactionId = transaction.id;
                     record.ShopifyStatus = transaction.status;
                     record.ShopifyKind = transaction.kind;
-                    record.ShopifyGateway = transaction.gateway;
                     record.ShopifyJson = transaction.SerializeToJson();
+                    record.ShopifyGateway = transaction.gateway;
                     record.OrderMonsterId = orderRecord.Id;
 
                     transactionRecords.Add(record);
