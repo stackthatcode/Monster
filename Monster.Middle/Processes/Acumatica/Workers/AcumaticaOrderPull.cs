@@ -98,7 +98,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             foreach (var order in orders)
             {
-                if (order.OrderType.value != AcumaticaConstants.SalesOrderType)
+                if (order.OrderType.value != SalesOrderType.SO)
                 {
                     continue;
                 }

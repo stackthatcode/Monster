@@ -71,13 +71,22 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string PrepareSalesOrderInvoice(string json)
+        public string PrepareSalesInvoice(string json)
         {
             var response = 
                 _httpContext.Post("SalesOrder/PrepareSalesInvoice", json);
 
             return response.Body;
         }
+
+        public string ReleaseSalesInvoice(string json)
+        {
+            var response =
+                _httpContext.Post("SalesOrder/ReleaseSalesInvoice", json);
+
+            return response.Body;
+        }
+
 
 
         private void LogSalesOrderDetailIds(string resultJson)

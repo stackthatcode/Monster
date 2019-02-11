@@ -19,7 +19,8 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         public static bool IsReadyForShipment(this UsrAcumaticaSalesOrder order)
         {
-            return order.AcumaticaStatus == "Open" || order.AcumaticaStatus == "Back Order";
+            return order.AcumaticaStatus == "Open" || 
+                   order.AcumaticaStatus == "Back Order";
         }
         
         public static bool IsMatchedToShopify(this UsrAcumaticaStockItem stockItem)
@@ -43,8 +44,8 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             return input.Any(x => x.IsMatch(other));
         }
         public static UsrAcumaticaShipmentSalesOrderRef Match(
-            this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
-            UsrAcumaticaShipmentSalesOrderRef other)
+                    this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
+                    UsrAcumaticaShipmentSalesOrderRef other)
         {
             return input.FirstOrDefault(x => x.IsMatch(other));
         }
@@ -113,6 +114,17 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             this UsrAcumaticaSoShipmentInvoice input, UsrAcumaticaSoShipmentInvoice other)
         {
             return input.AcumaticaShipmentNbr == other.AcumaticaShipmentNbr;
+        }
+
+
+        public static SalesOrder ToSalesOrderObj(this string json)
+        {
+            return json.DeserializeFromJson<SalesOrder>();
+        }
+
+        public static SalesInvoice ToSalesOrderInvoiceObj(this string json)
+        {
+            return json.DeserializeFromJson<SalesInvoice>();
         }
 
     }

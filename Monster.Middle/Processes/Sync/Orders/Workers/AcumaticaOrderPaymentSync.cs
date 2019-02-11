@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
@@ -72,8 +70,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
             payment.Description = $"Payment for Shopify Order #{order.ShopifyOrderNumber}".ToValue();
             payment.OrdersToApply =
-                PaymentOrdersRef.ForOrder(
-                    acumaticaOrderRef, AcumaticaConstants.SalesOrderType);
+                    PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO);
 
             // Push to Acumatica
             var resultJson = _paymentClient.WritePayment(payment.SerializeToJson());
@@ -111,7 +108,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         public void WriteRefundPayment(UsrShopifyTransaction transactionRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-            var transaction = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
+            var transaction 
+                = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
 
             // Locate the Acumatica Customer
             var shopifyCustomerId = transactionRecord.CustomerId();
@@ -128,6 +126,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             payment.Hold = false.ToValue();
             payment.Type = PaymentType.CustomerRefund.ToValue();
 
+            // TODO - add the Credit Memo Invoice as a reference for Returns...?
+
             // TODO - inject the original Payment Method...?
             // 
             payment.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();
@@ -137,10 +137,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             payment.Description =
                 $"Refund for Order #{order.ShopifyOrderNumber} (TransId #{transaction.id})".ToValue();
 
-            // TODO - get the Credit Memo Invoice
             payment.OrdersToApply =
-                PaymentOrdersRef.ForOrder(
-                    acumaticaOrderRef, AcumaticaConstants.SalesOrderType);
+                PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.CM);
 
             // Push to Acumatica
             var resultJson = _paymentClient.WritePayment(payment.SerializeToJson());

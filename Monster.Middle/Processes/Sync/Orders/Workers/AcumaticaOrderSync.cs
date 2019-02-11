@@ -177,7 +177,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         {
             var salesOrder = new SalesOrder();
             salesOrder.Details = new List<SalesOrderDetail>();
-            salesOrder.OrderType = AcumaticaConstants.SalesOrderType.ToValue();
+            salesOrder.OrderType = SalesOrderType.SO.ToValue();
             salesOrder.Status = "Open".ToValue();
             salesOrder.Hold = false.ToValue();
             salesOrder.ExternalRef = $"{shopifyOrder.order_number}".ToValue();

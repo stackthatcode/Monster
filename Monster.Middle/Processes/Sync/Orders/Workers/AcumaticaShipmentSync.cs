@@ -160,7 +160,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 
                 var detail = new ShipmentDetail();
                 detail.OrderNbr = salesOrderRecord.AcumaticaOrderNbr.ToValue();
-                detail.OrderType = AcumaticaConstants.SalesOrderType.ToValue();
+                detail.OrderType = SalesOrderType.SO.ToValue();
                 detail.InventoryID = stockItemId.ToValue();
                 detail.WarehouseID = warehouseId.ToValue();
                 detail.ShippedQty = ((double)line.quantity).ToValue();

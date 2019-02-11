@@ -143,6 +143,8 @@
     <Compile Include="Persist\Multitenant\StateRepository.cs" />
     <Compile Include="Hangfire\SystemState.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
+    <Compile Include="Processes\Sync\Extensions\RefundExtensions.cs" />
+    <Compile Include="Processes\Sync\Extensions\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\ItemClassModel.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\PaymentMethodModel.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\PreferencesValidationExtensions.cs" />
@@ -193,7 +195,6 @@
     <Compile Include="Processes\Sync\Orders\Workers\AcumaticaShipmentSync.cs" />
     <Compile Include="Processes\Sync\Orders\Workers\AcumaticaOrderSync.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaConstants.cs" />
-    <Compile Include="Processes\Sync\Orders\Model\Extensions.cs" />
     <Compile Include="Processes\Sync\Orders\Model\ShipmentSyncReadiness.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyTransactionPull.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyCustomerPull.cs" />

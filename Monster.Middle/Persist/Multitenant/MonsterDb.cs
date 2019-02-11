@@ -1206,6 +1206,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaCreditMemoOrderNbr { get; set; } // AcumaticaCreditMemoOrderNbr (length: 50)
         public bool IsCmOrderTaxLoaded { get; set; } // IsCmOrderTaxLoaded
         public string AcumaticaCreditMemoInvoiceNbr { get; set; } // AcumaticaCreditMemoInvoiceNbr (length: 50)
+        public bool IsCmInvoiceReleased { get; set; } // IsCmInvoiceReleased
         public bool IsComplete { get; set; } // IsComplete
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -2512,6 +2513,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaCreditMemoOrderNbr).HasColumnName(@"AcumaticaCreditMemoOrderNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.IsCmOrderTaxLoaded).HasColumnName(@"IsCmOrderTaxLoaded").HasColumnType("bit").IsRequired();
             Property(x => x.AcumaticaCreditMemoInvoiceNbr).HasColumnName(@"AcumaticaCreditMemoInvoiceNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.IsCmInvoiceReleased).HasColumnName(@"IsCmInvoiceReleased").HasColumnType("bit").IsRequired();
             Property(x => x.IsComplete).HasColumnName(@"IsComplete").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
