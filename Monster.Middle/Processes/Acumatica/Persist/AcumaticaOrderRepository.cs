@@ -195,7 +195,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 .UsrAcumaticaShipmentSalesOrderRefs
                 .Include(x => x.UsrAcumaticaShipment)
                 .Where(x => 
-                    x.UsrAcumaticaShipment.AcumaticaStatus == AcumaticaConstants.StatusCompleted)
+                    x.UsrAcumaticaShipment.AcumaticaStatus == Status.Completed)
                 .Where(x => !Entities
                                 .UsrShopAcuShipmentSyncs
                                 .Select(y => y.AcumaticaShipDetailMonsterId)

@@ -13,14 +13,12 @@ namespace Monster.Acumatica.Api
         private readonly AcumaticaHttpContext _httpContext;
         private readonly IPushLogger _logger;
         
-        public SalesOrderClient(
-                IPushLogger logger, AcumaticaHttpContext httpContext)
+        public SalesOrderClient(IPushLogger logger, AcumaticaHttpContext httpContext)
         {
             _logger = logger;
             _httpContext = httpContext;
         }
-
-
+        
         public string OrderInterfaceUrlById(string salesOrderId)
         {
             return 
@@ -57,9 +55,9 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string RetrieveSalesOrder(string orderNbr, string orderType)
+        public string RetrieveSalesOrder(string orderNbr, string orderType, string expand = "Shipments")
         {
-            var path = $"SalesOrder/{orderType}/{orderNbr}?$expand=Shipments";
+            var path = $"SalesOrder/{orderType}/{orderNbr}?$expand={expand}";
             var response = _httpContext.Get(path);
             return response.Body;
         }
@@ -78,11 +76,12 @@ namespace Monster.Acumatica.Api
 
             return response.Body;
         }
-
-        public string ReleaseSalesInvoice(string json)
+        
+        public string ReleaseSalesInvoice(string invoiceType, string json)
         {
             var response =
-                _httpContext.Post("SalesOrder/ReleaseSalesInvoice", json);
+                _httpContext.Post(
+                    $"SalesInvoice/ReleaseSalesInvoice", json);
 
             return response.Body;
         }
@@ -109,9 +108,9 @@ namespace Monster.Acumatica.Api
             }
         }
 
-        public string RetrieveSalesOrderInvoice(string invoiceRefNbr)
+        public string RetrieveSalesOrderInvoice(string invoiceRefNbr, string invoiceType)
         {
-            var url = $"SalesInvoice/Invoice/{invoiceRefNbr}?$expand=Details";
+            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand=Details";
             var response = _httpContext.Get(url);
             return response.Body;
         }

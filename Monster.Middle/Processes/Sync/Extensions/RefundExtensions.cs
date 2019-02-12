@@ -2,6 +2,7 @@
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Processes.Sync.Extensions
 {
@@ -14,18 +15,18 @@ namespace Monster.Middle.Processes.Sync.Extensions
 
         public static string ShipmentInvoiceNbr(this SalesOrder salesOrder)
         {
-            return salesOrder.Shipments.First().InventoryRefNbr.value;
+            return salesOrder.Shipments.First().InvoiceNbr.value;
         }
 
         public static bool IsInvoiceReleased(this SalesOrder salesOrder)
         {
-            return salesOrder.Status.value == AcumaticaConstants.StatusCompleted;
+            return salesOrder.Status.value == Acumatica.Persist.Status.Completed;
         }
 
 
         public static bool HasCreditMemoOrder(this UsrShopifyRefund refund)
         {
-            return refund.UsrShopAcuRefundCms.Any();
+            return refund.UsrShopAcuRefundCms.Any(x => x.AcumaticaCreditMemoOrderNbr.HasValue());
         }
 
         public static bool DoesNotHaveCreditMemoOrder(this UsrShopifyRefund refund)
@@ -58,7 +59,7 @@ namespace Monster.Middle.Processes.Sync.Extensions
         public static bool HasReleasedInvoice(this UsrShopifyRefund refund)
         {
             return refund.UsrShopAcuRefundCms.Any() &&
-                   refund.UsrShopAcuRefundCms.First().IsCmInvoiceReleased != null;
+                   refund.UsrShopAcuRefundCms.First().IsCmInvoiceReleased == true;
         }
 
         public static bool DoesNotHaveReleasedInvoice(this UsrShopifyRefund refund)
@@ -68,7 +69,7 @@ namespace Monster.Middle.Processes.Sync.Extensions
 
         public static bool IsReleased(this SalesInvoice input)
         {
-            return input.Status.value == AcumaticaConstants.StatusOpen;
+            return input.Status.value == Acumatica.Persist.Status.Open;
         }
 
         public static bool IsSyncComplete(this UsrShopifyRefund refund)

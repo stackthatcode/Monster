@@ -142,7 +142,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             // Create the Shipment API payload
             var shipment = new Shipment();
             shipment.Type = AcumaticaConstants.ShipmentType.ToValue();
-            shipment.Status = AcumaticaConstants.StatusOpen.ToValue();
+            shipment.Status = Acumatica.Persist.Status.Open.ToValue();
             shipment.Hold = false.ToValue();
             shipment.CustomerID = customerNbr.ToValue();
             shipment.WarehouseID = warehouseId.ToValue();

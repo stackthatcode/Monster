@@ -3,10 +3,19 @@
     public class AcumaticaConstants
     {        
         public const string ShipmentType = "Shipment";
+    }
 
-        public const string StatusOpen = "Open";
-        public const string StatusBackOrder = "Back Order";
-        public const string StatusCompleted = "Completed";
+    public class SalesOrderExpand
+    {
+        public const string TaxDetails = "TaxDetails";
+        public const string Shipments = "Shipments";
+    }
+
+    public class Status
+    {
+        public const string Open = "Open";
+        public const string BackOrder = "Back Order";
+        public const string Completed = "Completed";
     }
 
     public class SalesOrderType
@@ -15,6 +24,10 @@
         public const string CM = "CM";
     }
 
+    public class SalesInvoiceType
+    {
+        public const string Credit_Memo = "Credit Memo";
+    }
 
     public class ShipmentStatus
     {

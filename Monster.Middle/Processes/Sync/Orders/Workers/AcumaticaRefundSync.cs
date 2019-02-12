@@ -76,8 +76,21 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
                 if (_return.DoesNotHaveCreditMemoInvoice())
                 {
+                    DetectReturnInvoice(_return);
+                    // No continue - keep processing with altered state
+                }
+
+                if (_return.DoesNotHaveCreditMemoInvoice())
+                {
                     PrepareReturnInvoice(_return);                
                     continue;
+                }
+
+                if (_return.HasCreditMemoInvoice() &&
+                    _return.DoesNotHaveReleasedInvoice())
+                {
+                    DetectReleasedInvoice(_return);
+                    // No continue - keep processing with altered state
                 }
 
                 if (_return.HasCreditMemoInvoice() &&
@@ -149,7 +162,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             return salesOrderUpdate;
         }
         
-
         public void PushReturnOrder(UsrShopifyRefund refundRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
@@ -174,7 +186,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             var log =
                 $"Created Credit Memo {resultCmOrder.OrderNbr.value} in Acumatica from " +
-                $"Order #{shopifyOrder.order_number}";
+                $"Shopify Order #{shopifyOrder.order_number}";
 
             _logRepository.InsertExecutionLog(log);
         }
@@ -189,9 +201,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             // Write the Sales Tax 
             var taxId = 
                 RetrieveAndExtractFromSalesOrder(
-                    syncRecord.AcumaticaCreditMemoInvoiceNbr, 
-                    SalesOrderType.CM, 
-                    x => x.TaxDetails.First().id);
+                    syncRecord.AcumaticaCreditMemoOrderNbr, 
+                    SalesOrderType.CM,  x => x.TaxDetails.First().id,
+                    SalesOrderExpand.TaxDetails);
 
             var taxUpdate = new TaxDetails();
             taxUpdate.id = taxId;
@@ -215,16 +227,18 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.SaveChanges();
         }
 
-        public void PrepareReturnInvoice(UsrShopifyRefund refundRecord)
+        public void DetectReturnInvoice(UsrShopifyRefund refundRecord)
         {
             var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
-            var creditMemoOrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr;
+            var cmOrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr;
 
             // Get the Sales Order from LIVE
-            var json = _salesOrderClient.RetrieveSalesOrder(creditMemoOrderNbr, SalesOrderType.CM);
+            var json =
+                _salesOrderClient.RetrieveSalesOrder(
+                    cmOrderNbr, SalesOrderType.CM, SalesOrderExpand.Shipments);
             var salesOrder = json.ToSalesOrderObj();
 
-            if (salesOrder.HasInvoicedShipment() 
+            if (salesOrder.HasInvoicedShipment()
                 && syncRecord.AcumaticaCreditMemoInvoiceNbr == null)
             {
                 syncRecord.AcumaticaCreditMemoInvoiceNbr = salesOrder.ShipmentInvoiceNbr();
@@ -232,27 +246,78 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 _syncOrderRepository.SaveChanges();
 
                 var msg = $"Detected CM Invoice {salesOrder.ShipmentInvoiceNbr()} " +
-                        $"for CM Order {creditMemoOrderNbr}";
+                          $"for CM Order {cmOrderNbr}";
                 _logRepository.InsertExecutionLog(msg);
+            }
+        }
+        
+        public void PrepareReturnInvoice(UsrShopifyRefund refundRecord)
+        {
+            var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
+            var cmOrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr;
+
+            // Get the Sales Order from LIVE
+            var salesOrderPre =
+                _salesOrderClient
+                    .RetrieveSalesOrder(cmOrderNbr, SalesOrderType.CM, SalesOrderExpand.Shipments)
+                    .ToSalesOrderObj();
+            
+            // Invoke the PrepareInvoice method
+            var entityAsString = new {
+                entity = new 
+                {
+                    OrderNbr = cmOrderNbr.ToValue(),
+                    OrderType = SalesOrderType.CM.ToValue(),
+                }
+            }.SerializeToJson();
+
+            _salesOrderClient.PrepareSalesInvoice(entityAsString);
+
+            // Get the Invoice Number and store with the Sync Record
+            var salesOrderPost =
+                _salesOrderClient
+                    .RetrieveSalesOrder(cmOrderNbr, SalesOrderType.CM, SalesOrderExpand.Shipments)
+                    .ToSalesOrderObj();
+
+            if (!salesOrderPost.Shipments.Any())
+            {
+                // Waiting for Acumatica caching to catch-up 
+                _logger.Info(
+                    "Acumatica Prepare Sales Invoice stale cache detected " +
+                    $"for Sales Order Credit Memo {cmOrderNbr}");
                 return;
             }
 
-            // Invoke the PrepareInvoice method
-            var entityAsString = new {entity = salesOrder}.SerializeToJson();
-            _salesOrderClient.PrepareSalesInvoice(entityAsString);
-            
-            // Get the Invoice Number and store with the Sync Record
-            var invoiceNbr
-                = RetrieveAndExtractFromSalesOrder(
-                    creditMemoOrderNbr, SalesOrderType.CM,
-                    x => x.ShipmentInvoiceNbr());
-
-            var log = $"Prepared CM Invoice {invoiceNbr} for CM Order {creditMemoOrderNbr}";
+            var invoiceNbr = salesOrderPost.ShipmentInvoiceNbr();
+            var log = $"Prepared CM Invoice {invoiceNbr} for CM Order {cmOrderNbr}";
             _logRepository.InsertExecutionLog(log);
 
             syncRecord.AcumaticaCreditMemoInvoiceNbr = invoiceNbr;
             syncRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.SaveChanges();
+        }
+
+        public void DetectReleasedInvoice(UsrShopifyRefund refundRecord)
+        {
+            var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
+            var creditMemoInvoiceNbr = syncRecord.AcumaticaCreditMemoInvoiceNbr;
+
+            // Get the Sales Order from LIVE
+            var invoice = 
+                _salesOrderClient
+                    .RetrieveSalesOrderInvoice(creditMemoInvoiceNbr, SalesInvoiceType.Credit_Memo)
+                    .ToSalesOrderInvoiceObj();
+
+            if (invoice.IsReleased() && refundRecord.DoesNotHaveReleasedInvoice())
+            {
+                syncRecord.IsCmInvoiceReleased = true;
+                syncRecord.IsComplete = true;
+                syncRecord.LastUpdated = DateTime.UtcNow;
+                _syncOrderRepository.SaveChanges();
+
+                var msg = $"Detected Release for CM Invoice {invoice.ReferenceNbr.value}";
+                _logRepository.InsertExecutionLog(msg);
+            }
         }
 
         public void ReleaseReturnInvoice(UsrShopifyRefund refundRecord)
@@ -261,27 +326,17 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var creditMemoInvoiceNbr = syncRecord.AcumaticaCreditMemoInvoiceNbr;
 
             // Get the Sales Order from LIVE
-            var json = _salesOrderClient.RetrieveSalesOrderInvoice(creditMemoInvoiceNbr);
-            var invoice = json.ToSalesOrderInvoiceObj();
-
-            if (invoice.IsReleased() && refundRecord.DoesNotHaveReleasedInvoice())
-            {
-                syncRecord.IsCmInvoiceReleased = true;
-                syncRecord.LastUpdated = DateTime.UtcNow;
-                syncRecord.LastUpdated = DateTime.UtcNow;
-                _syncOrderRepository.SaveChanges();
-
-                var msg = $"Detected Release for CM Invoice {invoice.ReferenceNbr.value}";
-                _logRepository.InsertExecutionLog(msg);
-                return;
-            }
+            var invoicePre
+                = _salesOrderClient
+                    .RetrieveSalesOrderInvoice(creditMemoInvoiceNbr, SalesInvoiceType.Credit_Memo)
+                    .ToSalesOrderInvoiceObj();
             
             // Invoke the PrepareInvoice method
-            var entityAsString = new { entity = invoice }.SerializeToJson();
-            _salesOrderClient.ReleaseSalesInvoice(entityAsString);
+            var entityAsString = new { entity = invoicePre }.SerializeToJson();
+            _salesOrderClient.ReleaseSalesInvoice(SalesInvoiceType.Credit_Memo, entityAsString);
 
             // Get the Invoice Number and store with the Sync Record
-            var log = $"Released CM Invoice {invoice.ReferenceNbr.value}";
+            var log = $"Released CM Invoice {invoicePre.ReferenceNbr.value}";
             _logRepository.InsertExecutionLog(log);
 
             syncRecord.IsCmInvoiceReleased = true;
@@ -289,6 +344,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             syncRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.SaveChanges();
         }
+
 
 
         private ReturnForCreditWrite 
@@ -344,9 +400,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         }
         
         private T RetrieveAndExtractFromSalesOrder<T>(
-                string orderNbr, string orderType, Func<SalesOrder, T> expr)
+                string orderNbr, string orderType, Func<SalesOrder, T> expr, string expand)
         {
-            var json = _salesOrderClient.RetrieveSalesOrder(orderNbr, orderType);
+            var json = _salesOrderClient.RetrieveSalesOrder(orderNbr, orderType, expand);
             var creditMemoOrder = json.DeserializeFromJson<SalesOrder>();
             return expr(creditMemoOrder);
         }
