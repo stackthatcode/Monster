@@ -47,12 +47,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
         public void Run()
         {
-            var salesOrderRefs 
-                = _orderRepository.RetrieveUnsyncedShipmentSalesOrderRefs();
+            var salesOrderRefs = _orderRepository.RetrieveUnsyncedShipmentSalesOrderRefs();
             
             foreach (var salesOrderRef in salesOrderRefs)
             {
                 var syncReadiness = IsReadyToSyncWithShopify(salesOrderRef);
+
                 if (syncReadiness.IsReady)
                 {
                     PushFulfillmentToShopify(salesOrderRef);
@@ -64,18 +64,25 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     IsReadyToSyncWithShopify(UsrAcumaticaShipmentSalesOrderRef salesOrderRef)
         {
             var output = new ShipmentSyncReadiness();
+            var salesOrder = _syncOrderRepository.RetrieveSalesOrder(salesOrderRef.AcumaticaOrderNbr);
+            var shopifyOrderId = salesOrder.MatchingShopifyOrder().ShopifyOrderId;
 
+            // Fulfilled in Shopify - thus corrupted!
+            output.AnyShopifyMadeFulfillments 
+                = _syncOrderRepository.AnyUnsyncedFulfillments(shopifyOrderId);
+            
+            // Unmatched Warehouse
             var shipmentRecord = salesOrderRef.UsrAcumaticaShipment;
             var shipment = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
             var warehouseRecord =
                 _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
-
             var locationRecord = warehouseRecord.MatchedLocation();
             if (locationRecord == null)
             {
                 output.WarehouseLocationUnmatched = true;
             }
             
+            // Unmatched Stock Item/Inventory
             foreach (var line in shipment.Details)
             {
                 var stockItem = _syncInventoryRepository.RetrieveStockItem(line.InventoryID.value);
@@ -103,8 +110,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     UsrAcumaticaShipmentSalesOrderRef shipmentSalesOrderRef)
         {
             var orderRecord =
-                _syncOrderRepository
-                    .RetrieveSalesOrder(shipmentSalesOrderRef.AcumaticaOrderNbr);
+                _syncOrderRepository.RetrieveSalesOrder(shipmentSalesOrderRef.AcumaticaOrderNbr);
 
             if (!orderRecord.IsFromShopify())
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Multitenant;
@@ -94,6 +95,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             UpsertOrderToPersist(salesOrder.DeserializeFromJson<SalesOrder>());
         }
 
+        
         public void UpsertOrdersToPersist(List<SalesOrder> orders)
         {
             foreach (var order in orders)

@@ -4,6 +4,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Model
 {
     public class ShipmentSyncReadiness
     {
+        public bool AnyShopifyMadeFulfillments { get; set; }
         public bool WarehouseLocationUnmatched { get; set; }
         public List<string> UnmatchedVariantStockItems { get; set; }
         public List<string> StockItemsWithInsuffientInventory { get; set; }
@@ -11,7 +12,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Model
 
 
         public bool IsReady
-            => !WarehouseLocationUnmatched
+            => !AnyShopifyMadeFulfillments
+               && !WarehouseLocationUnmatched
                && UnmatchedVariantStockItems.Count == 0
                && StockItemsWithInsuffientInventory.Count == 0
                && VariantsWithInsuffientInventory.Count == 0;

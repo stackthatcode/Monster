@@ -26,6 +26,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly SalesOrderClient _salesOrderClient;
         private readonly PreferencesRepository _preferencesRepository;
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
+        private readonly AcumaticaOrderSync _acumaticaOrderSync;
         private readonly IPushLogger _logger;
 
         public AcumaticaRefundSync(
@@ -36,6 +37,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     PreferencesRepository preferencesRepository, 
                     ExecutionLogRepository logRepository, 
                     AcumaticaOrderPull acumaticaOrderPull, 
+                    AcumaticaOrderSync acumaticaOrderSync,
                     IPushLogger logger)
         {
             _syncOrderRepository = syncOrderRepository;
@@ -43,89 +45,53 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _preferencesRepository = preferencesRepository;
             _logRepository = logRepository;
             _acumaticaOrderPull = acumaticaOrderPull;
+            _acumaticaOrderSync = acumaticaOrderSync;
             _syncRepository = syncRepository;
             _logger = logger;
         }
 
 
-        public void RunReturns()
+        // Refunds + Cancellations
+        //
+        public void RunCancels()
         {
-            var returns = _syncOrderRepository.RetrieveReturnsNotSynced();
+            var cancels = _syncOrderRepository.RetrieveCancelsNotSynced();
+            _logger.Info("Shopify Cancels on hold for now ***");
 
-            foreach (var _return in returns)
-            {
-                if (_return.IsSyncComplete())
-                {
-                    continue;
-                }
-
-                // Write a Credit Memo and Taxes (ha!) to Acumatica for restocked items
-                if (_return.DoesNotHaveCreditMemoOrder())
-                {
-                    PushReturnOrder(_return);
-                    PushReturnOrderTaxes(_return);
-                    continue;
-                }
-
-                if (_return.HasCreditMemoOrder() &&
-                    _return.CreditMemoTaxesAreNotSynced())
-                {
-                    PushReturnOrderTaxes(_return);
-                    continue;
-                }
-
-                if (_return.DoesNotHaveCreditMemoInvoice())
-                {
-                    DetectReturnInvoice(_return);
-                    // No continue - keep processing with altered state
-                }
-
-                if (_return.DoesNotHaveCreditMemoInvoice())
-                {
-                    PrepareReturnInvoice(_return);                
-                    continue;
-                }
-
-                if (_return.HasCreditMemoInvoice() &&
-                    _return.DoesNotHaveReleasedInvoice())
-                {
-                    DetectReleasedInvoice(_return);
-                    // No continue - keep processing with altered state
-                }
-
-                if (_return.HasCreditMemoInvoice() &&
-                    _return.DoesNotHaveReleasedInvoice())
-                {
-                    ReleaseReturnInvoice(_return);
-                    continue;
-                }
-            }
-        }
-
-        public void RunCancellations()
-        {
-            var cancellations = _syncOrderRepository.RetrieveCancellationsNotSynced();
-            foreach (var cancellation in cancellations)
-            {
-                // Update the Sales Order based on the cancelled items 
-                PushCancellationQuantityChanges(cancellation);
-            }
+            //foreach (var cancel in cancels)
+            //{
+            //    PushCancelsQuantityUpdate(cancel);
+            //    PushCancelsTaxesUpdate(cancel);
+            //}
         }
         
-        public void PushCancellationQuantityChanges(UsrShopifyRefund refundRecord)
+        public void PushCancelsQuantityUpdate(UsrShopifyRefund refundRecord)
         {
             // First, pull down the latest Order in case the Details record id's have mutated
             var salesOrderRecord = refundRecord.UsrShopifyOrder.MatchingSalesOrder();
             _acumaticaOrderPull.RunAcumaticaOrderDetails(salesOrderRecord.AcumaticaOrderNbr);
 
-            var updatePayload = BuildUpdateForCancellations(refundRecord);
+            // Push an update to the Sales Order
+            var updatePayload = BuildUpdateForCancels(refundRecord);
             var result = _salesOrderClient.WriteSalesOrder(updatePayload.SerializeToJson());
+
+            // Update the local cache of Sales Order
             salesOrderRecord.DetailsJson = result;
-            refundRecord.IsCancellationSynced = true;
+            salesOrderRecord.LastUpdated = DateTime.UtcNow;
+
+            // Update the Tax Loaded flag
+            refundRecord
+                .UsrShopifyOrder
+                .UsrShopAcuOrderSyncs.First()
+                .IsTaxLoadedToAcumatica = false;
+
             _syncOrderRepository.SaveChanges();
+            
+            // Update the Sales Taxes
+            //_acumaticaOrderSync.PushOrderTaxesToAcumatica(refundRecord.UsrShopifyOrder);
         }
-        
-        public SalesOrderUpdateHeader BuildUpdateForCancellations(UsrShopifyRefund refundRecord)
+
+        public SalesOrderUpdateHeader BuildUpdateForCancels(UsrShopifyRefund refundRecord)
         {
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -161,7 +127,90 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             return salesOrderUpdate;
         }
+
+        // TODO - Abstract and move to AcumaticaOrderPull
+        //
+        public void PushCancelsTaxesUpdate(UsrShopifyRefund refundRecord)
+        {
+            // First refresh the SalesOrder -> TaxDetailId
+            var salesOrderRecord = refundRecord.UsrShopifyOrder.MatchingSalesOrder();
+
+            var taxId =
+                RetrieveAndExtractFromSalesOrder(
+                    salesOrderRecord.AcumaticaOrderNbr,
+                    SalesOrderType.SO, 
+                    x => x.TaxDetails.First().id,
+                    SalesOrderExpand.TaxDetails);
+            
+            salesOrderRecord.UsrShopAcuOrderSyncs.First().AcumaticaTaxDetailId = taxId;
+            _syncOrderRepository.SaveChanges();
+
+            _acumaticaOrderSync.PushOrderTaxesToAcumatica(refundRecord.UsrShopifyOrder);
+
+            // Now we can flag Refunds Cancellation as synced
+            refundRecord.IsCancellationSynced = true;
+            refundRecord.LastUpdated = DateTime.UtcNow;
+            _syncOrderRepository.SaveChanges();
+        }
+
         
+
+        // Refunds + Returns
+        //
+        public void RunReturns()
+        {
+            var returns = _syncOrderRepository.RetrieveReturnsNotSynced();
+
+            foreach (var _return in returns)
+            {
+                if (_return.IsSyncComplete())
+                {
+                    continue;
+                }
+
+                // Write a Credit Memo and Taxes (ha!) to Acumatica for restocked items
+                if (_return.DoesNotHaveCreditMemoOrder())
+                {
+                    PushReturnOrder(_return);
+                    PushReturnOrderTaxes(_return);
+                    continue;
+                }
+
+                if (_return.HasCreditMemoOrder() &&
+                    _return.CreditMemoTaxesAreNotSynced())
+                {
+                    PushReturnOrderTaxes(_return);
+                    continue;
+                }
+
+                if (_return.DoesNotHaveCreditMemoInvoice())
+                {
+                    DetectReturnInvoice(_return);
+                    // No continue - keep processing with altered state
+                }
+
+                if (_return.DoesNotHaveCreditMemoInvoice())
+                {
+                    PrepareReturnInvoice(_return);
+                    continue;
+                }
+
+                if (_return.HasCreditMemoInvoice() &&
+                    _return.DoesNotHaveReleasedInvoice())
+                {
+                    DetectReleasedInvoice(_return);
+                    // No continue - keep processing with altered state
+                }
+
+                if (_return.HasCreditMemoInvoice() &&
+                    _return.DoesNotHaveReleasedInvoice())
+                {
+                    ReleaseReturnInvoice(_return);
+                    continue;
+                }
+            }
+        }
+
         public void PushReturnOrder(UsrShopifyRefund refundRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
@@ -209,8 +258,8 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             taxUpdate.id = taxId;
             taxUpdate.TaxID = preferences.AcumaticaTaxId.ToValue();
             taxUpdate.TaxRate = ((double)0).ToValue();
-            taxUpdate.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
-            taxUpdate.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
+            taxUpdate.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotalAfterRefundCancels).ToValue();
+            taxUpdate.TaxAmount = ((double)shopifyOrder.TaxTotalAfterRefundCancels).ToValue();
 
             var creditMemoWrite = new ReturnForCreditWrite();
             creditMemoWrite.OrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr.ToValue();
@@ -219,7 +268,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             var result = _salesOrderClient.WriteSalesOrder(creditMemoWrite.SerializeToJson());
 
-            var log = $"Wrote taxes for Refund {syncRecord.AcumaticaCreditMemoOrderNbr} in Acumatica";
+            var log = $"Wrote taxes for Credit Memo {syncRecord.AcumaticaCreditMemoOrderNbr} in Acumatica";
             _logRepository.InsertExecutionLog(log);
 
             syncRecord.IsCmOrderTaxLoaded = true;
@@ -399,6 +448,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             return detail;
         }
         
+
         private T RetrieveAndExtractFromSalesOrder<T>(
                 string orderNbr, string orderType, Func<SalesOrder, T> expr, string expand)
         {

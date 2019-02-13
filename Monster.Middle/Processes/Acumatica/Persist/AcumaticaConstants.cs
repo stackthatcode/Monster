@@ -11,6 +11,12 @@
         public const string Shipments = "Shipments";
     }
 
+    public class PaymentExpand
+    {
+        public const string DocumentsToApply = "DocumentsToApply";
+    }
+
+
     public class Status
     {
         public const string Open = "Open";

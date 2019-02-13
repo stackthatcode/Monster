@@ -119,7 +119,10 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             }
         }
 
-        
+
+
+        // Push Order
+        //
         private void PushOrderToAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
@@ -197,9 +200,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var taxDetails = new TaxDetails();
             taxDetails.TaxID = preferences.AcumaticaTaxId.ToValue();
             //taxDetails.TaxRate
-            //    = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotal)).ToValue();
-            taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
-            taxDetails.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
+            //    = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotalAfterRefundCancels)).ToValue();
+            taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotalAfterRefundCancels).ToValue();
+            taxDetails.TaxAmount = ((double)shopifyOrder.TaxTotalAfterRefundCancels).ToValue();
 
             salesOrder.TaxDetails = new List<TaxDetails> { taxDetails };
             salesOrder.TaxTotal = ((double)shopifyOrder.total_tax).ToValue();
@@ -244,7 +247,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             return shippingContact;
         }
 
-        private void PushOrderTaxesToAcumatica(UsrShopifyOrder shopifyOrderRecord)
+
+
+        // Push Order Taxes
+        //
+        public void PushOrderTaxesToAcumatica(UsrShopifyOrder shopifyOrderRecord)
         {
             // Arrange
             var syncRecord = shopifyOrderRecord.UsrShopAcuOrderSyncs.FirstOrDefault();
@@ -252,6 +259,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             {
                 return;
             }
+
             var preferences = _preferencesRepository.RetrievePreferences();
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
             var acumaticaRecord = syncRecord.UsrAcumaticaSalesOrder;
@@ -261,9 +269,9 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             taxDetails.id = syncRecord.AcumaticaTaxDetailId;
             taxDetails.TaxID = preferences.AcumaticaTaxId.ToValue();
             //taxDetails.TaxRate 
-            //    = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotal)).ToValue();
-            taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotal).ToValue();
-            taxDetails.TaxAmount = ((double)shopifyOrder.total_tax).ToValue();
+            //    = ((double)(shopifyOrder.total_tax / shopifyOrder.TaxableAmountTotalAfterRefundCancels)).ToValue();
+            taxDetails.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotalAfterRefundCancels).ToValue();
+            taxDetails.TaxAmount = ((double)shopifyOrder.TaxTotalAfterRefundCancels).ToValue();
 
             // Create Sales Order payload
             var orderUpdate = new SalesOrderTaxUpdate();
@@ -284,7 +292,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }
         
-
         public UsrAcumaticaCustomer SyncCustomerToAcumatica(UsrShopifyOrder shopifyOrder)
         {
             var customer =

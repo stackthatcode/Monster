@@ -62,6 +62,7 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+
         public string WriteSalesOrder(string json)
         {
             var response = _httpContext.Put("SalesOrder", json);
@@ -86,8 +87,6 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-
-
         private void LogSalesOrderDetailIds(string resultJson)
         {
             var order = resultJson.DeserializeFromJson<SalesOrder.SalesOrder>();
@@ -107,13 +106,14 @@ namespace Monster.Acumatica.Api
                     $" - OrderQty {detail.OrderQty.value}");
             }
         }
-
+        
         public string RetrieveSalesOrderInvoice(string invoiceRefNbr, string invoiceType)
         {
             var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand=Details";
             var response = _httpContext.Get(url);
             return response.Body;
         }
+
 
         public string RetrieveInvoices()
         {

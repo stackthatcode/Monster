@@ -59,7 +59,10 @@ namespace Push.Shopify.Api.Order
         public decimal TaxTotal =>
                 refund_line_items.Sum(x => x.total_tax) +
                 -(order_adjustments.Sum(x => x.tax_amount));
-        
+
+        [JsonIgnore]
+        public decimal TaxableAmountRefunded => CancelledLineItems.Sum(x => x.subtotal);
+
         [JsonIgnore]
         public List<RefundTaxLine> 
                 TaxBreakdown => Parent
@@ -83,6 +86,7 @@ namespace Push.Shopify.Api.Order
             refund_line_items
                 .Where(x => x.restock_type == "return")
                 .ToList();
+
 
 
         public bool HasTransaction(long transaction_id)

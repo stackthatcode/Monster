@@ -70,7 +70,19 @@ namespace Push.Shopify.Api.Order
         public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
 
         [JsonIgnore]
-        public decimal TaxableAmountTotal => line_items.Sum(x => x.TaxableAmount);
+        public List<RefundLineItem> CancelledLineItems =>
+
+                    refunds.SelectMany(x => x.CancelledLineItems).ToList();
+        
+        [JsonIgnore]
+        public decimal TaxableAmountTotalAfterRefundCancels
+                    => line_items.Sum(x => x.TaxableAmount) 
+                       - CancelledLineItems.Sum(x => x.subtotal);
+
+        [JsonIgnore]
+        public decimal TaxTotalAfterRefundCancels 
+                    => total_tax - CancelledLineItems.Sum(x => x.total_tax);
+
 
         [JsonIgnore]
         public decimal LineItemDiscountTotal

@@ -40,7 +40,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 .Include(x => x.UsrShopifyTransactions.Select(y => y.UsrShopifyAcuPayment))
                 .ToList();
         }
-        
+
         public UsrShopifyOrder RetrieveShopifyOrder(long shopifyOrderId)
         {
             return Entities
@@ -64,12 +64,12 @@ namespace Monster.Middle.Processes.Sync.Orders
 
 
 
-        public UsrShopAcuOrderSync 
-                InsertOrderSync(
-                    UsrShopifyOrder shopifyOrder, 
-                    UsrAcumaticaSalesOrder acumaticaSalesOrder,
-                    string taxDetailId,
-                    bool isTaxLoadedToAcumatica)
+        public UsrShopAcuOrderSync
+            InsertOrderSync(
+                UsrShopifyOrder shopifyOrder,
+                UsrAcumaticaSalesOrder acumaticaSalesOrder,
+                string taxDetailId,
+                bool isTaxLoadedToAcumatica)
         {
             var sync = new UsrShopAcuOrderSync();
             sync.UsrShopifyOrder = shopifyOrder;
@@ -83,7 +83,7 @@ namespace Monster.Middle.Processes.Sync.Orders
             Entities.SaveChanges();
             return sync;
         }
-        
+
 
 
         // Customer syncing
@@ -103,7 +103,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 .UsrShopifyCustomers
                 .Where(x => !x.UsrShopAcuCustomerSyncs.Any())
                 .Where(x => Entities.UsrShopifyOrders.Any(
-                            y => y.UsrShopifyCustomer.ShopifyCustomerId == x.ShopifyCustomerId))
+                    y => y.UsrShopifyCustomer.ShopifyCustomerId == x.ShopifyCustomerId))
                 .ToList();
         }
 
@@ -115,7 +115,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                             x.IsUpdatedInAcumatica == false)
                 .ToList();
         }
-        
+
         public void InsertCustomerSync(UsrShopAcuCustomerSync input)
         {
             Entities.UsrShopAcuCustomerSyncs.Add(input);
@@ -129,13 +129,30 @@ namespace Monster.Middle.Processes.Sync.Orders
         public List<UsrShopifyFulfillment> RetrieveFulfillmentsNotSynced()
         {
             return Entities
+                .UsrShopifyFulfillments
+                .Include(x => x.UsrShopifyOrder)
+                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
+                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
+                .Where(x => !x.UsrShopAcuShipmentSyncs.Any())
+                .ToList();
+        }
+
+        public List<UsrShopifyFulfillment> RetrieveFulfillment(long shopifyOrderId)
+        {
+            return Entities
                     .UsrShopifyFulfillments
-                    .Include(x => x.UsrShopifyOrder)
-                    .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
-                    .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
-                    .Where(x => !x.UsrShopAcuShipmentSyncs.Any())
+                    .Include(x => x.UsrShopAcuShipmentSyncs)
+                    .Where(x => x.ShopifyOrderId == shopifyOrderId)
                     .ToList();
         }
+
+        public bool AnyUnsyncedFulfillments(long shopifyOrderId)
+        {
+            return Entities
+                .UsrShopifyFulfillments
+                .Any(x => !x.UsrShopAcuShipmentSyncs.Any());
+        }
+        
 
         public void InsertShipmentDetailSync(
                 UsrShopifyFulfillment fulfillment, 
@@ -191,7 +208,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 .FirstOrDefault(x => x.ShopifyRefundId == shopifyRefundId);
         }
 
-        public List<UsrShopifyRefund> RetrieveCancellationsNotSynced()
+        public List<UsrShopifyRefund> RetrieveCancelsNotSynced()
         {
             return RefundRecordGraph
                 .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())

@@ -15,7 +15,10 @@ namespace Monster.Acumatica.Api.Payment
         public StringValue PaymentRef { get; set; }
         public StringValue Description { get; set; }
         public DoubleValue PaymentAmount { get; set; }
+        public DoubleValue AppliedToDocuments { get; set; }
+
         public List<PaymentOrdersRef> OrdersToApply { get; set; }
+        public List<PaymentDocumentsToApply> DocumentsToApply { get; set; }
     }
 }
 

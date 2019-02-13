@@ -66,6 +66,7 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public decimal TotalTaxes => tax_lines.Sum(x => x.rate * x.price);
 
+
         [JsonIgnore]
         public decimal TaxableAmount => taxable ? TotalAfterDiscount : 0m;
     }
