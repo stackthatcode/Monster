@@ -17,9 +17,9 @@ namespace Monster.Acumatica.Api
         }
 
 
-        public string RetrieveShipments(DateTime? lastModified = null)
+        public string RetrieveShipments(DateTime? lastModified = null, string expand = "Details")
         {
-            var queryString = "$expand=Details";
+            var queryString = $"$expand={expand}";
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();

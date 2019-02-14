@@ -16,6 +16,13 @@
         public const string DocumentsToApply = "DocumentsToApply";
     }
 
+    public class ShipmentExpand
+    {
+        public const string Details = "Details";
+        public const string Packages = "Packages";
+    }
+
+
 
     public class Status
     {

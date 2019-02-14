@@ -191,7 +191,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.InsertPayment(paymentRecord);
 
             // Write Execution Log
-            _logRepository.InsertExecutionLog($"Created {payment.Description}");
+            _logRepository.InsertExecutionLog($"Created {payment.Description.value}");
         }
     }
 }

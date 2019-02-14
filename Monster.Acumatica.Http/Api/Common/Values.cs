@@ -49,6 +49,11 @@ namespace Monster.Acumatica.Api.Common
             value = _value;
         }
 
+        public override string ToString()
+        {
+            return value;
+        }
+
         public StringValue Copy()
         {
             return new StringValue(value);

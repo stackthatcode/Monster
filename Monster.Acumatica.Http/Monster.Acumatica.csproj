@@ -97,6 +97,8 @@
     <Compile Include="Api\Shipment\Shipment.cs" />
     <Compile Include="Api\Shipment\ShipmentDetail.cs" />
     <Compile Include="Api\Shipment\ShipmentConfirmation.cs" />
+    <Compile Include="Api\Shipment\ShipmentExtensions.cs" />
+    <Compile Include="Api\Shipment\ShipmentPackage.cs" />
     <Compile Include="Config\AcumaticaHttpConfig.cs" />
     <Compile Include="Config\AcumaticaCredentialsConfig.cs" />
     <Compile Include="Http\AcumaticaCredentials.cs" />

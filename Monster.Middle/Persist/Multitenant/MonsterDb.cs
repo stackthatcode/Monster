@@ -886,6 +886,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaJson { get; set; } // AcumaticaJson
         public string AcumaticaShipmentNbr { get; set; } // AcumaticaShipmentNbr (length: 50)
         public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 25)
+        public string AcumaticaTrackingNbr { get; set; } // AcumaticaTrackingNbr (length: 100)
         public bool IsCreatedByMonster { get; set; } // IsCreatedByMonster
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -2134,6 +2135,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.AcumaticaShipmentNbr).HasColumnName(@"AcumaticaShipmentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.AcumaticaTrackingNbr).HasColumnName(@"AcumaticaTrackingNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
             Property(x => x.IsCreatedByMonster).HasColumnName(@"IsCreatedByMonster").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();

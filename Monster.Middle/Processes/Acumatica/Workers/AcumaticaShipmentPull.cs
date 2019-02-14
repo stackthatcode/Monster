@@ -83,11 +83,19 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var updateMinUtc = batchState.AcumaticaShipmentsPullEnd;
             var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
-            var json = _shipmentClient.RetrieveShipments(updateMin);
-            var shipments = json.DeserializeFromJson<List<Shipment>>();
+            var detailsJson = _shipmentClient.RetrieveShipments(updateMin);
+            var shipments = detailsJson.DeserializeFromJson<List<Shipment>>();
+
+            // Need to do this because Acumatica constrains the number of Details
+            // ... that can be expanded per call
+            var packagesJson
+                = _shipmentClient.RetrieveShipments(updateMin, ShipmentExpand.Packages);
+            var shipmentsWithPackages = packagesJson.DeserializeFromJson<List<Shipment>>();            
+            shipments.AppendPackageRefs(shipmentsWithPackages);
 
             UpsertShipmentsToPersist(shipments);
         }
+        
 
 
         public void UpsertShipmentsToPersist(List<Shipment> shipments)
@@ -115,11 +123,13 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 newData.AcumaticaJson = shipment.SerializeToJson();
                 newData.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 newData.AcumaticaStatus = shipment.Status.value;
+                newData.AcumaticaTrackingNbr = shipment.LeadTrackingNbr;
                 newData.IsCreatedByMonster = isCreatedByMonster;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.InsertShipment(newData);
+
                 UpsertShipmentSalesOrderRefs(newData.Id, shipment);
                 return newData;
             }
@@ -127,9 +137,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             {
                 existingData.AcumaticaJson = shipment.SerializeToJson();
                 existingData.AcumaticaStatus = shipment.Status.value;
+                existingData.AcumaticaTrackingNbr = shipment.LeadTrackingNbr;
                 existingData.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.SaveChanges();
+
                 UpsertShipmentSalesOrderRefs(existingData.Id, shipment);
                 
                 return existingData;

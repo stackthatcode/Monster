@@ -20,6 +20,9 @@ namespace Monster.Acumatica.Api.Shipment
         public BoolValue CurrencyViewState { get; set; }
         public StringValue CustomerID { get; set; }
         public List<ShipmentDetail> Details { get; set; }
+
+        public List<ShipmentPackage> Packages { get; set; }
+
         public DateValue EffectiveDate { get; set; }
         public StringValue FOBPoint { get; set; }
         public DoubleValue FreightAmount { get; set; }
@@ -66,5 +69,11 @@ namespace Monster.Acumatica.Api.Shipment
                 .Where(x => x.OrderNbr.value == orderNbr)
                 .ToList();
         }
+
+        [JsonIgnore]
+        public string LeadTrackingNbr
+            => Packages != null && Packages.Any()
+                ? Packages.First().TrackingNbr.value : (string) null;
     }
 }
+

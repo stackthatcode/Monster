@@ -108,5 +108,12 @@ namespace Push.Shopify.Api
             _logger.Trace(clientResponse.Body);
             return clientResponse.Body;
         }
+
+        public string UpdateVariantPrice(long variantId, string json)
+        {
+            var path = $"/admin/variants/{variantId}.json";
+            var clientResponse = _httpClient.Put(path,json);
+            return clientResponse.Body;
+        }
     }
 }

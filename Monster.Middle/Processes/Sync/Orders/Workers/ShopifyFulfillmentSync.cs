@@ -130,8 +130,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var fulfillment = new Fulfillment();
             fulfillment.line_items = new List<LineItem>();
             fulfillment.location_id = location.id;
-
-            // TODO - add Tracking Number...?
+            fulfillment.tracking_number = shipmentRecord.AcumaticaTrackingNbr;
 
             // Build the Detail
             foreach (var detail in details)
