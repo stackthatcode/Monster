@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 _acumaticaInventorySync.RunInventoryReceipts();
 
                 // TODO - control this via a Preference
-                _acumaticaInventorySync.RunInventoryReceiptsRelease();
+                //_acumaticaInventorySync.RunInventoryReceiptsRelease();
             });
         }
 

@@ -36,7 +36,7 @@
 
     <div class="std-padding">
         <div class="card">
-            <div class="card-body std-padding">
+            <div class="card-body">
                 <div data-bind="if: IsRealTimeSyncRunning">
                     <div class="alert alert-success">
                         <strong>Real-Time Synchronization - Enabled</strong>
@@ -62,7 +62,7 @@
                 <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
                     <div data-bind="if: IsReadyForRealTimeSync">
                         <div class="alert alert-info">
-                            <strong>Real-Time Synchronization - Ready to Start</strong>
+                            <strong>Real-Time Synchronization - Diagnostics OK</strong>
                         </div>
                     </div>
 
@@ -113,6 +113,8 @@
 @Html.Partial("_SharedKnockoutViews")
 
 <script type="text/html" id="Real-Time-Monitoring">
+    <!--
+      
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link" id="nav-profile-tab"
            data-toggle="tab" data-bind="css: OrderViewTabActive, click: OrderViewTabClick"
@@ -122,8 +124,7 @@
            data-toggle="tab" data-bind="css: ExecutionTabActive, click: ExectionTabClick"
            href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Execution Logs</a>
     </div>
-
-    <div style="height:40px;"></div>
+    -->
 
     <div data-bind="if: ActiveTabIndex() == OrderViewTabIndex">
         <div data-bind="template: { name: 'Order-Summary' } "></div>

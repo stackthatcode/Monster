@@ -61,11 +61,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 var variantSku = stockItemRecord.MatchedVariant().ShopifySku;
                 var price = stockItemObj.DefaultPrice.value;
 
-                var dto = new VariantPriceUpdate
-                {
-                    id = variantShopifyId,
-                    price = price
-                };
+                var dto = VariantPriceUpdateParent.Make(variantShopifyId, price);
 
                 _productApi.UpdateVariantPrice(variantShopifyId, dto.SerializeToJson());
 
