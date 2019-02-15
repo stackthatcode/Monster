@@ -963,6 +963,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long MonsterId { get; set; } // MonsterId (Primary key)
         public string ItemId { get; set; } // ItemId (length: 100)
         public string AcumaticaJson { get; set; } // AcumaticaJson
+        public bool IsPriceSynced { get; set; } // IsPriceSynced
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1022,7 +1023,7 @@ namespace Monster.Middle.Persist.Multitenant
         public string AcumaticaWarehouseId { get; set; } // AcumaticaWarehouseId (length: 50)
         public double AcumaticaQtyOnHand { get; set; } // AcumaticaQtyOnHand
         public long WarehouseMonsterId { get; set; } // WarehouseMonsterId
-        public bool IsShopifySynced { get; set; } // IsShopifySynced
+        public bool IsInventorySynced { get; set; } // IsInventorySynced
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -2213,6 +2214,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ItemId).HasColumnName(@"ItemId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
+            Property(x => x.IsPriceSynced).HasColumnName(@"IsPriceSynced").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }
@@ -2260,7 +2262,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaWarehouseId).HasColumnName(@"AcumaticaWarehouseId").HasColumnType("nvarchar").IsRequired().HasMaxLength(50);
             Property(x => x.AcumaticaQtyOnHand).HasColumnName(@"AcumaticaQtyOnHand").HasColumnType("float").IsRequired();
             Property(x => x.WarehouseMonsterId).HasColumnName(@"WarehouseMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.IsShopifySynced).HasColumnName(@"IsShopifySynced").HasColumnType("bit").IsRequired();
+            Property(x => x.IsInventorySynced).HasColumnName(@"IsInventorySynced").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 

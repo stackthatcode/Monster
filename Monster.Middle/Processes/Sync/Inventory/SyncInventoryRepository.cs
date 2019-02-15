@@ -164,6 +164,17 @@ namespace Monster.Middle.Processes.Sync.Inventory
         }
 
 
+        // Inventory Price
+        //
+        public List<UsrAcumaticaStockItem> RetrieveStockItemsNotSynced()
+        {
+            return Entities
+                    .UsrAcumaticaStockItems
+                    .Include(x => x.UsrShopAcuItemSyncs)
+                    .Where(x => x.IsPriceSynced == false)
+                    .ToList();
+        }
+
 
         // Inventory and Warehouse Details
         //
@@ -186,7 +197,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .Include(x => x.UsrAcumaticaStockItem)
                 .Include(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs)
                 .Where(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs.Any()
-                            && x.IsShopifySynced == false)
+                            && x.IsInventorySynced == false)
                 .ToList();
         }
 
