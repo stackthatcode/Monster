@@ -2,102 +2,107 @@
 
 @Html.Partial("_SharedKnockoutViews")
 
-<main role="main" class="medium-size">
+@Html.Partial("_TopBrand")
 
-    @Html.Partial("_TopBrand")
+<div class="medium-size">
+    <div data-bind="ifnot: IsJobRunning">
+        <div data-bind="if: AcumaticaInventoryPushState() == SystemState.None">
+            <div data-bind="template: { name: 'Inventory-Config-Wizard-Title' }"></div>
 
-    <hr />
-    <h1 class="mt-5 center">Inventory - Load into Acumatica</h1>
-    <p class="lead center">Optional step to load your Shopify Inventory into Acumatica</p>
-
-    <div data-bind="ifnot: IsBackgroundJobRunning">
-        <div class="std-padding">
-            <div data-bind="if: AcumaticaInventoryPushState() == SystemState.None">
-                <div class="alert alert-warning">
-                    <strong>OPTIONAL</strong> - this function is strictly-for users
-                    that intend to copy their Shopify catalog and inventory counts into Acumatica.
-                </div>
-                <p>
-                    @GlobalConfig.AppName can load your complete Shopify catalog of Products and Variants into Acumatica,
-                    and creates corresponding Stock Items in Acumatica.
-                    If you elect to use this function,
-                    @GlobalConfig.AppName will also load your entire Inventory counts
-                    from Shopify into Acumatica via Inventory Receipts.
-                </p>
-            </div>
-
-            <div data-bind="if: AcumaticaInventoryPushState() == SystemState.SystemFault">
-                <div class="alert alert-danger">
-                    <strong>Load Inventory into Acumatica - System Fault</strong>
-                </div>
-                <p>
-                    Something went wrong while running this process.
-                    You may consider reviewing your configuration before
-                    re-running. If issue persists, contact support.
-                </p>
-            </div>
-
-            <div data-bind="if: AcumaticaInventoryPushState() == SystemState.Ok">
-                <div class="alert alert-info">
-                    <strong>Load Inventory into Acumatica - OK</strong>
-                </div>
-                <p>
-                    This process has successfully completed. You can re-run
-                    it at anytime to ensure that all of your Shopify products
-                    and variants are loaded into Acumatica.
-                </p>
-            </div>
-        </div>
-
-        <div class="std-padding-bottom center">
-            <span data-bind="ifnot: IsRandomAccessMode">
-                <a href="@GlobalConfig.Url("Config/Warehouses")"
-                   class="btn btn-secondary btn-lg">
-                    <i class="fas fa-undo"></i> Previous Step
-                </a>
-            </span>
-
-            <span data-bind="if: IsRandomAccessMode">
-                <a href="@GlobalConfig.DiagnosticsHome"
-                   class="btn btn-secondary btn-lg">
-                    <i class="fas fa-undo"></i> Back to Diagnostics
-                </a>
-            </span>
-
-            <a href="#" class="btn btn-primary btn-lg"
-               data-bind="click: PushInventoryToAcumaticaClick">
-                Synchronize Now <i class="fas fa-bolt"></i>
-            </a>
-
-            <span data-bind="ifnot: IsRandomAccessMode">
-                <a href="@GlobalConfig.Url("Config/InventoryToShopify")"
-                   class="btn btn-success btn-lg">
-                    Next Step <i class="fas fa-sign-in-alt"></i>
-                </a>
-            </span>
-        </div>
-    </div>
-
-    <div data-bind="if: IsBackgroundJobRunning">
-        <div class="std-padding">
             <div class="card">
-                <div class="card-body center std-padding">
-                    <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-                    <div style="height: 30px;"></div>
-
-                    <p class="center">
-                        @GlobalConfig.AppName is currently busy processing your inventory.<br />
-                        Depending on the size of your catalog, this process may take up to several hours.
+                <div class="card-body std-padding">                            
+                    <p>
+                        @GlobalConfig.AppName will now pull your complete catalog of Products and Variants from Shopify,
+                        and will pull all of your Stock Items from your Acumatica Instance.
                     </p>
-                    
-                    <hr />
-
-                    <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> Real-Time Sync will perform this step as well.
+                        But, you will still need to load Stock Items into Shopify
+                        and select which to enable for Inventory Synchronization.
+                    </div>
                 </div>
+            </div>
+
+            <div class="center std-padding">
+                <a href="#" class="btn btn-primary btn-lg" 
+                   data-bind="click: PushInventoryToAcumaticaClick">
+                    Synchronize Now <i class="fas fa-bolt"></i>
+                </a>
+            </div>
+        </div>
+
+        <div data-bind="if: AcumaticaInventoryPushState() == SystemState.SystemFault">
+            <div data-bind="template: { name: 'Inventory-Config-Wizard-Title' }"></div>
+            
+            <div class="card">
+                <div class="card-body std-padding-bottom">
+                    <div class="alert alert-danger">
+                        <strong>Load Inventory into Acumatica - System Fault</strong>
+                    </div>
+                    <p>
+                        Something went wrong while running this process.
+                        You may consider reviewing your configuration before
+                        re-running. If issue persists, contact support.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="center std-padding">
+                <a href="#" 
+                   class="btn btn-primary btn-lg" 
+                   data-bind="click: PushInventoryToAcumaticaClick">
+                    Synchronize Now <i class="fas fa-bolt"></i>
+                </a>
+            </div>
+        </div>
+
+        <div data-bind="if: AcumaticaInventoryPushState() == SystemState.Ok">
+            <div class="card">
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Load Inventory into Acumatica - OK</strong>
+                    </div>
+
+                    <p>
+                        This process has successfully completed. You can re-run
+                        it at anytime to ensure that all of your Shopify products
+                        and variants are loaded into Acumatica.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div data-bind="if: IsJobRunning">
+        <div class="card std-padding-sm">
+            <div class="card-title-interface">
+               Inventory Sync Control
+            </div>
+
+            <div class="card-body center">
+                <div class="std-padding-sm">
+                    <img style="width: 100px;" src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
+                </div>
+
+                <p class="center">
+                    @GlobalConfig.AppName is currently busy processing your inventory.<br/>
+                    Depending on the size of your catalog, this process may take up to several hours.
+                </p>
+
+                <hr/>
+
+                <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
             </div>
         </div>
     </div>
-</main>
+</div>
+
+<script id="Inventory-Config-Wizard-Title" type="text/html">
+    <hr/>
+    <h1 class="mt-4 center">Inventory Sync Control</h1>
+    <p class="lead center">Pull from Shopify and Acumatica to prepare for loading</p>
+</script>
 
 <script>
     var Monster = Monster || {};
@@ -105,7 +110,7 @@
     Monster.InventoryConfigModel = function () {
         var self = this;
 
-        self.IsBackgroundJobRunning = ko.observable();
+        self.IsJobRunning = ko.observable();
         self.IsRandomAccessMode = ko.observable();
         self.AcumaticaInventoryPushState = ko.observable();
         self.Logs = ko.observableArray();
@@ -125,12 +130,12 @@
                 function (response) {
                     //console.log(response);
 
-                    self.IsBackgroundJobRunning(response.IsBackgroundJobRunning);
+                    self.IsJobRunning(response.IsBackgroundJobRunning);
                     self.AcumaticaInventoryPushState(response.SystemState);
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
                     self.Logs(response.Logs);
 
-                    if (self.IsBackgroundJobRunning()) {
+                    if (self.IsJobRunning()) {
                         setTimeout(self.PollStatus, 1000);
                     }
                 });

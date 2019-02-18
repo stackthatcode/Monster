@@ -6,11 +6,11 @@
 
     @Html.Partial("_TopBrand")
     <hr />
-    <h1 class="mt-5 center">Inventory - Load into Shopify</h1>
+    <h1 class="mt-4 center">Inventory - Load into Shopify</h1>
     <p class="lead center">Synchronize Shopify with Acumatica inventory counts</p>
 
 
-    <div data-bind="ifnot: IsBackgroundJobRunning">
+    <div data-bind="ifnot: IsJobRunning">
         <div class="std-padding">
             <div data-bind="if: ShopifyInventoryPushState() == SystemState.None">
                 <p>
@@ -74,7 +74,7 @@
         </div>
     </div>
 
-    <div data-bind="if: IsBackgroundJobRunning">
+    <div data-bind="if: IsJobRunning">
         <div class="std-padding">
             <div class="card">
                 <div class="card-body center std-padding">
@@ -103,7 +103,7 @@
     Monster.InventoryConfigModel = function () {
         var self = this;
 
-        self.IsBackgroundJobRunning = ko.observable();
+        self.IsJobRunning = ko.observable();
         self.IsRandomAccessMode = ko.observable();
         self.ShopifyInventoryPushState = ko.observable();
         self.Logs = ko.observableArray();
@@ -129,12 +129,12 @@
                 function (response) {
                     //console.log(response);
 
-                    self.IsBackgroundJobRunning(response.IsBackgroundJobRunning);
+                    self.IsJobRunning(response.IsBackgroundJobRunning);
                     self.ShopifyInventoryPushState(response.SystemState);
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
                     self.Logs(response.Logs);
 
-                    if (self.IsBackgroundJobRunning()) {
+                    if (self.IsJobRunning()) {
                         setTimeout(self.PollStatus, 1000);
                     }
                 });

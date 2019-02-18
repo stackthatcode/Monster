@@ -15,25 +15,6 @@
         {
             <ul class="navbar-nav">
                 <li class="nav-item active dropdown">
-                    <a class="nav-link dropdown-toggle"
-                       href="#" id="configSync" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        Synchronize
-                    </a>
-                    <div class="dropdown-menu bg-primary" aria-labelledby="configSync">
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("RealTime/RealTime")">
-                            Real-Time Order Sync
-                        </a>
-
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("Config/InventoryToAcumatica")">
-                            Product-Stock Item Sync
-                        </a>
-                    </div>
-                </li>
-
-                <li class="nav-item active dropdown">
                     <a class="nav-link dropdown-toggle" href="#"
                        id="configDropDown" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
@@ -44,7 +25,10 @@
                            href="@GlobalConfig.Url("RealTime/Diagnostics")">
                             Diagnostics
                         </a>
-                        <div class="dropdown-divider"></div>
+
+                        <div class="dropdown-divider">
+                        </div>
+
                         <a class="dropdown-item bg-primary active"
                            href="@GlobalConfig.Url("ShopifyAuth/Domain")">Shopify Connection</a>
 
@@ -63,6 +47,36 @@
                 </li>
 
                 <li class="nav-item active dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#" id="configSync" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        Synchronize
+                    </a>
+
+                    <div class="dropdown-menu bg-primary" aria-labelledby="configSync">
+                        <a class="dropdown-item bg-primary active"
+                           href="@GlobalConfig.Url("RealTime/RealTime")">
+                            Real-Time Sync
+                        </a>
+                        <a class="dropdown-item bg-primary active"
+                           href="@GlobalConfig.Url("Config/InventoryToAcumatica")">
+                            Inventory Sync Control
+                        </a>
+
+                        <div class="dropdown-divider">s</div>
+
+                        <a class="dropdown-item bg-primary active"
+                           href="@GlobalConfig.Url("Config/InventoryToAcumatica")">
+                            Load Stock Items into Acumatica
+                        </a>
+                        <a class="dropdown-item bg-primary active"
+                           href="@GlobalConfig.Url("Config/InventoryToAcumatica")">
+                            Load Products into Shopify
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item active dropdown">
                     <a class="nav-link dropdown-toggle" href="#"
                        id="analyzeSync" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
@@ -72,12 +86,11 @@
                     <div class="dropdown-menu bg-primary" aria-labelledby="analyzeSync">
                         <a class="dropdown-item bg-primary active"
                            href="@GlobalConfig.Url("Analysis/RealTime")">
-                            Products and Stock Items
+                            Orders and Sales Orders
                         </a>
-
                         <a class="dropdown-item bg-primary active"
                            href="@GlobalConfig.Url("Analysis/RealTime")">
-                            Orders and Sales Orders
+                           Execution Logs
                         </a>
                     </div>
                 </li>

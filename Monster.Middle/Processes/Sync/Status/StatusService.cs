@@ -65,7 +65,7 @@ namespace Monster.Middle.Processes.Sync.Status
         public AcumaticaConnectionState AcumaticaConnectionStatus()
         {
             var isRunning =
-                _hangfireService.IsBackgroundJobRunning(
+                _hangfireService.IsJobRunning(
                     JobType.ConnectToAcumatica);
 
             var state = _stateRepository.RetrieveSystemState();
@@ -84,7 +84,7 @@ namespace Monster.Middle.Processes.Sync.Status
         public AcumaticaReferenceDataState AcumaticaReferenceDataStatus()
         {
             var isRunning =
-                _hangfireService.IsBackgroundJobRunning(
+                _hangfireService.IsJobRunning(
                     JobType.PullAcumaticaRefData);
 
             var state = _stateRepository.RetrieveSystemState();

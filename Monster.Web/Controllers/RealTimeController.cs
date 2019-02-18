@@ -95,7 +95,7 @@ namespace Monster.Web.Controllers
             var logDtos = logs.Select(x => new ExecutionLog(x)).ToList();
 
             var isConfigDiagnosisRunning 
-                = _hangfireService.IsBackgroundJobRunning(JobType.Diagnostics);
+                = _hangfireService.IsJobRunning(JobType.Diagnostics);
 
             var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
 

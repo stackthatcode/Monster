@@ -91,7 +91,7 @@ namespace Monster.Middle.Hangfire
             using (var transaction = _stateRepository.BeginTransaction())
             {
                 // This is no longer necessary since execution will be blocked by the Job Runner
-                //if (IsBackgroundJobRunning(backgroundJobType))
+                //if (IsJobRunning(backgroundJobType))
                 //{
                 //    _logger.Info($"Job (BackgroundJobType = {backgroundJobType}) already running");
                 //    return;
@@ -156,7 +156,7 @@ namespace Monster.Middle.Hangfire
         
         // Status querying
         //
-        public bool IsBackgroundJobRunning(int jobType)
+        public bool IsJobRunning(int jobType)
         {
             // If Background Job Record is missing, return false
             var jobRecord = _stateRepository.RetrieveBackgroundJob(jobType);

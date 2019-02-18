@@ -227,16 +227,15 @@ namespace Monster.Web.Controllers
         public ActionResult WarehouseSyncStatus()
         {
             var isBackgroundJobRunning
-                = _hangfireService.IsBackgroundJobRunning(
-                    JobType.SyncWarehouseAndLocation);
+                = _hangfireService
+                    .IsJobRunning(JobType.SyncWarehouseAndLocation);
 
             var state = _stateRepository.RetrieveSystemState();
-            var warehouseSyncStatus
-                = _statusService.WarehouseSyncStatus();
+            var warehouseSyncStatus = _statusService.WarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
             {
-                IsBackgroundJobRunning = isBackgroundJobRunning,
+                IsJobRunning = isBackgroundJobRunning,
                 WarehouseSyncState = state.WarehouseSync,
                 Details = warehouseSyncStatus,
                 IsRandomAccessMode = state.IsRandomAccessMode,
@@ -266,8 +265,7 @@ namespace Monster.Web.Controllers
         public ActionResult AcumaticaInventoryPushStatus()
         {
             var isRunning = 
-                _hangfireService.IsBackgroundJobRunning(
-                    JobType.PushInventoryToAcumatica);
+                _hangfireService.IsJobRunning(JobType.PushInventoryToAcumatica);
 
             var state = _stateRepository.RetrieveSystemState();
             var logs = _logRepository.RetrieveExecutionLogs();
