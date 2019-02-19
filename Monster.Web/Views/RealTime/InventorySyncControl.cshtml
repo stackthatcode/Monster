@@ -55,6 +55,7 @@
                     @GlobalConfig.AppName will now pull your complete catalog of Products and Variants from Shopify,
                     and will pull all of your Stock Items from your Acumatica Instance.
                 </p>
+
                 <div class="alert alert-warning">
                     <strong>Important:</strong> Real-Time Sync will perform this step as well.
                     But, you will still need to load Stock Items into Shopify
@@ -85,20 +86,23 @@
                         <strong>Pull Inventory from Shopify &amp; Acumatica - OK</strong>
                     </div>
                     
-                    <p>Inventory was successfully pulled from both sources.
-                        The next step is to begin importing inventory between 
-                        both systems. You can load Products and Variants from Shopify,
-                        into Acumatica, and you can load Stock Items from Acumatica into Shopify.
+                    <p>Inventory was successfully pulled from both sources. The next step is to begin 
+                        <a href="@GlobalConfig.Url("RealTime/ImportIntoAcumatica")">loading inventory into Shopify from Acumatica</a>. 
+                        If you have an existing catalog in Shopify, you can 
+                        <a href="@GlobalConfig.Url("RealTime/ImportIntoShopify")">import Products and Variants from Shopify into Acumatica</a>.                        
                     </p>
-                    
+
+                    <p>In either case, you can come back to Inventory Sync Control to enable and disable
+                    synchronization.</p>
+
                     <div class="center std-pad-t">
-                        <a href="@GlobalConfig.Url("RealTime/LoadAcumatica")" 
+                        <a href="@GlobalConfig.Url("RealTime/ImportIntoAcumatica")" 
                            class="btn btn-primary btn-lg">
-                            Load Acumatica <i class="fa fa-upload" aria-hidden="true"></i>
+                            Load from Acumatica to Shopify <i class="fa fa-upload" aria-hidden="true"></i>
                         </a>
-                        <a href="@GlobalConfig.Url("RealTime/LoadShopify")" 
+                        <a href="@GlobalConfig.Url("RealTime/ImportIntoShopify")" 
                            class="btn btn-primary btn-lg">
-                            Load Shopify <i class="fa fa-upload" aria-hidden="true"></i>
+                            Import from Shopify <i class="fa fa-upload" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -127,24 +131,110 @@
 </script>
 
 <script id="Inventory-Search-Panel" type="text/html">
-<div class="large-size">
-    <div class="card std-pad-sm">
-        <div class="card-title-interface">
-            Inventory Sync Control
-        </div>
+    <div class="large-size">
+        <div class="card std-pad-sm">
+            <div class="card-title-interface">
+                Inventory Sync Control
+            </div>
 
-        <div class="center std-pad-sm-t">
-            <a href="#" class="btn btn-primary btn-sm" 
-               data-bind="click: InventoryPullClick">
-                Refresh Inventory <i class="fas fa-bolt"></i>
-            </a>
-        </div>
+            <div class="center std-pad-sm-t">
+                
+                <span data-bind="if: LastInventoryRunHadErrors">
+                    <a href="@GlobalConfig.Url("Config/Diagnostics")"
+                       class="btn btn-dark btn-sm">
+                        View Diagnostics
+                        <i class="fas fa-user-md"></i>
+                    </a>
+                </span>
+            </div>
+    
+            <!-- Filtering -->
+            <div class="card-body">
+                <div class="input-group mb-3">                   
+                    <input type="text" class="form-control" 
+                           placeholder="Enter Product Title, Variant Title, Item Id, Description, Vendor, Product Type" 
+                           aria-label="Enter Product Title, Variant Title, Item Id, Description, Vendor, Product Type">
+                    
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button">
+                            Filter Inventory
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="center">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                        <label class="form-check-label" for="inlineRadio1">All Inventory</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                        <label class="form-check-label" for="inlineRadio2">With Sync Enabled Only</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3" disabled>
+                        <label class="form-check-label" for="inlineRadio3">With Sync Disabled Only</label>
+                    </div>
+                </div>
+            </div>        
             
-        <div class="card-body">
+            <hr />
 
+            <!-- Results -->
+            <div style="padding-left:30px;padding-right:30px;">
+                <div class="btn-group" 
+                     style="float:right;"
+                     role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-sm btn-secondary">
+                        Select All <i class="fas fa-check-square"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary">
+                        Unselect All <i class="fas fa-minus-square"></i>
+                    </button>
+                </div>
+                <div role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-sm btn-primary">
+                        Enable Selected <i class="fas fa-toggle-on"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary">
+                        Disable Selected <i class="fas fa-toggle-off"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" data-bind="click: InventoryPullClick">
+                        Refresh Inventory <i class="fas fa-bolt"></i>
+                
+                        <span data-bind="if: LastInventoryRunHadErrors">
+                            <span class="badge badge-dark">FAILED</span>
+                        </span>
+                    </button>
+                </div>
+                
+                <div style="clear:both; height:15px;"></div>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>mdo</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Jacob</td>
+                        <td>Thornton</td>
+                        <td>fat</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td>Larry</td>
+                        <td>the Bird</td>
+                        <td>twitter</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 </script>
 
 
@@ -186,7 +276,8 @@
         });
         
 
-        
+        // Methods/Actions
+        //
         self.InventoryPullClick = function () {
             var ajax = new Monster.Ajax();
             ajax.HttpPost("RealTime/RunInventoryPull", {}, self.PollStatus);
@@ -200,12 +291,11 @@
                     ajax.HttpGet("RealTime/InventoryPullStatus", this);
                 },
                 function (response) {
-                    //console.log(response);
-
                     self.IsJobRunning(response.IsBackgroundJobRunning);
                     self.Logs(response.Logs);
                     self.InventoryPullState(response.SystemState);
-                    
+                    self.HasMatchedInventory(response.HasMatchedInventory);
+
                     if (self.IsJobRunning()) {
                         setTimeout(self.PollStatus, 1000);
                     } else {
@@ -216,14 +306,14 @@
 
         self.ProcessStatus = function () {
             // Fake!
-            self.HasMatchedInventory(false);
+            self.HasMatchedInventory(true);
 
+            // REFRESH THE GRID
             // #1 Pull down all of the synced Inventory
             // #2 Store results in Grid
             // #3 Make Grid visible
         };
-
-
+        
         self.Initialize = function () {
             self.PollStatus();
         };

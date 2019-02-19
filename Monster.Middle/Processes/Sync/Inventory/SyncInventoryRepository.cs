@@ -210,6 +210,15 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .ToList();
         }
 
+        public int RetrieveVariantAndStockItemMatchCount()
+        {
+            var sql = "SELECT COUNT(*) FROM vw_SyncVariantAndStockItem";
+
+            return Entities
+                .Database
+                .SqlQuery<int>(sql)
+                .First();
+        }
 
 
         public void SaveChanges()

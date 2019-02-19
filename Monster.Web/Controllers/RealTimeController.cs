@@ -122,7 +122,7 @@ namespace Monster.Web.Controllers
 
 
 
-        // Inventory - to Acumatica
+        // Inventory Sync Control
         //
         [HttpGet]
         public ActionResult InventorySyncControl()
@@ -143,6 +143,9 @@ namespace Monster.Web.Controllers
             var isRunning =
                 _hangfireService.IsJobRunning(JobType.PullInventoryFromShopifyAcumatica);
 
+            var matchCount =
+                _syncInventoryRepository.RetrieveVariantAndStockItemMatchCount();
+
             var state = _stateRepository.RetrieveSystemState();
             var logs = _logRepository.RetrieveExecutionLogs();
             var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
@@ -150,9 +153,9 @@ namespace Monster.Web.Controllers
             var output = new
             {
                 IsBackgroundJobRunning = isRunning,
-                SystemState = state.InventoryPull,
-                IsRandomAccessMode = state.IsRandomAccessMode,
                 Logs = executionLogs,
+                SystemState = state.InventoryPull,
+                HasMatchedInventory = matchCount > 0
             };
 
             return new JsonNetResult(output);
@@ -163,6 +166,21 @@ namespace Monster.Web.Controllers
         {
             var output = _syncInventoryRepository.RetrieveVariantAndStockItemMatches();
             return new JsonNetResult(output);
+        }
+
+
+        // Inventory loading tools
+        //
+        [HttpGet]
+        public ActionResult ImportIntoAcumatica()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult ImportIntoShopify()
+        {
+            return View();
         }
 
     }
