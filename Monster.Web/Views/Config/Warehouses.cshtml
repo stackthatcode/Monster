@@ -11,7 +11,7 @@
 
     <div data-bind="ifnot: BackgroundJobRunning">
         <div data-bind="if: WarehouseSyncState() == SystemState.None">
-            <div class="std-padding">
+            <div class="std-pad">
                 <div class="alert alert-warning" role="alert">
                     Each of your <strong>Shopify Location Names</strong> must match identifically
                     with one <strong>Acumatica Warehouse ID</strong>, and vice-versa.
@@ -55,9 +55,9 @@
     </div>
 
     <div data-bind="if: BackgroundJobRunning">
-        <div class="std-padding">
+        <div class="std-pad">
             <div class="card">
-                <div class="card-body center std-padding">
+                <div class="card-body center std-pad">
                     <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
                     <div style="height: 30px;"></div>
@@ -69,7 +69,7 @@
     </div>
     
     
-    <div class="center std-padding">
+    <div class="center std-pad">
         <span data-bind="ifnot: IsRandomAccessMode">
             <a href="@GlobalConfig.Url("Config/Preferences")"
                class="btn btn-secondary btn-lg">
@@ -103,7 +103,7 @@
 <script type="text/html" id="Sync-State-Details">
     <div data-bind="with: Details">
         <div class="card">
-            <div class="card-body center std-padding">
+            <div class="card-body center std-pad">
 
                 <div data-bind="if: MatchedWarehouseLocations.length">
                     <p>The following Location-Warehouse combinations successfully matched:</p>

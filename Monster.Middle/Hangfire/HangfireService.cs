@@ -66,19 +66,11 @@ namespace Monster.Middle.Hangfire
                 return;
             }
 
-            if (jobId == JobType.PushInventoryToAcumatica)
+            if (jobId == JobType.PullInventoryFromShopifyAcumatica)
             {
                 QueueBackgroundJob(
-                    JobType.PushInventoryToAcumatica,
+                    JobType.PullInventoryFromShopifyAcumatica,
                     x => x.PushInventoryToAcumatica(_tenantContext.InstanceId));
-                return;
-            }
-
-            if (jobId == JobType.PushInventoryToShopify)
-            {
-                QueueBackgroundJob(
-                    JobType.PushInventoryToShopify,
-                    x => x.PushInventoryToShopify(_tenantContext.InstanceId));
                 return;
             }
 

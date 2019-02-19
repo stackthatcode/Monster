@@ -154,6 +154,7 @@
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\SystemStateValidation.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\VariantAndStockItemDto.cs" />
     <Compile Include="Processes\Sync\Inventory\Services\ReferenceDataService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferencePull.cs" />
     <Compile Include="Processes\Shopify\Persist\OrderExtensions.cs" />

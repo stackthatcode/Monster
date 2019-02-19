@@ -59,13 +59,13 @@ namespace Monster.Middle.Processes.Sync
             _referenceDataService = referenceDataService;
         }
         
+        
         public void ResetBatchStates()
         {
             _shopifyBatchRepository.Reset();
             _acumaticaBatchRepository.Reset();
         }
-
-
+        
         public void ConnectToShopify()
         {
             try
@@ -107,8 +107,7 @@ namespace Monster.Middle.Processes.Sync
             try
             {
                 _acumaticaManager.PullReferenceData();
-
-
+                
                 _stateRepository
                     .UpdateSystemState(
                         x => x.AcumaticaReferenceData, SystemState.Ok);
@@ -174,14 +173,14 @@ namespace Monster.Middle.Processes.Sync
                 _inventorySyncManager.PushInventoryIntoAcumatica();
 
                 _stateRepository.UpdateSystemState(
-                    x => x.AcumaticaInventoryPush, SystemState.Ok);
+                    x => x.InventoryPull, SystemState.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
 
                 _stateRepository.UpdateSystemState(
-                    x => x.AcumaticaInventoryPush, SystemState.SystemFault);
+                    x => x.InventoryPull, SystemState.SystemFault);
             }
         }
         
@@ -195,15 +194,15 @@ namespace Monster.Middle.Processes.Sync
                 // Step 2 - Load Acumatica Inventory into Shopify
                 _inventorySyncManager.PushAcumaticaInventoryIntoShopify();
 
-                _stateRepository.UpdateSystemState(
-                    x => x.ShopifyInventoryPush, SystemState.Ok);
+                //_stateRepository
+                //    .UpdateSystemState(x => x.ShopifyInventoryPush, SystemState.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
 
-                _stateRepository.UpdateSystemState(
-                    x => x.ShopifyInventoryPush, SystemState.SystemFault);
+                //_stateRepository.UpdateSystemState(
+                //    x => x.ShopifyInventoryPush, SystemState.SystemFault);
             }
         }
         

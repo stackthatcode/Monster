@@ -48,7 +48,7 @@ h1 {
 }
 
 .large-size {
-    max-width: 920px;
+    max-width: 1140px;
     margin-left: auto;
     margin-right: auto;
     padding-left: 75px;
@@ -81,19 +81,33 @@ p {
 }
 
 
-.std-padding-sm {
+.std-pad-sm {
     padding-top:20px;
     padding-bottom: 20px;
 }
+.std-pad-sm-b {
+    padding-bottom: 20px;
+}
+.std-pad-sm-t {
+    padding-top: 20px;
+}
 
-.std-padding {
+.std-pad {
     padding-top: 40px;
     padding-bottom: 40px;
 }
 
-.std-padding-bottom {
+.std-pad-b {
     padding-bottom: 40px;
 }
+.std-pad-t {
+    padding-top: 40px;
+}
+.std-pad {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
 
 .top-tagline {
     margin-bottom: 15px;

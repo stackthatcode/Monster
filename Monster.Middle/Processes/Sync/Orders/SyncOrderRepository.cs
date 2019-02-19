@@ -61,9 +61,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrShopifyOrder.UsrShopifyCustomer))
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
-
-
-
+        
         public UsrShopAcuOrderSync
             InsertOrderSync(
                 UsrShopifyOrder shopifyOrder,

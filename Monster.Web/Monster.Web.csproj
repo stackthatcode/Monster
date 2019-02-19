@@ -320,7 +320,7 @@
     <Content Include="Views\Config\Warehouses.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\InventoryToAcumatica.cshtml" />
+    <Content Include="Views\RealTime\InventorySyncControl.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\RealTime\RealTime.cshtml" />
@@ -344,9 +344,6 @@
     <Content Include="Views\Config\AcumaticaRefData.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\InventoryToShopify.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\Shared\_NumberEditorWidget.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -356,7 +353,7 @@
     <Content Include="Views\Shared\_CustomScripts.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\RealTime\Diagnostics.cshtml" />
+    <Content Include="Views\Config\Diagnostics.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\_Dependencies.cshtml" />

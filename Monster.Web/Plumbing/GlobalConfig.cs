@@ -22,10 +22,9 @@ namespace Monster.Web.Plumbing
         public static readonly string Organization = "Logic Automated Co.";
         public static readonly string SupportEmail = "aleksjones@gmail.com";
 
-        public static readonly string DiagnosticsHome = Url("RealTime/Diagnostics");
+        public static readonly string DiagnosticsHome = Url("Config/Diagnostics");
 
-        public static string FullAppName 
-                => $"{AppName} for Shopify-Acumatica";
+        public static string FullAppName => $"{AppName} for Shopify-Acumatica";
 
 
 

@@ -1,18 +1,14 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
-using AutoMapper;
-using Monster.Acumatica.Api;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Web.Models;
-using Monster.Web.Models.Config;
 using Monster.Web.Models.RealTime;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
-using Push.Shopify.Api;
 
 
 namespace Monster.Web.Controllers
@@ -24,9 +20,7 @@ namespace Monster.Web.Controllers
         private readonly ExecutionLogRepository _logRepository;
         private readonly HangfireService _hangfireService;
         private readonly SyncOrderRepository _syncOrderRepository;
-        private readonly OrderApi _orderApi;
-        private readonly SalesOrderClient _salesOrderClient;
-        private readonly ShipmentClient _shipmentClient;
+        private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly IPushLogger _logger;
 
         public RealTimeController(
@@ -34,18 +28,14 @@ namespace Monster.Web.Controllers
                 HangfireService hangfireService,
                 ExecutionLogRepository logRepository, 
                 SyncOrderRepository syncOrderRepository, 
-                OrderApi orderApi, 
-                SalesOrderClient salesOrderClient,
-                ShipmentClient shipmentClient,
+                SyncInventoryRepository syncInventoryRepository,
                 IPushLogger logger)
         {
             _stateRepository = stateRepository;
             _hangfireService = hangfireService;            
             _logRepository = logRepository;
             _syncOrderRepository = syncOrderRepository;
-            _orderApi = orderApi;
-            _salesOrderClient = salesOrderClient;
-            _shipmentClient = shipmentClient;
+            _syncInventoryRepository = syncInventoryRepository;
             _logger = logger;
         }
 
@@ -59,21 +49,9 @@ namespace Monster.Web.Controllers
             var state = _stateRepository.RetrieveSystemState();
             state.IsRandomAccessMode = true;
             _stateRepository.SaveChanges();
-
             return View();
         }
-
-        [HttpGet]
-        public ActionResult Diagnostics()
-        {
-            var state = _stateRepository.RetrieveSystemState();
-            state.IsRandomAccessMode = true;
-            _stateRepository.SaveChanges();
-
-            return View();
-        }
-
-
+        
         [HttpPost]
         public ActionResult StartRealTime()
         {
@@ -140,22 +118,50 @@ namespace Monster.Web.Controllers
             output.TotalOrdersWithInvoices = _syncOrderRepository.RetrieveTotalOrdersInvoiced();
             return output;
         }
+        
 
+
+
+        // Inventory - to Acumatica
+        //
+        [HttpGet]
+        public ActionResult InventorySyncControl()
+        {
+            return View();
+        }
 
         [HttpPost]
-        public ActionResult TriggerConfigDiagnosis()
+        public ActionResult RunInventoryPull ()
         {
-            _hangfireService.LaunchJob(JobType.Diagnostics);
+            _hangfireService.LaunchJob(JobType.PullInventoryFromShopifyAcumatica);
             return JsonNetResult.Success();
         }
 
         [HttpGet]
-        public ActionResult ConfigDiagnosis()
+        public ActionResult InventoryPullStatus()
         {
-            var state = _stateRepository.RetrieveSystemState();
-            var output = Mapper.Map<SystemStateSummaryModel>(state);
-            output.IsReadyForRealTimeSync = state.IsReadyForRealTimeSync();
+            var isRunning =
+                _hangfireService.IsJobRunning(JobType.PullInventoryFromShopifyAcumatica);
 
+            var state = _stateRepository.RetrieveSystemState();
+            var logs = _logRepository.RetrieveExecutionLogs();
+            var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
+
+            var output = new
+            {
+                IsBackgroundJobRunning = isRunning,
+                SystemState = state.InventoryPull,
+                IsRandomAccessMode = state.IsRandomAccessMode,
+                Logs = executionLogs,
+            };
+
+            return new JsonNetResult(output);
+        }
+
+        [HttpGet]
+        public ActionResult VariantAndStockItemMatches()
+        {
+            var output = _syncInventoryRepository.RetrieveVariantAndStockItemMatches();
             return new JsonNetResult(output);
         }
 

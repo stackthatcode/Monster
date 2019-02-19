@@ -1664,8 +1664,7 @@ namespace Monster.Middle.Persist.Multitenant
         public int AcumaticaReferenceData { get; set; } // AcumaticaReferenceData
         public int PreferenceSelections { get; set; } // PreferenceSelections
         public int WarehouseSync { get; set; } // WarehouseSync
-        public int AcumaticaInventoryPush { get; set; } // AcumaticaInventoryPush
-        public int ShopifyInventoryPush { get; set; } // ShopifyInventoryPush
+        public int InventoryPull { get; set; } // InventoryPull
         public bool IsShopifyUrlFinalized { get; set; } // IsShopifyUrlFinalized
         public bool IsAcumaticaUrlFinalized { get; set; } // IsAcumaticaUrlFinalized
         public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
@@ -2948,8 +2947,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.AcumaticaReferenceData).HasColumnName(@"AcumaticaReferenceData").HasColumnType("int").IsRequired();
             Property(x => x.PreferenceSelections).HasColumnName(@"PreferenceSelections").HasColumnType("int").IsRequired();
             Property(x => x.WarehouseSync).HasColumnName(@"WarehouseSync").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaInventoryPush).HasColumnName(@"AcumaticaInventoryPush").HasColumnType("int").IsRequired();
-            Property(x => x.ShopifyInventoryPush).HasColumnName(@"ShopifyInventoryPush").HasColumnType("int").IsRequired();
+            Property(x => x.InventoryPull).HasColumnName(@"InventoryPull").HasColumnType("int").IsRequired();
             Property(x => x.IsShopifyUrlFinalized).HasColumnName(@"IsShopifyUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.IsAcumaticaUrlFinalized).HasColumnName(@"IsAcumaticaUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();

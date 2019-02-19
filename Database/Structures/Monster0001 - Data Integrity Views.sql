@@ -277,6 +277,22 @@ FROM vw_SyncShopifyInventory t1
 GO
 
 
+DROP VIEW IF EXISTS vw_SyncVariantAndStockItem
+GO
+CREATE VIEW vw_SyncVariantAndStockItem
+AS
+	SELECT t2.ShopifyProductId, t1.ShopifyVariantId, t1.ShopifySku, t4.ItemId
+	FROM usrShopifyVariant t1 
+		INNER JOIN usrShopifyProduct t2
+			ON t1.ParentMonsterId = t2.MonsterId
+		INNER JOIN usrShopAcuItemSync t3
+			ON t1.MonsterId = t3.ShopifyVariantMonsterId
+		INNER JOIN usrAcumaticaStockItem t4
+			ON t3.AcumaticaItemMonsterId = t4.MonsterId;		
+GO
+
+
+
 
 DROP VIEW IF EXISTS vw_SyncInventoryLevelAndReceipts
 GO

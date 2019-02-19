@@ -94,9 +94,8 @@ namespace Monster.Middle.Persist.Multitenant
                     newRecord.AcumaticaReferenceData = SystemState.None;
                     newRecord.PreferenceSelections = SystemState.None;
                     newRecord.WarehouseSync = SystemState.None;
-                    newRecord.AcumaticaInventoryPush = SystemState.None;
-                    newRecord.ShopifyInventoryPush = SystemState.None;
-
+                    newRecord.InventoryPull = SystemState.None;
+                    
                     newRecord.IsShopifyUrlFinalized = false;
                     newRecord.IsAcumaticaUrlFinalized = false;
                     newRecord.IsRandomAccessMode = false;

@@ -63,7 +63,7 @@ namespace Monster.Middle.Hangfire
             //
             FireAndForgetJob(
                 instanceId,
-                JobType.PushInventoryToAcumatica,
+                JobType.PullInventoryFromShopifyAcumatica,
                 _director.LoadInventoryIntoAcumatica,
                 InventorySyncLock);
         }
@@ -72,11 +72,12 @@ namespace Monster.Middle.Hangfire
         {
             // Longer running processes - we'll use NamedLocks
             //
-            FireAndForgetJob(
-                instanceId,
-                JobType.PushInventoryToShopify,
-                _director.LoadInventoryIntoShopify,
-                InventorySyncLock);
+            throw new NotImplementedException();
+            //FireAndForgetJob(
+            //    instanceId,
+            //    JobType.PushInventoryToShopify,
+            //    _director.LoadInventoryIntoShopify,
+            //    InventorySyncLock);
         }
 
         public void RealTimeSynchronization(Guid instanceId)

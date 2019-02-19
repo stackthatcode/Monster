@@ -1,0 +1,238 @@
+﻿@using Monster.Web.Plumbing
+
+@Html.Partial("_SharedKnockoutViews")
+
+@Html.Partial("_TopBrand")
+
+<div>
+    <div data-bind="ifnot: IsJobRunning">
+        <div data-bind="if: ShowWelcomePanel">
+            <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
+        </div>
+        
+        <div data-bind="if: ShowIntermediatePanel">            
+            <div data-bind="template: { name: 'Inventory-Intermediate-Panel' }"></div>
+        </div>
+        
+        <div data-bind="if: ShowSearchPanel">
+            <div data-bind="template: { name: 'Inventory-Search-Panel' }"></div>
+        </div>
+    </div>
+
+    <div class="medium-size" data-bind="if: IsJobRunning">
+        <div class="card std-pad-sm">
+            <div class="card-title-interface">
+               Inventory Sync Control
+            </div>
+
+            <div class="card-body center">
+                <div class="std-pad-sm">
+                    <img style="width: 100px;" src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
+                </div>
+
+                <p class="center">
+                    @GlobalConfig.AppName is currently busy processing your inventory.<br/>
+                    Depending on the size of your catalog, this process may take up to several hours.
+                </p>
+
+                <hr/>
+
+                <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="Inventory-Welcome-Panel" type="text/html">
+    <div class="medium-size">
+        <hr/>
+        <h1 class="mt-4 center">Inventory Sync Control</h1>
+        <p class="lead center">Pull from Shopify and Acumatica to prepare for loading</p>
+
+        <div class="card">
+            <div class="card-body std-pad">
+                <p>
+                    @GlobalConfig.AppName will now pull your complete catalog of Products and Variants from Shopify,
+                    and will pull all of your Stock Items from your Acumatica Instance.
+                </p>
+                <div class="alert alert-warning">
+                    <strong>Important:</strong> Real-Time Sync will perform this step as well.
+                    But, you will still need to load Stock Items into Shopify
+                    and select which to enable for Inventory Synchronization.
+                </div>
+            </div>
+        </div>
+
+        <div class="center std-pad">
+            <a href="#" class="btn btn-primary btn-lg"
+                data-bind="click: InventoryPullClick">
+                Synchronize Now <i class="fas fa-bolt"></i>
+            </a>
+        </div>
+    </div>
+</script>
+
+<script id="Inventory-Intermediate-Panel" type="text/html">
+    <div class="medium-size">
+        <div class="card std-pad-sm">
+            <div class="card-title-interface">
+                Inventory Sync Control
+            </div>
+            
+            <div class="card-body">
+                <div data-bind="ifnot: LastInventoryRunHadErrors">
+                    <div class="alert alert-info">
+                        <strong>Pull Inventory from Shopify &amp; Acumatica - OK</strong>
+                    </div>
+                    
+                    <p>Inventory was successfully pulled from both sources.
+                        The next step is to begin importing inventory between 
+                        both systems. You can load Products and Variants from Shopify,
+                        into Acumatica, and you can load Stock Items from Acumatica into Shopify.
+                    </p>
+                    
+                    <div class="center std-pad-t">
+                        <a href="@GlobalConfig.Url("RealTime/LoadAcumatica")" 
+                           class="btn btn-primary btn-lg">
+                            Load Acumatica <i class="fa fa-upload" aria-hidden="true"></i>
+                        </a>
+                        <a href="@GlobalConfig.Url("RealTime/LoadShopify")" 
+                           class="btn btn-primary btn-lg">
+                            Load Shopify <i class="fa fa-upload" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div data-bind="if: LastInventoryRunHadErrors">
+                    <div class="alert alert-danger">
+                        <strong>Pull Inventory from Shopify &amp; Acumatica - Failed</strong>
+                    </div>
+
+                    <p>
+                        Something went wrong while running this process. You may consider reviewing your 
+                        <a href="@GlobalConfig.Url("Config/Diagnostics")">configuration diagnosis</a>
+                        before re-running. If issue persists, contact support.
+                    </p>
+                    
+                    <div class="center std-pad-t">
+                        <a href="#" class="btn btn-primary btn-lg"
+                           data-bind="click: InventoryPullClick">
+                            Synchronize Now <i class="fas fa-bolt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </div>
+</script>
+
+<script id="Inventory-Search-Panel" type="text/html">
+<div class="large-size">
+    <div class="card std-pad-sm">
+        <div class="card-title-interface">
+            Inventory Sync Control
+        </div>
+
+        <div class="center std-pad-sm-t">
+            <a href="#" class="btn btn-primary btn-sm" 
+               data-bind="click: InventoryPullClick">
+                Refresh Inventory <i class="fas fa-bolt"></i>
+            </a>
+        </div>
+            
+        <div class="card-body">
+
+        </div>
+    </div>
+</div>
+</script>
+
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.InventoryConfigModel = function () {
+        var self = this;
+
+        self.IsJobRunning = ko.observable();
+        self.Logs = ko.observableArray();
+        self.InventoryPullState = ko.observable();
+        self.HasMatchedInventory = ko.observable();
+
+        // Abstract logic reduction
+        //
+        self.HasInventoryPullRun = ko.computed(function() {
+            return self.InventoryPullState() != SystemState.None;
+        });
+
+        self.LastInventoryRunHadErrors = ko.computed(function() {
+            return self.InventoryPullState() == SystemState.Invalid ||
+                self.InventoryPullState() == SystemState.SystemFault;
+        });
+
+
+        // Interface logic reduction
+        //
+        self.ShowWelcomePanel = ko.computed(function() {
+            return !self.HasInventoryPullRun();
+        });
+
+        self.ShowIntermediatePanel = ko.computed(function() {
+            return self.HasInventoryPullRun() && !self.HasMatchedInventory();
+        });
+
+        self.ShowSearchPanel = ko.computed(function () {
+            return self.HasInventoryPullRun() && self.HasMatchedInventory();
+        });
+        
+
+        
+        self.InventoryPullClick = function () {
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("RealTime/RunInventoryPull", {}, self.PollStatus);
+        };
+
+        self.PollStatus = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("RealTime/InventoryPullStatus", this);
+                },
+                function (response) {
+                    //console.log(response);
+
+                    self.IsJobRunning(response.IsBackgroundJobRunning);
+                    self.Logs(response.Logs);
+                    self.InventoryPullState(response.SystemState);
+                    
+                    if (self.IsJobRunning()) {
+                        setTimeout(self.PollStatus, 1000);
+                    } else {
+                        self.ProcessStatus();
+                    }
+                });
+        };
+
+        self.ProcessStatus = function () {
+            // Fake!
+            self.HasMatchedInventory(false);
+
+            // #1 Pull down all of the synced Inventory
+            // #2 Store results in Grid
+            // #3 Make Grid visible
+        };
+
+
+        self.Initialize = function () {
+            self.PollStatus();
+        };
+
+        return self;
+    };
+
+    var model = new Monster.InventoryConfigModel();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
+

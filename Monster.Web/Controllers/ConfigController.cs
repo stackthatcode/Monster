@@ -244,83 +244,67 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
+        
 
-
-        // Inventory - to Acumatica
+        // Config Diagnostics
         //
         [HttpGet]
-        public ActionResult InventoryToAcumatica()
+        public ActionResult Diagnostics()
         {
+            var state = _stateRepository.RetrieveSystemState();
+            state.IsRandomAccessMode = true;
+            _stateRepository.SaveChanges();
             return View();
         }
-        
+
         [HttpPost]
-        public ActionResult PushInventoryToAcumatica()
+        public ActionResult TriggerConfigDiagnosis()
         {
-            _hangfireService.LaunchJob(JobType.PushInventoryToAcumatica);
+            _hangfireService.LaunchJob(JobType.Diagnostics);
             return JsonNetResult.Success();
         }
 
         [HttpGet]
-        public ActionResult AcumaticaInventoryPushStatus()
+        public ActionResult ConfigDiagnosisRunStatus()
         {
-            var isRunning = 
-                _hangfireService.IsJobRunning(JobType.PushInventoryToAcumatica);
-
+            var IsConfigDiagnosisRunning = _hangfireService.IsJobRunning(JobType.Diagnostics);
+            var output = new { IsConfigDiagnosisRunning };
+            return new JsonNetResult(output);
+        }
+        
+        [HttpGet]
+        public ActionResult ConfigDiagnosis()
+        {
             var state = _stateRepository.RetrieveSystemState();
-            var logs = _logRepository.RetrieveExecutionLogs();
-            var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
-
-            var output = new
-            {
-                IsBackgroundJobRunning = isRunning,
-                SystemState = state.AcumaticaInventoryPush,
-                IsRandomAccessMode = state.IsRandomAccessMode,
-                Logs = executionLogs,
-            };
+            var output = Mapper.Map<SystemStateSummaryModel>(state);
+            output.IsReadyForRealTimeSync = state.IsReadyForRealTimeSync();
 
             return new JsonNetResult(output);
         }
 
 
 
-        // Inventory - to Shopify
+        // *** Move to the Analyzers ***
         //
-        [HttpGet]
-        public ActionResult InventoryToShopify()
-        {
-            return View();
-        }
+        //foreach (var row in orderSyncView)
+        //{
+        //    //row.ShopifyOrderUrl = _orderApi.OrderInterfaceUrlById(row.ShopifyOrderId);
 
-        [HttpPost]
-        public ActionResult PushInventoryToShopify()
-        {
-            _hangfireService.LaunchJob(JobType.PushInventoryToShopify);
-            return JsonNetResult.Success();
-        }
+        //    //if (row.AcumaticaOrderNbr.HasValue())
+        //    //{
+        //    //    row.AcumaticaOrderUrl = _orderApi.OrderInterfaceUrlById(row.ShopifyOrderId);
+        //    //}
+        //    //if (row.AcumaticaShipmentNbr.HasValue())
+        //    //{
+        //    //    row.AcumaticaShipmentUrl = _shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr);
+        //    //}
 
-        [HttpGet]
-        public ActionResult ShopifyInventoryPushStatus()
-        {
-            var isRunning =
-                _hangfireService
-                    .IsBackgroundJobRunning(JobType.PushInventoryToShopify);
+        //    _logger.Debug(_orderApi.OrderInterfaceUrlById(row.ShopifyOrderId));
+        //    _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
+        //    _logger.Debug(_shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr));
+        //    _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
+        //}
 
-            var state = _stateRepository.RetrieveSystemState();
-            var logs = _logRepository.RetrieveExecutionLogs();
-            var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
-
-            var output = new
-            {
-                IsBackgroundJobRunning = isRunning,
-                SystemState = state.ShopifyInventoryPush,
-                IsRandomAccessMode = state.IsRandomAccessMode,
-                Logs = executionLogs,
-            };
-
-            return new JsonNetResult(output);
-        }
-        
     }
 }
 

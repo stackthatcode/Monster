@@ -11,8 +11,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Model
                    && state.AcumaticaConnection == SystemState.Ok
                    && state.AcumaticaReferenceData == SystemState.Ok
                    && state.PreferenceSelections == SystemState.Ok
-                   && state.WarehouseSync == SystemState.Ok
-                   && state.ShopifyInventoryPush == SystemState.Ok;
+                   && state.WarehouseSync == SystemState.Ok;
         }
     }
 }

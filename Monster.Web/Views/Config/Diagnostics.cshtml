@@ -14,23 +14,19 @@
 </style>
 
 <main role="main" class="medium-size">
-
     @Html.Partial("_TopBrand")
     <hr />
-
     <div>
         <h1 class="mt-4 center">@GlobalConfig.AppName Config Diagnostics</h1>
-        <p class="lead center">
-            Configuration Inspection Tool
-        </p>
+        <p class="lead center">Configuration Diagnostics</p>
     </div>
 
     <!-- Will yield to showing Real Time Sync in case somehow both got triggered -->
-    <div data-bind="if: IsConfigDiagnosisRunning() && !IsRealTimeSyncRunning()">
-        <div class="std-padding">
+    <div data-bind="if: IsConfigDiagnosisRunning">
+        <div class="std-pad">
             <div class="card">
-                <div class="card-body center std-padding">
-                    <img style="width: 125px;"
+                <div class="card-body center std-pad">
+                    <img style="width: 100px;"
                          src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
                     <div style="height: 30px;"></div>
@@ -42,10 +38,10 @@
         </div>
     </div>
 
-    <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
-        <div class="std-padding-bottom">
+    <div data-bind="ifnot: IsConfigDiagnosisRunning">
+        <div class="std-pad-b">
             <div class="card">
-                <div class="card-body std-padding">
+                <div class="card-body std-pad">
                     <div data-bind="if: IsReadyForRealTimeSync">
                         <div class="alert alert-info">
                             <strong>System OK - Ready to Start Real-Time Sync</strong>
@@ -137,17 +133,9 @@ var Monster = Monster || {};
 
 Monster.InventoryConfigModel = function() {
     var self = this;
-
-    self.IsRealTimeSyncRunning = ko.observable(false);
-    self.IsConfigDiagnosisRunning = ko.observable(false);
-    self.Logs = ko.observableArray();
-
-    self.AreAnyBackgroundJobsRunning = ko.computed(function() {
-        return self.IsRealTimeSyncRunning()
-            || self.IsConfigDiagnosisRunning();
-    });
-
+    
     // Diagnosis
+    self.IsConfigDiagnosisRunning = ko.observable(false);
     self.ConfigDiagnosis = ko.observableArray();
     self.IsReadyForRealTimeSync = ko.observable(false);
 
@@ -155,7 +143,7 @@ Monster.InventoryConfigModel = function() {
         flow.exec(
             function () {
                 var ajax = new Monster.Ajax();
-                ajax.HttpPost("RealTime/TriggerConfigDiagnosis", {}, this);
+                ajax.HttpPost("Config/TriggerConfigDiagnosis", {}, this);
             },
             function (response) {
                 self.PollStatus();
@@ -167,27 +155,23 @@ Monster.InventoryConfigModel = function() {
         flow.exec(function () {
                 var ajax = new Monster.Ajax();
                 ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("RealTime/RealTimeStatus", this);
+                ajax.HttpGet("Config/ConfigDiagnosisRunStatus", this);
             },
             function (response) {
-                console.log(response);
-
-                self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
                 self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
-                self.Logs(response.Logs);
-
-                if (self.AreAnyBackgroundJobsRunning()) {
+                
+                if (self.IsConfigDiagnosisRunning()) {
                     setTimeout(self.PollStatus, 1000);
                 } else {
-                    self.PollConfigDiagnosis();
+                    self.RetrieveDiagnosis();
                 }
             });
-    };
+        };
 
-    self.PollConfigDiagnosis = function() {
+    self.RetrieveDiagnosis = function() {
         flow.exec(function() {
                 var ajax = new Monster.Ajax();
-                ajax.HttpGet("RealTime/ConfigDiagnosis", this);
+                ajax.HttpGet("Config/ConfigDiagnosis", this);
             },
             function (response) {
                 var configData = [
@@ -216,19 +200,13 @@ Monster.InventoryConfigModel = function() {
                         ConfigState: response.WarehouseSync,
                         Url: "@GlobalConfig.Url("Config/Warehouses")",
                     },
-                    {
-                        Name: "Shopify Inventory Synchronization",
-                        ConfigState: response.ShopifyInventoryPush,
-                        Url: "@GlobalConfig.Url("Config/InventoryToShopify")",
-                    },
                 ];
 
                 self.ConfigDiagnosis(configData);
                 self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
             });
     };
-
-
+    
     self.Initialize = function() {
         self.PollStatus();
     };
@@ -238,7 +216,6 @@ Monster.InventoryConfigModel = function() {
 
 
 var model = new Monster.InventoryConfigModel();
-model.Initialize();
 ko.applyBindings(model);
 model.Initialize();
 </script>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Sync.Inventory.Model;
 
 namespace Monster.Middle.Processes.Sync.Inventory
 {
@@ -25,8 +26,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
         // Warehouses & Locations
         //
         public void InsertInventoryReceiptSync(
-                UsrShopifyInventoryLevel level,
-                UsrAcumaticaInventoryReceipt receipt)
+                UsrShopifyInventoryLevel level, UsrAcumaticaInventoryReceipt receipt)
         {
             var sync = new UsrInventoryReceiptSync();
             sync.UsrShopifyInventoryLevel = level;
@@ -38,9 +38,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
         }
 
         public void InsertWarehouseSync(
-                UsrShopifyLocation location,
-                UsrAcumaticaWarehouse warehouse,
-                bool isNameMismatched = false)
+                UsrShopifyLocation location, UsrAcumaticaWarehouse warehouse, bool isNameMismatched = false)
         {
             var sync = new UsrShopAcuWarehouseSync();
             sync.UsrShopifyLocation = location;
@@ -95,10 +93,10 @@ namespace Monster.Middle.Processes.Sync.Inventory
         }
 
 
+        
         // Products/Variants and Stock Items
         //
-        public UsrShopifyVariant 
-                    RetrieveVariant(long shopifyVariantId, string sku)
+        public UsrShopifyVariant RetrieveVariant(long shopifyVariantId, string sku)
         {
             return Entities
                 .UsrShopifyVariants
@@ -139,8 +137,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
             return output.ToList();
         }
 
-        public List<UsrShopifyVariant> 
-                        RetrieveVariantsWithStockItems(string sku)
+        public List<UsrShopifyVariant> RetrieveVariantsWithStockItems(string sku)
         {
             return Entities
                 .UsrShopifyVariants
@@ -151,8 +148,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
                     .ToList();
         }
 
-        public void InsertItemSync(
-                UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem)
+        public void InsertItemSync(UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem)
         {
             var sync = new UsrShopAcuItemSync();
             sync.UsrShopifyVariant = variant;
@@ -198,6 +194,19 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .Include(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs)
                 .Where(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs.Any()
                             && x.IsInventorySynced == false)
+                .ToList();
+        }
+
+
+        // Product/Variant-Stock Item Sync Control
+
+        public List<VariantAndStockItemDto> RetrieveVariantAndStockItemMatches()
+        {
+            var sql = "SELECT * FROM vw_SyncVariantAndStockItem";
+
+            return Entities
+                .Database
+                .SqlQuery<VariantAndStockItemDto>(sql)
                 .ToList();
         }
 
