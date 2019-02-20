@@ -1,0 +1,397 @@
+﻿@using Monster.Web.Plumbing
+
+@Html.Partial("_SharedKnockoutViews")
+
+@Html.Partial("_TopBrand")
+
+<div>
+    <div data-bind="ifnot: IsJobRunning">
+        <div data-bind="if: ShowWelcomePanel">
+            <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
+        </div>
+        
+        <div data-bind="if: ShowSearchPanel">
+            <div data-bind="template: { name: 'Inventory-Search-Panel' }"></div>
+        </div>
+    </div>
+
+    <div class="medium-size" data-bind="if: IsJobRunning">
+        <div class="card std-pad-sm">
+            <div class="card-title-interface">
+               Load Products from Shopify into Acumatica
+            </div>
+
+            <div class="card-body center">
+                <div class="std-pad-sm">
+                    <img style="width: 100px;" src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
+                </div>
+
+                <p class="center">
+                    @GlobalConfig.AppName is currently busy processing your inventory.<br/>
+                    Depending on the size of your catalog, this process may take up to several hours.
+                </p>
+
+                <hr/>
+
+                <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="Inventory-Welcome-Panel" type="text/html">
+    <div class="medium-size">
+        <hr/>
+        <h1 class="mt-4 center">Import from Shopify into Acumatica</h1>
+        <p class="lead center">Transfer Product and Variants to Stock Items</p>
+
+        <div class="card">
+            <div class="card-body std-pad">
+                <p>
+                    @GlobalConfig.AppName will now pull your complete catalog of Products and Variants from Shopify,
+                    and will pull all of your Stock Items from your Acumatica Instance.
+                </p>
+
+                <div class="alert alert-warning">
+                    <strong>Important:</strong> Real-Time Sync will perform this step as well.
+                    But, you will still need to load Stock Items into Shopify
+                    and select which to enable for Inventory Synchronization.
+                </div>
+            </div>
+        </div>
+
+        <div class="center std-pad">
+            <a href="#" class="btn btn-primary btn-lg"
+                data-bind="click: InventoryPullClick">
+                Synchronize Now <i class="fas fa-bolt"></i>
+            </a>
+        </div>
+    </div>
+</script>
+
+<script id="Inventory-Search-Panel" type="text/html">
+    <div class="medium-size">
+        <div class="card std-pad-sm">
+            <div class="card-title-interface">
+                Import from Shopify into Acumatica
+            </div>
+
+            <div class="center std-pad-sm-t">
+                <button type="button" class="btn btn-primary btn-sm" data-bind="click: InventoryPullClick">
+                    Refresh Inventory <i class="fas fa-bolt"></i>
+                
+                    <span data-bind="if: LastInventoryRunHadErrors">
+                        <span class="badge badge-dark">FAILED</span>
+                    </span>
+                </button>
+
+                <span data-bind="if: LastInventoryRunHadErrors">
+                    <a href="@GlobalConfig.Url("Config/Diagnostics")"
+                       class="btn btn-dark btn-sm">
+                        View Diagnostics
+                        <i class="fas fa-user-md"></i>
+                    </a>
+                </span>
+            </div>
+            
+            <!-- Filtering -->
+            <div class="card-body">
+                <div class="input-group mb-3">                   
+                    <input type="text" class="form-control" 
+                           placeholder="Enter Product Title, Variant Title, SKU, Vendor, Product Type" 
+                           aria-label="Enter Product Title, Variant Title, SKU, Vendor, Product Type">
+                    
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button">
+                            Filter Inventory
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="center" style="font-size:0.8em;">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" 
+                               type="radio" 
+                               name="filterOptions" 
+                               id="inlineRadio1" 
+                               value="option1">
+                        <label class="form-check-label" for="inlineRadio1">Show All</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" 
+                               type="radio" 
+                               name="filterOptions" 
+                               id="inlineRadio2" 
+                               value="option2">
+                        <label class="form-check-label" for="inlineRadio2">Selected Only</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" 
+                               type="radio" 
+                               name="filterOptions" 
+                               id="inlineRadio3" 
+                               value="option3" disabled>
+                        <label class="form-check-label" for="inlineRadio3">Unselected Only</label>
+                    </div>
+                </div>
+            </div>
+            
+            <hr />
+
+            <!-- Results -->
+            <div style="padding-left:30px;padding-right:30px;">
+                <div>
+                    <div class="btn-group" 
+                         style="float:right;"
+                         role="group" aria-label="Basic example">
+                        <button type="button" class="btn btn-sm btn-secondary">
+                            Select All <i class="fas fa-check-square"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary">
+                            Unselect All <i class="fas fa-minus-square"></i>
+                        </button>
+                    </div>
+
+                    <div role="group" aria-label="Basic example">
+                        <button type="button" data-bind="click: ImportSelectedClick"
+                                class="btn btn-sm btn-primary">
+                            Import selected into Acumatica <i class="fas fa-bolt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="clear:both; height:15px;"></div>
+                
+                <div data-bind="template: { name: 'Import-Selection-Grid' }"
+                     style="min-height:500px;" class="grid-bg"></div>
+                
+                <div data-bind="template: { name: 'Import-Confirmation' }"></div>
+                <div data-bind="template: { name: 'Import-Completion' }"></div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="Import-Selection-Grid" type="text/html"> 
+    <style>
+        .sync-grid td {
+            vertical-align: middle;
+            font-size:0.84em;
+            background-color: white;
+        }
+    </style>
+    <table class="table sync-grid">
+        <tbody>
+        <tr>
+            <td style="padding-left:0;">
+                <div>Test Product from Outerspace</div>
+                <div>Galaxy Products</div>
+                <div style="color:#a9a9a9; font-size:0.8em;">PId: 237712220288</div>
+                <div><a href="#">(Click here to view in Shopify)</a></div>
+            </td>
+
+            <td>
+                <div>33 Shopify Variants</div>
+                <div>12 loaded in Acumatica</div>
+                <div><a href="#">(Click here to view Variants)</a></div>
+            </td>
+
+            <td style="text-align:right; padding-right:0; font-size:14px;">
+                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</script>
+
+<script id="Import-Confirmation" type="text/html">
+    <style>
+        #confirm-import-modal label {
+            font-size:0.9em;
+        }
+    </style>
+    <div class="modal fade" id="confirm-import-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-import-modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirm-import-modalLabel">Confirm Stock Item Import into Acumatica</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <div class="mb-2">
+                            <label>
+                                Ready to proceed with importing into Acumatica: 
+                            </label>
+                        </div>
+                        <span style="color:#666666; font-weight:700;">
+                            33 Shopify Products (44 Shopify Variants)
+                        </span>
+                    </div>
+                    <div class="mb-4">
+                        <label>Create Inventory Receipts for new Stock Items
+                        </label>
+                        <select class="form-control">
+                            <option>Create Inventory Receipts</option>
+                            <option>Do not create Inventory Receipts</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label>Select a Warehouse</label>
+                        <select class="form-control">
+                            <option>WAREHOUSE-MAIN</option>
+                            <option>WAREHOUSE-ALT</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label>Inventory Synchronization</label>
+                        <select class="form-control">
+                            <option>Automatically Enable Sync</option>
+                            <option>Automatically Disable Sync</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                        Proceed with Loading <i class="fas fa-bolt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="Import-Completion" type="text/html">
+    <style>
+        #confirm-import-modal label {
+            font-size:0.9em;
+        }
+    </style>
+    <div class="modal fade" id="complete-import-modal" tabindex="-1" role="dialog" aria-labelledby="complete-import-modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="complete-import-modalLabel">Import into Acumatica Complete</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        The process of loading Shopify Products into Acumatica is now complete.
+                    </div>
+                    <div class="mb-4">
+                        To enable/disable synchronization Inventory Counts with Shopify, navigate to
+                        <a href="@GlobalConfig.Url("RealTime/InventorySyncControl")">
+                            Synchronize -> Inventory Sync Control</a>.
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="alert alert-warning" style="text-align:left;">
+                            <strong>Important:</strong> Before enabling Inventory synchronization,
+                            be sure to confirm your Acumatica Stock Item has correct Inventory Counts.
+                        </div>
+                    </div>                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">
+                        Ok, Thanks! <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.ImportIntoAcumatica = function () {
+        var self = this;
+
+        self.IsJobRunning = ko.observable();
+        self.Logs = ko.observableArray();
+        self.InventoryPullState = ko.observable();
+        
+        // Abstract logic reduction
+        //
+        self.HasInventoryPullRun = ko.computed(function() {
+            return self.InventoryPullState() != SystemState.None;
+        });
+
+        self.LastInventoryRunHadErrors = ko.computed(function() {
+            return self.InventoryPullState() == SystemState.Invalid ||
+                self.InventoryPullState() == SystemState.SystemFault;
+        });
+
+
+        // Interface logic reduction
+        //
+        self.ShowWelcomePanel = ko.computed(function() {
+            return !self.HasInventoryPullRun();
+        });
+        
+        self.ShowSearchPanel = ko.computed(function () {
+            return self.HasInventoryPullRun();
+        });
+        
+
+        // Methods/Actions
+        //
+        self.InventoryPullClick = function () {
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("RealTime/RunInventoryPull", {}, self.PollStatus);
+        };
+
+        self.ImportSelectedClick = function() {
+            $('#complete-import-modal').modal('show');
+        };
+
+        self.PollStatus = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("RealTime/InventoryPullStatus", this);
+                },
+                function (response) {
+                    self.IsJobRunning(response.IsBackgroundJobRunning);
+                    self.Logs(response.Logs);
+                    self.InventoryPullState(response.SystemState);
+                    
+                    if (self.IsJobRunning()) {
+                        setTimeout(self.PollStatus, 1000);
+                    } else {
+                        self.ProcessStatus();
+                    }
+                });
+        };
+
+        self.ProcessStatus = function () {
+            // Fake!
+            
+            // REFRESH THE GRID
+            // #1 Pull down all of the synced Inventory
+            // #2 Store results in Grid
+            // #3 Make Grid visible
+        };
+        
+        self.Initialize = function () {
+            self.PollStatus();
+        };
+
+        return self;
+    };
+
+    var model = new Monster.ImportIntoAcumatica();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
+

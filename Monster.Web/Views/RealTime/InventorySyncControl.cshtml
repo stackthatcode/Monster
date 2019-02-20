@@ -92,8 +92,7 @@
                         <a href="@GlobalConfig.Url("RealTime/ImportIntoShopify")">import Products and Variants from Shopify into Acumatica</a>.                        
                     </p>
 
-                    <p>In either case, you can come back to Inventory Sync Control to enable and disable
-                    synchronization.</p>
+                    <p>In either case, you can come back to Inventory Sync Control to enable and disable synchronization.</p>
 
                     <div class="center std-pad-t">
                         <a href="@GlobalConfig.Url("RealTime/ImportIntoAcumatica")" 
@@ -224,17 +223,20 @@
 
                 <div style="clear:both; height:15px;"></div>
                 
-                <div data-bind="template: { name: 'Inventory-Sync-Grid' }"></div>
+                <div data-bind="template: { name: 'Inventory-Sync-Grid' }"
+                     style="min-height:600px;" class="grid-bg"></div>
             </div>
         </div>
     </div>
 </script>
+
 
 <script id="Inventory-Sync-Grid" type="text/html"> 
     <style>
         .sync-grid td {
             vertical-align: middle;
             font-size:0.84em;
+            background-color: #FFFFFF;
         }
     </style>
     <table class="table sync-grid">
@@ -261,8 +263,8 @@
                 <div>Test Product from Outerspace</div>
                 <div><a href="#">(Click here to view in Acumatica)</a></div>
             </td>
-            <td style="text-align:right; padding-right:0; font-size:18px;">
-                <a href="#" class="badge badge-primary" style="padding:8px;">SELECTED</a>
+            <td style="text-align:right; padding-right:0; font-size:14px;">
+                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
             </td>
         </tr>
             
@@ -288,8 +290,8 @@
                 <div>Test Product from Outerspace</div>
                 <div><a href="#">(Click here to view in Acumatica)</a></div>
             </td>
-            <td style="text-align:right; padding-right:0; font-size:18px;">
-                <a href="#" class="badge badge-primary" style="padding:8px;">SELECTED</a>
+            <td style="text-align:right; padding-right:0; font-size:14px;">
+                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
             </td>
         </tr>
             
@@ -315,8 +317,8 @@
                 <div>Test Product from Outerspace</div>
                 <div><a href="#">(Click here to view in Acumatica)</a></div>
             </td>
-            <td style="text-align:right; padding-right:0; font-size:18px;">
-                <a href="#" class="badge badge-primary" style="padding:8px;">SELECTED</a>
+            <td style="text-align:right; padding-right:0; font-size:14px;">
+                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
             </td>
         </tr>
         <tr>
@@ -341,8 +343,8 @@
                 <div>Test Product from Outerspace</div>
                 <div><a href="#">(Click here to view in Acumatica)</a></div>
             </td>
-            <td style="text-align:right; padding-right:0; font-size:18px;">
-                <a href="#" class="badge badge-primary" style="padding:8px;">SELECTED</a>
+            <td style="text-align:right; padding-right:0; font-size:14px;">
+                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
             </td>
         </tr>
         <tr>
@@ -367,8 +369,8 @@
                 <div>Test Product from Outerspace</div>
                 <div><a href="#">(Click here to view in Acumatica)</a></div>
             </td>
-            <td style="text-align:right; padding-right:0; font-size:18px;">
-                <a href="#" class="badge badge-primary" style="padding:8px;">SELECTED</a>
+            <td style="text-align:right; padding-right:0; font-size:14px;">
+                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
             </td>
         </tr>
         </tbody>

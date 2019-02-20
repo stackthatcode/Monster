@@ -168,6 +168,11 @@ p {
     white-space: nowrap;
 }
 
+.grid-bg {
+    background-color: #f0f8ff;
+}
+
+
 
 /* The switch - the box around the slider */
 .switch {
