@@ -7,7 +7,6 @@ using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.Logging;
@@ -159,7 +158,7 @@ namespace Monster.Middle.Processes.Sync
             }
         }
         
-        public void LoadInventoryIntoAcumatica()
+        public void PullInventory()
         {
             try
             {
@@ -168,10 +167,7 @@ namespace Monster.Middle.Processes.Sync
                 
                 // Step 2 - Pull Acumatica Inventory
                 _acumaticaManager.PullInventory();
-
-                // Step 3 - Load Shopify Inventory into Acumatica as baseline
-                _inventorySyncManager.PushInventoryIntoAcumatica();
-
+                
                 _stateRepository.UpdateSystemState(
                     x => x.InventoryPull, SystemState.Ok);
             }

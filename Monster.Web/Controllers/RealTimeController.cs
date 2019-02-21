@@ -3,12 +3,15 @@ using System.Web.Mvc;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Orders;
+using Monster.Middle.Processes.Sync.Status;
 using Monster.Web.Models;
 using Monster.Web.Models.RealTime;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
+using Push.Shopify.Api;
 
 
 namespace Monster.Web.Controllers
@@ -19,8 +22,10 @@ namespace Monster.Web.Controllers
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogRepository _logRepository;
         private readonly HangfireService _hangfireService;
+        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
+        private readonly UrlService _urlService;
         private readonly IPushLogger _logger;
 
         public RealTimeController(
@@ -29,6 +34,8 @@ namespace Monster.Web.Controllers
                 ExecutionLogRepository logRepository, 
                 SyncOrderRepository syncOrderRepository, 
                 SyncInventoryRepository syncInventoryRepository,
+                ShopifyInventoryRepository shopifyInventoryRepository,
+                UrlService urlService,
                 IPushLogger logger)
         {
             _stateRepository = stateRepository;
@@ -36,6 +43,8 @@ namespace Monster.Web.Controllers
             _logRepository = logRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
+            _shopifyInventoryRepository = shopifyInventoryRepository;
+            _urlService = urlService;
             _logger = logger;
         }
 
@@ -133,7 +142,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult RunInventoryPull ()
         {
-            _hangfireService.LaunchJob(JobType.PullInventoryFromShopifyAcumatica);
+            _hangfireService.LaunchJob(JobType.PullInventory);
             return JsonNetResult.Success();
         }
 
@@ -141,7 +150,7 @@ namespace Monster.Web.Controllers
         public ActionResult InventoryPullStatus()
         {
             var isRunning =
-                _hangfireService.IsJobRunning(JobType.PullInventoryFromShopifyAcumatica);
+                _hangfireService.IsJobRunning(JobType.PullInventory);
 
             var matchCount =
                 _syncInventoryRepository.RetrieveVariantAndStockItemMatchCount();
@@ -176,6 +185,18 @@ namespace Monster.Web.Controllers
         {
             return View();
         }
+
+        public ActionResult FilterInventory(string terms = "")
+        {
+            var searchResult = _syncInventoryRepository.ProductSearch(terms);
+            var output 
+                = searchResult
+                    .Select(x => FilterInventoryModel
+                        .Make(x, _urlService.ShopifyProductUrl)).ToList();
+            
+            return new JsonNetResult(output);
+        }
+
 
         [HttpGet]
         public ActionResult ImportIntoShopify()

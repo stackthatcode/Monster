@@ -73,8 +73,11 @@ namespace Monster.Middle.Persist.Multitenant
         public void RemoveBackgroundJobs(int backgroundJobType)
         {
             var job = RetrieveBackgroundJob(backgroundJobType);
-            Entities.UsrBackgroundJobs.Remove(job);
-            Entities.SaveChanges();
+            if (job != null)
+            {
+                Entities.UsrBackgroundJobs.Remove(job);
+                Entities.SaveChanges();
+            }
         }
 
 

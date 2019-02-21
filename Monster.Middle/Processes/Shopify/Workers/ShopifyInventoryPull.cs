@@ -166,13 +166,14 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 
             if (existing == null)
             {
-                var data = new UsrShopifyProduct
-                {
-                    ShopifyProductId = product.id,
-                    ShopifyJson = product.SerializeToJson(),
-                    DateCreated = DateTime.UtcNow,
-                    LastUpdated = DateTime.UtcNow,
-                };
+                var data = new UsrShopifyProduct();
+                data.ShopifyProductId = product.id;
+                data.ShopifyTitle = product.title ?? "";
+                data.ShopifyProductType = product.product_type;
+                data.ShopifyVendor = product.vendor;
+                data.ShopifyJson = product.SerializeToJson();
+                data.DateCreated = DateTime.UtcNow;
+                data.LastUpdated = DateTime.UtcNow;
 
                 _inventoryRepository.InsertProduct(data);
                 _inventoryRepository.SaveChanges();
@@ -181,6 +182,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
             else
             {
+                existing.ShopifyTitle = product.title ?? "";
+                existing.ShopifyProductType = product.product_type;
+                existing.ShopifyVendor = product.vendor;
                 existing.ShopifyJson = product.SerializeToJson();
                 existing.LastUpdated = DateTime.UtcNow;
                 _inventoryRepository.SaveChanges();
@@ -220,6 +224,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 data.ParentMonsterId = parentProductId;
                 data.ShopifyVariantId = variant.id;
                 data.ShopifySku = variant.sku;
+                data.ShopifyTitle = variant.title ?? "";
                 data.ShopifyInventoryItemId = variant.inventory_item_id;
                 data.ShopifyVariantJson = variant.SerializeToJson();
                 data.ShopifyIsTracked = variant.IsTracked;
@@ -231,6 +236,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
             else
             {
+                existing.ShopifySku = variant.sku;
+                existing.ShopifyTitle = variant.title ?? "";
                 existing.ShopifyVariantJson = variant.SerializeToJson();
                 existing.ShopifyIsTracked = variant.IsTracked;
                 existing.LastUpdated = DateTime.UtcNow;

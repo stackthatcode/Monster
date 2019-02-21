@@ -10,6 +10,7 @@ CREATE VIEW vw_ShopifyInventory
 AS
 SELECT	t1.MonsterId, 
 		t1.ShopifyProductId,
+		t1.ShopifyTitle AS ProductTitle,
 		t1.IsDeleted AS ProductIsDeleted, 
 		t2.ShopifyVariantId, 
 		t2.ShopifyInventoryItemId, 
@@ -281,7 +282,9 @@ DROP VIEW IF EXISTS vw_SyncVariantAndStockItem
 GO
 CREATE VIEW vw_SyncVariantAndStockItem
 AS
-	SELECT t2.ShopifyProductId, t1.ShopifyVariantId, t1.ShopifySku, t4.ItemId
+	SELECT	t2.ShopifyProductId, t2.ShopifyTitle AS ShopifyProductTitle, t2.ShopifyVendor, t2.ShopifyProductType,
+			t1.ShopifyVariantId, t1.ShopifySku, t1.ShopifyTitle AS ShopifyVariantTitle, t4.ItemId AS AcumaticaItemId,
+			t4.AcumaticaDescription
 	FROM usrShopifyVariant t1 
 		INNER JOIN usrShopifyProduct t2
 			ON t1.ParentMonsterId = t2.MonsterId
@@ -290,7 +293,6 @@ AS
 		INNER JOIN usrAcumaticaStockItem t4
 			ON t3.AcumaticaItemMonsterId = t4.MonsterId;		
 GO
-
 
 
 

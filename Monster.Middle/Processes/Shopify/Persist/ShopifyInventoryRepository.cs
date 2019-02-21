@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
 
@@ -101,10 +102,11 @@ namespace Monster.Middle.Processes.Shopify.Persist
                     .ToList();
         }
         
-
         public void SaveChanges()
         {
             Entities.SaveChanges();
         }
+
     }
 }
+

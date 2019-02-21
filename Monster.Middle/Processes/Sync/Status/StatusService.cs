@@ -4,7 +4,6 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Inventory.Services;
 
 namespace Monster.Middle.Processes.Sync.Status
 {

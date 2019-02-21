@@ -84,6 +84,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<VwShopifyOrderFulfillment> VwShopifyOrderFulfillments { get; set; } // vw_ShopifyOrderFulfillments
         System.Data.Entity.DbSet<VwShopifyOrderRefund> VwShopifyOrderRefunds { get; set; } // vw_ShopifyOrderRefunds
         System.Data.Entity.DbSet<VwShopifyOrderTransaction> VwShopifyOrderTransactions { get; set; } // vw_ShopifyOrderTransactions
+        System.Data.Entity.DbSet<VwSyncVariantAndStockItem> VwSyncVariantAndStockItems { get; set; } // vw_SyncVariantAndStockItem
 
         int SaveChanges();
         System.Threading.Tasks.Task<int> SaveChangesAsync();
@@ -153,6 +154,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<VwShopifyOrderFulfillment> VwShopifyOrderFulfillments { get; set; } // vw_ShopifyOrderFulfillments
         public System.Data.Entity.DbSet<VwShopifyOrderRefund> VwShopifyOrderRefunds { get; set; } // vw_ShopifyOrderRefunds
         public System.Data.Entity.DbSet<VwShopifyOrderTransaction> VwShopifyOrderTransactions { get; set; } // vw_ShopifyOrderTransactions
+        public System.Data.Entity.DbSet<VwSyncVariantAndStockItem> VwSyncVariantAndStockItems { get; set; } // vw_SyncVariantAndStockItem
 
         static MonsterDataContext()
         {
@@ -249,6 +251,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new VwShopifyOrderFulfillmentConfiguration());
             modelBuilder.Configurations.Add(new VwShopifyOrderRefundConfiguration());
             modelBuilder.Configurations.Add(new VwShopifyOrderTransactionConfiguration());
+            modelBuilder.Configurations.Add(new VwSyncVariantAndStockItemConfiguration());
         }
 
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
@@ -300,6 +303,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new VwShopifyOrderFulfillmentConfiguration(schema));
             modelBuilder.Configurations.Add(new VwShopifyOrderRefundConfiguration(schema));
             modelBuilder.Configurations.Add(new VwShopifyOrderTransactionConfiguration(schema));
+            modelBuilder.Configurations.Add(new VwSyncVariantAndStockItemConfiguration(schema));
             return modelBuilder;
         }
     }
@@ -369,6 +373,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<VwShopifyOrderFulfillment> VwShopifyOrderFulfillments { get; set; }
         public System.Data.Entity.DbSet<VwShopifyOrderRefund> VwShopifyOrderRefunds { get; set; }
         public System.Data.Entity.DbSet<VwShopifyOrderTransaction> VwShopifyOrderTransactions { get; set; }
+        public System.Data.Entity.DbSet<VwSyncVariantAndStockItem> VwSyncVariantAndStockItems { get; set; }
 
         public FakeMonsterDataContext()
         {
@@ -423,6 +428,7 @@ namespace Monster.Middle.Persist.Multitenant
             VwShopifyOrderFulfillments = new FakeDbSet<VwShopifyOrderFulfillment>("Id", "ShopifyOrderId", "ShopifyOrderNumber", "ShopifyFinancialStatus", "AreTransactionsUpdated", "OrderLastUpdated");
             VwShopifyOrderRefunds = new FakeDbSet<VwShopifyOrderRefund>("Id", "ShopifyOrderId", "ShopifyOrderNumber", "ShopifyFinancialStatus", "AreTransactionsUpdated", "OrderLastUpdated");
             VwShopifyOrderTransactions = new FakeDbSet<VwShopifyOrderTransaction>("Id", "ShopifyOrderId", "ShopifyOrderNumber", "ShopifyFinancialStatus", "AreTransactionsUpdated", "OrderLastUpdated");
+            VwSyncVariantAndStockItems = new FakeDbSet<VwSyncVariantAndStockItem>("ShopifyProductId", "ShopifyVariantId", "ShopifySku", "ItemId");
         }
 
         public int SaveChangesCount { get; private set; }
@@ -963,6 +969,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long MonsterId { get; set; } // MonsterId (Primary key)
         public string ItemId { get; set; } // ItemId (length: 100)
         public string AcumaticaJson { get; set; } // AcumaticaJson
+        public string AcumaticaDescription { get; set; } // AcumaticaDescription (length: 200)
         public bool IsPriceSynced { get; set; } // IsPriceSynced
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -1158,6 +1165,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long Id { get; set; } // Id (Primary key)
         public long ShopifyVariantMonsterId { get; set; } // ShopifyVariantMonsterId
         public long AcumaticaItemMonsterId { get; set; } // AcumaticaItemMonsterId
+        public bool IsSyncEnabled { get; set; } // IsSyncEnabled
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1531,6 +1539,9 @@ namespace Monster.Middle.Persist.Multitenant
     {
         public long MonsterId { get; set; } // MonsterId (Primary key)
         public long ShopifyProductId { get; set; } // ShopifyProductId
+        public string ShopifyTitle { get; set; } // ShopifyTitle (length: 100)
+        public string ShopifyVendor { get; set; } // ShopifyVendor (length: 100)
+        public string ShopifyProductType { get; set; } // ShopifyProductType (length: 100)
         public string ShopifyJson { get; set; } // ShopifyJson
         public bool IsDeleted { get; set; } // IsDeleted
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -1623,6 +1634,7 @@ namespace Monster.Middle.Persist.Multitenant
         public long ShopifyInventoryItemId { get; set; } // ShopifyInventoryItemId
         public string ShopifyVariantJson { get; set; } // ShopifyVariantJson
         public string ShopifySku { get; set; } // ShopifySku (length: 100)
+        public string ShopifyTitle { get; set; } // ShopifyTitle (length: 200)
         public decimal ShopifyCost { get; set; } // ShopifyCost
         public bool ShopifyIsTracked { get; set; } // ShopifyIsTracked
         public bool IsMissing { get; set; } // IsMissing
@@ -1941,6 +1953,16 @@ namespace Monster.Middle.Persist.Multitenant
         public System.DateTime? PaymentSyncLastUpdated { get; set; } // PaymentSyncLastUpdated
     }
 
+    // vw_SyncVariantAndStockItem
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class VwSyncVariantAndStockItem
+    {
+        public long ShopifyProductId { get; set; } // ShopifyProductId (Primary key)
+        public long ShopifyVariantId { get; set; } // ShopifyVariantId (Primary key)
+        public string ShopifySku { get; set; } // ShopifySku (Primary key) (length: 100)
+        public string ItemId { get; set; } // ItemId (Primary key) (length: 100)
+    }
+
     // The table 'vw_SyncVariantsAndStockItems' is not usable by entity framework because it
     // does not have a primary key. It is listed here for completeness.
     // vw_SyncVariantsAndStockItems
@@ -2213,6 +2235,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ItemId).HasColumnName(@"ItemId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
+            Property(x => x.AcumaticaDescription).HasColumnName(@"AcumaticaDescription").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(200);
             Property(x => x.IsPriceSynced).HasColumnName(@"IsPriceSynced").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
@@ -2460,6 +2483,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyVariantMonsterId).HasColumnName(@"ShopifyVariantMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.AcumaticaItemMonsterId).HasColumnName(@"AcumaticaItemMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.IsSyncEnabled).HasColumnName(@"IsSyncEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
@@ -2830,6 +2854,9 @@ namespace Monster.Middle.Persist.Multitenant
 
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsRequired();
+            Property(x => x.ShopifyTitle).HasColumnName(@"ShopifyTitle").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.ShopifyVendor).HasColumnName(@"ShopifyVendor").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.ShopifyProductType).HasColumnName(@"ShopifyProductType").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.IsDeleted).HasColumnName(@"IsDeleted").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
@@ -2916,6 +2943,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.ShopifyInventoryItemId).HasColumnName(@"ShopifyInventoryItemId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyVariantJson).HasColumnName(@"ShopifyVariantJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifySku).HasColumnName(@"ShopifySku").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.ShopifyTitle).HasColumnName(@"ShopifyTitle").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(200);
             Property(x => x.ShopifyCost).HasColumnName(@"ShopifyCost").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.ShopifyIsTracked).HasColumnName(@"ShopifyIsTracked").HasColumnType("bit").IsRequired();
             Property(x => x.IsMissing).HasColumnName(@"IsMissing").HasColumnType("bit").IsRequired();
@@ -3180,6 +3208,27 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.ShopifyStatus).HasColumnName(@"ShopifyStatus").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.OrderLastUpdated).HasColumnName(@"OrderLastUpdated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.TransactionLastUpdated).HasColumnName(@"TransactionLastUpdated").HasColumnType("datetime").IsOptional();
+        }
+    }
+
+    // vw_SyncVariantAndStockItem
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class VwSyncVariantAndStockItemConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<VwSyncVariantAndStockItem>
+    {
+        public VwSyncVariantAndStockItemConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public VwSyncVariantAndStockItemConfiguration(string schema)
+        {
+            ToTable("vw_SyncVariantAndStockItem", schema);
+            HasKey(x => new { x.ShopifyProductId, x.ShopifyVariantId, x.ShopifySku, x.ItemId });
+
+            Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyVariantId).HasColumnName(@"ShopifyVariantId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifySku).HasColumnName(@"ShopifySku").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ItemId).HasColumnName(@"ItemId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
         }
     }
 

@@ -222,6 +222,7 @@
     <Compile Include="Models\Config\SystemStateSummaryModel.cs" />
     <Compile Include="Models\ExecutionLog.cs" />
     <Compile Include="Models\Config\PreferencesModel.cs" />
+    <Compile Include="Models\RealTime\FilterInventoryModel.cs" />
     <Compile Include="Models\RealTime\OrderSyncSummary.cs" />
     <Compile Include="Models\ShopifyAuth\DomainModel.cs" />
     <Compile Include="Models\ShopifyAuth\ReturnModel.cs" />

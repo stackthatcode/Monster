@@ -6,7 +6,6 @@ using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Status;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
@@ -281,29 +280,6 @@ namespace Monster.Web.Controllers
 
             return new JsonNetResult(output);
         }
-
-
-
-        // *** Move to the Analyzers ***
-        //
-        //foreach (var row in orderSyncView)
-        //{
-        //    //row.ShopifyOrderUrl = _orderApi.OrderInterfaceUrlById(row.ShopifyOrderId);
-
-        //    //if (row.AcumaticaOrderNbr.HasValue())
-        //    //{
-        //    //    row.AcumaticaOrderUrl = _orderApi.OrderInterfaceUrlById(row.ShopifyOrderId);
-        //    //}
-        //    //if (row.AcumaticaShipmentNbr.HasValue())
-        //    //{
-        //    //    row.AcumaticaShipmentUrl = _shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr);
-        //    //}
-
-        //    _logger.Debug(_orderApi.OrderInterfaceUrlById(row.ShopifyOrderId));
-        //    _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
-        //    _logger.Debug(_shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr));
-        //    _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
-        //}
 
     }
 }

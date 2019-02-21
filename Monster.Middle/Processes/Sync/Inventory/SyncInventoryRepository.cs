@@ -148,7 +148,8 @@ namespace Monster.Middle.Processes.Sync.Inventory
                     .ToList();
         }
 
-        public void InsertItemSync(UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem)
+        public void InsertItemSync(
+                UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem)
         {
             var sync = new UsrShopAcuItemSync();
             sync.UsrShopifyVariant = variant;
@@ -218,6 +219,33 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .Database
                 .SqlQuery<int>(sql)
                 .First();
+        }
+
+        
+        public List<UsrShopifyProduct> ProductSearch(string terms)
+        {
+            var termList 
+                = terms.Split(' ')
+                    .Where(x => x.Trim() != "")
+                    .ToList();
+
+            var dataSet
+                = Entities
+                    .UsrShopifyProducts
+                    .Include(x => x.UsrShopifyVariants)
+                    .Include(x => x.UsrShopifyVariants.Select(y => y.UsrShopAcuItemSyncs));
+            
+            foreach (var term in termList)
+            {
+                dataSet = dataSet.Where(
+                    x => x.ShopifyTitle.Contains(term) ||
+                         x.ShopifyProductType.Contains(term) ||
+                         x.ShopifyVendor.Contains(term) ||
+                         x.UsrShopifyVariants.Any(y => y.ShopifySku.Contains(term)) ||
+                         x.UsrShopifyVariants.Any(y => y.ShopifyTitle.Contains(term)));
+            }
+
+            return dataSet.ToList();
         }
 
 

@@ -18,7 +18,6 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync;
 using Monster.Middle.Processes.Sync.Inventory;
-using Monster.Middle.Processes.Sync.Inventory.Services;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Processes.Sync.Orders.Workers;
@@ -161,7 +160,8 @@ namespace Monster.Middle
             // Status
             builder.RegisterType<StatusService>().InstancePerLifetimeScope();
             builder.RegisterType<ReferenceDataService>().InstancePerLifetimeScope();
-            
+            builder.RegisterType<UrlService>().InstancePerLifetimeScope();
+
             // Director Components
             builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();
         }

@@ -101,22 +101,23 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
                 if (existingData == null)
                 {
-                    var newData = new UsrAcumaticaStockItem()
-                    {
-                        ItemId = item.InventoryID.value,
-                        AcumaticaJson = item.SerializeToJson(),
-                        IsPriceSynced = false,
-                        DateCreated = DateTime.UtcNow,
-                        LastUpdated = DateTime.UtcNow,
-                    };
+                    var newData = new UsrAcumaticaStockItem();
+                    newData.ItemId = item.InventoryID.value;
+                    newData.AcumaticaJson = item.SerializeToJson();
+                    newData.AcumaticaDescription = item.Description.value;
+                    newData.IsPriceSynced = false;
+                    newData.DateCreated = DateTime.UtcNow;
+                    newData.LastUpdated = DateTime.UtcNow;
 
                     _inventoryRepository.InsertStockItems(newData);
                 }
                 else
                 {
                     existingData.AcumaticaJson = item.SerializeToJson();
+                    existingData.AcumaticaDescription = item.Description.value;
                     existingData.LastUpdated = DateTime.UtcNow;
                     existingData.IsPriceSynced = false;
+
                     _inventoryRepository.SaveChanges();
                 }
 

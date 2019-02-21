@@ -45,27 +45,21 @@ namespace Monster.Middle.Hangfire
 
         public void RunSyncWarehouseAndLocation(Guid instanceId)
         {
-            FireAndForgetJob(instanceId,
-                JobType.SyncWarehouseAndLocation, 
-                _director.SyncWarehouseAndLocation);
+            FireAndForgetJob(
+                instanceId, JobType.SyncWarehouseAndLocation, _director.SyncWarehouseAndLocation);
         }
 
         public void RunDiagnostics(Guid instanceId)
         {
-            FireAndForgetJob(instanceId,
-                JobType.Diagnostics,
-                _director.RunDiagnostics);
+            FireAndForgetJob(instanceId, JobType.Diagnostics, _director.RunDiagnostics);
         }
         
-        public void PushInventoryToAcumatica(Guid instanceId)
+        public void PullInventory(Guid instanceId)
         {
             // Longer running processes - we'll use NamedLocks
             //
             FireAndForgetJob(
-                instanceId,
-                JobType.PullInventoryFromShopifyAcumatica,
-                _director.LoadInventoryIntoAcumatica,
-                InventorySyncLock);
+                instanceId, JobType.PullInventory, _director.PullInventory, InventorySyncLock);
         }
 
         public void PushInventoryToShopify(Guid instanceId)
