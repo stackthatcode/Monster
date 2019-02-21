@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using Monster.Middle.Persist.Multitenant;
 
 namespace Monster.Web.Models.RealTime
@@ -14,6 +12,8 @@ namespace Monster.Web.Models.RealTime
         public long ShopifyProductId { get; set; }
         public int VariantCount { get; set; } 
         public int SyncedVariantCount { get; set; }
+        public int UnsyncedVariantCount => VariantCount - SyncedVariantCount;
+        
         public string ShopifyUrl { get; set; }
 
 

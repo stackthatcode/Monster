@@ -1,4 +1,5 @@
-﻿@using Monster.Web.Plumbing
+﻿@using Monster.Web.Models.RealTime
+@using Monster.Web.Plumbing
 
 @Html.Partial("_SharedKnockoutViews")
 
@@ -104,7 +105,7 @@
     <div class="card-body">
         <div class="input-group mb-3">                   
             <input type="text" class="form-control" 
-                   data-bind="value: FilterTerms"
+                   data-bind="value: FilterTerms, event: { keyup: SearchTermsKeyCallback }"
                    placeholder="Enter Product Title, Vendor, Product Type, Variant Title, SKU" 
                    aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU">
             
@@ -124,7 +125,8 @@
                        type="radio" 
                        name="filterOptions" 
                        id="inlineRadio1" 
-                       value="option1">
+                       value="@FilterSelectedType.ShowAll"
+                       data-bind="checked: FilterSelected">
                 <label class="form-check-label" for="inlineRadio1">Show All</label>
             </div>
             <div class="form-check form-check-inline">
@@ -132,7 +134,8 @@
                        type="radio" 
                        name="filterOptions" 
                        id="inlineRadio2" 
-                       value="option2">
+                       value="@FilterSelectedType.SelectedOnly"
+                       data-bind="checked: FilterSelected">
                 <label class="form-check-label" for="inlineRadio2">Selected Only</label>
             </div>
             <div class="form-check form-check-inline">
@@ -140,7 +143,8 @@
                        type="radio" 
                        name="filterOptions" 
                        id="inlineRadio3" 
-                       value="option3" disabled>
+                       value="@FilterSelectedType.UnselectedOnly"
+                       data-bind="checked: FilterSelected">
                 <label class="form-check-label" for="inlineRadio3">Unselected Only</label>
             </div>
         </div>
@@ -154,17 +158,22 @@
             <div class="btn-group" 
                  style="float:right;"
                  role="group" aria-label="Basic example">
-                <button type="button" class="btn btn-sm btn-secondary">
+                <button type="button" 
+                        data-bind="click: SelectAllClick"
+                        class="btn btn-sm btn-secondary">
                     Select All <i class="fas fa-check-square"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-secondary">
+                <button type="button" 
+                        data-bind="click: UnselectAllClick"
+                        class="btn btn-sm btn-secondary">
                     Unselect All <i class="fas fa-minus-square"></i>
                 </button>
             </div>
 
             <div role="group" aria-label="Basic example">
+
                 <button type="button" 
-                        data-bind="click: ImportSelectedClick"
+                        data-bind="click: ImportSelectedClick, enable: ImportButtonEnabled"
                         class="btn btn-sm btn-primary">
                     Import selected into Acumatica <i class="fas fa-bolt"></i>
                 </button>
@@ -174,8 +183,11 @@
         <div style="clear:both; height:15px;"></div>
         
         <div data-bind="template: { name: 'Import-Selection-Grid' }"></div>                
-        <div data-bind="template: { name: 'Import-Confirmation' }"></div>
+        
+        <div data-bind="template: { name: 'Import-Confirmation', data: ImportConfirmModel }"></div>
+        
         <div data-bind="template: { name: 'Import-Completion' }"></div>
+
         <div data-bind="template: { name: 'Import-Product-Detail' }"></div>
     </div>
 </script>
@@ -189,31 +201,53 @@
         }
     </style>
     
-    <div style="min-height:500px; display:none; padding-top:160px;" class="empty-grid">
+    <div style="min-height:500px; display:none; padding-top:160px;" 
+         data-bind="visible: EmptyResults"
+         class="empty-grid">
         <h1>No Products match your criteria</h1>
         <p class="lead center">Only Products with Variants that are not loaded in Acumatica will appear</p>
     </div>
     
-    <div style="min-height:500px;" class="grid-bg">
-    <table class="table sync-grid">
-        <tbody>
-        <tr>
-            <td style="padding-left:0;">
-                <div>Test Product from Outerspace</div>
-                <div>Galaxy Products</div>
-                <div style="color:#a9a9a9; font-size:0.8em;">PId: 237712220288</div>
-                <div><a href="#">(Click here to view in Shopify)</a></div>
-            </td>
-            <td>
-                <div>33 Shopify Variants</div>
-                <div>12 loaded in Acumatica</div>
-                <div><a href="#" data-bind="click: ProductDetailClick">(Click here to view Variants)</a></div>
-            </td>
+    <div style="min-height:500px;" 
+         data-bind="visible: !EmptyResults()"
+         class="grid-bg">
+        <table class="table sync-grid">
+            <tbody data-bind="foreach: FilteredView">
+            <tr>
+                <td style="padding-left:0;">
+                    <div data-bind="text: ProductTitle"></div>
+                    <div data-bind="text: Vendor"></div>
+                    <div style="color:#a9a9a9; font-size:0.8em;">
+                        PId: <span data-bind="text: ShopifyProductId"></span>
+                    </div>
+                    <div>
+                        <a href="#" target="_blank" data-bind="attr: { href: ShopifyUrl }">
+                            (Click here to view in Shopify)</a>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <span data-bind="text: VariantCount"></span>
+                        Shopify Variants
+                    </div>
+                    <div>
+                        <span data-bind="text: SyncedVariantCount"></span>
+                        synced with Acumatica
+                    </div>
+                    <div><a href="#">(Click here to view Variants)</a></div>
+                </td>
 
-            <td style="text-align:right; padding-right:0; font-size:14px;">
-                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
-            </td>
-        </tr>
+                <td style="text-align:right; padding-right:0; font-size:14px;">
+                    <div data-bind="if: IsSelected">
+                        <a href="#" data-bind="click: SelectClick"
+                           class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
+                    </div>
+                    <div data-bind="ifnot: IsSelected">
+                        <a href="#" data-bind="click: SelectClick"
+                           class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
+                    </div>
+                </td>
+            </tr>
         </tbody>
     </table>
     </div>
@@ -237,17 +271,22 @@
                             </label>
                         </div>
                         <span class="modal-heavy-text">
-                            33 Shopify Products (44 Shopify Variants)
+                            <span data-bind="text: ProductCount"></span> Shopify Product(s) with 
+                            <span data-bind="text: UnsyncedVariantCount"></span> Unsynced Shopify Variant(s)
                         </span>
                     </div>
+
                     <div class="mb-4">
                         <label>Create Inventory Receipts for new Stock Items
                         </label>
-                        <select class="form-control">
-                            <option>Create Inventory Receipts</option>
-                            <option>Do not create Inventory Receipts</option>
+                        <select class="form-control" 
+                                data-bind="options: InventoryReceiptOptions, 
+                                            value: InventoryReceiptChoice,
+                                            optionsText: 'Text',
+                                            optionsValue: 'Value'">
                         </select>
                     </div>
+
                     <div class="mb-4">
                         <label>Select a Warehouse</label>
                         <select class="form-control">
@@ -258,9 +297,11 @@
                     
                     <div class="mb-4">
                         <label>Inventory Synchronization</label>
-                        <select class="form-control">
-                            <option>Automatically Enable Sync</option>
-                            <option>Automatically Disable Sync</option>
+                        <select class="form-control"  
+                                data-bind="options: InventorySyncOptions, 
+                                            value: InventorySyncChoice,
+                                            optionsText: 'Text',
+                                            optionsValue: 'Value'">
                         </select>
                     </div>
                 </div>
@@ -512,12 +553,9 @@
         };
 
         self.ProcessStatus = function () {
-            // Fake!
-            
-            // REFRESH THE GRID
-            // #1 Pull down all of the synced Inventory
-            // #2 Store results in Grid
-            // #3 Make Grid visible
+            if (self.ShowSearchPanel()) {
+                self.ImportSearchControl.FilterInventoryClick();
+            }
         };
 
         self.ImportSearchControl = new Monster.ImportSearchControl();
@@ -529,30 +567,143 @@
         return self;
     };
 
-    Monster.ImportSearchControl = function() {
+    Monster.ImportConfirmModel = function() {
         var self = this;
 
-        self.FilterTerms = ko.observable("");
+        self.SelectedProducts = ko.observableArray([]);
 
-        self.ImportSelectedClick = function() {
-            $('#complete-import-modal').modal('show');
+        self.ProductCount = ko.computed(function() { return self.SelectedProducts().length; });
+
+        self.InventoryReceiptOptions = ko.observableArray([
+            { Text: 'Do not create Inventory Receipts', Value: 0 },
+            { Text: 'Create Inventory Receipts', Value: 1 },
+        ]);
+
+        self.InventoryReceiptChoice = ko.observable(0);
+
+        self.InventorySyncOptions = ko.observableArray([
+            { Text: 'Automatically Disable Sync', Value: 0 },
+            { Text: 'Automatically Enable Sync', Value: 1 },
+        ]);
+
+        self.InventorySyncChoice = ko.observable(0);
+
+
+        self.UnsyncedVariantCount = ko.computed(function() {
+            return AQ(self.SelectedProducts())
+                .sum(function(x) { return x.UnsyncedVariantCount });
+        });
+
+        // Parameter data should match C# DTO FilterInventoryModel
+        self.Launch = function(data) {
+            self.SelectedProducts(data);
+            console.log(data);
+            $('#confirm-import-modal').modal('show');
+        };
+
+        return self;
+    };
+
+    Monster.ImportSearchControl = function() {
+        var self = this;
+        
+        self.FilterTerms = ko.observable("");
+        self.FilterSelected = ko.observable("@FilterSelectedType.ShowAll");
+        self.FilterSelected.subscribe(function() {
+            self.RefreshFilteredView();
+        });
+
+        self.GridData = ko.observableArray([]);
+        self.FilteredView = ko.observableArray([]);
+
+        self.ImportConfirmModel = new Monster.ImportConfirmModel();
+        
+        self.EmptyResults = ko.computed(function() { return self.FilteredView().length == 0; });
+
+        self.SelectedProducts = ko.computed(function() {
+            return AQ(self.FilteredView())
+                .where(function (x) { return x.IsSelected(); })
+                .toArray();
+        });
+
+        self.ImportButtonEnabled = ko.computed(function() {
+            return self.SelectedProducts().length > 0;
+        });
+
+        self.RefreshFilteredView = function() {
+            var output = AQ(self.GridData())
+                .where(function (item) {
+                    if (self.FilterSelected() == '@FilterSelectedType.ShowAll') {
+                        return true;
+                    }
+                    if (self.FilterSelected() == '@FilterSelectedType.SelectedOnly' &&
+                        item.IsSelected()) {
+                        return true;
+                    }
+                    if (self.FilterSelected() == '@FilterSelectedType.UnselectedOnly' &&
+                        !item.IsSelected()) {
+                        return true;
+                    }
+                    return false;
+                })
+                .toArray();
+            
+            self.FilteredView(output);
+        };
+
+        self.SearchTermsKeyCallback = function (model, event) {
+            if (event.keyCode == 13) {
+                self.FilterInventoryClick();
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        self.ImportSelectedClick = function () {
+            self.ImportConfirmModel.Launch(self.FilteredView());            
         };
 
         self.ProductDetailClick = function() {
             $("#import-product-detail-modal").modal('show');
         };
 
+        self.SelectAllClick = function() {
+            AQ(self.GridData()).each(function (x) {
+                x.IsSelected(true);
+            });
+            self.RefreshFilteredView();
+        };
+
+        self.UnselectAllClick = function() {
+            AQ(self.GridData()).each(function (x) {
+                x.IsSelected(false);
+            });
+            self.RefreshFilteredView();
+        };
+
         self.FilterInventoryClick = function() {
-            flow.exec(function() {
+            flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var url = "RealTime/FilterInventory?terms=" + self.FilterTerms();
                     ajax.HttpGet(url, this);                    
                 },
                 function(response) {
                     console.log(response);
+
+                    AQ(response).each(function(x) {
+                        x.IsSelected = ko.observable(false);
+                        x.SelectClick = function() {
+                            x.IsSelected(!x.IsSelected());
+                            self.RefreshFilteredView();
+                        };
+                    });
+
+                    self.GridData(response);
+                    self.RefreshFilteredView();
                 });
         };
-
+        
         return self;
     };
 
