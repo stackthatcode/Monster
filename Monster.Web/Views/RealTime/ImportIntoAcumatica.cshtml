@@ -163,11 +163,10 @@
 
                 <div style="clear:both; height:15px;"></div>
                 
-                <div data-bind="template: { name: 'Import-Selection-Grid' }"
-                     style="min-height:500px;" class="grid-bg"></div>
-                
+                <div data-bind="template: { name: 'Import-Selection-Grid' }"></div>                
                 <div data-bind="template: { name: 'Import-Confirmation' }"></div>
                 <div data-bind="template: { name: 'Import-Completion' }"></div>
+                <div data-bind="template: { name: 'Import-Product-Detail' }"></div>
             </div>
         </div>
     </div>
@@ -181,6 +180,13 @@
             background-color: white;
         }
     </style>
+    
+    <div style="min-height:500px; display:none; padding-top:160px;" class="empty-grid">
+        <h1>No Products match your criteria</h1>
+        <p class="lead center">Only Products with Variants that are not loaded in Acumatica will appear</p>
+    </div>
+    
+    <div style="min-height:500px;" class="grid-bg">
     <table class="table sync-grid">
         <tbody>
         <tr>
@@ -190,11 +196,10 @@
                 <div style="color:#a9a9a9; font-size:0.8em;">PId: 237712220288</div>
                 <div><a href="#">(Click here to view in Shopify)</a></div>
             </td>
-
             <td>
                 <div>33 Shopify Variants</div>
                 <div>12 loaded in Acumatica</div>
-                <div><a href="#">(Click here to view Variants)</a></div>
+                <div><a href="#" data-bind="click: ProductDetailClick">(Click here to view Variants)</a></div>
             </td>
 
             <td style="text-align:right; padding-right:0; font-size:14px;">
@@ -203,14 +208,10 @@
         </tr>
         </tbody>
     </table>
+    </div>
 </script>
 
 <script id="Import-Confirmation" type="text/html">
-    <style>
-        #confirm-import-modal label {
-            font-size:0.9em;
-        }
-    </style>
     <div class="modal fade" id="confirm-import-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-import-modalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document" style="max-width:600px;">
             <div class="modal-content">
@@ -227,7 +228,7 @@
                                 Ready to proceed with importing into Acumatica: 
                             </label>
                         </div>
-                        <span style="color:#666666; font-weight:700;">
+                        <span class="modal-heavy-text">
                             33 Shopify Products (44 Shopify Variants)
                         </span>
                     </div>
@@ -269,11 +270,6 @@
 </script>
 
 <script id="Import-Completion" type="text/html">
-    <style>
-        #confirm-import-modal label {
-            font-size:0.9em;
-        }
-    </style>
     <div class="modal fade" id="complete-import-modal" tabindex="-1" role="dialog" aria-labelledby="complete-import-modalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document" style="max-width:600px;">
             <div class="modal-content">
@@ -309,6 +305,143 @@
         </div>
     </div>
 </script>
+
+<script id="Import-Product-Detail" type="text/html">
+    <style>
+        .product-detail td {
+            vertical-align: middle;
+        }
+    </style>
+
+    <div class="modal fade" id="import-product-detail-modal" tabindex="-1" role="dialog"
+         aria-labelledby="import-product-detail-label" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 700px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="import-product-detail-label">Shopify Product Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <div class="modal-heavy-text">Test Product from Outerspace</div>
+                        <div>Galaxy Products</div>
+                        <div class="shopify-id">PId: 237712220288</div>
+                        <div><a href="#">(Click here to view in Shopify)</a></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div>33 Shopify Variants / 12 loaded in Acumatica</div>
+                    </div>
+                    <div class="mb-4">
+                        <table class="table product-detail">
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
+                                    <div class="shopify-id">PId: 237712220288</div>
+                                </td>
+                                <td>
+                                    <div>$43.00</div>
+                                    <div>23 available</div>
+                                </td>
+                                <td style="text-align: right;">
+                                    <h3 class="badge badge-success">
+                                        Loaded In Acumatica
+                                    </h3>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
+                                    <div class="shopify-id">PId: 237712220288</div>
+                                </td>
+                                <td>
+                                    <div>$43.00</div>
+                                    <div>23 available</div>
+                                </td>
+                                <td style="text-align: right;">
+                                    <h3 class="badge badge-success">
+                                        Loaded In Acumatica
+                                    </h3>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
+                                    <div class="shopify-id">PId: 237712220288</div>
+                                </td>
+                                <td>
+                                    <div>$43.00</div>
+                                    <div>23 available</div>
+                                </td>
+                                <td style="text-align: right;">
+                                    <h3 class="badge badge-success">
+                                        Loaded In Acumatica
+                                    </h3>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
+                                    <div class="shopify-id">PId: 237712220288</div>
+                                </td>
+                                <td>
+                                    <div>$43.00</div>
+                                    <div>23 available</div>
+                                </td>
+                                <td style="text-align: right;">
+                                    <h3 class="badge badge-success">
+                                        Loaded In Acumatica
+                                    </h3>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
+                                    <div class="shopify-id">PId: 237712220288</div>
+                                </td>
+                                <td>
+                                    <div>$43.00</div>
+                                    <div>23 available</div>
+                                </td>
+                                <td style="text-align: right;">
+                                    <h3 class="badge badge-success">
+                                        Loaded In Acumatica
+                                    </h3>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">
+                        Done <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<style>
+    #confirm-import-modal label {
+        font-size:0.9em;
+    }
+    #complete-import-modal label {
+        font-size:0.9em;
+    }
+    #import-product-detail-modal label {
+        font-size:0.9em;
+    }
+    .modal-heavy-text {
+        color:#666666; font-weight:700;
+    }
+</style>
 
 <script>
     var Monster = Monster || {};
@@ -352,6 +485,10 @@
 
         self.ImportSelectedClick = function() {
             $('#complete-import-modal').modal('show');
+        };
+
+        self.ProductDetailClick = function() {
+            $("#import-product-detail-modal").modal('show');
         };
 
         self.PollStatus = function () {

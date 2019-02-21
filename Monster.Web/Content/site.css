@@ -172,6 +172,16 @@ p {
     background-color: #f0f8ff;
 }
 
+.empty-grid h1 {
+    color:#bbb;
+    font-size:32px;
+    text-align: center;
+}
+
+.shopify-id {
+    color: #a9a9a9;
+    font-size: 0.8em;
+}
 
 
 /* The switch - the box around the slider */

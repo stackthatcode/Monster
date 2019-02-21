@@ -223,8 +223,7 @@
 
                 <div style="clear:both; height:15px;"></div>
                 
-                <div data-bind="template: { name: 'Inventory-Sync-Grid' }"
-                     style="min-height:600px;" class="grid-bg"></div>
+                <div data-bind="template: { name: 'Inventory-Sync-Grid' }"></div>
             </div>
         </div>
     </div>
@@ -238,143 +237,151 @@
             font-size:0.84em;
             background-color: #FFFFFF;
         }
-    </style>
-    <table class="table sync-grid">
-        <tbody>
-        <tr>
-            <td style="padding-left:0;">
-                <!-- Rounded switch -->
-                <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                    <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
-                </div>
-            </td>
-            <td>
-                <div>MED-123-RED - Default Title</div>
-                <div>Test Product from Outerspace</div>
-                <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
-                <div><a href="#">(Click here to view in Shopify)</a></div>
-            </td>
-            <td>
-                <div>MED-123-RED</div>
-                <div>Test Product from Outerspace</div>
-                <div><a href="#">(Click here to view in Acumatica)</a></div>
-            </td>
-            <td style="text-align:right; padding-right:0; font-size:14px;">
-                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
-            </td>
-        </tr>
+    </style>    
+    
+    <div style="min-height:600px;  display:none; padding-top:200px;" class="empty-grid">
+        <h1>No Products match your criteria</h1>
+        <p class="lead center">Only Shopify Product-Variants matched with Stock Items will appear</p>
+    </div>
+    
+    <div style="min-height:600px;" class="grid-bg">
+        <table class="table sync-grid">
+            <tbody>
+            <tr>
+                <td style="padding-left:0;">
+                    <!-- Rounded switch -->
+                    <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
+                    </div>
+                </td>
+                <td>
+                    <div>MED-123-RED - Default Title</div>
+                    <div>Test Product from Outerspace</div>
+                    <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
+                    <div><a href="#">(Click here to view in Shopify)</a></div>
+                </td>
+                <td>
+                    <div>MED-123-RED</div>
+                    <div>Test Product from Outerspace</div>
+                    <div><a href="#">(Click here to view in Acumatica)</a></div>
+                </td>
+                <td style="text-align:right; padding-right:0; font-size:14px;">
+                    <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
+                </td>
+            </tr>
             
-        <tr>
-            <td style="padding-left:0;">
-                <!-- Rounded switch -->
-                <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                    <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
-                </div>
-            </td>
-            <td>
-                <div>MED-123-RED - Default Title</div>
-                <div>Test Product from Outerspace</div>
-                <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
-                <div><a href="#">(Click here to view in Shopify)</a></div>
-            </td>
-            <td>
-                <div>MED-123-RED</div>
-                <div>Test Product from Outerspace</div>
-                <div><a href="#">(Click here to view in Acumatica)</a></div>
-            </td>
-            <td style="text-align:right; padding-right:0; font-size:14px;">
-                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
-            </td>
-        </tr>
+            <tr>
+                <td style="padding-left:0;">
+                    <!-- Rounded switch -->
+                    <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
+                    </div>
+                </td>
+                <td>
+                    <div>MED-123-RED - Default Title</div>
+                    <div>Test Product from Outerspace</div>
+                    <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
+                    <div><a href="#">(Click here to view in Shopify)</a></div>
+                </td>
+                <td>
+                    <div>MED-123-RED</div>
+                    <div>Test Product from Outerspace</div>
+                    <div><a href="#">(Click here to view in Acumatica)</a></div>
+                </td>
+                <td style="text-align:right; padding-right:0; font-size:14px;">
+                    <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
+                </td>
+            </tr>
             
-        <tr>
-            <td style="padding-left:0;">
-                <!-- Rounded switch -->
-                <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                    <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
-                </div>
-            </td>
-            <td>
-                <div>MED-123-RED - Default Title</div>
-                <div>Test Product from Outerspace</div>
-                <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
-                <div><a href="#">(Click here to view in Shopify)</a></div>
-            </td>
-            <td>
-                <div>MED-123-RED</div>
-                <div>Test Product from Outerspace</div>
-                <div><a href="#">(Click here to view in Acumatica)</a></div>
-            </td>
-            <td style="text-align:right; padding-right:0; font-size:14px;">
-                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding-left:0;">
-                <!-- Rounded switch -->
-                <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                    <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
-                </div>
-            </td>
-            <td>
-                <div>MED-123-RED - Default Title</div>
-                <div>Test Product from Outerspace</div>
-                <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
-                <div><a href="#">(Click here to view in Shopify)</a></div>
-            </td>
-            <td>
-                <div>MED-123-RED</div>
-                <div>Test Product from Outerspace</div>
-                <div><a href="#">(Click here to view in Acumatica)</a></div>
-            </td>
-            <td style="text-align:right; padding-right:0; font-size:14px;">
-                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding-left:0;">
-                <!-- Rounded switch -->
-                <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                    <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
-                </div>
-            </td>
-            <td>
-                <div>MED-123-RED - Default Title</div>
-                <div>Test Product from Outerspace</div>
-                <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
-                <div><a href="#">(Click here to view in Shopify)</a></div>
-            </td>
-            <td>
-                <div>MED-123-RED</div>
-                <div>Test Product from Outerspace</div>
-                <div><a href="#">(Click here to view in Acumatica)</a></div>
-            </td>
-            <td style="text-align:right; padding-right:0; font-size:14px;">
-                <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+            <tr>
+                <td style="padding-left:0;">
+                    <!-- Rounded switch -->
+                    <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
+                    </div>
+                </td>
+                <td>
+                    <div>MED-123-RED - Default Title</div>
+                    <div>Test Product from Outerspace</div>
+                    <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
+                    <div><a href="#">(Click here to view in Shopify)</a></div>
+                </td>
+                <td>
+                    <div>MED-123-RED</div>
+                    <div>Test Product from Outerspace</div>
+                    <div><a href="#">(Click here to view in Acumatica)</a></div>
+                </td>
+                <td style="text-align:right; padding-right:0; font-size:14px;">
+                    <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left:0;">
+                    <!-- Rounded switch -->
+                    <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
+                    </div>
+                </td>
+                <td>
+                    <div>MED-123-RED - Default Title</div>
+                    <div>Test Product from Outerspace</div>
+                    <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
+                    <div><a href="#">(Click here to view in Shopify)</a></div>
+                </td>
+                <td>
+                    <div>MED-123-RED</div>
+                    <div>Test Product from Outerspace</div>
+                    <div><a href="#">(Click here to view in Acumatica)</a></div>
+                </td>
+                <td style="text-align:right; padding-right:0; font-size:14px;">
+                    <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left:0;">
+                    <!-- Rounded switch -->
+                    <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        <div style="font-size:0.8em; font-weight:700; color:#a9a9a9">ENABLED</div>
+                    </div>
+                </td>
+                <td>
+                    <div>MED-123-RED - Default Title</div>
+                    <div>Test Product from Outerspace</div>
+                    <div style="color:#a9a9a9; font-size:0.8em;">VId: 123489080485 PId: 237712220288</div>
+                    <div><a href="#">(Click here to view in Shopify)</a></div>
+                </td>
+                <td>
+                    <div>MED-123-RED</div>
+                    <div>Test Product from Outerspace</div>
+                    <div><a href="#">(Click here to view in Acumatica)</a></div>
+                </td>
+                <td style="text-align:right; padding-right:0; font-size:14px;">
+                    <a href="#" class="badge badge-primary" style="padding:10px;">SELECTED</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </script>
 
 
