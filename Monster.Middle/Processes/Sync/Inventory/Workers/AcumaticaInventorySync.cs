@@ -52,7 +52,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                     RunStockItemPush(context, variant);
                 }
 
-                if (context.CreateWarehouseReceipts)
+                if (context.CreateInventoryReceipts)
                 {
                     RunInventoryReceipt(shopifyProductId);
                 }

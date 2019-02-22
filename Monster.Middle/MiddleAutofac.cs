@@ -1,6 +1,4 @@
-﻿using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using Autofac;
 using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
@@ -82,7 +80,9 @@ namespace Monster.Middle
 
             // Job Running components
             builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
+            builder.RegisterType<ExclusiveJobRunner>().InstancePerLifetimeScope();
             builder.RegisterType<OneTimeJobService>().InstancePerLifetimeScope();
+            builder.RegisterType<RecurringJobService>().InstancePerLifetimeScope();
 
             // Process Registrations
             RegisterShopifyProcess(builder);            

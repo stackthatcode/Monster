@@ -6,7 +6,7 @@
 @Html.Partial("_TopBrand")
 
 <div>
-    <div data-bind="ifnot: IsJobRunning">
+    <div data-bind="ifnot: AreAnyJobsRunning">
         <div data-bind="if: ShowWelcomePanel">
             <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
         </div>
@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <div class="medium-size" data-bind="if: IsJobRunning">
+    <div class="medium-size" data-bind="if: AreAnyJobsRunning">
         <div class="card std-pad-sm">
             <div class="card-title-interface">
                Load Products from Shopify into Acumatica
@@ -321,7 +321,7 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Cancel <i class="fas fa-times"></i>
                     </button>
-                    <button type="button" data-bind="click: StartImportIntoAcumatica" class="btn btn-primary">
+                    <button type="button" data-bind="click: RunImportIntoAcumatica" class="btn btn-primary">
                         Proceed with Loading <i class="fas fa-bolt"></i>
                     </button>
                 </div>
@@ -359,7 +359,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary">
-                        Ok, Thanks! <i class="fas fa-check"></i>
+                        Ok, Done <i class="fas fa-check"></i>
                     </button>
                 </div>
             </div>
@@ -506,11 +506,11 @@
 
 <script>
     var Monster = Monster || {};
-
+    
     Monster.ImportIntoAcumatica = function () {
         var self = this;
 
-        self.IsJobRunning = ko.observable();
+        self.AreAnyJobsRunning = ko.observable();
         self.Logs = ko.observableArray();
         self.InventoryPullState = ko.observable();
         
@@ -535,34 +535,57 @@
         self.ShowSearchPanel = ko.computed(function () {
             return self.HasInventoryPullRun();
         });
-        
+
 
         // Methods/Actions
         //
         self.InventoryPullClick = function () {
-            var ajax = new Monster.Ajax();
-            ajax.HttpPost("RealTime/RunInventoryPull", {}, self.PollStatus);
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("RealTime/RunInventoryPull", {}, this);
+                },
+                function() {
+                    Monster.Events.publish("/RealTime/RunInventoryPull");
+                });
         };
+
 
         self.PollStatus = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/InventoryPullStatus", this);
+                    ajax.HttpGet("RealTime/StatusForAllInventoryJobs", this);
                 },
                 function (response) {
-                    self.IsJobRunning(response.IsBackgroundJobRunning);
-                    self.Logs(response.Logs);
                     self.InventoryPullState(response.SystemState);
+                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
+                    self.Logs(response.Logs);
                     
-                    if (self.IsJobRunning()) {
+                    if (self.AreAnyJobsRunning()) {
                         setTimeout(self.PollStatus, 1000);
                     } else {
                         self.ProcessStatus();
                     }
                 });
         };
+
+
+        // Pub-Sub subscriptions
+        Monster.Events.subscribe(
+            "/RealTime/RunInventoryPull", function() {
+                //console.log("Published - /RealTime/RunInventoryPull");
+                self.PollStatus();
+            });
+
+        Monster.Events.subscribe(
+            "/RealTime/RunImportIntoAcumatica",
+            function () {
+                //console.log("Published - /RealTime/RunImportIntoAcumatica");
+                self.PollStatus();
+            });
+
 
         self.ProcessStatus = function () {
             if (self.ShowSearchPanel()) {
@@ -594,7 +617,6 @@
             { Text: 'Automatically Enable Sync', Value: 1 },
         ]);
 
-        
         
         // State
         //
@@ -644,7 +666,7 @@
                 });
         };
 
-        self.StartImportIntoAcumatica = function() {
+        self.RunImportIntoAcumatica = function() {
             flow.exec(function () {
                 var selectedSPIds
                     = AQ(self.SelectedProducts()).select(function (x) {
@@ -658,11 +680,12 @@
                 };
 
                 var ajax = new Monster.Ajax();
-                ajax.HttpPost("RealTime/StartImportIntoAcumatica", model, this);
+                ajax.HttpPost("RealTime/RunImportIntoAcumatica", model, this);
             },
             function (response) {
-                // TODO - broadcast to Message Bus that a Poll Status is needed
                 $('#confirm-import-modal').modal('hide');
+
+                Monster.Events.publish("/RealTime/RunImportIntoAcumatica");
             });
         }
 
@@ -675,7 +698,7 @@
         self.FilterTerms = ko.observable("");
         self.FilterSelected = ko.observable("@FilterSelectedType.ShowAll");
         self.FilterSelected.subscribe(function() {
-            self.RefreshFilteredView();
+             self.RefreshFilteredView();
         });
 
         self.GridData = ko.observableArray([]);

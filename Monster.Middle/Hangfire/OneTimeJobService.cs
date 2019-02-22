@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Hangfire;
 using Monster.Middle.Persist.Multitenant;
@@ -36,43 +37,38 @@ namespace Monster.Middle.Hangfire
         {
             QueueJob(BackgroundJobType.ConnectToAcumatica,
                 x => x.RunConnectToAcumatica(_tenantContext.InstanceId));
-            return;
         }
 
         public void PullAcumaticaRefData()
         {
             QueueJob(BackgroundJobType.PullAcumaticaRefData, 
                 x => x.RunPullAcumaticaRefData(_tenantContext.InstanceId));
-            return;
         }
 
         public void SyncWarehouseAndLocation()
         {
             QueueJob(BackgroundJobType.SyncWarehouseAndLocation,
                 x => x.RunSyncWarehouseAndLocation(_tenantContext.InstanceId));
-            return;
         }
     
         public void RunDiagnostics()
         {
             QueueJob(BackgroundJobType.Diagnostics, x => x.RunDiagnostics(_tenantContext.InstanceId));
-            return;
         }
 
         public void PullInventory()
         {
             QueueExclusiveJob(
                 BackgroundJobType.PullInventory, x => x.PullInventory(_tenantContext.InstanceId));
-            return;
         }
 
         public void ImportIntoAcumatica(
-                    List<long> spids, bool createWarehouseReceipts, bool automaticEnable)
+                List<long> spids, bool createInventoryReceipts, bool automaticEnable)
         {
             var context = new AcumaticaInventoryImportContext
             {
                 ShopifyProductIds = spids,
-                CreateWarehouseReceipts = createWarehouseReceipts,
+                CreateInventoryReceipts = createInventoryReceipts,
                 IsSyncEnabled = automaticEnable,
             };
 
@@ -160,6 +156,11 @@ namespace Monster.Middle.Hangfire
         
         // Status querying
         //
+        public bool AreAnyJobsRunning(List<int> jobTypes)
+        {
+            return jobTypes.Any(x => IsJobRunning(x));
+        }
+
         public bool IsJobRunning(int jobType)
         {
             // If Background Job Record is missing, return false

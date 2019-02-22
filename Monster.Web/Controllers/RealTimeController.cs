@@ -12,7 +12,6 @@ using Monster.Web.Models;
 using Monster.Web.Models.RealTime;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
-using Push.Shopify.Api;
 
 
 namespace Monster.Web.Controllers
@@ -22,7 +21,7 @@ namespace Monster.Web.Controllers
     {
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogRepository _logRepository;
-        private readonly OneTimeJobService _hangfireService;
+        private readonly OneTimeJobService _oneTimeJobService;
         private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
@@ -31,7 +30,7 @@ namespace Monster.Web.Controllers
 
         public RealTimeController(
                 StateRepository stateRepository,
-                OneTimeJobService hangfireService,
+                OneTimeJobService oneTimeJobService,
                 ExecutionLogRepository logRepository, 
                 SyncOrderRepository syncOrderRepository, 
                 SyncInventoryRepository syncInventoryRepository,
@@ -40,7 +39,7 @@ namespace Monster.Web.Controllers
                 IPushLogger logger)
         {
             _stateRepository = stateRepository;
-            _hangfireService = hangfireService;            
+            _oneTimeJobService = oneTimeJobService;            
             _logRepository = logRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
@@ -65,14 +64,14 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult StartRealTime()
         {
-            _hangfireService.StartRoutineSync();
+            _oneTimeJobService.StartRoutineSync();
             return JsonNetResult.Success();
         }
 
         [HttpPost]
         public ActionResult PauseRealTime()
         {
-            _hangfireService.PauseRoutineSync();
+            _oneTimeJobService.PauseRoutineSync();
             return JsonNetResult.Success();
         }
         
@@ -83,7 +82,7 @@ namespace Monster.Web.Controllers
             var logDtos = logs.Select(x => new ExecutionLog(x)).ToList();
 
             var isConfigDiagnosisRunning 
-                = _hangfireService.IsJobRunning(BackgroundJobType.Diagnostics);
+                = _oneTimeJobService.IsJobRunning(BackgroundJobType.Diagnostics);
 
             var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
 
@@ -109,7 +108,7 @@ namespace Monster.Web.Controllers
 
             var output = new
             {
-                IsRealTimeSyncRunning = _hangfireService.IsRealTimeSyncRunning(),
+                IsRealTimeSyncRunning = _oneTimeJobService.IsRealTimeSyncRunning(),
                 IsConfigDiagnosisRunning = isConfigDiagnosisRunning,
                 Logs = logDtos,
                 OrderSummary = BuildOrderSummary(),
@@ -128,7 +127,34 @@ namespace Monster.Web.Controllers
             output.TotalOrdersWithInvoices = _syncOrderRepository.RetrieveTotalOrdersInvoiced();
             return output;
         }
-        
+
+
+
+        // *** Monitors Status on all Inventory Jobs
+        [HttpGet]
+        public ActionResult StatusForAllInventoryJobs()
+        {
+            var areAnyJobsRunning
+                = _oneTimeJobService.AreAnyJobsRunning(
+                    new List<int>
+                    {
+                        BackgroundJobType.PullInventory,
+                        BackgroundJobType.ImportIntoAcumatica,
+                    });
+
+            var state = _stateRepository.RetrieveSystemState();
+            var logs = _logRepository.RetrieveExecutionLogs();
+            var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
+
+            var output = new
+            {
+                SystemState = state.InventoryPull,
+                AreAnyJobsRunning = areAnyJobsRunning,
+                Logs = executionLogs,
+            };
+
+            return new JsonNetResult(output);
+        }
 
 
 
@@ -143,34 +169,10 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult RunInventoryPull ()
         {
-            _hangfireService.PullInventory();
+            _oneTimeJobService.PullInventory();
             return JsonNetResult.Success();
         }
-
-        [HttpGet]
-        public ActionResult InventoryPullStatus()
-        {
-            var isRunning =
-                _hangfireService.IsJobRunning(BackgroundJobType.PullInventory);
-
-            var matchCount =
-                _syncInventoryRepository.RetrieveVariantAndStockItemMatchCount();
-
-            var state = _stateRepository.RetrieveSystemState();
-            var logs = _logRepository.RetrieveExecutionLogs();
-            var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
-
-            var output = new
-            {
-                IsBackgroundJobRunning = isRunning,
-                Logs = executionLogs,
-                SystemState = state.InventoryPull,
-                HasMatchedInventory = matchCount > 0
-            };
-
-            return new JsonNetResult(output);
-        }
-
+        
         [HttpGet]
         public ActionResult VariantAndStockItemMatches()
         {
@@ -206,10 +208,15 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult StartImportIntoAcumatica(
-                bool createInventoryReceipt, bool enableInventorySync, List<long> selectedSPIds)
+        public ActionResult RunImportIntoAcumatica(
+                bool createInventoryReceipt, 
+                bool enableInventorySync, 
+                List<long> selectedSPIds)
         {
-            // TODO - trigger HangFire job
+            _oneTimeJobService
+                .ImportIntoAcumatica(
+                    selectedSPIds, createInventoryReceipt, enableInventorySync);
+            
             return JsonNetResult.Success();
         }
 

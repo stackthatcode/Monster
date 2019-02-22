@@ -5,7 +5,7 @@
 @Html.Partial("_TopBrand")
 
 <div>
-    <div data-bind="ifnot: IsJobRunning">
+    <div data-bind="ifnot: AreAnyJobsRunning">
         <div data-bind="if: ShowWelcomePanel">
             <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
         </div>
@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div class="medium-size" data-bind="if: IsJobRunning">
+    <div class="medium-size" data-bind="if: AreAnyJobsRunning">
         <div class="card std-pad-sm">
             <div class="card-title-interface">
                Inventory Sync Control
@@ -391,9 +391,11 @@
     Monster.InventoryConfigModel = function () {
         var self = this;
 
-        self.IsJobRunning = ko.observable();
+        self.AreAnyJobsRunning = ko.observable();
         self.Logs = ko.observableArray();
         self.InventoryPullState = ko.observable();
+
+        // DEPRECATED - Unnecessary - populate the grid!
         self.HasMatchedInventory = ko.observable();
 
         // Abstract logic reduction
@@ -435,15 +437,14 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/InventoryPullStatus", this);
+                    ajax.HttpGet("RealTime/StatusForAllInventoryJobs", this);
                 },
                 function (response) {
-                    self.IsJobRunning(response.IsBackgroundJobRunning);
+                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
                     self.Logs(response.Logs);
                     self.InventoryPullState(response.SystemState);
-                    self.HasMatchedInventory(response.HasMatchedInventory);
 
-                    if (self.IsJobRunning()) {
+                    if (self.AreAnyJobsRunning()) {
                         setTimeout(self.PollStatus, 1000);
                     } else {
                         self.ProcessStatus();
@@ -452,7 +453,7 @@
         };
 
         self.ProcessStatus = function () {
-            // Fake!
+            // Deprecated
             self.HasMatchedInventory(true);
 
             // REFRESH THE GRID
