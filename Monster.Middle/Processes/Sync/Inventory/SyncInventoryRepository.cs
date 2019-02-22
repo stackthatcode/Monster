@@ -83,6 +83,36 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .ToList();
         }
 
+        public List<UsrShopifyLocation> RetrieveLocations(bool? synced = null)
+        {
+            var output = Entities
+                .UsrShopifyLocations
+                .Include(x => x.UsrShopAcuWarehouseSyncs)
+                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse));
+
+            if (synced.HasValue && synced.Value == true)
+            {
+                output = output.Where(x => x.UsrShopAcuWarehouseSyncs.Any());
+            }
+            if (synced.HasValue && synced.Value == false)
+            {
+                output = output.Where(x => x.UsrShopAcuWarehouseSyncs.Any());
+            }
+
+            return output.ToList();
+        }
+
+
+        public List<UsrAcumaticaWarehouse> RetrieveSyncWarehouses()
+        {
+            return Entities
+                .UsrAcumaticaWarehouses
+                .Include(x => x.UsrShopAcuWarehouseSyncs)
+                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrShopifyLocation))
+                .Where(x => x.UsrShopAcuWarehouseSyncs.Any())
+                .ToList();
+        }
+
         public UsrAcumaticaWarehouse RetrieveWarehouse(string warehouseId)
         {
             return Entities

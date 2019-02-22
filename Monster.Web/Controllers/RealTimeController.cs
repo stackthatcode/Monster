@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
@@ -195,6 +196,21 @@ namespace Monster.Web.Controllers
                         .Make(x, _urlService.ShopifyProductUrl)).ToList();
             
             return new JsonNetResult(output);
+        }
+
+        public ActionResult SyncedWarehouses()
+        {
+            var locations = _syncInventoryRepository.RetrieveLocations(true);
+            var output = LocationsModel.Make(locations);
+            return new JsonNetResult(output);
+        }
+
+        [HttpPost]
+        public ActionResult StartImportIntoAcumatica(
+                bool createInventoryReceipt, bool enableInventorySync, List<long> selectedSPIds)
+        {
+            // TODO - trigger HangFire job
+            return JsonNetResult.Success();
         }
 
 
