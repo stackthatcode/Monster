@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Monster.Acumatica.Http;
+using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Push.Foundation.Utilities.Logging;
 
@@ -34,15 +36,11 @@ namespace Monster.Middle.Processes.Sync.Inventory
             _warehouseLocationSync.Run();
         }
         
-        public void PushInventoryIntoAcumatica()
+        public void ImportIntoAcumatica(AcumaticaInventoryImportContext context)
         {
             AcumaticaSessionRun(() =>
             {
-                _acumaticaInventorySync.Run();
-                _acumaticaInventorySync.RunInventoryReceipts();
-
-                // TODO - control this via a Preference
-                //_acumaticaInventorySync.RunInventoryReceiptsRelease();
+                _acumaticaInventorySync.Run(context);
             });
         }
 

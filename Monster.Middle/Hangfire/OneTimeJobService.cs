@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Hangfire;
-using Hangfire.Storage;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Security;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
@@ -11,7 +11,7 @@ using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Hangfire
 {
-    public class HangfireService
+    public class OneTimeJobService
     {
         private readonly ConnectionContext _tenantContext;
         private readonly ConnectionRepository _connectionRepository;
@@ -19,11 +19,11 @@ namespace Monster.Middle.Hangfire
         private readonly IPushLogger _logger;
 
 
-        public HangfireService(
-                IPushLogger logger,
-                ConnectionContext tenantContext, 
-                ConnectionRepository connectionRepository,
-                StateRepository stateRepository)
+        public OneTimeJobService(
+            IPushLogger logger,
+            ConnectionContext tenantContext,
+            ConnectionRepository connectionRepository,
+            StateRepository stateRepository)
         {
             _tenantContext = tenantContext;
             _connectionRepository = connectionRepository;
@@ -32,68 +32,80 @@ namespace Monster.Middle.Hangfire
         }
 
 
-        public void LaunchJob(int jobId)
+        public void ConnectToAcumatica()
         {
-            if (jobId == JobType.ConnectToAcumatica)
-            {
-                QueueBackgroundJob(
-                    JobType.ConnectToAcumatica,
-                    x => x.RunConnectToAcumatica(_tenantContext.InstanceId));
-                return;
-            }
+            QueueJob(BackgroundJobType.ConnectToAcumatica,
+                x => x.RunConnectToAcumatica(_tenantContext.InstanceId));
+            return;
+        }
 
-            if (jobId == JobType.PullAcumaticaRefData)
-            {
-                QueueBackgroundJob(
-                    JobType.PullAcumaticaRefData,
-                    x => x.RunPullAcumaticaRefData(_tenantContext.InstanceId));
-                return;
-            }
+        public void PullAcumaticaRefData()
+        {
+            QueueJob(BackgroundJobType.PullAcumaticaRefData, 
+                x => x.RunPullAcumaticaRefData(_tenantContext.InstanceId));
+            return;
+        }
 
-            if (jobId == JobType.SyncWarehouseAndLocation)
-            {
-                QueueBackgroundJob(
-                    JobType.SyncWarehouseAndLocation,
-                    x => x.RunSyncWarehouseAndLocation(_tenantContext.InstanceId));
-                return;
-            }
+        public void SyncWarehouseAndLocation()
+        {
+            QueueJob(BackgroundJobType.SyncWarehouseAndLocation,
+                x => x.RunSyncWarehouseAndLocation(_tenantContext.InstanceId));
+            return;
+        }
+    
+        public void RunDiagnostics()
+        {
+            QueueJob(BackgroundJobType.Diagnostics, x => x.RunDiagnostics(_tenantContext.InstanceId));
+            return;
+        }
 
-            if (jobId == JobType.Diagnostics)
-            {
-                QueueBackgroundJob(
-                    JobType.Diagnostics,
-                    x => x.RunDiagnostics(_tenantContext.InstanceId));
-                return;
-            }
+        public void PullInventory()
+        {
+            QueueExclusiveJob(
+                BackgroundJobType.PullInventory, x => x.PullInventory(_tenantContext.InstanceId));
+            return;
+        }
 
-            if (jobId == JobType.PullInventory)
+        public void ImportIntoAcumatica(
+                    List<long> spids, bool createWarehouseReceipts, bool automaticEnable)
+        {
+            var context = new AcumaticaInventoryImportContext
             {
-                QueueBackgroundJob(
-                    JobType.PullInventory,
-                    x => x.PullInventory(_tenantContext.InstanceId));
-                return;
-            }
+                ShopifyProductIds = spids,
+                CreateWarehouseReceipts = createWarehouseReceipts,
+                IsSyncEnabled = automaticEnable,
+            };
 
-            throw new ArgumentException($"Unrecognized jobId {jobId}");
+            QueueExclusiveJob(
+                BackgroundJobType.ImportIntoAcumatica,
+                x => x.ImportIntoAcumatica(_tenantContext.InstanceId, context));
         }
         
-        private void QueueBackgroundJob(
-                int backgroundJobType, Expression<Action<JobRunner>> action)
+
+        // Worker methods
+        //
+        private void QueueJob(int jobType, Expression<Action<JobRunner>> action)
         {
             using (var transaction = _stateRepository.BeginTransaction())
             {
-                // This is no longer necessary since execution will be blocked by the Job Runner
-                //if (IsJobRunning(backgroundJobType))
-                //{
-                //    _logger.Info($"Job (BackgroundJobType = {backgroundJobType}) already running");
-                //    return;
-                //}
-                
                 var jobId = BackgroundJob.Enqueue<JobRunner>(action);
-                _stateRepository.InsertBackgroundJob(backgroundJobType, jobId);                
+                _stateRepository.InsertBackgroundJob(jobType, jobId);                
                 transaction.Commit();
             }
         }
+
+        private void QueueExclusiveJob(
+                    int jobType, Expression<Action<ExclusiveJobRunner>> action)
+        {
+            using (var transaction = _stateRepository.BeginTransaction())
+            {
+                var jobId = BackgroundJob.Enqueue<ExclusiveJobRunner>(action);
+                _stateRepository.InsertBackgroundJob(jobType, jobId);
+                transaction.Commit();
+            }
+        }
+
+
 
 
 
@@ -106,9 +118,9 @@ namespace Monster.Middle.Hangfire
             {
                 var state = _stateRepository.RetrieveSystemState();
 
-                RecurringJob.AddOrUpdate<JobRunner>(  
+                RecurringJob.AddOrUpdate<ExclusiveJobRunner>(  
                     routineSyncJobId,
-                    x => x.RealTimeSynchronization(_tenantContext.InstanceId),
+                    x => x.RealTimeSync(_tenantContext.InstanceId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 
@@ -162,6 +174,7 @@ namespace Monster.Middle.Hangfire
             }
         }
 
+
         public bool IsRealTimeSyncRunning()
         {
             var state = _stateRepository.RetrieveSystemState();
@@ -178,20 +191,7 @@ namespace Monster.Middle.Hangfire
                 var jobData = connection.GetJobData(hangfireJobId);
                 return jobData.IsRunning();
             }
-        }
-
-        [Obsolete("Unsure if this actually provides the correct answer")]
-        public bool IsHangfireRecurringJobRunning(string hangFireJobId)
-        {
-            using (var connection = JobStorage.Current.GetConnection())
-            {
-                var recurringJobs = connection.GetRecurringJobs();
-                var job = recurringJobs.FirstOrDefault(p => p.Id == hangFireJobId);
-
-                var jobState = connection.GetStateData(job.LastJobId);
-                return jobState.IsRunning();
-            }
-        }
+        }        
         
     }
 }

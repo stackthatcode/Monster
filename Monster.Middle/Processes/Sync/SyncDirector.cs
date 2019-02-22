@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica;
@@ -180,35 +181,19 @@ namespace Monster.Middle.Processes.Sync
             }
         }
         
-        public void LoadInventoryIntoShopify()
-        {
-            try
-            {
-                // Step 1 - Pull Shopify Inventory
-                _acumaticaManager.PullInventory();
-
-                // Step 2 - Load Acumatica Inventory into Shopify
-                _inventorySyncManager.PushAcumaticaInventoryIntoShopify();
-
-                //_stateRepository
-                //    .UpdateSystemState(x => x.ShopifyInventoryPush, SystemState.Ok);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-
-                //_stateRepository.UpdateSystemState(
-                //    x => x.ShopifyInventoryPush, SystemState.SystemFault);
-            }
-        }
-        
         public void RunDiagnostics()
         {
             ConnectToShopify();
             PullAcumaticaReferenceData();
             SyncWarehouseAndLocation();
         }
+        
+        public void ImportIntoAcumatica(AcumaticaInventoryImportContext context)
+        {
+            RunImpervious(() => _shopifyManager.PullInventory());
 
+            RunImpervious(() => _inventorySyncManager.ImportIntoAcumatica(context));
+        }
 
         public void RealTimeSynchronization()
         {

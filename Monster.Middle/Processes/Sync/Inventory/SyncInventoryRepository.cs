@@ -146,23 +146,16 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .FirstOrDefault(x => x.ItemId == itemId);
         }
 
-        public List<UsrShopifyVariant> RetrieveVariants(bool? isMatched = null)
+        public List<UsrShopifyVariant> RetrieveUnmatchedVariants(long shopifyProductId)
         {
-            var output =
-                Entities
+            var output 
+                = Entities
                     .UsrShopifyVariants
                     .Include(x => x.UsrShopifyProduct)
                     .Include(x => x.UsrShopAcuItemSyncs)
-                    .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrAcumaticaStockItem));
-
-            if (isMatched.HasValue && isMatched.Value == true)
-            {
-                output = output.Where(x => x.UsrShopAcuItemSyncs.Any());
-            }
-            if (isMatched.HasValue && isMatched.Value == false)
-            {
-                output = output.Where(x => !x.UsrShopAcuItemSyncs.Any());
-            }
+                    .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrAcumaticaStockItem))
+                    .Where(x => x.UsrShopifyProduct.ShopifyProductId == shopifyProductId)
+                    .Where(x => !x.UsrShopAcuItemSyncs.Any());
 
             return output.ToList();
         }
@@ -179,13 +172,15 @@ namespace Monster.Middle.Processes.Sync.Inventory
         }
 
         public void InsertItemSync(
-                UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem)
+                UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem, bool isSyncEnabled)
         {
             var sync = new UsrShopAcuItemSync();
             sync.UsrShopifyVariant = variant;
             sync.UsrAcumaticaStockItem = stockItem;
+            sync.IsSyncEnabled = isSyncEnabled;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
+
             Entities.UsrShopAcuItemSyncs.Add(sync);
             Entities.SaveChanges();
         }
@@ -205,18 +200,30 @@ namespace Monster.Middle.Processes.Sync.Inventory
 
         // Inventory and Warehouse Details
         //
-        public List<UsrShopifyInventoryLevel> RetrieveInventoryLevelsNotSynced()
+        public List<UsrShopifyInventoryLevel> RetrieveInventoryLevelsWithoutReceipts()
         {
             return Entities
                     .UsrShopifyInventoryLevels
                     .Include(x => x.UsrShopifyVariant)
                     .Include(x => x.UsrShopifyVariant.UsrShopAcuItemSyncs)
                     .Include(x => x.UsrShopifyLocation)
-                    .Where(x => !x.UsrInventoryReceiptSyncs.Any()
-                                && x.ShopifyAvailableQuantity > 0)
+                    .Where(x => !x.UsrInventoryReceiptSyncs.Any() && x.ShopifyAvailableQuantity > 0)
                     .ToList();
         }
-        
+
+        public List<UsrShopifyInventoryLevel> RetrieveInventoryLevels(long shopifyProductId)
+        {
+            return Entities
+                .UsrShopifyInventoryLevels
+                .Include(x => x.UsrShopifyVariant)
+                .Include(x => x.UsrShopifyVariant.UsrShopAcuItemSyncs)
+                .Include(x => x.UsrShopifyLocation)
+                .Where(x => x.UsrShopifyVariant.UsrShopifyProduct.ShopifyProductId == shopifyProductId)
+                .ToList();
+        }
+
+
+
         public List<UsrAcumaticaWarehouseDetail> RetrieveWarehouseDetailsNotSynced()
         {
             return Entities

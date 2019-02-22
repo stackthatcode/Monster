@@ -51,20 +51,6 @@ namespace Monster.Middle.Processes.Sync.Orders
         }
 
         
-        public void InitialSync()
-        {
-            // Automatically match Customer by email address (non-essential)
-            _acumaticaCustomerSync.Run();
-        }
-
-        public void LoadShopifyProductsIntoAcumatica()
-        {
-            _acumaticaContext.Login();
-
-            _acumaticaInventorySync.Run();
-
-            _acumaticaContext.Logout();
-        }
 
         public void RoutineOrdersSync()
         {

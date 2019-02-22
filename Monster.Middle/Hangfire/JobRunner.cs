@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync;
 using Monster.Middle.Security;
@@ -31,107 +32,34 @@ namespace Monster.Middle.Hangfire
         //
         public void RunConnectToAcumatica(Guid instanceId)
         {
-            FireAndForgetJob(instanceId,
-                JobType.ConnectToAcumatica,
-                _director.ConnectToAcumatica);
+            FireAndForgetJob(instanceId, BackgroundJobType.ConnectToAcumatica, _director.ConnectToAcumatica);
         }
 
         public void RunPullAcumaticaRefData(Guid instanceId)
         {
-            FireAndForgetJob(instanceId,
-                JobType.PullAcumaticaRefData,
-                _director.PullAcumaticaReferenceData);
+            FireAndForgetJob(instanceId, BackgroundJobType.PullAcumaticaRefData, _director.PullAcumaticaReferenceData);
         }
 
         public void RunSyncWarehouseAndLocation(Guid instanceId)
         {
             FireAndForgetJob(
-                instanceId, JobType.SyncWarehouseAndLocation, _director.SyncWarehouseAndLocation);
+                instanceId, BackgroundJobType.SyncWarehouseAndLocation, _director.SyncWarehouseAndLocation);
         }
 
         public void RunDiagnostics(Guid instanceId)
         {
-            FireAndForgetJob(instanceId, JobType.Diagnostics, _director.RunDiagnostics);
+            FireAndForgetJob(instanceId, BackgroundJobType.Diagnostics, _director.RunDiagnostics);
         }
         
-        public void PullInventory(Guid instanceId)
-        {
-            // Longer running processes - we'll use NamedLocks
-            //
-            FireAndForgetJob(
-                instanceId, JobType.PullInventory, _director.PullInventory, InventorySyncLock);
-        }
-
-        public void PushInventoryToShopify(Guid instanceId)
-        {
-            // Longer running processes - we'll use NamedLocks
-            //
-            throw new NotImplementedException();
-            //FireAndForgetJob(
-            //    instanceId,
-            //    JobType.PushInventoryToShopify,
-            //    _director.LoadInventoryIntoShopify,
-            //    InventorySyncLock);
-        }
-
-        public void RealTimeSynchronization(Guid instanceId)
-        {
-            _connectionContext.Initialize(instanceId);
-
-            RunOneTaskPerInstance(
-                instanceId, RealTimeSyncLock, () => _director.RealTimeSynchronization());
-        }
-
-
+        
         
         // FaF Background Jobs do their own error handling, as reflected in System State
         //
-        private void FireAndForgetJob(Guid instanceId, int queueJobTypeId, Action task)
+        private void FireAndForgetJob(Guid instanceId, int jobType, Action task)
         {
             _connectionContext.Initialize(instanceId);
             task();
-            _stateRepository.RemoveBackgroundJobs(queueJobTypeId);
-        }
-
-        private void FireAndForgetJob(
-                Guid instanceId, int queueJobTypeId, Action task, NamedLock namedLock)
-        {
-            _connectionContext.Initialize(instanceId);
-            RunOneTaskPerInstance(instanceId, namedLock, () => task());
-            _stateRepository.RemoveBackgroundJobs(queueJobTypeId);
-        }
-
-
-        // Concurrent task locking for longer running jobs
-        //
-        static readonly NamedLock RealTimeSyncLock = new NamedLock("RealTimeSync");
-        static readonly NamedLock InventorySyncLock = new NamedLock("InventorySync");
-
-        private void RunOneTaskPerInstance(
-                Guid instanceId, NamedLock methodLock, Action action)
-        {
-            try
-            {
-                if (!methodLock.Acquire(instanceId.ToString()))
-                {
-                    var msg = $"Failed to acquire {methodLock.MethodName} lock for {instanceId}";
-                    _logger.Info(msg);
-                    return;
-                }
-
-                action();
-
-                // *** Important - do not refactor this to use finally, else it will 
-                // ... break concurrency locking
-                //
-                methodLock.Free(instanceId.ToString());
-            }
-            catch (Exception ex)
-            {
-                methodLock.Free(instanceId.ToString());
-                _logger.Error(ex);
-                throw;
-            }
+            _stateRepository.RemoveBackgroundJobs(jobType);
         }
     }
 }

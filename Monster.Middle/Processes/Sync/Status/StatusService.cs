@@ -11,14 +11,14 @@ namespace Monster.Middle.Processes.Sync.Status
     {
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly StateRepository _stateRepository;
-        private readonly HangfireService _hangfireService;
+        private readonly OneTimeJobService _hangfireService;
         private readonly ReferenceDataService _referenceDataService;
         
         public StatusService(
                 SyncInventoryRepository syncInventoryRepository, 
                 ReferenceDataService referenceDataService,
                 StateRepository stateRepository,
-                HangfireService hangfireService)
+                OneTimeJobService hangfireService)
         {
             _syncInventoryRepository = syncInventoryRepository;
             _stateRepository = stateRepository;
@@ -65,7 +65,7 @@ namespace Monster.Middle.Processes.Sync.Status
         {
             var isRunning =
                 _hangfireService.IsJobRunning(
-                    JobType.ConnectToAcumatica);
+                    BackgroundJobType.ConnectToAcumatica);
 
             var state = _stateRepository.RetrieveSystemState();
 
@@ -84,7 +84,7 @@ namespace Monster.Middle.Processes.Sync.Status
         {
             var isRunning =
                 _hangfireService.IsJobRunning(
-                    JobType.PullAcumaticaRefData);
+                    BackgroundJobType.PullAcumaticaRefData);
 
             var state = _stateRepository.RetrieveSystemState();
             

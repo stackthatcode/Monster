@@ -82,7 +82,7 @@ namespace Monster.Middle
 
             // Job Running components
             builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
-            builder.RegisterType<HangfireService>().InstancePerLifetimeScope();
+            builder.RegisterType<OneTimeJobService>().InstancePerLifetimeScope();
 
             // Process Registrations
             RegisterShopifyProcess(builder);            

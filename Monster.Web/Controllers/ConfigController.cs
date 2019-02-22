@@ -19,7 +19,7 @@ namespace Monster.Web.Controllers
         private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogRepository _logRepository;
-        private readonly HangfireService _hangfireService;
+        private readonly OneTimeJobService _oneTimeJobService;
 
         private readonly StatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
@@ -30,7 +30,7 @@ namespace Monster.Web.Controllers
         public ConfigController(
                 ConnectionRepository tenantRepository,
                 StateRepository stateRepository,
-                HangfireService hangfireService,
+                OneTimeJobService oneTimeJobService,
                 StatusService statusService, 
                 ReferenceDataService referenceDataService, 
                 PreferencesRepository preferencesRepository, 
@@ -40,7 +40,7 @@ namespace Monster.Web.Controllers
 
             _tenantRepository = tenantRepository;
             _stateRepository = stateRepository;
-            _hangfireService = hangfireService;
+            _oneTimeJobService = oneTimeJobService;
 
             _statusService = statusService;
             _referenceDataService = referenceDataService;
@@ -92,7 +92,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult AcumaticaTestConnection()
         {
-            _hangfireService.LaunchJob(JobType.ConnectToAcumatica);
+            _oneTimeJobService.ConnectToAcumatica();
             return JsonNetResult.Success();
         }
 
@@ -119,7 +119,7 @@ namespace Monster.Web.Controllers
                         model.Password);
             }
 
-            _hangfireService.LaunchJob(JobType.ConnectToAcumatica);
+            _oneTimeJobService.ConnectToAcumatica();
             return JsonNetResult.Success();
         }
 
@@ -136,7 +136,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult AcumaticaRefDataPull()
         {
-            _hangfireService.LaunchJob(JobType.PullAcumaticaRefData);
+            _oneTimeJobService.PullAcumaticaRefData();
             return JsonNetResult.Success();
         }
 
@@ -218,7 +218,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult SyncWarehouses()
         {
-            _hangfireService.LaunchJob(JobType.SyncWarehouseAndLocation);
+            _oneTimeJobService.SyncWarehouseAndLocation();
             return JsonNetResult.Success();
         }
 
@@ -226,8 +226,8 @@ namespace Monster.Web.Controllers
         public ActionResult WarehouseSyncStatus()
         {
             var isBackgroundJobRunning
-                = _hangfireService
-                    .IsJobRunning(JobType.SyncWarehouseAndLocation);
+                = _oneTimeJobService
+                    .IsJobRunning(BackgroundJobType.SyncWarehouseAndLocation);
 
             var state = _stateRepository.RetrieveSystemState();
             var warehouseSyncStatus = _statusService.WarehouseSyncStatus();
@@ -259,14 +259,14 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult TriggerConfigDiagnosis()
         {
-            _hangfireService.LaunchJob(JobType.Diagnostics);
+            _oneTimeJobService.RunDiagnostics();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
         public ActionResult ConfigDiagnosisRunStatus()
         {
-            var IsConfigDiagnosisRunning = _hangfireService.IsJobRunning(JobType.Diagnostics);
+            var IsConfigDiagnosisRunning = _oneTimeJobService.IsJobRunning(BackgroundJobType.Diagnostics);
             var output = new { IsConfigDiagnosisRunning };
             return new JsonNetResult(output);
         }

@@ -22,7 +22,7 @@ namespace Monster.Web.Controllers
     {
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogRepository _logRepository;
-        private readonly HangfireService _hangfireService;
+        private readonly OneTimeJobService _hangfireService;
         private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
@@ -31,7 +31,7 @@ namespace Monster.Web.Controllers
 
         public RealTimeController(
                 StateRepository stateRepository,
-                HangfireService hangfireService,
+                OneTimeJobService hangfireService,
                 ExecutionLogRepository logRepository, 
                 SyncOrderRepository syncOrderRepository, 
                 SyncInventoryRepository syncInventoryRepository,
@@ -83,7 +83,7 @@ namespace Monster.Web.Controllers
             var logDtos = logs.Select(x => new ExecutionLog(x)).ToList();
 
             var isConfigDiagnosisRunning 
-                = _hangfireService.IsJobRunning(JobType.Diagnostics);
+                = _hangfireService.IsJobRunning(BackgroundJobType.Diagnostics);
 
             var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
 
@@ -143,7 +143,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult RunInventoryPull ()
         {
-            _hangfireService.LaunchJob(JobType.PullInventory);
+            _hangfireService.PullInventory();
             return JsonNetResult.Success();
         }
 
@@ -151,7 +151,7 @@ namespace Monster.Web.Controllers
         public ActionResult InventoryPullStatus()
         {
             var isRunning =
-                _hangfireService.IsJobRunning(JobType.PullInventory);
+                _hangfireService.IsJobRunning(BackgroundJobType.PullInventory);
 
             var matchCount =
                 _syncInventoryRepository.RetrieveVariantAndStockItemMatchCount();

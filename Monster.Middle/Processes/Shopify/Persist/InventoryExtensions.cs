@@ -33,29 +33,29 @@ namespace Monster.Middle.Processes.Shopify.Persist
                     .Where(x => x.IsMissing == false)
                     .ToList();
         }
-
-        public static IList<UsrShopifyVariant> 
-                    ExcludeUnmatched(this IEnumerable<UsrShopifyVariant> input)
-        {
-            return input
-                    .Where(x => !x.UsrShopAcuItemSyncs.Any())
-                    .ToList();
-        }
         
         public static IList<UsrShopifyVariant> 
-                ExcludeMatched(this IEnumerable<UsrShopifyVariant> input)
+                    ExcludeMatched(this IEnumerable<UsrShopifyVariant> input)
         {
             return input
-                .Where(x => x.UsrShopAcuItemSyncs.Any())
+                .Where(x => !x.UsrShopAcuItemSyncs.Any())
                 .ToList();
         }
 
-        public static UsrShopifyInventoryLevel InventoryLevel(this UsrShopifyVariant input, long locationId)
+        public static UsrShopifyInventoryLevel 
+                    InventoryLevel(this UsrShopifyVariant input, long locationId)
         {
             return input
                 .UsrShopifyInventoryLevels
                 .FirstOrDefault(x => x.ShopifyLocationId == locationId);
         }
+
+        public static List<UsrShopifyInventoryLevel>
+                    WithMatchedVariants(this IEnumerable<UsrShopifyInventoryLevel> input)
+        {
+            return input.Where(x => x.UsrShopifyVariant.IsMatched()).ToList();
+        }
+
 
         public static bool IsMatched(this UsrShopifyVariant variant)
         {
@@ -84,13 +84,11 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
-        public static List<UsrShopifyInventoryLevel> ByParentId(
-                        this IEnumerable<UsrShopifyInventoryLevel> input, 
-                        long parentMonsterId)
+        public static List<UsrShopifyInventoryLevel> ByParentProductId(
+                        this IEnumerable<UsrShopifyInventoryLevel> input, long parentMonsterId)
         {
             return input
-                .Where(x => 
-                    x.UsrShopifyVariant.ParentMonsterId == parentMonsterId)
+                .Where(x => x.UsrShopifyVariant.ParentMonsterId == parentMonsterId)
                 .ToList();
         }
 

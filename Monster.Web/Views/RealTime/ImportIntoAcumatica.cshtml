@@ -593,6 +593,8 @@
             { Text: 'Automatically Disable Sync', Value: 0 },
             { Text: 'Automatically Enable Sync', Value: 1 },
         ]);
+
+        
         
         // State
         //
@@ -644,7 +646,7 @@
 
         self.StartImportIntoAcumatica = function() {
             flow.exec(function () {
-                var selectedShopifyProductIds
+                var selectedSPIds
                     = AQ(self.SelectedProducts()).select(function (x) {
                         return x.ShopifyProductId;
                     }).toArray();
@@ -652,13 +654,14 @@
                 var model = {
                     createInventoryReceipt: self.InventoryReceiptChoice(),
                     enableInventorySync: self.InventorySyncChoice(),
-                    selectedSPIds: selectedShopifyProductIds,
+                    selectedSPIds: selectedSPIds,
                 };
 
                 var ajax = new Monster.Ajax();
                 ajax.HttpPost("RealTime/StartImportIntoAcumatica", model, this);
             },
             function (response) {
+                // TODO - broadcast to Message Bus that a Poll Status is needed
                 $('#confirm-import-modal').modal('hide');
             });
         }
@@ -751,7 +754,7 @@
                     ajax.HttpGet(url, this);                    
                 },
                 function(response) {
-                    console.log(response);
+                    //console.log(response);
 
                     AQ(response).each(function(x) {
                         x.IsSelected = ko.observable(false);
