@@ -222,6 +222,15 @@ namespace Monster.Web.Controllers
 
 
         [HttpGet]
+        public ActionResult ProductDetail(long shopifyProductId)
+        {
+            var product = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
+            var output = FilterInventoryModel.Make(
+                    product, _urlService.ShopifyProductUrl, includeVariantGraph: true);
+            return new JsonNetResult(output);
+        }
+
+        [HttpGet]
         public ActionResult ImportIntoShopify()
         {
             return View();

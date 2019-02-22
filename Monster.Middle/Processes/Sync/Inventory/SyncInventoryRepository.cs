@@ -258,7 +258,16 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .First();
         }
 
-        
+
+        public UsrShopifyProduct RetrieveProduct(long shopifyProductId)
+        {
+            return Entities
+                    .UsrShopifyProducts
+                    .Include(x => x.UsrShopifyVariants)
+                    .Include(x => x.UsrShopifyVariants.Select(y => y.UsrShopAcuItemSyncs))
+                    .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
+        }
+
         public List<UsrShopifyProduct> ProductSearch(string terms)
         {
             var termList 
