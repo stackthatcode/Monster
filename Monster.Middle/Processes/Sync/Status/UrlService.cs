@@ -22,5 +22,19 @@ namespace Monster.Middle.Processes.Sync.Status
             var shopifyCredentials = _connectionRepository.RetrieveShopifyCredentials();
             return $"{shopifyCredentials.Domain.BaseUrl}/admin/products/{id}";
         }
+
+        public string ShopifyVariantUrl(long product_id, long variant_id)
+        {
+            var shopifyCredentials = _connectionRepository.RetrieveShopifyCredentials();
+            return $"{shopifyCredentials.Domain.BaseUrl}" +
+                        $"/admin/products/{product_id}/variants/{variant_id}";
+        }
+
+
+        public string AcumaticaStockItemUrl(string id)
+        {
+            var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
+            return $"{acumaticaCredentials.InstanceUrl}/Main?ScreenId=IN202500&InventoryCD={id}";
+        }
     }
 }

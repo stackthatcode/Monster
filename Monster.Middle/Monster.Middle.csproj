@@ -148,6 +148,7 @@
     <Compile Include="Processes\Sync\Extensions\RefundExtensions.cs" />
     <Compile Include="Processes\Sync\Extensions\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\AcumaticaInventoryImportContext.cs" />
+    <Compile Include="Processes\Sync\Inventory\Model\SyncEnabledFilter.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\ItemClassModel.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\PaymentMethodModel.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\PreferencesValidationExtensions.cs" />

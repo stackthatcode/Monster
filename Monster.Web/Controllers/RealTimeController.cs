@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Monster.Middle.Attributes;
@@ -6,6 +7,7 @@ using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Inventory;
+using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Processes.Sync.Status;
 using Monster.Web.Models;
@@ -29,17 +31,17 @@ namespace Monster.Web.Controllers
         private readonly IPushLogger _logger;
 
         public RealTimeController(
-                StateRepository stateRepository,
-                OneTimeJobService oneTimeJobService,
-                ExecutionLogRepository logRepository, 
-                SyncOrderRepository syncOrderRepository, 
-                SyncInventoryRepository syncInventoryRepository,
-                ShopifyInventoryRepository shopifyInventoryRepository,
-                UrlService urlService,
-                IPushLogger logger)
+            StateRepository stateRepository,
+            OneTimeJobService oneTimeJobService,
+            ExecutionLogRepository logRepository,
+            SyncOrderRepository syncOrderRepository,
+            SyncInventoryRepository syncInventoryRepository,
+            ShopifyInventoryRepository shopifyInventoryRepository,
+            UrlService urlService,
+            IPushLogger logger)
         {
             _stateRepository = stateRepository;
-            _oneTimeJobService = oneTimeJobService;            
+            _oneTimeJobService = oneTimeJobService;
             _logRepository = logRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
@@ -60,7 +62,7 @@ namespace Monster.Web.Controllers
             _stateRepository.SaveChanges();
             return View();
         }
-        
+
         [HttpPost]
         public ActionResult StartRealTime()
         {
@@ -74,14 +76,14 @@ namespace Monster.Web.Controllers
             _oneTimeJobService.PauseRoutineSync();
             return JsonNetResult.Success();
         }
-        
+
         [HttpGet]
         public ActionResult RealTimeStatus()
         {
             var logs = _logRepository.RetrieveExecutionLogs();
             var logDtos = logs.Select(x => new ExecutionLog(x)).ToList();
 
-            var isConfigDiagnosisRunning 
+            var isConfigDiagnosisRunning
                 = _oneTimeJobService.IsJobRunning(BackgroundJobType.Diagnostics);
 
             var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
@@ -167,17 +169,42 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult RunInventoryPull ()
+        public ActionResult RunInventoryPull()
         {
             _oneTimeJobService.PullInventory();
             return JsonNetResult.Success();
         }
-        
-        [HttpGet]
-        public ActionResult VariantAndStockItemMatches()
+
+        [HttpPost]
+        public ActionResult VariantAndStockItemMatches(string filterText, int syncEnabledFilter)
         {
-            var output = _syncInventoryRepository.RetrieveVariantAndStockItemMatches();
+            var results = 
+                _syncInventoryRepository
+                    .SearchVariantAndStockItems(filterText, syncEnabledFilter);
+
+            var output = 
+                results.Select(item => 
+                    VariantAndStockItemDto.Make(
+                        item, _urlService.ShopifyVariantUrl, _urlService.AcumaticaStockItemUrl))
+                    .ToList();
+
             return new JsonNetResult(output);
+        }
+
+
+        [HttpPost]
+        public ActionResult SyncEnabled(long monsterVariantId, bool syncEnabled)
+        {
+            _syncInventoryRepository.UpdateVariantSync(monsterVariantId, syncEnabled);
+            return JsonNetResult.Success();
+        }
+
+        [HttpPost]
+        public ActionResult BulkSyncEnabled(List<long> monsterVariantIds, bool syncEnabled)
+        {
+            _syncInventoryRepository.UpdateVariantSync(monsterVariantIds, syncEnabled);
+            return JsonNetResult.Success();
+
         }
 
 
@@ -192,11 +219,11 @@ namespace Monster.Web.Controllers
         public ActionResult FilterInventory(string terms = "")
         {
             var searchResult = _syncInventoryRepository.ProductSearch(terms);
-            var output 
+            var output
                 = searchResult
                     .Select(x => ShopifyProductModel
                         .Make(x, _urlService.ShopifyProductUrl)).ToList();
-            
+
             return new JsonNetResult(output);
         }
 
@@ -209,14 +236,12 @@ namespace Monster.Web.Controllers
 
         [HttpPost]
         public ActionResult RunImportIntoAcumatica(
-                bool createInventoryReceipt, 
-                bool enableInventorySync, 
-                List<long> selectedSPIds)
+            bool createInventoryReceipt, bool enableInventorySync, List<long> selectedSPIds)
         {
             _oneTimeJobService
                 .ImportIntoAcumatica(
                     selectedSPIds, createInventoryReceipt, enableInventorySync);
-            
+
             return JsonNetResult.Success();
         }
 
@@ -226,10 +251,14 @@ namespace Monster.Web.Controllers
         {
             var product = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
             var output = ShopifyProductModel.Make(
-                    product, _urlService.ShopifyProductUrl, includeVariantGraph: true);
+                product, _urlService.ShopifyProductUrl, includeVariantGraph: true);
             return new JsonNetResult(output);
         }
 
+    
+
+
+        // Import into Shopify functions...
         [HttpGet]
         public ActionResult ImportIntoShopify()
         {

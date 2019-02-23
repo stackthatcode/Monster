@@ -54,16 +54,7 @@
 
         <div class="card">
             <div class="card-body std-pad">
-                <p>
-                    @GlobalConfig.AppName will now pull your complete catalog of Products and Variants from Shopify,
-                    and will pull all of your Stock Items from your Acumatica Instance.
-                </p>
-
-                <div class="alert alert-warning">
-                    <strong>Important:</strong> Real-Time Sync will perform this step as well.
-                    But, you will still need to load Stock Items into Shopify
-                    and select which to enable for Inventory Synchronization.
-                </div>
+                <div data-bind="template: { name: 'Inventory-Not-Pulled-Message' }"></div>
             </div>
         </div>
 
@@ -113,7 +104,8 @@
             <input type="text" class="form-control" 
                    data-bind="value: FilterTerms, event: { keyup: SearchTermsKeyCallback }"
                    placeholder="Enter Product Title, Vendor, Product Type, Variant Title, SKU" 
-                   aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU">
+                   aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
+                   maxlength="50" />
             
             <div class="input-group-append">
                 <button class="btn btn-secondary" 
@@ -578,7 +570,7 @@
 
                 },
                 function (response) {
-                    console.log(response);
+                    //console.log(response);
                     self.Data(response);
                 });
             

@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Inventory.Model;
+using Push.Foundation.Utilities.General;
 
 namespace Monster.Middle.Processes.Sync.Inventory
 {
@@ -237,15 +238,40 @@ namespace Monster.Middle.Processes.Sync.Inventory
 
 
         // Product/Variant-Stock Item Sync Control
-
-        public List<VariantAndStockItemDto> RetrieveVariantAndStockItemMatches()
+        //
+        public List<UsrShopAcuItemSync> 
+                    SearchVariantAndStockItems(string filterText, int syncEnabledFilter)
         {
-            var sql = "SELECT * FROM vw_SyncVariantAndStockItem";
+            var termList = filterText.Split(' ').Where(x => x.Trim() != "").ToList();
 
-            return Entities
-                .Database
-                .SqlQuery<VariantAndStockItemDto>(sql)
-                .ToList();
+            var dataSet
+                = Entities
+                    .UsrShopAcuItemSyncs
+                    .Include(x => x.UsrShopifyVariant)
+                    .Include(x => x.UsrShopifyVariant.UsrShopifyProduct)
+                    .Include(x => x.UsrAcumaticaStockItem);
+
+            foreach (var term in termList)
+            {
+                dataSet = dataSet.Where(
+                    x => x.UsrShopifyVariant.ShopifyTitle.Contains(term) ||
+                         x.UsrShopifyVariant.ShopifySku.Contains(term) ||
+                         x.UsrShopifyVariant.UsrShopifyProduct.ShopifyProductType.Contains(term) ||
+                         x.UsrShopifyVariant.UsrShopifyProduct.ShopifyVendor.Contains(term) ||
+                         x.UsrShopifyVariant.UsrShopifyProduct.ShopifyTitle.Contains(term) ||
+                         x.UsrAcumaticaStockItem.ItemId.Contains(term) ||
+                         x.UsrAcumaticaStockItem.AcumaticaDescription.Contains(term));
+            }
+            if (syncEnabledFilter == SyncEnabledFilter.EnabledOnly)
+            {
+                dataSet = dataSet.Where(x => x.IsSyncEnabled == true);
+            }
+            if (syncEnabledFilter == SyncEnabledFilter.DisabledOnly)
+            {
+                dataSet = dataSet.Where(x => x.IsSyncEnabled == false);
+            }
+            
+            return dataSet.ToList();
         }
 
         public int RetrieveVariantAndStockItemMatchCount()
@@ -296,6 +322,25 @@ namespace Monster.Middle.Processes.Sync.Inventory
             return dataSet.ToList();
         }
 
+        public void UpdateVariantSync(long monsterVariantId, bool syncEnabled)
+        {
+            var sync = 
+                Entities.UsrShopAcuItemSyncs
+                        .First(x => x.ShopifyVariantMonsterId == monsterVariantId);
+            sync.IsSyncEnabled = syncEnabled;
+            Entities.SaveChanges();
+        }
+
+        public void UpdateVariantSync(List<long> monsterVariantIds, bool syncEnabled)
+        {
+            var variants =
+                Entities.UsrShopAcuItemSyncs
+                    .Where(x => monsterVariantIds.Contains(x.ShopifyVariantMonsterId))
+                    .ToList();
+
+            variants.ForEach(x => x.IsSyncEnabled = syncEnabled);
+            Entities.SaveChanges();
+        }
 
         public void SaveChanges()
         {
