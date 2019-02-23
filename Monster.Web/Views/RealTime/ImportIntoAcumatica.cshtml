@@ -5,7 +5,7 @@
 
 @Html.Partial("_TopBrand")
 
-<div>
+<div id="Root-View">
     <div data-bind="ifnot: AreAnyJobsRunning">
         <div data-bind="if: ShowWelcomePanel">
             <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
@@ -389,93 +389,51 @@
                     </button>
                 </div>
 
-                <div class="modal-body">
+                <div class="modal-body" data-bind="with: Data">
                     <div class="mb-4">
-                        <div class="modal-heavy-text">Test Product from Outerspace</div>
-                        <div>Galaxy Products</div>
-                        <div class="shopify-id">PId: 237712220288</div>
-                        <div><a href="#">(Click here to view in Shopify)</a></div>
+                        <div class="modal-heavy-text" 
+                             data-bind="text: ProductTitle"></div>
+                        <div data-bind="text: Vendor"></div>
+                        <div class="shopify-id">
+                            SPId: <span data-bind="text: ShopifyProductId"></span>
+                        </div>
+                        <div><a href="#" target="_blank" data-bind="attr: { href: ShopifyUrl }">
+                                (Click here to view in Shopify)</a>
+                        </div>
                     </div>
 
                     <div class="mb-4">
-                        <div>33 Shopify Variants / 12 loaded in Acumatica</div>
+                        <div>
+                            <span data-bind="text: VariantCount"></span> Shopify Variants 
+                            / <span data-bind="text: SyncedVariantCount"></span> synced with Acumatica
+                        </div>
                     </div>
+
                     <div class="mb-4">
                         <table class="table product-detail">
-                            <tbody>
+                            <tbody data-bind="foreach: Variants">
                             <tr>
                                 <td>
-                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
-                                    <div class="shopify-id">PId: 237712220288</div>
+                                    <div class="modal-heavy-text">
+                                        <span data-bind="text: Sku"></span>    
+                                        - <span data-bind="text: VariantTitle"></span>  
+                                    </div>
+                                    <div class="shopify-id">
+                                        SVId: <span data-bind="text: ShopifyVariantId"></span>
+                                    </div>
                                 </td>
+                                
                                 <td>
-                                    <div>$43.00</div>
-                                    <div>23 available</div>
+                                    <div><span data-bind="text: FormattedPrice"></span></div>
+                                    <div><span data-bind="text: AvailableQuantity"></span> available</div>
                                 </td>
-                                <td style="text-align: right;">
-                                    <h3 class="badge badge-success">
-                                        Loaded In Acumatica
-                                    </h3>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
-                                    <div class="shopify-id">PId: 237712220288</div>
-                                </td>
-                                <td>
-                                    <div>$43.00</div>
-                                    <div>23 available</div>
-                                </td>
-                                <td style="text-align: right;">
-                                    <h3 class="badge badge-success">
-                                        Loaded In Acumatica
-                                    </h3>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
-                                    <div class="shopify-id">PId: 237712220288</div>
-                                </td>
-                                <td>
-                                    <div>$43.00</div>
-                                    <div>23 available</div>
-                                </td>
-                                <td style="text-align: right;">
-                                    <h3 class="badge badge-success">
-                                        Loaded In Acumatica
-                                    </h3>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
-                                    <div class="shopify-id">PId: 237712220288</div>
-                                </td>
-                                <td>
-                                    <div>$43.00</div>
-                                    <div>23 available</div>
-                                </td>
-                                <td style="text-align: right;">
-                                    <h3 class="badge badge-success">
-                                        Loaded In Acumatica
-                                    </h3>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="modal-heavy-text">MED-123-RED - Default Title</div>
-                                    <div class="shopify-id">PId: 237712220288</div>
-                                </td>
-                                <td>
-                                    <div>$43.00</div>
-                                    <div>23 available</div>
-                                </td>
-                                <td style="text-align: right;">
-                                    <h3 class="badge badge-success">
-                                        Loaded In Acumatica
-                                    </h3>
+
+                                <td style="text-align: right; min-width:100px;">
+                                    <div data-bind="if: IsLoadedInAcumatica">
+                                        <h3 class="badge badge-success">
+                                            Synced In Acumatica
+                                        </h3>                                        
+                                    </div>
                                 </td>
                             </tr>
                             </tbody>
@@ -608,14 +566,27 @@
 
     Monster.ImportProductDetail = function() {
         var self = this;
-        
-        self.Launch = function() {
+
+        self.Data = ko.observable();
+
+        self.Launch = function (shopifyProductId) {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    var url = "RealTime/ProductDetail?shopifyProductId=" + shopifyProductId;
+                    ajax.HttpGet(url, this);
+
+                },
+                function (response) {
+                    console.log(response);
+                    self.Data(response);
+                });
+            
             $("#import-product-detail-modal").modal('show');
         };
 
-        Monster.Events.subscribe("/ImportProductDetail", function(arg) {
-            //console.log(arg);
-            self.Launch();
+        Monster.Events.subscribe("/ImportProductDetail", function(shopifyProductId) {
+            self.Launch(shopifyProductId);
         });
 
         return self;
@@ -705,12 +676,18 @@
         return self;
     };
 
+    FilterSelectedType = {
+        ShowAll: '@FilterSelectedType.ShowAll',
+        SelectedOnly: '@FilterSelectedType.SelectedOnly',
+        UnselectedOnly: '@FilterSelectedType.UnselectedOnly',
+    };
+
     Monster.ImportSearchControl = function() {
         var self = this;
-
+        
         // Search Input
         self.FilterTerms = ko.observable("");
-        self.FilterSelected = ko.observable("@FilterSelectedType.ShowAll");
+        self.FilterSelected = ko.observable(FilterSelectedType.ShowAll);
         self.FilterSelected.subscribe(function() {
              self.RefreshFilteredView();
         });
@@ -738,13 +715,13 @@
         self.RefreshFilteredView = function() {
             var output = AQ(self.GridData())
                 .where(function (item) {
-                    if (self.FilterSelected() == '@FilterSelectedType.ShowAll') {
+                    if (self.FilterSelected() == FilterSelectedType.ShowAll) {
                         return true;
                     }
-                    if (self.FilterSelected() == '@FilterSelectedType.SelectedOnly' && item.IsSelected()) {
+                    if (self.FilterSelected() == FilterSelectedType.SelectedOnly && item.IsSelected()) {
                         return true;
                     }
-                    if (self.FilterSelected() == '@FilterSelectedType.UnselectedOnly' && !item.IsSelected()) {
+                    if (self.FilterSelected() == FilterSelectedType.UnselectedOnly && !item.IsSelected()) {
                         return true;
                     }
                     return false;
@@ -787,35 +764,39 @@
         // Sets a flag to show the completion modal pop-ups
         Monster.Events.subscribe("/ImportJobTriggered", function () { self.ImportJobTriggered(true); });
 
+        // Helper populate functions for grid row
+        self.DecorateGridRow = function(row) {
+            row.IsSelected = ko.observable(false);
+
+            row.SelectClick = function () {
+                row.IsSelected(!row.IsSelected());
+                self.RefreshFilteredView();
+            };
+
+            row.ProductDetailClick = function () {
+                Monster.Events.publish("/ImportProductDetail", row.ShopifyProductId);
+            };
+        };
+
         self.FilterInventoryClick = function() {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var url = "RealTime/FilterInventory?terms=" + self.FilterTerms();
-                    ajax.HttpGet(url, this);                    
+                    ajax.HttpGet(url, this);
                 },
                 function(response) {
                     //console.log(response);
 
-                    AQ(response).each(function(x) {
-                        x.IsSelected = ko.observable(false);
-
-                        x.SelectClick = function () {
-                            x.IsSelected(!x.IsSelected());
-                            self.RefreshFilteredView();
-                        };
-
-                        x.ProductDetailClick = function () {
-                            Monster.Events.publish("/ImportProductDetail", x.ShopifyProductId);
-                        };
-                    });
-
+                    AQ(response).each(function (x) { self.DecorateGridRow(x); });                    
                     self.GridData(response);
                     self.RefreshFilteredView();
                     
                     // Show the completion dialog if the flag was set
                     if (self.ImportJobTriggered()) {
-                        self.ImportJobTriggered(false);
                         $("#complete-import-modal").modal('show');
+
+                        // Clear the flag
+                        self.ImportJobTriggered(false);
                     }
                 });
         };

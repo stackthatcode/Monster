@@ -55,9 +55,9 @@ namespace Monster.Web.Models.RealTime
     {
         public long ShopifyVariantId { get; set; }
         public decimal Price { get; set; }
-        public string FormattedPrice => Price.ToString("{0:C}");
+        public string FormattedPrice => Price.ToString("C2");
         public string Sku { get; set; }
-        public string Title { get; set; }
+        public string VariantTitle { get; set; }
         public int AvailableQuantity { get; set; }
         public bool IsLoadedInAcumatica { get; set; }
 
@@ -66,7 +66,7 @@ namespace Monster.Web.Models.RealTime
             var output = new ShopifyVariantModel();
             output.ShopifyVariantId = input.ShopifyVariantId;
             output.Sku = input.ShopifySku;
-            output.Title = input.ShopifyTitle;
+            output.VariantTitle = input.ShopifyTitle;
             output.Price = (decimal)input.ToVariantObj().price;
             output.AvailableQuantity 
                 = input.UsrShopifyInventoryLevels.Sum(x => x.ShopifyAvailableQuantity);

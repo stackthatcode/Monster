@@ -299,7 +299,7 @@ Monster.RealTimeModel = function() {
     self.PollConfigDiagnosis = function() {
         flow.exec(function() {
                 var ajax = new Monster.Ajax();
-                ajax.HttpGet("RealTime/ConfigDiagnosis", this);
+                ajax.HttpGet("Config/ConfigDiagnosis", this);
             },
             function (response) {                
                 self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
