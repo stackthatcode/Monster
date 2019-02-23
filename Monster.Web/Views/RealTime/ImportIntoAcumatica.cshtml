@@ -15,6 +15,12 @@
             <div data-bind="template: { name: 'Inventory-Search-Panel' }"></div>
         </div>
     </div>
+    
+    <!-- Render Dialog Boxes Separately -->
+    <div data-bind="template: { name: 'Import-Confirmation', data: ImportConfirmModel }"></div>
+        
+    <div data-bind="template: { name: 'Import-Completion' }"></div>
+
 
     <div class="medium-size" data-bind="if: AreAnyJobsRunning">
         <div class="card std-pad-sm">
@@ -63,7 +69,7 @@
 
         <div class="center std-pad">
             <a href="#" class="btn btn-primary btn-lg"
-                data-bind="click: InventoryPullClick">
+                data-bind="click: RefreshInventoryClick">
                 Synchronize Now <i class="fas fa-bolt"></i>
             </a>
         </div>
@@ -78,7 +84,7 @@
             </div>
 
             <div class="center std-pad-sm-t">
-                <button type="button" class="btn btn-primary btn-sm" data-bind="click: InventoryPullClick">
+                <button type="button" class="btn btn-primary btn-sm" data-bind="click: RefreshInventoryClick">
                     Refresh Inventory <i class="fas fa-bolt"></i>
                 
                     <span data-bind="if: LastInventoryRunHadErrors">
@@ -185,10 +191,6 @@
         <div data-bind="template: { name: 'Import-Selection-Grid' }"></div>                
         
         <div data-bind="template: { name: 'Import-Product-Detail', data: ImportProductDetail }"></div>
-
-        <div data-bind="template: { name: 'Import-Confirmation', data: ImportConfirmModel }"></div>
-        
-        <div data-bind="template: { name: 'Import-Completion' }"></div>
     </div>
 </script>
 
@@ -360,7 +362,7 @@
                     </div>                    
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">
                         Ok, Done <i class="fas fa-check"></i>
                     </button>
                 </div>
@@ -509,99 +511,6 @@
 <script>
     var Monster = Monster || {};
     
-    Monster.ImportIntoAcumatica = function () {
-        var self = this;
-
-        self.AreAnyJobsRunning = ko.observable();
-        self.Logs = ko.observableArray();
-        self.InventoryPullState = ko.observable();
-        
-        // Abstract logic reduction
-        //
-        self.HasInventoryPullRun = ko.computed(function() {
-            return self.InventoryPullState() != SystemState.None;
-        });
-
-        self.LastInventoryRunHadErrors = ko.computed(function() {
-            return self.InventoryPullState() == SystemState.Invalid ||
-                self.InventoryPullState() == SystemState.SystemFault;
-        });
-
-
-        // Interface logic reduction
-        //
-        self.ShowWelcomePanel = ko.computed(function() {
-            return !self.HasInventoryPullRun();
-        });
-        
-        self.ShowSearchPanel = ko.computed(function () {
-            return self.HasInventoryPullRun();
-        });
-
-
-        // Methods/Actions
-        //
-        self.InventoryPullClick = function () {
-            flow.exec(
-                function() {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("RealTime/RunInventoryPull", {}, this);
-                },
-                function() {
-                    Monster.Events.publish("InventoryJobLaunched");
-                });
-        };
-        
-        self.PollStatus = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/StatusForAllInventoryJobs", this);
-                },
-                function (response) {
-                    self.InventoryPullState(response.SystemState);
-                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                    self.Logs(response.Logs);
-                    
-                    if (self.AreAnyJobsRunning()) {
-                        setTimeout(self.PollStatus, 1000);
-                    } else {
-                        self.ProcessStatus();
-                    }
-                });
-        };
-        
-        // Pub-Sub subscription
-        Monster.Events.subscribe("InventoryJobLaunched", function () { self.PollStatus(); });
-
-        self.ImportJobTriggered = ko.observable(false);
-
-        // Sets a flag to show the completion modal pop-ups
-        Monster.Events.subscribe("ImportJobTriggered", function () { self.ImportJobTriggered(true); });
-
-
-        self.ProcessStatus = function () {
-            if (self.ShowSearchPanel()) {
-                self.ImportSearchControl.FilterInventoryClick();
-            }
-
-            // Show the completion dialog if the flag was set
-            //if (self.ImportJobTriggered()) {
-            //    self.ImportJobTriggered(false);
-            //    $("#complete-import-modal").modal('show');
-            //}
-        };
-
-        self.ImportSearchControl = new Monster.ImportSearchControl();
-
-        self.Initialize = function () {
-            self.PollStatus();
-        };
-
-        return self;
-    };
-
     Monster.ImportConfirmModel = function() {
         var self = this;
 
@@ -652,11 +561,12 @@
 
         // AJAX Methods
 
-        // Parameter data should match C# DTO FilterInventoryModel
+        // Parameter data should match C# DTO ShopifyProductModel
         self.Launch = function (data) {
             flow.exec(function() {
                     self.SelectedProducts(data);                    
                     var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
                     ajax.HttpGet("RealTime/SyncedWarehouses", this);
                 },
                 function (response) {
@@ -665,6 +575,8 @@
                     $('#confirm-import-modal').modal('show');
                 });
         };
+
+        Monster.Events.subscribe("/LaunchImportConfirm", self.Launch);
 
         self.RunImportIntoAcumatica = function() {
             flow.exec(function () {
@@ -680,12 +592,14 @@
                 };
 
                 var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
                 ajax.HttpPost("RealTime/RunImportIntoAcumatica", model, this);
             },
             function (response) {
                 $('#confirm-import-modal').modal('hide');
 
-                Monster.Events.publish("InventoryJobLaunched");
+                Monster.Events.publish("/InventoryJobLaunched");
+                Monster.Events.publish("/ImportJobTriggered");
             });
         }
 
@@ -707,23 +621,108 @@
         return self;
     }
 
+    Monster.RootModel = function () {
+        var self = this;
+
+        self.AreAnyJobsRunning = ko.observable();
+        self.Logs = ko.observableArray();
+        self.InventoryPullState = ko.observable();
+        self.ImportSearchControl = new Monster.ImportSearchControl();
+
+        // Dialog boxes
+        self.ImportConfirmModel = new Monster.ImportConfirmModel();
+
+
+        // Abstract logic reduction
+        //
+        self.HasInventoryPullRun = ko.computed(function() {
+            return self.InventoryPullState() != SystemState.None;
+        });
+
+        self.LastInventoryRunHadErrors = ko.computed(function() {
+            return self.InventoryPullState() == SystemState.Invalid ||
+                self.InventoryPullState() == SystemState.SystemFault;
+        });
+
+
+        // Interface logic reduction
+        //
+        self.ShowWelcomePanel = ko.computed(function() {
+            return !self.HasInventoryPullRun();
+        });
+        
+        self.ShowSearchPanel = ko.computed(function () {
+            return self.HasInventoryPullRun();
+        });
+
+
+        // Methods/Actions
+        //
+        self.RefreshInventoryClick = function () {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("RealTime/RunInventoryPull", {}, this);
+                },
+                function() {
+                    Monster.Events.publish("/InventoryJobLaunched");
+                });
+        };
+        
+        self.PollStatus = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("RealTime/StatusForAllInventoryJobs", this);
+                },
+                function (response) {
+                    self.InventoryPullState(response.SystemState);
+                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
+                    self.Logs(response.Logs);
+                    
+                    if (self.AreAnyJobsRunning()) {
+                        setTimeout(self.PollStatus, 1000);
+                    } else {
+                        self.ProcessStatus();
+                    }
+                });
+        };
+        
+        self.ProcessStatus = function () {
+            if (self.ShowSearchPanel()) {
+                self.ImportSearchControl.FilterInventoryClick();
+            }
+        };
+
+        // Pub-Sub subscription
+        Monster.Events.subscribe("/InventoryJobLaunched", function () { self.PollStatus(); });        
+
+        self.Initialize = function () {
+            self.PollStatus();
+        };
+
+        return self;
+    };
+
     Monster.ImportSearchControl = function() {
         var self = this;
-        
+
+        // Search Input
         self.FilterTerms = ko.observable("");
         self.FilterSelected = ko.observable("@FilterSelectedType.ShowAll");
         self.FilterSelected.subscribe(function() {
              self.RefreshFilteredView();
         });
 
+        // Child Product Detail 
+        self.ImportProductDetail = new Monster.ImportProductDetail();
+
+        // Grid storage
         self.GridData = ko.observableArray([]);
         self.FilteredView = ko.observableArray([]);
 
-        // Pop-ups
-        self.ImportConfirmModel = new Monster.ImportConfirmModel();
-        self.ImportProductDetail = new Monster.ImportProductDetail();
-        
-
+        // Computed 
         self.EmptyResults = ko.computed(function() { return self.FilteredView().length == 0; });
 
         self.SelectedProducts = ko.computed(function() {
@@ -742,12 +741,10 @@
                     if (self.FilterSelected() == '@FilterSelectedType.ShowAll') {
                         return true;
                     }
-                    if (self.FilterSelected() == '@FilterSelectedType.SelectedOnly' &&
-                        item.IsSelected()) {
+                    if (self.FilterSelected() == '@FilterSelectedType.SelectedOnly' && item.IsSelected()) {
                         return true;
                     }
-                    if (self.FilterSelected() == '@FilterSelectedType.UnselectedOnly' &&
-                        !item.IsSelected()) {
+                    if (self.FilterSelected() == '@FilterSelectedType.UnselectedOnly' && !item.IsSelected()) {
                         return true;
                     }
                     return false;
@@ -757,6 +754,7 @@
             self.FilteredView(output);
         };
 
+        // Grid interaction methods
         self.SearchTermsKeyCallback = function (model, event) {
             if (event.keyCode == 13) {
                 self.FilterInventoryClick();
@@ -765,9 +763,9 @@
                 return true;
             }
         };
-
+        
         self.ImportSelectedClick = function () {
-            self.ImportConfirmModel.Launch(self.SelectedProducts());            
+            Monster.Events.publish("/LaunchImportConfirm", self.SelectedProducts());
         };
 
         self.SelectAllClick = function() {
@@ -783,6 +781,11 @@
             });
             self.RefreshFilteredView();
         };
+
+        self.ImportJobTriggered = ko.observable(false);
+
+        // Sets a flag to show the completion modal pop-ups
+        Monster.Events.subscribe("/ImportJobTriggered", function () { self.ImportJobTriggered(true); });
 
         self.FilterInventoryClick = function() {
             flow.exec(function () {
@@ -808,13 +811,19 @@
 
                     self.GridData(response);
                     self.RefreshFilteredView();
+                    
+                    // Show the completion dialog if the flag was set
+                    if (self.ImportJobTriggered()) {
+                        self.ImportJobTriggered(false);
+                        $("#complete-import-modal").modal('show');
+                    }
                 });
         };
         
         return self;
     };
 
-    var model = new Monster.ImportIntoAcumatica();
+    var model = new Monster.RootModel();
     model.Initialize();
     ko.applyBindings(model);
 </script>

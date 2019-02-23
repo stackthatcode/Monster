@@ -194,7 +194,7 @@ namespace Monster.Web.Controllers
             var searchResult = _syncInventoryRepository.ProductSearch(terms);
             var output 
                 = searchResult
-                    .Select(x => FilterInventoryModel
+                    .Select(x => ShopifyProductModel
                         .Make(x, _urlService.ShopifyProductUrl)).ToList();
             
             return new JsonNetResult(output);
@@ -225,7 +225,7 @@ namespace Monster.Web.Controllers
         public ActionResult ProductDetail(long shopifyProductId)
         {
             var product = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
-            var output = FilterInventoryModel.Make(
+            var output = ShopifyProductModel.Make(
                     product, _urlService.ShopifyProductUrl, includeVariantGraph: true);
             return new JsonNetResult(output);
         }

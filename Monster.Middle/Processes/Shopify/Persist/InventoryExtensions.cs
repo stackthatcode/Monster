@@ -66,7 +66,12 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             return !variant.IsMatched();
         }
-        
+
+        public static Variant ToVariantObj(this UsrShopifyVariant variant)
+        {
+            return variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
+        }
+
 
         public static double CogsByMarginPercent(
                     this UsrShopifyVariant variant, double marginPercent)

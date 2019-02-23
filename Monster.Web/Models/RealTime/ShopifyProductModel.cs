@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Shopify.Persist;
 
 namespace Monster.Web.Models.RealTime
 {
-    public class FilterInventoryModel
+    public class ShopifyProductModel
     {
         public string ProductTitle { get; set; }
         public string ProductType { get; set; }
@@ -15,15 +17,15 @@ namespace Monster.Web.Models.RealTime
         public int UnsyncedVariantCount => VariantCount - SyncedVariantCount;
         public string ShopifyUrl { get; set; }
 
+        public List<ShopifyVariantModel> Variants { get; set; }
+        
 
-
-
-        public static FilterInventoryModel Make(
+        public static ShopifyProductModel Make(
                 UsrShopifyProduct input, 
                 Func<long, string> productUrlBuilder,
                 bool includeVariantGraph = false)
         {
-            var output = new FilterInventoryModel();
+            var output = new ShopifyProductModel();
 
             output.ProductTitle = input.ShopifyTitle;
             output.ProductType = input.ShopifyProductType;
@@ -39,17 +41,17 @@ namespace Monster.Web.Models.RealTime
 
             if (includeVariantGraph)
             {
-                foreach (var variant in input.UsrShopifyVariants)
-                {
-
-                }
+                output.Variants
+                    = input.UsrShopifyVariants
+                        .Select(x => ShopifyVariantModel.Make(x))
+                        .ToList();
             }
 
             return output;
         }
     }
 
-    public class FilterInventoryVariant
+    public class ShopifyVariantModel
     {
         public long ShopifyVariantId { get; set; }
         public decimal Price { get; set; }
@@ -59,11 +61,19 @@ namespace Monster.Web.Models.RealTime
         public int AvailableQuantity { get; set; }
         public bool IsLoadedInAcumatica { get; set; }
 
-        public static FilterInventoryVariant Make(UsrShopifyVariant input)
+        public static ShopifyVariantModel Make(UsrShopifyVariant input)
         {
-            var output = new FilterInventoryVariant();
+            var output = new ShopifyVariantModel();
             output.ShopifyVariantId = input.ShopifyVariantId;
-            //output.Price = input.p
+            output.Sku = input.ShopifySku;
+            output.Title = input.ShopifyTitle;
+            output.Price = (decimal)input.ToVariantObj().price;
+            output.AvailableQuantity 
+                = input.UsrShopifyInventoryLevels.Sum(x => x.ShopifyAvailableQuantity);
+
+            output.IsLoadedInAcumatica = input.IsMatched();
+
+            return output;
         }
     }
 }

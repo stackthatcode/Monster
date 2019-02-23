@@ -134,6 +134,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             {
                 ItemId = item.InventoryID.value,
                 AcumaticaJson = item.SerializeToJson(),
+                AcumaticaDescription = item.Description.value,
                 DateCreated = DateTime.UtcNow,
                 LastUpdated = DateTime.UtcNow,
             };

@@ -265,6 +265,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
                     .UsrShopifyProducts
                     .Include(x => x.UsrShopifyVariants)
                     .Include(x => x.UsrShopifyVariants.Select(y => y.UsrShopAcuItemSyncs))
+                    .Include(x => x.UsrShopifyVariants.Select(y => y.UsrShopifyInventoryLevels))
                     .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
 
