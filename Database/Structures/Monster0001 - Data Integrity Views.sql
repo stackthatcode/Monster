@@ -122,7 +122,7 @@ SELECT	t1.MonsterId,
 		t1.ItemId,
 		t2.AcumaticaWarehouseId,
 		t2.AcumaticaQtyOnHand,
-		t2.IsShopifySynced,
+		t2.IsInventorySynced,
 		t1.LastUpdated AS StockItemLastUpdated,
 		t2.LastUpdated AS WarehouseDetailsLastUpdated
 FROM usrAcumaticaStockItem t1
@@ -407,7 +407,8 @@ SELECT
 	t1.ShopifyOrderId,
 	t1.ShopifyOrderNumber,
 	t2.ShopifyRefundId,
-	t3.AcumaticaCreditMemoNbr,
+	t3.AcumaticaCreditMemoOrderNbr,
+	t3.AcumaticaCreditMemoInvoiceNbr,
 	t2.LastUpdated AS ShopifyRefundLastUpdated,
 	t3.LastUpdated AS CreditMemoSyncLastUpdated
 FROM usrShopifyOrder t1

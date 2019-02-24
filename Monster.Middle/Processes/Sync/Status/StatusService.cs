@@ -40,12 +40,6 @@ namespace Monster.Middle.Processes.Sync.Status
                     .Select(x => x.AcumaticaWarehouseId)
                     .ToList();
 
-            output.MismatchedWarehouseLocations
-                = warehouses
-                    .Mismatched()
-                    .Select(x => x.AcumaticaWarehouseId)
-                    .ToList();
-
             output.UnmatchedShopifyLocations
                 = locations
                     .Unmatched()
@@ -60,6 +54,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
             return output;
         }
+
 
         public AcumaticaConnectionState AcumaticaConnectionStatus()
         {

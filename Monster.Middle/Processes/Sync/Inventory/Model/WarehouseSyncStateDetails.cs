@@ -10,21 +10,18 @@ namespace Monster.Middle.Processes.Sync.Inventory.Model
         public IList<string> UnmatchedShopifyLocations { get; set; }
         public IList<string> UnmatchedAcumaticaWarehouses { get; set; }
 
-        // To be used...
-        public IList<string> MismatchedWarehouseLocations { get; set; }
 
         public string GetSynopsis(string delimiter = null)
         {
             var output = new List<string>();
             output.Add($"{UnmatchedShopifyLocations.Count} unmatched Shopify Location(s)");
             output.Add($"{UnmatchedAcumaticaWarehouses.Count} unmatched Acumatica Warehouse(s)");
-            output.Add($"{MismatchedWarehouseLocations.Count} mismatched Warehouse to Location pair(s)");
+
             return output.ToDelimited(delimiter ?? Environment.NewLine);
         }
         
         public bool IsOk =>
                 UnmatchedShopifyLocations.Count == 0 
-                && UnmatchedAcumaticaWarehouses.Count == 0 
-                && MismatchedWarehouseLocations.Count == 0;
+                && UnmatchedAcumaticaWarehouses.Count == 0;
     }
 }

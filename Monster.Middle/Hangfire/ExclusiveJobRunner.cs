@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync;
 using Monster.Middle.Processes.Sync.Inventory.Model;
@@ -43,8 +42,7 @@ namespace Monster.Middle.Hangfire
                 instanceId, _director.PullInventory, InventoryPullLock, BackgroundJobType.PullInventory);
         }
         
-        public void ImportIntoAcumatica(
-                    Guid instanceId, AcumaticaInventoryImportContext context)
+        public void ImportIntoAcumatica(Guid instanceId, AcumaticaInventoryImportContext context)
         {
             RunOneTaskPerInstance(
                 instanceId, 

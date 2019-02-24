@@ -1,13 +1,12 @@
-﻿using System.Linq;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Status;
-using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Push.Foundation.Web.Json;
 
@@ -25,7 +24,7 @@ namespace Monster.Web.Controllers
         private readonly ReferenceDataService _referenceDataService;
         private readonly PreferencesRepository _preferencesRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
-
+        private readonly SyncInventoryRepository _syncInventoryRepository;
 
         public ConfigController(
                 ConnectionRepository tenantRepository,
@@ -35,7 +34,8 @@ namespace Monster.Web.Controllers
                 ReferenceDataService referenceDataService, 
                 PreferencesRepository preferencesRepository, 
                 ExecutionLogRepository logRepository, 
-                AcumaticaBatchRepository acumaticaBatchRepository)
+                AcumaticaBatchRepository acumaticaBatchRepository, 
+                SyncInventoryRepository syncInventoryRepository)
         {
 
             _tenantRepository = tenantRepository;
@@ -47,6 +47,7 @@ namespace Monster.Web.Controllers
             _preferencesRepository = preferencesRepository;
             _logRepository = logRepository;
             _acumaticaBatchRepository = acumaticaBatchRepository;
+            _syncInventoryRepository = syncInventoryRepository;
         }
 
         
@@ -184,6 +185,7 @@ namespace Monster.Web.Controllers
                 _acumaticaBatchRepository.Reset();
             }
             
+            // Automapping, anyone???
             data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
             data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;
             data.AcumaticaTimeZone = model.AcumaticaTimeZone;
@@ -230,6 +232,7 @@ namespace Monster.Web.Controllers
                     .IsJobRunning(BackgroundJobType.SyncWarehouseAndLocation);
 
             var state = _stateRepository.RetrieveSystemState();
+
             var warehouseSyncStatus = _statusService.WarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
@@ -243,7 +246,16 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
-        
+        [HttpGet]
+        public ActionResult WarehouseSyncData()
+        {
+            var locations = _syncInventoryRepository.RetrieveLocations();
+            var warehouses = _syncInventoryRepository.RetrieveWarehouses();
+
+
+        }
+
+
 
         // Config Diagnostics
         //
@@ -266,7 +278,8 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ConfigDiagnosisRunStatus()
         {
-            var IsConfigDiagnosisRunning = _oneTimeJobService.IsJobRunning(BackgroundJobType.Diagnostics);
+            var IsConfigDiagnosisRunning 
+                = _oneTimeJobService.IsJobRunning(BackgroundJobType.Diagnostics);
             var output = new { IsConfigDiagnosisRunning };
             return new JsonNetResult(output);
         }
