@@ -372,6 +372,9 @@
   <ItemGroup>
     <Content Include="Views\RealTime\ImportIntoAcumatica.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Config\CompleteScreen.cshtml" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

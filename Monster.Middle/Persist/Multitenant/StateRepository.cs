@@ -102,7 +102,6 @@ namespace Monster.Middle.Persist.Multitenant
                     newRecord.IsShopifyUrlFinalized = false;
                     newRecord.IsAcumaticaUrlFinalized = false;
                     newRecord.IsRandomAccessMode = false;
-
                     newRecord.RealTimeHangFireJobId = null;
 
                     Entities.UsrSystemStates.Add(newRecord);
@@ -118,11 +117,17 @@ namespace Monster.Middle.Persist.Multitenant
         }
 
         public void UpdateSystemState(
-                Expression<Func<UsrSystemState, int>> memberExpression,
-                int newValue)
+                Expression<Func<UsrSystemState, int>> memberExpression, int newValue)
         {
             var state = RetrieveSystemState();
             state.SetPropertyValue(memberExpression, newValue);
+            Entities.SaveChanges();
+        }
+
+        public void UpdateIsRandomAccessMode(bool newValue)
+        {
+            var state = RetrieveSystemState();
+            state.IsRandomAccessMode = newValue;
             Entities.SaveChanges();
         }
     }

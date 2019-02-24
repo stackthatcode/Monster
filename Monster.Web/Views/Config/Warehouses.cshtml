@@ -88,7 +88,7 @@
         </span>
 
         <span data-bind="if: NextButtonVisible">
-            <a href="@GlobalConfig.Url("RealTime/InventorySyncControl")" class="btn btn-success btn-lg">
+            <a data-bind="click: NextClick" class="btn btn-success btn-lg" style="color: #FFF;">
                 Next Step <i class="fas fa-sign-in-alt"></i>
             </a>
         </span>
@@ -108,12 +108,23 @@
                 Warehouse &amp; Location Mapping
             </div>
             
-            <div class="center std-pad-sm-t std-pad-b">
+            <div class="center std-pad-sm-t std-pad-sm-b">
                 <button type="button" class="btn btn-primary btn-sm" 
                         data-bind="click: SynchronizeClick">
                     Refresh Warehouses &amp; Locations <i class="fas fa-bolt"></i></button>
             </div>
             
+            <div data-bind="if: WarehouseSyncState() == SystemState.Invalid">
+                <div class="alert alert-danger">
+                    <strong>Warehouse Location Synchronization - Unassigned Locations</strong>
+                </div>
+            </div>
+            <div data-bind="if: WarehouseSyncState() == SystemState.Ok">
+                <div class="alert alert-info">
+                    <strong>Warehouse Location Synchronization - Ok</strong>
+                </div>
+            </div>
+
             <div data-bind="template: { name: 'Sync-State-Details-Grid' }"></div>
         </div>
     </div>
@@ -193,7 +204,7 @@
 
         // Interface computed state
         self.NextButtonVisible = ko.computed(function () {
-            return !self.IsRandomAccessMode() && self.WarehouseSyncState() == SystemState.Ok;
+            return !self.IsRandomAccessMode();
         });
 
         self.SynchronizeVisible =  ko.computed(function () {
@@ -274,22 +285,33 @@
         };
 
         self.SaveClick = function () {
+            self.Save(self.PollStatus);
+        };
+
+        self.NextClick = function() {
+            self.Save(
+                function() {
+                    window.location.href = '@GlobalConfig.Url("Config/Complete")';
+                });
+        };
+
+        self.Save = function(callback) {
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    var model
-                        = AQ(self.Warehouses()).select(function (x) {
-                            return {
-                                AcumaticaWarehouseId: x.AcumaticaWarehouseId,
-                                ShopifyLocationId: x.SelectedLocation(),
-                            };
-                        }).toArray();
+                    var model = AQ(self.Warehouses()).select(function(x) {
+                        return {
+                            AcumaticaWarehouseId: x.AcumaticaWarehouseId,
+                            ShopifyLocationId: x.SelectedLocation(),
+                        };
+                    }).toArray();
 
-                    //console.log(model);
                     ajax.HttpPost("Config/WarehouseSyncDataUpdate", model, this);
                 },
-                function (response) {
-                    self.PollStatus();
+                function(response) {
+                    if (callback) {
+                        callback();
+                    }
                 }
             );
         };

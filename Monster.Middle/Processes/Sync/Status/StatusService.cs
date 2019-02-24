@@ -55,6 +55,18 @@ namespace Monster.Middle.Processes.Sync.Status
             return output;
         }
 
+        public void UpdateWarehouseSyncStatus()
+        {
+            var status = WarehouseSyncStatus();
+
+            // TODO - maybe guard against transistions from SystemFault state... maybe
+
+            var systemState = status.IsOk ? SystemState.Ok : SystemState.Invalid;
+
+            _stateRepository.UpdateSystemState(x => x.WarehouseSync, systemState);
+
+        }
+
 
         public AcumaticaConnectionState AcumaticaConnectionStatus()
         {

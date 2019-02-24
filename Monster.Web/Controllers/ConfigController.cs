@@ -10,6 +10,7 @@ using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Status;
 using Monster.Web.Models.Config;
+using Monster.Web.Plumbing;
 using Push.Foundation.Web.Json;
 
 namespace Monster.Web.Controllers
@@ -284,6 +285,8 @@ namespace Monster.Web.Controllers
                             item.AcumaticaWarehouseId, item.ShopifyLocationId);
                 }
 
+                _statusService.UpdateWarehouseSyncStatus();
+
                 transaction.Commit();
             }
 
@@ -328,6 +331,18 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
+        [HttpGet]
+        public ActionResult Complete()
+        {
+            _stateRepository.UpdateIsRandomAccessMode(true);
+            return Redirect(GlobalConfig.Url("Config/CompleteScreen"));
+        }
+
+        [HttpGet]
+        public ActionResult CompleteScreen()
+        {
+            return View();
+        }
     }
 }
 

@@ -107,6 +107,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
         {
             return Entities
                 .UsrShopifyLocations
+                .Where(x => x.ShopifyActive == true)
                 .Include(x => x.UsrShopAcuWarehouseSyncs)
                 .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse))
                 .ToList();

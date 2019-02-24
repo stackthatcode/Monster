@@ -143,10 +143,7 @@ namespace Monster.Middle.Processes.Sync
                 _inventorySyncManager.SynchronizeWarehouseLocation();
 
                 // Step 3 - Determine resultant System State
-                var status = _inventoryStatusService.WarehouseSyncStatus();
-                var systemState = status.IsOk ? SystemState.Ok : SystemState.Invalid;
-
-                _stateRepository.UpdateSystemState(x => x.WarehouseSync, systemState);
+                _inventoryStatusService.UpdateWarehouseSyncStatus();
             }
             catch (Exception ex)
             {

@@ -20,8 +20,6 @@ namespace Monster.Middle.Processes.Sync.Inventory.Model
             return output.ToDelimited(delimiter ?? Environment.NewLine);
         }
         
-        public bool IsOk =>
-                UnmatchedShopifyLocations.Count == 0 
-                && UnmatchedAcumaticaWarehouses.Count == 0;
+        public bool IsOk => UnmatchedShopifyLocations.Count == 0;
     }
 }

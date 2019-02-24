@@ -1,0 +1,43 @@
+﻿@using Monster.Web.Plumbing
+
+@Html.Partial("_TopBrand")
+
+<hr/>
+<h1 class="mt-4 center">Configuration - Complete</h1>
+<p class="lead center">Basic system setup is now completed</p>
+
+<div class="medium-size">
+    <div class="card std-pad-sm">
+        <div class="card-title-interface">
+            Next Steps
+        </div>
+        
+        <div class="card-body">                    
+            <p>Congratulations! You have just completed setting up the baseline configuration for @GlobalConfig.AppName.
+            </p>
+            <p>
+                At any time you can use <a href="@GlobalConfig.Url("Config/Diagnostics")"> Config Diagnostics</a>
+                to troubleshoot synchronization issues.
+            </p>
+
+            <p>
+                The next step is to begin <a href="@GlobalConfig.Url("RealTime/ImportIntoAcumatica")">loading inventory into Shopify from Acumatica</a>. 
+                
+                If you have an existing catalog in Shopify, you can <a href="#">import Products and Variants from Shopify into Acumatica</a>.                        
+            </p>
+
+            <div class="center std-pad-t">
+                <a href="@GlobalConfig.Url("RealTime/ImportIntoAcumatica")" 
+                   class="btn btn-primary btn-lg">
+                    Import from Acumatica <i class="fa fa-upload" aria-hidden="true"></i>
+                </a>
+                <a href="@GlobalConfig.Url("RealTime/ImportIntoShopify")" 
+                   class="btn btn-primary btn-lg">
+                    Import from Shopify <i class="fa fa-upload" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>            
+    </div>
+</div>
+
+
