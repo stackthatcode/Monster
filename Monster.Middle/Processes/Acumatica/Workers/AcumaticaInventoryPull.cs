@@ -17,6 +17,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly InstanceTimeZoneService _instanceTimeZoneService;
+        private readonly ExecutionLogRepository _executionLogRepository;
         private readonly IPushLogger _logger;
 
         public const int InitialBatchStateFudgeMin = -15;
@@ -27,12 +28,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     AcumaticaInventoryRepository inventoryRepository,
                     AcumaticaBatchRepository batchStateRepository,
                     InstanceTimeZoneService instanceTimeZoneService,
+                    ExecutionLogRepository executionLogRepository,
                     IPushLogger logger)
         {
             _inventoryClient = inventoryClient;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
             _logger = logger;
+            _executionLogRepository = executionLogRepository;
             _instanceTimeZoneService = instanceTimeZoneService;
         }
 
@@ -40,6 +43,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunAutomatic()
         {
             var batchState = _batchStateRepository.Retrieve();
+
+            var msg = "Pulling Inventory from Acumatica";
+            _executionLogRepository.InsertExecutionLog(msg);
+
             if (batchState.AcumaticaProductsPullEnd.HasValue)
             {
                 RunUpdated();

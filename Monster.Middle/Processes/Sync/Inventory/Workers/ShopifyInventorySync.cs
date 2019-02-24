@@ -57,6 +57,11 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 var stockItemObj
                     = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
 
+                if (!stockItemRecord.HasMatch())
+                {
+                    continue;
+                }
+
                 var variantShopifyId = stockItemRecord.MatchedVariant().ShopifyVariantId;
                 var variantSku = stockItemRecord.MatchedVariant().ShopifySku;
                 var price = stockItemObj.DefaultPrice.value;

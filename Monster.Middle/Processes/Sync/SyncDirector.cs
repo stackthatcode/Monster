@@ -194,17 +194,20 @@ namespace Monster.Middle.Processes.Sync
             RunImpervious(() => _shopifyManager.PullOrdersAndCustomers());
 
             RunImpervious(() => _acumaticaManager.PullCustomersAndOrdersAndShipments());
-            
+
             RunImpervious(() =>
-            { 
+            {
                 // Orders, Refunds, Payments
                 _orderManager.RoutineOrdersSync();
 
                 // Shipments / Fulfillments
                 _orderManager.RoutineFulfillmentSync();
             });
-
-            // TODO - sync inventory
+            
+            RunImpervious(() =>
+            {
+                _inventorySyncManager.PushInventoryCountsIntoShopify();
+            });
         }
 
         // Swallows Exceptions to enable sequences of tasks to be run 

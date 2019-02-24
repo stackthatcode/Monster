@@ -44,7 +44,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
             });
         }
 
-        public void PushAcumaticaInventoryIntoShopify()
+        public void PushInventoryCountsIntoShopify()
         {
             _shopifyInventorySync.Run();
         }

@@ -131,62 +131,64 @@
 </script>
 
 <script type="text/html" id="Sync-State-Details-Grid">
-<div class="row">
-    <div class="col-6" style="border-right: 1px dashed #CCC;">
-        <div class="mb-4" style="font-weight:600; color:#999;">
-            Acumatica Warehouse Mapping
-        </div>
+    <div class="row">
+        <div class="col-6" style="border-right: 1px dashed #CCC;">
+            <div class="mb-4" style="font-weight:600; color:#999;">
+                Acumatica Warehouse Mapping
+            </div>
 
-        <div data-bind="foreach: Warehouses">
+            <div data-bind="foreach: Warehouses">
             
-            <div class="mb-4 left">
-                <div class="mb-2" style="font-weight:700; color:#555">
-                    <span>Acumatica Warehouse Id:</span>
-                    <span data-bind="text: AcumaticaWarehouseId"></span>
-                </div>
+                <div class="mb-4 left">
+                    <div class="mb-2" style="font-weight:700; color:#555">
+                        <span>Acumatica Warehouse Id:</span>
+                        <span data-bind="text: AcumaticaWarehouseId"></span>
+                    </div>
                 
-                <select class="form-control"
-                        data-bind="optionsCaption: 'Unassigned',
+                    <select class="form-control"
+                            data-bind="optionsCaption: 'Unassigned',
                             value: SelectedLocation,
                             options: LocationOptions,
                             optionsValue: 'LocationId',
                             optionsText: 'LocationName'"></select> 
+                </div>
             </div>
         </div>
-    </div>
     
-    <div class="col-6">
-        <div class="mb-4" style="font-weight:600; color:#999;">Shopify Locations</div>
+        <div class="col-6">
+            <div class="mb-4" style="font-weight:600; color:#999;">Shopify Locations</div>
         
-        <div data-bind="foreach: ActivatedLocations" class="left">
-            <div class="mb-2">
-                <div style="float:left;">
-                    <div style="font-weight:700; color:#555">
-                        <div data-bind="text: LocationName"></div>
-                    </div>
+            <div data-bind="foreach: ActivatedLocations" class="left">
+                <div class="mb-3" style="clear:both;">
+                    <div style="padding-bottom: 15px;">
+                        <div style="float:left;">
+                            <div style="font-weight:700; color:#555">
+                                <div data-bind="text: LocationName"></div>
+                            </div>
                 
-                    <div style="font-size: 0.9em; color:#999;">
-                        <span>Shopify Id:</span>
-                        <span data-bind="text: LocationId"></span>
-                    </div>
-                </div>
-                <div style="float:right;">
-                    <div data-bind="ifnot: Assigned">
-                        <div class="badge badge-danger">
-                            Unassigned <i class="fas fa-times"></i>
+                            <div style="font-size: 0.9em; color:#999;">
+                                <span>Shopify Id:</span>
+                                <span data-bind="text: LocationId"></span>
+                            </div>
                         </div>
-                    </div>
+                        <div style="float:right;">
+                            <div data-bind="ifnot: Assigned">
+                                <div class="badge badge-danger">
+                                    Unassigned <i class="fas fa-times"></i>
+                                </div>
+                            </div>
 
-                    <div data-bind="if: Assigned">
-                        <div class="badge badge-success">
-                            OK <i class="fas fa-check"></i>
+                            <div data-bind="if: Assigned">
+                                <div class="badge badge-success">
+                                    OK <i class="fas fa-check"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
-
         </div>
-    </div>
 </div>
 </script>
 

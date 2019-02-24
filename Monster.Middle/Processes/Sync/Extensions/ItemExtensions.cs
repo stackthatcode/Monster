@@ -12,12 +12,15 @@ namespace Monster.Middle.Processes.Sync.Extensions
                 .UsrShopAcuItemSyncs?.First().UsrAcumaticaStockItem;
         }
 
-        public static UsrShopifyVariant
-                    MatchedVariant(this UsrAcumaticaStockItem input)
+        public static UsrShopifyVariant MatchedVariant(this UsrAcumaticaStockItem input)
         {
             return input
                 .UsrShopAcuItemSyncs?.First().UsrShopifyVariant;
         }
-        
+
+        public static bool HasMatch(this UsrAcumaticaStockItem input)
+        {
+            return input.UsrShopAcuItemSyncs.Any();
+        }
     }
 }

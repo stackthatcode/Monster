@@ -20,28 +20,34 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly EventApi _eventApi;
         private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly ShopifyBatchRepository _batchRepository;
+        private readonly ExecutionLogRepository _executionLogRepository;
         private readonly IPushLogger _logger;
         
-
         public ShopifyInventoryPull(
                 IPushLogger logger,
                 ProductApi productApi,
                 InventoryApi inventoryApi,
                 EventApi eventApi,
                 ShopifyInventoryRepository inventoryRepository, 
-                ShopifyBatchRepository batchRepository)
+                ShopifyBatchRepository batchRepository, 
+                ExecutionLogRepository executionLogRepository)
         {
             _productApi = productApi;
             _inventoryApi = inventoryApi;
             _eventApi = eventApi;
             _inventoryRepository = inventoryRepository;
             _batchRepository = batchRepository;
+            _executionLogRepository = executionLogRepository;
             _logger = logger;
         }
 
         public void RunAutomatic()
         {
             var batchState = _batchRepository.Retrieve();
+
+            var msg = "Pulling Inventory from Shopify";
+            _executionLogRepository.InsertExecutionLog(msg);
+
             if (batchState.ShopifyProductsPullEnd.HasValue)
             {
                 RunUpdated();
