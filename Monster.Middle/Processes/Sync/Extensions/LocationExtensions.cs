@@ -74,17 +74,7 @@ namespace Monster.Middle.Processes.Sync.Extensions
                 .Where(x => x.UsrShopAcuWarehouseSyncs.Count == 0)
                 .ToList();
         }
-
-        public static 
-                IList<UsrAcumaticaWarehouse> Mismatched(
-                    this IEnumerable<UsrAcumaticaWarehouse> input)
-        {
-            return input
-                .Where(x => x.UsrShopAcuWarehouseSyncs.Any()
-                            && x.UsrShopAcuWarehouseSyncs.First().IsNameMismatched)
-                .ToList();
-        }
-
+        
 
         public static IList<UsrShopifyLocation>
                 Unmatched(this IEnumerable<UsrShopifyLocation> input)

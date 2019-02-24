@@ -1,4 +1,6 @@
-﻿using System.Web.Mvc;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
@@ -232,15 +234,14 @@ namespace Monster.Web.Controllers
                     .IsJobRunning(BackgroundJobType.SyncWarehouseAndLocation);
 
             var state = _stateRepository.RetrieveSystemState();
-
-            var warehouseSyncStatus = _statusService.WarehouseSyncStatus();
+            var details = _statusService.WarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
             {
                 IsJobRunning = isBackgroundJobRunning,
                 WarehouseSyncState = state.WarehouseSync,
-                Details = warehouseSyncStatus,
                 IsRandomAccessMode = state.IsRandomAccessMode,
+                Details = details,
             };
 
             return new JsonNetResult(output);
@@ -252,9 +253,42 @@ namespace Monster.Web.Controllers
             var locations = _syncInventoryRepository.RetrieveLocations();
             var warehouses = _syncInventoryRepository.RetrieveWarehouses();
 
+            var output = new
+            {
+                ActivatedLocations = 
+                    locations
+                        .Where(x => x.ShopifyActive)
+                        .Select(x => ShopifyLocationModel.Make(x))
+                        .ToList(),
 
+                DeactivatedLocations =
+                    locations
+                        .Where(x => !x.ShopifyActive)
+                        .Select(x => ShopifyLocationModel.Make(x))
+                        .ToList(),
+
+                Warehouses = warehouses.Select(x => AcumaticaWarehouseModel.Make(x)),
+            };
+
+            return new JsonNetResult(output);
         }
 
+        [HttpPost]
+        public ActionResult WarehouseSyncDataUpdate(List<AcumaticaWarehouseModel> input)
+        {
+            using (var transaction = _syncInventoryRepository.BeginTransaction())
+            {
+                foreach (var item in input)
+                {
+                    _syncInventoryRepository.ImprintWarehouseSync(
+                            item.AcumaticaWarehouseId, item.ShopifyLocationId);
+                }
+
+                transaction.Commit();
+            }
+
+            return JsonNetResult.Success();
+        }
 
 
         // Config Diagnostics

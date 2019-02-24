@@ -119,7 +119,6 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 var sku = stockItem.MatchedVariant().ShopifySku;
 
                 var levels = stockItem.MatchedVariant().UsrShopifyInventoryLevels;
-
                 var level = levels.FirstOrDefault(x => x.LocationMonsterId == locationMonsterId);
 
                 if (level == null)

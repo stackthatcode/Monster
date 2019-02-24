@@ -30,8 +30,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public void Run()
         {
-            var dataLocations 
-                    = _locationRepository.RetreiveLocations();
+            var dataLocations = _locationRepository.RetreiveLocations();
 
             var shopifyLocations
                     = _productApi
@@ -49,6 +48,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                         ShopifyLocationId = shopifyLoc.id,
                         ShopifyJson = shopifyLoc.SerializeToJson(),
                         ShopifyLocationName = shopifyLoc.name,
+                        ShopifyActive = shopifyLoc.active,
                         DateCreated = DateTime.UtcNow,
                         LastUpdated = DateTime.UtcNow,
                     };
@@ -60,6 +60,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     dataLocation.LastUpdated = DateTime.UtcNow;
                     dataLocation.ShopifyJson = shopifyLoc.SerializeToJson();
                     dataLocation.ShopifyLocationName = shopifyLoc.name;
+                    dataLocation.ShopifyActive = shopifyLoc.active;
 
                     _locationRepository.SaveChanges();
                 }

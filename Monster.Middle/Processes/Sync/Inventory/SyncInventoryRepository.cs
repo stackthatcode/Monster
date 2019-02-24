@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory.Model;
-using Push.Foundation.Utilities.General;
 
 namespace Monster.Middle.Processes.Sync.Inventory
 {
@@ -38,13 +38,50 @@ namespace Monster.Middle.Processes.Sync.Inventory
             Entities.SaveChanges();
         }
 
+
+        public void ImprintWarehouseSync(string warehouseId, long? locationId)
+        {
+            var warehouse = RetrieveWarehouse(warehouseId);
+
+            // Deletion when a NULL location is selected
+            if (!locationId.HasValue)
+            {
+                if (warehouse.HasMatch())
+                {
+                    var sync = warehouse.UsrShopAcuWarehouseSyncs.First();
+                    DeleteWarehouseSync(sync);
+                }
+
+                return;
+            }
+            
+            // Location is non-NULL
+            if (warehouse.HasMatch())
+            {
+                if (warehouse.MatchedLocation().ShopifyLocationId == locationId.Value)
+                {
+                    // The current sync is the same one - FIN
+                    return;
+                }
+                else
+                {
+                    var sync = warehouse.UsrShopAcuWarehouseSyncs.First();
+                    DeleteWarehouseSync(sync);
+                }
+            }
+
+            // Create a new Location-Warehouse Sync
+            var location = RetrieveLocation(locationId.Value);
+            InsertWarehouseSync(location, warehouse);
+        }
+
+
         public void InsertWarehouseSync(
-                UsrShopifyLocation location, UsrAcumaticaWarehouse warehouse, bool isNameMismatched = false)
+                UsrShopifyLocation location, UsrAcumaticaWarehouse warehouse)
         {
             var sync = new UsrShopAcuWarehouseSync();
             sync.UsrShopifyLocation = location;
             sync.UsrAcumaticaWarehouse = warehouse;
-            sync.IsNameMismatched = isNameMismatched;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
             Entities.UsrShopAcuWarehouseSyncs.Add(sync);
@@ -72,6 +109,17 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .UsrShopifyLocations
                 .Include(x => x.UsrShopAcuWarehouseSyncs)
                 .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse))
+                .ToList();
+        }
+
+        public List<UsrShopifyLocation> RetrieveDeactivatedMatchedLocations()
+        {
+            return Entities
+                .UsrShopifyLocations
+                .Include(x => x.UsrShopAcuWarehouseSyncs)
+                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse))
+                .Where(x => x.ShopifyActive == false)
+                .Where(x => x.UsrShopAcuWarehouseSyncs.Any())
                 .ToList();
         }
 

@@ -1,35 +1,32 @@
 ﻿@using Monster.Web.Plumbing
 
-
 <main role="main" class="medium-size">
-
     @Html.Partial("_TopBrand")
-
-    <hr />
-    <h1 class="mt-4 center">Warehouse &amp; Location Mapping</h1>
-    <p class="lead center">Synchronize your Acumatica Warehouses with Shopify Locations</p>
-
+    
     <div data-bind="ifnot: IsJobRunning">
         <div data-bind="if: WarehouseSyncState() == SystemState.None">
+            <div data-bind="template: { name: 'Title-Section' }"></div>
+
             <div class="card">
                 <div class="card-body">
                     <p>
-                        The next step is configure mappings between your Shopify Locations 
-                        and Acumatica Warehouses. 
-                        @GlobalConfig.AppName will pull data from both systems then allow 
+                        The next step is configure mappings between your Shopify Locations
+                        and Acumatica Warehouses.
+                        @GlobalConfig.AppName will pull data from both systems then allow
                         for manual assignment.
                     </p>
-                
+
                     <div class="alert alert-warning" role="alert">
                         @GlobalConfig.AppName allows for mapping the same Location
                         to multiple Warehouses. In these cases, when Inventory is synchronized,
-                        the Location's will be updated with the aggregate sum. 
+                        the Location's will be updated with the aggregate sum.
                     </div>
                 </div>
             </div>
         </div>
 
         <div data-bind="if: WarehouseSyncState() == SystemState.SystemFault">
+            <div data-bind="template: { name: 'Title-Section' }"></div>
             <div class="card">
                 <div class="card-body">
                     <div class="alert alert-danger">
@@ -46,7 +43,7 @@
 
         <div data-bind="if: WarehouseSyncState() == SystemState.Ok ||
                             WarehouseSyncState() == SystemState.Invalid">
-           
+
             <div data-bind="template: { name: 'Sync-State-Details' }"></div>
         </div>
     </div>
@@ -63,87 +60,125 @@
         </div>
     </div>
     
-    
     <!-- Bottom Controls -->
-    <div class="center std-pad-t">
-        <span data-bind="ifnot: IsRandomAccessMode">
-            <a href="@GlobalConfig.Url("Config/Preferences")"
-               class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Previous Step
-            </a>
-        </span>
-
+    <div id="bottom-controls" class="center std-pad-t">
         <span data-bind="if: IsRandomAccessMode">
-            <a href="@GlobalConfig.DiagnosticsHome"
-               class="btn btn-secondary btn-lg">
+            <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
                 <i class="fas fa-undo"></i> Back to Diagnostics
             </a>
         </span>
         
+        <span data-bind="ifnot: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/Preferences")" class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Previous Step
+            </a>
+        </span>
+        
+        <span data-bind="if: SaveButtonVisible">
+            <a href="#" class="btn btn-primary btn-lg" data-bind="click: SaveClick">
+                Save Changes <i class="fas fa-bolt"></i>
+            </a>
+        </span>
+
         <span data-bind="if: SynchronizeVisible">
-            <a href="#" class="btn btn-primary btn-lg"
-               data-bind="click: SynchronizeClick">
+            <a href="#" class="btn btn-primary btn-lg" data-bind="click: SynchronizeClick">
                 Synchronize Now
                 <i class="fas fa-bolt"></i>
             </a>
         </span>
 
         <span data-bind="if: NextButtonVisible">
-            <a href="@GlobalConfig.Url("RealTime/InventorySyncControl")"
-               class="btn btn-success btn-lg">
+            <a href="@GlobalConfig.Url("RealTime/InventorySyncControl")" class="btn btn-success btn-lg">
                 Next Step <i class="fas fa-sign-in-alt"></i>
             </a>
         </span>
     </div>
 </main>
 
+<script type="text/html" id="Title-Section">
+    <hr />
+    <h1 class="mt-4 center">Warehouse &amp; Location Mapping</h1>
+    <p class="lead center">Synchronize your Acumatica Warehouses with Shopify Locations</p>
+ </script>
 
 <script type="text/html" id="Sync-State-Details">
-    <div data-bind="with: Details">
-        <div class="card">
-            <div class="card-body center std-pad">
-
-                <div data-bind="if: MatchedWarehouseLocations.length">
-                    <p>The following Location-Warehouse combinations successfully matched:</p>
-
-                    <ul class="list-group"
-                        data-bind="foreach: MatchedWarehouseLocations">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span data-bind="text: $data"></span>
-                            <i class="fas fa-check"></i>
-                        </li>
-                    </ul>
-                </div>
-
-                <div data-bind="if: UnmatchedShopifyLocations.length ||
-                                    UnmatchedAcumaticaWarehouses.length">
-                    <div style="height: 40px;"></div>
-                    <p>The following Locations and Warehouses could <strong>not</strong> be matched:</p>
-                    <ul class="list-group">
-                        <!-- ko foreach: UnmatchedShopifyLocations -->
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Shopify <span data-bind="text: $data"></span>
-                            <i style="color: red;" class="fas fa-times"></i>
-                        </li>
-                        <!-- /ko -->
-                        <!-- ko foreach: UnmatchedAcumaticaWarehouses -->
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Acumatica <span data-bind="text: $data"></span>
-                            <i style="color: red;" class="fas fa-times"></i>
-                        </li>
-                        <!-- /ko -->
-                    </ul>
-                    <div class="alert alert-warning left" role="alert">
-                        <strong>
-                            ACTION STEPS: add, delete or rename Warehouses and Locations as needed
-                            so that they map exactly. Then click re-run the synchronization process.
-                        </strong>
-                    </div>
-                </div>
+    <div class="card">
+        <div class="card-body center std-pad-b">
+            <div class="card-title-interface">
+                Warehouse &amp; Location Mapping
             </div>
+            
+            <div class="center std-pad-sm-t std-pad-b">
+                <button type="button" class="btn btn-primary btn-sm" 
+                        data-bind="click: SynchronizeClick">
+                    Refresh Warehouses &amp; Locations <i class="fas fa-bolt"></i></button>
+            </div>
+            
+            <div data-bind="template: { name: 'Sync-State-Details-Grid' }"></div>
         </div>
     </div>
 </script>
+
+<script type="text/html" id="Sync-State-Details-Grid">
+<div class="row">
+    <div class="col-6" style="border-right: 1px dashed #CCC;">
+        <div class="mb-4" style="font-weight:600; color:#999;">
+            Acumatica Warehouse Mapping
+        </div>
+
+        <div data-bind="foreach: Warehouses">
+            
+            <div class="mb-4 left">
+                <div class="mb-2" style="font-weight:700; color:#555">
+                    <span>Acumatica Warehouse Id:</span>
+                    <span data-bind="text: AcumaticaWarehouseId"></span>
+                </div>
+                
+                <select class="form-control"
+                        data-bind="optionsCaption: 'Unassigned',
+                            value: SelectedLocation,
+                            options: LocationOptions,
+                            optionsValue: 'LocationId',
+                            optionsText: 'LocationName'"></select> 
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-6">
+        <div class="mb-4" style="font-weight:600; color:#999;">Shopify Locations</div>
+        
+        <div data-bind="foreach: ActivatedLocations" class="left">
+            <div class="mb-2">
+                <div style="float:left;">
+                    <div style="font-weight:700; color:#555">
+                        <div data-bind="text: LocationName"></div>
+                    </div>
+                
+                    <div style="font-size: 0.9em; color:#999;">
+                        <span>Shopify Id:</span>
+                        <span data-bind="text: LocationId"></span>
+                    </div>
+                </div>
+                <div style="float:right;">
+                    <div data-bind="ifnot: Assigned">
+                        <div class="badge badge-danger">
+                            Unassigned <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+
+                    <div data-bind="if: Assigned">
+                        <div class="badge badge-success">
+                            OK <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</script>
+
 
 <script>
     var Monster = Monster || {};
@@ -151,27 +186,27 @@
     Monster.WarehouseConfigModel = function () {
         var self = this;
 
+        // Sync and Job state
         self.IsJobRunning = ko.observable();
-        self.Details = ko.observable();
         self.IsRandomAccessMode = ko.observable();
-
         self.WarehouseSyncState = ko.observable();
 
+        // Interface computed state
         self.NextButtonVisible = ko.computed(function () {
-            return !self.IsRandomAccessMode()
-                && self.WarehouseSyncState() == SystemState.Ok;
+            return !self.IsRandomAccessMode() && self.WarehouseSyncState() == SystemState.Ok;
         });
 
         self.SynchronizeVisible =  ko.computed(function () {
-            return self.WarehouseSyncState() == SystemState.SystemFault ||
-                self.WarehouseSyncState() == SystemState.Invalid;
+            return (self.WarehouseSyncState() == SystemState.SystemFault ||
+                self.WarehouseSyncState() == SystemState.None);
         });
 
         self.SaveButtonVisible = ko.computed(function() {
-            return self.WarehouseSyncState() == SystemState.Ok ||
-                self.WarehouseSyncState() == SystemState.None;
+            return (self.WarehouseSyncState() == SystemState.Invalid
+                || self.WarehouseSyncState() == SystemState.Ok)
+                && self.IsRandomAccessMode();
         });
-
+        
         self.SynchronizeClick = function () {
             var ajax = new Monster.Ajax();
             ajax.HttpPost("Config/SyncWarehouses", {}, self.PollStatus);
@@ -185,25 +220,78 @@
                     ajax.HttpGet("Config/WarehouseSyncStatus", this);
                 },
                 function (response) {
+                    //console.log(response);
+
                     self.IsJobRunning(response.IsJobRunning);
+                    self.IsRandomAccessMode(response.IsRandomAccessMode);
+                    self.WarehouseSyncState(response.WarehouseSyncState);
 
                     if (self.IsJobRunning()) {
                         setTimeout(self.PollStatus, 1000);
-                    } else {
-                        self.Complete(response);
-                    }
+                        return;
+                    } 
+
+                    self.RefreshWarehouseData();
                 });
         };
 
-        self.Complete = function (model) {
-            self.IsRandomAccessMode(model.IsRandomAccessMode);
-            self.IsJobRunning(model.IsIsJobRunning);
-            self.WarehouseSyncState(model.WarehouseSyncState);
+        // Warehouse-Location data
+        self.DeactivatedLocations = ko.observableArray([]);
+        self.ActivatedLocations = ko.observableArray([]);
+        self.Warehouses = ko.observableArray([]);
 
-            self.Details(model.Details);
+        self.RefreshWarehouseData = function() {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/WarehouseSyncData", this);
+                },
+                function (response) {
+                    //console.log(response);
 
+                    AQ(response.ActivatedLocations).each(function(item) { self.DecorateLocation(item); });
+                    AQ(response.Warehouses).each(function (item) { self.DecorateWarehouse(item); });
 
-            //console.log(model);
+                    self.ActivatedLocations(response.ActivatedLocations);
+                    self.Warehouses(response.Warehouses);
+                }
+            );
+        };
+
+        self.DecorateWarehouse = function(item) {
+            item.LocationOptions = self.ActivatedLocations;
+            item.SelectedLocation = ko.observable(item.ShopifyLocationId);
+        };
+
+        self.DecorateLocation = function (location) {
+            location.Assigned = ko.computed(
+                function () {
+
+                    return AQ(self.Warehouses()).any(function (warehouse) {
+                        return warehouse.SelectedLocation() == location.LocationId;
+                    });
+                });
+        };
+
+        self.SaveClick = function () {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    var model
+                        = AQ(self.Warehouses()).select(function (x) {
+                            return {
+                                AcumaticaWarehouseId: x.AcumaticaWarehouseId,
+                                ShopifyLocationId: x.SelectedLocation(),
+                            };
+                        }).toArray();
+
+                    //console.log(model);
+                    ajax.HttpPost("Config/WarehouseSyncDataUpdate", model, this);
+                },
+                function (response) {
+                    self.PollStatus();
+                }
+            );
         };
 
         self.Initialize = function () {

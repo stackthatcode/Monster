@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica;
@@ -72,8 +71,7 @@ namespace Monster.Middle.Processes.Sync
             {
                 _shopifyManager.TestConnection();
                 _stateRepository
-                    .UpdateSystemState(
-                        x => x.ShopifyConnection, SystemState.Ok);
+                    .UpdateSystemState(x => x.ShopifyConnection, SystemState.Ok);
             }
             catch (Exception ex)
             {
@@ -169,8 +167,7 @@ namespace Monster.Middle.Processes.Sync
                 // Step 2 - Pull Acumatica Inventory
                 _acumaticaManager.PullInventory();
                 
-                _stateRepository.UpdateSystemState(
-                    x => x.InventoryPull, SystemState.Ok);
+                _stateRepository.UpdateSystemState(x => x.InventoryPull, SystemState.Ok);
             }
             catch (Exception ex)
             {
@@ -209,6 +206,8 @@ namespace Monster.Middle.Processes.Sync
                 // Shipments / Fulfillments
                 _orderManager.RoutineFulfillmentSync();
             });
+
+            // TODO - sync inventory
         }
 
         // Swallows Exceptions to enable sequences of tasks to be run 

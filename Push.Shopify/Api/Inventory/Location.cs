@@ -20,6 +20,8 @@ namespace Push.Shopify.Api.Inventory
         public string country_name { get; set; }
         public string province_code { get; set; }
         public bool legacy { get; set; }
+        public bool active { get; set; }
+
         public string admin_graphql_api_id { get; set; }
     }
 
