@@ -203,7 +203,17 @@ namespace Monster.Middle.Processes.Sync
                 // Shipments / Fulfillments
                 _orderManager.RoutineFulfillmentSync();
             });
-            
+
+            RunImpervious(() =>
+            {
+                _acumaticaManager.PullInventory();
+            });
+
+            RunImpervious(() =>
+            {
+                _shopifyManager.PullInventory();
+            });
+
             RunImpervious(() =>
             {
                 _inventorySyncManager.PushInventoryCountsIntoShopify();

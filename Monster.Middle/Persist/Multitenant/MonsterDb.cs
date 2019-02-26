@@ -762,11 +762,11 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrAcumaticaBatchState
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? AcumaticaProductsPullEnd { get; set; } // AcumaticaProductsPullEnd
+        public System.DateTime? AcumaticaStockItemPullEnd { get; set; } // AcumaticaStockItemPullEnd
+        public System.DateTime? AcumaticaItemWarehousePullEnd { get; set; } // AcumaticaItemWarehousePullEnd
         public System.DateTime? AcumaticaCustomersPullEnd { get; set; } // AcumaticaCustomersPullEnd
         public System.DateTime? AcumaticaOrdersPullEnd { get; set; } // AcumaticaOrdersPullEnd
         public System.DateTime? AcumaticaShipmentsPullEnd { get; set; } // AcumaticaShipmentsPullEnd
-        public System.DateTime? AcumaticaInvoicesPullEnd { get; set; } // AcumaticaInvoicesPullEnd
     }
 
     // usrAcumaticaCreditMemo
@@ -2026,11 +2026,11 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.AcumaticaProductsPullEnd).HasColumnName(@"AcumaticaProductsPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaStockItemPullEnd).HasColumnName(@"AcumaticaStockItemPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaItemWarehousePullEnd).HasColumnName(@"AcumaticaItemWarehousePullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaCustomersPullEnd).HasColumnName(@"AcumaticaCustomersPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaOrdersPullEnd).HasColumnName(@"AcumaticaOrdersPullEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaShipmentsPullEnd).HasColumnName(@"AcumaticaShipmentsPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaInvoicesPullEnd).HasColumnName(@"AcumaticaInvoicesPullEnd").HasColumnType("datetime").IsOptional();
         }
     }
 

@@ -60,7 +60,6 @@ DELETE FROM usrShopifyLocation;
 
 -- Clear out System tables
 --
-
 DELETE FROM usrAcumaticaReferences
 DELETE FROM usrPreferences;
 
@@ -72,6 +71,8 @@ DELETE FROM usrExecutionLog;
 
 DELETE FROM usrSystemState;
 -- DELETE FROM usrTenant
+
+
 
 
 ALTER DATABASE Monster0001 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 

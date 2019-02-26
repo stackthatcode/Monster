@@ -133,27 +133,18 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .ToList();
         }
 
-        public List<UsrShopifyLocation> RetrieveLocations(bool? synced = null)
+        public List<UsrShopifyLocation> RetrieveMatchedLocations()
         {
             var output = Entities
                 .UsrShopifyLocations
                 .Include(x => x.UsrShopAcuWarehouseSyncs)
-                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse));
-
-            if (synced.HasValue && synced.Value == true)
-            {
-                output = output.Where(x => x.UsrShopAcuWarehouseSyncs.Any());
-            }
-            if (synced.HasValue && synced.Value == false)
-            {
-                output = output.Where(x => x.UsrShopAcuWarehouseSyncs.Any());
-            }
+                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse))
+                .Where(x => x.UsrShopAcuWarehouseSyncs.Any());
 
             return output.ToList();
         }
-
-
-        public List<UsrAcumaticaWarehouse> RetrieveSyncWarehouses()
+        
+        public List<UsrAcumaticaWarehouse> RetrieveMatchedWarehouses()
         {
             return Entities
                 .UsrAcumaticaWarehouses
@@ -238,16 +229,16 @@ namespace Monster.Middle.Processes.Sync.Inventory
 
         // Inventory Price
         //
-        public List<UsrAcumaticaStockItem> RetrieveStockItemsNotSynced()
+        public List<UsrAcumaticaStockItem> RetrieveMatchedStockItemsNotSynced()
         {
             return Entities
                     .UsrAcumaticaStockItems
                     .Include(x => x.UsrShopAcuItemSyncs)
                     .Where(x => x.IsPriceSynced == false)
+                    .Where(x => x.UsrShopAcuItemSyncs.Any(y => y.IsSyncEnabled))
                     .ToList();
         }
-
-
+        
         // Inventory and Warehouse Details
         //
         public List<UsrShopifyInventoryLevel> RetrieveInventoryLevelsWithoutReceipts()
@@ -271,17 +262,18 @@ namespace Monster.Middle.Processes.Sync.Inventory
                 .Where(x => x.UsrShopifyVariant.UsrShopifyProduct.ShopifyProductId == shopifyProductId)
                 .ToList();
         }
+        
 
-
-
-        public List<UsrAcumaticaWarehouseDetail> RetrieveWarehouseDetailsNotSynced()
+        public List<UsrAcumaticaStockItem> RetrieveMatchedStockItemInventoryNotSynced()
         {
             return Entities
-                .UsrAcumaticaWarehouseDetails
-                .Include(x => x.UsrAcumaticaStockItem)
-                .Include(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs)
-                .Where(x => x.UsrAcumaticaStockItem.UsrShopAcuItemSyncs.Any()
-                            && x.IsInventorySynced == false)
+                .UsrAcumaticaStockItems
+                .Include(x => x.UsrAcumaticaWarehouseDetails)
+                .Include(x => x.UsrShopAcuItemSyncs)
+                .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrShopifyVariant))
+                .Where(x => x.UsrShopAcuItemSyncs.Any(y => y.IsSyncEnabled)
+                            && x.UsrAcumaticaWarehouseDetails
+                                    .Any(y => y.IsInventorySynced == false))
                 .ToList();
         }
 

@@ -430,6 +430,8 @@
                     ajax.HttpGet("Config/AcumaticaReferenceData", this);
                 },
                 function (response) {
+                    console.log(response);
+
                     self.TimeZones(response.TimeZones);
                     self.ItemClasses(response.ItemClasses);
                     self.PaymentMethods(response.PaymentMethods);

@@ -46,8 +46,7 @@ namespace Monster.Acumatica.Api
 
         public string RetreiveStockItems(DateTime? lastModified = null)
         {
-            var queryString 
-                = "$expand=WarehouseDetails&$filter=ItemStatus eq 'Active'";
+            var queryString = "$expand=WarehouseDetails&$filter=ItemStatus eq 'Active'";
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();

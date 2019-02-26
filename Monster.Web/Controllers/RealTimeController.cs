@@ -229,14 +229,16 @@ namespace Monster.Web.Controllers
 
         public ActionResult SyncedWarehouses()
         {
-            var locations = _syncInventoryRepository.RetrieveLocations(true);
+            var locations = _syncInventoryRepository.RetrieveLocations();
             var output = LocationsModel.Make(locations);
             return new JsonNetResult(output);
         }
 
         [HttpPost]
         public ActionResult RunImportIntoAcumatica(
-            bool createInventoryReceipt, bool enableInventorySync, List<long> selectedSPIds)
+                bool createInventoryReceipt, 
+                bool enableInventorySync, 
+                List<long> selectedSPIds)
         {
             _oneTimeJobService
                 .ImportIntoAcumatica(

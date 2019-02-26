@@ -206,7 +206,9 @@
 
         // Interface computed state
         self.NextButtonVisible = ko.computed(function () {
-            return !self.IsRandomAccessMode();
+            return !self.IsRandomAccessMode() && 
+                (self.WarehouseSyncState() == SystemState.Invalid
+                || self.WarehouseSyncState() == SystemState.Ok);
         });
 
         self.SynchronizeVisible =  ko.computed(function () {

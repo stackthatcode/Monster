@@ -40,14 +40,14 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
         
-        public UsrShopifyVariant RetrieveVariant(long shopifyVariantId, string sku)
+        public UsrShopifyVariant RetrieveVariant(long shopifyVariantId)
         {
             return Entities
                 .UsrShopifyVariants
-                .FirstOrDefault(
-                    x => x.ShopifyVariantId == shopifyVariantId &&
-                         x.ShopifySku == sku);
+                .Include(x => x.UsrShopifyInventoryLevels)
+                .FirstOrDefault(x => x.ShopifyVariantId == shopifyVariantId);
         }
+        
 
         public DateTime? RetrieveProductMaxUpdatedDate()
         {

@@ -69,8 +69,8 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
             if (matchingShopifySkus.Count > 1)
             {
-                _executionLogRepository.InsertExecutionLog("Shopify Variant: " +
-                             $"{variant.ShopifyVariantId}/{variant.ShopifySku} has duplicates");
+                _executionLogRepository.InsertExecutionLog(
+                    $"Shopify Variant SKU {variant.ShopifySku} has duplicates in Shopify");
                 return;
             }
 
@@ -79,9 +79,10 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
             if (stockItem != null && !stockItem.IsMatchedToShopify())
             {
-                _executionLogRepository.InsertExecutionLog(
-                    $"Auto-matched Stock Item {stockItem.ItemId} " +
-                    $"to Shopify Variant {variant.ShopifyVariantId}");
+                _executionLogRepository
+                    .InsertExecutionLog(
+                        $"Auto-matched Stock Item {stockItem.ItemId} " +
+                        $"to Shopify Variant {variant.ShopifyVariantId}");
 
                 _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
 
@@ -144,7 +145,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 _inventoryRepository.InsertStockItems(newStockItemRecord);
                 _syncRepository.InsertItemSync(variant, newStockItemRecord, context.IsSyncEnabled);
 
-                var log = $"Creating Stock Item {item.InventoryID.value} in Acumatica";
+                var log = $"Created Stock Item {item.InventoryID.value} in Acumatica";
                 _executionLogRepository.InsertExecutionLog(log);
                 transaction.Commit();
             }
@@ -158,9 +159,11 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             // Push Inventory Receipt to Acumatica API
             var receipt = BuildReceipt(inventoryForSyncing);
 
+            // Create Inventory Receipt in Acumatica
             var resultJson = _distributionClient.AddInventoryReceipt(receipt.SerializeToJson());
             var resultObject = resultJson.DeserializeFromJson<InventoryReceipt>();
             
+
             // Create Monster Record
             var monsterReceipt = new UsrAcumaticaInventoryReceipt();
             monsterReceipt.AcumaticaRefNumber = resultObject.ReferenceNbr.value;
@@ -172,25 +175,12 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             // No transaction - keep writing until you can't write no mo'!
             _inventoryRepository.InsertInventoryReceipt(monsterReceipt);
 
+            var log = $"Created Inventory Receipt {monsterReceipt.AcumaticaRefNumber} in Acumatica";
+            _executionLogRepository.InsertExecutionLog(log);
+            
             foreach (var level in inventoryForSyncing)
             {
                 _syncRepository.InsertInventoryReceiptSync(level, monsterReceipt);
-            }
-        }
-
-        public void RunInventoryReceiptsRelease()
-        {
-            var receipts = _inventoryRepository.RetrieveUnreleasedInventoryReceipts();
-
-            foreach (var receipt in receipts)
-            {
-                var releaseEntity = ReleaseInventoryReceipt.Build(receipt.AcumaticaRefNumber);
-
-                // Finally, Release the Inventory Receipt
-                _distributionClient.ReleaseInventoryReceipt(releaseEntity.SerializeToJson());
-
-                receipt.IsReleased = true;
-                _inventoryRepository.SaveChanges();
             }
         }
 
@@ -230,6 +220,21 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
             return receipt;
         }
-        
+
+        public void RunInventoryReceiptsRelease()
+        {
+            var receipts = _inventoryRepository.RetrieveUnreleasedInventoryReceipts();
+
+            foreach (var receipt in receipts)
+            {
+                var releaseEntity = ReleaseInventoryReceipt.Build(receipt.AcumaticaRefNumber);
+
+                // Finally, Release the Inventory Receipt
+                _distributionClient.ReleaseInventoryReceipt(releaseEntity.SerializeToJson());
+
+                receipt.IsReleased = true;
+                _inventoryRepository.SaveChanges();
+            }
+        }
     }
 }

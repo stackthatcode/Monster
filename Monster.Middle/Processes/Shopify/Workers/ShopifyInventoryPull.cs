@@ -220,9 +220,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public void UpsertVariant(long parentProductId, Variant variant)
         {
-            var existing = 
-                _inventoryRepository.RetrieveVariant(variant.id, variant.sku);
-            
+            var existing = _inventoryRepository.RetrieveVariant(variant.id);
+                
             if (existing == null)
             {
                 var data = new UsrShopifyVariant();
@@ -260,18 +259,17 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             foreach (var variant in storedVariants)
             {
-                if (product.variants.Any(
-                        x => x.id == variant.ShopifyVariantId &&
-                             x.sku == variant.ShopifySku))
+                if (product.variants.All(x => x.id != variant.ShopifyVariantId))
                 {
-                    break;
+                    var log =
+                        $"Shopify Variant {variant.ShopifySku} ({variant.ShopifyVariantId}) " +
+                        "is flagged: missing";
+
+                    _logger.Debug(log);
+
+                    variant.IsMissing = true;
+                    _inventoryRepository.SaveChanges();
                 }
-
-                _logger.Debug($"Shopify Variant {variant.ShopifyVariantId}/{variant.ShopifySku} " +
-                             "appears to be missing - flagged");
-
-                variant.IsMissing = true;
-                _inventoryRepository.SaveChanges();
             }
         }
 

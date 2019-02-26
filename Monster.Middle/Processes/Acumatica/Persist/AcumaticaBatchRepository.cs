@@ -40,7 +40,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         public void UpdateProductsEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
-            existingState.AcumaticaProductsPullEnd = endTimeUtc;
+            existingState.AcumaticaStockItemPullEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
