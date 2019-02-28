@@ -7,9 +7,9 @@ using System.Text;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Execution;
 using Push.Foundation.Web.Http;
-using Push.Foundation.Web.Misc;
 using Push.Shopify.Config;
 using Push.Shopify.Http.Credentials;
+
 
 namespace Push.Shopify.Http
 {
@@ -73,8 +73,7 @@ namespace Push.Shopify.Http
             {
                 var oAuthKeyAndSecret = credentials as ApiKeyAndSecret;
 
-                var basicCreds = 
-                    $"{oAuthKeyAndSecret.ApiKey}:{oAuthKeyAndSecret.ApiSecret}";
+                var basicCreds = $"{oAuthKeyAndSecret.ApiKey}:{oAuthKeyAndSecret.ApiSecret}";
 
                 _httpClient.DefaultRequestHeaders.Authorization
                     = new AuthenticationHeaderValue("Basic", basicCreds);
@@ -83,22 +82,17 @@ namespace Push.Shopify.Http
             // Authentication using OAuth access token
             if (credentials is OAuthAccessToken)
             {
-                var accessTokenCred 
-                        = credentials as OAuthAccessToken;
+                var accessTokenCred = credentials as OAuthAccessToken;
 
-                _httpClient.DefaultRequestHeaders.Add(
-                    "X-Shopify-Access-Token", 
-                    accessTokenCred.AccessToken);
+                _httpClient.DefaultRequestHeaders.Add("X-Shopify-Access-Token", accessTokenCred.AccessToken);
             }
 
             // Authentication using Key Credentials i.e. Shopify private app
             if (credentials is PrivateAppCredentials)
             {
-                var privateAppCredentials 
-                        = credentials as PrivateAppCredentials;
+                var privateAppCreds = credentials as PrivateAppCredentials;
 
-                var headerValue
-                    = $"{privateAppCredentials.ApiKey}:{privateAppCredentials.ApiPassword}";
+                var headerValue = $"{privateAppCreds.ApiKey}:{privateAppCreds.ApiPassword}";
                 var byteArray = Encoding.ASCII.GetBytes(headerValue);
 
                 _httpClient.DefaultRequestHeaders.Authorization
@@ -106,50 +100,92 @@ namespace Push.Shopify.Http
             }
         }
 
-        public ResponseEnvelope Get(
-                string url, Dictionary<string, string> headers = null)
-        {
-            _logger.Debug($"HTTP GET on {url}");
 
-            var response = _executor.Do(() => _httpClient.GetAsync(url).Result);
-                
-            var output = response.ToEnvelope();
+        public ResponseEnvelope Get(string url, Dictionary<string, string> headers = null)
+        {
+            var urlDebug = $"HTTP GET on {url}";
+            var errorContext = BuildErrorContext(urlDebug);
+            _logger.Debug(urlDebug);
+
+            // Act
+            var response = _executor.Do(() => _httpClient.GetAsync(url), errorContext);
+            
+            // Process
+            var output = response.Result.ToEnvelope();
             _logger.Trace(output.Body);
-            output.ProcessStatusCodes();
+            ProcessStatusCodes(output, errorContext);
+
             return output;
         }
 
         public ResponseEnvelope Post(string url, string content)
         {
-            _logger.Debug($"HTTP POST on {url}");
+            var urlDebug = $"HTTP POST on {url}";
+            var errorContext = BuildErrorContext(urlDebug, content);
+
+            _logger.Debug(urlDebug);
             _logger.Trace(content);
 
             // Warning - change this at your own risk
             var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response = _executor.Do(() => _httpClient.PostAsync(url, httpContent).Result);
+            // Act
+            var response = _executor.Do(() => _httpClient.PostAsync(url, httpContent), errorContext);
 
-            var output = response.ToEnvelope();
+            // Process
+            var output = response.Result.ToEnvelope();
             _logger.Trace(output.Body);
-            output.ProcessStatusCodes();
+            ProcessStatusCodes(output, errorContext);
+
             return output;
         }
 
         public ResponseEnvelope Put(string url, string content)
         {
-            _logger.Debug($"HTTP PUT on {url}");
+            var urlDebug = $"HTTP PUT on {url}";
+            var errorContext = BuildErrorContext(urlDebug, content);
+
+            _logger.Debug(urlDebug);
             _logger.Trace(content);
 
             // Warning - change this at your own risk
             var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response = _executor.Do(() => _httpClient.PutAsync(url, httpContent).Result);
+            // Act
+            var response = _executor.Do(() => _httpClient.PutAsync(url, httpContent), errorContext);
 
-            var output = response.ToEnvelope();
+            // Process
+            var output = response.Result.ToEnvelope();
             _logger.Trace(output.Body);
-            output.ProcessStatusCodes();
+            ProcessStatusCodes(output, errorContext);
             return output;
         }
+
+        private string BuildErrorContext(string url, string requestBody = null)
+        {
+            var output = $"*** Failed HTTP Request: {url}";
+
+            if (requestBody != null)
+            {
+                output += Environment.NewLine + requestBody;
+            }
+
+            return output;
+        }
+
+        public ResponseEnvelope ProcessStatusCodes(ResponseEnvelope response, string errorContext)
+        {
+            // All other non-200 calls throw an exception
+            if (response.HasBadStatusCode)
+            {
+                throw new Exception(
+                    $"Bad Status Code - HTTP {(int)response.StatusCode} ({response.StatusCode})"
+                    + Environment.NewLine + errorContext);
+            }
+
+            return response;
+        }
+
 
         public void Dispose()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Castle.Core.Internal;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Misc;
 
@@ -22,7 +23,7 @@ namespace Push.Foundation.Web.Execution
         }
 
 
-        public T Do<T>(Func<T> task)
+        public T Do<T>(Func<T> task, string errorContext = null)
         {
             // Invoke the Throttler
             Throttler.Process(ThrottlingKey, ThrottlingDelay);
@@ -31,7 +32,7 @@ namespace Push.Foundation.Web.Execution
             var startTime = DateTime.UtcNow;
 
             // Execute task
-            var result = DoWorker(task);
+            var result = DoWorker(task, errorContext);
 
             // Log execution time            
             var executionTime = DateTime.UtcNow - startTime;
@@ -41,7 +42,7 @@ namespace Push.Foundation.Web.Execution
         }
 
 
-        private T DoWorker<T>(Func<T> task)
+        private T DoWorker<T>(Func<T> task, string errorContext = null)
         {            
             while (true)
             {
@@ -55,7 +56,12 @@ namespace Push.Foundation.Web.Execution
                 catch (Exception ex)
                 {
                     Logger.Error(ex);
-                    
+
+                    if (!errorContext.IsNullOrEmpty())
+                    {
+                        Logger.Error(errorContext);
+                    }
+
                     if (numberOfAttempts >= MaxNumberOfAttempts)
                     {
                         Logger.Warn("Retry Limit has been exceeded... throwing exception");

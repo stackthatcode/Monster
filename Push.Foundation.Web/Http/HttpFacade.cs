@@ -31,9 +31,7 @@ namespace Push.Foundation.Web.Http
 
             var response = _executor.Do(() => _client.GetAsync(url).Result);
             
-            return response
-                    .ToEnvelope()
-                    .ProcessStatusCodes();
+            return response.ToEnvelope();
         }
 
         public virtual ResponseEnvelope Post(string url, string content)
@@ -43,10 +41,8 @@ namespace Push.Foundation.Web.Http
             var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response = _executor.Do(() => _client.PostAsync(url, httpContent).Result);
-            
-            return response
-                .ToEnvelope()
-                .ProcessStatusCodes();
+
+            return response.ToEnvelope();
         }
 
         public virtual ResponseEnvelope Put(string url, string content)
@@ -57,9 +53,7 @@ namespace Push.Foundation.Web.Http
 
             var response = _executor.Do(() => _client.PutAsync(url, httpContent).Result);
             
-            return response
-                .ToEnvelope()
-                .ProcessStatusCodes();
+            return response.ToEnvelope();
         }
 
         public void Dispose()

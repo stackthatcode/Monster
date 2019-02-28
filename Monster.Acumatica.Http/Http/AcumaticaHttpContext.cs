@@ -102,16 +102,21 @@ namespace Monster.Acumatica.Http
                 Dictionary<string, string> headers = null,
                 bool excludeVersion = false)
         {
+            // Arrange
             var address = MakePath(path, excludeVersion);
-            _logger.Debug($"HTTP GET on {address} (ContextId: {this.ObjectIdentifier})");
+            var urlDebug = $"HTTP GET on {address} (ContextId: {this.ObjectIdentifier})";
+            var errorContext = BuildErrorContext(urlDebug);
+            _logger.Debug(urlDebug);
 
-            var response = _executor.Do(() => _httpClient.GetAsync(address).Result);
+            // Act
+            var response = _executor.Do(() => _httpClient.GetAsync(address), errorContext);
             
-            var output = response.ToEnvelope();
-            output.ProcessStatusCodes();
-
+            // Response
+            var output = response.Result.ToEnvelope();
             _logger.Trace(output.Body);
-            return output;
+
+            // Assert
+            return ProcessStatusCodes(output, urlDebug);
         }
 
         public ResponseEnvelope Post(
@@ -120,18 +125,26 @@ namespace Monster.Acumatica.Http
                 Dictionary<string, string> headers = null,
                 bool excludeVersion = false)
         {
-            var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-
+            // Arrange
             var address = MakePath(path, excludeVersion);
-            _logger.Debug($"HTTP POST on {address} (ContextId: {this.ObjectIdentifier})");
+            var urlDebug = $"HTTP POST on {address} (ContextId: {this.ObjectIdentifier})";
+            var errorContext = BuildErrorContext(urlDebug, content);
+            _logger.Debug(urlDebug);
+            
             _logger.Trace(content);
+            var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+            
+            // Act
+            var response = 
+                _executor.Do(
+                    () => _httpClient.PostAsync(address, httpContent), errorContext);
 
-            var response = _executor.Do(() => _httpClient.PostAsync(address, httpContent).Result);
-
-            var output = response.ToEnvelope();
+            // Response
+            var output = response.Result.ToEnvelope();
             _logger.Trace(output.Body);
-            output.ProcessStatusCodes();
-            return output;
+
+            // Assert
+            return ProcessStatusCodes(output, errorContext);
         }
 
         public ResponseEnvelope Put(
@@ -140,18 +153,50 @@ namespace Monster.Acumatica.Http
                 Dictionary<string, string> headers = null,
                 bool excludeVersion = false)
         {
-            _logger.Debug($"HTTP PUT on {path} (ContextId: {this.ObjectIdentifier})");
+            var address = MakePath(path, excludeVersion);
+
+            var urlDebug = $"HTTP PUT on {address} (ContextId: {this.ObjectIdentifier})";
+            var errorContext = BuildErrorContext(urlDebug, content);
+
+            _logger.Debug(urlDebug);
             _logger.Trace(content);
 
-            var address = MakePath(path, excludeVersion);
             var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response = _executor.Do(() => _httpClient.PutAsync(address, httpContent).Result);
+            var response =
+                _executor.Do(
+                    () => _httpClient.PutAsync(address, httpContent), errorContext);
 
-            var output = response.ToEnvelope();
+            var output = response.Result.ToEnvelope();
+
             _logger.Trace(output.Body);
-            output.ProcessStatusCodes();
+
+            return ProcessStatusCodes(output, errorContext);
+        }
+
+        private string BuildErrorContext(string url, string requestBody = null)
+        {
+            var output = $"*** Failed HTTP Request: {url}";
+
+            if (requestBody != null)
+            {
+                output += Environment.NewLine + requestBody;
+            }
+
             return output;
+        }
+
+        public ResponseEnvelope ProcessStatusCodes(ResponseEnvelope response, string errorContext)
+        {
+            // All other non-200 calls throw an exception
+            if (response.HasBadStatusCode)
+            {
+                throw new Exception(
+                    $"Bad Status Code - HTTP {(int)response.StatusCode} ({response.StatusCode})"
+                    + Environment.NewLine + errorContext);
+            }
+
+            return response;
         }
 
         public void Dispose()

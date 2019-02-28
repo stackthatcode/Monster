@@ -1,84 +1,84 @@
-﻿using System.Net;
-using NUnit.Framework;
-using Push.Foundation.Web.Http;
+﻿//using System.Net;
+//using NUnit.Framework;
+//using Push.Foundation.Web.Http;
 
-namespace Push.Foundation.Tests.Web
-{
-    [TestFixture]
-    public class ResponseEnvelopeTests
-    {
-        [Test]
-        public void Http200ReturnsSelf()
-        {
-            // Assemble
-            var sut = new ResponseEnvelope();
-            sut.StatusCode = HttpStatusCode.Accepted;
+//namespace Push.Foundation.Tests.Web
+//{
+//    [TestFixture]
+//    public class ResponseEnvelopeTests
+//    {
+//        [Test]
+//        public void Http200ReturnsSelf()
+//        {
+//            // Assemble
+//            var sut = new ResponseEnvelope();
+//            sut.StatusCode = HttpStatusCode.Accepted;
             
-            // Act
-            var result = sut.ProcessStatusCodes();
+//            // Act
+//            var result = sut.ProcessStatusCodes();
 
-            // Assert
-            Assert.AreSame(result, sut);            
-        }
+//            // Assert
+//            Assert.AreSame(result, sut);            
+//        }
 
-        [Test]
-        public void Http404ThrowsError()
-        {
-            // Assemble
-            var sut = new ResponseEnvelope();
-            sut.StatusCode = HttpStatusCode.NotFound;
+//        [Test]
+//        public void Http404ThrowsError()
+//        {
+//            // Assemble
+//            var sut = new ResponseEnvelope();
+//            sut.StatusCode = HttpStatusCode.NotFound;
 
-            // Act & Assert
-            Assert.Throws<BadStatusCodeException>(
-                () =>
-                {
-                    sut.ProcessStatusCodes();
-                });
-        }
+//            // Act & Assert
+//            Assert.Throws<BadStatusCodeException>(
+//                () =>
+//                {
+//                    sut.ProcessStatusCodes();
+//                });
+//        }
 
-        [Test]
-        public void Http403ThrowsError()
-        {
-            // Assemble
-            var sut = new ResponseEnvelope();
-            sut.StatusCode = HttpStatusCode.Forbidden;
+//        [Test]
+//        public void Http403ThrowsError()
+//        {
+//            // Assemble
+//            var sut = new ResponseEnvelope();
+//            sut.StatusCode = HttpStatusCode.Forbidden;
 
-            // Act & Assert
-            Assert.Throws<BadStatusCodeException>(
-                () =>
-                {
-                    sut.ProcessStatusCodes();
-                });
-        }
+//            // Act & Assert
+//            Assert.Throws<BadStatusCodeException>(
+//                () =>
+//                {
+//                    sut.ProcessStatusCodes();
+//                });
+//        }
 
-        [Test]
-        public void Http401ThrowsError()
-        {
-            // Assemble
-            var sut = new ResponseEnvelope();
-            sut.StatusCode = HttpStatusCode.Unauthorized;
+//        [Test]
+//        public void Http401ThrowsError()
+//        {
+//            // Assemble
+//            var sut = new ResponseEnvelope();
+//            sut.StatusCode = HttpStatusCode.Unauthorized;
 
-            // Act & Assert
-            Assert.Throws<BadStatusCodeException>(
-                () =>
-                {
-                    sut.ProcessStatusCodes();
-                });
-        }
+//            // Act & Assert
+//            Assert.Throws<BadStatusCodeException>(
+//                () =>
+//                {
+//                    sut.ProcessStatusCodes();
+//                });
+//        }
 
-        [Test]
-        public void Http500ThrowsError()
-        {
-            // Assemble
-            var sut = new ResponseEnvelope();
-            sut.StatusCode = HttpStatusCode.InternalServerError;
+//        [Test]
+//        public void Http500ThrowsError()
+//        {
+//            // Assemble
+//            var sut = new ResponseEnvelope();
+//            sut.StatusCode = HttpStatusCode.InternalServerError;
 
-            // Act & Assert
-            Assert.Throws<BadStatusCodeException>(
-                () =>
-                {
-                    sut.ProcessStatusCodes();
-                });
-        }
-    }
-}
+//            // Act & Assert
+//            Assert.Throws<BadStatusCodeException>(
+//                () =>
+//                {
+//                    sut.ProcessStatusCodes();
+//                });
+//        }
+//    }
+//}

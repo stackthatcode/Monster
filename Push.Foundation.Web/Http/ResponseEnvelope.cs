@@ -23,21 +23,12 @@ namespace Push.Foundation.Web.Http
             StatusCode = HttpStatusCode.Accepted;
         }
 
-        
 
-        public virtual ResponseEnvelope ProcessStatusCodes()
-        {
-            // All other non-200 calls throw an exception
-            if (this.StatusCode != HttpStatusCode.OK
-                    && this.StatusCode != HttpStatusCode.NoContent
-                    && this.StatusCode != HttpStatusCode.Created
-                    && this.StatusCode != HttpStatusCode.Accepted)
-            {
-                throw new Exception(
-                    $"Bad Status Code - HTTP {(int)this.StatusCode} ({this.StatusCode})");
-            }
+        public bool HasBadStatusCode =>
+                this.StatusCode == HttpStatusCode.OK
+                || this.StatusCode == HttpStatusCode.NoContent
+                || this.StatusCode == HttpStatusCode.Created
+                || this.StatusCode == HttpStatusCode.Accepted;
 
-            return this;
-        }
     }
 }
