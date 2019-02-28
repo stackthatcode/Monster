@@ -58,7 +58,11 @@ SELECT * FROM ite
 SELECT [name],[dbid] FROM [master].[dbo].[sysdatabases] ORDER BY [name]
 
 
+SELECT * FROM usrShopifyBatchState;
 
+DELETE FROM usrShopifyBatchState;
 
+SELECT * FROM usrShopAcuOrderSync;
 
+DELETE FROM usrShopAcuOrderSync;
 

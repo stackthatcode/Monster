@@ -38,20 +38,19 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             foreach (var shopifyCustomer in notLoadedCustomers)
             {
-                PushCustomer(shopifyCustomer, _customerClient);
+                PushCustomer(shopifyCustomer);
             }
 
             var customersNeedingUpdate = _syncOrderRepository.RetrieveCustomersNeedingUpdate();
 
             foreach (var shopifyCustomer in customersNeedingUpdate)
             {
-                PushCustomer(shopifyCustomer, _customerClient);
+                PushCustomer(shopifyCustomer);
             }
         }
 
 
-        public UsrAcumaticaCustomer PushCustomer(
-                UsrShopifyCustomer shopifyCustomerRecord, CustomerClient acumaticaClient)
+        public UsrAcumaticaCustomer PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
         {
             var shopifyCustomer =
                 shopifyCustomerRecord
@@ -67,7 +66,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             }
 
             // Push Customer to Acumatica API
-            var resultJson = acumaticaClient.WriteCustomer(customer.SerializeToJson());
+            var resultJson = _customerClient.WriteCustomer(customer.SerializeToJson());
             var customerResult = resultJson.DeserializeFromJson<Customer>();
 
             var log = $"Wrote Customer {customerResult.CustomerID.value} to Acumatica";

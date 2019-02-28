@@ -20,6 +20,7 @@ namespace Monster.Middle.Security
         
         private Guid? _instanceId;
 
+        public readonly Guid ConnectionIdentifier = Guid.NewGuid();
 
         public ConnectionContext(
                 ConnectionRepository connectionRepository, 

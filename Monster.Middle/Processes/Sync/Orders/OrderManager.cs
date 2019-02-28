@@ -72,8 +72,6 @@ namespace Monster.Middle.Processes.Sync.Orders
 
         public void RoutineOrdersSync()
         {
-            //AcumaticaSessionRun(() => _acumaticaOrderSync.Run());
-
             const int workerCount = 2;
             _logger.Debug("Starting AcumaticaOrderSync -> RunParallel with {workerCount} threads");
 
@@ -95,9 +93,9 @@ namespace Monster.Middle.Processes.Sync.Orders
             }
         }
 
-        public void OrderSyncInChildScope(ConcurrentQueue<UsrShopifyOrder> queue)
+        public void OrderSyncInChildScope(ConcurrentQueue<long> queue)
         {
-            var instantId = _connectionContext.InstanceId;
+            var instanceId = _connectionContext.InstanceId;
 
             using (var childScope = _lifetimeScope.BeginLifetimeScope())
             {
@@ -105,7 +103,8 @@ namespace Monster.Middle.Processes.Sync.Orders
                 var childAcumaticaContext = childScope.Resolve<AcumaticaHttpContext>();
                 var childOrderSync = childScope.Resolve<AcumaticaOrderSync>();
 
-                childConnectionContext.Initialize(instantId);
+                _logger.Debug($"OrderSyncInChildScope - Acumatica Context: {childAcumaticaContext.ObjectIdentifier}");
+                childConnectionContext.Initialize(instanceId);
 
                 AcumaticaSessionRun(() => childOrderSync.RunWorker(queue), childAcumaticaContext);
             }

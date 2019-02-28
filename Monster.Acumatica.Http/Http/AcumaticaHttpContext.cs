@@ -13,7 +13,7 @@ namespace Monster.Acumatica.Http
 {
     public class AcumaticaHttpContext : IDisposable
     {
-        public readonly Guid InstanceId = Guid.NewGuid();
+        public readonly Guid ObjectIdentifier = Guid.NewGuid();
 
         private readonly AcumaticaHttpConfig _settings;
         private readonly IPushLogger _logger;
@@ -102,7 +102,7 @@ namespace Monster.Acumatica.Http
             bool excludeVersion = false)
         {
             var address = MakePath(path, excludeVersion);
-            _logger.Debug($"HTTP GET on {address}");
+            _logger.Debug($"HTTP GET on {address} (ContextId: {this.ObjectIdentifier})");
 
             var response =
                 DurableExecutor.Do(
@@ -124,7 +124,7 @@ namespace Monster.Acumatica.Http
                 = new StringContent(content, Encoding.UTF8, "application/json");
 
             var address = MakePath(path, excludeVersion);
-            _logger.Debug($"HTTP POST on {address}");
+            _logger.Debug($"HTTP POST on {address} (ContextId: {this.ObjectIdentifier})");
             _logger.Trace(content);
             var response =
                 DurableExecutor.Do(
@@ -143,7 +143,7 @@ namespace Monster.Acumatica.Http
             Dictionary<string, string> headers = null,
             bool excludeVersion = false)
         {
-            _logger.Debug($"HTTP PUT on {path}");
+            _logger.Debug($"HTTP PUT on {path} (ContextId: {this.ObjectIdentifier})");
             _logger.Trace(content);
 
             var address = MakePath(path, excludeVersion);
