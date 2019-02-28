@@ -14,11 +14,11 @@ namespace Push.Shopify.Config
         public static ShopifyHttpConfig Settings { get; } = new ShopifyHttpConfig();
         
 
-        [ConfigurationProperty("RetryLimit", IsRequired = true)]
-        public int RetryLimit
+        [ConfigurationProperty("MaxAttempts", IsRequired = true)]
+        public int MaxAttempts
         {
-            get { return ((string) _settings["RetryLimit"]).ToIntegerAlt(3); }
-            set { _settings["RetryLimit"] = value; }
+            get { return ((string) _settings["MaxAttempts"]).ToIntegerAlt(3); }
+            set { _settings["MaxAttempts"] = value; }
         }
 
         [ConfigurationProperty("Timeout", IsRequired = true)]

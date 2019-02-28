@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
-using Push.Foundation.Web.Misc;
+using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Web.Execution;
+
 
 namespace Push.Foundation.Web.Http
 {
     public class HttpFacade : IDisposable
     {
+        private readonly IPushLogger _logger;
         private readonly HttpClient _client;
-        private readonly ExecutorContext _context;
+        private readonly FaultTolerantExecutor _executor;
 
-        public HttpFacade(HttpClient client, ExecutorContext context)
+        public HttpFacade(
+                IPushLogger logger, HttpClient client, FaultTolerantExecutor executor)
         {
+            _logger = logger;
             _client = client;
-            _context = context;
+            _executor = executor;
         }
 
         public virtual ResponseEnvelope Get(
@@ -22,12 +27,10 @@ namespace Push.Foundation.Web.Http
                 Dictionary<string, string> headers = null,
                 string contentType = "application/json; charset=utf-8")
         {
-            _context.Logger.Debug($"HTTP GET on {url}");
+            _logger.Debug($"HTTP GET on {url}");
 
-            var response =
-                DurableExecutor.Do(
-                    () => _client.GetAsync(url).Result, _context);
-
+            var response = _executor.Do(() => _client.GetAsync(url).Result);
+            
             return response
                     .ToEnvelope()
                     .ProcessStatusCodes();
@@ -35,15 +38,12 @@ namespace Push.Foundation.Web.Http
 
         public virtual ResponseEnvelope Post(string url, string content)
         {
-            _context.Logger.Debug($"HTTP POST on {url}");
+            _logger.Debug($"HTTP POST on {url}");
 
-            var httpContent
-                = new StringContent(content, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+            var response = _executor.Do(() => _client.PostAsync(url, httpContent).Result);
             
-            var response =
-                DurableExecutor.Do(
-                    () => _client.PostAsync(url, httpContent).Result, _context);
-
             return response
                 .ToEnvelope()
                 .ProcessStatusCodes();
@@ -51,15 +51,12 @@ namespace Push.Foundation.Web.Http
 
         public virtual ResponseEnvelope Put(string url, string content)
         {
-            _context.Logger.Debug($"HTTP PUT on {url}");
+            _logger.Debug($"HTTP PUT on {url}");
 
-            var httpContent
-                = new StringContent(content, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response =
-                DurableExecutor.Do(
-                    () => _client.PutAsync(url, httpContent).Result, _context);
-
+            var response = _executor.Do(() => _client.PutAsync(url, httpContent).Result);
+            
             return response
                 .ToEnvelope()
                 .ProcessStatusCodes();

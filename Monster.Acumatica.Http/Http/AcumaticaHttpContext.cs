@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Monster.Acumatica.Config;
 using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Web.Execution;
 using Push.Foundation.Web.Http;
 using Push.Foundation.Web.Misc;
 
@@ -21,7 +22,7 @@ namespace Monster.Acumatica.Http
         // These are set by the Initialize method
         private string _instanceUrl;
         private HttpClient _httpClient;
-        private ExecutorContext _executorContext;
+        private FaultTolerantExecutor _executor;
         private AcumaticaCredentials _credentials;
         public Uri BaseAddress { private set; get; }
 
@@ -40,9 +41,9 @@ namespace Monster.Acumatica.Http
             BaseAddress = new Uri(credentials.InstanceUrl);
             _instanceUrl = credentials.InstanceUrl;
 
-            _executorContext = new ExecutorContext()
+            _executor = new FaultTolerantExecutor()
             {
-                NumberOfAttempts = _settings.RetryLimit,
+                MaxNumberOfAttempts = _settings.MaxAttempts,
                 ThrottlingKey = credentials.InstanceUrl,
                 Logger = _logger,
             };
@@ -97,39 +98,35 @@ namespace Monster.Acumatica.Http
         }
 
         public ResponseEnvelope Get(
-            string path,
-            Dictionary<string, string> headers = null,
-            bool excludeVersion = false)
+                string path,
+                Dictionary<string, string> headers = null,
+                bool excludeVersion = false)
         {
             var address = MakePath(path, excludeVersion);
             _logger.Debug($"HTTP GET on {address} (ContextId: {this.ObjectIdentifier})");
 
-            var response =
-                DurableExecutor.Do(
-                    () => _httpClient.GetAsync(address).Result, _executorContext);
-
+            var response = _executor.Do(() => _httpClient.GetAsync(address).Result);
+            
             var output = response.ToEnvelope();
-            _logger.Trace(output.Body);
             output.ProcessStatusCodes();
+
+            _logger.Trace(output.Body);
             return output;
         }
 
         public ResponseEnvelope Post(
-            string path,
-            string content,
-            Dictionary<string, string> headers = null,
-            bool excludeVersion = false)
+                string path, 
+                string content, 
+                Dictionary<string, string> headers = null,
+                bool excludeVersion = false)
         {
-            var httpContent
-                = new StringContent(content, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             var address = MakePath(path, excludeVersion);
             _logger.Debug($"HTTP POST on {address} (ContextId: {this.ObjectIdentifier})");
             _logger.Trace(content);
-            var response =
-                DurableExecutor.Do(
-                    () => _httpClient.PostAsync(address, httpContent).Result,
-                    _executorContext);
+
+            var response = _executor.Do(() => _httpClient.PostAsync(address, httpContent).Result);
 
             var output = response.ToEnvelope();
             _logger.Trace(output.Body);
@@ -138,23 +135,18 @@ namespace Monster.Acumatica.Http
         }
 
         public ResponseEnvelope Put(
-            string path,
-            string content,
-            Dictionary<string, string> headers = null,
-            bool excludeVersion = false)
+                string path,
+                string content,
+                Dictionary<string, string> headers = null,
+                bool excludeVersion = false)
         {
             _logger.Debug($"HTTP PUT on {path} (ContextId: {this.ObjectIdentifier})");
             _logger.Trace(content);
 
             var address = MakePath(path, excludeVersion);
+            var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var httpContent
-                = new StringContent(content, Encoding.UTF8, "application/json");
-
-            var response =
-                DurableExecutor.Do(
-                    () => _httpClient.PutAsync(address, httpContent).Result,
-                    _executorContext);
+            var response = _executor.Do(() => _httpClient.PutAsync(address, httpContent).Result);
 
             var output = response.ToEnvelope();
             _logger.Trace(output.Body);

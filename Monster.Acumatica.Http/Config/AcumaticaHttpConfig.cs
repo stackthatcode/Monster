@@ -15,19 +15,19 @@ namespace Monster.Acumatica.Config
                 Settings { get; } = new AcumaticaHttpConfig();
 
 
-        private const int DefaultRetryLimit = 3;
+        private const int DefaultMaxAttempts = 3;
         private const int DefaultTimeout = 180000;
         private const int DefaultThrottlingDelay = 250;
         private const string DefaultVersionSegment = "/entity/Monster/17.200.001/";
 
 
-        [ConfigurationProperty("RetryLimit", IsRequired = true)]
-        public int RetryLimit
+        [ConfigurationProperty("MaxAttempts", IsRequired = true)]
+        public int MaxAttempts
         {
-            get { return ((string)_settings["RetryLimit"])
-                        .ToIntegerAlt(DefaultRetryLimit); }
+            get { return ((string)_settings["MaxAttempts"])
+                        .ToIntegerAlt(DefaultMaxAttempts); }
 
-            set { _settings["RetryLimit"] = value; }
+            set { _settings["MaxAttempts"] = value; }
         }
 
         [ConfigurationProperty("Timeout", IsRequired = true)]

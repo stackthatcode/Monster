@@ -73,7 +73,7 @@ namespace Monster.Middle.Processes.Sync.Orders
         public void RoutineOrdersSync()
         {
             const int workerCount = 2;
-            _logger.Debug("Starting AcumaticaOrderSync -> RunParallel with {workerCount} threads");
+            _logger.Debug($"Starting AcumaticaOrderSync -> RunParallel with {workerCount} threads");
 
             ServicePointManager.DefaultConnectionLimit = 100;
             var queue = _acumaticaOrderSync.BuildQueue();

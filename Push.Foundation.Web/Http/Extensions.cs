@@ -20,8 +20,8 @@ namespace Push.Foundation.Web.Http
             //request.Headers["content-length"] = byteArray.Length.ToString();
         }
 
-        public static ResponseEnvelope 
-                ToEnvelope(this HttpResponseMessage message)
+        public static ResponseEnvelope ToEnvelope(
+                this HttpResponseMessage message, string url = null, string requestBody = null)
         {
             var output = new ResponseEnvelope();
 

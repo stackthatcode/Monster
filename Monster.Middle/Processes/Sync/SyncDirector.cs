@@ -198,14 +198,13 @@ namespace Monster.Middle.Processes.Sync
             RunImpervious(() => _orderManager.RoutineOrdersSync());
             RunImpervious(() => _orderManager.RoutineFulfillmentSync());
 
-            RunImpervious(() => _acumaticaManager.PullInventory());
-            RunImpervious(() => _shopifyManager.PullInventory());
-
-            RunImpervious(() => _inventorySyncManager.PushInventoryCountsIntoShopify());
-
             RunImpervious(() => _orderManager.RoutineOrdersSync());
             RunImpervious(() => _orderManager.RoutinePaymentSync());
             RunImpervious(() => _orderManager.RoutineRefundSync());
+            
+            RunImpervious(() => _acumaticaManager.PullInventory());
+            RunImpervious(() => _shopifyManager.PullInventory());
+            RunImpervious(() => _inventorySyncManager.PushInventoryCountsToShopify());
         }
 
         // Swallows Exceptions to enable sequences of tasks to be run 

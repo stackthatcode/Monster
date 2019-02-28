@@ -1,121 +1,122 @@
-﻿using System;
-using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.Misc;
-using NUnit.Framework;
-using Rhino.Mocks;
+﻿//using System;
+//using Push.Foundation.Utilities.Logging;
+//using Push.Foundation.Web.Misc;
+//using NUnit.Framework;
+//using Push.Foundation.Web.Execution;
+//using Rhino.Mocks;
 
-namespace Push.Foundation.Tests.Web
-{
-    [TestFixture]
-    public class InsistentExecutorTests
-    {
-        public class MockClass
-        {
-            public virtual bool DoSomething()
-            {
-                return true;
-            }
-        }
+//namespace Push.Foundation.Tests.Web
+//{
+//    [TestFixture]
+//    public class InsistentExecutorTests
+//    {
+//        public class MockClass
+//        {
+//            public virtual bool DoSomething()
+//            {
+//                return true;
+//            }
+//        }
         
-        [Test]
-        public void ExecutesOnceOnSuccess()
-        {
-            // Assemble
-            var context = new ExecutorContext()
-            {
-                NumberOfAttempts = 3
-            };
+//        [Test]
+//        public void ExecutesOnceOnSuccess()
+//        {
+//            // Assemble
+//            var context = new ExecutorContext()
+//            {
+//                NumberOfAttempts = 3
+//            };
 
-            var mockClass = MockRepository.GenerateMock<MockClass>();
-            mockClass.Expect(x => x.DoSomething()).Return(true);
+//            var mockClass = MockRepository.GenerateMock<MockClass>();
+//            mockClass.Expect(x => x.DoSomething()).Return(true);
 
-            // Act
-            var result = 
-                DurableExecutor.Do(() => mockClass.DoSomething(), context);
+//            // Act
+//            var result = 
+//                FaultTolerantExecutor.ThrottledDo(() => mockClass.DoSomething(), context);
 
-            // Assert
-            Assert.IsTrue(result);
-            mockClass.VerifyAllExpectations();
-        }
+//            // Assert
+//            Assert.IsTrue(result);
+//            mockClass.VerifyAllExpectations();
+//        }
 
-        [Test]
-        public void ExecutesTwiceOnFailSuccess()
-        {
-            // Assemble
-            var context = new ExecutorContext()
-            {
-                NumberOfAttempts = 3
-            };
+//        [Test]
+//        public void ExecutesTwiceOnFailSuccess()
+//        {
+//            // Assemble
+//            var context = new ExecutorContext()
+//            {
+//                NumberOfAttempts = 3
+//            };
 
-            var mockClass = MockRepository.GenerateMock<MockClass>();
-            mockClass
-                .Expect(x => x.DoSomething())
-                .Throw(new Exception("Aha! Fail!"))
-                .Repeat.Once();
+//            var mockClass = MockRepository.GenerateMock<MockClass>();
+//            mockClass
+//                .Expect(x => x.DoSomething())
+//                .Throw(new Exception("Aha! Fail!"))
+//                .Repeat.Once();
 
-            mockClass
-                .Expect(x => x.DoSomething())
-                .Return(true);
+//            mockClass
+//                .Expect(x => x.DoSomething())
+//                .Return(true);
 
-            // Act
-            var result =
-                DurableExecutor.Do(() => mockClass.DoSomething(), context);
+//            // Act
+//            var result =
+//                FaultTolerantExecutor.ThrottledDo(() => mockClass.DoSomething(), context);
 
-            // Assert
-            Assert.IsTrue(result);
-            mockClass.VerifyAllExpectations();
-        }
+//            // Assert
+//            Assert.IsTrue(result);
+//            mockClass.VerifyAllExpectations();
+//        }
         
-        [Test]
-        public void ExecutesThriceOnFailFailSuccess()
-        {
-            // Assemble
-            var context = new ExecutorContext()
-            {
-                NumberOfAttempts = 3
-            };
+//        [Test]
+//        public void ExecutesThriceOnFailFailSuccess()
+//        {
+//            // Assemble
+//            var context = new ExecutorContext()
+//            {
+//                NumberOfAttempts = 3
+//            };
 
-            var mockClass = MockRepository.GenerateMock<MockClass>();
-            mockClass
-                .Expect(x => x.DoSomething())
-                .Throw(new Exception("Aha! Fail!"))
-                .Repeat.Times(2);
+//            var mockClass = MockRepository.GenerateMock<MockClass>();
+//            mockClass
+//                .Expect(x => x.DoSomething())
+//                .Throw(new Exception("Aha! Fail!"))
+//                .Repeat.Times(2);
 
-            mockClass
-                .Expect(x => x.DoSomething())
-                .Return(true);
+//            mockClass
+//                .Expect(x => x.DoSomething())
+//                .Return(true);
 
-            // Act
-            var result =
-                DurableExecutor.Do(() => mockClass.DoSomething(), context);
+//            // Act
+//            var result =
+//                FaultTolerantExecutor.ThrottledDo(() => mockClass.DoSomething(), context);
 
-            // Assert
-            Assert.IsTrue(result);
-            mockClass.VerifyAllExpectations();
-        }
+//            // Assert
+//            Assert.IsTrue(result);
+//            mockClass.VerifyAllExpectations();
+//        }
 
-        [Test]
-        public void ExecutesThriceOnFailFailFailAndThrowException()
-        {
-            // Assemble
-            var context = new ExecutorContext()
-            {
-                NumberOfAttempts = 3
-            };
+//        [Test]
+//        public void ExecutesThriceOnFailFailFailAndThrowException()
+//        {
+//            // Assemble
+//            var context = new ExecutorContext()
+//            {
+//                NumberOfAttempts = 3
+//            };
 
-            var mockClass = MockRepository.GenerateMock<MockClass>();
-            mockClass
-                .Expect(x => x.DoSomething())
-                .Throw(new Exception("Aha! Fail!"))
-                .Repeat.Times(3);
+//            var mockClass = MockRepository.GenerateMock<MockClass>();
+//            mockClass
+//                .Expect(x => x.DoSomething())
+//                .Throw(new Exception("Aha! Fail!"))
+//                .Repeat.Times(3);
 
-            // Act
-            Assert.Throws<Exception>(
-                () =>
-                {
-                    var result =
-                        DurableExecutor.Do(() => mockClass.DoSomething(), context);
-                });
-        }
-    }
-}
+//            // Act
+//            Assert.Throws<Exception>(
+//                () =>
+//                {
+//                    var result =
+//                        FaultTolerantExecutor.ThrottledDo(() => mockClass.DoSomething(), context);
+//                });
+//        }
+//    }
+//}

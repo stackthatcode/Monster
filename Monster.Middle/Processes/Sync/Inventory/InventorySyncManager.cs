@@ -44,7 +44,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
             });
         }
 
-        public void PushInventoryCountsIntoShopify()
+        public void PushInventoryCountsToShopify()
         {
             _shopifyInventorySync.Run();
         }

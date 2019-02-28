@@ -29,8 +29,7 @@ namespace Monster.Middle.Processes.Shopify
             _orderApi = orderApi;
         }
 
-
-
+        
         public void TestConnection()
         {
             _orderApi.RetrieveCount();

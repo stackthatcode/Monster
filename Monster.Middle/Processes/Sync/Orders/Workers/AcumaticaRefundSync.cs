@@ -133,13 +133,17 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             // First refresh the SalesOrder -> TaxDetailId
             var salesOrderRecord = refundRecord.UsrShopifyOrder.MatchingSalesOrder();
 
-            var taxId =
-                RetrieveAndExtractFromSalesOrder(
-                    salesOrderRecord.AcumaticaOrderNbr,
-                    SalesOrderType.SO, 
-                    x => x.TaxDetails.First().id,
-                    SalesOrderExpand.TaxDetails);
-            
+            var taxId = RetrieveTaxId(salesOrderRecord.AcumaticaOrderNbr, SalesOrderType.SO);
+
+            if (taxId == null)
+            {
+                refundRecord.IsCancellationSynced = true;
+                refundRecord.LastUpdated = DateTime.UtcNow;
+                _syncOrderRepository.SaveChanges();
+                return;
+            }
+
+
             salesOrderRecord.UsrShopAcuOrderSyncs.First().AcumaticaTaxDetailId = taxId;
             _syncOrderRepository.SaveChanges();
 
@@ -246,11 +250,15 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
             
             // Write the Sales Tax 
-            var taxId = 
-                RetrieveAndExtractFromSalesOrder(
-                    syncRecord.AcumaticaCreditMemoOrderNbr, 
-                    SalesOrderType.CM,  x => x.TaxDetails.First().id,
-                    SalesOrderExpand.TaxDetails);
+            var taxId = RetrieveTaxId(syncRecord.AcumaticaCreditMemoOrderNbr, SalesOrderType.CM);
+
+            if (taxId == null)
+            {
+                syncRecord.IsCmOrderTaxLoaded = true;
+                syncRecord.LastUpdated = DateTime.Today;
+                _syncOrderRepository.SaveChanges();
+                return;
+            }
 
             var taxUpdate = new TaxDetails();
             taxUpdate.id = taxId;
@@ -445,17 +453,18 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
             return detail;
         }
-        
 
-        private T RetrieveAndExtractFromSalesOrder<T>(
-                string orderNbr, string orderType, Func<SalesOrder, T> expr, string expand)
+
+        private string RetrieveTaxId(string orderNbr, string orderType)
         {
-            var json = _salesOrderClient.RetrieveSalesOrder(orderNbr, orderType, expand);
-            var creditMemoOrder = json.DeserializeFromJson<SalesOrder>();
-            return expr(creditMemoOrder);
+            var json = 
+                _salesOrderClient
+                    .RetrieveSalesOrder(orderNbr, orderType, SalesOrderExpand.TaxDetails);
+
+            var order = json.DeserializeFromJson<SalesOrder>();
+            return order.TaxDetails.Any() ? order.TaxDetails.First().id : null;
         }
-
-
+        
     }
 }
 

@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Web.Execution;
 using Push.Foundation.Web.Http;
 using Push.Foundation.Web.Misc;
 using Push.Shopify.Config;
@@ -19,7 +20,7 @@ namespace Push.Shopify.Http
 
         // Hydrated by calls to Initialize()
         private HttpClient _httpClient;
-        private ExecutorContext _executorContext;
+        private FaultTolerantExecutor _executor;
         public Uri BaseAddress { private set; get; }
 
 
@@ -33,9 +34,9 @@ namespace Push.Shopify.Http
         {
             BaseAddress = new Uri(credentials.Domain.BaseUrl);
 
-            _executorContext = new ExecutorContext()
+            _executor = new FaultTolerantExecutor()
             {
-                NumberOfAttempts = _settings.RetryLimit,
+                MaxNumberOfAttempts = _settings.MaxAttempts,
                 ThrottlingKey = credentials.Domain.BaseUrl,
                 ThrottlingDelay = _settings.ThrottlingDelay,
                 Logger = _logger,
@@ -110,10 +111,8 @@ namespace Push.Shopify.Http
         {
             _logger.Debug($"HTTP GET on {url}");
 
-            var response =
-                DurableExecutor.Do(
-                    () => _httpClient.GetAsync(url).Result, _executorContext);
-
+            var response = _executor.Do(() => _httpClient.GetAsync(url).Result);
+                
             var output = response.ToEnvelope();
             _logger.Trace(output.Body);
             output.ProcessStatusCodes();
@@ -126,13 +125,9 @@ namespace Push.Shopify.Http
             _logger.Trace(content);
 
             // Warning - change this at your own risk
-            var httpContent
-                = new StringContent(content, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response =
-                DurableExecutor.Do(
-                    () => _httpClient.PostAsync(url, httpContent).Result, 
-                           _executorContext);
+            var response = _executor.Do(() => _httpClient.PostAsync(url, httpContent).Result);
 
             var output = response.ToEnvelope();
             _logger.Trace(output.Body);
@@ -146,13 +141,9 @@ namespace Push.Shopify.Http
             _logger.Trace(content);
 
             // Warning - change this at your own risk
-            var httpContent
-                = new StringContent(content, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response =
-                DurableExecutor.Do(
-                    () => _httpClient.PutAsync(url, httpContent).Result, 
-                            _executorContext);
+            var response = _executor.Do(() => _httpClient.PutAsync(url, httpContent).Result);
 
             var output = response.ToEnvelope();
             _logger.Trace(output.Body);

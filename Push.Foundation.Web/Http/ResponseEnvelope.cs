@@ -7,7 +7,11 @@ namespace Push.Foundation.Web.Http
 {
     public class ResponseEnvelope
     {
-        public bool IsBinary => BinaryData != null;
+        // Request
+        public string Url { get; set; }
+        public string RequestBody { get; set; }
+        
+        // Response
         public HttpStatusCode StatusCode { get; set; }
         public Dictionary<string, string> Headers { get; set; }
         public string Body { get; set; }
