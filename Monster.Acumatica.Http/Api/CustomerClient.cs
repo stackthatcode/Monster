@@ -1,6 +1,7 @@
 ﻿using System;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
+using Push.Foundation.Utilities.Logging;
 
 
 namespace Monster.Acumatica.Api
@@ -42,3 +43,4 @@ namespace Monster.Acumatica.Api
         }        
     }
 }
+

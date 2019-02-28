@@ -40,12 +40,22 @@ SELECT * FROM usrBackgroundJob;
 
 SELECT * FROM usrAcumaticaBatchState;
 
-UPDATE usrAcumaticaBatchState SET AcumaticaProductsPullEnd = '2019-02-24 18:45:17.597'
+UPDATE usrAcumaticaBatchState SET AcumaticaStockItemPullEnd = NULL;
 
 SELECT * FROM usrAcumaticaWarehouseDetails ;
 
 UPDATE usrAcumaticaWarehouseDetails SET IsInventorySynced = 0;
 
+SELECT * FROM usrAcumaticaStockItem;
+
+
+USE AcuInst6;
+
+SELECT * FROM INItemSite;
+
+SELECT * FROM ite
+
+SELECT [name],[dbid] FROM [master].[dbo].[sysdatabases] ORDER BY [name]
 
 
 

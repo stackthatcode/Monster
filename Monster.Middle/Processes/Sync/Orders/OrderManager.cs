@@ -1,16 +1,25 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
+using Autofac;
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders.Workers;
+using Monster.Middle.Security;
 using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Sync.Orders
 {
     public class OrderManager
     {
+        private readonly ILifetimeScope _lifetimeScope;
+
         private readonly PreferencesRepository _preferencesRepository;
         private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
+        private readonly ConnectionContext _connectionContext;
 
         private readonly AcumaticaHttpContext _acumaticaContext;
         private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
@@ -34,7 +43,9 @@ namespace Monster.Middle.Processes.Sync.Orders
 
                 ShopifyFulfillmentSync shopifyFulfillmentSync, 
                 PreferencesRepository preferencesRepository,
-                
+
+                ConnectionContext connectionContext,
+                ILifetimeScope lifetimeScope,
                 IPushLogger logger)
         {
             _acumaticaContext = acumaticaContext;
@@ -47,27 +58,74 @@ namespace Monster.Middle.Processes.Sync.Orders
 
             _shopifyFulfillmentSync = shopifyFulfillmentSync;
             _preferencesRepository = preferencesRepository;
+
+            _connectionContext = connectionContext;
+            _lifetimeScope = lifetimeScope;
             _logger = logger;
         }
 
-        
+
+        public void RoutineCustomerSync()
+        {
+            AcumaticaSessionRun(() => _acumaticaCustomerSync.Run());
+        }
 
         public void RoutineOrdersSync()
         {
+            //AcumaticaSessionRun(() => _acumaticaOrderSync.Run());
+
+            const int workerCount = 2;
+            _logger.Debug("Starting AcumaticaOrderSync -> RunParallel with {workerCount} threads");
+
+            ServicePointManager.DefaultConnectionLimit = 100;
+            var queue = _acumaticaOrderSync.BuildQueue();
+
+            // This can be abstracted
+            var threads = new List<Thread>();
+            for (var i = 0; i < workerCount; i++)
+            {
+                var t = new Thread(() => OrderSyncInChildScope(queue));
+                t.Start();
+                threads.Add(t);
+            }
+
+            foreach (var t in threads)
+            {
+                t.Join();
+            }
+        }
+
+        public void OrderSyncInChildScope(ConcurrentQueue<UsrShopifyOrder> queue)
+        {
+            var instantId = _connectionContext.InstanceId;
+
+            using (var childScope = _lifetimeScope.BeginLifetimeScope())
+            {
+                var childConnectionContext = childScope.Resolve<ConnectionContext>();
+                var childAcumaticaContext = childScope.Resolve<AcumaticaHttpContext>();
+                var childOrderSync = childScope.Resolve<AcumaticaOrderSync>();
+
+                childConnectionContext.Initialize(instantId);
+
+                AcumaticaSessionRun(() => childOrderSync.RunWorker(queue), childAcumaticaContext);
+            }
+        }
+        
+        public void RoutinePaymentSync()
+        {
+            AcumaticaSessionRun(() => _acumaticaPaymentSync.RunPaymentsForOrders());
+        }
+
+        public void RoutineRefundSync()
+        {
             AcumaticaSessionRun(() =>
             {
-                _acumaticaCustomerSync.Run();
-                _acumaticaOrderSync.Run();
-
-                _acumaticaPaymentSync.RunPaymentsForOrders();
-
                 _acumaticaRefundSync.RunReturns();
                 _acumaticaRefundSync.RunCancels();
-
                 _acumaticaPaymentSync.RunPaymentsForRefunds();
             });
         }
-
+        
         public void RoutineFulfillmentSync()
         {
             var preferences = _preferencesRepository.RetrievePreferences();
@@ -76,6 +134,7 @@ namespace Monster.Middle.Processes.Sync.Orders
             // Sync Fulfillments to Acumatica Shipments
             if (!fulfilledInAcumatica)
             {
+                // TODO - this is vulnerable to failure of any one
                 AcumaticaSessionRun(() =>
                 {
                     _acumaticaShipmentSync.RunShipments();
@@ -95,15 +154,20 @@ namespace Monster.Middle.Processes.Sync.Orders
         {
             AcumaticaSessionRun(() =>
             {
-                _acumaticaOrderSync.RunByShopifyId(shopifyOrderId);
+                _acumaticaOrderSync.RunOrder(shopifyOrderId);
             });
         }
 
         public void AcumaticaSessionRun(Action action)
         {
+            AcumaticaSessionRun(action, _acumaticaContext);
+        }
+
+        public void AcumaticaSessionRun(Action action, AcumaticaHttpContext context)
+        {
             try
             {
-                _acumaticaContext.Login();
+                context.Login();
                 action();
             }
             catch (Exception ex)
@@ -112,9 +176,9 @@ namespace Monster.Middle.Processes.Sync.Orders
             }
             finally
             {
-                if (_acumaticaContext.IsLoggedIn)
+                if (context.IsLoggedIn)
                 {
-                    _acumaticaContext.Logout();
+                    context.Logout();
                 }
             }
         }

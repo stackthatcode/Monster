@@ -34,66 +34,40 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         public void Run()
         {
             var notLoadedCustomers 
-                    = _syncOrderRepository.RetrieveCustomersWithOrdersNotLoaded();
+                    = _syncOrderRepository.RetrieveUnsyncedShopifyCustomers();
 
             foreach (var shopifyCustomer in notLoadedCustomers)
             {
-                PushCustomer(shopifyCustomer);
+                PushCustomer(shopifyCustomer, _customerClient);
             }
 
-            var customersNeedingUpdate 
-                    = _syncOrderRepository.RetrieveCustomersNeedingUpdate();
+            var customersNeedingUpdate = _syncOrderRepository.RetrieveCustomersNeedingUpdate();
 
             foreach (var shopifyCustomer in customersNeedingUpdate)
             {
-                PushCustomer(shopifyCustomer);
+                PushCustomer(shopifyCustomer, _customerClient);
             }
         }
 
 
-        public UsrAcumaticaCustomer
-                    PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
+        public UsrAcumaticaCustomer PushCustomer(
+                UsrShopifyCustomer shopifyCustomerRecord, CustomerClient acumaticaClient)
         {
             var shopifyCustomer =
                 shopifyCustomerRecord
                     .ShopifyJson
                     .DeserializeFromJson<Push.Shopify.Api.Customer.Customer>();
             
-            var name = shopifyCustomer.first_name + " " + shopifyCustomer.last_name;
-            var shopifyAddress = shopifyCustomer.default_address;
-
-            var customer = new Customer();
-            customer.CustomerName = name.ToValue();
-
-            var address = new Address();
-            if (shopifyAddress != null)
-            {
-                address.AddressLine1 = shopifyAddress.address1.ToValue();
-                address.AddressLine2 = shopifyAddress.address2.ToValue();
-                address.City = shopifyAddress.city.ToValue();
-                address.State = shopifyAddress.province.ToValue();
-                address.PostalCode = shopifyAddress.zip.ToValue();
-            }
-
-            var mainContact = new Contact();
-            mainContact.Address = address;
-            mainContact.FirstName = shopifyCustomer.first_name.ToValue();
-            mainContact.LastName = shopifyCustomer.last_name.ToValue();
-            mainContact.Phone1 = shopifyCustomer.phone.ToValue();
-            mainContact.Email = shopifyCustomer.email.ToValue();
-
-            customer.MainContact = mainContact;
-            customer.AccountRef = $"Shopify Customer #{shopifyCustomer.id}".ToValue();
+            var customer = BuildCustomer(shopifyCustomer);
 
             var customerRecord = shopifyCustomerRecord.Match();
             if (customerRecord != null)
             {
-                customer.CustomerID 
-                    = customerRecord.AcumaticaCustomerId.ToValue();
+                customer.CustomerID = customerRecord.AcumaticaCustomerId.ToValue();
             }
 
             // Push Customer to Acumatica API
-            var resultJson = _customerClient.WriteCustomer(customer.SerializeToJson());
+            var resultJson = acumaticaClient.WriteCustomer(customer.SerializeToJson());
             var customerResult = resultJson.DeserializeFromJson<Customer>();
 
             var log = $"Wrote Customer {customerResult.CustomerID.value} to Acumatica";
@@ -127,5 +101,37 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 return output;
             }
         }
+
+
+        private static Customer BuildCustomer(Push.Shopify.Api.Customer.Customer shopifyCustomer)
+        {
+            var name = shopifyCustomer.first_name + " " + shopifyCustomer.last_name;
+            var shopifyAddress = shopifyCustomer.default_address;
+
+            var customer = new Customer();
+            customer.CustomerName = name.ToValue();
+
+            var address = new Address();
+            if (shopifyAddress != null)
+            {
+                address.AddressLine1 = shopifyAddress.address1.ToValue();
+                address.AddressLine2 = shopifyAddress.address2.ToValue();
+                address.City = shopifyAddress.city.ToValue();
+                address.State = shopifyAddress.province.ToValue();
+                address.PostalCode = shopifyAddress.zip.ToValue();
+            }
+
+            var mainContact = new Contact();
+            mainContact.Address = address;
+            mainContact.FirstName = shopifyCustomer.first_name.ToValue();
+            mainContact.LastName = shopifyCustomer.last_name.ToValue();
+            mainContact.Phone1 = shopifyCustomer.phone.ToValue();
+            mainContact.Email = shopifyCustomer.email.ToValue();
+
+            customer.MainContact = mainContact;
+            customer.AccountRef = $"Shopify Customer #{shopifyCustomer.id}".ToValue();
+            return customer;
+        }
     }
 }
+

@@ -95,7 +95,7 @@ namespace Monster.Middle.Processes.Sync.Orders
                 .FirstOrDefault(x => x.ShopifyCustomerId == shopifyCustomerId);
         }
 
-        public List<UsrShopifyCustomer> RetrieveCustomersWithOrdersNotLoaded()
+        public List<UsrShopifyCustomer> RetrieveUnsyncedShopifyCustomers()
         {
             return Entities
                 .UsrShopifyCustomers

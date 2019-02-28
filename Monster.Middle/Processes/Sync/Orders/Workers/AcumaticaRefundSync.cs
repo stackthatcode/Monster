@@ -10,8 +10,6 @@ using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory;
-using Monster.Middle.Processes.Sync.Orders.Model;
-using Newtonsoft.Json;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
@@ -145,7 +143,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             salesOrderRecord.UsrShopAcuOrderSyncs.First().AcumaticaTaxDetailId = taxId;
             _syncOrderRepository.SaveChanges();
 
-            _acumaticaOrderSync.PushOrderTaxesToAcumatica(refundRecord.UsrShopifyOrder);
+            _acumaticaOrderSync.RunOrder(refundRecord.ShopifyOrderId);
 
             // Now we can flag Refunds Cancellation as synced
             refundRecord.IsCancellationSynced = true;

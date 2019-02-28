@@ -13,13 +13,13 @@ namespace Monster.Acumatica.Http
 {
     public class AcumaticaHttpContext : IDisposable
     {
-        public readonly Guid Identifier = Guid.NewGuid();
+        public readonly Guid InstanceId = Guid.NewGuid();
 
         private readonly AcumaticaHttpConfig _settings;
         private readonly IPushLogger _logger;
 
         // These are set by the Initialize method
-        private string _instanceUrl;        
+        private string _instanceUrl;
         private HttpClient _httpClient;
         private ExecutorContext _executorContext;
         private AcumaticaCredentials _credentials;
@@ -27,14 +27,12 @@ namespace Monster.Acumatica.Http
 
         public bool IsLoggedIn { get; private set; } = false;
 
-        public AcumaticaHttpContext(
-                AcumaticaHttpConfig settings, 
-                IPushLogger logger)
+        public AcumaticaHttpContext(AcumaticaHttpConfig settings, IPushLogger logger)
         {
             _settings = settings;
             _logger = logger;
         }
-        
+
         public void Initialize(AcumaticaCredentials credentials)
         {
             _credentials = credentials;
@@ -49,23 +47,23 @@ namespace Monster.Acumatica.Http
                 Logger = _logger,
             };
 
-            _httpClient 
+            _httpClient
                 = new HttpClient(
                     new HttpClientHandler
                     {
                         UseCookies = true,
                         CookieContainer = new CookieContainer(),
                     })
+                {
+                    BaseAddress = BaseAddress,
+                    DefaultRequestHeaders =
                     {
-                        BaseAddress = BaseAddress,
-                        DefaultRequestHeaders =
+                        Accept =
                         {
-                            Accept =
-                            {
-                                MediaTypeWithQualityHeaderValue.Parse("text/json")
-                            }
+                            MediaTypeWithQualityHeaderValue.Parse("text/json")
                         }
-                    };
+                    }
+                };
 
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -80,7 +78,7 @@ namespace Monster.Acumatica.Http
         {
             var path = $"/entity/auth/login";
             var content = _credentials.AuthenticationJson;
-            var response = Post(path, content, excludeVersion:true);
+            var response = Post(path, content, excludeVersion: true);
             IsLoggedIn = true;
         }
 
@@ -94,14 +92,14 @@ namespace Monster.Acumatica.Http
         public string MakePath(string path, bool excludeVersion = false)
         {
             return !excludeVersion
-                ? $"{_instanceUrl}{_settings.VersionSegment}{path}" 
+                ? $"{_instanceUrl}{_settings.VersionSegment}{path}"
                 : $"{_instanceUrl}{path}";
         }
 
         public ResponseEnvelope Get(
-                    string path,
-                    Dictionary<string, string> headers = null,
-                    bool excludeVersion = false)
+            string path,
+            Dictionary<string, string> headers = null,
+            bool excludeVersion = false)
         {
             var address = MakePath(path, excludeVersion);
             _logger.Debug($"HTTP GET on {address}");
@@ -117,10 +115,10 @@ namespace Monster.Acumatica.Http
         }
 
         public ResponseEnvelope Post(
-                    string path, 
-                    string content,
-                    Dictionary<string, string> headers = null,
-                    bool excludeVersion = false)
+            string path,
+            string content,
+            Dictionary<string, string> headers = null,
+            bool excludeVersion = false)
         {
             var httpContent
                 = new StringContent(content, Encoding.UTF8, "application/json");
@@ -140,10 +138,10 @@ namespace Monster.Acumatica.Http
         }
 
         public ResponseEnvelope Put(
-                    string path, 
-                    string content,
-                    Dictionary<string, string> headers = null,
-                    bool excludeVersion = false)
+            string path,
+            string content,
+            Dictionary<string, string> headers = null,
+            bool excludeVersion = false)
         {
             _logger.Debug($"HTTP PUT on {path}");
             _logger.Trace(content);
@@ -170,4 +168,3 @@ namespace Monster.Acumatica.Http
         }
     }
 }
-

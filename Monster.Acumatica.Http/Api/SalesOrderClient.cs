@@ -10,8 +10,8 @@ namespace Monster.Acumatica.Api
 {
     public class SalesOrderClient
     {
-        private readonly AcumaticaHttpContext _httpContext;
-        private readonly IPushLogger _logger;
+        protected readonly AcumaticaHttpContext _httpContext;
+        protected readonly IPushLogger _logger;
         
         public SalesOrderClient(IPushLogger logger, AcumaticaHttpContext httpContext)
         {
@@ -19,6 +19,7 @@ namespace Monster.Acumatica.Api
             _httpContext = httpContext;
         }
         
+
         public string OrderInterfaceUrlById(string salesOrderId)
         {
             return 
@@ -122,5 +123,6 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
     }
+
 }
 
