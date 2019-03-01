@@ -23,7 +23,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly ExecutionLogService _logRepository;
+        private readonly ExecutionLogService _logService;
 
 
         public ShopifyFulfillmentSync(
@@ -33,7 +33,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 FulfillmentApi fulfillmentApi, 
-                ExecutionLogService logRepository)
+                ExecutionLogService logService)
         {
             _stateRepository = stateRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
@@ -41,7 +41,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _fulfillmentApi = fulfillmentApi;
-            _logRepository = logRepository;
+            _logService = logService;
         }
 
 
@@ -55,7 +55,10 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
                 if (syncReadiness.IsReady)
                 {
-                    PushFulfillmentToShopify(salesOrderRef);
+                    _logService.RunTransaction(
+                        () => PushFulfillmentToShopify(salesOrderRef), 
+                        SyncDescriptor.CreateShopifyFulfillment, 
+                        SyncDescriptor.AcumaticaShipmentSalesOrderRef(salesOrderRef));
                 }
             }
         }
@@ -177,7 +180,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 var log = $"Created Shopify Order #{shopifyOrder.order_number} Fulfillment " +
                           $"from Acumatica Shipment {shipment.ShipmentNbr.value}";
 
-                _logRepository.InsertExecutionLog(log);
+                _logService.InsertExecutionLog(log);
                 transaction.Commit();
             }
         }

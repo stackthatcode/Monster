@@ -21,7 +21,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     public class AcumaticaOrderSync
     {
         private readonly ILifetimeScope _lifetimeScope;
-        private readonly ExecutionLogService _logRepository;
+        private readonly ExecutionLogService _logService;
         private readonly IPushLogger _logger;
 
         private readonly PreferencesRepository _preferencesRepository;
@@ -48,7 +48,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 AcumaticaCustomerSync acumaticaCustomerSync)
         {
             _lifetimeScope = lifetimeScope;
-            _logRepository = logRepository;
+            _logService = logRepository;
             _logger = logger;
 
             _preferencesRepository = preferencesRepository;
@@ -74,6 +74,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             while (true)
             {
                 long shopifyOrderId;
+
                 if (queue.TryDequeue(out shopifyOrderId))
                 {
                     PushOrderWithCustomerAndTaxes(shopifyOrderId);
@@ -147,15 +148,21 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
         private void PushOrderWithCustomerAndTaxes(long shopifyOrderId)
         {
-            var shopifyOrderRecord 
-                    = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            RunAcumaticaCustomerSync(orderRecord);
+            
+            var success = 
+                _logService.RunTransaction(
+                        () => PushOrder(orderRecord),
+                        SyncDescriptor.CreateAcumaticaSalesOrder,
+                        SyncDescriptor.ShopifyOrder(orderRecord));
 
-            if (!shopifyOrderRecord.UsrShopAcuOrderSyncs.Any())
+            if (success)
             {
-                // *** Isolated Unit of Work 
-                PushCustomer(shopifyOrderRecord);
-                PushOrder(shopifyOrderRecord);
-                PushOrderTaxes(shopifyOrderRecord);
+                _logService.RunTransaction(
+                    () => PushOrder(orderRecord),
+                    SyncDescriptor.UpdateAcumaticaSalesOrderTaxes,
+                    SyncDescriptor.ShopifyOrder(orderRecord));
             }
         }
         
@@ -165,6 +172,11 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         //
         private void PushOrder(UsrShopifyOrder shopifyOrderRecord)
         {
+            if (shopifyOrderRecord.HasMatch())
+            {
+                return;
+            }
+
             var preferences = _preferencesRepository.RetrievePreferences();
             var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
             var shopifyCustomer = _syncOrderRepository.RetrieveCustomer(shopifyOrder.customer.id);
@@ -212,7 +224,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository
                     .InsertOrderSync(shopifyOrderRecord, acumaticaRecord, taxDetailsId, false);
 
-            _logRepository.InsertExecutionLog(
+            _logService.InsertExecutionLog(
                     $"Created Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
                     $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }
@@ -330,15 +342,15 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             syncRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.Entities.SaveChanges();
 
-            _logRepository.InsertExecutionLog(
+            _logService.InsertExecutionLog(
                 $"Wrote Taxes for Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
                 $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }
         
 
-        // Push Customer
+        // Invoke the Acumatica Customer Sync
         //
-        public UsrAcumaticaCustomer PushCustomer(UsrShopifyOrder shopifyOrder)
+        public void RunAcumaticaCustomerSync(UsrShopifyOrder shopifyOrder)
         {
             var customer =
                 _syncOrderRepository
@@ -346,11 +358,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             if (!customer.HasMatch())
             {
-                return _acumaticaCustomerSync.PushCustomer(customer);
-            }
-            else
-            {
-                return customer.Match();
+                _acumaticaCustomerSync.PushCustomer(customer);
             }
         }
     }

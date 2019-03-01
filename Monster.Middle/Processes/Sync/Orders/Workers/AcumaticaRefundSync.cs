@@ -18,7 +18,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaRefundSync
     {
-        private readonly ExecutionLogService _logRepository;
+        private readonly ExecutionLogService _logService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncRepository;
         private readonly SalesOrderClient _salesOrderClient;
@@ -33,7 +33,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     SyncInventoryRepository syncRepository,
                     SalesOrderClient salesOrderClient, 
                     PreferencesRepository preferencesRepository, 
-                    ExecutionLogService logRepository, 
+                    ExecutionLogService logService, 
                     AcumaticaOrderPull acumaticaOrderPull, 
                     AcumaticaOrderSync acumaticaOrderSync,
                     IPushLogger logger)
@@ -41,7 +41,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository = syncOrderRepository;
             _salesOrderClient = salesOrderClient;
             _preferencesRepository = preferencesRepository;
-            _logRepository = logRepository;
+            _logService = logService;
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaOrderSync = acumaticaOrderSync;
             _syncRepository = syncRepository;
@@ -142,8 +142,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 _syncOrderRepository.SaveChanges();
                 return;
             }
-
-
+            
             salesOrderRecord.UsrShopAcuOrderSyncs.First().AcumaticaTaxDetailId = taxId;
             _syncOrderRepository.SaveChanges();
 
@@ -154,7 +153,6 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             refundRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.SaveChanges();
         }
-
         
 
         // Refunds + Returns
@@ -173,41 +171,68 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 // Write a Credit Memo and Taxes (ha!) to Acumatica for restocked items
                 if (_return.DoesNotHaveCreditMemoOrder())
                 {
-                    PushReturnOrder(_return);
-                    PushReturnOrderTaxes(_return);
+                    var success = 
+                        _logService.RunTransaction(
+                            () => PushReturnOrder(_return),
+                            SyncDescriptor.CreateAcumaticaCreditMemo,
+                            SyncDescriptor.ShopifyRefund(_return));
+
+                    if (success)
+                    {
+                        _logService.RunTransaction(
+                            () => PushReturnOrderTaxes(_return),
+                            SyncDescriptor.UpdateAcumaticaCreditMemoTaxes,
+                            SyncDescriptor.ShopifyRefund(_return));
+                    }
+
                     continue;
                 }
 
-                if (_return.HasCreditMemoOrder() &&
-                    _return.CreditMemoTaxesAreNotSynced())
+                if (_return.HasCreditMemoOrder() && _return.CreditMemoTaxesAreNotSynced())
                 {
-                    PushReturnOrderTaxes(_return);
+                    _logService.RunTransaction(
+                        () => PushReturnOrderTaxes(_return),
+                        SyncDescriptor.UpdateAcumaticaCreditMemoTaxes,
+                        SyncDescriptor.ShopifyRefund(_return));
+
                     continue;
                 }
 
                 if (_return.DoesNotHaveCreditMemoInvoice())
                 {
-                    DetectReturnInvoice(_return);
-                    // No continue - keep processing with altered state
-                }
+                    var success =
+                        _logService.RunTransaction(
+                            () => DetectReturnInvoice(_return),
+                            SyncDescriptor.DetectAcumaticaCreditMemoInvoice,
+                            SyncDescriptor.ShopifyRefund(_return));
 
-                if (_return.DoesNotHaveCreditMemoInvoice())
-                {
-                    PrepareReturnInvoice(_return);
+                    if (success)
+                    {
+                        _logService.RunTransaction(
+                            () => CreateReturnInvoice(_return),
+                            SyncDescriptor.CreateAcumaticaCreditMemoInvoice,
+                            SyncDescriptor.ShopifyRefund(_return));
+                    }
+
                     continue;
                 }
 
-                if (_return.HasCreditMemoInvoice() &&
-                    _return.DoesNotHaveReleasedInvoice())
+                if (_return.HasCreditMemoInvoice() && _return.DoesNotHaveReleasedInvoice())
                 {
-                    DetectReleasedInvoice(_return);
                     // No continue - keep processing with altered state
+                    _logService.RunTransaction(
+                        () => DetectReturnInvoice(_return),
+                        SyncDescriptor.DetectAcumaticaCreditMemoInvoice,
+                        SyncDescriptor.ShopifyRefund(_return));
                 }
 
-                if (_return.HasCreditMemoInvoice() &&
-                    _return.DoesNotHaveReleasedInvoice())
+                if (_return.HasCreditMemoInvoice() && _return.DoesNotHaveReleasedInvoice())
                 {
-                    ReleaseReturnInvoice(_return);
+                    _logService.RunTransaction(
+                        () => ReleaseReturnInvoice(_return),
+                        SyncDescriptor.ReleaseAcumaticaCreditMemoInvoice,
+                        SyncDescriptor.ShopifyRefund(_return));
+
                     continue;
                 }
             }
@@ -239,7 +264,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 $"Created Credit Memo {resultCmOrder.OrderNbr.value} in Acumatica from " +
                 $"Shopify Order #{shopifyOrder.order_number}";
 
-            _logRepository.InsertExecutionLog(log);
+            _logService.InsertExecutionLog(log);
         }
 
         public void PushReturnOrderTaxes(UsrShopifyRefund refundRecord)
@@ -275,7 +300,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var result = _salesOrderClient.WriteSalesOrder(creditMemoWrite.SerializeToJson());
 
             var log = $"Wrote taxes for Credit Memo {syncRecord.AcumaticaCreditMemoOrderNbr} in Acumatica";
-            _logRepository.InsertExecutionLog(log);
+            _logService.InsertExecutionLog(log);
 
             syncRecord.IsCmOrderTaxLoaded = true;
             syncRecord.LastUpdated = DateTime.Today;
@@ -300,13 +325,12 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 syncRecord.LastUpdated = DateTime.UtcNow;
                 _syncOrderRepository.SaveChanges();
 
-                var msg = $"Detected CM Invoice {salesOrder.ShipmentInvoiceNbr()} " +
-                          $"for CM Order {cmOrderNbr}";
-                _logRepository.InsertExecutionLog(msg);
+                var msg = $"Detected CM Invoice {salesOrder.ShipmentInvoiceNbr()} for CM Order {cmOrderNbr}";
+                _logService.InsertExecutionLog(msg);
             }
         }
         
-        public void PrepareReturnInvoice(UsrShopifyRefund refundRecord)
+        public void CreateReturnInvoice(UsrShopifyRefund refundRecord)
         {
             var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
             var cmOrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr;
@@ -345,7 +369,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             var invoiceNbr = salesOrderPost.ShipmentInvoiceNbr();
             var log = $"Prepared CM Invoice {invoiceNbr} for CM Order {cmOrderNbr}";
-            _logRepository.InsertExecutionLog(log);
+            _logService.InsertExecutionLog(log);
 
             syncRecord.AcumaticaCreditMemoInvoiceNbr = invoiceNbr;
             syncRecord.LastUpdated = DateTime.UtcNow;
@@ -371,7 +395,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 _syncOrderRepository.SaveChanges();
 
                 var msg = $"Detected Release for CM Invoice {invoice.ReferenceNbr.value}";
-                _logRepository.InsertExecutionLog(msg);
+                _logService.InsertExecutionLog(msg);
             }
         }
 
@@ -392,16 +416,14 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             // Get the Invoice Number and store with the Sync Record
             var log = $"Released CM Invoice {invoicePre.ReferenceNbr.value}";
-            _logRepository.InsertExecutionLog(log);
+            _logService.InsertExecutionLog(log);
 
             syncRecord.IsCmInvoiceReleased = true;
             syncRecord.IsComplete = true;
             syncRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.SaveChanges();
         }
-
-
-
+        
         private ReturnForCreditWrite 
                     BuildReturnForCredit(UsrShopifyRefund refundRecord, UsrPreference preferences)
         {
@@ -453,8 +475,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
             return detail;
         }
-
-
+        
         private string RetrieveTaxId(string orderNbr, string orderType)
         {
             var json = 

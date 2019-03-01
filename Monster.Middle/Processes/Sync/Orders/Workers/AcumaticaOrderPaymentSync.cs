@@ -15,23 +15,23 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaOrderPaymentSync
     {
-        private readonly ExecutionLogService _logRepository;
+        private readonly ExecutionLogService _logService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly PreferencesRepository _preferencesRepository;
 
         public AcumaticaOrderPaymentSync(
-                SyncOrderRepository syncOrderRepository, 
-                PaymentClient paymentClient, 
-                PreferencesRepository preferencesRepository, 
-                ExecutionLogService logRepository,
-                SalesOrderClient salesOrderClient)
+                    SyncOrderRepository syncOrderRepository, 
+                    PaymentClient paymentClient, 
+                    PreferencesRepository preferencesRepository, 
+                    ExecutionLogService logService,
+                    SalesOrderClient salesOrderClient)
         {
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
             _preferencesRepository = preferencesRepository;
-            _logRepository = logRepository;
+            _logService = logService;
             _salesOrderClient = salesOrderClient;
         }
 
@@ -43,7 +43,10 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             {
                 if (transaction.ShouldCreatePayment())
                 {
-                    WritePaymentForOrders(transaction);
+                    _logService.RunTransaction(
+                            () => WritePaymentForOrders(transaction),
+                            SyncDescriptor.CreateAcumaticaPayment,
+                            SyncDescriptor.ShopifyTransaction(transaction));
                 }
             }
         }
@@ -90,7 +93,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.InsertPayment(paymentRecord);
 
             // Write Execution Log
-            _logRepository.InsertExecutionLog($"Created {payment.Description.value}");
+            _logService.InsertExecutionLog($"Created {payment.Description.value}");
         }
 
         
@@ -191,7 +194,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             _syncOrderRepository.InsertPayment(paymentRecord);
 
             // Write Execution Log
-            _logRepository.InsertExecutionLog($"Created {payment.Description.value}");
+            _logService.InsertExecutionLog($"Created {payment.Description.value}");
         }
     }
 }

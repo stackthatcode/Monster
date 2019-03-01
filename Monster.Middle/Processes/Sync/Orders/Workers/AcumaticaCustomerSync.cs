@@ -38,14 +38,20 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 
             foreach (var shopifyCustomer in notLoadedCustomers)
             {
-                PushCustomer(shopifyCustomer);
+                _executionLogService.RunTransaction(
+                    () => PushCustomer(shopifyCustomer),
+                    SyncDescriptor.CreateAcumaticaCustomer,
+                    SyncDescriptor.ShopifyCustomer(shopifyCustomer));
             }
 
             var customersNeedingUpdate = _syncOrderRepository.RetrieveCustomersNeedingUpdate();
 
             foreach (var shopifyCustomer in customersNeedingUpdate)
             {
-                PushCustomer(shopifyCustomer);
+                _executionLogService.RunTransaction(
+                    () => PushCustomer(shopifyCustomer),
+                    SyncDescriptor.UpdateAcumaticaCustomer,
+                    SyncDescriptor.ShopifyCustomer(shopifyCustomer));
             }
         }
 

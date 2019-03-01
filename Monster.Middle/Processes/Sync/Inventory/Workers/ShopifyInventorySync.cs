@@ -52,7 +52,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             {
                 _executionLogService.RunTransaction(
                         () => PriceUpdate(stockItem),
-                        SyncDescriptor.CreateInventoryReceipt,
+                        SyncDescriptor.UpdateShopifyPrice,
                         SyncDescriptor.AcumaticaStockItem(stockItem));
             }
         }
@@ -159,8 +159,8 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 // Update Shopify Inventory Level records
                 level.ShopifyAvailableQuantity = totalQtyOnHand;
                 level.LastUpdated = DateTime.UtcNow;
-                _inventoryRepository.SaveChanges();
 
+                _inventoryRepository.SaveChanges();
                 transaction.Commit();
             }
         }
