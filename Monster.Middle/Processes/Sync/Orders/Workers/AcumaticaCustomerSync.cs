@@ -17,18 +17,18 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly CustomerClient _customerClient;
-        private readonly ExecutionLogRepository _executionLogRepository;
+        private readonly ExecutionLogService _executionLogService;
 
         public AcumaticaCustomerSync(
                 AcumaticaCustomerPull acumaticaCustomerPull,
                 SyncOrderRepository syncOrderRepository, 
                 CustomerClient customerClient, 
-                ExecutionLogRepository executionLogRepository)
+                ExecutionLogService executionLogService)
         {
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _syncOrderRepository = syncOrderRepository;
             _customerClient = customerClient;
-            _executionLogRepository = executionLogRepository;
+            _executionLogService = executionLogService;
         }
 
         public void Run()
@@ -70,7 +70,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
             var customerResult = resultJson.DeserializeFromJson<Customer>();
 
             var log = $"Wrote Customer {customerResult.CustomerID.value} to Acumatica";
-            _executionLogRepository.InsertExecutionLog(log);
+            _executionLogService.InsertExecutionLog(log);
             
             // Create SQL footprint
             using (var transaction = _syncOrderRepository.BeginTransaction())

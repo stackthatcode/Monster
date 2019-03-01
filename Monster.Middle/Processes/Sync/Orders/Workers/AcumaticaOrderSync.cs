@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Autofac;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
@@ -22,7 +21,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
     public class AcumaticaOrderSync
     {
         private readonly ILifetimeScope _lifetimeScope;
-        private readonly ExecutionLogRepository _logRepository;
+        private readonly ExecutionLogService _logRepository;
         private readonly IPushLogger _logger;
 
         private readonly PreferencesRepository _preferencesRepository;
@@ -38,7 +37,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
          
         public AcumaticaOrderSync(
                 ILifetimeScope lifetimeScope,
-                ExecutionLogRepository logRepository,
+                ExecutionLogService logRepository,
                 IPushLogger logger,
                 PreferencesRepository preferencesRepository,
                 SyncOrderRepository syncOrderRepository,

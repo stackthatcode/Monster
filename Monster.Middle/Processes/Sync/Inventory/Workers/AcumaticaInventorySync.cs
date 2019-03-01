@@ -22,7 +22,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
         private readonly SyncInventoryRepository _syncRepository;
         private readonly DistributionClient _distributionClient;
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly ExecutionLogRepository _executionLogRepository;
+        private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
 
         public AcumaticaInventorySync(
@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 SyncInventoryRepository syncRepository,                    
                 DistributionClient distributionClient,
                 PreferencesRepository preferencesRepository,
-                ExecutionLogRepository executionLogRepository,
+                ExecutionLogService executionLogService,
                 IPushLogger logger)
         {
             _syncRepository = syncRepository;
@@ -38,7 +38,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             _distributionClient = distributionClient;
             _preferencesRepository = preferencesRepository;
             _logger = logger;
-            _executionLogRepository = executionLogRepository;
+            _executionLogService = executionLogService;
         }
 
         public void Run(AcumaticaInventoryImportContext context)
@@ -54,7 +54,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
                 if (context.CreateInventoryReceipts)
                 {
-                    RunInventoryReceipt(shopifyProductId);
+                    RunInventoryReceiptPush(shopifyProductId);
                 }
             }
         }
@@ -69,7 +69,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
             if (matchingShopifySkus.Count > 1)
             {
-                _executionLogRepository.InsertExecutionLog(
+                _executionLogService.InsertExecutionLog(
                     $"Shopify Variant SKU {variant.ShopifySku} has duplicates in Shopify");
                 return;
             }
@@ -79,7 +79,7 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
             if (stockItem != null && !stockItem.IsMatchedToShopify())
             {
-                _executionLogRepository
+                _executionLogService
                     .InsertExecutionLog(
                         $"Auto-matched Stock Item {stockItem.ItemId} " +
                         $"to Shopify Variant {variant.ShopifyVariantId}");
@@ -91,10 +91,12 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
 
             // With neither duplicates or Auto-matching having succeeded,
             // ... we'll create a new Stock Item in Acumatica
-            PushStockItem(context, variant);
+            _executionLogService.RunTransaction(
+                    () => StockItemPush(context, variant),
+                    SyncDescriptor.CreateStockItem, SyncDescriptor.ShopifyVariant(variant));
         }
 
-        public void PushStockItem(
+        public void StockItemPush(
                 AcumaticaInventoryImportContext context, UsrShopifyVariant variant)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
@@ -146,23 +148,31 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 _syncRepository.InsertItemSync(variant, newStockItemRecord, context.IsSyncEnabled);
 
                 var log = $"Created Stock Item {item.InventoryID.value} in Acumatica";
-                _executionLogRepository.InsertExecutionLog(log);
+                _executionLogService.InsertExecutionLog(log);
                 transaction.Commit();
             }
         }
 
-        public void RunInventoryReceipt(long shopifyProductId)
+        public void RunInventoryReceiptPush(long shopifyProductId)
+        {
+            _executionLogService.RunTransaction(
+                    () => InventoryReceiptPush(shopifyProductId),
+                    SyncDescriptor.CreateInventoryReceipt, 
+                    SyncDescriptor.ShopifyProduct(shopifyProductId));
+        }
+
+        public void InventoryReceiptPush(long shopifyProductId)
         {
             var inventory = _syncRepository.RetrieveInventoryLevels(shopifyProductId);
             var inventoryForSyncing = inventory.WithMatchedVariants();
-            
+
             // Push Inventory Receipt to Acumatica API
             var receipt = BuildReceipt(inventoryForSyncing);
 
             // Create Inventory Receipt in Acumatica
             var resultJson = _distributionClient.AddInventoryReceipt(receipt.SerializeToJson());
             var resultObject = resultJson.DeserializeFromJson<InventoryReceipt>();
-            
+
 
             // Create Monster Record
             var monsterReceipt = new UsrAcumaticaInventoryReceipt();
@@ -176,8 +186,8 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
             _inventoryRepository.InsertInventoryReceipt(monsterReceipt);
 
             var log = $"Created Inventory Receipt {monsterReceipt.AcumaticaRefNumber} in Acumatica";
-            _executionLogRepository.InsertExecutionLog(log);
-            
+            _executionLogService.InsertExecutionLog(log);
+
             foreach (var level in inventoryForSyncing)
             {
                 _syncRepository.InsertInventoryReceiptSync(level, monsterReceipt);

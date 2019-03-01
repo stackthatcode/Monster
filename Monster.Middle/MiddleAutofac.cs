@@ -76,7 +76,7 @@ namespace Monster.Middle
             builder.RegisterType<ConnectionContext>().InstancePerLifetimeScope();
             builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
             builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<ExecutionLogRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
 
             // Job Running components
             builder.RegisterType<JobRunner>().InstancePerLifetimeScope();

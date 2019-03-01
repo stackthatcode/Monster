@@ -135,7 +135,7 @@
     <Compile Include="Hangfire\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
     <Compile Include="Persist\Multitenant\Extensions.cs" />
-    <Compile Include="Persist\Multitenant\ExecutionLogRepository.cs" />
+    <Compile Include="Persist\Multitenant\ExecutionLogService.cs" />
     <Compile Include="Persist\Multitenant\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -147,6 +147,7 @@
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
     <Compile Include="Processes\Sync\Extensions\RefundExtensions.cs" />
     <Compile Include="Processes\Sync\Extensions\TransactionExtensions.cs" />
+    <Compile Include="Processes\Sync\Extensions\SyncDescriptor.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\AcumaticaInventoryImportContext.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\SyncEnabledFilter.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\ItemClassModel.cs" />

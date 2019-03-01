@@ -22,7 +22,7 @@ namespace Monster.Web.Controllers
     public class RealTimeController : Controller
     {
         private readonly StateRepository _stateRepository;
-        private readonly ExecutionLogRepository _logRepository;
+        private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
         private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
@@ -33,7 +33,7 @@ namespace Monster.Web.Controllers
         public RealTimeController(
             StateRepository stateRepository,
             OneTimeJobService oneTimeJobService,
-            ExecutionLogRepository logRepository,
+            ExecutionLogService logRepository,
             SyncOrderRepository syncOrderRepository,
             SyncInventoryRepository syncInventoryRepository,
             ShopifyInventoryRepository shopifyInventoryRepository,

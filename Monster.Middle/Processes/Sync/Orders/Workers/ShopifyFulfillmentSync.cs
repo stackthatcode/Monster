@@ -23,7 +23,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly ExecutionLogRepository _logRepository;
+        private readonly ExecutionLogService _logRepository;
 
 
         public ShopifyFulfillmentSync(
@@ -33,7 +33,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 FulfillmentApi fulfillmentApi, 
-                ExecutionLogRepository logRepository)
+                ExecutionLogService logRepository)
         {
             _stateRepository = stateRepository;
             _shopifyOrderRepository = shopifyOrderRepository;

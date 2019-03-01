@@ -64,5 +64,7 @@ DELETE FROM usrShopifyBatchState;
 
 SELECT * FROM usrShopAcuOrderSync;
 
-DELETE FROM usrShopAcuOrderSync;
+SELECT * FROM usrAcumaticaReferences;
+
+	DELETE FROM usrShopAcuOrderSync;
 

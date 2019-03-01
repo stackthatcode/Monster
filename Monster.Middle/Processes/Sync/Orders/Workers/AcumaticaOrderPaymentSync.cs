@@ -15,7 +15,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaOrderPaymentSync
     {
-        private readonly ExecutionLogRepository _logRepository;
+        private readonly ExecutionLogService _logRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
         private readonly SalesOrderClient _salesOrderClient;
@@ -25,7 +25,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                 SyncOrderRepository syncOrderRepository, 
                 PaymentClient paymentClient, 
                 PreferencesRepository preferencesRepository, 
-                ExecutionLogRepository logRepository,
+                ExecutionLogService logRepository,
                 SalesOrderClient salesOrderClient)
         {
             _syncOrderRepository = syncOrderRepository;

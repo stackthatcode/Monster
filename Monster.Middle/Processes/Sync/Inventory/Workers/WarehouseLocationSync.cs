@@ -1,20 +1,19 @@
 ﻿using System.Linq;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Sync.Extensions;
 
 namespace Monster.Middle.Processes.Sync.Inventory.Workers
 {
     public class WarehouseLocationSync
     {
         private readonly SyncInventoryRepository _repository;
-        private readonly ExecutionLogRepository _executionLogRepository;
+        private readonly ExecutionLogService _executionLogService;
 
         public WarehouseLocationSync(
                 SyncInventoryRepository repository, 
-                ExecutionLogRepository executionLogRepository)
+                ExecutionLogService executionLogService)
         {
             _repository = repository;
-            _executionLogRepository = executionLogRepository;
+            _executionLogService = executionLogService;
         }
 
         // Disconnects Warehouses from Deactivated Locations
@@ -28,11 +27,16 @@ namespace Monster.Middle.Processes.Sync.Inventory.Workers
                 // The ToList() allows us to mutate the collection
                 foreach (var sync in location.UsrShopAcuWarehouseSyncs.ToList())
                 {
-                    var log = $"Removed match from Deactivated Location {location.ShopifyLocationName} " +
-                        $"to Warehouse {sync.UsrAcumaticaWarehouse.AcumaticaWarehouseId}";
+                    using (var transaction = _repository.BeginTransaction())
+                    {
+                        var log = $"Removed match from Deactivated Location {location.ShopifyLocationName} " +
+                                  $"to Warehouse {sync.UsrAcumaticaWarehouse.AcumaticaWarehouseId}";
 
-                    _repository.DeleteWarehouseSync(sync);
-                    _executionLogRepository.InsertExecutionLog(log);
+                        _repository.DeleteWarehouseSync(sync);
+                        _executionLogService.InsertExecutionLog(log);
+
+                        transaction.Commit();
+                    }
                 }
             }
         }

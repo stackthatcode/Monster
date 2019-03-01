@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
         private readonly StateRepository _stateRepository;
-        private readonly ExecutionLogRepository _logRepository;
+        private readonly ExecutionLogService _logRepository;
 
         public AcumaticaShipmentSync(
                     SyncOrderRepository orderRepository,
@@ -36,7 +36,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     AcumaticaShipmentPull acumaticaShipmentPull,
                     ShipmentClient shipmentClient, 
                     StateRepository stateRepository, 
-                    ExecutionLogRepository logRepository)
+                    ExecutionLogService logRepository)
         {
             _orderRepository = orderRepository;
             _shopifyOrderRepository = shopifyOrderRepository;

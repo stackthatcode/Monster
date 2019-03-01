@@ -18,7 +18,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
 {
     public class AcumaticaRefundSync
     {
-        private readonly ExecutionLogRepository _logRepository;
+        private readonly ExecutionLogService _logRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncRepository;
         private readonly SalesOrderClient _salesOrderClient;
@@ -33,7 +33,7 @@ namespace Monster.Middle.Processes.Sync.Orders.Workers
                     SyncInventoryRepository syncRepository,
                     SalesOrderClient salesOrderClient, 
                     PreferencesRepository preferencesRepository, 
-                    ExecutionLogRepository logRepository, 
+                    ExecutionLogService logRepository, 
                     AcumaticaOrderPull acumaticaOrderPull, 
                     AcumaticaOrderSync acumaticaOrderSync,
                     IPushLogger logger)

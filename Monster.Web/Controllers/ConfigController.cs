@@ -20,7 +20,7 @@ namespace Monster.Web.Controllers
     {
         private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
-        private readonly ExecutionLogRepository _logRepository;
+        private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
 
         private readonly StatusService _statusService;
@@ -36,7 +36,7 @@ namespace Monster.Web.Controllers
                 StatusService statusService, 
                 ReferenceDataService referenceDataService, 
                 PreferencesRepository preferencesRepository, 
-                ExecutionLogRepository logRepository, 
+                ExecutionLogService logRepository, 
                 AcumaticaBatchRepository acumaticaBatchRepository, 
                 SyncInventoryRepository syncInventoryRepository)
         {
