@@ -45,9 +45,11 @@ namespace Monster.Middle.Processes.Sync.Managers
                 AcumaticaRefundSync acumaticaRefundSync, 
                 AcumaticaOrderPaymentSync acumaticaPaymentSync,
 
-                ShopifyFulfillmentSync shopifyFulfillmentSync, 
-                PreferencesRepository preferencesRepository,
+                WarehouseLocationSync warehouseLocationSync,
+                ShopifyInventorySync shopifyInventorySync,
+                ShopifyFulfillmentSync shopifyFulfillmentSync,
 
+                PreferencesRepository preferencesRepository,
                 ConnectionContext connectionContext,
                 ILifetimeScope lifetimeScope,
                 IPushLogger logger)
@@ -66,6 +68,8 @@ namespace Monster.Middle.Processes.Sync.Managers
             _connectionContext = connectionContext;
             _lifetimeScope = lifetimeScope;
             _logger = logger;
+            _warehouseLocationSync = warehouseLocationSync;
+            _shopifyInventorySync = shopifyInventorySync;
         }
 
 
@@ -99,18 +103,27 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void OrderSyncInChildScope(ConcurrentQueue<long> queue)
         {
-            var instanceId = _connectionContext.InstanceId;
-
-            using (var childScope = _lifetimeScope.BeginLifetimeScope())
+            // NOTE: it's necessary to catch Exceptions, because this is running in its own thread
+            try
             {
-                var childConnectionContext = childScope.Resolve<ConnectionContext>();
-                var childAcumaticaContext = childScope.Resolve<AcumaticaHttpContext>();
-                var childOrderSync = childScope.Resolve<AcumaticaOrderSync>();
+                var instanceId = _connectionContext.InstanceId;
 
-                _logger.Debug($"OrderSyncInChildScope - Acumatica Context: {childAcumaticaContext.ObjectIdentifier}");
-                childConnectionContext.Initialize(instanceId);
+                using (var childScope = _lifetimeScope.BeginLifetimeScope())
+                {
+                    var childConnectionContext = childScope.Resolve<ConnectionContext>();
+                    var childAcumaticaContext = childScope.Resolve<AcumaticaHttpContext>();
+                    var childOrderSync = childScope.Resolve<AcumaticaOrderSync>();
 
-                AcumaticaSessionRun(() => childOrderSync.RunWorker(queue), childAcumaticaContext);
+                    _logger.Debug(
+                        $"OrderSyncInChildScope - Acumatica Context: {childAcumaticaContext.ObjectIdentifier}");
+                    childConnectionContext.Initialize(instanceId);
+
+                    AcumaticaSessionRun(() => childOrderSync.RunWorker(queue), childAcumaticaContext);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
             }
         }
         

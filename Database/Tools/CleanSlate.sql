@@ -60,7 +60,7 @@ DELETE FROM usrShopifyLocation;
 
 -- Clear out System tables
 --
-DELETE FROM usrAcumaticaReferences
+DELETE FROM usrAcumaticaRefData
 DELETE FROM usrPreferences;
 
 DELETE FROM usrAcumaticaBatchState;

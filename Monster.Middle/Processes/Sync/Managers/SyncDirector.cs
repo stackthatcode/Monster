@@ -179,6 +179,8 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             var sequence = new Action[]
             {
+                () => _syncManager.RoutineOrdersSync(),
+
                 () => _shopifyManager.PullCustomers(),
                 () => _shopifyManager.PullOrders(),
                 () => _shopifyManager.PullTransactions(),

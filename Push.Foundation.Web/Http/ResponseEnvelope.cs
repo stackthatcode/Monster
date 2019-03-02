@@ -25,10 +25,10 @@ namespace Push.Foundation.Web.Http
 
 
         public bool HasBadStatusCode =>
-                this.StatusCode == HttpStatusCode.OK
+                !(this.StatusCode == HttpStatusCode.OK
                 || this.StatusCode == HttpStatusCode.NoContent
                 || this.StatusCode == HttpStatusCode.Created
-                || this.StatusCode == HttpStatusCode.Accepted;
+                || this.StatusCode == HttpStatusCode.Accepted);
 
     }
 }

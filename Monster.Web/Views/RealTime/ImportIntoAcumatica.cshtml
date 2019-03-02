@@ -5,6 +5,21 @@
 
 @Html.Partial("_TopBrand")
 
+<style>
+    #confirm-import-modal label {
+        font-size:0.9em;
+    }
+    #complete-import-modal label {
+        font-size:0.9em;
+    }
+    #import-product-detail-modal label {
+        font-size:0.9em;
+    }
+    .modal-heavy-text {
+        color:#666666; font-weight:700;
+    }
+</style>
+
 <div id="Root-View">
     <div data-bind="ifnot: AreAnyJobsRunning">
         <div data-bind="if: ShowWelcomePanel">
@@ -442,21 +457,6 @@
         </div>
     </div>
 </script>
-
-<style>
-    #confirm-import-modal label {
-        font-size:0.9em;
-    }
-    #complete-import-modal label {
-        font-size:0.9em;
-    }
-    #import-product-detail-modal label {
-        font-size:0.9em;
-    }
-    .modal-heavy-text {
-        color:#666666; font-weight:700;
-    }
-</style>
 
 <script>
     var Monster = Monster || {};
