@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Sync.Inventory.Persist;
 
 namespace Monster.Middle.Processes.Sync.Inventory.Workers
 {

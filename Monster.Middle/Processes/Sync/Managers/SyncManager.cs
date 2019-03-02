@@ -6,33 +6,37 @@ using System.Threading;
 using Autofac;
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Orders.Workers;
 using Monster.Middle.Security;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.Processes.Sync.Orders
+namespace Monster.Middle.Processes.Sync.Managers
 {
-    public class OrderManager
+    public class SyncManager
     {
         private readonly ILifetimeScope _lifetimeScope;
 
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
         private readonly ConnectionContext _connectionContext;
-
         private readonly AcumaticaHttpContext _acumaticaContext;
+
+        private readonly WarehouseLocationSync _warehouseLocationSync;
+        private readonly ShopifyInventorySync _shopifyInventorySync;
+        private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
+
         private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
         private readonly AcumaticaOrderSync _acumaticaOrderSync;
         private readonly AcumaticaShipmentSync _acumaticaShipmentSync;
         private readonly AcumaticaInventorySync _acumaticaInventorySync;
         private readonly AcumaticaOrderPaymentSync _acumaticaPaymentSync;
         private readonly AcumaticaRefundSync _acumaticaRefundSync;
-
+        
         private readonly IPushLogger _logger;
 
 
-        public OrderManager(
+        public SyncManager(
                 AcumaticaHttpContext acumaticaContext,
                 AcumaticaCustomerSync acumaticaCustomerSync,
                 AcumaticaOrderSync acumaticaOrderSync,
@@ -148,7 +152,26 @@ namespace Monster.Middle.Processes.Sync.Orders
                 _shopifyFulfillmentSync.Run();
             }
         }
+        
 
+        public void SynchronizeWarehouseLocation()
+        {
+            _warehouseLocationSync.Run();
+        }
+
+        public void ImportIntoAcumatica(AcumaticaInventoryImportContext context)
+        {
+            AcumaticaSessionRun(() =>
+            {
+                _acumaticaInventorySync.Run(context);
+            });
+        }
+
+        public void PushInventoryCountsToShopify()
+        {
+            _shopifyInventorySync.Run();
+        }
+        
         public void SingleOrderPush(long shopifyOrderId)
         {
             AcumaticaSessionRun(() =>
@@ -156,6 +179,8 @@ namespace Monster.Middle.Processes.Sync.Orders
                 _acumaticaOrderSync.RunOrder(shopifyOrderId);
             });
         }
+
+
 
         public void AcumaticaSessionRun(Action action)
         {

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using Monster.Acumatica.Http;
-using Monster.Middle.Processes.Acumatica.Workers;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.Processes.Acumatica
+namespace Monster.Middle.Processes.Acumatica.Workers
 {
     public class AcumaticaManager
     {
@@ -47,12 +45,16 @@ namespace Monster.Middle.Processes.Acumatica
 
         public void PullReferenceData()
         {
-            SessionRun(
+            var sequence = new Action[]
+            {
                 () => _acumaticaReferencePull.RunItemClass(),
                 () => _acumaticaReferencePull.RunPaymentMethod(),
                 () => _acumaticaReferencePull.RunTaxCategories(),
                 () => _acumaticaReferencePull.RunTaxIds(),
-                () => _acumaticaReferencePull.RunTaxZones());
+                () => _acumaticaReferencePull.RunTaxZones()
+            };
+            
+            SessionRun(sequence);
         }
         
         public void PullWarehouses()
@@ -65,16 +67,20 @@ namespace Monster.Middle.Processes.Acumatica
             SessionRun(() => _acumaticaInventoryPull.RunAutomatic());
         }
 
-        public void PullOrderAndCustomersAndShipments()
+        public void PullOrdersAndCustomersAndShipments()
         {
-            SessionRun(
+            var sequence = new Action[]
+            {
                 () => _acumaticaCustomerPull.RunAutomatic(),
                 () => _acumaticaOrderPull.RunAutomatic(),
-                () => _acumaticaShipmentPull.RunAutomatic());
+                () => _acumaticaShipmentPull.RunAutomatic()
+            };
+
+            SessionRun(sequence, throwException:false);
         }
 
 
-        public bool SessionRun(Action action)
+        public void SessionRun(Action action, bool throwException = true)
         {
             try
             {
@@ -84,12 +90,14 @@ namespace Monster.Middle.Processes.Acumatica
                 }
 
                 action();
-                return true;
             }
             catch (Exception ex)
             {
+                if (throwException)
+                {
+                    throw;
+                }
                 _logger.Error(ex);
-                return false;
             }
             finally
             {
@@ -100,9 +108,8 @@ namespace Monster.Middle.Processes.Acumatica
             }
         }
 
-        public bool SessionRun(params Action[] actions)
+        public void SessionRun(Action[] actions, bool throwException = true)
         {
-            var faultDetected = false;
             foreach (var action in actions)
             {
                 try
@@ -116,8 +123,12 @@ namespace Monster.Middle.Processes.Acumatica
                 }
                 catch (Exception ex)
                 {
+                    if (throwException)
+                    {
+                        throw;
+                    }
+
                     _logger.Error(ex);
-                    faultDetected = true;
                 }
             }
 
@@ -125,8 +136,7 @@ namespace Monster.Middle.Processes.Acumatica
             {
                 _acumaticaHttpContext.Logout();
             }
-
-            return faultDetected;
         }
     }
 }
+

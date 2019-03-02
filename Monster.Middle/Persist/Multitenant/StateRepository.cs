@@ -92,12 +92,12 @@ namespace Monster.Middle.Persist.Multitenant
                 {
                     var newRecord = new UsrSystemState();
 
-                    newRecord.ShopifyConnection = SystemState.None;
-                    newRecord.AcumaticaConnection = SystemState.None;
-                    newRecord.AcumaticaReferenceData = SystemState.None;
-                    newRecord.PreferenceSelections = SystemState.None;
-                    newRecord.WarehouseSync = SystemState.None;
-                    newRecord.InventoryPull = SystemState.None;
+                    newRecord.ShopifyConnState = SystemState.None;
+                    newRecord.AcumaticaConnState = SystemState.None;
+                    newRecord.AcumaticaRefDataState = SystemState.None;
+                    newRecord.PreferenceState = SystemState.None;
+                    newRecord.WarehouseSyncState = SystemState.None;
+                    newRecord.InventoryPullState = SystemState.None;
                     
                     newRecord.IsShopifyUrlFinalized = false;
                     newRecord.IsAcumaticaUrlFinalized = false;

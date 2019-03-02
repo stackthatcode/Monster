@@ -74,8 +74,8 @@ namespace Monster.Web.Controllers
 
             var model = new DomainModel();
 
-            model.IsShopifyConnectionOk = state.ShopifyConnection == SystemState.Ok;
-            model.IsShopifyConnectionBroken = state.ShopifyConnection.IsBroken();
+            model.IsShopifyConnectionOk = state.ShopifyConnState == SystemState.Ok;
+            model.IsShopifyConnectionBroken = state.ShopifyConnState.IsBroken();
 
             model.IsRandomAccessMode = state.IsRandomAccessMode;
             model.IsShopifyUrlFinalized = state.IsShopifyUrlFinalized;
@@ -155,13 +155,13 @@ namespace Monster.Web.Controllers
                     .UpdateShopifyCredentials(shop, accessToken, codeHash);
 
                 _stateRepository
-                    .UpdateSystemState(x => x.ShopifyConnection, SystemState.Ok);
+                    .UpdateSystemState(x => x.ShopifyConnState, SystemState.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
                 _stateRepository
-                    .UpdateSystemState(x => x.ShopifyConnection, SystemState.SystemFault);
+                    .UpdateSystemState(x => x.ShopifyConnState, SystemState.SystemFault);
 
                 return Redirect("Domain");
             }

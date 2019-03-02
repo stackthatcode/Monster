@@ -8,7 +8,7 @@ using Monster.Middle.Services;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 
-namespace Monster.Middle.Processes.Sync.Status
+namespace Monster.Middle.Processes.Sync.Services
 {
     public class ReferenceDataService
     {

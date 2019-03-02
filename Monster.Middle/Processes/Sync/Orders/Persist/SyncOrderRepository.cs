@@ -7,7 +7,7 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Orders.Model;
 using Push.Shopify.Api.Transactions;
 
-namespace Monster.Middle.Processes.Sync.Orders
+namespace Monster.Middle.Processes.Sync.Orders.Persist
 {
     public class SyncOrderRepository
     {

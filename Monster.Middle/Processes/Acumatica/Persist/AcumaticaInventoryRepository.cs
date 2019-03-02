@@ -19,19 +19,19 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Reference data
         static object RefDataLock = new object();
-        public UsrAcumaticaReference RetrieveReferenceData()
+        public UsrAcumaticaRefData RetrieveReferenceData()
         {
             lock (RefDataLock)
             {
-                if (!_dataContext.Entities.UsrAcumaticaReferences.Any())
+                if (!_dataContext.Entities.UsrAcumaticaRefDatas.Any())
                 {
-                    var newdata = new UsrAcumaticaReference();
-                    _dataContext.Entities.UsrAcumaticaReferences.Add(newdata);
+                    var newdata = new UsrAcumaticaRefData();
+                    _dataContext.Entities.UsrAcumaticaRefDatas.Add(newdata);
                     _dataContext.Entities.SaveChanges();
                 }
             }
 
-            return _dataContext.Entities.UsrAcumaticaReferences.First();
+            return _dataContext.Entities.UsrAcumaticaRefDatas.First();
         }
 
 

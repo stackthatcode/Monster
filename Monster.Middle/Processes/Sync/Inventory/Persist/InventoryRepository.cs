@@ -6,7 +6,7 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Extensions;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 
-namespace Monster.Middle.Processes.Sync.Inventory
+namespace Monster.Middle.Processes.Sync.Inventory.Persist
 {
     public class SyncInventoryRepository
     {

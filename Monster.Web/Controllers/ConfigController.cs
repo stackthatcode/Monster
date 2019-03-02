@@ -8,7 +8,8 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Status;
+using Monster.Middle.Processes.Sync.Inventory.Persist;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models.Config;
 using Monster.Web.Plumbing;
 using Push.Foundation.Web.Json;
@@ -203,8 +204,7 @@ namespace Monster.Web.Controllers
             _tenantRepository.SaveChanges();
 
             var state = _stateRepository.RetrieveSystemState();
-            state.PreferenceSelections
-                = data.AreValid() ? SystemState.Ok : SystemState.Invalid;
+            state.PreferenceState = data.AreValid() ? SystemState.Ok : SystemState.Invalid;
             _stateRepository.SaveChanges();
 
             return JsonNetResult.Success();
@@ -240,7 +240,7 @@ namespace Monster.Web.Controllers
             var output = new WarehouseSyncStatusModel()
             {
                 IsJobRunning = isBackgroundJobRunning,
-                WarehouseSyncState = state.WarehouseSync,
+                WarehouseSyncState = state.WarehouseSyncState,
                 IsRandomAccessMode = state.IsRandomAccessMode,
                 Details = details,
             };

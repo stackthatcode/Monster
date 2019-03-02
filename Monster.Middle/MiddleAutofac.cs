@@ -14,18 +14,18 @@ using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync;
-using Monster.Middle.Processes.Sync.Inventory;
+using Monster.Middle.Processes.Sync.Inventory.Persist;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
-using Monster.Middle.Processes.Sync.Orders;
+using Monster.Middle.Processes.Sync.Managers;
+using Monster.Middle.Processes.Sync.Orders.Persist;
 using Monster.Middle.Processes.Sync.Orders.Workers;
-using Monster.Middle.Processes.Sync.Status;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Security;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web;
 using Push.Foundation.Utilities.Security;
 using Push.Foundation.Web.Identity;
+using Push.Foundation.Web;
 using Push.Shopify;
 
 
@@ -145,8 +145,7 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<WarehouseLocationSync>().InstancePerLifetimeScope();
-            builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
-
+            
             // Orders
             builder.RegisterType<SyncOrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyFulfillmentSync>().InstancePerLifetimeScope();
@@ -155,14 +154,14 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaShipmentSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaRefundSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPaymentSync>().InstancePerLifetimeScope();
-            builder.RegisterType<OrderManager>().InstancePerLifetimeScope();
-
+            
             // Status
             builder.RegisterType<StatusService>().InstancePerLifetimeScope();
             builder.RegisterType<ReferenceDataService>().InstancePerLifetimeScope();
             builder.RegisterType<UrlService>().InstancePerLifetimeScope();
 
             // Director Components
+            builder.RegisterType<SyncManager>().InstancePerLifetimeScope();
             builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();
         }
     }

@@ -7,11 +7,11 @@ namespace Monster.Middle.Processes.Sync.Inventory.Model
     {
         public static bool IsReadyForRealTimeSync(this UsrSystemState state)
         {
-            return state.ShopifyConnection == SystemState.Ok
-                   && state.AcumaticaConnection == SystemState.Ok
-                   && state.AcumaticaReferenceData == SystemState.Ok
-                   && state.PreferenceSelections == SystemState.Ok
-                   && state.WarehouseSync == SystemState.Ok;
+            return state.ShopifyConnState == SystemState.Ok
+                   && state.AcumaticaConnState == SystemState.Ok
+                   && state.AcumaticaRefDataState == SystemState.Ok
+                   && state.PreferenceState == SystemState.Ok
+                   && state.WarehouseSyncState == SystemState.Ok;
         }
     }
 }

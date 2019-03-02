@@ -8,8 +8,10 @@ using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Processes.Sync.Inventory.Persist;
 using Monster.Middle.Processes.Sync.Orders;
-using Monster.Middle.Processes.Sync.Status;
+using Monster.Middle.Processes.Sync.Orders.Persist;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models;
 using Monster.Web.Models.RealTime;
 using Push.Foundation.Utilities.Logging;
@@ -150,7 +152,7 @@ namespace Monster.Web.Controllers
 
             var output = new
             {
-                SystemState = state.InventoryPull,
+                SystemState = state.InventoryPullState,
                 AreAnyJobsRunning = areAnyJobsRunning,
                 Logs = executionLogs,
             };

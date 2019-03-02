@@ -66,8 +66,8 @@ namespace Push.Foundation.Utilities.Logging
 
         public void Error(Exception exception)
         {
-            Console.WriteLine(exception.StackTrace);
-            System.Diagnostics.Debug.WriteLine(exception.StackTrace);
+            Console.WriteLine(exception.FullStackTraceDump());
+            System.Diagnostics.Debug.WriteLine(exception.FullStackTraceDump());
         }
 
         public void Fatal(string message)

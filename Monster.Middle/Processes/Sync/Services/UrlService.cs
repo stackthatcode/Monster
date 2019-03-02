@@ -1,6 +1,6 @@
 ﻿using Monster.Middle.Persist.Multitenant;
 
-namespace Monster.Middle.Processes.Sync.Status
+namespace Monster.Middle.Processes.Sync.Services
 {
     public class UrlService
     {

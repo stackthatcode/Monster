@@ -41,7 +41,7 @@ namespace Monster.Middle.Persist.Multitenant
         System.Data.Entity.DbSet<UsrAcumaticaCreditMemo> UsrAcumaticaCreditMemoes { get; set; } // usrAcumaticaCreditMemo
         System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; } // usrAcumaticaCustomer
         System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; } // usrAcumaticaInventoryReceipt
-        System.Data.Entity.DbSet<UsrAcumaticaReference> UsrAcumaticaReferences { get; set; } // usrAcumaticaReferences
+        System.Data.Entity.DbSet<UsrAcumaticaRefData> UsrAcumaticaRefDatas { get; set; } // usrAcumaticaRefData
         System.Data.Entity.DbSet<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; } // usrAcumaticaSalesOrder
         System.Data.Entity.DbSet<UsrAcumaticaShipment> UsrAcumaticaShipments { get; set; } // usrAcumaticaShipment
         System.Data.Entity.DbSet<UsrAcumaticaShipmentSalesOrderRef> UsrAcumaticaShipmentSalesOrderRefs { get; set; } // usrAcumaticaShipmentSalesOrderRef
@@ -111,7 +111,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaCreditMemo> UsrAcumaticaCreditMemoes { get; set; } // usrAcumaticaCreditMemo
         public System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; } // usrAcumaticaCustomer
         public System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; } // usrAcumaticaInventoryReceipt
-        public System.Data.Entity.DbSet<UsrAcumaticaReference> UsrAcumaticaReferences { get; set; } // usrAcumaticaReferences
+        public System.Data.Entity.DbSet<UsrAcumaticaRefData> UsrAcumaticaRefDatas { get; set; } // usrAcumaticaRefData
         public System.Data.Entity.DbSet<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; } // usrAcumaticaSalesOrder
         public System.Data.Entity.DbSet<UsrAcumaticaShipment> UsrAcumaticaShipments { get; set; } // usrAcumaticaShipment
         public System.Data.Entity.DbSet<UsrAcumaticaShipmentSalesOrderRef> UsrAcumaticaShipmentSalesOrderRefs { get; set; } // usrAcumaticaShipmentSalesOrderRef
@@ -208,7 +208,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaCreditMemoConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaCustomerConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaInventoryReceiptConfiguration());
-            modelBuilder.Configurations.Add(new UsrAcumaticaReferenceConfiguration());
+            modelBuilder.Configurations.Add(new UsrAcumaticaRefDataConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaSalesOrderConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaShipmentConfiguration());
             modelBuilder.Configurations.Add(new UsrAcumaticaShipmentSalesOrderRefConfiguration());
@@ -260,7 +260,7 @@ namespace Monster.Middle.Persist.Multitenant
             modelBuilder.Configurations.Add(new UsrAcumaticaCreditMemoConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaCustomerConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaInventoryReceiptConfiguration(schema));
-            modelBuilder.Configurations.Add(new UsrAcumaticaReferenceConfiguration(schema));
+            modelBuilder.Configurations.Add(new UsrAcumaticaRefDataConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaSalesOrderConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaShipmentConfiguration(schema));
             modelBuilder.Configurations.Add(new UsrAcumaticaShipmentSalesOrderRefConfiguration(schema));
@@ -330,7 +330,7 @@ namespace Monster.Middle.Persist.Multitenant
         public System.Data.Entity.DbSet<UsrAcumaticaCreditMemo> UsrAcumaticaCreditMemoes { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaCustomer> UsrAcumaticaCustomers { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaInventoryReceipt> UsrAcumaticaInventoryReceipts { get; set; }
-        public System.Data.Entity.DbSet<UsrAcumaticaReference> UsrAcumaticaReferences { get; set; }
+        public System.Data.Entity.DbSet<UsrAcumaticaRefData> UsrAcumaticaRefDatas { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaSalesOrder> UsrAcumaticaSalesOrders { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaShipment> UsrAcumaticaShipments { get; set; }
         public System.Data.Entity.DbSet<UsrAcumaticaShipmentSalesOrderRef> UsrAcumaticaShipmentSalesOrderRefs { get; set; }
@@ -385,7 +385,7 @@ namespace Monster.Middle.Persist.Multitenant
             UsrAcumaticaCreditMemoes = new FakeDbSet<UsrAcumaticaCreditMemo>("Id");
             UsrAcumaticaCustomers = new FakeDbSet<UsrAcumaticaCustomer>("Id");
             UsrAcumaticaInventoryReceipts = new FakeDbSet<UsrAcumaticaInventoryReceipt>("MonsterId");
-            UsrAcumaticaReferences = new FakeDbSet<UsrAcumaticaReference>("Id");
+            UsrAcumaticaRefDatas = new FakeDbSet<UsrAcumaticaRefData>("Id");
             UsrAcumaticaSalesOrders = new FakeDbSet<UsrAcumaticaSalesOrder>("Id");
             UsrAcumaticaShipments = new FakeDbSet<UsrAcumaticaShipment>("Id");
             UsrAcumaticaShipmentSalesOrderRefs = new FakeDbSet<UsrAcumaticaShipmentSalesOrderRef>("Id");
@@ -834,9 +834,9 @@ namespace Monster.Middle.Persist.Multitenant
         }
     }
 
-    // usrAcumaticaReferences
+    // usrAcumaticaRefData
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrAcumaticaReference
+    public class UsrAcumaticaRefData
     {
         public long Id { get; set; } // Id (Primary key)
         public string ItemClass { get; set; } // ItemClass
@@ -1671,12 +1671,12 @@ namespace Monster.Middle.Persist.Multitenant
     public class UsrSystemState
     {
         public long Id { get; set; } // Id (Primary key)
-        public int ShopifyConnection { get; set; } // ShopifyConnection
-        public int AcumaticaConnection { get; set; } // AcumaticaConnection
-        public int AcumaticaReferenceData { get; set; } // AcumaticaReferenceData
-        public int PreferenceSelections { get; set; } // PreferenceSelections
-        public int WarehouseSync { get; set; } // WarehouseSync
-        public int InventoryPull { get; set; } // InventoryPull
+        public int ShopifyConnState { get; set; } // ShopifyConnState
+        public int AcumaticaConnState { get; set; } // AcumaticaConnState
+        public int AcumaticaRefDataState { get; set; } // AcumaticaRefDataState
+        public int PreferenceState { get; set; } // PreferenceState
+        public int WarehouseSyncState { get; set; } // WarehouseSyncState
+        public int InventoryPullState { get; set; } // InventoryPullState
         public bool IsShopifyUrlFinalized { get; set; } // IsShopifyUrlFinalized
         public bool IsAcumaticaUrlFinalized { get; set; } // IsAcumaticaUrlFinalized
         public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
@@ -2103,18 +2103,18 @@ namespace Monster.Middle.Persist.Multitenant
         }
     }
 
-    // usrAcumaticaReferences
+    // usrAcumaticaRefData
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class UsrAcumaticaReferenceConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAcumaticaReference>
+    public class UsrAcumaticaRefDataConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<UsrAcumaticaRefData>
     {
-        public UsrAcumaticaReferenceConfiguration()
+        public UsrAcumaticaRefDataConfiguration()
             : this("dbo")
         {
         }
 
-        public UsrAcumaticaReferenceConfiguration(string schema)
+        public UsrAcumaticaRefDataConfiguration(string schema)
         {
-            ToTable("usrAcumaticaReferences", schema);
+            ToTable("usrAcumaticaRefData", schema);
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
@@ -2985,12 +2985,12 @@ namespace Monster.Middle.Persist.Multitenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyConnection).HasColumnName(@"ShopifyConnection").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaConnection).HasColumnName(@"AcumaticaConnection").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaReferenceData).HasColumnName(@"AcumaticaReferenceData").HasColumnType("int").IsRequired();
-            Property(x => x.PreferenceSelections).HasColumnName(@"PreferenceSelections").HasColumnType("int").IsRequired();
-            Property(x => x.WarehouseSync).HasColumnName(@"WarehouseSync").HasColumnType("int").IsRequired();
-            Property(x => x.InventoryPull).HasColumnName(@"InventoryPull").HasColumnType("int").IsRequired();
+            Property(x => x.ShopifyConnState).HasColumnName(@"ShopifyConnState").HasColumnType("int").IsRequired();
+            Property(x => x.AcumaticaConnState).HasColumnName(@"AcumaticaConnState").HasColumnType("int").IsRequired();
+            Property(x => x.AcumaticaRefDataState).HasColumnName(@"AcumaticaRefDataState").HasColumnType("int").IsRequired();
+            Property(x => x.PreferenceState).HasColumnName(@"PreferenceState").HasColumnType("int").IsRequired();
+            Property(x => x.WarehouseSyncState).HasColumnName(@"WarehouseSyncState").HasColumnType("int").IsRequired();
+            Property(x => x.InventoryPullState).HasColumnName(@"InventoryPullState").HasColumnType("int").IsRequired();
             Property(x => x.IsShopifyUrlFinalized).HasColumnName(@"IsShopifyUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.IsAcumaticaUrlFinalized).HasColumnName(@"IsAcumaticaUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();

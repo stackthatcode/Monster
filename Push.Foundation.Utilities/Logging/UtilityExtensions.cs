@@ -15,6 +15,18 @@ namespace Push.Foundation.Utilities.Logging
                 exception.GetType() + ":" + exception.Message + Environment.NewLine + 
                 exception.StackTrace + Environment.NewLine;
 
+            if (exception is AggregateException)
+            {
+                var aggregateException = (AggregateException)exception;
+
+                foreach (var childException in aggregateException.InnerExceptions)
+                {
+                    output += childException.FullStackTraceDump();
+                }
+
+                aggregateException.Handle(ex => true);
+            }
+
             if (exception is DbEntityValidationException)
             {
                 foreach (var error in ((DbEntityValidationException) exception).EntityValidationErrors)
@@ -24,7 +36,7 @@ namespace Push.Foundation.Utilities.Logging
                         output = output + 
                             $"Entity Validation Error: {validationError.PropertyName} - {validationError.ErrorMessage}";
                     }
-                }
+                }                
             }
 
             if (exception.InnerException != null)

@@ -1,6 +1,6 @@
 ﻿using System;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Sync;
+using Monster.Middle.Processes.Sync.Managers;
 using Monster.Middle.Security;
 using Push.Foundation.Utilities.Logging;
 
@@ -36,7 +36,7 @@ namespace Monster.Middle.Hangfire
 
         public void RunPullAcumaticaRefData(Guid instanceId)
         {
-            FireAndForgetJob(instanceId, BackgroundJobType.PullAcumaticaRefData, _director.PullAcumaticaReferenceData);
+            FireAndForgetJob(instanceId, BackgroundJobType.PullAcumaticaRefData, _director.PullAcumaticaRefData);
         }
 
         public void RunSyncWarehouseAndLocation(Guid instanceId)

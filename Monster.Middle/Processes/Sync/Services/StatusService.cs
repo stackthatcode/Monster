@@ -2,10 +2,10 @@
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Extensions;
-using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Processes.Sync.Inventory.Persist;
 
-namespace Monster.Middle.Processes.Sync.Status
+namespace Monster.Middle.Processes.Sync.Services
 {
     public class StatusService
     {
@@ -63,7 +63,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
             var systemState = status.IsOk ? SystemState.Ok : SystemState.Invalid;
 
-            _stateRepository.UpdateSystemState(x => x.WarehouseSync, systemState);
+            _stateRepository.UpdateSystemState(x => x.WarehouseSyncState, systemState);
 
         }
 
@@ -78,7 +78,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
             var model = new AcumaticaConnectionState()
             {
-                ConnectionState = state.AcumaticaConnection,
+                ConnectionState = state.AcumaticaConnState,
                 IsUrlFinalized = state.IsAcumaticaUrlFinalized,
                 IsRandomAccessMode = state.IsRandomAccessMode,
                 IsBackgroundJobRunning = isRunning,
@@ -100,7 +100,7 @@ namespace Monster.Middle.Processes.Sync.Status
             var model = new AcumaticaReferenceDataState()
             {
                 IsRandomAccessMode = state.IsRandomAccessMode,
-                ReferenceDataState = state.AcumaticaReferenceData,
+                ReferenceDataState = state.AcumaticaRefDataState,
                 Validations = referenceData.Validation,
                 IsBackgroundJobRunning = isRunning,
             };
