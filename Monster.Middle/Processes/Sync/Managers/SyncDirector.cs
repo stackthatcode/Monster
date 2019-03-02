@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Linq.Expressions;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Orders.Workers;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
 
@@ -18,8 +14,6 @@ namespace Monster.Middle.Processes.Sync.Managers
     {
         private readonly ConnectionRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
-        private readonly ShopifyBatchRepository _shopifyBatchRepository;
-        private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
         private readonly ReferenceDataService _referenceDataService;
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
@@ -31,26 +25,22 @@ namespace Monster.Middle.Processes.Sync.Managers
         public SyncDirector(
                 ConnectionRepository connectionRepository,
                 StateRepository stateRepository,
-                ShopifyBatchRepository shopifyBatchRepository, 
-                AcumaticaBatchRepository acumaticaBatchRepository, 
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
-                StatusService inventoryStatusService,
                 SyncManager syncManager,
+                StatusService inventoryStatusService,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
                 IPushLogger logger)
         {
             _connectionRepository = connectionRepository;
             _stateRepository = stateRepository;
-            _shopifyBatchRepository = shopifyBatchRepository;
-            _acumaticaBatchRepository = acumaticaBatchRepository;
             _acumaticaManager = acumaticaManager;
-            _shopifyManager = shopifyManager;
-            _inventoryStatusService = inventoryStatusService;
-
+            _shopifyManager = shopifyManager;            
             _syncManager = syncManager;
             _logger = logger;
+
+            _inventoryStatusService = inventoryStatusService;
             _preferencesRepository = preferencesRepository;
             _referenceDataService = referenceDataService;
         }
@@ -179,8 +169,6 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             var sequence = new Action[]
             {
-                () => _syncManager.RoutineOrdersSync(),
-
                 () => _shopifyManager.PullCustomers(),
                 () => _shopifyManager.PullOrders(),
                 () => _shopifyManager.PullTransactions(),

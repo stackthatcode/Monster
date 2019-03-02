@@ -19,6 +19,7 @@ namespace Push.Foundation.Utilities.Logging
         void Warn(List<Exception> exceptions, string message = null);
         void Error(string message);
         void Error(Exception exception);
+        void Error(Exception exception, string message);
         void Fatal(string message);
         void Fatal(Exception exception);
     }

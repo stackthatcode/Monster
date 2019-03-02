@@ -70,6 +70,13 @@ namespace Push.Foundation.Utilities.Logging
             _nLoggerReference.Error(_formatter.Do(message));
         }
 
+        public void Error(Exception exception, string message)
+        {
+            _nLoggerReference.Error(
+                _formatter.Do(exception.FullStackTraceDump()) +
+                Environment.NewLine + message);
+        }
+
         public void Error(Exception exception)
         {
             _nLoggerReference.Error(_formatter.Do(exception.FullStackTraceDump()));

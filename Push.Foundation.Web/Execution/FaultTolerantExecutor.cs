@@ -25,9 +25,6 @@ namespace Push.Foundation.Web.Execution
 
         public T Do<T>(Func<T> task, string errorContext = null)
         {
-            // Invoke the Throttler
-            Throttler.Process(ThrottlingKey, ThrottlingDelay);
-            
             // Do Request and process the HTTP Status Codes
             var startTime = DateTime.UtcNow;
 
@@ -43,10 +40,13 @@ namespace Push.Foundation.Web.Execution
 
 
         private T DoWorker<T>(Func<T> task, string errorContext = null)
-        {            
+        {
+            var numberOfAttempts = 1;
+
             while (true)
             {
-                var numberOfAttempts = 1;
+                // Invoke the Throttler
+                Throttler.Process(ThrottlingKey, ThrottlingDelay);
 
                 try
                 {
@@ -54,12 +54,14 @@ namespace Push.Foundation.Web.Execution
                     return task();
                 }
                 catch (Exception ex)
-                {
-                    Logger.Error(ex);
-
+                {                    
                     if (!errorContext.IsNullOrEmpty())
                     {
-                        Logger.Error(errorContext);
+                        Logger.Error(ex, errorContext);
+                    }
+                    else
+                    {
+                        Logger.Error(ex);
                     }
 
                     if (numberOfAttempts >= MaxNumberOfAttempts)

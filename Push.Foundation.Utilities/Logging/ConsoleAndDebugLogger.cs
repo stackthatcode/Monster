@@ -70,6 +70,15 @@ namespace Push.Foundation.Utilities.Logging
             System.Diagnostics.Debug.WriteLine(exception.FullStackTraceDump());
         }
 
+        public void Error(Exception exception, string message)
+        {
+            Console.WriteLine(
+                exception.FullStackTraceDump() + Environment.NewLine + message);
+            System.Diagnostics.Debug.WriteLine(
+                exception.FullStackTraceDump() + Environment.NewLine + message);
+
+        }
+
         public void Fatal(string message)
         {
             Console.WriteLine(message);

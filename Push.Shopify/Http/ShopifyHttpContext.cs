@@ -108,10 +108,10 @@ namespace Push.Shopify.Http
             _logger.Debug(urlDebug);
 
             // Act
-            var response = _executor.Do(() => _httpClient.GetAsync(url), errorContext);
+            var response = _executor.Do(() => _httpClient.GetAsync(url).Result, errorContext);
             
             // Process
-            var output = response.Result.ToEnvelope();
+            var output = response.ToEnvelope();
             _logger.Trace(output.Body);
             ProcessStatusCodes(output, errorContext);
 
@@ -130,10 +130,11 @@ namespace Push.Shopify.Http
             var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             // Act
-            var response = _executor.Do(() => _httpClient.PostAsync(url, httpContent), errorContext);
+            var response 
+                = _executor.Do(() => _httpClient.PostAsync(url, httpContent).Result, errorContext);
 
             // Process
-            var output = response.Result.ToEnvelope();
+            var output = response.ToEnvelope();
             _logger.Trace(output.Body);
             ProcessStatusCodes(output, errorContext);
 
@@ -152,10 +153,11 @@ namespace Push.Shopify.Http
             var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             // Act
-            var response = _executor.Do(() => _httpClient.PutAsync(url, httpContent), errorContext);
+            var response = 
+                _executor.Do(() => _httpClient.PutAsync(url, httpContent).Result, errorContext);
 
             // Process
-            var output = response.Result.ToEnvelope();
+            var output = response.ToEnvelope();
             _logger.Trace(output.Body);
             ProcessStatusCodes(output, errorContext);
             return output;

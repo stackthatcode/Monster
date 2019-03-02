@@ -109,10 +109,10 @@ namespace Monster.Acumatica.Http
             _logger.Debug(urlDebug);
 
             // Act
-            var response = _executor.Do(() => _httpClient.GetAsync(address), errorContext);
+            var response = _executor.Do(() => _httpClient.GetAsync(address).Result, errorContext);
             
             // Response
-            var output = response.Result.ToEnvelope();
+            var output = response.ToEnvelope();
             _logger.Trace(output.Body);
 
             // Assert
@@ -137,10 +137,10 @@ namespace Monster.Acumatica.Http
             // Act
             var response = 
                 _executor.Do(
-                    () => _httpClient.PostAsync(address, httpContent), errorContext);
+                    () => _httpClient.PostAsync(address, httpContent).Result, errorContext);
 
             // Response
-            var output = response.Result.ToEnvelope();
+            var output = response.ToEnvelope();
             _logger.Trace(output.Body);
 
             // Assert
@@ -165,9 +165,9 @@ namespace Monster.Acumatica.Http
 
             var response =
                 _executor.Do(
-                    () => _httpClient.PutAsync(address, httpContent), errorContext);
+                    () => _httpClient.PutAsync(address, httpContent).Result, errorContext);
 
-            var output = response.Result.ToEnvelope();
+            var output = response.ToEnvelope();
 
             _logger.Trace(output.Body);
 
