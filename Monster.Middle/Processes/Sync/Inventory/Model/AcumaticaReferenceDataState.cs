@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Monster.Middle.Hangfire;
+using Monster.Middle.Persist.Multitenant;
 
 namespace Monster.Middle.Processes.Sync.Inventory.Model
 {

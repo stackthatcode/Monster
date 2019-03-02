@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Monster.Acumatica.Http;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Push.Foundation.Utilities.Logging;
@@ -46,46 +47,49 @@ namespace Monster.Middle.Processes.Acumatica
 
         public void PullReferenceData()
         {
-            SessionRun(() =>
-            {
-                _acumaticaReferencePull.RunItemClass();
-                _acumaticaReferencePull.RunPaymentMethod();
-                _acumaticaReferencePull.RunTaxCategories();
-                _acumaticaReferencePull.RunTaxIds();
-                _acumaticaReferencePull.RunTaxZones();
-            });
+            SessionRun(
+                () => _acumaticaReferencePull.RunItemClass(),
+                () => _acumaticaReferencePull.RunPaymentMethod(),
+                () => _acumaticaReferencePull.RunTaxCategories(),
+                () => _acumaticaReferencePull.RunTaxIds(),
+                () => _acumaticaReferencePull.RunTaxZones());
         }
         
         public void PullWarehouses()
         {
-            SessionRun(() => { _acumaticaWarehousePull.Run(); });
+            SessionRun(() => _acumaticaWarehousePull.Run());
         }
 
         public void PullInventory()
         {
-            SessionRun(() => { _acumaticaInventoryPull.RunAutomatic(); });
+            SessionRun(() => _acumaticaInventoryPull.RunAutomatic());
         }
 
-        public void PullCustomersAndOrdersAndShipments()
+        public void PullOrderAndCustomersAndShipments()
         {
-            SessionRun(() =>
-            {
-                _acumaticaCustomerPull.RunAutomatic();
-                _acumaticaOrderPull.RunAutomatic();
-                _acumaticaShipmentPull.RunAutomatic();
-            });
+            SessionRun(
+                () => _acumaticaCustomerPull.RunAutomatic(),
+                () => _acumaticaOrderPull.RunAutomatic(),
+                () => _acumaticaShipmentPull.RunAutomatic());
         }
 
-        public void SessionRun(Action action)
+
+        public bool SessionRun(Action action)
         {
             try
             {
-                _acumaticaHttpContext.Login();
+                if (!_acumaticaHttpContext.IsLoggedIn)
+                {
+                    _acumaticaHttpContext.Login();
+                }
+
                 action();
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
+                return false;
             }
             finally
             {
@@ -94,6 +98,35 @@ namespace Monster.Middle.Processes.Acumatica
                     _acumaticaHttpContext.Logout();
                 }
             }
+        }
+
+        public bool SessionRun(params Action[] actions)
+        {
+            var faultDetected = false;
+            foreach (var action in actions)
+            {
+                try
+                {
+                    if (!_acumaticaHttpContext.IsLoggedIn)
+                    {
+                        _acumaticaHttpContext.Login();
+                    }
+
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                    faultDetected = true;
+                }
+            }
+
+            if (_acumaticaHttpContext.IsLoggedIn)
+            {
+                _acumaticaHttpContext.Logout();
+            }
+
+            return faultDetected;
         }
     }
 }

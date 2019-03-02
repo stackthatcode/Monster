@@ -145,7 +145,7 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
             builder.RegisterType<WarehouseLocationSync>().InstancePerLifetimeScope();
-            builder.RegisterType<InventorySyncManager>().InstancePerLifetimeScope();
+            builder.RegisterType<InventoryManager>().InstancePerLifetimeScope();
 
             // Orders
             builder.RegisterType<SyncOrderRepository>().InstancePerLifetimeScope();

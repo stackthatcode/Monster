@@ -54,7 +54,7 @@ namespace Monster.Middle.Hangfire
         public void RealTimeSync(Guid instanceId)
         {
             RunOneTaskPerInstance(
-                instanceId, () => _director.RealTimeSynchronization(), RealTimeSyncLock);
+                instanceId, () => _director.FullSync(), RealTimeSyncLock);
         }
 
 

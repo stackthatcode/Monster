@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Acumatica;
@@ -23,7 +24,7 @@ namespace Monster.Middle.Processes.Sync
         private readonly ReferenceDataService _referenceDataService;
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
-        private readonly InventorySyncManager _inventorySyncManager;
+        private readonly InventoryManager _inventoryManager;
         private readonly StatusService _inventoryStatusService;
         private readonly OrderManager _orderManager;
         private readonly IPushLogger _logger;
@@ -37,7 +38,7 @@ namespace Monster.Middle.Processes.Sync
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
                 StatusService inventoryStatusService,
-                InventorySyncManager inventorySyncManager,
+                InventoryManager inventoryManager,
                 OrderManager orderManager,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
@@ -49,7 +50,7 @@ namespace Monster.Middle.Processes.Sync
             _acumaticaBatchRepository = acumaticaBatchRepository;
             _acumaticaManager = acumaticaManager;
             _shopifyManager = shopifyManager;
-            _inventorySyncManager = inventorySyncManager;
+            _inventoryManager = inventoryManager;
             _inventoryStatusService = inventoryStatusService;
 
             _orderManager = orderManager;
@@ -59,12 +60,8 @@ namespace Monster.Middle.Processes.Sync
         }
         
         
-        public void ResetBatchStates()
-        {
-            _shopifyBatchRepository.Reset();
-            _acumaticaBatchRepository.Reset();
-        }
-        
+        // Configuration Jobs
+        //
         public void ConnectToShopify()
         {
             try
@@ -77,8 +74,7 @@ namespace Monster.Middle.Processes.Sync
             {
                 _logger.Error(ex);
                 _stateRepository
-                    .UpdateSystemState(
-                        x => x.ShopifyConnection, SystemState.SystemFault);
+                    .UpdateSystemState(x => x.ShopifyConnection, SystemState.SystemFault);
             }
         }
 
@@ -107,19 +103,15 @@ namespace Monster.Middle.Processes.Sync
                 _acumaticaManager.PullReferenceData();
                 
                 _stateRepository
-                    .UpdateSystemState(
-                        x => x.AcumaticaReferenceData, SystemState.Ok);
+                    .UpdateSystemState(x => x.AcumaticaReferenceData, SystemState.Ok);
 
                 var preferences = _preferencesRepository.RetrievePreferences();
                 _referenceDataService.FilterPreferencesAgainstRefData(preferences);
                 _connectionRepository.SaveChanges();
 
-                var preferencesState =
-                        preferences.AreValid() 
-                            ? SystemState.Ok : SystemState.Invalid;
+                var state = preferences.AreValid() ? SystemState.Ok : SystemState.Invalid;
 
-                _stateRepository.UpdateSystemState(
-                        x => x.PreferenceSelections, preferencesState);
+                _stateRepository.UpdateSystemState(x => x.PreferenceSelections, state);
             }
             catch (Exception ex)
             {
@@ -140,7 +132,7 @@ namespace Monster.Middle.Processes.Sync
                 _shopifyManager.PullLocations();
 
                 // Step 2 - Synchronize Locations and Warehouses
-                _inventorySyncManager.SynchronizeWarehouseLocation();
+                _inventoryManager.SynchronizeWarehouseLocation();
 
                 // Step 3 - Determine resultant System State
                 _inventoryStatusService.UpdateWarehouseSyncStatus();
@@ -153,15 +145,23 @@ namespace Monster.Middle.Processes.Sync
                         x => x.WarehouseSync, SystemState.SystemFault);
             }
         }
-        
+
+        public void RunDiagnostics()
+        {
+            ConnectToShopify();
+            PullAcumaticaReferenceData();
+            SyncWarehouseAndLocation();
+        }
+
+
+
+        // Inventory Jobs 
+        //
         public void PullInventory()
         {
             try
             {
-                // Step 1 - Pull Shopify Inventory
                 _shopifyManager.PullInventory();
-                
-                // Step 2 - Pull Acumatica Inventory
                 _acumaticaManager.PullInventory();
                 
                 _stateRepository.UpdateSystemState(x => x.InventoryPull, SystemState.Ok);
@@ -175,37 +175,33 @@ namespace Monster.Middle.Processes.Sync
             }
         }
         
-        public void RunDiagnostics()
-        {
-            ConnectToShopify();
-            PullAcumaticaReferenceData();
-            SyncWarehouseAndLocation();
-        }
-        
         public void ImportIntoAcumatica(AcumaticaInventoryImportContext context)
         {
             RunImpervious(() => _shopifyManager.PullInventory());
-
-            RunImpervious(() => _inventorySyncManager.ImportIntoAcumatica(context));
+            RunImpervious(() => _inventoryManager.ImportIntoAcumatica(context));
         }
 
-        public void RealTimeSynchronization()
+
+        // Synchronization
+        public void FullSync()
         {
-            RunImpervious(() => _shopifyManager.PullOrdersAndCustomers());
-            RunImpervious(() => _acumaticaManager.PullCustomersAndOrdersAndShipments());
+            RunImpervious(() => _shopifyManager.PullCustomers());
+            RunImpervious(() => _shopifyManager.PullOrders());
+            RunImpervious(() => _shopifyManager.PullTransactions());
+
+            RunImpervious(() => _acumaticaManager.PullOrderAndCustomersAndShipments());
 
             RunImpervious(() => _orderManager.RoutineCustomerSync());
             RunImpervious(() => _orderManager.RoutineOrdersSync());
-            RunImpervious(() => _orderManager.RoutineFulfillmentSync());
-
-            RunImpervious(() => _orderManager.RoutineOrdersSync());
             RunImpervious(() => _orderManager.RoutinePaymentSync());
             RunImpervious(() => _orderManager.RoutineRefundSync());
+            RunImpervious(() => _orderManager.RoutineFulfillmentSync());
             
-            RunImpervious(() => _acumaticaManager.PullInventory());
             RunImpervious(() => _shopifyManager.PullInventory());
-            RunImpervious(() => _inventorySyncManager.PushInventoryCountsToShopify());
+            RunImpervious(() => _acumaticaManager.PullInventory());
+            RunImpervious(() => _inventoryManager.PushInventoryCountsToShopify());
         }
+
 
         // Swallows Exceptions to enable sequences of tasks to be run 
         // ... uninterrupted even if one fails
@@ -218,6 +214,21 @@ namespace Monster.Middle.Processes.Sync
             catch (Exception ex)
             {
                 _logger.Error(ex);
+            }
+        }
+
+        private void RunImpervious(
+                Action task, Expression<Func<UsrSystemState, int>> statePropLambda)
+        {
+            try
+            {
+                task();
+                _stateRepository.UpdateSystemState(statePropLambda, SystemState.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                _stateRepository.UpdateSystemState(statePropLambda, SystemState.SystemFault);
             }
         }
     }

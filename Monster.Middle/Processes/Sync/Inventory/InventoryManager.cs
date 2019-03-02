@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Monster.Acumatica.Http;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Workers;
@@ -8,7 +7,7 @@ using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Sync.Inventory
 {
-    public class InventorySyncManager
+    public class InventoryManager
     {
         private readonly AcumaticaHttpContext _acumaticaContext;
         private readonly WarehouseLocationSync _warehouseLocationSync;
@@ -16,7 +15,7 @@ namespace Monster.Middle.Processes.Sync.Inventory
         private readonly ShopifyInventorySync _shopifyInventorySync;
         private readonly IPushLogger _pushLogger;
 
-        public InventorySyncManager(
+        public InventoryManager(
                     AcumaticaHttpContext acumaticaContext,
                     AcumaticaInventorySync acumaticaInventorySync,
                     WarehouseLocationSync warehouseLocationSync,                

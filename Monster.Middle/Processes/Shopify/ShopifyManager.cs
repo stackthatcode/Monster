@@ -45,10 +45,18 @@ namespace Monster.Middle.Processes.Shopify
             _shopifyInventoryPull.RunAutomatic();
         }
 
-        public void PullOrdersAndCustomers()
+        public void PullOrders()
+        {
+            _shopifyOrderPull.RunAutomatic();
+        }
+
+        public void PullCustomers()
         {
             _shopifyCustomerPull.RunAutomatic();
-            _shopifyOrderPull.RunAutomatic();
+        }
+
+        public void PullTransactions()
+        {
             _shopifyTransactionPull.RunAutomatic();
         }
     }
