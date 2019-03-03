@@ -6,9 +6,7 @@ namespace Monster.Middle.Hangfire
     {
         public static bool IsRunning(this string jobState)
         {
-            if (jobState == "Succeeded" 
-                || jobState == "Failed" 
-                || jobState == "Deleted")
+            if (jobState == "Succeeded" || jobState == "Failed" || jobState == "Deleted")
             {
                 return false;
             }

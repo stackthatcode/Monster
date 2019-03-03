@@ -1681,6 +1681,7 @@ namespace Monster.Middle.Persist.Multitenant
         public bool IsAcumaticaUrlFinalized { get; set; } // IsAcumaticaUrlFinalized
         public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
         public string RealTimeHangFireJobId { get; set; } // RealTimeHangFireJobId (length: 250)
+        public bool IsRealTimeEnabled { get; set; } // IsRealTimeEnabled
     }
 
     // vw_AcumaticaInventory
@@ -2995,6 +2996,7 @@ namespace Monster.Middle.Persist.Multitenant
             Property(x => x.IsAcumaticaUrlFinalized).HasColumnName(@"IsAcumaticaUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
             Property(x => x.RealTimeHangFireJobId).HasColumnName(@"RealTimeHangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(250);
+            Property(x => x.IsRealTimeEnabled).HasColumnName(@"IsRealTimeEnabled").HasColumnType("bit").IsRequired();
         }
     }
 

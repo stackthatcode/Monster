@@ -41,7 +41,9 @@ namespace Monster.Middle.Hangfire
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 
-                state.RealTimeHangFireJobId = routineSyncJobId; ;
+                state.RealTimeHangFireJobId = routineSyncJobId;
+                state.IsRealTimeEnabled = true;
+
                 _connectionRepository.Entities.SaveChanges();
 
                 RecurringJob.Trigger(routineSyncJobId);

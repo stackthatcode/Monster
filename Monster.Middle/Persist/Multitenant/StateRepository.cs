@@ -133,5 +133,6 @@ namespace Monster.Middle.Persist.Multitenant
             state.IsRandomAccessMode = newValue;
             Entities.SaveChanges();
         }
+        
     }
 }

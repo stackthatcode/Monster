@@ -157,6 +157,8 @@ Monster.RealTimeModel = function() {
 
                 if (self.AreAnyJobsRunning()) {
                     setTimeout(self.PollStatus, 1000);
+                } else {
+                    setTimeout(self.PollStatus, 3000);
                 }
             });
     };

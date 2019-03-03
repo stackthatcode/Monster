@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Hangfire;
+using Hangfire.Storage;
 using Monster.Middle.Persist.Multitenant;
 using Push.Foundation.Utilities.Helpers;
 
@@ -63,7 +65,34 @@ namespace Monster.Middle.Hangfire
         public bool IsRealTimeSyncRunning()
         {
             var state = _stateRepository.RetrieveSystemState();
-            return !state.RealTimeHangFireJobId.IsNullOrEmpty();
+            
+            if (state.RealTimeHangFireJobId.IsNullOrEmpty())
+            {
+                return false;
+            }
+
+            using (var connection = JobStorage.Current.GetConnection())
+            {
+                var recurringJobs = connection.GetRecurringJobs();
+                var job = recurringJobs
+                            .FirstOrDefault(p => p.Id == state.RealTimeHangFireJobId);
+
+                if (job == null || job.Job == null)
+                {
+                    return false;
+                }
+
+                try
+                {
+                    var jobState = connection.GetStateData(job.Id);
+                    return jobState.IsRunning();
+                }
+                catch (Exception ex)
+                {
+                    //job has not been run by the scheduler yet, swallow error
+                    return false;
+                }
+            }.
         }
     }
 }
