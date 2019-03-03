@@ -9,5 +9,6 @@ namespace Monster.Middle.Persist.Multitenant
         {
             return input.Database.SqlQuery<T>(sql).FirstOrDefault();
         }
+
     }
 }

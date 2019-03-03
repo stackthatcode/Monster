@@ -1,4 +1,6 @@
-﻿namespace Monster.Middle.Persist.Multitenant
+﻿using Push.Foundation.Utilities.Helpers;
+
+namespace Monster.Middle.Persist.Multitenant
 {
     public class SystemState
     {
@@ -15,7 +17,11 @@
             return state == SystemState.Invalid ||
                    state == SystemState.SystemFault;
         }
-        
+
+        public static bool IsRealTimeSyncEnabled(this UsrSystemState state)
+        {
+            return !state.RealTimeHangFireJobId.IsNullOrEmpty();
+        }
     }
 }
 

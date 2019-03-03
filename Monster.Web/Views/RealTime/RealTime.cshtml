@@ -155,11 +155,7 @@ Monster.RealTimeModel = function() {
 
                 self.JobRunningModel.Ingest(response.Logs);
 
-                if (self.AreAnyJobsRunning()) {
-                    setTimeout(self.PollStatus, 1000);
-                } else {
-                    setTimeout(self.PollStatus, 3000);
-                }
+                setTimeout(self.PollStatus, 1000);
             });
     };
 

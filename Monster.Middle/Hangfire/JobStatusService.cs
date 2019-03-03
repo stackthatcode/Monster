@@ -24,15 +24,9 @@ namespace Monster.Middle.Hangfire
         {
             var jobs = _stateRepository.RetrieveBackgroundJobs();
             var anyOneTimeJobs = jobs.Any(x => IsHangFireFafJobRunning(x.HangFireJobId));
-
             var anyRecurringJobs = IsRealTimeSyncRunning();
 
             return anyOneTimeJobs || anyRecurringJobs;
-        }
-        
-        public bool AreAnyOneTimeJobsRunning(List<int> jobTypes)
-        {
-            return jobTypes.Any(x => IsOneTimeJobRunning(x));
         }
         
 
@@ -65,34 +59,7 @@ namespace Monster.Middle.Hangfire
         public bool IsRealTimeSyncRunning()
         {
             var state = _stateRepository.RetrieveSystemState();
-            
-            if (state.RealTimeHangFireJobId.IsNullOrEmpty())
-            {
-                return false;
-            }
-
-            using (var connection = JobStorage.Current.GetConnection())
-            {
-                var recurringJobs = connection.GetRecurringJobs();
-                var job = recurringJobs
-                            .FirstOrDefault(p => p.Id == state.RealTimeHangFireJobId);
-
-                if (job == null || job.Job == null)
-                {
-                    return false;
-                }
-
-                try
-                {
-                    var jobState = connection.GetStateData(job.Id);
-                    return jobState.IsRunning();
-                }
-                catch (Exception ex)
-                {
-                    //job has not been run by the scheduler yet, swallow error
-                    return false;
-                }
-            }.
+            return !state.RealTimeHangFireJobId.IsNullOrEmpty();
         }
     }
 }

@@ -116,7 +116,7 @@ namespace Monster.Middle.Persist.Multitenant
         public UsrSystemState RetrieveSystemState()
         {
             CreateSystemStateIfNotExists();
-            return Entities.UsrSystemStates.First();
+            return Entities.UsrSystemStates.AsNoTracking().First();
         }
 
         public void UpdateSystemState(

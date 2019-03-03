@@ -196,7 +196,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 () => _syncManager.PushInventoryCountsToShopify()
             };
 
-            Run(sequence, false);
+            RunFullSync(sequence, false);
         }
 
 
@@ -214,12 +214,21 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
 
-        public void Run(Action[] actions, bool throwException = true)
+        private void RunFullSync(Action[] actions, bool throwException = true)
         {
+            _executionLogService.InsertExecutionLog("Real-Time Sync - Processing ");
+
             foreach (var action in actions)
             {
                 try
                 {
+                    var state = _stateRepository.RetrieveSystemState();
+                    if (!state.IsRealTimeSyncEnabled())
+                    {
+                        _executionLogService.InsertExecutionLog("Real-Time Sync - Interrupting");
+                        return;
+                    }
+
                     action();
                 }
                 catch (Exception ex)

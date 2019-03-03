@@ -13,19 +13,20 @@ namespace Monster.Middle.Hangfire
         private readonly ConnectionContext _tenantContext;
         private readonly ConnectionRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
-        private readonly IPushLogger _logger;
+        private readonly ExecutionLogService _executionLogService;
 
 
         public RecurringJobService(
             IPushLogger logger,
             ConnectionContext tenantContext,
             ConnectionRepository connectionRepository,
-            StateRepository stateRepository)
+            StateRepository stateRepository, 
+            ExecutionLogService executionLogService)
         {
             _tenantContext = tenantContext;
             _connectionRepository = connectionRepository;
-            _logger = logger;
             _stateRepository = stateRepository;
+            _executionLogService = executionLogService;
         }
 
         public void StartRoutineSync()
@@ -42,8 +43,7 @@ namespace Monster.Middle.Hangfire
                     TimeZoneInfo.Utc);
 
                 state.RealTimeHangFireJobId = routineSyncJobId;
-                state.IsRealTimeEnabled = true;
-
+                
                 _connectionRepository.Entities.SaveChanges();
 
                 RecurringJob.Trigger(routineSyncJobId);
@@ -56,7 +56,6 @@ namespace Monster.Middle.Hangfire
             using (var transaction = _connectionRepository.BeginTransaction())
             {
                 var state = _stateRepository.RetrieveSystemState();
-
                 var jobId = state.RealTimeHangFireJobId;
                 if (jobId.IsNullOrEmpty())
                 {
@@ -67,6 +66,7 @@ namespace Monster.Middle.Hangfire
                 state.RealTimeHangFireJobId = null;
                 _stateRepository.Entities.SaveChanges();
 
+                _executionLogService.InsertExecutionLog("Real-Time Sync - Initiating Pause");
                 transaction.Commit();
             }
         }

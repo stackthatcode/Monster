@@ -16,7 +16,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 && this.AcumaticaConnection == SystemState.Ok
                 && this.AcumaticaReferenceData == SystemState.Ok
                 && this.PreferenceSelections == SystemState.Ok
-                && this.WarehouseSync == SystemState.Ok
-                && this.InventoryPull == SystemState.Ok;
+                && this.WarehouseSync == SystemState.Ok;
+                // && this.InventoryPull == SystemState.Ok;
     }
 }
