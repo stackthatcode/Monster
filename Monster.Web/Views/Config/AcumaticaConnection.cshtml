@@ -142,9 +142,8 @@
 
 <div data-bind="if: BackgroundJobRunning">
     <div class="std-pad-b">
-        <div data-bind="template: { name: 'Background-Job-Running' }"></div>
-        
-        <div data-bind=""></div>
+        <div data-bind="template: { 
+         name: 'Generic-Job-Running-Panel', data: ExecutionLogTickerModel }"></div>
     </div>
 </div>
 
@@ -257,13 +256,14 @@ Monster.AcumaticaConnectionModel = function() {
     self.BackgroundJobRunning = ko.observable();
     self.StatusVisible = ko.observable();
 
+    self.ExecutionLogTickerModel = new Monster.ExecutionLogTickerModel();
+
     self.ClearVisibility = function() {
         self.DataEntryVisible(false);
         self.BackgroundJobRunning(false);
         self.StatusVisible(false);
     };
-
-
+    
     // System State
     self.ConnectionState = ko.observable();
     self.IsUrlFinalized = ko.observable();
@@ -380,17 +380,22 @@ Monster.AcumaticaConnectionModel = function() {
     self.ProcessStatus = function(response) {
         self.ClearVisibility();
 
+        // Status model
+        self.ConnectionState(response.Status.ConnectionState);
+        self.IsUrlFinalized(response.Status.IsUrlFinalized);
+        self.IsRandomAccessMode(response.Status.IsRandomAccessMode);
+
+        // Background Job stuff
+        self.BackgroundJobRunning(response.IsJobRunning);
+        self.ExecutionLogTickerModel.Ingest(response.ExecutionLogs);
+
+        console.log(response);
+
         // If still running, then show AJAX...
-        if (response.IsBackgroundJobRunning) {
-            self.BackgroundJobRunning(true);
+        if (self.BackgroundJobRunning()) {            
             setTimeout(self.PollStatus, 1000);
             return;
         }
-
-        // Else process System State info
-        self.ConnectionState(response.ConnectionState);
-        self.IsUrlFinalized(response.IsUrlFinalized);
-        self.IsRandomAccessMode(response.IsRandomAccessMode);
 
         if (self.ConnectionState() == SystemState.None) {
             self.ChangeSettingsClick();
@@ -398,19 +403,7 @@ Monster.AcumaticaConnectionModel = function() {
             self.ShowStatusPanel();
         }
     };
-
-    self.FetchStatus = function() {
-        flow.exec(function () {
-                var ajax = new Monster.Ajax();
-                ajax.HttpGet("Config/AcumaticaConnectionStatus", this);
-            },
-            function (response) {
-                self.AcumaticaInstanceUrl(response.AcumaticaInstanceUrl);
-                self.AcumaticaBranch(response.AcumaticaBranch);
-                self.AcumaticaCompany(response.AcumaticaCompany);
-            });
-    };
-
+    
     self.Initialize = function() {
         self.ClearVisibility();
         self.PollStatus();

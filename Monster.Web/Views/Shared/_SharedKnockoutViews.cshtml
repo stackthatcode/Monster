@@ -1,40 +1,75 @@
 ﻿@using Monster.Web.Plumbing
 
-<script type="text/html" id="Background-Job-Running">
-    <div class="card">
-        <div class="card-body center std-pad">
-            <img style="width: 100px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+<script type="text/html" id="Job-Running-Spinner">
+    <img style="width: 100px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
 
-            <div style="height: 30px;"></div>
-            <p class="center">
-                There is currently a background job running
-            </p>
-        </div>
-    </div>
+    <div style="height: 30px;"></div>
+
+    <p class="center">
+        There is currently a background job running
+    </p>
 </script>
 
-<script type="text/html" id="Execution-Logs">
+<!-- Uses Monster.ExecutionLogTickerModel -->
+<script type="text/html" id="Execution-Log-Ticker">
     <div style="font-size:0.9em; color:#555555; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
         Execution Logs
     </div>
 
-    <div style="overflow-y: scroll; height: 400px; text-align: left;">
-        <div data-bind="if: $data.length">
-            <table class="table table-striped">
-                <tbody data-bind="foreach: $data">
-                <tr>
-                    <td>
-                        <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
-                            <span data-bind="text: LogTime"></span> (UTC)
-                        </div>
-
-                        <div data-bind="text: Content"></div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+    <div data-bind="ifnot: HasLogs">
+        <div style="height: 400px; padding-top:150px;" class="empty-grid">
+            <h1>Execution logs are currently empty</h1>
         </div>
     </div>
+
+    <div data-bind="if: HasLogs">
+            <div style="overflow-y: scroll; height: 400px; text-align: left;">
+                <table class="table table-striped">
+                    <tbody data-bind="foreach: Logs">
+                    <tr>
+                        <td>
+                            <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
+                                <span data-bind="text: LogTime"></span> (UTC)
+                            </div>
+
+                            <div data-bind="text: Content"></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+    </div>
+</script>
+
+<script id="Generic-Job-Running-Panel" type="text/html">
+    <div class="card">
+        <div class="card-body center std-pad">
+            <div data-bind="template: { name: 'Job-Running-Spinner' }"></div>
+
+            <hr />
+
+            <div data-bind="template: { name: 'Execution-Log-Ticker' }"></div>
+        </div>
+    </div>
+</script>
+
+<script>
+    var Monster = Monster || {};
+    Monster.ExecutionLogTickerModel = function () {
+        var self = this;
+
+        self.Logs = ko.observableArray([]);
+
+        self.HasLogs = ko.computed(function() {
+            return self.Logs().length > 0;
+        });
+
+        self.Ingest = function (logs) {
+            self.Logs(logs);
+            // For now, simply update Array - future will stragically insert and truncate
+        };
+        return self;
+    };
 </script>
 
 <script type="text/html" id="Inventory-Not-Pulled-Message">
