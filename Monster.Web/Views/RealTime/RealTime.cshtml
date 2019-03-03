@@ -7,21 +7,17 @@
         max-width: 860px;
         padding: 0 15px;
     }
-
     .diagnosis-item .badge {
         padding: 8px;
     }
-</style>
-
-<style>
     .not-synced {
         background-color: #fff3cd
     }
-
     .synced {
         background-color: #d4edda;
     }
 </style>
+
 
 <main role="main" class="medium-size">
     @Html.Partial("_TopBrand")
@@ -34,39 +30,50 @@
         </p>
     </div>
 
-    <div class="std-pad">
+    <div class="std-pad-b">
         <div class="card">
-            <div class="card-body">
-                <div data-bind="if: IsRealTimeSyncRunning">
-                    <div class="alert alert-success">
-                        <strong>Real-Time Synchronization - Enabled</strong>
+            <div class="card-body center">
+                <div data-bind="if: AreAnyJobsRunning">
+                    <div data-bind="if: IsRealTimeSyncRunning">
+                        <div class="alert alert-success">
+                            <strong>Real-Time Synchronization - Enabled</strong>
+                        </div>
+                    </div>
+                    <div data-bind="ifnot: IsRealTimeSyncRunning">
+                        <div class="alert alert-secondary">
+                            <strong>Real-Time Synchronization - Disabled</strong>
+                        </div>
                     </div>
 
-                    <div style="text-align: center; padding-top: 10px;">
-                        <img style="width: 80px;"
-                             src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+                    <div style="text-align: center;" class="std-pad-sm">
+                        <div data-bind="template: { name: 'Job-Running-Spinner' }"></div>
                     </div>
 
-                    <div style="height: 30px;"></div>
+                    <hr/>
 
-                    <div style="text-align: center;">
-                        <a href="#"
-                           data-bind="click: PauseRealTimeClick"
+                    <div data-bind="if: IsKillRealTimeButtonEnabled">
+                        <a href="#" data-bind="click: PauseRealTimeClick"
                            class="btn btn-primary btn-lg">
-                            Pause Real-Time Sync
-                            <i class="fas fa-bolt"></i>
+                            Pause Real-Time Sync <i class="fas fa-bolt"></i>
                         </a>
+                    </div>
+
+                    <div data-bind="ifnot: IsKillRealTimeButtonEnabled">
+                        <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
+                            Pause Real-Time Sync <i class="fas fa-bolt"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div data-bind="ifnot: AreAnyBackgroundJobsRunning">
-                    <div data-bind="if: IsReadyForRealTimeSync">
+                <div data-bind="ifnot: AreAnyJobsRunning">
+                    
+                    <div data-bind="if: ShowRealTimeDiagnosticsOk">
                         <div class="alert alert-info">
                             <strong>Real-Time Synchronization - Diagnostics OK</strong>
                         </div>
                     </div>
 
-                    <div data-bind="ifnot: IsReadyForRealTimeSync">
+                    <div data-bind="ifnot: ShowRealTimeDiagnosticsOk">
                         <div class="alert alert-danger">
                             <strong>Real-Time Synchronization - Disabled</strong>
                         </div>
@@ -81,98 +88,27 @@
                     <div style="height: 30px;"></div>
 
                     <div class="center">
-                        <span data-bind="ifnot: IsReadyForRealTimeSync">
-                            <button type="button"
-                                    class="btn btn-secondary btn-lg"
-                                    disable="disabled">
-                                Start Real-Time Sync
-                                <i class="fas fa-times"></i>
+                        <span data-bind="ifnot: IsStartRealTimeButtonEnabled">
+                            <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
+                                Start Real-Time Sync <i class="fas fa-times"></i>
                             </button>
                         </span>
 
-                        <span data-bind="if: IsReadyForRealTimeSync">
-                            <a href="#"
-                               data-bind="click: StartRealTimeClick"
-                               class="btn btn-primary btn-lg">
-                                Start Real-Time Sync
-                                <i class="fas fa-bolt"></i>
+                        <span data-bind="if: IsStartRealTimeButtonEnabled">
+                            <a href="#" data-bind="click: StartRealTimeClick" class="btn btn-primary btn-lg">
+                                Start Real-Time Sync <i class="fas fa-bolt"></i>
                             </a>
                         </span>
                     </div>
                 </div>
 
                 <div style="height: 30px;"></div>
-
-                <div data-bind="template: { name: 'Real-Time-Monitoring'}"></div>
+                
+                <div data-bind="template: { name: 'Execution-Log-Ticker', data: JobRunningModel }"></div>
             </div>
         </div>
     </div>
-
 </main>
-
-<script type="text/html" id="Real-Time-Monitoring">
-    <!--
-      
-    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link" id="nav-profile-tab"
-           data-toggle="tab" data-bind="css: OrderViewTabActive, click: OrderViewTabClick"
-           href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Orders</a>
-
-        <a class="nav-item nav-link" id="nav-home-tab"
-           data-toggle="tab" data-bind="css: ExecutionTabActive, click: ExectionTabClick"
-           href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Execution Logs</a>
-    </div>
-    -->
-
-    <div data-bind="if: ActiveTabIndex() == OrderViewTabIndex">
-        <div data-bind="template: { name: 'Order-Summary' } "></div>
-    </div>
-
-    <div data-bind="if: ActiveTabIndex() == ExecutionTabIndex">
-        <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
-    </div>
-</script>
-
-<script type="text/html" id="Order-Summary">
-    <div class="row" data-bind="with: OrderSummary">
-        <div class="col-4" style="">
-            <div style="margin:0px; padding:20px; background-color:#d4edda;">
-                <div style="">Shopify Orders</div>
-                <div style="font-weight:800; font-size:36px;" data-bind="text: TotalOrders"></div>
-            </div>
-        </div>
-        <div class="col-4" style="">
-            <div style="margin:0px; padding:20px;"
-                 data-bind="css: SalesOrdersClass">
-                <div style="">Acumatica Orders</div>
-                <div style="font-weight:800; font-size:36px;" data-bind="text: TotalOrdersWithSalesOrders"></div>
-            </div>
-        </div>
-        <div class="col-4" style="">
-            <div style="margin:0px; padding:20px;"
-                 data-bind="css: OrdersInvoicedClass">
-                <div style="">Invoiced Shipments</div>
-                <div style="font-weight:800; font-size:36px;" data-bind="text: TotalOrdersWithInvoices"></div>
-            </div>
-        </div>
-    </div>
-
-    <div style="height:20px;"></div>
-
-    <div style="overflow-y: scroll; height: 600px;">
-        <table class="table table-striped">
-            <tbody data-bind="foreach: OrderSyncView">
-                <tr>
-                    <td>
-                        <div style="">Shopify Order #</div>
-                        <span data-bind="text: ShopifyOrderNumber"></span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</script>
-
 
 
 <script>
@@ -181,60 +117,52 @@ var Monster = Monster || {};
 Monster.RealTimeModel = function() {
     var self = this;
 
+    self.AreAnyJobsRunning = ko.observable(false);
     self.IsRealTimeSyncRunning = ko.observable(false);
-    self.IsConfigDiagnosisRunning = ko.observable(false);
-    self.OrderSummary = ko.observable();
-    self.OrderSyncView = ko.observableArray();
-    self.Logs = ko.observableArray();
+    self.IsConfigReadyForRealTime = ko.observable(false);
 
-    self.AreAnyBackgroundJobsRunning = ko.computed(function() {
-        return self.IsRealTimeSyncRunning()
-            || self.IsConfigDiagnosisRunning();
+    self.JobRunningModel = new Monster.JobRunningModel();
+
+    // Computed properties
+    //
+    self.IsStartRealTimeButtonEnabled = ko.computed(function () {
+        return !self.AreAnyJobsRunning() && self.IsConfigReadyForRealTime();
+    });
+
+    self.IsKillRealTimeButtonEnabled = ko.computed(function() {
+        return self.IsRealTimeSyncRunning();
+    });
+
+    self.ShowRealTimeDiagnosticsOk = ko.computed(function() {
+        return self.IsConfigReadyForRealTime();
     });
 
 
-    self.SyncedClass = "synced";
-    self.NotSyncedClass = "not-synced";
 
-    self.DecorateOrderSummary = function(summary) {
-        summary.ShopifyOrdersClass
-            = summary.TotalOrders ? self.SyncedClass : self.NotSyncedClass;
+    // Add Polling Function
+    self.PollStatus = function() {
+        flow.exec(function() {
+                var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
+                ajax.HttpGet("RealTime/RealTimeStatus", this);
+            },
+            function (response) {
+                //console.log(response);
 
-        summary.SalesOrdersClass
-            = summary.SalesOrdersSynced ? self.SyncedClass : self.NotSyncedClass;
+                self.AreAnyJobsRunning(response.AreAnyJobsRunning);
+                self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
+                self.IsConfigReadyForRealTime(response.IsConfigReadyForRealTime);
 
-        summary.OrdersInvoicedClass
-            = summary.SalesOrdersInvoiced ? self.SyncedClass : self.NotSyncedClass;
+                self.JobRunningModel.Ingest(response.Logs);
+
+                if (self.AreAnyJobsRunning()) {
+                    setTimeout(self.PollStatus, 1000);
+                }
+            });
     };
 
-    self.OrderViewTabIndex = 0;
-    self.ExecutionTabIndex = 1;
-
-    self.ActiveTabIndex = ko.observable(self.ExecutionTabIndex);
-
-    self.ExectionTabClick = function () { self.ActiveTabIndex(self.ExecutionTabIndex); }
-
-    self.OrderViewTabClick = function () { self.ActiveTabIndex(self.OrderViewTabIndex); }
-
-    self.TabCss = function(index) {
-        return self.ActiveTabIndex() == index
-                ? "nav-item nav-link active" : "nav-item nav-link";
-    };
-
-    // Evaluates to a positive value, so initially we apply the "profitPositive" class
-    self.OrderViewTabActive
-        = ko.pureComputed(function () { return self.TabCss(self.OrderViewTabIndex); }, self);
-
-    self.ExecutionTabActive
-        = ko.pureComputed(function () { return self.TabCss(self.ExecutionTabIndex); }, self);
-
-
-
-    // Diagnosis
-    self.ConfigDiagnosis = ko.observableArray();
-    self.IsReadyForRealTimeSync = ko.observable(false);
-
-    self.StartRealTimeClick = function () {
+    
+    self.StartRealTimeClick = function() {
         flow.exec(
             function() {
                 var ajax = new Monster.Ajax();
@@ -245,74 +173,25 @@ Monster.RealTimeModel = function() {
             });
     };
 
-    self.PauseRealTimeClick = function () {
+    self.PauseRealTimeClick = function() {
         flow.exec(
-            function () {
+            function() {
                 var ajax = new Monster.Ajax();
                 ajax.HttpPost("RealTime/PauseRealTime", {}, this);
             },
-            function (response) {
-                self.IsRealTimeSyncRunning(false);
+            function(response) {
             });
     };
-
-    self.StartConfigDiagnosisClick = function () {
-        flow.exec(
-            function () {
-                var ajax = new Monster.Ajax();
-                ajax.HttpPost("RealTime/TriggerConfigDiagnosis", {}, this);
-            },
-            function (response) {
-                self.PollStatus();
-            });
-    };
-
-    // Add Polling Function
-    self.PollStatus = function() {
-        flow.exec(function () {
-                var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("RealTime/RealTimeStatus", this);
-            },
-            function (response) {
-                console.log(response);
-
-                self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
-                self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
-                self.Logs(response.Logs);
-                self.DecorateOrderSummary(response.OrderSummary);
-                self.OrderSummary(response.OrderSummary);
-                self.OrderSyncView(response.OrderSyncView);
-
-                //console.log(self.OrderSummary());
-                
-                if (self.AreAnyBackgroundJobsRunning()) {
-                    setTimeout(self.PollStatus, 1000);
-                } else {
-                    self.PollConfigDiagnosis();
-                }
-            });
-    };
-
-    self.PollConfigDiagnosis = function() {
-        flow.exec(function() {
-                var ajax = new Monster.Ajax();
-                ajax.HttpGet("Config/ConfigDiagnosis", this);
-            },
-            function (response) {                
-                self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
-            });
-    };
-
+    
     self.Initialize = function() {
         self.PollStatus();
     };
 
     return self;
-}
+};
 
 var model = new Monster.RealTimeModel();
 model.Initialize();
 ko.applyBindings(model);
 model.Initialize();
-    </script>
+</script>

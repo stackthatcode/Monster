@@ -167,6 +167,7 @@ namespace Monster.Web.Controllers
         public ActionResult AcumaticaRefDataStatus()
         {
             var status = _statusService.AcumaticaReferenceDataStatus();
+
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
 
@@ -360,10 +361,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ConfigDiagnosis()
         {
-            var state = _stateRepository.RetrieveSystemState();
-            var output = Mapper.Map<SystemStateSummaryModel>(state);
-            output.IsReadyForRealTimeSync = state.IsReadyForRealTimeSync();
-
+            var output = _statusService.ConfigSummary();
             return new JsonNetResult(output);
         }
 

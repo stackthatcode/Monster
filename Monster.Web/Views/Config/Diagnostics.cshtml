@@ -22,26 +22,14 @@
     </div>
 
     <!-- Will yield to showing Real Time Sync in case somehow both got triggered -->
-    <div data-bind="if: IsConfigDiagnosisRunning">
-        <div class="std-pad">
-            <div class="card">
-                <div class="card-body center std-pad">
-                    <img style="width: 100px;"
-                         src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-                    <div style="height: 30px;"></div>
-                    <p class="center">
-                        Please wait while @GlobalConfig.AppName runs Configuration Diagnostics.
-                    </p>
-                </div>
-            </div>
-        </div>
+    <div data-bind="if: IsJobRunning">
+        <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
     </div>
 
-    <div data-bind="ifnot: IsConfigDiagnosisRunning">
+    <div data-bind="ifnot: IsJobRunning">
         <div class="std-pad-b">
             <div class="card">
-                <div class="card-body std-pad">
+                <div class="card-body std-pad-b">
                     <div data-bind="if: IsReadyForRealTimeSync">
                         <div class="alert alert-info">
                             <strong>System OK - Ready to Start Real-Time Sync</strong>
@@ -134,11 +122,14 @@ var Monster = Monster || {};
 
 Monster.InventoryConfigModel = function() {
     var self = this;
+
+    // Job Status 
+    self.IsJobRunning = ko.observable(false);
+    self.JobRunningModel = new Monster.JobRunningModel();
     
     // Diagnosis
-    self.IsConfigDiagnosisRunning = ko.observable(false);
-    self.ConfigDiagnosis = ko.observableArray();
     self.IsReadyForRealTimeSync = ko.observable(false);
+    self.ConfigDiagnosis = ko.observableArray();
 
     self.StartConfigDiagnosisClick = function () {
         flow.exec(
@@ -159,9 +150,10 @@ Monster.InventoryConfigModel = function() {
                 ajax.HttpGet("Config/ConfigDiagnosisRunStatus", this);
             },
             function (response) {
-                self.IsConfigDiagnosisRunning(response.IsConfigDiagnosisRunning);
-                
-                if (self.IsConfigDiagnosisRunning()) {
+                self.IsJobRunning(response.IsJobRunning);
+                self.JobRunningModel.Ingest(response.ExecutionLogs);
+
+                if (self.IsJobRunning()) {
                     setTimeout(self.PollStatus, 1000);
                 } else {
                     self.RetrieveDiagnosis();

@@ -19,20 +19,7 @@
                Inventory Sync Control
             </div>
 
-            <div class="card-body center">
-                <div class="std-pad-sm">
-                    <img style="width: 100px;" src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
-                </div>
-
-                <p class="center">
-                    @GlobalConfig.AppName is currently busy processing your inventory.<br/>
-                    Depending on the size of your catalog, this process may take up to several hours.
-                </p>
-
-                <hr/>
-
-                <div data-bind="template: { name: 'Execution-Logs', data: Logs() } "></div>
-            </div>
+            <div data-bind="template: { name: 'Job-Running-Panel-Borderless', data: JobRunningModel }"></div>
         </div>
     </div>
 </div>
@@ -253,9 +240,9 @@
         var self = this;
         
         self.AreAnyJobsRunning = ko.observable();
-        self.Logs = ko.observableArray();
+        self.JobRunningModel = new Monster.JobRunningModel();
+
         self.InventoryPullState = ko.observable();
-        
         self.InventorySyncGrid = new Monster.InventorySyncGrid();
 
         // Abstract logic reduction
@@ -301,7 +288,8 @@
                 },
                 function (response) {
                     self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                    self.Logs(response.Logs);
+                    self.JobRunningModel.Ingest(response.Logs);
+
                     self.InventoryPullState(response.SystemState);
 
                     if (self.AreAnyJobsRunning()) {

@@ -1,8 +1,6 @@
 ﻿using System;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Services;
@@ -19,15 +17,19 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ShopifyManager _shopifyManager;
         private readonly StatusService _inventoryStatusService;
         private readonly SyncManager _syncManager;
+        private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
         private readonly PreferencesRepository _preferencesRepository;
 
         public SyncDirector(
                 ConnectionRepository connectionRepository,
                 StateRepository stateRepository,
+
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
                 SyncManager syncManager,
+
+                ExecutionLogService executionLogService,
                 StatusService inventoryStatusService,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
@@ -35,23 +37,26 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             _connectionRepository = connectionRepository;
             _stateRepository = stateRepository;
+
             _acumaticaManager = acumaticaManager;
             _shopifyManager = shopifyManager;            
             _syncManager = syncManager;
-            _logger = logger;
 
+            _executionLogService = executionLogService;
             _inventoryStatusService = inventoryStatusService;
             _preferencesRepository = preferencesRepository;
             _referenceDataService = referenceDataService;
+            _logger = logger;
         }
-        
-        
+
+
         // Configuration Jobs
         //
         public void ConnectToShopify()
         {
             try
             {
+                _executionLogService.InsertExecutionLog("Testing Shopify Connection");
                 _shopifyManager.TestConnection();
                 _stateRepository.UpdateSystemState(x => x.ShopifyConnState, SystemState.Ok);
             }
@@ -66,6 +71,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
+                _executionLogService.InsertExecutionLog("Testing Acumatica Connection");
                 _acumaticaManager.TestConnection();
                 _stateRepository.UpdateSystemState(
                         x => x.AcumaticaConnState, SystemState.Ok);
@@ -82,6 +88,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
+                _executionLogService.InsertExecutionLog("Pulling Acumatica Reference Data");
                 _acumaticaManager.PullReferenceData();
                 
                 _stateRepository.UpdateSystemState(
@@ -108,6 +115,8 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
+                _executionLogService.InsertExecutionLog("Pulling Acumatica Warehouses and Shopify Locations");
+
                 // Step 1 - Pull Locations and Warehouses
                 _acumaticaManager.PullWarehouses();
                 _shopifyManager.PullLocations();

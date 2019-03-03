@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using AutoMapper;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
 using Monster.Middle.Processes.Sync.Extensions;
@@ -13,6 +14,7 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly StateRepository _stateRepository;
         private readonly ReferenceDataService _referenceDataService;
         
+
         public StatusService(
                 SyncInventoryRepository syncInventoryRepository, 
                 ReferenceDataService referenceDataService,
@@ -93,6 +95,22 @@ namespace Monster.Middle.Processes.Sync.Services
             };
 
             return model;
+        }
+
+
+        public SystemStateSummaryModel ConfigSummary()
+        {
+            var state = _stateRepository.RetrieveSystemState();
+            var output = new SystemStateSummaryModel()
+            {
+                ShopifyConnection = state.ShopifyConnState,
+                AcumaticaConnection = state.AcumaticaConnState,
+                AcumaticaReferenceData = state.AcumaticaRefDataState,
+                InventoryPull = state.InventoryPullState,
+                PreferenceSelections = state.PreferenceState,
+                WarehouseSync = state.WarehouseSyncState
+            };
+            return output;
         }
     }
 }

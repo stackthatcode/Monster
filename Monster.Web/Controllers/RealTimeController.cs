@@ -24,6 +24,7 @@ namespace Monster.Web.Controllers
         private readonly OneTimeJobService _oneTimeJobService;
         private readonly RecurringJobService _recurringJobService;
         private readonly JobStatusService _jobStatusService;
+        private readonly StatusService _statusService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly UrlService _urlService;
@@ -34,6 +35,7 @@ namespace Monster.Web.Controllers
                 OneTimeJobService oneTimeJobService,
                 RecurringJobService recurringJobService,
                 JobStatusService jobStatusService,
+                StatusService statusService,
                 ExecutionLogService logRepository,
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
@@ -44,6 +46,7 @@ namespace Monster.Web.Controllers
             _oneTimeJobService = oneTimeJobService;
             _recurringJobService = recurringJobService;
             _jobStatusService = jobStatusService;
+            _statusService = statusService;
             _logRepository = logRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
@@ -57,9 +60,6 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult RealTime()
         {
-            var state = _stateRepository.RetrieveSystemState();
-            state.IsRandomAccessMode = true;
-            _stateRepository.SaveChanges();
             return View();
         }
 
@@ -80,17 +80,29 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult RealTimeStatus()
         {
+            var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
+            var isRealTimeSyncRunning = _jobStatusService.IsRealTimeSyncRunning();
+
+            var isConfigReadyForRealTime = 
+                    _statusService.ConfigSummary().IsReadyForRealTimeSync;
+
+            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+
             var output = new
             {
-                AreAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning(),
-                Logs = _logRepository.RetrieveExecutionLogs().ToModel(),
+                AreAnyJobsRunning = areAnyJobsRunning,
+                IsRealTimeSyncRunning = isRealTimeSyncRunning,
+                IsConfigReadyForRealTime = isConfigReadyForRealTime,
+                Logs = logs,
             };
 
             return new JsonNetResult(output);
         }
 
 
-        // *** Monitors Status on all Inventory Jobs
+
+        // Inventory Sync Control
+        //
         [HttpGet]
         public ActionResult InventoryPullStatus()
         {
@@ -107,11 +119,7 @@ namespace Monster.Web.Controllers
 
             return new JsonNetResult(output);
         }
-
-
-
-        // Inventory Sync Control
-        //
+        
         [HttpGet]
         public ActionResult InventorySyncControl()
         {
@@ -155,6 +163,7 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
 
         }
+
 
 
         // Inventory loading tools
@@ -208,6 +217,7 @@ namespace Monster.Web.Controllers
         
 
         // Import into Shopify functions...
+        //
         [HttpGet]
         public ActionResult ImportIntoShopify()
         {

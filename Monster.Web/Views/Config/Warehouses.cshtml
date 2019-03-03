@@ -49,19 +49,14 @@
     </div>
 
     <div data-bind="if: IsJobRunning">
-        <div class="card">
-            <div class="card-body center std-pad-t">
-                <img style="width: 100px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-                <div style="height: 30px;"></div>
-
-                <p class="center">Please wait while @GlobalConfig.AppName synchronizes Warehouses and Locations.</p>
-            </div>
+        <div class="std-pad-b">
+            <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
         </div>
     </div>
     
     <!-- Bottom Controls -->
-    <div id="bottom-controls" class="center std-pad-t">
+    <div data-bind="ifnot: IsJobRunning">
+        <div id="bottom-controls" class="center std-pad-t">
         <span data-bind="if: IsRandomAccessMode">
             <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
                 <i class="fas fa-undo"></i> Back to Diagnostics
@@ -92,6 +87,7 @@
                 Next Step <i class="fas fa-sign-in-alt"></i>
             </a>
         </span>
+    </div>
     </div>
 </main>
 
@@ -199,8 +195,11 @@
     Monster.WarehouseConfigModel = function () {
         var self = this;
 
-        // Sync and Job state
+        // Job Status
         self.IsJobRunning = ko.observable();
+        self.JobRunningModel = new Monster.JobRunningModel();
+
+        // Sync Status
         self.IsRandomAccessMode = ko.observable();
         self.WarehouseSyncState = ko.observable();
 
@@ -238,6 +237,8 @@
                     //console.log(response);
 
                     self.IsJobRunning(response.IsJobRunning);
+                    self.JobRunningModel.Ingest(response.ExecutionLogs);
+
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
                     self.WarehouseSyncState(response.WarehouseSyncState);
 
@@ -288,9 +289,7 @@
                 });
         };
 
-        self.SaveClick = function () {
-            self.Save(self.PollStatus);
-        };
+        self.SaveClick = function () { self.Save(self.PollStatus); };
 
         self.NextClick = function() {
             self.Save(
@@ -320,9 +319,7 @@
             );
         };
 
-        self.Initialize = function () {
-            self.PollStatus();
-        };
+        self.Initialize = function () { self.PollStatus(); };
 
         return self;
     };

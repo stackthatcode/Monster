@@ -17,8 +17,7 @@
         Configuration of Acumatica reference data for @GlobalConfig.AppName
     </p>
 
-
-    <div data-bind="ifnot: BackgroundJobRunning">
+    <div data-bind="ifnot: IsJobRunning">
         <div data-bind="if: ReferenceDataState() == SystemState.None">
             <p>
                 This next step will require you to configure Acumatica so that
@@ -82,14 +81,14 @@
                 <span data-bind="ifnot: HasReferenceDataBeenPulled">
                     <a href="#" class="btn btn-primary btn-lg"
                        data-bind="click: ConnectToAcumatica">
-                        Connect to Acumatica <i class="fas fa-bolt"></i>
+                        Pull Ref Data from Acumatica <i class="fas fa-bolt"></i>
                     </a>
                 </span>
 
                 <span data-bind="if: HasReferenceDataBeenPulled">
                     <a href="#" class="btn btn-primary btn-lg"
                        data-bind="click: ConnectToAcumatica">
-                        Re-connect to Acumatica <i class="fas fa-bolt"></i>
+                       Refresh Ref Data from Acumatica <i class="fas fa-bolt"></i>
                     </a>
                 </span>
 
@@ -135,18 +134,10 @@
         </div>
     </script>
 
-    <div data-bind="if: BackgroundJobRunning">
-        <div class="std-pad">
+    <div data-bind="if: IsJobRunning">
+        <div class="std-pad-b">
             <div class="card">
-                <div class="card-body center std-pad">
-                    <img style="width: 125px;"
-                         src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-                    <div style="height: 30px;"></div>
-                    <p class="center">
-                        Please wait while @GlobalConfig.AppName connects to your Acumatica instance.
-                    </p>
-                </div>
+                <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
             </div>
         </div>
     </div>
@@ -159,7 +150,8 @@
             var self = this;
 
             // View visibility
-            self.BackgroundJobRunning = ko.observable();
+            self.IsJobRunning = ko.observable();
+            self.JobRunningModel = new Monster.JobRunningModel();
 
             // System State
             self.ReferenceDataState = ko.observable();
@@ -211,22 +203,23 @@
             self.ProcessStatus = function (response) {
                 //console.log(response);
 
-                self.BackgroundJobRunning(response.IsBackgroundJobRunning);
-
+                self.IsJobRunning(response.IsJobRunning);
+                self.JobRunningModel.Ingest(response.ExecutionLogs);
+                
                 // If still running, then show AJAX...
-                if (self.BackgroundJobRunning()) {
+                if (self.IsJobRunning()) {
                     setTimeout(self.PollStatus, 1000);
                     return;
                 }
 
                 // Else process System State info
-                self.ReferenceDataState(response.ReferenceDataState);
-                self.IsRandomAccessMode(response.IsRandomAccessMode);
-                self.Validations(response.Validations);
+                self.ReferenceDataState(response.Status.ReferenceDataState);
+                self.IsRandomAccessMode(response.Status.IsRandomAccessMode);
+                self.Validations(response.Status.Validations);
             };
 
             self.Initialize = function () {
-                self.BackgroundJobRunning(false);
+                self.IsJobRunning(false);
                 self.PollStatus();
             };
 

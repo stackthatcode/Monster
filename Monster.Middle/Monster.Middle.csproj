@@ -37,6 +37,9 @@
       <HintPath>..\packages\Autofac.4.8.0\lib\net45\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="AutoMapper, Version=8.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.8.0.0\lib\net461\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="Dapper, Version=1.50.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.1.50.5\lib\net451\Dapper.dll</HintPath>
       <Private>True</Private>
@@ -112,6 +115,9 @@
     </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -158,7 +164,6 @@
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\SystemStateValidation.cs" />
     <Compile Include="Processes\Sync\Inventory\Model\VariantAndStockItemDto.cs" />
     <Compile Include="Processes\Sync\Orders\Workers\ParallelWorker.cs" />
     <Compile Include="Processes\Sync\Services\ReferenceDataService.cs" />
@@ -211,6 +216,7 @@
     <Compile Include="Processes\Sync\Payouts\Workers\BankImportService.cs" />
     <Compile Include="Processes\Sync\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Sync\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
+    <Compile Include="Processes\Sync\Services\SystemStateSummaryModel.cs" />
     <Compile Include="Processes\Sync\Services\UrlService.cs" />
     <Compile Include="Processes\Sync\Managers\SyncDirector.cs" />
     <Compile Include="Security\IdentityContext.cs" />

@@ -92,6 +92,11 @@ p {
     padding-top: 20px;
 }
 
+.std-pad-side {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
 .std-pad {
     padding-top: 40px;
     padding-bottom: 40px;
