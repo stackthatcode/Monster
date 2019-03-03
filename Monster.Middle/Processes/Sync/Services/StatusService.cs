@@ -11,18 +11,15 @@ namespace Monster.Middle.Processes.Sync.Services
     {
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly StateRepository _stateRepository;
-        private readonly OneTimeJobService _hangfireService;
         private readonly ReferenceDataService _referenceDataService;
         
         public StatusService(
                 SyncInventoryRepository syncInventoryRepository, 
                 ReferenceDataService referenceDataService,
-                StateRepository stateRepository,
-                OneTimeJobService hangfireService)
+                StateRepository stateRepository)
         {
             _syncInventoryRepository = syncInventoryRepository;
             _stateRepository = stateRepository;
-            _hangfireService = hangfireService;
             _referenceDataService = referenceDataService;
         }
 
@@ -70,10 +67,6 @@ namespace Monster.Middle.Processes.Sync.Services
 
         public AcumaticaConnectionState AcumaticaConnectionStatus()
         {
-            var isRunning =
-                _hangfireService.IsJobRunning(
-                    BackgroundJobType.ConnectToAcumatica);
-
             var state = _stateRepository.RetrieveSystemState();
 
             var model = new AcumaticaConnectionState()
@@ -81,7 +74,6 @@ namespace Monster.Middle.Processes.Sync.Services
                 ConnectionState = state.AcumaticaConnState,
                 IsUrlFinalized = state.IsAcumaticaUrlFinalized,
                 IsRandomAccessMode = state.IsRandomAccessMode,
-                IsBackgroundJobRunning = isRunning,
             };
 
             return model;
@@ -89,10 +81,6 @@ namespace Monster.Middle.Processes.Sync.Services
 
         public AcumaticaReferenceDataState AcumaticaReferenceDataStatus()
         {
-            var isRunning =
-                _hangfireService.IsJobRunning(
-                    BackgroundJobType.PullAcumaticaRefData);
-
             var state = _stateRepository.RetrieveSystemState();
             
             var referenceData = _referenceDataService.Retrieve();
@@ -102,7 +90,6 @@ namespace Monster.Middle.Processes.Sync.Services
                 IsRandomAccessMode = state.IsRandomAccessMode,
                 ReferenceDataState = state.AcumaticaRefDataState,
                 Validations = referenceData.Validation,
-                IsBackgroundJobRunning = isRunning,
             };
 
             return model;

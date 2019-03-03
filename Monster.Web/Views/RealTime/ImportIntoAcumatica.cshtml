@@ -637,7 +637,7 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/StatusForAllInventoryJobs", this);
+                    ajax.HttpGet("RealTime/InventoryPullStatus", this);
                 },
                 function (response) {
                     self.InventoryPullState(response.SystemState);

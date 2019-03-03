@@ -6,8 +6,6 @@
         public const int PullAcumaticaRefData = 2;
         public const int SyncWarehouseAndLocation = 3;
         public const int Diagnostics = 4;
-
-        // Long Running
         public const int PullInventory = 5;
         public const int ImportIntoAcumatica = 6;
     }

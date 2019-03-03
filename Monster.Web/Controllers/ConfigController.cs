@@ -10,6 +10,7 @@ using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Persist;
 using Monster.Middle.Processes.Sync.Services;
+using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Monster.Web.Plumbing;
 using Push.Foundation.Web.Json;
@@ -21,8 +22,10 @@ namespace Monster.Web.Controllers
     {
         private readonly ConnectionRepository _tenantRepository;
         private readonly StateRepository _stateRepository;
+
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
+        private readonly JobStatusService _jobStatusService;
 
         private readonly StatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
@@ -33,11 +36,15 @@ namespace Monster.Web.Controllers
         public ConfigController(
                 ConnectionRepository tenantRepository,
                 StateRepository stateRepository,
+
+                ExecutionLogService logRepository,
                 OneTimeJobService oneTimeJobService,
+                JobStatusService jobStatusService,
+
                 StatusService statusService, 
                 ReferenceDataService referenceDataService, 
+
                 PreferencesRepository preferencesRepository, 
-                ExecutionLogService logRepository, 
                 AcumaticaBatchRepository acumaticaBatchRepository, 
                 SyncInventoryRepository syncInventoryRepository)
         {
@@ -52,6 +59,7 @@ namespace Monster.Web.Controllers
             _logRepository = logRepository;
             _acumaticaBatchRepository = acumaticaBatchRepository;
             _syncInventoryRepository = syncInventoryRepository;
+            _jobStatusService = jobStatusService;
         }
 
         
@@ -75,7 +83,17 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult AcumaticaConnectionStatus()
         {
-            var model = _statusService.AcumaticaConnectionStatus();
+            var status = _statusService.AcumaticaConnectionStatus();
+            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+            var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
+
+            var model = new
+            {
+                Status = status,
+                IsJobRunning = areAnyJobsRunning,
+                ExecutionLogs = logs,
+            };
+            
             return new JsonNetResult(model);
         }
 
@@ -149,7 +167,17 @@ namespace Monster.Web.Controllers
         public ActionResult AcumaticaRefDataStatus()
         {
             var status = _statusService.AcumaticaReferenceDataStatus();
-            return new JsonNetResult(status);
+            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+            var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
+
+            var model = new
+            {
+                Status = status,
+                IsJobRunning = areAnyJobsRunning,
+                ExecutionLogs = logs,
+            };
+            
+            return new JsonNetResult(model);
         }
 
 
@@ -230,16 +258,17 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult WarehouseSyncStatus()
         {
-            var isBackgroundJobRunning
-                = _oneTimeJobService
-                    .IsJobRunning(BackgroundJobType.SyncWarehouseAndLocation);
-
+            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+            var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
+            
             var state = _stateRepository.RetrieveSystemState();
             var details = _statusService.WarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
             {
-                IsJobRunning = isBackgroundJobRunning,
+                IsJobRunning = areAnyJobsRunning,
+                ExecutionLogs = logs,
+
                 WarehouseSyncState = state.WarehouseSyncState,
                 IsRandomAccessMode = state.IsRandomAccessMode,
                 Details = details,
@@ -294,6 +323,7 @@ namespace Monster.Web.Controllers
         }
 
 
+
         // Config Diagnostics
         //
         [HttpGet]
@@ -315,10 +345,16 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ConfigDiagnosisRunStatus()
         {
-            var IsConfigDiagnosisRunning 
-                = _oneTimeJobService.IsJobRunning(BackgroundJobType.Diagnostics);
-            var output = new { IsConfigDiagnosisRunning };
-            return new JsonNetResult(output);
+            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+            var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
+
+            var model = new
+            {
+                IsJobRunning = areAnyJobsRunning,
+                ExecutionLogs = logs,
+            };
+            
+            return new JsonNetResult(model);
         }
         
         [HttpGet]

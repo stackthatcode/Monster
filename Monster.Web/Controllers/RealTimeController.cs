@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Inventory;
 using Monster.Middle.Processes.Sync.Inventory.Model;
 using Monster.Middle.Processes.Sync.Inventory.Persist;
-using Monster.Middle.Processes.Sync.Orders;
 using Monster.Middle.Processes.Sync.Orders.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models;
@@ -26,34 +22,36 @@ namespace Monster.Web.Controllers
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
-        private readonly ShopifyInventoryRepository _shopifyInventoryRepository;
+        private readonly RecurringJobService _recurringJobService;
+        private readonly JobStatusService _jobStatusService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly UrlService _urlService;
         private readonly IPushLogger _logger;
 
         public RealTimeController(
-            StateRepository stateRepository,
-            OneTimeJobService oneTimeJobService,
-            ExecutionLogService logRepository,
-            SyncOrderRepository syncOrderRepository,
-            SyncInventoryRepository syncInventoryRepository,
-            ShopifyInventoryRepository shopifyInventoryRepository,
-            UrlService urlService,
-            IPushLogger logger)
+                StateRepository stateRepository,
+                OneTimeJobService oneTimeJobService,
+                RecurringJobService recurringJobService,
+                JobStatusService jobStatusService,
+                ExecutionLogService logRepository,
+                SyncOrderRepository syncOrderRepository,
+                SyncInventoryRepository syncInventoryRepository,
+                UrlService urlService,
+                IPushLogger logger)
         {
             _stateRepository = stateRepository;
             _oneTimeJobService = oneTimeJobService;
+            _recurringJobService = recurringJobService;
+            _jobStatusService = jobStatusService;
             _logRepository = logRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
-            _shopifyInventoryRepository = shopifyInventoryRepository;
             _urlService = urlService;
             _logger = logger;
         }
 
-
-
+        
         // Status inquiries
         // 
         [HttpGet]
@@ -68,93 +66,43 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult StartRealTime()
         {
-            _oneTimeJobService.StartRoutineSync();
+            _recurringJobService.StartRoutineSync();
             return JsonNetResult.Success();
         }
 
         [HttpPost]
         public ActionResult PauseRealTime()
         {
-            _oneTimeJobService.PauseRoutineSync();
+            _recurringJobService.PauseRoutineSync();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
         public ActionResult RealTimeStatus()
         {
-            var logs = _logRepository.RetrieveExecutionLogs();
-            var logDtos = logs.Select(x => new ExecutionLog(x)).ToList();
-
-            var isConfigDiagnosisRunning
-                = _oneTimeJobService.IsJobRunning(BackgroundJobType.Diagnostics);
-
-            var orderSyncView = _syncOrderRepository.RetrieveOrderSyncView();
-
-            //foreach (var row in orderSyncView)
-            //{
-            //    //row.ShopifyOrderUrl = _orderApi.OrderInterfaceUrlById(row.ShopifyOrderId);
-
-            //    //if (row.AcumaticaOrderNbr.HasValue())
-            //    //{
-            //    //    row.AcumaticaOrderUrl = _orderApi.OrderInterfaceUrlById(row.ShopifyOrderId);
-            //    //}
-            //    //if (row.AcumaticaShipmentNbr.HasValue())
-            //    //{
-            //    //    row.AcumaticaShipmentUrl = _shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr);
-            //    //}
-
-            //    _logger.Debug(_orderApi.OrderInterfaceUrlById(row.ShopifyOrderId));
-            //    _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
-            //    _logger.Debug(_shipmentClient.ShipmentUrl(row.AcumaticaShipmentNbr));
-            //    _logger.Debug(_salesOrderClient.OrderInterfaceUrlById(row.AcumaticaOrderNbr));
-            //}
-
-
             var output = new
             {
-                IsRealTimeSyncRunning = _oneTimeJobService.IsRealTimeSyncRunning(),
-                IsConfigDiagnosisRunning = isConfigDiagnosisRunning,
-                Logs = logDtos,
-                OrderSummary = BuildOrderSummary(),
-                OrderSyncView = orderSyncView,
+                AreAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning(),
+                Logs = _logRepository.RetrieveExecutionLogs().ToModel(),
             };
 
             return new JsonNetResult(output);
         }
 
-        private OrderSyncSummary BuildOrderSummary()
-        {
-            var output = new OrderSyncSummary();
-            output.TotalOrders = _syncOrderRepository.RetrieveTotalOrders();
-            output.TotalOrdersWithSalesOrders = _syncOrderRepository.RetrieveTotalOrdersSynced();
-            output.TotalOrdersWithShipments = _syncOrderRepository.RetrieveTotalOrdersOnShipments();
-            output.TotalOrdersWithInvoices = _syncOrderRepository.RetrieveTotalOrdersInvoiced();
-            return output;
-        }
-
-
 
         // *** Monitors Status on all Inventory Jobs
         [HttpGet]
-        public ActionResult StatusForAllInventoryJobs()
+        public ActionResult InventoryPullStatus()
         {
-            var areAnyJobsRunning
-                = _oneTimeJobService.AreAnyJobsRunning(
-                    new List<int>
-                    {
-                        BackgroundJobType.PullInventory,
-                        BackgroundJobType.ImportIntoAcumatica,
-                    });
-
             var state = _stateRepository.RetrieveSystemState();
-            var logs = _logRepository.RetrieveExecutionLogs();
-            var executionLogs = logs.Select(x => new ExecutionLog(x)).ToList();
+            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+            var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
 
             var output = new
             {
-                SystemState = state.InventoryPullState,
                 AreAnyJobsRunning = areAnyJobsRunning,
-                Logs = executionLogs,
+                Logs = logs,
+                SystemState = state.InventoryPullState,
             };
 
             return new JsonNetResult(output);
@@ -192,8 +140,7 @@ namespace Monster.Web.Controllers
 
             return new JsonNetResult(output);
         }
-
-
+        
         [HttpPost]
         public ActionResult SyncEnabled(long monsterVariantId, bool syncEnabled)
         {
@@ -248,8 +195,7 @@ namespace Monster.Web.Controllers
 
             return JsonNetResult.Success();
         }
-
-
+        
         [HttpGet]
         public ActionResult ProductDetail(long shopifyProductId)
         {
@@ -259,8 +205,7 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
-    
-
+        
 
         // Import into Shopify functions...
         [HttpGet]
@@ -269,6 +214,18 @@ namespace Monster.Web.Controllers
             return View();
         }
 
+
+        
+        // TODO - move this to Status Service
+        private OrderSyncSummary BuildOrderSummary()
+        {
+            var output = new OrderSyncSummary();
+            output.TotalOrders = _syncOrderRepository.RetrieveTotalOrders();
+            output.TotalOrdersWithSalesOrders = _syncOrderRepository.RetrieveTotalOrdersSynced();
+            output.TotalOrdersWithShipments = _syncOrderRepository.RetrieveTotalOrdersOnShipments();
+            output.TotalOrdersWithInvoices = _syncOrderRepository.RetrieveTotalOrdersInvoiced();
+            return output;
+        }
     }
 }
 

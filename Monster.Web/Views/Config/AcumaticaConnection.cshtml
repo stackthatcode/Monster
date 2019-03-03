@@ -8,8 +8,12 @@
     }
 </style>
 
-<main role="main" class="medium-size">
+<div style="margin-left: -15px; margin-right: -15px; color: #999; font-size: 0.9em; font-weight: 700; text-align: center; padding-top: 8px; padding-bottom: 8px; background-color: #F9F9F9;">
+    <img style="width: 16px;" src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
+    There is 1 background job running - for details <a href="#">click here</a>.
+</div>
 
+<main role="main" class="medium-size">
 @Html.Partial("_TopBrand")
 
 <hr />
@@ -28,8 +32,7 @@
 </div>
 
 <div data-bind="if: DataEntryVisible">
-    <div class="std-pad">
-
+    <div class="std-pad-b">
         <div class="card text-center">
             <div class="card-body" style="text-align: left;">
                 <div class="form-group">
@@ -119,7 +122,7 @@
                            data-bind="value: AcumaticaPassword" />
                 </div>
 
-                <div class="center std-pad">
+                <div class="center std-pad-t">
                     <span data-bind="if: IsCancelButtonVisible">
                         <a href="#" class="btn btn-secondary btn-lg"
                            data-bind="click: ShowStatusPanel">
@@ -138,22 +141,15 @@
 </div>
 
 <div data-bind="if: BackgroundJobRunning">
-    <div class="std-pad">
-        <div class="card">
-            <div class="card-body center std-pad">
-                <img style="width: 125px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
-
-                <div style="height: 30px;"></div>
-                <p class="center">
-                    Please wait while @GlobalConfig.AppName connects to your Acumatica instance.
-                </p>
-            </div>
-        </div>
+    <div class="std-pad-b">
+        <div data-bind="template: { name: 'Background-Job-Running' }"></div>
+        
+        <div data-bind=""></div>
     </div>
 </div>
 
 <div data-bind="if: StatusVisible">
-    <div class="std-pad">
+    <div class="std-pad-b">
         <div data-bind="if: IsConnectionOk">
             <div class="alert alert-primary">
                 <strong>Acumatica Connection - Successful</strong>
@@ -208,7 +204,7 @@
                     <hr />
                 </div>
 
-                <div class="center std-pad">
+                <div class="center std-pad-t">
                     <span data-bind="if: IsPrevButtonVisible">
                         <a href="@GlobalConfig.Url("ShopifyAuth/Domain")"
                            class="btn btn-secondary btn-lg">

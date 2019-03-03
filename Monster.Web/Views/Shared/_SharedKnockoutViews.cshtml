@@ -1,4 +1,18 @@
 ﻿@using Monster.Web.Plumbing
+
+<script type="text/html" id="Background-Job-Running">
+    <div class="card">
+        <div class="card-body center std-pad">
+            <img style="width: 100px;" src="@GlobalConfig.Url("Content/throbber_12.gif")" />
+
+            <div style="height: 30px;"></div>
+            <p class="center">
+                There is currently a background job running
+            </p>
+        </div>
+    </div>
+</script>
+
 <script type="text/html" id="Execution-Logs">
     <div style="font-size:0.9em; color:#555555; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
         Execution Logs
@@ -13,6 +27,7 @@
                         <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
                             <span data-bind="text: LogTime"></span> (UTC)
                         </div>
+
                         <div data-bind="text: Content"></div>
                     </td>
                 </tr>

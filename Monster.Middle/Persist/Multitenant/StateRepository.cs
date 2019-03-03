@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using Monster.Middle.Hangfire;
 using Push.Foundation.Utilities.General;
 
 namespace Monster.Middle.Persist.Multitenant
@@ -72,8 +71,12 @@ namespace Monster.Middle.Persist.Multitenant
 
         public void RemoveBackgroundJobs(int backgroundJobType)
         {
-            var job = RetrieveBackgroundJob(backgroundJobType);
-            if (job != null)
+            var jobs = Entities
+                .UsrBackgroundJobs
+                .Where(x => x.BackgroundJobType == backgroundJobType)
+                .ToList();
+
+            foreach (var job in jobs)
             {
                 Entities.UsrBackgroundJobs.Remove(job);
                 Entities.SaveChanges();

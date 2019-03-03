@@ -222,7 +222,7 @@
     <Compile Include="Models\Config\ShopifyLocationModel.cs" />
     <Compile Include="Models\Config\SystemStateSummaryModel.cs" />
     <Compile Include="Models\Config\AcumaticaWarehouseModel.cs" />
-    <Compile Include="Models\ExecutionLog.cs" />
+    <Compile Include="Models\ExecutionLogModel.cs" />
     <Compile Include="Models\Config\PreferencesModel.cs" />
     <Compile Include="Models\RealTime\ShopifyProductModel.cs" />
     <Compile Include="Models\RealTime\FilterSelectedType.cs" />

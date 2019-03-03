@@ -28,22 +28,20 @@ namespace Monster.Middle.Hangfire
             _stateRepository = stateRepository;
         }
 
-        
         public void StartRoutineSync()
         {
-            var routineSyncJobId = RealTimeSyncJobIdGenerator(); 
-            
+            var routineSyncJobId = RoutineSyncJobId();
             using (var transaction = _stateRepository.BeginTransaction())
             {
                 var state = _stateRepository.RetrieveSystemState();
 
-                RecurringJob.AddOrUpdate<ExclusiveJobRunner>(  
+                RecurringJob.AddOrUpdate<JobRunner>(
                     routineSyncJobId,
                     x => x.RealTimeSync(_tenantContext.InstanceId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 
-                state.RealTimeHangFireJobId = routineSyncJobId;;
+                state.RealTimeHangFireJobId = routineSyncJobId; ;
                 _connectionRepository.Entities.SaveChanges();
 
                 RecurringJob.Trigger(routineSyncJobId);
@@ -56,7 +54,7 @@ namespace Monster.Middle.Hangfire
             using (var transaction = _connectionRepository.BeginTransaction())
             {
                 var state = _stateRepository.RetrieveSystemState();
-                
+
                 var jobId = state.RealTimeHangFireJobId;
                 if (jobId.IsNullOrEmpty())
                 {
@@ -71,15 +69,9 @@ namespace Monster.Middle.Hangfire
             }
         }
 
-        private string RealTimeSyncJobIdGenerator()
+        private string RoutineSyncJobId()
         {
-            return "RealTimeSync:" + _tenantContext.InstanceId;
-        }
-        
-        public bool IsRealTimeSyncRunning()
-        {
-            var state = _stateRepository.RetrieveSystemState();
-            return !state.RealTimeHangFireJobId.IsNullOrEmpty();
+            return "RoutineSync:" + _tenantContext.InstanceId;
         }
     }
 }

@@ -79,10 +79,10 @@ namespace Monster.Middle
             builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
 
             // Job Running components
-            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
-            builder.RegisterType<ExclusiveJobRunner>().InstancePerLifetimeScope();
             builder.RegisterType<OneTimeJobService>().InstancePerLifetimeScope();
             builder.RegisterType<RecurringJobService>().InstancePerLifetimeScope();
+            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
+            builder.RegisterType<JobStatusService>().InstancePerLifetimeScope();
 
             // Process Registrations
             RegisterShopifyProcess(builder);            
