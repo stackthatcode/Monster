@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Monster.Middle.Processes.Sync.Model.Orders
+namespace Monster.Middle.Processes.Sync.Model.Status
 {
     public class ShipmentSyncReadiness
     {

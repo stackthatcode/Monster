@@ -41,6 +41,5 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
                 }
             }
         }
-
     }
 }

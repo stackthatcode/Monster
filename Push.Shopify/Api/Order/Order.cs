@@ -61,6 +61,7 @@ namespace Push.Shopify.Api.Order
         public List<Fulfillment> fulfillments { get; set; }
         
         public ClientDetails client_details { get; set; }
+        
 
 
         //
@@ -113,6 +114,12 @@ namespace Push.Shopify.Api.Order
 
         [JsonIgnore]
         public decimal ShippingDiscountedTotal => ShippingTotal - ShippingDiscountsTotal;
+
+
+        public List<LineItem> 
+            LineItemsWithAdhocVariants 
+                => line_items.Where(x => x.variant_id == null).ToList();
+
 
         public LineItem LineItem(string sku)
         {

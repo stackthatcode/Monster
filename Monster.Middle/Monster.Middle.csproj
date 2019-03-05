@@ -142,6 +142,7 @@
     <Compile Include="Hangfire\NamedLock.cs" />
     <Compile Include="Hangfire\JobRepository.cs" />
     <Compile Include="Persist\Tenant\Extensions.cs" />
+    <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
     <Compile Include="Processes\Sync\Services\ExecutionLogService.cs" />
     <Compile Include="Persist\Tenant\MonsterDb.cs">
@@ -167,6 +168,7 @@
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\VariantAndStockItemDto.cs" />
+    <Compile Include="Processes\Sync\Status\OrderStatusService.cs" />
     <Compile Include="Processes\Sync\Status\InventoryStatusService.cs" />
     <Compile Include="Processes\Sync\Workers\Orders\ParallelWorker.cs" />
     <Compile Include="Processes\Acumatica\Services\ReferenceDataService.cs" />
@@ -184,7 +186,7 @@
     <Compile Include="Processes\Sync\Model\Extensions\OrderExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Config\AcumaticaConnectionState.cs" />
     <Compile Include="Processes\Sync\Model\Config\AcumaticaReferenceDataState.cs" />
-    <Compile Include="Processes\Sync\Persist\InventoryRepository.cs" />
+    <Compile Include="Processes\Sync\Persist\SyncInventoryRepository.cs" />
     <Compile Include="Processes\Sync\Model\Orders\OrderSummaryViewDto.cs" />
     <Compile Include="Processes\Sync\Persist\SyncOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaManager.cs" />

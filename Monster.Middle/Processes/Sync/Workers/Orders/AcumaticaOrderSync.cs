@@ -14,6 +14,8 @@ using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
+using Monster.Middle.Processes.Sync.Status;
+using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
@@ -22,46 +24,37 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 {
     public class AcumaticaOrderSync
     {
-        private readonly ILifetimeScope _lifetimeScope;
         private readonly ExecutionLogService _logService;
-        private readonly IPushLogger _logger;
-
         private readonly PreferencesRepository _preferencesRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-
-        private readonly SalesOrderClient _salesOrderClient;
-        private readonly CustomerClient _customerClient;
-
         private readonly AcumaticaOrderPull _acumaticaOrderPull;
         private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
+        private readonly OrderStatusService _orderStatusService;
+        private readonly SalesOrderClient _salesOrderClient;
+        private readonly IPushLogger _pushLogger;
 
-         
+
         public AcumaticaOrderSync(
-                ILifetimeScope lifetimeScope,
                 ExecutionLogService logRepository,
-                IPushLogger logger,
                 PreferencesRepository preferencesRepository,
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 SalesOrderClient salesOrderClient,
-                CustomerClient customerClient,
                 AcumaticaOrderPull acumaticaOrderPull, 
-                AcumaticaCustomerSync acumaticaCustomerSync)
+                AcumaticaCustomerSync acumaticaCustomerSync, 
+                OrderStatusService orderStatusService, 
+                IPushLogger pushLogger)
         {
-            _lifetimeScope = lifetimeScope;
             _logService = logRepository;
-            _logger = logger;
-
             _preferencesRepository = preferencesRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
-
             _salesOrderClient = salesOrderClient;
-            _customerClient = customerClient;
-
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaCustomerSync = acumaticaCustomerSync;
+            _orderStatusService = orderStatusService;
+            _pushLogger = pushLogger;
         }
 
         
@@ -97,23 +90,16 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
         {
             var output = new ConcurrentQueue<long>();
             var orders = _syncOrderRepository.RetrieveShopifyOrdersNotSynced();
-            var preferences = _preferencesRepository.RetrievePreferences();
-            var orderStart = preferences.ShopifyOrderNumberStart ?? 0;
-
+            
             foreach (var order in orders)
             {
-                if (order.ShopifyOrderNumber < orderStart)
-                {
-                    continue;
-                }
+                var status = _orderStatusService.ShopifyOrderStatus(order.ShopifyOrderId);
 
-                if (!order.IsPaid())
+                if (!status.IsReadyToSync().Success)
                 {
-                    continue;
-                }
-
-                if (!AreLineItemsReadyToSync(order))
-                {
+                    _pushLogger.Debug(
+                        $"Skipping Sync for Order {order.ShopifyOrderNumber} ({order.ShopifyOrderId}): " +
+                        status.IsReadyToSync().FailureMessages.ToCommaDelimited());
                     continue;
                 }
 
@@ -123,29 +109,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             return output;
         }
 
-        private bool AreLineItemsReadyToSync(UsrShopifyOrder shopifyOrderRecord)
-        {
-            var order = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
-
-            foreach (var lineItem in order.line_items)
-            {
-                if (lineItem.variant_id == null)
-                {
-                    return false;
-                }
-
-                var variant = 
-                    _syncInventoryRepository
-                        .RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
-
-                if (variant == null || variant.IsNotMatched())
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        
         
 
         private void PushOrderWithCustomerAndTaxes(long shopifyOrderId)

@@ -1,5 +1,6 @@
 ﻿using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Sync.Model.Extensions;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Foundation.Utilities.Validation;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
@@ -14,8 +15,10 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         // Computed
         public bool IsMatched => ShopifyVariantId.HasValue;
+        public bool AreIdentifiersMismatched
+            => IsMatched && Standards.Sku(StockItemId) != Standards.Sku(ShopifyVariantSku);
         
-        
+
         public static InventorySyncStatus Make(UsrAcumaticaStockItem input)
         {
             var output = new InventorySyncStatus();
