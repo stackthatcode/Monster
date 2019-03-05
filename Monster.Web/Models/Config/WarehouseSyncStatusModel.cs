@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Processes.Sync.Model.Config;
 
 namespace Monster.Web.Models.Config
 {

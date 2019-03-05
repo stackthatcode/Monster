@@ -1,7 +1,8 @@
 ﻿using System;
 using Hangfire;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Security;
+using Monster.Middle.Persist.Master;
+using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 
@@ -12,7 +13,7 @@ namespace Monster.Middle.Hangfire
     {
         private readonly ConnectionContext _tenantContext;
         private readonly ConnectionRepository _connectionRepository;
-        private readonly StateRepository _stateRepository;
+        private readonly SystemStateRepository _stateRepository;
         private readonly ExecutionLogService _executionLogService;
 
 
@@ -20,7 +21,7 @@ namespace Monster.Middle.Hangfire
             IPushLogger logger,
             ConnectionContext tenantContext,
             ConnectionRepository connectionRepository,
-            StateRepository stateRepository, 
+            SystemStateRepository stateRepository, 
             ExecutionLogService executionLogService)
         {
             _tenantContext = tenantContext;

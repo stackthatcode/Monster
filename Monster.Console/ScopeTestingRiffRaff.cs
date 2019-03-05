@@ -1,5 +1,5 @@
 ﻿using Hangfire;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
 using Push.Foundation.Utilities.Logging;
 
 namespace Monster.ConsoleApp

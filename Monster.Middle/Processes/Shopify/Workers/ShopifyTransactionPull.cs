@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Shopify.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;

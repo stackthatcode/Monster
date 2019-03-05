@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Distribution;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -16,7 +17,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly DistributionClient _inventoryClient;
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
-        private readonly InstanceTimeZoneService _instanceTimeZoneService;
+        private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
         private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
 
@@ -27,7 +28,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     DistributionClient inventoryClient, 
                     AcumaticaInventoryRepository inventoryRepository,
                     AcumaticaBatchRepository batchStateRepository,
-                    InstanceTimeZoneService instanceTimeZoneService,
+                    AcumaticaTimeZoneService instanceTimeZoneService,
                     ExecutionLogService executionLogService,
                     IPushLogger logger)
         {

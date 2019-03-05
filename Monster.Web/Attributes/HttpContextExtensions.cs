@@ -1,5 +1,5 @@
 ﻿using System.Web;
-using Monster.Middle.Security;
+using Monster.Middle.Identity;
 
 namespace Monster.Web.Attributes
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
 
 namespace Monster.Middle.Processes.Acumatica.Persist
 {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Hangfire;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Security;
+using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
 
 
@@ -13,12 +13,12 @@ namespace Monster.Middle.Hangfire
     public class OneTimeJobService
     {
         private readonly ConnectionContext _tenantContext;
-        private readonly StateRepository _stateRepository;
+        private readonly SystemStateRepository _stateRepository;
 
 
         public OneTimeJobService(
             ConnectionContext tenantContext,
-            StateRepository stateRepository)
+            SystemStateRepository stateRepository)
         {
             _tenantContext = tenantContext;
             _stateRepository = stateRepository;

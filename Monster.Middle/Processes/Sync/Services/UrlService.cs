@@ -1,4 +1,4 @@
-﻿using Monster.Middle.Persist.Multitenant;
+﻿using Monster.Middle.Persist.Tenant;
 
 namespace Monster.Middle.Processes.Sync.Services
 {

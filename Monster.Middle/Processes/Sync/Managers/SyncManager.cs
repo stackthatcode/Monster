@@ -5,11 +5,11 @@ using System.Net;
 using System.Threading;
 using Autofac;
 using Monster.Acumatica.Http;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Inventory.Workers;
-using Monster.Middle.Processes.Sync.Orders.Workers;
-using Monster.Middle.Security;
+using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Services;
+using Monster.Middle.Processes.Sync.Workers.Inventory;
+using Monster.Middle.Processes.Sync.Workers.Orders;
 using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Sync.Managers

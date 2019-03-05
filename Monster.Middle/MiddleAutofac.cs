@@ -4,23 +4,22 @@ using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Hangfire;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Sys;
+using Monster.Middle.Persist.Master;
+using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync.Inventory.Persist;
-using Monster.Middle.Processes.Sync.Inventory.Workers;
 using Monster.Middle.Processes.Sync.Managers;
-using Monster.Middle.Processes.Sync.Orders.Persist;
-using Monster.Middle.Processes.Sync.Orders.Workers;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
-using Monster.Middle.Security;
+using Monster.Middle.Processes.Sync.Workers.Inventory;
+using Monster.Middle.Processes.Sync.Workers.Orders;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
@@ -70,15 +69,13 @@ namespace Monster.Middle
             builder.Register<ICryptoService>(x => new AesCrypto(
                     MonsterConfig.Settings.EncryptKey, MonsterConfig.Settings.EncryptIv));
 
-            // Multitenant Persistence
-            builder.RegisterType<ConnectionRepository>().InstancePerLifetimeScope();
+            // Persistence
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
+            builder.RegisterType<ConnectionRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ConnectionContext>().InstancePerLifetimeScope();
-            builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
 
             // Job Running components
+            builder.RegisterType<BackgroundJobRepository>().InstancePerLifetimeScope();
             builder.RegisterType<OneTimeJobService>().InstancePerLifetimeScope();
             builder.RegisterType<RecurringJobService>().InstancePerLifetimeScope();
             builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
@@ -91,7 +88,7 @@ namespace Monster.Middle
             RegisterPayoutProcess(builder);
 
             // Misc
-            builder.RegisterType<InstanceTimeZoneService>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();
             builder.RegisterType<TimeZoneTranslator>().InstancePerLifetimeScope();
 
             return builder;
@@ -155,11 +152,14 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaRefundSync>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPaymentSync>().InstancePerLifetimeScope();
             
-            // Status
-            builder.RegisterType<StatusService>().InstancePerLifetimeScope();
+            // Services
+            builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<ReferenceDataService>().InstancePerLifetimeScope();
-            builder.RegisterType<UrlService>().InstancePerLifetimeScope();
-
+            builder.RegisterType<UrlService>().InstancePerLifetimeScope();            
+            builder.RegisterType<SystemStateRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
+            
             // Director Components
             builder.RegisterType<SyncManager>().InstancePerLifetimeScope();
             builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();

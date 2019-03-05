@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Api.Shipment;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
 using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Acumatica.Persist

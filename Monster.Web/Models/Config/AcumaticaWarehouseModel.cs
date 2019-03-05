@@ -1,7 +1,4 @@
-﻿using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Sync.Extensions;
-
-namespace Monster.Web.Models.Config
+﻿namespace Monster.Web.Models.Config
 {
     public class AcumaticaWarehouseModel
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
 
 namespace Monster.Middle.Processes.Shopify.Persist
 {

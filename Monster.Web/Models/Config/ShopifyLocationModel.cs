@@ -1,6 +1,4 @@
-﻿using Monster.Middle.Persist.Multitenant;
-
-namespace Monster.Web.Models.Config
+﻿namespace Monster.Web.Models.Config
 {
     public class ShopifyLocationModel
     {

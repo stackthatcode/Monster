@@ -4,10 +4,11 @@ using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Inventory.Persist;
+using Monster.Middle.Processes.Acumatica.Services;
+using Monster.Middle.Processes.Sync.Model.Config;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
@@ -21,13 +22,13 @@ namespace Monster.Web.Controllers
     public class ConfigController : Controller
     {
         private readonly ConnectionRepository _tenantRepository;
-        private readonly StateRepository _stateRepository;
+        private readonly SystemStateRepository _stateRepository;
 
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
         private readonly JobStatusService _jobStatusService;
 
-        private readonly StatusService _statusService;
+        private readonly ConfigStatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
         private readonly PreferencesRepository _preferencesRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
@@ -35,13 +36,13 @@ namespace Monster.Web.Controllers
 
         public ConfigController(
                 ConnectionRepository tenantRepository,
-                StateRepository stateRepository,
+                SystemStateRepository stateRepository,
 
                 ExecutionLogService logRepository,
                 OneTimeJobService oneTimeJobService,
                 JobStatusService jobStatusService,
 
-                StatusService statusService, 
+                ConfigStatusService statusService, 
                 ReferenceDataService referenceDataService, 
 
                 PreferencesRepository preferencesRepository, 

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Web.Mvc;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Security;
+using Monster.Middle.Identity;
+using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Services;
 using Monster.Web.Attributes;
 using Push.Foundation.Utilities.Logging;
@@ -28,7 +29,7 @@ namespace Monster.Middle.Attributes
 
             // Step 2 - hydrate State
             var connectionContext = DependencyResolver.Current.GetService<ConnectionContext>();
-            var stateRepository = DependencyResolver.Current.GetService<StateRepository>();
+            var stateRepository = DependencyResolver.Current.GetService<SystemStateRepository>();
 
             connectionContext.Initialize(identity.InstanceId);
             var state = stateRepository.RetrieveSystemState();

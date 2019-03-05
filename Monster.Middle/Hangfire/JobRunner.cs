@@ -1,8 +1,8 @@
 ﻿using System;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Sync.Managers;
-using Monster.Middle.Security;
+using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
 
 
@@ -12,13 +12,13 @@ namespace Monster.Middle.Hangfire
     {
         private readonly SyncDirector _director;
         private readonly ConnectionContext _connectionContext;
-        private readonly StateRepository _stateRepository;
+        private readonly SystemStateRepository _stateRepository;
         private readonly IPushLogger _logger;
         
         public JobRunner(
                 SyncDirector director, 
                 ConnectionContext connectionContext, 
-                StateRepository stateRepository,
+                SystemStateRepository stateRepository,
                 IPushLogger logger)
         {
             _director = director;

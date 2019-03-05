@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Hangfire;
 using Hangfire.Storage;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Hangfire
 {
     public class JobStatusService
     {
-        private readonly StateRepository _stateRepository;
+        private readonly SystemStateRepository _stateRepository;
 
-        public JobStatusService(StateRepository stateRepository)
+        public JobStatusService(SystemStateRepository stateRepository)
         {
             _stateRepository = stateRepository;
         }
@@ -36,7 +36,7 @@ namespace Monster.Middle.Hangfire
         public bool IsOneTimeJobRunning(int jobType)
         {
             // If Background Job Record is missing, return false
-            var jobRecord = _stateRepository.RetrieveBackgroundJob(jobType);
+            var jobRecord = _stateRepository.Entities.RetrieveBackgroundJob(jobType);
             if (jobRecord == null)
             {
                 return false;

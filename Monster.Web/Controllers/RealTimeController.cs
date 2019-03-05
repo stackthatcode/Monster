@@ -3,10 +3,8 @@ using System.Linq;
 using System.Web.Mvc;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Processes.Sync.Inventory.Model;
-using Monster.Middle.Processes.Sync.Inventory.Persist;
-using Monster.Middle.Processes.Sync.Orders.Persist;
+using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models;
 using Monster.Web.Models.RealTime;
@@ -19,23 +17,23 @@ namespace Monster.Web.Controllers
     [IdentityProcessor]
     public class RealTimeController : Controller
     {
-        private readonly StateRepository _stateRepository;
+        private readonly SystemStateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
         private readonly RecurringJobService _recurringJobService;
         private readonly JobStatusService _jobStatusService;
-        private readonly StatusService _statusService;
+        private readonly ConfigStatusService _statusService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly UrlService _urlService;
         private readonly IPushLogger _logger;
 
         public RealTimeController(
-                StateRepository stateRepository,
+                SystemStateRepository stateRepository,
                 OneTimeJobService oneTimeJobService,
                 RecurringJobService recurringJobService,
                 JobStatusService jobStatusService,
-                StatusService statusService,
+                ConfigStatusService statusService,
                 ExecutionLogService logRepository,
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,

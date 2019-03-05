@@ -3,9 +3,8 @@ using System.Windows.Forms;
 using Autofac;
 using Monster.Middle;
 using Monster.Middle.Config;
-using Monster.Middle.Persist.Multitenant;
-using Monster.Middle.Persist.Sys;
-using Monster.Middle.Security;
+using Monster.Middle.Persist.Master;
+using Monster.Middle.Persist.Tenant;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
 

@@ -1,21 +1,24 @@
 ﻿using System;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync.Inventory.Model;
+using Monster.Middle.Processes.Sync.Model.Config;
+using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
+
 
 namespace Monster.Middle.Processes.Sync.Managers
 {
     public class SyncDirector
     {
         private readonly ConnectionRepository _connectionRepository;
-        private readonly StateRepository _stateRepository;
+        private readonly SystemStateRepository _stateRepository;
         private readonly ReferenceDataService _referenceDataService;
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
-        private readonly StatusService _inventoryStatusService;
+        private readonly ConfigStatusService _inventoryStatusService;
         private readonly SyncManager _syncManager;
         private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
@@ -23,14 +26,14 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public SyncDirector(
                 ConnectionRepository connectionRepository,
-                StateRepository stateRepository,
+                SystemStateRepository stateRepository,
 
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
                 SyncManager syncManager,
 
                 ExecutionLogService executionLogService,
-                StatusService inventoryStatusService,
+                ConfigStatusService inventoryStatusService,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
                 IPushLogger logger)
@@ -202,6 +205,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         // Swallows Exceptions to enable sequences of tasks to be run 
         // ... uninterrupted even if one fails
+        //
         private void Run(Action task)
         {
             try

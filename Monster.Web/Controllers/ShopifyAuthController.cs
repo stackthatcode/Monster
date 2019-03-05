@@ -4,7 +4,8 @@ using System.Linq;
 using System.Web.Mvc;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models.ShopifyAuth;
 using Monster.Web.Plumbing;
 using Push.Foundation.Utilities.General;
@@ -25,7 +26,7 @@ namespace Monster.Web.Controllers
         private readonly OAuthApi _oAuthApi;
         private readonly ConnectionRepository _tenantRepository;
         private readonly ShopifyHttpContext _shopifyHttpContext;
-        private readonly StateRepository _stateRepository;
+        private readonly SystemStateRepository _stateRepository;
         private readonly IPushLogger _logger;
         private readonly HmacCryptoService _hmacCrypto;
         
@@ -54,7 +55,7 @@ namespace Monster.Web.Controllers
                 OAuthApi oAuthApi, 
                 ConnectionRepository tenantRepository, 
                 ShopifyHttpContext shopifyHttpContext, 
-                StateRepository stateRepository, 
+                SystemStateRepository stateRepository, 
                 HmacCryptoService hmacCrypto)
         {
             _logger = logger;

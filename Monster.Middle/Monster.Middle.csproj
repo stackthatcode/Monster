@@ -140,100 +140,101 @@
     <Compile Include="Hangfire\HangFireLogger.cs" />
     <Compile Include="Hangfire\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
-    <Compile Include="Persist\Multitenant\Extensions.cs" />
-    <Compile Include="Persist\Multitenant\ExecutionLogService.cs" />
-    <Compile Include="Persist\Multitenant\MonsterDb.cs">
+    <Compile Include="Hangfire\BackgroundJobRepository.cs" />
+    <Compile Include="Persist\Tenant\Extensions.cs" />
+    <Compile Include="Processes\Sync\Services\ExecutionLogService.cs" />
+    <Compile Include="Persist\Tenant\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Persist\Multitenant\PreferencesRepository.cs" />
-    <Compile Include="Persist\Multitenant\StateRepository.cs" />
-    <Compile Include="Persist\Multitenant\SystemState.cs" />
+    <Compile Include="Processes\Sync\Services\PreferencesRepository.cs" />
+    <Compile Include="Processes\Sync\Services\SystemStateRepository.cs" />
+    <Compile Include="Processes\Sync\Services\SystemState.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
-    <Compile Include="Processes\Sync\Extensions\RefundExtensions.cs" />
-    <Compile Include="Processes\Sync\Extensions\TransactionExtensions.cs" />
-    <Compile Include="Processes\Sync\Extensions\SyncDescriptor.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\AcumaticaInventoryImportContext.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\SyncEnabledFilter.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\ItemClassModel.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\PaymentMethodModel.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\PreferencesValidationExtensions.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\ReferenceData.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\RefundExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\TransactionExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Misc\SyncDescriptor.cs" />
+    <Compile Include="Processes\Sync\Model\Inventory\AcumaticaInventoryImportContext.cs" />
+    <Compile Include="Processes\Sync\Model\Misc\SyncEnabledFilter.cs" />
+    <Compile Include="Processes\Sync\Model\Config\ItemClassModel.cs" />
+    <Compile Include="Processes\Sync\Model\Config\PaymentMethodModel.cs" />
+    <Compile Include="Processes\Sync\Model\Config\PreferencesValidationExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Config\ReferenceData.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\VariantAndStockItemDto.cs" />
-    <Compile Include="Processes\Sync\Orders\Workers\ParallelWorker.cs" />
-    <Compile Include="Processes\Sync\Services\ReferenceDataService.cs" />
+    <Compile Include="Processes\Sync\Model\Inventory\VariantAndStockItemDto.cs" />
+    <Compile Include="Processes\Sync\Workers\Orders\ParallelWorker.cs" />
+    <Compile Include="Processes\Acumatica\Services\ReferenceDataService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferencePull.cs" />
     <Compile Include="Processes\Shopify\Persist\OrderExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\TransactionExtensions.cs" />
-    <Compile Include="Processes\Sync\Extensions\CustomerExtensions.cs" />
-    <Compile Include="Processes\Sync\Extensions\ItemExtensions.cs" />
-    <Compile Include="Processes\Sync\Extensions\ShipmentExtensions.cs" />
-    <Compile Include="Processes\Sync\Extensions\WarehouseExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\CustomerExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\ItemExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\ShipmentExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\WarehouseExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyBatchRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\FinancialStatus.cs" />
-    <Compile Include="Processes\Sync\Extensions\LocationExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\LocationExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyOrderRepository.cs" />
-    <Compile Include="Processes\Sync\Extensions\OrderExtensions.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\AcumaticaConnectionState.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\AcumaticaReferenceDataState.cs" />
-    <Compile Include="Processes\Sync\Inventory\Persist\InventoryRepository.cs" />
-    <Compile Include="Processes\Sync\Orders\Model\OrderSummaryViewDto.cs" />
-    <Compile Include="Processes\Sync\Orders\Persist\SyncOrderRepository.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\OrderExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Config\AcumaticaConnectionState.cs" />
+    <Compile Include="Processes\Sync\Model\Config\AcumaticaReferenceDataState.cs" />
+    <Compile Include="Processes\Sync\Persist\InventoryRepository.cs" />
+    <Compile Include="Processes\Sync\Model\Orders\OrderSummaryViewDto.cs" />
+    <Compile Include="Processes\Sync\Persist\SyncOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaManager.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\WarehouseSyncStateDetails.cs" />
-    <Compile Include="Processes\Sync\Services\StatusService.cs" />
+    <Compile Include="Processes\Sync\Model\Config\WarehouseSyncStateDetails.cs" />
+    <Compile Include="Processes\Sync\Services\ConfigStatusService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInventoryPull.cs" />
-    <Compile Include="Processes\Sync\Inventory\Workers\ShopifyInventorySync.cs" />
-    <Compile Include="Processes\Sync\Inventory\Workers\WarehouseLocationSync.cs" />
+    <Compile Include="Processes\Sync\Workers\Inventory\ShopifyInventorySync.cs" />
+    <Compile Include="Processes\Sync\Workers\Inventory\WarehouseLocationSync.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyManager.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyInventoryPull.cs" />
     <Compile Include="Processes\Shopify\Persist\InventoryExtensions.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyLocationPull.cs" />
-    <Compile Include="Processes\Sync\Inventory\Workers\AcumaticaInventorySync.cs" />
-    <Compile Include="Processes\Sync\Inventory\Model\Standards.cs" />
+    <Compile Include="Processes\Sync\Workers\Inventory\AcumaticaInventorySync.cs" />
+    <Compile Include="Processes\Sync\Model\Misc\Standards.cs" />
     <Compile Include="Processes\Sync\Managers\SyncManager.cs" />
-    <Compile Include="Processes\Sync\Orders\Workers\AcumaticaOrderPaymentSync.cs" />
+    <Compile Include="Processes\Sync\Workers\Orders\AcumaticaOrderPaymentSync.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaShipmentPull.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaOrderPull.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaCustomerPull.cs" />
-    <Compile Include="Processes\Sync\Orders\Workers\AcumaticaCustomerSync.cs" />
-    <Compile Include="Processes\Sync\Orders\Workers\AcumaticaRefundSync.cs" />
-    <Compile Include="Processes\Sync\Orders\Workers\AcumaticaShipmentSync.cs" />
-    <Compile Include="Processes\Sync\Orders\Workers\AcumaticaOrderSync.cs" />
+    <Compile Include="Processes\Sync\Workers\Orders\AcumaticaCustomerSync.cs" />
+    <Compile Include="Processes\Sync\Workers\Orders\AcumaticaRefundSync.cs" />
+    <Compile Include="Processes\Sync\Workers\Orders\AcumaticaShipmentSync.cs" />
+    <Compile Include="Processes\Sync\Workers\Orders\AcumaticaOrderSync.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaConstants.cs" />
-    <Compile Include="Processes\Sync\Orders\Model\ShipmentSyncReadiness.cs" />
+    <Compile Include="Processes\Sync\Model\Orders\ShipmentSyncReadiness.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyTransactionPull.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyCustomerPull.cs" />
-    <Compile Include="Processes\Sync\Orders\Workers\ShopifyFulfillmentSync.cs" />
+    <Compile Include="Processes\Sync\Workers\Orders\ShopifyFulfillmentSync.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyOrderPull.cs" />
-    <Compile Include="Processes\Sync\Payouts\PayoutConfig.cs" />
+    <Compile Include="Processes\Payouts\PayoutConfig.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaWarehousePull.cs" />
-    <Compile Include="Processes\Sync\Payouts\Workers\BankImportService.cs" />
-    <Compile Include="Processes\Sync\Payouts\PayoutProcess.cs" />
-    <Compile Include="Processes\Sync\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
+    <Compile Include="Processes\Payouts\Workers\BankImportService.cs" />
+    <Compile Include="Processes\Payouts\PayoutProcess.cs" />
+    <Compile Include="Processes\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Processes\Sync\Services\SystemStateSummaryModel.cs" />
     <Compile Include="Processes\Sync\Services\UrlService.cs" />
     <Compile Include="Processes\Sync\Managers\SyncDirector.cs" />
-    <Compile Include="Security\IdentityContext.cs" />
-    <Compile Include="Security\IdentityService.cs" />
-    <Compile Include="Security\SecurityConfig.cs" />
-    <Compile Include="Security\ConnectionContext.cs" />
-    <Compile Include="Persist\Sys\SystemRepository.cs" />
-    <Compile Include="Persist\Sys\Instance.cs" />
+    <Compile Include="Identity\IdentityContext.cs" />
+    <Compile Include="Identity\IdentityService.cs" />
+    <Compile Include="Identity\SecurityConfig.cs" />
+    <Compile Include="Persist\Tenant\ConnectionContext.cs" />
+    <Compile Include="Persist\Master\SystemRepository.cs" />
+    <Compile Include="Persist\Master\Instance.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyInventoryRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyPayoutRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
-    <Compile Include="Persist\Multitenant\PersistContext.cs" />
+    <Compile Include="Persist\Tenant\PersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Persist\Multitenant\ConnectionRepository.cs" />
-    <Compile Include="Services\TimeZone.cs" />
-    <Compile Include="Services\TimeZoneTranslator.cs" />
-    <Compile Include="Services\InstanceTimeZoneService.cs" />
+    <Compile Include="Persist\Tenant\ConnectionRepository.cs" />
+    <Compile Include="Processes\Sync\Services\AcumaticaTimeZone.cs" />
+    <Compile Include="Utility\TimeZoneTranslator.cs" />
+    <Compile Include="Processes\Sync\Services\AcumaticaTimeZoneService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -245,8 +246,8 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Persist\Multitenant\EF.Reverse.POCO.Core.ttinclude" />
-    <None Include="Persist\Multitenant\EF.Reverse.POCO.ttinclude" />
+    <None Include="Persist\Tenant\EF.Reverse.POCO.Core.ttinclude" />
+    <None Include="Persist\Tenant\EF.Reverse.POCO.ttinclude" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.csproj">
@@ -267,7 +268,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Persist\Multitenant\MonsterDb.tt">
+    <Content Include="Persist\Tenant\MonsterDb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MonsterDb.cs</LastGenOutput>
     </Content>

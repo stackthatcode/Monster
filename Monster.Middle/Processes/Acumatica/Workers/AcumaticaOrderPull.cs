@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
-using Monster.Middle.Persist.Multitenant;
+using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 
@@ -17,14 +18,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaCustomerPull _customerPull;
-        private readonly InstanceTimeZoneService _timeZoneService;
+        private readonly AcumaticaTimeZoneService _timeZoneService;
         private readonly PreferencesRepository _preferencesRepository;
 
 
         public AcumaticaOrderPull(
                 AcumaticaOrderRepository orderRepository,
                 AcumaticaCustomerPull customerPull,
-                InstanceTimeZoneService timeZoneService,
+                AcumaticaTimeZoneService timeZoneService,
                 AcumaticaBatchRepository batchStateRepository,
                 SalesOrderClient salesOrderClient,
                 PreferencesRepository preferencesRepository)
