@@ -9,10 +9,9 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Extensions;
-using Monster.Middle.Processes.Sync.Model.Orders;
-using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
+using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
 
@@ -24,7 +23,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
         private readonly SyncOrderRepository _orderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
-        
+        private readonly ShipmentStatusService _fulfillmentStatusService;
+
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
         private readonly SystemStateRepository _stateRepository;
@@ -45,7 +45,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             _shipmentClient = shipmentClient;
             _stateRepository = stateRepository;
             _logRepository = logRepository;
-            _syncInventoryRepository = syncInventoryRepository;            
+            _syncInventoryRepository = syncInventoryRepository;  
+
         }
 
 
@@ -67,7 +68,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     continue;
                 }
 
-                var readiness = IsReadyToSyncWithAcumatica(fulfillment);
+                var readiness = _fulfillmentStatusService.IsReadyToSyncWithAcumatica(fulfillment);
 
                 if (readiness.IsReady)
                 {
@@ -83,46 +84,6 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     .RetreiveFulfillment(shopifyFulfillmentId);
 
             WriteShipmentToAcumatica(fulfillment);
-        }
-        
-        private ShipmentSyncReadiness 
-                    IsReadyToSyncWithAcumatica(UsrShopifyFulfillment fulfillmentRecord)
-        {
-            var output = new ShipmentSyncReadiness();
-
-            var shopifyOrderRecord
-                = _orderRepository
-                    .RetrieveShopifyOrder(fulfillmentRecord.ShopifyOrderId);
-
-            var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
-
-            var shopifyFulfillment
-                = shopifyOrder.Fulfillment(fulfillmentRecord.ShopifyFulfillmentId);
-            
-            // Isolate the Warehouse
-            var locationRecord =
-                _syncInventoryRepository.RetrieveLocation(shopifyFulfillment.location_id);
-
-            var warehouseId = locationRecord.MatchedWarehouse().AcumaticaWarehouseId;
-
-            foreach (var line in shopifyFulfillment.line_items)
-            {
-                var variantRecord =
-                    _syncInventoryRepository.RetrieveVariant(line.variant_id.Value, line.sku);
-
-                var stockItemId = variantRecord.MatchedStockItem().ItemId;
-
-                // Get Warehouse Details
-                var stockItem = _syncInventoryRepository.RetrieveStockItem(stockItemId);
-                var warehouseDetail = stockItem.WarehouseDetail(warehouseId);
-
-                if (line.quantity > warehouseDetail.AcumaticaQtyOnHand)
-                {
-                    output.StockItemsWithInsuffientInventory.Add(line.sku);
-                }
-            }
-
-            return output;
         }
         
         private void WriteShipmentToAcumatica(UsrShopifyFulfillment fulfillmentRecord)

@@ -10,6 +10,7 @@ using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
+using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
@@ -19,31 +20,30 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 {
     public class ShopifyFulfillmentSync
     {
-        private readonly SystemStateRepository _stateRepository;
         private readonly FulfillmentApi _fulfillmentApi;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ExecutionLogService _logService;
-
+        private readonly FulfillmentStatusService _fulfillmentStatusService;
 
         public ShopifyFulfillmentSync(
-                SystemStateRepository stateRepository,
                 ShopifyOrderRepository shopifyOrderRepository,
                 AcumaticaOrderRepository orderRepository, 
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 FulfillmentApi fulfillmentApi, 
-                ExecutionLogService logService)
+                ExecutionLogService logService, 
+                FulfillmentStatusService fulfillmentStatusService)
         {
-            _stateRepository = stateRepository;
             _shopifyOrderRepository = shopifyOrderRepository;
             _orderRepository = orderRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _fulfillmentApi = fulfillmentApi;
             _logService = logService;
+            _fulfillmentStatusService = fulfillmentStatusService;
         }
 
 
@@ -53,7 +53,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             
             foreach (var salesOrderRef in salesOrderRefs)
             {
-                var syncReadiness = IsReadyToSyncWithShopify(salesOrderRef);
+                var syncReadiness 
+                    = _fulfillmentStatusService.IsReadyToSyncWithShopify(salesOrderRef);
 
                 if (syncReadiness.IsReady)
                 {
@@ -63,51 +64,6 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                         SyncDescriptor.AcumaticaShipmentSalesOrderRef(salesOrderRef));
                 }
             }
-        }
-
-        public ShipmentSyncReadiness
-                    IsReadyToSyncWithShopify(UsrAcumaticaShipmentSalesOrderRef salesOrderRef)
-        {
-            var output = new ShipmentSyncReadiness();
-            var salesOrder = _syncOrderRepository.RetrieveSalesOrder(salesOrderRef.AcumaticaOrderNbr);
-            var shopifyOrderId = salesOrder.MatchingShopifyOrder().ShopifyOrderId;
-
-            // Fulfilled in Shopify - thus corrupted!
-            output.AnyShopifyMadeFulfillments 
-                = _syncOrderRepository.AnyUnsyncedFulfillments(shopifyOrderId);
-            
-            // Unmatched Warehouse
-            var shipmentRecord = salesOrderRef.UsrAcumaticaShipment;
-            var shipment = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
-            var warehouseRecord =
-                _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
-            var locationRecord = warehouseRecord.MatchedLocation();
-            if (locationRecord == null)
-            {
-                output.WarehouseLocationUnmatched = true;
-            }
-            
-            // Unmatched Stock Item/Inventory
-            foreach (var line in shipment.Details)
-            {
-                var stockItem = _syncInventoryRepository.RetrieveStockItem(line.InventoryID.value);
-                var variant = stockItem.MatchedVariant();
-
-                if (variant == null)
-                {
-                    output.UnmatchedVariantStockItems.Add(stockItem.ItemId);
-                    continue;
-                }
-
-                var inventoryItem = variant.InventoryLevel(locationRecord.ShopifyLocationId);
-
-                if (inventoryItem.ShopifyAvailableQuantity < line.ShippedQty.value)
-                {
-                    output.VariantsWithInsuffientInventory.Add(variant.ShopifySku);
-                }
-            }
-
-            return output;
         }
 
 
