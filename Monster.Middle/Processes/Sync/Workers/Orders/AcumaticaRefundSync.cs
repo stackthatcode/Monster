@@ -10,6 +10,7 @@ using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
@@ -51,7 +52,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
         }
 
 
-        // Refunds + Cancellations
+        // Refunds-Cancellations
         //
         public void RunCancels()
         {
@@ -90,7 +91,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             // Update the Sales Taxes
             //_acumaticaOrderSync.PushOrderTaxesToAcumatica(refundRecord.UsrShopifyOrder);
         }
-
+        
         public SalesOrderUpdateHeader BuildUpdateForCancels(UsrShopifyRefund refundRecord)
         {
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
@@ -157,7 +158,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
         }
         
 
-        // Refunds + Returns
+
+        // Refunds-Returns
         //
         public void RunReturns()
         {
@@ -165,13 +167,15 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             foreach (var _return in returns)
             {
-                if (_return.IsSyncComplete())
+                var status = RefundSyncStatus.Make(_return);
+
+                if (status.IsSyncComplete)
                 {
                     continue;
                 }
 
                 // Write a Credit Memo and Taxes (ha!) to Acumatica for restocked items
-                if (_return.DoesNotHaveCreditMemoOrder())
+                if (status.DoesNotHaveCreditMemoInvoice)
                 {
                     var success = 
                         _logService.RunTransaction(
@@ -189,8 +193,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
                     continue;
                 }
-
-                if (_return.HasCreditMemoOrder() && _return.CreditMemoTaxesAreNotSynced())
+                
+                if (status.HasCreditMemoOrder && status.AreCreditMemoTaxesNotSynced)
                 {
                     _logService.RunTransaction(
                         () => PushReturnOrderTaxes(_return),
@@ -200,7 +204,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     continue;
                 }
 
-                if (_return.DoesNotHaveCreditMemoInvoice())
+                if (status.DoesNotHaveCreditMemoInvoice)
                 {
                     var success =
                         _logService.RunTransaction(
@@ -219,7 +223,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     continue;
                 }
 
-                if (_return.HasCreditMemoInvoice() && _return.DoesNotHaveReleasedInvoice())
+                if (status.HasCreditMemoInvoice && status.DoesNotHaveReleasedInvoice)
                 {
                     // No continue - keep processing with altered state
                     _logService.RunTransaction(
@@ -228,7 +232,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                         SyncDescriptor.ShopifyRefund(_return));
                 }
 
-                if (_return.HasCreditMemoInvoice() && _return.DoesNotHaveReleasedInvoice())
+                if (status.HasCreditMemoInvoice && status.DoesNotHaveReleasedInvoice)
                 {
                     _logService.RunTransaction(
                         () => ReleaseReturnInvoice(_return),
@@ -389,7 +393,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     .RetrieveSalesOrderInvoice(creditMemoInvoiceNbr, SalesInvoiceType.Credit_Memo)
                     .ToSalesOrderInvoiceObj();
 
-            if (invoice.IsReleased() && refundRecord.DoesNotHaveReleasedInvoice())
+            var status = RefundSyncStatus.Make(refundRecord);
+
+            if (invoice.IsReleased() && status.DoesNotHaveReleasedInvoice)
             {
                 syncRecord.IsCmInvoiceReleased = true;
                 syncRecord.IsComplete = true;

@@ -9,6 +9,7 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
@@ -44,7 +45,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             foreach (var transaction in transactions)
             {
-                if (transaction.ShouldCreatePayment())
+                var status = PaymentSyncStatus.Make(transaction);
+
+                if (status.ShouldCreatePayment().Success)
                 {
                     _logService.RunTransaction(
                             () => WritePaymentForOrders(transaction),
@@ -107,17 +110,18 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             foreach (var transaction in transactions)
             {
                 var refund = 
-                    _syncOrderRepository
-                        .RetrieveRefundAndSync(transaction.ShopifyRefundId.Value);
+                    _syncOrderRepository.RetrieveRefundAndSync(transaction.ShopifyRefundId.Value);
 
                 // Cancellation
+                //
                 if (refund.ShopifyIsCancellation)
                 {
                     WriteRefundPayment(transaction);
                     continue;
                 }
                 
-                // Return/Restock Refund
+                // Return/Restock Refund - Credit Memo Order and Invoice are created
+                //
                 if (refund.UsrShopAcuRefundCms.Any(x => x.IsComplete))
                 {
                     WriteRefundPayment(transaction);
@@ -154,8 +158,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             if (refund.UsrShopAcuRefundCms.Any())
             {
                 var refundSync = refund.UsrShopAcuRefundCms.First();
-                // Get ths Invoice
-                // TODO - cache this in SQL
+                
                 var salesInvoice =
                     _salesOrderClient.RetrieveSalesOrderInvoice(
                             refundSync.AcumaticaCreditMemoInvoiceNbr, SalesInvoiceType.Credit_Memo)

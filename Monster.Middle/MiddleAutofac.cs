@@ -152,13 +152,17 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaOrderPaymentSync>().InstancePerLifetimeScope();
             
             // Services
-            builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<UrlService>().InstancePerLifetimeScope();            
             builder.RegisterType<SystemStateRepository>().InstancePerLifetimeScope();
             builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();
 
+            // Status
+            builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
+            builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderStatusService>().InstancePerLifetimeScope();
+            
             // Director Components
             builder.RegisterType<SyncManager>().InstancePerLifetimeScope();
             builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();

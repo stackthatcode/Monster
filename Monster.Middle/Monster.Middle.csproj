@@ -142,8 +142,11 @@
     <Compile Include="Hangfire\NamedLock.cs" />
     <Compile Include="Hangfire\JobRepository.cs" />
     <Compile Include="Persist\Tenant\Extensions.cs" />
+    <Compile Include="Processes\Sync\Model\Extensions\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
+    <Compile Include="Processes\Sync\Model\Status\PaymentSyncStatus.cs" />
+    <Compile Include="Processes\Sync\Model\Status\RefundSyncStatus.cs" />
     <Compile Include="Processes\Sync\Services\ExecutionLogService.cs" />
     <Compile Include="Persist\Tenant\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>

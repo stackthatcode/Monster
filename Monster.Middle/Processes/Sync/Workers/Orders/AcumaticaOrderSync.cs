@@ -98,7 +98,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 if (!status.IsReadyToSync().Success)
                 {
                     _pushLogger.Debug(
-                        $"Skipping Sync for Order {order.ShopifyOrderNumber} ({order.ShopifyOrderId}): " +
+                        $"Skipping Sync for Order {order.ShopifyOrderNumber} ({order.ShopifyOrderId}) - " +
                         status.IsReadyToSync().FailureMessages.ToCommaDelimited());
                     continue;
                 }

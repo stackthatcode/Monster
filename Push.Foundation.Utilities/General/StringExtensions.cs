@@ -26,6 +26,10 @@ namespace Push.Foundation.Utilities.General
             return string.Join(delimeter, input);
         }
 
+        public static string ToNewlineDelimited(this IEnumerable<string> input)
+        {
+            return string.Join(Environment.NewLine, input);
+        }
 
 
         public static bool CaselessEquals(this string input, string other)

@@ -56,7 +56,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
                     $"Shopify Order has been fulfilled before sync with Acumatica");
 
             return validation.Run(this);
-        }
-        
+        }        
     }
 }
+
