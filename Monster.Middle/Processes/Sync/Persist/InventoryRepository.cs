@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Tenant;
-using Monster.Middle.Processes.Sync.Model;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
+
 
 namespace Monster.Middle.Processes.Sync.Persist
 {
@@ -235,6 +235,7 @@ namespace Monster.Middle.Processes.Sync.Persist
             return Entities
                     .UsrAcumaticaStockItems
                     .Include(x => x.UsrShopAcuItemSyncs)
+                    .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrShopifyVariant))
                     .Where(x => x.IsPriceSynced == false)
                     .Where(x => x.UsrShopAcuItemSyncs.Any(y => y.IsSyncEnabled))
                     .ToList();

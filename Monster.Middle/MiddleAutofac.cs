@@ -16,6 +16,7 @@ using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Managers;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
+using Monster.Middle.Processes.Sync.Status;
 using Monster.Middle.Processes.Sync.Workers.Inventory;
 using Monster.Middle.Processes.Sync.Workers.Orders;
 using Monster.Middle.Services;

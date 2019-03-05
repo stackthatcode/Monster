@@ -136,6 +136,9 @@
     <Compile Include="Security\HmacCryptoService.cs" />
     <Compile Include="Security\ICryptoService.cs" />
     <Compile Include="Security\SecureStringExtensions.cs" />
+    <Compile Include="Validation\Rule.cs" />
+    <Compile Include="Validation\Validation.cs" />
+    <Compile Include="Validation\ValidationResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

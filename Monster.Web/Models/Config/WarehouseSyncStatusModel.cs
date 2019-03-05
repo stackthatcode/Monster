@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Monster.Middle.Processes.Sync.Model.Config;
+using Monster.Middle.Processes.Sync.Model.Status;
 
 namespace Monster.Web.Models.Config
 {
@@ -10,7 +11,7 @@ namespace Monster.Web.Models.Config
         public List<ExecutionLogModel> ExecutionLogs { get; set; }
 
         public int WarehouseSyncState { get; set; }
-        public WarehouseSyncStateDetails Details { get; set; }
+        public WarehouseSyncSummary Details { get; set; }
     }
 }
 

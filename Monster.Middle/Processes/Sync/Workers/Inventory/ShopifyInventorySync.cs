@@ -5,8 +5,10 @@ using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
+using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -22,6 +24,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly ExecutionLogService _executionLogService;
+        private readonly InventoryStatusService _statusService;
         private readonly IPushLogger _logger;
 
         public ShopifyInventorySync(
@@ -53,6 +56,13 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
 
             foreach (var stockItem in stockItems)
             {
+                var readyToSync = InventorySyncStatus.Make(stockItem).ReadyToSync();
+                if (readyToSync.Success)
+                {
+                    _logger.Debug($"Skipping PriceUpdate for {stockItem.ItemId}");
+                    return;
+                }
+
                 _executionLogService.RunTransaction(
                         () => PriceUpdate(stockItem),
                         SyncDescriptor.UpdateShopifyPrice,
@@ -73,12 +83,13 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
                 return;
             }
 
+            // Build the Shopify DTO
             var variantShopifyId = stockItemRecord.MatchedVariant().ShopifyVariantId;
             var variantSku = stockItemRecord.MatchedVariant().ShopifySku;
             var price = stockItemObj.DefaultPrice.value;
-
             var dto = VariantPriceUpdateParent.Make(variantShopifyId, price);
 
+            // Push the price update to Shopify API
             _productApi.UpdateVariantPrice(variantShopifyId, dto.SerializeToJson());
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
@@ -101,6 +112,13 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
 
             foreach (var stockItem in stockItems)
             {
+                var readyToSync = InventorySyncStatus.Make(stockItem).ReadyToSync();
+                if (readyToSync.Success)
+                {
+                    _logger.Debug($"Skipping StockItemInventoryUpdate for {stockItem.ItemId}");
+                    return;
+                }
+                
                 _executionLogService.RunTransaction(
                         () => StockItemInventoryUpdate(stockItem),
                         SyncDescriptor.UpdateShopifyInventory,
@@ -154,6 +172,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             {
                 var log = $"Updated Shopify Variant {sku} " +
                           $"in Location {location.ShopifyLocationName} to Available Qty {totalQtyOnHand}";
+
                 _executionLogService.InsertExecutionLog(log);
 
                 // Flag Acumatica Warehouse Detail as synchronized

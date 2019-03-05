@@ -3,9 +3,11 @@ using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Sync.Model.Config;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
+using Monster.Middle.Processes.Sync.Services;
 
-namespace Monster.Middle.Processes.Sync.Services
+namespace Monster.Middle.Processes.Sync.Status
 {
     public class ConfigStatusService
     {
@@ -25,12 +27,12 @@ namespace Monster.Middle.Processes.Sync.Services
         }
 
 
-        public WarehouseSyncStateDetails WarehouseSyncStatus()
+        public WarehouseSyncSummary WarehouseSyncStatus()
         {
             var warehouses = _syncInventoryRepository.RetrieveWarehouses();
             var locations = _syncInventoryRepository.RetrieveLocations();
 
-            var output = new WarehouseSyncStateDetails();
+            var output = new WarehouseSyncSummary();
 
             output.UnmatchedAcumaticaWarehouses
                 = warehouses

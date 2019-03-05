@@ -142,6 +142,7 @@
     <Compile Include="Hangfire\NamedLock.cs" />
     <Compile Include="Hangfire\JobRepository.cs" />
     <Compile Include="Persist\Tenant\Extensions.cs" />
+    <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
     <Compile Include="Processes\Sync\Services\ExecutionLogService.cs" />
     <Compile Include="Persist\Tenant\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
@@ -166,6 +167,7 @@
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\VariantAndStockItemDto.cs" />
+    <Compile Include="Processes\Sync\Status\InventoryStatusService.cs" />
     <Compile Include="Processes\Sync\Workers\Orders\ParallelWorker.cs" />
     <Compile Include="Processes\Acumatica\Services\ReferenceDataService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferencePull.cs" />
@@ -186,8 +188,8 @@
     <Compile Include="Processes\Sync\Model\Orders\OrderSummaryViewDto.cs" />
     <Compile Include="Processes\Sync\Persist\SyncOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaManager.cs" />
-    <Compile Include="Processes\Sync\Model\Config\WarehouseSyncStateDetails.cs" />
-    <Compile Include="Processes\Sync\Services\ConfigStatusService.cs" />
+    <Compile Include="Processes\Sync\Model\Status\WarehouseSyncSummary.cs" />
+    <Compile Include="Processes\Sync\Status\ConfigStatusService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInventoryPull.cs" />
     <Compile Include="Processes\Sync\Workers\Inventory\ShopifyInventorySync.cs" />
     <Compile Include="Processes\Sync\Workers\Inventory\WarehouseLocationSync.cs" />
@@ -207,7 +209,7 @@
     <Compile Include="Processes\Sync\Workers\Orders\AcumaticaShipmentSync.cs" />
     <Compile Include="Processes\Sync\Workers\Orders\AcumaticaOrderSync.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaConstants.cs" />
-    <Compile Include="Processes\Sync\Model\Orders\ShipmentSyncReadiness.cs" />
+    <Compile Include="Processes\Sync\Model\Status\ShipmentSyncReadiness.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyTransactionPull.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyCustomerPull.cs" />
     <Compile Include="Processes\Sync\Workers\Orders\ShopifyFulfillmentSync.cs" />

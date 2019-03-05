@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Push.Foundation.Utilities.General;
 
-namespace Monster.Middle.Processes.Sync.Model.Config
+namespace Monster.Middle.Processes.Sync.Model.Status
 {
-    public class WarehouseSyncStateDetails
+    public class WarehouseSyncSummary
     {
         public IList<string> MatchedWarehouseLocations { get; set; }
         public IList<string> UnmatchedShopifyLocations { get; set; }
