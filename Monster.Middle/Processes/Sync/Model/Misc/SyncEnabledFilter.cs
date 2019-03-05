@@ -1,4 +1,4 @@
-﻿namespace Monster.Middle.Processes.Sync.Model
+﻿namespace Monster.Middle.Processes.Sync.Model.Misc
 {
     public class SyncEnabledFilter
     {

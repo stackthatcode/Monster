@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Owin;
+using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models.Config;
 using Owin;

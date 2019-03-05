@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Helpers;
 

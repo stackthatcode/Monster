@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Persist.Tenant;
 
 namespace Monster.Web.Models.RealTime
 {

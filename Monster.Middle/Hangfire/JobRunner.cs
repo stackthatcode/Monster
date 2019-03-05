@@ -13,17 +13,20 @@ namespace Monster.Middle.Hangfire
         private readonly SyncDirector _director;
         private readonly ConnectionContext _connectionContext;
         private readonly SystemStateRepository _stateRepository;
+        private readonly JobRepository _jobRepository;
         private readonly IPushLogger _logger;
         
         public JobRunner(
                 SyncDirector director, 
                 ConnectionContext connectionContext, 
                 SystemStateRepository stateRepository,
+                JobRepository jobRepository,
                 IPushLogger logger)
         {
             _director = director;
             _connectionContext = connectionContext;
             _stateRepository = stateRepository;
+            _jobRepository = jobRepository;
             _logger = logger;
         }
 
@@ -129,7 +132,7 @@ namespace Monster.Middle.Hangfire
                 // Cleans up the Background Job record
                 if (jobType.HasValue)
                 {
-                    _stateRepository.RemoveBackgroundJobs(jobType.Value);
+                    _jobRepository.RemoveBackgroundJobs(jobType.Value);
                 }
 
                 // *** Important - do not refactor this to use finally, else it will 
@@ -142,7 +145,7 @@ namespace Monster.Middle.Hangfire
                 // Cleans up the Background Job record
                 if (jobType.HasValue)
                 {
-                    _stateRepository.RemoveBackgroundJobs(jobType.Value);
+                    _jobRepository.RemoveBackgroundJobs(jobType.Value);
                 }
 
                 methodLock.Free(instanceId.ToString());

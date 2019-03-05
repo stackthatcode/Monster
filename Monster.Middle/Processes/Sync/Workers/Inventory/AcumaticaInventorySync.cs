@@ -10,6 +10,7 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;

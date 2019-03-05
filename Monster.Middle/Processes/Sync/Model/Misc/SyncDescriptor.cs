@@ -1,6 +1,6 @@
 ﻿using Monster.Middle.Persist.Tenant;
 
-namespace Monster.Middle.Processes.Sync.Model.Extensions
+namespace Monster.Middle.Processes.Sync.Model.Misc
 {
     public static class SyncDescriptor
     {

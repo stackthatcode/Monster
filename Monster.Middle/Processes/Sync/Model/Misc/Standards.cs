@@ -2,7 +2,7 @@
 using Monster.Middle.Persist.Tenant;
 using Push.Shopify.Api.Product;
 
-namespace Monster.Middle.Processes.Sync.Model
+namespace Monster.Middle.Processes.Sync.Model.Misc
 {
     public class Standards
     {

@@ -1,4 +1,6 @@
-﻿namespace Monster.Web.Models.Config
+﻿using Monster.Middle.Persist.Tenant;
+
+namespace Monster.Web.Models.Config
 {
     public class ShopifyLocationModel
     {

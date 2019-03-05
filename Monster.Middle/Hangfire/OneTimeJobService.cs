@@ -5,7 +5,6 @@ using Hangfire;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Services;
-using Push.Foundation.Utilities.Logging;
 
 
 namespace Monster.Middle.Hangfire
@@ -14,14 +13,17 @@ namespace Monster.Middle.Hangfire
     {
         private readonly ConnectionContext _tenantContext;
         private readonly SystemStateRepository _stateRepository;
+        private readonly JobRepository _jobRepository;
 
 
         public OneTimeJobService(
             ConnectionContext tenantContext,
-            SystemStateRepository stateRepository)
+            SystemStateRepository stateRepository, 
+            JobRepository jobRepository)
         {
             _tenantContext = tenantContext;
             _stateRepository = stateRepository;
+            _jobRepository = jobRepository;
         }
 
 
@@ -78,7 +80,7 @@ namespace Monster.Middle.Hangfire
             using (var transaction = _stateRepository.BeginTransaction())
             {
                 var jobId = BackgroundJob.Enqueue<JobRunner>(action);
-                _stateRepository.InsertBackgroundJob(jobType, jobId);
+                _jobRepository.InsertBackgroundJob(jobType, jobId);
                 transaction.Commit();
             }
         }

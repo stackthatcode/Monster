@@ -3,6 +3,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Foundation.Utilities.General;
 
 namespace Monster.Middle.Processes.Sync.Services

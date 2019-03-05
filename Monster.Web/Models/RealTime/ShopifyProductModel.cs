@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Shopify.Persist;
 
 namespace Monster.Web.Models.RealTime

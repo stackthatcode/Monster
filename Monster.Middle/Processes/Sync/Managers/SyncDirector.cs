@@ -5,6 +5,7 @@ using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Model.Config;
 using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
 

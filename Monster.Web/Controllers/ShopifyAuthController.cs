@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models.ShopifyAuth;
 using Monster.Web.Plumbing;

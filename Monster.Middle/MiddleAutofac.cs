@@ -6,13 +6,11 @@ using Monster.Middle.Config;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Persist.Tenant;
-using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Processes.Payouts.Workers;
-using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Managers;
@@ -52,8 +50,7 @@ namespace Monster.Middle
 
             // TODO *** decide if it's necessary to implement this for Batch stuff!!
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
-
-
+            
             // System-level Persistence always uses the MonsterConfig for its Connection String
             var connectionString = MonsterConfig.Settings.SystemDatabaseConnection;
             builder
@@ -65,17 +62,13 @@ namespace Monster.Middle
                     ctx => new IdentityDbContext(new SqlConnection(connectionString)))
                 .InstancePerLifetimeScope();
             
-            // Crypto faculties
-            builder.Register<ICryptoService>(x => new AesCrypto(
-                    MonsterConfig.Settings.EncryptKey, MonsterConfig.Settings.EncryptIv));
-
-            // Persistence
+            // Persistence - Master and Tenant
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<ConnectionRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ConnectionContext>().InstancePerLifetimeScope();
 
             // Job Running components
-            builder.RegisterType<BackgroundJobRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<JobRepository>().InstancePerLifetimeScope();
             builder.RegisterType<OneTimeJobService>().InstancePerLifetimeScope();
             builder.RegisterType<RecurringJobService>().InstancePerLifetimeScope();
             builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
@@ -88,8 +81,11 @@ namespace Monster.Middle
             RegisterPayoutProcess(builder);
 
             // Misc
-            builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();
             builder.RegisterType<TimeZoneTranslator>().InstancePerLifetimeScope();
+
+            // Crypto faculties
+            builder.Register<ICryptoService>(x => new AesCrypto(
+                MonsterConfig.Settings.EncryptKey, MonsterConfig.Settings.EncryptIv));
 
             return builder;
         }
@@ -133,6 +129,8 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaReferencePull>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();
+
+            builder.RegisterType<ReferenceDataService>().InstancePerLifetimeScope();
         }
 
         private static void RegisterSyncProcess(ContainerBuilder builder)
@@ -154,12 +152,12 @@ namespace Monster.Middle
             
             // Services
             builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
-            builder.RegisterType<ReferenceDataService>().InstancePerLifetimeScope();
             builder.RegisterType<UrlService>().InstancePerLifetimeScope();            
             builder.RegisterType<SystemStateRepository>().InstancePerLifetimeScope();
             builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
-            
+            builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();
+
             // Director Components
             builder.RegisterType<SyncManager>().InstancePerLifetimeScope();
             builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();

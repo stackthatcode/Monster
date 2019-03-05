@@ -1,4 +1,7 @@
-﻿namespace Monster.Web.Models.Config
+﻿using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Processes.Sync.Model.Extensions;
+
+namespace Monster.Web.Models.Config
 {
     public class AcumaticaWarehouseModel
     {
