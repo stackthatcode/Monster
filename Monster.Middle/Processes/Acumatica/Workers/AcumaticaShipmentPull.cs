@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Shipment;
+using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -24,17 +25,18 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly PreferencesRepository _preferencesRepository;
 
         public const int InitialBatchStateFudgeMin = -15;
-
+        public int PageSize = 50;
 
         public AcumaticaShipmentPull(
                 AcumaticaOrderRepository orderRepository,
                 AcumaticaCustomerPull acumaticaCustomerPull,
                 AcumaticaBatchRepository batchStateRepository,
                 AcumaticaTimeZoneService timeZoneService,
+                AcumaticaHttpConfig acumaticaHttpConfig,
                 ShipmentClient shipmentClient,
                 ConnectionRepository connectionRepository,
-                IPushLogger logger, 
-                PreferencesRepository preferencesRepository)
+                PreferencesRepository preferencesRepository,
+                IPushLogger logger)
         {
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _orderRepository = orderRepository;
@@ -42,8 +44,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _timeZoneService = timeZoneService;
             _shipmentClient = shipmentClient;
             _connectionRepository = connectionRepository;
-            _logger = logger;
             _preferencesRepository = preferencesRepository;
+            _logger = logger;
+
+            PageSize = acumaticaHttpConfig.PageSize;
         }
 
 
@@ -70,12 +74,9 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var preferences = _preferencesRepository.RetrievePreferences();
             var orderStart = preferences.ShopifyOrderDateStart.Value;
-            var shipmentUpdateMin = _timeZoneService.ToAcumaticaTimeZone(orderStart);
+            var updateMin = _timeZoneService.ToAcumaticaTimeZone(orderStart);
 
-            var json = _shipmentClient.RetrieveShipments(shipmentUpdateMin);
-            var shipments = json.DeserializeFromJson<List<Shipment>>();
-
-            UpsertShipmentsToPersist(shipments);            
+            RunWithPaging(updateMin);
         }
         
         private void RunUpdated()
@@ -83,21 +84,36 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var batchState = _batchStateRepository.Retrieve();
             var updateMinUtc = batchState.AcumaticaShipmentsPullEnd;
             var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
-
-            var detailsJson = _shipmentClient.RetrieveShipments(updateMin);
-            var shipments = detailsJson.DeserializeFromJson<List<Shipment>>();
-
-            // Need to do this because Acumatica constrains the number of Details
-            // ... that can be expanded per call
-            var packagesJson
-                = _shipmentClient.RetrieveShipments(updateMin, ShipmentExpand.Packages);
-            var shipmentsWithPackages = packagesJson.DeserializeFromJson<List<Shipment>>();            
-            shipments.AppendPackageRefs(shipmentsWithPackages);
-
-            UpsertShipmentsToPersist(shipments);
+            
+            RunWithPaging(updateMin);
         }
-        
 
+        private void RunWithPaging(DateTime updateMin)
+        {
+            var page = 1;
+
+            while (true)
+            {
+                var json = _shipmentClient.RetrieveShipments(updateMin, ShipmentExpand.Details);
+                var shipments = json.DeserializeFromJson<List<Shipment>>();
+                UpsertShipmentsToPersist(shipments);
+
+                // Need to do this because Acumatica constrains the number of Details
+                // ... that can be expanded per call
+                var packagesJson
+                    = _shipmentClient.RetrieveShipments(updateMin, ShipmentExpand.Packages);
+                var shipmentsWithPackages = packagesJson.DeserializeFromJson<List<Shipment>>();
+                shipments.AppendPackageRefs(shipmentsWithPackages);
+
+                UpsertShipmentsToPersist(shipments);
+
+                if (shipments.Count == 0)
+                {
+                    break;
+                }
+                page++;
+            }
+        }
 
         public void UpsertShipmentsToPersist(List<Shipment> shipments)
         {
@@ -112,8 +128,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         }
         
         public UsrAcumaticaShipment 
-                UpsertShipmentToPersist(
-                        Shipment shipment, bool isCreatedByMonster = false)
+                    UpsertShipmentToPersist(Shipment shipment, bool isCreatedByMonster = false)
         {
             var shipmentNbr = shipment.ShipmentNbr.value;
             var existingData = _orderRepository.RetrieveShipment(shipmentNbr);

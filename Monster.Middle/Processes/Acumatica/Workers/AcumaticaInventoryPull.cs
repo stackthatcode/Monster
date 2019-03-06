@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Distribution;
+using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Services;
-using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
@@ -22,22 +22,25 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly IPushLogger _logger;
 
         public const int InitialBatchStateFudgeMin = -15;
-
+        public int PageSize = 50;
 
         public AcumaticaInventoryPull(
                     DistributionClient inventoryClient, 
                     AcumaticaInventoryRepository inventoryRepository,
                     AcumaticaBatchRepository batchStateRepository,
                     AcumaticaTimeZoneService instanceTimeZoneService,
+                    AcumaticaHttpConfig acumaticaHttpConfig,
                     ExecutionLogService executionLogService,
                     IPushLogger logger)
         {
             _inventoryClient = inventoryClient;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
-            _logger = logger;
             _executionLogService = executionLogService;
             _instanceTimeZoneService = instanceTimeZoneService;
+            _logger = logger;
+
+            PageSize = acumaticaHttpConfig.PageSize;
         }
 
 
@@ -55,7 +58,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             //else
             //{
 
-            RunAll();
+            RunAll();            
             
             //}
         }
@@ -63,15 +66,26 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunAll()
         {
             var startOfRun = DateTime.UtcNow;
+            var page = 1;
+            
+            while (true)
+            {
+                var json = _inventoryClient.RetrieveStockItems(page: page, pageSize: PageSize);
 
-            var json = _inventoryClient.RetreiveStockItems();
-            var stockItems = json.DeserializeFromJson<List<StockItem>>();
+                var stockItems = json.DeserializeFromJson<List<StockItem>>();
 
-            UpsertStockItemToPersist(stockItems);
+                UpsertStockItemToPersist(stockItems);
+
+                if (stockItems.Count == 0)
+                {
+                    break;
+                }
+
+                page++;
+            }
 
             var maxProductDate = 
-                _inventoryRepository
-                    .RetrieveStockItemsMaxUpdatedDate();
+                _inventoryRepository.RetrieveStockItemsMaxUpdatedDate();
 
             var batchStateEnd
                 = (maxProductDate ?? startOfRun).AddAcumaticaBatchFudge();
@@ -93,7 +107,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var updateMinUtc = batchState.AcumaticaStockItemPullEnd;
             var updateMin = _instanceTimeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
-            var json = _inventoryClient.RetreiveStockItems(updateMin);
+            var json = _inventoryClient.RetrieveStockItems(updateMin);
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
 
             UpsertStockItemToPersist(stockItems);

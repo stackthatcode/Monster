@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Paging.cs" />
     <Compile Include="Api\Payment\PaymentDocumentsToApply.cs" />
     <Compile Include="Api\ReferenceClient.cs" />
     <Compile Include="Api\Payment\PaymentOrdersRef.cs" />

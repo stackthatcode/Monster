@@ -183,19 +183,20 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             var sequence = new Action[]
             {
-                () => _shopifyManager.PullCustomers(),
-                () => _shopifyManager.PullOrders(),
-                () => _shopifyManager.PullTransactions(),
+                //() => _shopifyManager.PullCustomers(),
+                //() => _shopifyManager.PullOrders(),
+                //() => _shopifyManager.PullTransactions(),
 
-                () => _acumaticaManager.PullOrdersAndCustomersAndShipments(),
+                //() => _acumaticaManager.PullOrdersAndCustomersAndShipments(),
 
-                () => _syncManager.RoutineCustomerSync(),
-                () => _syncManager.RoutineOrdersSync(),
-                () => _syncManager.RoutinePaymentSync(),
-                () => _syncManager.RoutineRefundSync(),
-                () => _syncManager.RoutineFulfillmentSync(),
+                //() => _syncManager.RoutineCustomerSync(),
+                //() => _syncManager.RoutineOrdersSync(),
+                //() => _syncManager.RoutinePaymentSync(),
+                //() => _syncManager.RoutineRefundSync(),
+                //() => _syncManager.RoutineFulfillmentSync(),
 
-                () => _shopifyManager.PullInventory(),
+                //() => _shopifyManager.PullInventory(),
+
                 () => _acumaticaManager.PullInventory(),
 
                 () => _syncManager.PushInventoryCountsToShopify()

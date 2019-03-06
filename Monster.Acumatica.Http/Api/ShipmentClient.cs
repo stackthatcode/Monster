@@ -17,13 +17,21 @@ namespace Monster.Acumatica.Api
         }
 
 
-        public string RetrieveShipments(DateTime? lastModified = null, string expand = "Details")
+        public string RetrieveShipments(
+                DateTime? lastModified = null, string expand = "Details",
+                int page = 1, int? pageSize = null)
         {
             var queryString = $"$expand={expand}";
+
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();
                 queryString += $"&$filter=LastModifiedDateTime gt datetimeoffset'{restDate}'";
+            }
+
+            if (pageSize.HasValue)
+            {
+                queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
             }
 
             var response = _httpContext.Get($"Shipment?{queryString}");

@@ -44,13 +44,19 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string RetreiveStockItems(DateTime? lastModified = null)
+        public string RetrieveStockItems(
+                DateTime? lastModified = null, int page = 1, int? pageSize = null)
         {
             var queryString = "$expand=WarehouseDetails&$filter=ItemStatus eq 'Active'";
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();
                 queryString += $" and LastModified gt datetimeoffset'{restDate}'";
+            }
+
+            if (pageSize.HasValue)
+            {
+                queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
             }
 
             var response = _httpContext.Get($"StockItem?{queryString}");

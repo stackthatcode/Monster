@@ -2,10 +2,17 @@
 using System.Configuration;
 using Push.Foundation.Utilities.Helpers;
 
+
 namespace Monster.Acumatica.Config
 {
     public class AcumaticaHttpConfig
     {
+        private const int DefaultMaxAttempts = 3;
+        private const int DefaultTimeout = 180000;
+        private const int DefaultThrottlingDelay = 250;
+        private const string DefaultVersionSegment = "/entity/Monster/17.200.001/";
+        private const int DefaultPageSize = 50;
+
         private static readonly
                 Hashtable _settings =
                     (Hashtable)ConfigurationManager
@@ -15,45 +22,45 @@ namespace Monster.Acumatica.Config
                 Settings { get; } = new AcumaticaHttpConfig();
 
 
-        private const int DefaultMaxAttempts = 3;
-        private const int DefaultTimeout = 180000;
-        private const int DefaultThrottlingDelay = 250;
-        private const string DefaultVersionSegment = "/entity/Monster/17.200.001/";
-
 
         [ConfigurationProperty("MaxAttempts", IsRequired = true)]
         public int MaxAttempts
         {
-            get { return ((string)_settings["MaxAttempts"])
-                        .ToIntegerAlt(DefaultMaxAttempts); }
+            get => ((string)_settings["MaxAttempts"]).ToIntegerAlt(DefaultMaxAttempts);
 
-            set { _settings["MaxAttempts"] = value; }
+            set => _settings["MaxAttempts"] = value;
         }
 
         [ConfigurationProperty("Timeout", IsRequired = true)]
         public int Timeout
         {
-            get { return ((string)_settings["Timeout"])
-                        .ToIntegerAlt(DefaultTimeout); }
+            get => ((string)_settings["Timeout"]).ToIntegerAlt(DefaultTimeout);
 
-            set { _settings["Timeout"] = value; }
+            set => _settings["Timeout"] = value;
         }
 
         [ConfigurationProperty("ThrottlingDelay", IsRequired = false)]
         public int ThrottlingDelay
         {
-            get { return ((string)_settings["ThrottlingDelay"])
-                        .ToIntegerAlt(DefaultThrottlingDelay); }
-            set { _settings["ThrottlingDelay"] = value; }
+            get => ((string)_settings["ThrottlingDelay"]).ToIntegerAlt(DefaultThrottlingDelay);
+
+            set => _settings["ThrottlingDelay"] = value;
         }
 
         [ConfigurationProperty("VersionSegment", IsRequired = false)]
         public string VersionSegment
         {
-            get { return ((string) _settings["VersionSegment"])
-                            .IsNullOrEmptyAlt(DefaultVersionSegment); }
+            get => ((string) _settings["VersionSegment"]).IsNullOrEmptyAlt(DefaultVersionSegment);
 
-            set { _settings["VersionSegment"] = value; }
+            set => _settings["VersionSegment"] = value;
+        }
+
+        [ConfigurationProperty("PageSize", IsRequired = false)]
+        public int PageSize
+        {
+            get => ((string)_settings["PageSize"]).ToIntegerAlt(DefaultPageSize);
+
+            set => _settings["PageSize"] = value;
         }
     }
 }

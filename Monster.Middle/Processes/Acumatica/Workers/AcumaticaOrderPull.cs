@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -21,12 +22,15 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaTimeZoneService _timeZoneService;
         private readonly PreferencesRepository _preferencesRepository;
 
+        public int PageSize = 50;
+
 
         public AcumaticaOrderPull(
                 AcumaticaOrderRepository orderRepository,
                 AcumaticaCustomerPull customerPull,
                 AcumaticaTimeZoneService timeZoneService,
                 AcumaticaBatchRepository batchStateRepository,
+                AcumaticaHttpConfig acumaticaHttpConfig,
                 SalesOrderClient salesOrderClient,
                 PreferencesRepository preferencesRepository)
         {
@@ -36,6 +40,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository = batchStateRepository;
             _salesOrderClient = salesOrderClient;
             _preferencesRepository = preferencesRepository;
+
+            PageSize = acumaticaHttpConfig.PageSize;
         }
 
 
@@ -59,11 +65,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var preferences = _preferencesRepository.RetrievePreferences();
             var orderStartDate = preferences.ShopifyOrderDateStart.Value;
             var orderUpdateMin = _timeZoneService.ToAcumaticaTimeZone(orderStartDate);
-            
-            var json = _salesOrderClient.RetrieveSalesOrders(orderUpdateMin);
-            var orders = json.DeserializeFromJson<List<SalesOrder>>();
 
-            UpsertOrdersToPersist(orders);
+            RunWithPaging(orderUpdateMin);
 
             // Set the Batch State Pull End marker
             var maxOrderDate = _orderRepository.RetrieveOrderMaxUpdatedDate();
@@ -80,14 +83,29 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var updateMinUtc = batchState.AcumaticaOrdersPullEnd;
             var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
-            var json = _salesOrderClient.RetrieveSalesOrders(updateMin);
-            var orders = json.DeserializeFromJson<List<SalesOrder>>();
-
-            UpsertOrdersToPersist(orders);
+            RunWithPaging(updateMin);
 
             _batchStateRepository.UpdateOrdersPullEnd(startOfRun);
         }
 
+
+        private void RunWithPaging(DateTime lastModified)
+        {
+            var page = 1;
+
+            while (true)
+            {
+                var json = _salesOrderClient.RetrieveSalesOrders(lastModified, page, PageSize);
+                var orders = json.DeserializeFromJson<List<SalesOrder>>();
+                UpsertOrdersToPersist(orders);
+
+                if (orders.Count == 0)
+                {
+                    break;
+                }
+                page++;
+            }
+        }
 
 
         public void RunAcumaticaOrderDetails(string orderId)
@@ -163,8 +181,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         }        
         
         public void UpsertShipmentInvoiceStubs(
-                    UsrAcumaticaSalesOrder orderRecord, 
-                    List<SalesOrderShipment> shipments)
+                UsrAcumaticaSalesOrder orderRecord, List<SalesOrderShipment> shipments)
         {
             var translation = new List<UsrAcumaticaSoShipmentInvoice>();
 

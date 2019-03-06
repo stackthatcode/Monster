@@ -27,7 +27,8 @@ namespace Monster.Acumatica.Api
                 $"?ScreenId=SO301000&OrderType=SO&OrderNbr={salesOrderId}";
         }
         
-        public string RetrieveSalesOrders(DateTime? lastModified = null)
+        public string RetrieveSalesOrders(
+                DateTime? lastModified = null, int page = 1, int? pageSize = null)
         {
             var queryString = "$expand=Details,ShippingSettings";
 
@@ -35,6 +36,11 @@ namespace Monster.Acumatica.Api
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();
                 queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
+            }
+
+            if (pageSize.HasValue)
+            {
+                queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
             }
 
             var response = _httpContext.Get($"SalesOrder?{queryString}");

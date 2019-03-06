@@ -11,7 +11,7 @@ namespace Monster.Acumatica
         {
             builder.RegisterType<AcumaticaCredentialsConfig>();
 
-            builder.RegisterType<AcumaticaHttpConfig>();
+            builder.Register(x => AcumaticaHttpConfig.Settings);
             builder.RegisterType<AcumaticaHttpContext>().InstancePerLifetimeScope();
 
             builder.RegisterType<CustomerClient>().InstancePerLifetimeScope();
