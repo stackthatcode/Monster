@@ -72,7 +72,7 @@ namespace Monster.Web.Controllers
         public ActionResult Domain()
         {
             var tenant = _tenantRepository.Retrieve();
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
 
             var model = new DomainModel();
 
@@ -96,7 +96,7 @@ namespace Monster.Web.Controllers
 
             // Guard against attempts to change finalized Shopify Domain
             string fullShopDomain;
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
             
             if (state.IsShopifyUrlFinalized)
             {
@@ -168,7 +168,7 @@ namespace Monster.Web.Controllers
                 return Redirect("Domain");
             }
 
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
             var model = new ReturnModel()
             {
                 IsWizardMode = !state.IsRandomAccessMode

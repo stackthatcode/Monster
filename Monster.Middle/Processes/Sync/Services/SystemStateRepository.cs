@@ -53,10 +53,16 @@ namespace Monster.Middle.Processes.Sync.Services
             }
         }
         
-        public UsrSystemState RetrieveSystemState()
+        public UsrSystemState RetrieveSystemStateNoTracking()
         {
             CreateSystemStateIfNotExists();
             return Entities.UsrSystemStates.AsNoTracking().First();
+        }
+
+        public UsrSystemState RetrieveSystemState()
+        {
+            CreateSystemStateIfNotExists();
+            return Entities.UsrSystemStates.First();
         }
 
         public void UpdateSystemState(
@@ -70,7 +76,8 @@ namespace Monster.Middle.Processes.Sync.Services
 
         public void UpdateIsRandomAccessMode(bool newValue)
         {
-            var state = RetrieveSystemState();
+            CreateSystemStateIfNotExists();
+            var state = Entities.UsrSystemStates.First();
             state.IsRandomAccessMode = newValue;
             Entities.SaveChanges();
         }

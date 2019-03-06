@@ -105,7 +105,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult InventoryPullStatus()
         {
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
 

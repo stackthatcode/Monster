@@ -228,7 +228,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 try
                 {
-                    var state = _stateRepository.RetrieveSystemState();
+                    var state = _stateRepository.RetrieveSystemStateNoTracking();
                     if (!state.IsRealTimeSyncEnabled())
                     {
                         _executionLogService.InsertExecutionLog("Real-Time Sync - Interrupting");

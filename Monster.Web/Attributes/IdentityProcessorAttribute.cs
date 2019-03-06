@@ -32,7 +32,7 @@ namespace Monster.Middle.Attributes
             var stateRepository = DependencyResolver.Current.GetService<SystemStateRepository>();
 
             connectionContext.Initialize(identity.InstanceId);
-            var state = stateRepository.RetrieveSystemState();
+            var state = stateRepository.RetrieveSystemStateNoTracking();
             identity.IsRealTimeMode = state.IsRandomAccessMode;
 
 

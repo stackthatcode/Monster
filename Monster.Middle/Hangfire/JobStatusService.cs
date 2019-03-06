@@ -58,7 +58,7 @@ namespace Monster.Middle.Hangfire
         
         public bool IsRealTimeSyncRunning()
         {
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
             return !state.RealTimeHangFireJobId.IsNullOrEmpty();
         }
     }

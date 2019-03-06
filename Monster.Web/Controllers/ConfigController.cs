@@ -67,14 +67,13 @@ namespace Monster.Web.Controllers
 
         
         // The welcome page
+        //
         [HttpGet]
         public ActionResult Splash()
         {
             return View();
         }
         
-
-
         // Acumatica Connection (credentials stuff...)
         //        
         [HttpGet]
@@ -125,7 +124,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult AcumaticaCredentials(AcumaticaCredentialsModel model)
         {
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
 
             if (state.IsAcumaticaUrlFinalized)
             {
@@ -148,9 +147,7 @@ namespace Monster.Web.Controllers
             _oneTimeJobService.ConnectToAcumatica();
             return JsonNetResult.Success();
         }
-
-
-
+        
         // Acumatica Settings Pull
         //
         [HttpGet]
@@ -179,13 +176,12 @@ namespace Monster.Web.Controllers
                 Status = status,
                 IsJobRunning = areAnyJobsRunning,
                 ExecutionLogs = logs,
+                IsRandomAccessMode = status.IsRandomAccessMode,
             };
             
             return new JsonNetResult(model);
         }
-
-
-
+        
         // Preference-selection of Reference Data
         //
         [HttpGet]
@@ -264,7 +260,7 @@ namespace Monster.Web.Controllers
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
             
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
             var details = _statusService.WarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
@@ -332,9 +328,6 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult Diagnostics()
         {
-            var state = _stateRepository.RetrieveSystemState();
-            state.IsRandomAccessMode = true;
-            _stateRepository.SaveChanges();
             return View();
         }
 

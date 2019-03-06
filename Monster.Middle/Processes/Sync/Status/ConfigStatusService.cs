@@ -70,7 +70,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
         public AcumaticaConnectionState AcumaticaConnectionStatus()
         {
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
 
             var model = new AcumaticaConnectionState()
             {
@@ -84,7 +84,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
         public AcumaticaReferenceDataState AcumaticaReferenceDataStatus()
         {
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
             
             var referenceData = _referenceDataService.Retrieve();
             
@@ -101,7 +101,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
         public SystemStateSummaryModel ConfigSummary()
         {
-            var state = _stateRepository.RetrieveSystemState();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
             var output = new SystemStateSummaryModel()
             {
                 ShopifyConnection = state.ShopifyConnState,
