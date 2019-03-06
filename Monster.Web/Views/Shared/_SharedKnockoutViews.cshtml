@@ -23,21 +23,21 @@
     </div>
 
     <div data-bind="if: HasLogs">
-            <div style="overflow-y: scroll; height: 400px; text-align: left;">
-                <table class="table table-striped">
-                    <tbody data-bind="foreach: Logs">
-                    <tr>
-                        <td>
-                            <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
-                                <span data-bind="text: LogTime"></span> (UTC)
-                            </div>
+        <div style="overflow-y: scroll; height: 400px; text-align: left;">
+            <table class="table table-striped">
+                <tbody data-bind="foreach: Logs">
+                <tr>
+                    <td>
+                        <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
+                            <span data-bind="text: LogTime"></span> (UTC)
+                        </div>
 
-                            <div data-bind="text: Content"></div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+                        <div data-bind="text: Content"></div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </script>
 
