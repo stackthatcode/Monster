@@ -235,9 +235,8 @@ namespace Monster.Web.Controllers
 
             _tenantRepository.SaveChanges();
 
-            var state = _stateRepository.RetrieveSystemState();
-            state.PreferenceState = data.AreValid() ? SystemState.Ok : SystemState.Invalid;
-            _stateRepository.SaveChanges();
+            var state = data.AreValid() ? SystemState.Ok : SystemState.Invalid;
+            _stateRepository.UpdateSystemState(x => x.PreferenceState, state);
 
             return JsonNetResult.Success();
         }

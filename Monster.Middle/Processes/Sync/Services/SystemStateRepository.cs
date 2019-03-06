@@ -62,7 +62,8 @@ namespace Monster.Middle.Processes.Sync.Services
         public void UpdateSystemState(
                 Expression<Func<UsrSystemState, int>> memberExpression, int newValue)
         {
-            var state = RetrieveSystemState();
+            CreateSystemStateIfNotExists();
+            var state = Entities.UsrSystemStates.First();
             state.SetPropertyValue(memberExpression, newValue);
             Entities.SaveChanges();
         }
