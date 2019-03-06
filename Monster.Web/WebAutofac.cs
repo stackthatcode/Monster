@@ -21,8 +21,8 @@ namespace Monster.Web
             Middle.MiddleAutofac.Build(builder);
 
             // Logging
-            var loggerName = "Monster.Web"; // TODO - make this a singleton/static value
-
+            var loggerName = "Monster.Web";
+            
             builder.RegisterType<RequestActivityIdLogFormatter>()
                     .As<ILogFormatter>()
                     .InstancePerLifetimeScope();
@@ -32,11 +32,14 @@ namespace Monster.Web
                     .InstancePerLifetimeScope();
 
             // ASP.NET MVC Controller registration
+            //
             builder.RegisterType<ShopifyAuthController>();
             builder.RegisterType<ConfigController>();
             builder.RegisterType<RealTimeController>();
+            builder.RegisterType<AnalysisController>();
 
             // HMAC Service - used to hash Auth Code and verify Shopify response
+            //
             builder.Register(x => new HmacCryptoService(
                         ShopifyCredentialsConfig.Settings.ApiSecret));
 

@@ -8,11 +8,6 @@
     }
 </style>
 
-<div style="margin-left: -15px; margin-right: -15px; color: #999; font-size: 0.9em; font-weight: 700; text-align: center; padding-top: 8px; padding-bottom: 8px; background-color: #F9F9F9;">
-    <img style="width: 16px;" src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
-    There is 1 background job running - for details <a href="#">click here</a>.
-</div>
-
 <main role="main" class="medium-size">
 @Html.Partial("_TopBrand")
 
@@ -255,7 +250,7 @@ Monster.AcumaticaConnectionModel = function() {
     self.BackgroundJobRunning = ko.observable();
     self.StatusVisible = ko.observable();
 
-    self.JobRunningModel = new Monster.JobRunningModel();
+    self.JobRunningModel = new Monster.ExecutionLogModel();
 
     self.ClearVisibility = function() {
         self.DataEntryVisible(false);

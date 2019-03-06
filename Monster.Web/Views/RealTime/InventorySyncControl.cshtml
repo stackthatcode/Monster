@@ -241,7 +241,7 @@
         var self = this;
         
         self.AreAnyJobsRunning = ko.observable();
-        self.JobRunningModel = new Monster.JobRunningModel();
+        self.JobRunningModel = new Monster.ExecutionLogModel();
 
         self.InventoryPullState = ko.observable();
         self.InventorySyncGrid = new Monster.InventorySyncGrid();

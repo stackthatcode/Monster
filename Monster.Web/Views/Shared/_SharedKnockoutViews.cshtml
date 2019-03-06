@@ -10,7 +10,7 @@
     </p>
 </script>
 
-<!-- Uses Monster.JobRunningModel -->
+<!-- Uses Monster.ExecutionLogModel -->
 <script type="text/html" id="Execution-Log-Ticker">
     <div style="font-size:0.9em; color:#555555; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
         Execution Logs
@@ -59,9 +59,16 @@
     </div>
 </script>
 
+<script id="Real-Time-Sync-Is-Enabled" type="text/html">
+    <div style="margin-left: -15px; margin-right: -15px; color: #999; font-size: 0.9em; font-weight: 700; text-align: center; padding-top: 8px; padding-bottom: 8px; background-color: #F9F9F9;">
+        <img style="width: 16px;" src="@GlobalConfig.Url("Content/throbber_12.gif")"/>
+        There is 1 background job running - for details <a href="#">click here</a>.
+    </div>
+</script>
+
 <script>
     var Monster = Monster || {};
-    Monster.JobRunningModel = function () {
+    Monster.ExecutionLogModel = function () {
         var self = this;
 
         self.Logs = ko.observableArray([]);

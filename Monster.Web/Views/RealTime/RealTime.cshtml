@@ -121,7 +121,7 @@ Monster.RealTimeModel = function() {
     self.IsRealTimeSyncRunning = ko.observable(false);
     self.IsConfigReadyForRealTime = ko.observable(false);
 
-    self.JobRunningModel = new Monster.JobRunningModel();
+    self.JobRunningModel = new Monster.ExecutionLogModel();
 
     // Computed properties
     //

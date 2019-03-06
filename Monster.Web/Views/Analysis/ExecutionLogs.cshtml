@@ -1,0 +1,54 @@
+﻿@using Monster.Web.Plumbing
+
+
+
+<main role="main" class="medium-size">
+    @Html.Partial("_TopBrand")
+    <hr />
+
+    <div>
+        <h1 class="mt-4 center">@GlobalConfig.AppName Execution Logs</h1>
+        <p class="lead center">
+            System Activity Monitoring
+        </p>
+    </div>
+
+    <div class="std-pad-b">
+        <div class="card">
+            <div class="card-body center">
+                <div data-bind="template: { name: 'Execution-Log-Ticker', data: ExecutionLogModel }"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<script>
+var Monster = Monster || {};
+
+Monster.RealTimeModel = function() {
+    var self = this;
+
+    self.ExecutionLogModel = new Monster.ExecutionLogModel();
+    
+    self.Refresh = function() {
+        flow.exec(function() {
+                var ajax = new Monster.Ajax();
+                ajax.HttpGet("Analysis/ExecutionLogData", this);
+            },
+            function (response) {
+                self.ExecutionLogModel.Ingest(response);
+            });
+    };
+    
+    self.Initialize = function() {
+        self.Refresh();
+    };
+
+    return self;
+};
+
+var model = new Monster.RealTimeModel();
+ko.applyBindings(model);
+model.Initialize();
+</script>
