@@ -142,7 +142,7 @@
         <tr>
             <td>
                 <div style="clear:both; vertical-align: middle;" 
-                     data-bind="template: { name: 'Sync-Enable-Item', data: OrderSyncEnable }">
+                     data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
                 </div>
             </td>
         </tr>
@@ -152,17 +152,19 @@
                 <div style="float:left;">
                     <div style="clear:both; text-align: left;">
                         <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Date</span>                
-                        <span class="sync-setting">3/6/2019</span>
+                        <span class="sync-setting" data-bind="text: ShopifyOrderDateStartFormatted">
+                        </span>
                     </div>
                     
                     <div style="clear:both; text-align: left;">
                         <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Number</span>                
-                        <span class="sync-setting">1023</span>                        
+                        <span class="sync-setting" data-bind="text: ShopifyOrderNumberStartFormatted">
+                        </span>                        
                     </div>
                     
                     <div style="clear:both; text-align: left;">
                         <span class="sync-label" style="min-width:200px; text-align: left;">Max Parallel Syncs</span>                
-                        <span class="sync-setting">8</span>
+                        <span class="sync-setting" data-bind="text: MaxParallelAcumaticaSyncs"></span>
                     </div>
                 </div>
                 
@@ -178,17 +180,17 @@
         
         <tr>
             <td style="vertical-align: middle;" 
-                data-bind="template: { name: 'Sync-Enable-Item', data: InventorySyncEnable }">
+                data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }">
             </td>
         </tr>
         <tr>
             <td style="vertical-align: middle;" 
-                data-bind="template: { name: 'Sync-Enable-Item', data: ShipmentSyncEnable }">
+                data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }">
             </td>
         </tr>
         <tr>
             <td style="vertical-align: middle;" 
-                data-bind="template: { name: 'Sync-Enable-Item', data: RefundSyncEnable }">
+                data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }">
             </td>
         </tr>
         </tbody>
@@ -305,13 +307,15 @@
 <script>
     var Monster = Monster || {};
 
-    Monster.SyncEnabledModel = function(label) {
+    Monster.SyncEnabledModel = function(label, event) {
         var self = this;
 
         self.IsEnabled = ko.observable(true);
 
         self.Clicked = function () {
-            //alert('Ok Sync State Changed!');
+            if (event) {
+                Monster.Events.publish(event);
+            }
             return true;
         };
 
@@ -327,9 +331,9 @@
     Monster.OrderSyncSettingsPopupModel = function() {
         var self = this;
 
-        self.ShopifyOrderNumberStart = ko.observable();
         self.SelectedStartingDate = ko.observable();
-        self.MaxParallelSyncs = ko.observable(4);
+        self.ShopifyOrderNumberStart = ko.observable();
+        self.MaxParallelSyncs = ko.observable();
 
         self.ShowValidation = ko.observable(false);
         
@@ -339,8 +343,29 @@
 
         self.SaveSettings = function() {
             self.ShowValidation(true);
+            if (!self.StartingDateValid()) {
+                return;
+            }
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    var data = {
+                        ShopifyOrderDateStart: self.SelectedStartingDate(),
+                        ShopifyOrderNumberStart: self.ShopifyOrderNumberStart(),
+                        MaxParallelAcumaticaSyncs: self.MaxParallelSyncs(),
+                    };
+
+                    ajax.HttpPost("RealTime/OrderSyncSettingsUpdate", data, this);
+                },
+                function (response) {
+                    Monster.Events.publish("/RefreshSyncSettings", self.Close);
+                });
         };
-        
+
+        self.Close = function() {
+            $("#order-sync-settings-modal").modal('hide');
+        }
+
         self.ShopifyOrderNumberStartBlur = function () {
             if (Number.isInteger(parseInt(self.ShopifyOrderNumberStart()))) {
                 self.ShopifyOrderNumberStart(parseInt(self.ShopifyOrderNumberStart()));
@@ -353,22 +378,37 @@
             self.ShopifyOrderNumberStartBlur();
         });
 
-        self.Launch = function() {
-            $("#order-sync-settings-modal").modal('show');
+        self.Launch = function () {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("RealTime/SyncSettingsAndEnables", this);
+                },
+                function (response) {
+                    var settings = response.OrderSyncSettingsModel;
+                    self.SelectedStartingDate(settings.ShopifyOrderDateStartFormatted);
+                    self.ShopifyOrderNumberStart(settings.ShopifyOrderNumberStartFormatted);
+                    self.MaxParallelSyncs(settings.MaxParallelAcumaticaSyncs);
+
+                    $("#order-sync-settings-modal").modal('show');
+                });
         };
 
         Monster.Events.subscribe("/LaunchOrderSyncSettings", self.Launch);
-
         return self;
     };
 
     Monster.SyncSettingsModel = function () {
         var self = this;
 
-        self.InventorySyncEnable = new Monster.SyncEnabledModel("Inventory Synchronization");
-        self.OrderSyncEnable = new Monster.SyncEnabledModel("Order Synchronization");
-        self.ShipmentSyncEnable = new Monster.SyncEnabledModel("Shipment Synchronization");
-        self.RefundSyncEnable = new Monster.SyncEnabledModel("Refund Synchronization");
+        self.SyncInventoryEnabled
+                = new Monster.SyncEnabledModel("Inventory Synchronization", "/UpdateSyncSettings");
+        self.SyncOrdersEnabled
+                = new Monster.SyncEnabledModel("Order Synchronization", "/UpdateSyncSettings");
+        self.SyncShipmentsEnabled
+                = new Monster.SyncEnabledModel("Shipment Synchronization", "/UpdateSyncSettings");
+        self.SyncRefundsEnabled
+                = new Monster.SyncEnabledModel("Refund Synchronization", "/UpdateSyncSettings");
 
         self.ShopifyOrderDateStartFormatted = ko.observable();
         self.ShopifyOrderNumberStartFormatted = ko.observable();
@@ -378,25 +418,50 @@
             Monster.Events.publish("/LaunchOrderSyncSettings");
         };
 
-        self.Refresh = function() {
-            flow.exec(function() {
+        self.Refresh = function(callback) {
+            flow.exec(function () {
                     var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
                     ajax.HttpGet("RealTime/SyncSettingsAndEnables", this);
                 },
                 function (response) {
+                    //console.log(response);
+
                     var settings = response.OrderSyncSettingsModel;
                     self.ShopifyOrderDateStartFormatted(settings.ShopifyOrderDateStartFormatted);
                     self.ShopifyOrderNumberStartFormatted(settings.ShopifyOrderNumberStartFormatted);
-                    self.MaxParallelAcumaticaSyncs(settings.ShopifyOrderDateStartFormatted);
+                    self.MaxParallelAcumaticaSyncs(settings.MaxParallelAcumaticaSyncs);
 
                     var enables = response.SyncEnablesModel;
-                    self.InventorySyncEnable.Set(enables.InventorySyncEnable);
-                    self.OrderSyncEnable.Set(enables.OrderSyncEnable);
-                    self.ShipmentSyncEnable.Set(enables.ShipmentSyncEnable);
-                    self.RefundSyncEnable.Set(enables.RefundSyncEnable);                    
+                    self.SyncInventoryEnabled.Set(enables.SyncInventoryEnabled);
+                    self.SyncOrdersEnabled.Set(enables.SyncOrdersEnabled);
+                    self.SyncShipmentsEnabled.Set(enables.SyncShipmentsEnabled);
+                    self.SyncRefundsEnabled.Set(enables.SyncRefundsEnabled);                    
+
+                    if (callback) {
+                        callback();
+                    }
                 });
         };
+
+        self.UpdateSyncSettings = function() {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    var model = {
+                        SyncInventoryEnabled: self.SyncInventoryEnabled.IsEnabled(),
+                        SyncOrdersEnabled: self.SyncOrdersEnabled.IsEnabled(),
+                        SyncShipmentsEnabled: self.SyncShipmentsEnabled.IsEnabled(),
+                        SyncRefundsEnabled: self.SyncRefundsEnabled.IsEnabled(),                
+                    };
+                    ajax.HttpPost("RealTime/SyncEnablesUpdate", model, this);
+                },
+                function (response) {
+                    self.Refresh();
+                });
+            };
+
+        Monster.Events.subscribe("/RefreshSyncSettings", self.Refresh);
+        Monster.Events.subscribe("/UpdateSyncSettings", self.UpdateSyncSettings);
 
         return self;
     };
@@ -449,8 +514,7 @@
                     }
                 });
         };
-
-
+        
         self.StartRealTimeClick = function() {
             flow.exec(
                 function() {
@@ -483,7 +547,6 @@
     };
 
     var model = new Monster.RealTimeModel();
-    model.Initialize();
     ko.applyBindings(model);
     model.Initialize();
 </script>

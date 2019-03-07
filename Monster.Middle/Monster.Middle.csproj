@@ -167,7 +167,7 @@
     <Compile Include="Processes\Sync\Model\Misc\SyncEnabledFilter.cs" />
     <Compile Include="Processes\Sync\Model\Config\ItemClassModel.cs" />
     <Compile Include="Processes\Sync\Model\Config\PaymentMethodModel.cs" />
-    <Compile Include="Processes\Sync\Model\Config\PreferencesValidationExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Status\PreferencesValidationExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Config\ReferenceData.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
