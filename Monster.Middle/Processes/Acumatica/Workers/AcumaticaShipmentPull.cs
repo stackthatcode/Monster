@@ -5,6 +5,7 @@ using Monster.Acumatica.Api.Shipment;
 using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;

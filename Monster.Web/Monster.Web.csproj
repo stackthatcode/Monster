@@ -222,6 +222,8 @@
     <Compile Include="Models\Config\AcumaticaCredentialsModel.cs" />
     <Compile Include="Models\Config\ShopifyLocationModel.cs" />
     <Compile Include="Models\Config\AcumaticaWarehouseModel.cs" />
+    <Compile Include="Models\Config\SyncEnablesModel.cs" />
+    <Compile Include="Models\Config\OrderSyncSettingsModel.cs" />
     <Compile Include="Models\ExecutionLogModel.cs" />
     <Compile Include="Models\Config\PreferencesModel.cs" />
     <Compile Include="Models\RealTime\ShopifyProductModel.cs" />

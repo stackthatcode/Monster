@@ -156,8 +156,8 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Processes\Sync\Services\PreferencesRepository.cs" />
-    <Compile Include="Processes\Sync\Services\SystemStateRepository.cs" />
+    <Compile Include="Processes\Sync\Persist\PreferencesRepository.cs" />
+    <Compile Include="Processes\Sync\Persist\SystemStateRepository.cs" />
     <Compile Include="Processes\Sync\Model\Misc\SystemState.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Extensions\RefundExtensions.cs" />

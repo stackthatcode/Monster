@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using Hangfire;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 
 

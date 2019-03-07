@@ -2,6 +2,7 @@
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Sync.Managers;
 using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
 

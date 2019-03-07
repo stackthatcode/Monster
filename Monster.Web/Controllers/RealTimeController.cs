@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using AutoMapper;
 using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
 using Monster.Web.Models;
+using Monster.Web.Models.Config;
 using Monster.Web.Models.RealTime;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
@@ -26,6 +29,8 @@ namespace Monster.Web.Controllers
         private readonly ConfigStatusService _statusService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
+        private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
+        private readonly PreferencesRepository _preferencesRepository;
         private readonly UrlService _urlService;
         private readonly IPushLogger _logger;
 
@@ -38,6 +43,8 @@ namespace Monster.Web.Controllers
                 ExecutionLogService logRepository,
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
+                PreferencesRepository preferencesRepository,
+                AcumaticaBatchRepository acumaticaBatchRepository,
                 UrlService urlService,
                 IPushLogger logger)
         {
@@ -51,6 +58,8 @@ namespace Monster.Web.Controllers
             _syncInventoryRepository = syncInventoryRepository;
             _urlService = urlService;
             _logger = logger;
+            _acumaticaBatchRepository = acumaticaBatchRepository;
+            _preferencesRepository = preferencesRepository;
         }
 
         
@@ -98,6 +107,57 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
+
+        // Real-Time Settings
+        //
+        [HttpGet]
+        public ActionResult SyncSettingsAndEnables()
+        {
+            var preferences = _preferencesRepository.RetrievePreferences();
+            var SyncEnablesModel = Mapper.Map<SyncEnablesModel>(preferences);
+            var OrderSyncSettingsModel = Mapper.Map<OrderSyncSettingsModel>(preferences);
+
+            var output = new
+            {
+                SyncEnablesModel,
+                OrderSyncSettingsModel,
+            };
+
+            return new JsonNetResult(output);
+        }
+
+        [HttpPost]
+        public ActionResult SyncEnablesUpdate(SyncEnablesModel input)
+        {
+            var data = _preferencesRepository.RetrievePreferences();
+            data.SyncOrdersEnabled = input.SyncOrdersEnabled;
+            data.SyncInventoryEnabled = input.SyncInventoryEnabled;
+            data.SyncRefundsEnabled = input.SyncRefundsEnabled;
+            data.SyncShipmentsEnabled = input.SyncShipmentsEnabled;
+            _preferencesRepository.SaveChanges();
+
+            return JsonNetResult.Success();
+        }
+        
+        [HttpPost]
+        public ActionResult OrderSyncSettingsUpdate(OrderSyncSettingsModel model)
+        {
+            var data = _preferencesRepository.RetrievePreferences();
+
+            if (data.ShopifyOrderDateStart.HasValue && data.ShopifyOrderDateStart.Value.Date !=
+                model.ShopifyOrderDateStart.Value.Date)
+            {
+                _acumaticaBatchRepository.Reset();
+            }
+
+            data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
+            data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;
+            data.MaxParallelAcumaticaSyncs = model.MaxParallelAcumaticaSyncs;
+            _preferencesRepository.SaveChanges();
+
+            return JsonNetResult.Success();
+        }
+        
 
 
         // Inventory Sync Control
@@ -163,6 +223,7 @@ namespace Monster.Web.Controllers
 
         }
 
+        
 
 
         // Inventory loading tools

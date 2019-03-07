@@ -56,43 +56,6 @@
     <div data-bind="if: ShowDataEntry">
         <div class="card text-center">
             <div id="preferences" class="card-body left">
-
-                <!-- Starting Date for Orders -->
-                <div class="form-group">
-                    <label for="datepicker">Starting Date for Shopify Orders</label>
-
-                    <input id="datepicker"
-                           type="text"
-                           class="form-control"
-                           placeholder="Choose..."
-                           data-bind="value: SelectedStartingDate" />
-
-                    <small id="datepickerHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will only load Shopify Orders
-                        that are created on or after this date into Acumatica.
-                    </small>
-
-                </div>
-
-                <div class="form-group">
-                    <label for="orderNumber">
-                        Starting Shopify Order Number
-                        <span style="font-weight:400;">(OPTIONAL)</span>
-                    </label>
-
-                    <input id="orderNumber"
-                           class="form-control"
-                           placeholder="Enter a Shopify Order Number..."
-                           maxlength="12"
-                           data-bind="value: ShopifyOrderNumberStart,
-                                    event: { blur: ShopifyOrderNumberStartBlur }" />
-
-                    <small id="orderNumberHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will only load Shopify Orders
-                        with an Order Number equal to or greater than this.
-                    </small>
-                </div>
-
                 <!-- Time Zone -->
                 <div class="form-group">
                     <label for="timeZone">Acumatica Instance Time Zone</label>
@@ -332,21 +295,6 @@
 
         // Selected options
         self.SelectedTimeZone = ko.observable();
-        self.SelectedStartingDate = ko.observable();
-        self.ShopifyOrderNumberStart = ko.observable();
-
-        self.ShopifyOrderNumberStartBlur = function () {
-            if (Number.isInteger(parseInt(self.ShopifyOrderNumberStart()))) {
-                self.ShopifyOrderNumberStart(parseInt(self.ShopifyOrderNumberStart()));
-            } else {
-                self.ShopifyOrderNumberStart(null);
-            }
-        };
-
-        self.ShopifyOrderNumberStart.subscribe(function () {
-            self.ShopifyOrderNumberStartBlur();
-        });
-
         self.SelectedItemClass = ko.observable();
         self.SelectedPaymentMethod = ko.observable();
         self.SelectedCashAccount = ko.observable();
@@ -371,11 +319,6 @@
         });
 
         // Validation
-
-        self.StartingDateValid = ko.computed(function() {
-            return Monster.IsDate(self.SelectedStartingDate());
-        });
-
         self.TimeZoneValid = ko.computed(function () {
             return self.SelectedTimeZone();
         });
@@ -389,8 +332,7 @@
         });
 
         self.IsValid = ko.computed(function() {
-            return self.StartingDateValid()
-                && self.TimeZoneValid()
+            return self.TimeZoneValid()
                 && self.ItemClassValid()
                 && self.PaymentMethodValid()
                 && self.SelectedTaxId()
@@ -430,7 +372,7 @@
                     ajax.HttpGet("Config/AcumaticaReferenceData", this);
                 },
                 function (response) {
-                    console.log(response);
+                    //console.log(response);
 
                     self.TimeZones(response.TimeZones);
                     self.ItemClasses(response.ItemClasses);
@@ -448,8 +390,6 @@
                     ajax.HttpGet("Config/PreferenceSelections", this);
                 },
                 function (response) {
-                    self.SelectedStartingDate(response.ShopifyOrderDateStartFormatted);
-                    self.ShopifyOrderNumberStart(response.ShopifyOrderNumberStart);
 
                     self.SelectedTaxId(response.AcumaticaTaxId);
                     self.SelectedTaxCategory(response.AcumaticaTaxCategory);
@@ -477,40 +417,42 @@
                 });
         };
 
-        self.SaveChangesClick = function (callback) {
+        self.SaveChangesClick = function () {
+            self.SaveChanges();
+        }
+
+        self.SaveChanges = function (callback) {
             flow.exec(function() {
-                    self.ShowValidation(true);
-                    if (!self.IsValid()) {
-                        return;
-                    }
+                self.ShowValidation(true);
+                if (!self.IsValid()) {
+                    return;
+                }
 
-                    var model = {};
+                var model = {};
 
-                    model.ShopifyOrderDateStart = self.SelectedStartingDate();
-                    model.ShopifyOrderNumberStart = self.ShopifyOrderNumberStart();
-                    model.AcumaticaTimeZone = self.SelectedTimeZone().TimeZoneId;
-                    model.AcumaticaDefaultItemClass = self.SelectedItemClass().ItemClass;
-                    model.AcumaticaDefaultPostingClass = self.SelectedPostingClass();
+                model.AcumaticaTimeZone = self.SelectedTimeZone().TimeZoneId;
+                model.AcumaticaDefaultItemClass = self.SelectedItemClass().ItemClass;
+                model.AcumaticaDefaultPostingClass = self.SelectedPostingClass();
 
-                    model.AcumaticaPaymentMethod = self.SelectedPaymentMethod().PaymentMethod;
-                    model.AcumaticaPaymentCashAccount = self.SelectedCashAccount();
+                model.AcumaticaPaymentMethod = self.SelectedPaymentMethod().PaymentMethod;
+                model.AcumaticaPaymentCashAccount = self.SelectedCashAccount();
 
-                    model.AcumaticaTaxZone = self.SelectedTaxZone();
-                    model.AcumaticaTaxId = self.SelectedTaxId();
-                    model.AcumaticaTaxCategory = self.SelectedTaxCategory();
+                model.AcumaticaTaxZone = self.SelectedTaxZone();
+                model.AcumaticaTaxId = self.SelectedTaxId();
+                model.AcumaticaTaxCategory = self.SelectedTaxCategory();
 
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Config/PreferenceSelections", model, this);
-                },
-                function() {
-                    if (callback) {
-                        callback();
-                    }
-                });
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("Config/PreferenceSelections", model, this);
+            },
+            function() {
+                if (callback) {
+                    callback();
+                }
+            });
         }
 
         self.GotoNextStepClick = function() {
-            self.SaveChangesClick(
+            self.SaveChanges(
                 function () {
                     if (!self.IsValid()) {
                         return;
@@ -518,7 +460,7 @@
 
                     window.location.href = '@GlobalConfig.Url("Config/Warehouses")';
                 });
-        };
+            };
 
         return self;
     };

@@ -30,6 +30,8 @@ namespace Monster.Web
             {
                 x.CreateMap<UsrPreference, PreferencesModel>();
                 x.CreateMap<UsrSystemState, SystemStateSummaryModel>();
+                x.CreateMap<UsrPreference, SyncEnablesModel>();
+                x.CreateMap<UsrPreference, OrderSyncSettingsModel>();
             });
         }
     }

@@ -7,6 +7,7 @@ using Autofac;
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Workers.Inventory;
 using Monster.Middle.Processes.Sync.Workers.Orders;
@@ -81,7 +82,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         public void RoutineOrdersSync()
         {
             const int workerCount = 2;
-            _logger.Debug($"Starting AcumaticaOrderSync -> RunParallel with {workerCount} threads");
+            _logger.Debug($"Starting Order Sync with {workerCount} worker(s)");
 
             ServicePointManager.DefaultConnectionLimit = 100;
             var queue = _acumaticaOrderSync.BuildQueue();
@@ -144,26 +145,8 @@ namespace Monster.Middle.Processes.Sync.Managers
         
         public void RoutineFulfillmentSync()
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
-            var fulfilledInAcumatica = preferences.FulfillmentInAcumatica.Value;
-
-            // Sync Fulfillments to Acumatica Shipments
-            if (!fulfilledInAcumatica)
-            {
-                // TODO - this is vulnerable to failure of any one
-                AcumaticaSessionRun(() =>
-                {
-                    _acumaticaShipmentSync.RunShipments();
-                    _acumaticaShipmentSync.RunConfirmShipments();
-                    _acumaticaShipmentSync.RunSingleInvoicePerShipmentSalesRef();
-                });
-            }
-
             // Sync Shipments to Shopify Fulfillments
-            if (fulfilledInAcumatica)
-            {
-                _shopifyFulfillmentSync.Run();
-            }
+            _shopifyFulfillmentSync.Run();
         }
         
 

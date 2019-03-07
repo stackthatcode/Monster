@@ -209,17 +209,7 @@ namespace Monster.Web.Controllers
         public ActionResult PreferenceSelections(PreferencesModel model)
         {
             var data = _preferencesRepository.RetrievePreferences();
-
-            if (data.ShopifyOrderDateStart.HasValue &&
-                data.ShopifyOrderDateStart.Value.Date !=
-                model.ShopifyOrderDateStart.Value.Date)
-            {
-                _acumaticaBatchRepository.Reset();
-            }
             
-            // Automapping, anyone???
-            data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
-            data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;
             data.AcumaticaTimeZone = model.AcumaticaTimeZone;
             data.AcumaticaDefaultItemClass = model.AcumaticaDefaultItemClass;
             data.AcumaticaDefaultPostingClass = model.AcumaticaDefaultPostingClass;

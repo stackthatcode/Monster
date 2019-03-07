@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Hangfire;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Helpers;
 

@@ -5,6 +5,7 @@ using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Extensions;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;

@@ -1121,8 +1121,6 @@ namespace Monster.Middle.Persist.Tenant
     public class UsrPreference
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? ShopifyOrderDateStart { get; set; } // ShopifyOrderDateStart
-        public int? ShopifyOrderNumberStart { get; set; } // ShopifyOrderNumberStart
         public string AcumaticaTimeZone { get; set; } // AcumaticaTimeZone (length: 50)
         public double? DefaultCoGsMargin { get; set; } // DefaultCoGSMargin
         public string AcumaticaDefaultItemClass { get; set; } // AcumaticaDefaultItemClass (length: 50)
@@ -1132,7 +1130,13 @@ namespace Monster.Middle.Persist.Tenant
         public string AcumaticaTaxZone { get; set; } // AcumaticaTaxZone (length: 50)
         public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
         public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
-        public bool? FulfillmentInAcumatica { get; set; } // FulfillmentInAcumatica
+        public bool SyncOrdersEnabled { get; set; } // SyncOrdersEnabled
+        public bool SyncInventoryEnabled { get; set; } // SyncInventoryEnabled
+        public bool SyncShipmentsEnabled { get; set; } // SyncShipmentsEnabled
+        public bool SyncRefundsEnabled { get; set; } // SyncRefundsEnabled
+        public System.DateTime? ShopifyOrderDateStart { get; set; } // ShopifyOrderDateStart
+        public int? ShopifyOrderNumberStart { get; set; } // ShopifyOrderNumberStart
+        public int MaxParallelAcumaticaSyncs { get; set; } // MaxParallelAcumaticaSyncs
     }
 
     // usrShopAcuCustomerSync
@@ -2440,8 +2444,6 @@ namespace Monster.Middle.Persist.Tenant
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyOrderDateStart).HasColumnName(@"ShopifyOrderDateStart").HasColumnType("date").IsOptional();
-            Property(x => x.ShopifyOrderNumberStart).HasColumnName(@"ShopifyOrderNumberStart").HasColumnType("int").IsOptional();
             Property(x => x.AcumaticaTimeZone).HasColumnName(@"AcumaticaTimeZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.DefaultCoGsMargin).HasColumnName(@"DefaultCoGSMargin").HasColumnType("float").IsOptional();
             Property(x => x.AcumaticaDefaultItemClass).HasColumnName(@"AcumaticaDefaultItemClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
@@ -2451,7 +2453,13 @@ namespace Monster.Middle.Persist.Tenant
             Property(x => x.AcumaticaTaxZone).HasColumnName(@"AcumaticaTaxZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxId).HasColumnName(@"AcumaticaTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.FulfillmentInAcumatica).HasColumnName(@"FulfillmentInAcumatica").HasColumnType("bit").IsOptional();
+            Property(x => x.SyncOrdersEnabled).HasColumnName(@"SyncOrdersEnabled").HasColumnType("bit").IsRequired();
+            Property(x => x.SyncInventoryEnabled).HasColumnName(@"SyncInventoryEnabled").HasColumnType("bit").IsRequired();
+            Property(x => x.SyncShipmentsEnabled).HasColumnName(@"SyncShipmentsEnabled").HasColumnType("bit").IsRequired();
+            Property(x => x.SyncRefundsEnabled).HasColumnName(@"SyncRefundsEnabled").HasColumnType("bit").IsRequired();
+            Property(x => x.ShopifyOrderDateStart).HasColumnName(@"ShopifyOrderDateStart").HasColumnType("date").IsOptional();
+            Property(x => x.ShopifyOrderNumberStart).HasColumnName(@"ShopifyOrderNumberStart").HasColumnType("int").IsOptional();
+            Property(x => x.MaxParallelAcumaticaSyncs).HasColumnName(@"MaxParallelAcumaticaSyncs").HasColumnType("int").IsRequired();
         }
     }
 

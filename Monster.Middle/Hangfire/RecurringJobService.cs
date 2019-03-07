@@ -2,6 +2,7 @@
 using Hangfire;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;

@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using Monster.Middle.Identity;
 using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Services;
 using Monster.Web.Attributes;

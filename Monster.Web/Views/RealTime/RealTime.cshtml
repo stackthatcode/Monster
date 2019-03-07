@@ -6,23 +6,16 @@
         max-width: 860px;
         padding: 0 15px;
     }
-    .diagnosis-item .badge {
-        padding: 8px;
-    }
-    .not-synced {
-        background-color: #fff3cd
-    }
-    .synced {
-        background-color: #d4edda;
-    }
     .sync-label {
         display:inline-block; 
-        font-weight:700; 
-        color:#777777;
+        font-weight:500; 
+        color:#999999;
     }
     .sync-setting {
         display:inline-block;
         text-align: left;
+        font-weight: 700;
+        color:#777777;
     }
 </style>
 
@@ -32,7 +25,7 @@
     <hr />
 
     <div>
-        <h1 class="mt-4 center">@GlobalConfig.AppName Complete Synchronization</h1>
+        <h1 class="mt-4 center">@GlobalConfig.AppName End-to-End Synchronization</h1>
         <p class="lead center">
             Synchronization of Orders, Customers, Shipments, Inventory and Refunds
         </p>
@@ -51,6 +44,8 @@
             </div>
         </div>
     </div>
+    
+    <div data-bind="template: { name: 'Order-Sync-Settings', data: OrderSyncSettingsPopupModel }"></div>
 </main>
 
 <script type="text/html" id="Running-State">
@@ -92,13 +87,13 @@
 <script type="text/html" id="Non-Running-State">
     <div data-bind="if: ShowRealTimeDiagnosticsOk">
         <div class="alert alert-info">
-            <strong>Real-Time Synchronization - Diagnostics OK</strong>
+            <strong>End-to-End Synchronization - Diagnostics OK</strong>
         </div>
     </div>
 
     <div data-bind="ifnot: ShowRealTimeDiagnosticsOk">
         <div class="alert alert-danger">
-            <strong>Real-Time Synchronization - Disabled</strong>
+            <strong>End-to-End Synchronization - Disabled</strong>
         </div>
 
         <p>
@@ -113,7 +108,7 @@
     <div class="center">
         <span data-bind="ifnot: IsCompleteSyncButtonEnabled">
             <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
-                Start One-Time Sync <i class="fas fa-times"></i>
+                Run One-Time Sync <i class="fas fa-times"></i>
             </button>
 
             <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
@@ -123,7 +118,7 @@
 
         <span data-bind="if: IsCompleteSyncButtonEnabled">
             <a href="#" data-bind="click: StartRealTimeClick" class="btn btn-primary btn-lg">
-                Start One-Time Sync <i class="fas fa-bolt"></i>
+                Run One-Time Sync <i class="fas fa-bolt"></i>
             </a>
 
             <a href="#" data-bind="click: StartRealTimeClick" class="btn btn-primary btn-lg">
@@ -134,19 +129,26 @@
 
     <div style="height: 15px;"></div>
     
-    <div style="font-size:0.9em; color:#999999; font-weight:700; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
+    <div style="font-size:0.9em; color:#999999; font-weight:500; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
         Sync Preferences
     </div>
+    
+    <div data-bind="template: { name: 'Sync-Settings', data: SyncSettingsModel }"></div>
+</script>
 
-    <table class="table" style="max-width: 500px; margin-left: auto; margin-right: auto;">
+<script type="text/html" id="Sync-Settings">    
+    <table class="table" style="max-width: 550px; margin-left: auto; margin-right: auto;">
         <tbody>
         <tr>
             <td>
                 <div style="clear:both; vertical-align: middle;" 
                      data-bind="template: { name: 'Sync-Enable-Item', data: OrderSyncEnable }">
                 </div>
-                <div style="clear:both; height:20px;"></div>
-                
+            </td>
+        </tr>
+
+        <tr>
+            <td>
                 <div style="float:left;">
                     <div style="clear:both; text-align: left;">
                         <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Date</span>                
@@ -155,18 +157,20 @@
                     
                     <div style="clear:both; text-align: left;">
                         <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Number</span>                
-                        <span class="sync-setting">#1023</span>                        
+                        <span class="sync-setting">1023</span>                        
                     </div>
                     
                     <div style="clear:both; text-align: left;">
-                        <span class="sync-label" style="min-width:200px; text-align: left;">Max Parallel Order Syncs</span>                
+                        <span class="sync-label" style="min-width:200px; text-align: left;">Max Parallel Syncs</span>                
                         <span class="sync-setting">8</span>
                     </div>
                 </div>
                 
                 <div style="float:right; padding-top:15px;">
-                    <a href="#" class="btn btn-primary btn-sm" style="font-size: 0.8em; padding-top:8px; padding-bottom: 8px;">
-                        ORDER SETTINGS <i class="fa fa-pencil-alt"></i>
+                    <a href="#" class="btn btn-primary btn-sm" 
+                       data-bind="click: EditOrderSettingsClick"
+                       style="padding-top:8px; padding-bottom: 8px;">
+                        EDIT SETTINGS <i class="fa fa-pencil-alt"></i>
                     </a>
                 </div>
             </td>
@@ -187,7 +191,7 @@
                 data-bind="template: { name: 'Sync-Enable-Item', data: RefundSyncEnable }">
             </td>
         </tr>
-     </tbody>
+        </tbody>
     </table>
 </script>
 
@@ -208,7 +212,93 @@
             <span style="font-size:0.8em; font-weight:700; color:#a9a9a9">DISABLED</span>
         </div>
     </div>
+</script>
 
+<script id="Order-Sync-Settings" type="text/html">
+    <div class="modal fade" id="order-sync-settings-modal" tabindex="-1" 
+         role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
+
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="order-sync-settings-modalLabel">Enter Order Sync Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body left">
+                    <div class="form-group">
+                        <label for="datepicker">Starting Date for Shopify Orders</label>
+
+                        <input id="datepicker"
+                               type="text"
+                               class="form-control"
+                               placeholder="Choose..."
+                               data-bind="value: SelectedStartingDate" />
+
+                        <small id="datepickerHelp" class="form-text text-muted">
+                            @GlobalConfig.AppName will only load Shopify Orders
+                            that are created on or after this date into Acumatica.
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="orderNumber">
+                            Starting Shopify Order Number
+                            <span style="font-weight:400;">(OPTIONAL)</span>
+                        </label>
+
+                        <input id="orderNumber"
+                               class="form-control"
+                               placeholder="Enter a Shopify Order Number..."
+                               maxlength="12"
+                               data-bind="value: ShopifyOrderNumberStart,
+                                    event: { blur: ShopifyOrderNumberStartBlur }" />
+
+                        <small id="orderNumberHelp" class="form-text text-muted">
+                            @GlobalConfig.AppName will only load Shopify Orders
+                            with an Order Number equal to or greater than this.
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="orderNumber">
+                            Maximum # of Parallel Syncs to Acumatica
+                        </label>
+                        <select  class="form-control" data-bind="value: MaxParallelSyncs">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
+                        
+                        <small id="orderNumberHelp" class="form-text text-muted">
+                            @GlobalConfig.AppName will run up to this many syncs to Acumatica at the same time.
+                            <div style="font-weight:700;">WARNING - be sure confirm that you have enough Acumatica licenses </div>
+                        </small>
+                    </div>
+                </div>
+                <div style="height:45px;"
+                     data-bind="if: ShowValidation() && !StartingDateValid()" class="center error-message">
+                    One or more items are not valid. Please review and correct.
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" data-bind="click: SaveSettings" class="btn btn-primary">
+                        Save <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </script>
 
 
@@ -219,7 +309,9 @@
         var self = this;
 
         self.IsEnabled = ko.observable(true);
-        self.Clicked = function() { alert('Ok Sync State Changed!');
+
+        self.Clicked = function () {
+            //alert('Ok Sync State Changed!');
             return true;
         };
 
@@ -232,6 +324,83 @@
         return self;
     };
 
+    Monster.OrderSyncSettingsPopupModel = function() {
+        var self = this;
+
+        self.ShopifyOrderNumberStart = ko.observable();
+        self.SelectedStartingDate = ko.observable();
+        self.MaxParallelSyncs = ko.observable(4);
+
+        self.ShowValidation = ko.observable(false);
+        
+        self.StartingDateValid = ko.computed(function() {
+            return Monster.IsDate(self.SelectedStartingDate());
+        });
+
+        self.SaveSettings = function() {
+            self.ShowValidation(true);
+        };
+        
+        self.ShopifyOrderNumberStartBlur = function () {
+            if (Number.isInteger(parseInt(self.ShopifyOrderNumberStart()))) {
+                self.ShopifyOrderNumberStart(parseInt(self.ShopifyOrderNumberStart()));
+            } else {
+                self.ShopifyOrderNumberStart(null);
+            }
+        };
+        
+        self.ShopifyOrderNumberStart.subscribe(function () {
+            self.ShopifyOrderNumberStartBlur();
+        });
+
+        self.Launch = function() {
+            $("#order-sync-settings-modal").modal('show');
+        };
+
+        Monster.Events.subscribe("/LaunchOrderSyncSettings", self.Launch);
+
+        return self;
+    };
+
+    Monster.SyncSettingsModel = function () {
+        var self = this;
+
+        self.InventorySyncEnable = new Monster.SyncEnabledModel("Inventory Synchronization");
+        self.OrderSyncEnable = new Monster.SyncEnabledModel("Order Synchronization");
+        self.ShipmentSyncEnable = new Monster.SyncEnabledModel("Shipment Synchronization");
+        self.RefundSyncEnable = new Monster.SyncEnabledModel("Refund Synchronization");
+
+        self.ShopifyOrderDateStartFormatted = ko.observable();
+        self.ShopifyOrderNumberStartFormatted = ko.observable();
+        self.MaxParallelAcumaticaSyncs = ko.observable();
+
+        self.EditOrderSettingsClick = function () {
+            Monster.Events.publish("/LaunchOrderSyncSettings");
+        };
+
+        self.Refresh = function() {
+            flow.exec(function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("RealTime/SyncSettingsAndEnables", this);
+                },
+                function (response) {
+                    var settings = response.OrderSyncSettingsModel;
+                    self.ShopifyOrderDateStartFormatted(settings.ShopifyOrderDateStartFormatted);
+                    self.ShopifyOrderNumberStartFormatted(settings.ShopifyOrderNumberStartFormatted);
+                    self.MaxParallelAcumaticaSyncs(settings.ShopifyOrderDateStartFormatted);
+
+                    var enables = response.SyncEnablesModel;
+                    self.InventorySyncEnable.Set(enables.InventorySyncEnable);
+                    self.OrderSyncEnable.Set(enables.OrderSyncEnable);
+                    self.ShipmentSyncEnable.Set(enables.ShipmentSyncEnable);
+                    self.RefundSyncEnable.Set(enables.RefundSyncEnable);                    
+                });
+        };
+
+        return self;
+    };
+
     Monster.RealTimeModel = function () {
         var self = this;
 
@@ -240,7 +409,9 @@
         self.IsConfigReadyForRealTime = ko.observable(false);
 
         self.JobRunningModel = new Monster.ExecutionLogModel();
-
+        self.OrderSyncSettingsPopupModel = new Monster.OrderSyncSettingsPopupModel();
+        self.SyncSettingsModel = new Monster.SyncSettingsModel();
+        
         // Computed properties
         //
         self.IsCompleteSyncButtonEnabled = ko.computed(function () {
@@ -254,12 +425,6 @@
         self.ShowRealTimeDiagnosticsOk = ko.computed(function() {
             return self.IsConfigReadyForRealTime();
         });
-
-        // Synchronization Enabled/Disable state models
-        self.InventorySyncEnable = new Monster.SyncEnabledModel("Inventory Synchronization");
-        self.OrderSyncEnable = new Monster.SyncEnabledModel("Order Synchronization");
-        self.ShipmentSyncEnable = new Monster.SyncEnabledModel("Shipment Synchronization");
-        self.RefundSyncEnable = new Monster.SyncEnabledModel("Refund Synchronization");
 
     
         // Polling Function
@@ -275,13 +440,17 @@
                     self.AreAnyJobsRunning(response.AreAnyJobsRunning);
                     self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
                     self.IsConfigReadyForRealTime(response.IsConfigReadyForRealTime);
-
                     self.JobRunningModel.Ingest(response.Logs);
 
-                    setTimeout(self.PollStatus, 1000);
+                    if (self.AreAnyJobsRunning()) {
+                        setTimeout(self.PollStatus, 1000);
+                    } else {
+                        self.SyncSettingsModel.Refresh();
+                    }
                 });
         };
-    
+
+
         self.StartRealTimeClick = function() {
             flow.exec(
                 function() {
@@ -305,6 +474,9 @@
     
         self.Initialize = function() {
             self.PollStatus();
+            $('#datepicker').datepicker({
+                uiLibrary: 'bootstrap4'
+            });
         };
 
         return self;
