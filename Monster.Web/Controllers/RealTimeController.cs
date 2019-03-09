@@ -107,6 +107,13 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
+        [HttpPost]
+        public ActionResult EndToEnd()
+        {
+            _oneTimeJobService.EndToEndSync();
+            return JsonNetResult.Success();
+        }
+
 
         // Real-Time Settings
         //
@@ -254,9 +261,7 @@ namespace Monster.Web.Controllers
 
         [HttpPost]
         public ActionResult RunImportIntoAcumatica(
-                bool createInventoryReceipt, 
-                bool enableInventorySync, 
-                List<long> selectedSPIds)
+                bool createInventoryReceipt, bool enableInventorySync, List<long> selectedSPIds)
         {
             _oneTimeJobService
                 .ImportIntoAcumatica(
@@ -285,17 +290,6 @@ namespace Monster.Web.Controllers
         }
 
 
-        
-        // TODO - move this to Status Service
-        private OrderSyncSummary BuildOrderSummary()
-        {
-            var output = new OrderSyncSummary();
-            output.TotalOrders = _syncOrderRepository.RetrieveTotalOrders();
-            output.TotalOrdersWithSalesOrders = _syncOrderRepository.RetrieveTotalOrdersSynced();
-            output.TotalOrdersWithShipments = _syncOrderRepository.RetrieveTotalOrdersOnShipments();
-            output.TotalOrdersWithInvoices = _syncOrderRepository.RetrieveTotalOrdersInvoiced();
-            return output;
-        }
     }
 }
 

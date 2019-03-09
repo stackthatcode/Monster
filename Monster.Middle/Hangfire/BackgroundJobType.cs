@@ -8,5 +8,6 @@
         public const int Diagnostics = 4;
         public const int PullInventory = 5;
         public const int ImportIntoAcumatica = 6;
+        public const int EndToEndSync = 7;
     }
 }

@@ -3,7 +3,6 @@ using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Sync.Managers;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
 
 
@@ -40,6 +39,7 @@ namespace Monster.Middle.Hangfire
         static readonly NamedLock InventoryPullLock = new NamedLock("InventoryPull");
         static readonly NamedLock ImportIntoAcumaticaLock = new NamedLock("ImportIntoAcumatica");
         static readonly NamedLock RealTimeSyncLock = new NamedLock("RealTimeSync");
+        static readonly NamedLock EndToEndSyncLock = new NamedLock("EndToEndSyncLock");
 
         // Generic Background Job Lock
         //
@@ -97,7 +97,8 @@ namespace Monster.Middle.Hangfire
                 BackgroundJobType.PullInventory);
         }
         
-        public void ImportIntoAcumatica(Guid instanceId, AcumaticaInventoryImportContext context)
+        public void ImportIntoAcumatica(
+                Guid instanceId, AcumaticaInventoryImportContext context)
         {
             ExecuteOnePerInstance(
                 instanceId, 
@@ -106,12 +107,15 @@ namespace Monster.Middle.Hangfire
                 BackgroundJobType.ImportIntoAcumatica);
         }
         
-        public void RealTimeSync(Guid instanceId)
+        public void EndToEndSync(Guid instanceId)
         {
-            ExecuteOnePerInstance(instanceId, () => _director.FullSync(), ExecutionLock);
+            ExecuteOnePerInstance(
+                instanceId, 
+                () => _director.EndToEndSync(), 
+                ExecutionLock,
+                BackgroundJobType.EndToEndSync);
         }
-
-
+        
 
 
         private void ExecuteOnePerInstance(

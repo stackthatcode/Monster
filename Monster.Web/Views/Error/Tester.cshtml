@@ -1,0 +1,30 @@
+﻿@using Monster.Web.Plumbing
+
+<main role="main" class="medium-size error-page">
+    @Html.Partial("_TopBrand")
+
+    <h1 class="mt-4 center">@GlobalConfig.AppName - Error Tester</h1>
+    <p class="lead center">Verify that @GlobalConfig.AppName is properly responding to errors</p>
+
+    <p class="center">
+        <a class="btn btn-warning btn-sm" href="@GlobalConfig.Url("Error/NowhereToBeFound")">
+            Test Non-Existent URL <i class="fa fa-skull-crossbones"></i>
+        </a>
+        <a class="btn btn-warning btn-sm" href="@GlobalConfig.Url("Error/ThrowsErrors")">
+            Test Error Throwing URL <i class="fa fa-skull-crossbones"></i>
+        </a>
+        <a class="btn btn-warning btn-sm" id="ajax-error" href="#">
+            Test AJAX Error Catching <i class="fa fa-skull-crossbones"></i>
+        </a>
+    </p>
+</main>
+
+<script>
+    $(document).ready(function() {
+        $("#ajax-error").click(function() {
+            var ajax = new Monster.Ajax();
+            ajax.HttpGet("Error/ThrowsErrors");
+        });
+    });
+</script>
+

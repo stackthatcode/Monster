@@ -213,6 +213,7 @@
     <Compile Include="Attributes\IdentityProcessorAttribute.cs" />
     <Compile Include="Attributes\ValidateJsonAntiForgeryTokenAttribute.cs" />
     <Compile Include="Controllers\AnalysisController.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\RealTimeController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\ShopifyAuthController.cs" />
@@ -379,6 +380,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Analysis\ExecutionLogs.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Error\Http403.cshtml" />
+    <Content Include="Views\Error\Http404.cshtml" />
+    <Content Include="Views\Error\Http500.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Error\Tester.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

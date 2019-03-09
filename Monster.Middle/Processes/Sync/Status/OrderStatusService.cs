@@ -68,6 +68,19 @@ namespace Monster.Middle.Processes.Sync.Status
 
             return output;
         }
+
+
+
+        //private OrderSyncSummary BuildOrderSummary()
+        //{
+        //    var output = new OrderSyncSummary();
+        //    output.TotalOrders = _syncOrderRepository.RetrieveTotalOrders();
+        //    output.TotalOrdersWithSalesOrders = _syncOrderRepository.RetrieveTotalOrdersSynced();
+        //    output.TotalOrdersWithShipments = _syncOrderRepository.RetrieveTotalOrdersOnShipments();
+        //    output.TotalOrdersWithInvoices = _syncOrderRepository.RetrieveTotalOrdersInvoiced();
+        //    return output;
+        //}
+
     }
 }
 

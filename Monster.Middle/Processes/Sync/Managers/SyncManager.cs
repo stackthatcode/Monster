@@ -21,6 +21,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         private readonly PreferencesRepository _preferencesRepository;
         private readonly ConnectionContext _connectionContext;
+        private readonly ExecutionLogService _executionLogService;
         private readonly AcumaticaHttpContext _acumaticaContext;
 
         private readonly WarehouseLocationSync _warehouseLocationSync;
@@ -52,6 +53,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
                 PreferencesRepository preferencesRepository,
                 ConnectionContext connectionContext,
+                ExecutionLogService executionLogService,
                 ILifetimeScope lifetimeScope,
                 IPushLogger logger)
         {
@@ -67,6 +69,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _preferencesRepository = preferencesRepository;
 
             _connectionContext = connectionContext;
+            _executionLogService = executionLogService;
             _lifetimeScope = lifetimeScope;
             _logger = logger;
             _warehouseLocationSync = warehouseLocationSync;
@@ -81,15 +84,16 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void RoutineOrdersSync()
         {
-            const int workerCount = 2;
-            _logger.Debug($"Starting Order Sync with {workerCount} worker(s)");
+            var preferenece = _preferencesRepository.RetrievePreferences();
+            var msg = $"Starting Order Sync with {preferenece.MaxParallelAcumaticaSyncs} worker(s)";
+            _executionLogService.InsertExecutionLog(msg);
 
             ServicePointManager.DefaultConnectionLimit = 100;
             var queue = _acumaticaOrderSync.BuildQueue();
 
             // This can be abstracted
             var threads = new List<Thread>();
-            for (var i = 0; i < workerCount; i++)
+            for (var i = 0; i < preferenece.MaxParallelAcumaticaSyncs; i++)
             {
                 var t = new Thread(() => OrderSyncInChildScope(queue));
                 t.Start();

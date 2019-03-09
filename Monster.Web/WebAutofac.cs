@@ -37,6 +37,7 @@ namespace Monster.Web
             builder.RegisterType<ConfigController>();
             builder.RegisterType<RealTimeController>();
             builder.RegisterType<AnalysisController>();
+            builder.RegisterType<ErrorController>();
 
             // HMAC Service - used to hash Auth Code and verify Shopify response
             //

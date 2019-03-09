@@ -19,11 +19,11 @@ namespace Monster.Middle.Hangfire
 
 
         public RecurringJobService(
-            IPushLogger logger,
-            ConnectionContext tenantContext,
-            ConnectionRepository connectionRepository,
-            SystemStateRepository stateRepository, 
-            ExecutionLogService executionLogService)
+                ConnectionContext tenantContext,
+                ConnectionRepository connectionRepository,
+                SystemStateRepository stateRepository, 
+                ExecutionLogService executionLogService,
+                IPushLogger logger)
         {
             _tenantContext = tenantContext;
             _connectionRepository = connectionRepository;
@@ -40,7 +40,7 @@ namespace Monster.Middle.Hangfire
 
                 RecurringJob.AddOrUpdate<JobRunner>(
                     routineSyncJobId,
-                    x => x.RealTimeSync(_tenantContext.InstanceId),
+                    x => x.EndToEndSync(_tenantContext.InstanceId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 

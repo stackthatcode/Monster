@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
@@ -181,28 +182,48 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         // Synchronization
         //
-        public void FullSync()
+        public void EndToEndSync()
         {
-            var sequence = new Action[]
+            var preferences = _preferencesRepository.RetrievePreferences();
+            var sequence = new List<Action>();
+
+            sequence.AddRange(new Action[] {
+                () => _shopifyManager.PullCustomers(),
+                () => _shopifyManager.PullOrders(),
+                () => _shopifyManager.PullTransactions(),
+                () => _acumaticaManager.PullOrdersAndCustomersAndShipments(),
+            });
+
+            if (preferences.SyncOrdersEnabled)
             {
-                //() => _shopifyManager.PullCustomers(),
-                //() => _shopifyManager.PullOrders(),
-                //() => _shopifyManager.PullTransactions(),
+                sequence.AddRange(new Action[]
+                {
+                    () => _syncManager.RoutineCustomerSync(),
+                    () => _syncManager.RoutineOrdersSync(),
+                    () => _syncManager.RoutinePaymentSync(),
+                });
+            }
 
-                //() => _acumaticaManager.PullOrdersAndCustomersAndShipments(),
+            if (preferences.SyncRefundsEnabled)
+            {
+                sequence.Add(() => _syncManager.RoutineRefundSync());
+            }
 
-                //() => _syncManager.RoutineCustomerSync(),
-                //() => _syncManager.RoutineOrdersSync(),
-                //() => _syncManager.RoutinePaymentSync(),
-                //() => _syncManager.RoutineRefundSync(),
-                //() => _syncManager.RoutineFulfillmentSync(),
+            if (preferences.SyncShipmentsEnabled)
+            {
+                sequence.Add(() => _syncManager.RoutineFulfillmentSync());
+            }
 
-                //() => _shopifyManager.PullInventory(),
-
+            sequence.AddRange(new Action[]
+            {
+                () => _shopifyManager.PullInventory(),
                 () => _acumaticaManager.PullInventory(),
+            });
 
-                () => _syncManager.PushInventoryCountsToShopify()
-            };
+            if (preferences.SyncInventoryEnabled)
+            {
+                sequence.Add(() => _syncManager.PushInventoryCountsToShopify());
+            }
 
             RunFullSync(sequence, false);
         }
@@ -223,9 +244,9 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
 
-        private void RunFullSync(Action[] actions, bool throwException = true)
+        private void RunFullSync(List<Action> actions, bool throwException = true)
         {
-            _executionLogService.InsertExecutionLog("Real-Time Sync - Processing ");
+            _executionLogService.InsertExecutionLog("End-to-End Sync - Processing ");
 
             foreach (var action in actions)
             {

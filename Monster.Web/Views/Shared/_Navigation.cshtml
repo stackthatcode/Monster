@@ -11,99 +11,102 @@
     }
 
     <div class="navbar-collapse">
-        @if (identityContext.IsRealTimeMode)
+        @if (identityContext != null)
         {
-            <ul class="navbar-nav">
-                <li class="nav-item active dropdown">
-                    <a class="nav-link dropdown-toggle" href="#"
-                       id="configDropDown" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        Configure
-                    </a>
-                    <div class="dropdown-menu bg-primary" aria-labelledby="configDropDown">
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("Config/Diagnostics")">
-                            Diagnostics
+            if (identityContext.IsRealTimeMode)
+            {
+                <ul class="navbar-nav">
+                    <li class="nav-item active dropdown">
+                        <a class="nav-link dropdown-toggle" href="#"
+                           id="configDropDown" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">
+                            Configure
                         </a>
+                        <div class="dropdown-menu bg-primary" aria-labelledby="configDropDown">
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("Config/Diagnostics")">
+                                Diagnostics
+                            </a>
 
-                        <div class="dropdown-divider">
+                            <div class="dropdown-divider">
+                            </div>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("ShopifyAuth/Domain")">Shopify Connection</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("Config/AcumaticaConnection")">Acumatica Connection</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("Config/AcumaticaRefData")">Acumatica Ref Data</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("Config/Preferences")">Preferences</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("Config/Warehouses")">Warehouses</a>
                         </div>
+                    </li>
 
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("ShopifyAuth/Domain")">Shopify Connection</a>
-
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("Config/AcumaticaConnection")">Acumatica Connection</a>
-
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("Config/AcumaticaRefData")">Acumatica Ref Data</a>
-
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("Config/Preferences")">Preferences</a>
-
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("Config/Warehouses")">Warehouses</a>
-                    </div>
-                </li>
-
-                <li class="nav-item active dropdown">
-                    <a class="nav-link dropdown-toggle"
-                       href="#" id="configSync" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        Synchronize
-                    </a>
-
-                    <div class="dropdown-menu bg-primary" aria-labelledby="configSync">
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("RealTime/RealTime")">
-                            End-to-End Synchronization
+                    <li class="nav-item active dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#" id="configSync" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">
+                            Synchronize
                         </a>
 
-                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-menu bg-primary" aria-labelledby="configSync">
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("RealTime/RealTime")">
+                                End-to-End Synchronization
+                            </a>
 
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("RealTime/InventorySyncControl")">
-                            Inventory Sync Control
-                        </a>
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("RealTime/ImportIntoAcumatica")">
-                            Import Inventory into Acumatica
-                        </a>
-                        <a class="dropdown-item bg-primary" href="#">
-                            Import Inventory into Shopify
-                        </a>
-                    </div>
-                </li>
+                            <div class="dropdown-divider"></div>
 
-                <li class="nav-item active dropdown">
-                    <a class="nav-link dropdown-toggle" href="#"
-                       id="analyzeSync" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        Analyze
-                    </a>
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("RealTime/InventorySyncControl")">
+                                Inventory Sync Control
+                            </a>
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("RealTime/ImportIntoAcumatica")">
+                                Import Inventory into Acumatica
+                            </a>
+                            <a class="dropdown-item bg-primary" href="#">
+                                Import Inventory into Shopify
+                            </a>
+                        </div>
+                    </li>
 
-                    <div class="dropdown-menu bg-primary" aria-labelledby="analyzeSync">
-                        <a class="dropdown-item bg-primary active"
-                           href="@GlobalConfig.Url("Analysis/ExecutionLogs")">
-                           Execution Logs
+                    <li class="nav-item active dropdown">
+                        <a class="nav-link dropdown-toggle" href="#"
+                           id="analyzeSync" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">
+                            Analyze
                         </a>
-                    </div>
-                </li>
-            </ul>
-        }
-        else
-        {
-            <ul class="navbar-nav">
-                <li class="nav-item disabled">
-                    <a class="nav-link" href="#">Synchronize</a>
-                </li>
-                <li class="nav-item disabled">
-                    <a class="nav-link" href="#">Configure</a>
-                </li>
-                <li class="nav-item disabled">
-                    <a class="nav-link" href="#">Analyze</a>
-                </li>
-            </ul>
+
+                        <div class="dropdown-menu bg-primary" aria-labelledby="analyzeSync">
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("Analysis/ExecutionLogs")">
+                                Execution Logs
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            }
+            else
+            {
+                <ul class="navbar-nav">
+                    <li class="nav-item disabled">
+                        <a class="nav-link" href="#">Synchronize</a>
+                    </li>
+                    <li class="nav-item disabled">
+                        <a class="nav-link" href="#">Configure</a>
+                    </li>
+                    <li class="nav-item disabled">
+                        <a class="nav-link" href="#">Analyze</a>
+                    </li>
+                </ul>
+            }
         }
 
         <span class="navbar-text text-white ml-auto">

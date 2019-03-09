@@ -38,6 +38,10 @@ h1 {
 
 
 /** Main Layout options  **/
+.error-page {
+    min-height: 480px;
+}
+
 .medium-size {
     max-width: 920px;
     margin-left: auto;

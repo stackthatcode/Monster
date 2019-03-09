@@ -55,9 +55,15 @@ namespace Monster.Middle.Hangfire
         public void PullInventory()
         {
             QueueJob(BackgroundJobType.PullInventory, 
-                x => x.PullInventory(_tenantContext.InstanceId));
+                    x => x.PullInventory(_tenantContext.InstanceId));
         }
         
+        public void EndToEndSync()
+        {
+            QueueJob(BackgroundJobType.EndToEndSync, 
+                    x => x.EndToEndSync(_tenantContext.InstanceId));
+        }
+
         public void ImportIntoAcumatica(
                 List<long> spids, bool createInventoryReceipts, bool automaticEnable)
         {
@@ -69,7 +75,7 @@ namespace Monster.Middle.Hangfire
             };
 
             QueueJob(BackgroundJobType.ImportIntoAcumatica,
-                x => x.ImportIntoAcumatica(_tenantContext.InstanceId, context));
+                    x => x.ImportIntoAcumatica(_tenantContext.InstanceId, context));
         }
         
 
