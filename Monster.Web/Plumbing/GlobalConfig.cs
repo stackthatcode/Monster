@@ -20,7 +20,7 @@ namespace Monster.Web.Plumbing
         public static readonly string AppName = ConfigurationManager.AppSettings["application_name"];
 
         public static readonly string Organization = "Logic Automated Co.";
-        public static readonly string SupportEmail = "aleksjones@gmail.com";
+        public static readonly string SupportEmail = "info@logicautomated.com";
 
         public static readonly string DiagnosticsHome = Url("Config/Diagnostics");
 

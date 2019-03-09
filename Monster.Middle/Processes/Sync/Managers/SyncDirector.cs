@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Tenant;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
@@ -26,8 +27,10 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ConfigStatusService _inventoryStatusService;
         private readonly SyncManager _syncManager;
         private readonly ExecutionLogService _executionLogService;
-        private readonly IPushLogger _logger;
         private readonly PreferencesRepository _preferencesRepository;
+        private readonly JobStatusService _jobStatusService;
+        private readonly IPushLogger _logger;
+
 
         public SyncDirector(
                 ConnectionRepository connectionRepository,
@@ -41,6 +44,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ConfigStatusService inventoryStatusService,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
+                JobStatusService jobStatusService,
                 IPushLogger logger)
         {
             _connectionRepository = connectionRepository;
@@ -55,6 +59,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _preferencesRepository = preferencesRepository;
             _referenceDataService = referenceDataService;
             _logger = logger;
+            _jobStatusService = jobStatusService;
         }
 
 
@@ -253,7 +258,9 @@ namespace Monster.Middle.Processes.Sync.Managers
                 try
                 {
                     var state = _stateRepository.RetrieveSystemStateNoTracking();
-                    if (!state.IsRealTimeSyncEnabled())
+                    
+                    if (//!state.IsRealTimeSyncEnabled() ||
+                        _jobStatusService.IsOneTimeJobRunning(BackgroundJobType.EndToEndSync))
                     {
                         _executionLogService.InsertExecutionLog("Real-Time Sync - Interrupting");
                         return;
