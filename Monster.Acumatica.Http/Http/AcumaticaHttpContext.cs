@@ -5,10 +5,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Monster.Acumatica.Config;
+using Push.Foundation.Utilities.Execution;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.Execution;
-using Push.Foundation.Web.Http;
-using Push.Foundation.Web.Misc;
 
 namespace Monster.Acumatica.Http
 {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Push.Foundation.Utilities.Logging;
 
-namespace Push.Foundation.Web.Misc
+namespace Push.Foundation.Utilities.Execution
 {
     public class Throttler
     {                

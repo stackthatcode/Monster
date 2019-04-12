@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 
-namespace Push.Foundation.Web.Http
+namespace Push.Foundation.Utilities.Http
 {
     public static class Extensions
     {

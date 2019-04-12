@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using Push.Foundation.Utilities.Execution;
 using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.Execution;
 
-
-namespace Push.Foundation.Web.Http
+namespace Push.Foundation.Utilities.Http
 {
     public class HttpFacade : IDisposable
     {

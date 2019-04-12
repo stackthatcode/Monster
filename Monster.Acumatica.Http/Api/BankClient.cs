@@ -1,5 +1,5 @@
-﻿using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.Http;
+﻿using Push.Foundation.Utilities.Http;
+using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Acumatica.Api
 {

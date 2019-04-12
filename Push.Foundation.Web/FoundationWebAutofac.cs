@@ -5,7 +5,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
-using Push.Foundation.Web.Http;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Web.Identity;
 
 

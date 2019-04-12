@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 
-
-namespace Push.Foundation.Web.Http
+namespace Push.Foundation.Utilities.Http
 {
     public class ResponseEnvelope
     {

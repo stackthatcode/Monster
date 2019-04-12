@@ -1,10 +1,8 @@
 ﻿using System;
 using Castle.Core.Internal;
 using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.Misc;
 
-
-namespace Push.Foundation.Web.Execution
+namespace Push.Foundation.Utilities.Execution
 {
     public class FaultTolerantExecutor
     {

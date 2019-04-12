@@ -5,7 +5,6 @@ using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
-using Push.Foundation.Web.Http;
 using Push.Shopify.Api.Product;
 using Push.Shopify.Http;
 

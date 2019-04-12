@@ -157,8 +157,6 @@
     <Compile Include="Helpers\HttpExceptionUtilities.cs" />
     <Compile Include="Helpers\JsonHelperExtensions.cs" />
     <Compile Include="Helpers\NetworkUtilities.cs" />
-    <Compile Include="Http\HttpFacade.cs" />
-    <Compile Include="Http\RequestEnvelope.cs" />
     <Compile Include="Mvc\RequestActivityId.cs" />
     <Compile Include="Mvc\RequestActivityIdLogFormatter.cs" />
     <Compile Include="Helpers\ControllerHelpers.cs" />
@@ -166,11 +164,6 @@
     <Compile Include="Helpers\QueryStringBuilder.cs" />
     <Compile Include="Mvc\RouteValueDictionaryExtensions.cs" />
     <Compile Include="Helpers\UrlExtensions.cs" />
-    <Compile Include="Http\BadStatusCodeException.cs" />
-    <Compile Include="Execution\FaultTolerantExecutor.cs" />
-    <Compile Include="Http\HttpSettings.cs" />
-    <Compile Include="Http\ResponseEnvelope.cs" />
-    <Compile Include="Http\Extensions.cs" />
     <Compile Include="Identity\IdentityDbContext.cs" />
     <Compile Include="Identity\IdentityRoleManager.cs" />
     <Compile Include="Identity\IdentitySignInManager.cs" />
@@ -182,7 +175,6 @@
     <Compile Include="Identity\SmsService.cs" />
     <Compile Include="Identity\ApplicationUser.cs" />
     <Compile Include="Json\JsonNetResult.cs" />
-    <Compile Include="Execution\Throttler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
