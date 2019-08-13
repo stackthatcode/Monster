@@ -1,4 +1,4 @@
-﻿using Monster.Middle.Persist.Tenant;
+﻿using Monster.Middle.Persist.Instance;
 
 namespace Monster.Web.Models.Config
 {

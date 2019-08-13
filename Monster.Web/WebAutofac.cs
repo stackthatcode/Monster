@@ -33,6 +33,7 @@ namespace Monster.Web
 
             // ASP.NET MVC Controller registration
             //
+            builder.RegisterType<PublicController>();
             builder.RegisterType<ShopifyAuthController>();
             builder.RegisterType<ConfigController>();
             builder.RegisterType<RealTimeController>();

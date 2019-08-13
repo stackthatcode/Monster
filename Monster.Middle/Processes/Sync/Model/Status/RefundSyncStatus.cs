@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Processes.Sync.Model.Status

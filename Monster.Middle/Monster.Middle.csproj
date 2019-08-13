@@ -141,7 +141,7 @@
     <Compile Include="Hangfire\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
     <Compile Include="Hangfire\JobRepository.cs" />
-    <Compile Include="Persist\Tenant\Extensions.cs" />
+    <Compile Include="Persist\Instance\Extensions.cs" />
     <Compile Include="Processes\Sync\Model\Extensions\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
@@ -150,14 +150,14 @@
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
     <Compile Include="Processes\Sync\Status\FulfillmentStatusService.cs" />
     <Compile Include="Processes\Sync\Status\ShipmentStatusService.cs" />
-    <Compile Include="Processes\Sync\Services\ExecutionLogService.cs" />
-    <Compile Include="Persist\Tenant\MonsterDb.cs">
+    <Compile Include="Persist\Instance\ExecutionLogService.cs" />
+    <Compile Include="Persist\Instance\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Processes\Sync\Persist\PreferencesRepository.cs" />
-    <Compile Include="Processes\Sync\Persist\SystemStateRepository.cs" />
+    <Compile Include="Persist\Instance\StateRepository.cs" />
     <Compile Include="Processes\Sync\Model\Misc\SystemState.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Extensions\RefundExtensions.cs" />
@@ -233,15 +233,15 @@
     <Compile Include="Identity\IdentityContext.cs" />
     <Compile Include="Identity\IdentityService.cs" />
     <Compile Include="Identity\SecurityConfig.cs" />
-    <Compile Include="Persist\Tenant\ConnectionContext.cs" />
+    <Compile Include="Persist\Instance\ConnectionContext.cs" />
     <Compile Include="Persist\Master\SystemRepository.cs" />
     <Compile Include="Persist\Master\Instance.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyInventoryRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyPayoutRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
-    <Compile Include="Persist\Tenant\PersistContext.cs" />
+    <Compile Include="Persist\Instance\PersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Persist\Tenant\ConnectionRepository.cs" />
+    <Compile Include="Persist\Instance\ConnectionRepository.cs" />
     <Compile Include="Processes\Sync\Model\Misc\AcumaticaTimeZone.cs" />
     <Compile Include="Utility\TimeZoneTranslator.cs" />
     <Compile Include="Processes\Sync\Services\AcumaticaTimeZoneService.cs" />
@@ -256,8 +256,8 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Persist\Tenant\EF.Reverse.POCO.Core.ttinclude" />
-    <None Include="Persist\Tenant\EF.Reverse.POCO.ttinclude" />
+    <None Include="Persist\Instance\EF.Reverse.POCO.Core.ttinclude" />
+    <None Include="Persist\Instance\EF.Reverse.POCO.ttinclude" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.csproj">
@@ -278,7 +278,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Persist\Tenant\MonsterDb.tt">
+    <Content Include="Persist\Instance\MonsterDb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MonsterDb.cs</LastGenOutput>
     </Content>

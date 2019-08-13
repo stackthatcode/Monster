@@ -6,7 +6,7 @@ using Autofac;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
@@ -197,7 +197,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
 
         private static SalesOrder BuildNewSalesOrderHeader(
-                Order shopifyOrder, UsrAcumaticaCustomer customer, UsrPreference preferences)
+                Order shopifyOrder, UsrAcumaticaCustomer customer, Preference preferences)
         {
             var salesOrder = new SalesOrder();
             salesOrder.Details = new List<SalesOrderDetail>();

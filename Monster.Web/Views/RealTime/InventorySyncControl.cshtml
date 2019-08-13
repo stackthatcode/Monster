@@ -250,12 +250,12 @@
         // Abstract logic reduction
         //
         self.HasInventoryPullRun = ko.computed(function() {
-            return self.InventoryPullState() != SystemState.None;
+            return self.InventoryPullState() != StateCode.None;
         });
 
         self.LastInventoryRunHadErrors = ko.computed(function() {
-            return self.InventoryPullState() == SystemState.Invalid ||
-                self.InventoryPullState() == SystemState.SystemFault;
+            return self.InventoryPullState() == StateCode.Invalid ||
+                self.InventoryPullState() == StateCode.SystemFault;
         });
 
 

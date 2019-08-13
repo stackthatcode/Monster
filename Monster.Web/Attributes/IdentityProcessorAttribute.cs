@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Web.Mvc;
 using Monster.Middle.Identity;
-using Monster.Middle.Persist.Master;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
-using Monster.Middle.Services;
-using Monster.Web.Attributes;
 using Push.Foundation.Utilities.Logging;
 
-
-namespace Monster.Middle.Attributes
+namespace Monster.Web.Attributes
 {
     public class IdentityProcessorAttribute : ActionFilterAttribute, IActionFilter
     {
@@ -30,7 +26,7 @@ namespace Monster.Middle.Attributes
 
             // Step 2 - hydrate State
             var connectionContext = DependencyResolver.Current.GetService<ConnectionContext>();
-            var stateRepository = DependencyResolver.Current.GetService<SystemStateRepository>();
+            var stateRepository = DependencyResolver.Current.GetService<StateRepository>();
 
             connectionContext.Initialize(identity.InstanceId);
             var state = stateRepository.RetrieveSystemStateNoTracking();

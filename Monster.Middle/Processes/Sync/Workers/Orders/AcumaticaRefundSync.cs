@@ -4,7 +4,7 @@ using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
@@ -433,7 +433,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
         }
         
         private ReturnForCreditWrite 
-                    BuildReturnForCredit(UsrShopifyRefund refundRecord, UsrPreference preferences)
+                    BuildReturnForCredit(UsrShopifyRefund refundRecord, Preference preferences)
         {
             var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();

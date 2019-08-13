@@ -1,9 +1,10 @@
-﻿using Monster.Middle.Persist.Tenant;
+﻿using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Processes.Sync.Model.Misc
 {
-    public class SystemState
+    public class StateCode
     {
         public const int None = 1;
         public const int Ok = 2;
@@ -15,11 +16,11 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
     {
         public static bool IsBroken(this int state)
         {
-            return state == SystemState.Invalid ||
-                   state == SystemState.SystemFault;
+            return state == StateCode.Invalid ||
+                   state == StateCode.SystemFault;
         }
 
-        public static bool IsRealTimeSyncEnabled(this UsrSystemState state)
+        public static bool IsRealTimeSyncEnabled(this SystemState state)
         {
             return !state.RealTimeHangFireJobId.IsNullOrEmpty();
         }

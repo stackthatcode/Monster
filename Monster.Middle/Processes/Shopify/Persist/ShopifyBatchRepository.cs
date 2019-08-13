@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Instance;
 
 namespace Monster.Middle.Processes.Shopify.Persist
 {
@@ -18,15 +19,15 @@ namespace Monster.Middle.Processes.Shopify.Persist
         public void Reset()
         {
             var existingState 
-                = Entities.UsrShopifyBatchStates.FirstOrDefault();
+                = Entities.ShopifyBatchStates.FirstOrDefault();
 
             if (existingState != null)
             {
-                Entities.UsrShopifyBatchStates.Remove(existingState);
+                Entities.ShopifyBatchStates.Remove(existingState);
             }
 
-            var newState = new UsrShopifyBatchState();
-            Entities.UsrShopifyBatchStates.Add(newState);
+            var newState = new ShopifyBatchState();
+            Entities.ShopifyBatchStates.Add(newState);
             Entities.SaveChanges();
         }
         
@@ -54,19 +55,19 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         private static readonly object _lock = new object();
 
-        public UsrShopifyBatchState Retrieve()
+        public ShopifyBatchState Retrieve()
         {
             lock (_lock)
             {
                 var output =
                     _dataContext
                         .Entities
-                        .UsrShopifyBatchStates.FirstOrDefault();
+                        .ShopifyBatchStates.FirstOrDefault();
 
                 if (output == null)
                 {
-                    var newState = new UsrShopifyBatchState();
-                    Entities.UsrShopifyBatchStates.Add(newState);
+                    var newState = new ShopifyBatchState();
+                    Entities.ShopifyBatchStates.Add(newState);
                     return newState;
                 }
                 else

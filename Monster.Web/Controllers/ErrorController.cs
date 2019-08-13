@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Web.Mvc;
-using Monster.Middle.Attributes;
 using Monster.Web.Attributes;
 
 namespace Monster.Web.Controllers

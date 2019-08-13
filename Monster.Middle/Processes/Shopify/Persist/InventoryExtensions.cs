@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Product;
 

@@ -1,4 +1,4 @@
-﻿using Monster.Middle.Persist.Tenant;
+﻿using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 
 namespace Monster.Web.Models.Config

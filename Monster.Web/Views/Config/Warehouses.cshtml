@@ -4,7 +4,7 @@
     @Html.Partial("_TopBrand")
     
     <div data-bind="ifnot: IsJobRunning">
-        <div data-bind="if: WarehouseSyncState() == SystemState.None">
+        <div data-bind="if: WarehouseSyncState() == StateCode.None">
             <div data-bind="template: { name: 'Title-Section' }"></div>
 
             <div class="card">
@@ -25,7 +25,7 @@
             </div>
         </div>
 
-        <div data-bind="if: WarehouseSyncState() == SystemState.SystemFault">
+        <div data-bind="if: WarehouseSyncState() == StateCode.SystemFault">
             <div data-bind="template: { name: 'Title-Section' }"></div>
             <div class="card">
                 <div class="card-body">
@@ -41,8 +41,8 @@
             </div>
         </div>
 
-        <div data-bind="if: WarehouseSyncState() == SystemState.Ok ||
-                            WarehouseSyncState() == SystemState.Invalid">
+        <div data-bind="if: WarehouseSyncState() == StateCode.Ok ||
+                            WarehouseSyncState() == StateCode.Invalid">
 
             <div data-bind="template: { name: 'Sync-State-Details' }"></div>
         </div>
@@ -110,12 +110,12 @@
                     Refresh Warehouses &amp; Locations <i class="fas fa-bolt"></i></button>
             </div>
             
-            <div data-bind="if: WarehouseSyncState() == SystemState.Invalid">
+            <div data-bind="if: WarehouseSyncState() == StateCode.Invalid">
                 <div class="alert alert-danger">
                     <strong>Warehouse Location Synchronization - Unassigned Locations</strong>
                 </div>
             </div>
-            <div data-bind="if: WarehouseSyncState() == SystemState.Ok">
+            <div data-bind="if: WarehouseSyncState() == StateCode.Ok">
                 <div class="alert alert-info">
                     <strong>Warehouse Location Synchronization - Ok</strong>
                 </div>
@@ -206,18 +206,18 @@
         // Interface computed state
         self.NextButtonVisible = ko.computed(function () {
             return !self.IsRandomAccessMode() && 
-                (self.WarehouseSyncState() == SystemState.Invalid
-                || self.WarehouseSyncState() == SystemState.Ok);
+                (self.WarehouseSyncState() == StateCode.Invalid
+                || self.WarehouseSyncState() == StateCode.Ok);
         });
 
         self.SynchronizeVisible =  ko.computed(function () {
-            return (self.WarehouseSyncState() == SystemState.SystemFault ||
-                self.WarehouseSyncState() == SystemState.None);
+            return (self.WarehouseSyncState() == StateCode.SystemFault ||
+                self.WarehouseSyncState() == StateCode.None);
         });
 
         self.SaveButtonVisible = ko.computed(function() {
-            return (self.WarehouseSyncState() == SystemState.Invalid
-                || self.WarehouseSyncState() == SystemState.Ok)
+            return (self.WarehouseSyncState() == StateCode.Invalid
+                || self.WarehouseSyncState() == StateCode.Ok)
                 && self.IsRandomAccessMode();
         });
         

@@ -18,7 +18,7 @@
     </p>
 
     <div data-bind="ifnot: IsJobRunning">
-        <div data-bind="if: ReferenceDataState() == SystemState.None">
+        <div data-bind="if: ReferenceDataState() == StateCode.None">
             <p>
                 This next step will require you to configure Acumatica so that
                 @GlobalConfig.AppName can properly push Shopify data during
@@ -30,7 +30,7 @@
             <div data-bind="template: { name: 'Pdf-Download' }"></div>
         </div>
 
-        <div data-bind="if: ReferenceDataState() == SystemState.Ok">
+        <div data-bind="if: ReferenceDataState() == StateCode.Ok">
             <div class="alert alert-primary">
                 <strong>Acumatica Reference Data Pull - Successful</strong>
                 <br />
@@ -40,7 +40,7 @@
             <div data-bind="template: { name: 'Pdf-Download' }"></div>
         </div>
 
-        <div data-bind="if: ReferenceDataState() == SystemState.SystemFault">
+        <div data-bind="if: ReferenceDataState() == StateCode.SystemFault">
             <div class="alert alert-danger">
                 <strong>Acumatica Reference Data Pull - System Fault</strong><br />
                 Something is wrong with your Acumatica Connection.
@@ -54,7 +54,7 @@
             </p>
         </div>
 
-        <div data-bind="if: ReferenceDataState() == SystemState.Invalid">
+        <div data-bind="if: ReferenceDataState() == StateCode.Invalid">
             <div class="alert alert-danger">
                 <strong>Acumatica Reference Data Pull - Invalid Data</strong><br />
                 Your Acumatica instance data is not properly configured.
@@ -103,7 +103,7 @@
     </div>
 
     <script type="text/html" id="Pdf-Download">
-        <div data-bind="if: ReferenceDataState() != SystemState.Ok">
+        <div data-bind="if: ReferenceDataState() != StateCode.Ok">
             <p>
                 Download the following PDF document and execute all of the steps contained
                 therein to prepare your Acumatica instance for synchronization.
@@ -112,7 +112,7 @@
             </p>
         </div>
 
-        <div data-bind="if: ReferenceDataState() == SystemState.Ok">
+        <div data-bind="if: ReferenceDataState() == StateCode.Ok">
             <p>
                 You can download the following PDF document as a reference
                 in case you want to change the way your Acumatica instance
@@ -160,16 +160,16 @@
 
 
             self.HasReferenceDataBeenPulled = ko.computed(function () {
-                return self.ReferenceDataState() != SystemState.None;
+                return self.ReferenceDataState() != StateCode.None;
             });
 
             self.IsReferenceDataOk = ko.computed(function () {
-                return self.ReferenceDataState() == SystemState.Ok;
+                return self.ReferenceDataState() == StateCode.Ok;
             });
 
             self.IsReferenceDataBroken = ko.computed(function () {
-                return self.ReferenceDataState() == SystemState.SystemFault
-                    || self.ReferenceDataState() == SystemState.Invalid;
+                return self.ReferenceDataState() == StateCode.SystemFault
+                    || self.ReferenceDataState() == StateCode.Invalid;
             });
 
 

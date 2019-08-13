@@ -1,6 +1,8 @@
 ﻿using Hangfire;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Logging;
+using BackgroundJob = Hangfire.BackgroundJob;
 
 namespace Monster.ConsoleApp
 {

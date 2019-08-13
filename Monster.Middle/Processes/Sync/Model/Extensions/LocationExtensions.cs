@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api.Distribution;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Shopify.Api.Inventory;
 

@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using Autofac;
 using Monster.Acumatica.Http;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;

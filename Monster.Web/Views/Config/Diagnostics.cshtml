@@ -89,22 +89,22 @@
     <span data-bind="text: Name"></span>
 
     <span class="diagnosis-item">
-        <span data-bind="if: ConfigState == SystemState.Ok">
+        <span data-bind="if: ConfigState == StateCode.Ok">
             <span class="badge badge-success">
                 OK <i class="fas fa-check"></i>
             </span>
         </span>
-        <span data-bind="if: ConfigState == SystemState.None">
+        <span data-bind="if: ConfigState == StateCode.None">
             <span class="badge badge-danger">
                 None <i class="fas fa-times"></i>
             </span>
         </span>
-        <span data-bind="if: ConfigState == SystemState.SystemFault">
+        <span data-bind="if: ConfigState == StateCode.SystemFault">
             <span class="badge badge-danger">
                 System Fault <i class="fas fa-times"></i>
             </span>
         </span>
-        <span data-bind="if: ConfigState == SystemState.Invalid">
+        <span data-bind="if: ConfigState == StateCode.Invalid">
             <span class="badge badge-danger">
                 Invalid <i class="fas fa-times"></i>
             </span>

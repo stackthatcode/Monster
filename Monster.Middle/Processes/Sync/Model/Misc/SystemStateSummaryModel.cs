@@ -10,11 +10,11 @@
         public int InventoryPull { get; set; }
         
         public bool IsReadyForRealTimeSync =>
-                this.ShopifyConnection == SystemState.Ok
-                && this.AcumaticaConnection == SystemState.Ok
-                && this.AcumaticaReferenceData == SystemState.Ok
-                && this.PreferenceSelections == SystemState.Ok
-                && this.WarehouseSync == SystemState.Ok;
-                // && this.InventoryPull == SystemState.Ok;
+                this.ShopifyConnection == StateCode.Ok
+                && this.AcumaticaConnection == StateCode.Ok
+                && this.AcumaticaReferenceData == StateCode.Ok
+                && this.PreferenceSelections == StateCode.Ok
+                && this.WarehouseSync == StateCode.Ok;
+                // && this.InventoryPull == StateCode.Ok;
     }
 }

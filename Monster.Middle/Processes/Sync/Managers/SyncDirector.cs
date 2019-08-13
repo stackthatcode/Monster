@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Monster.Middle.Hangfire;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
@@ -20,7 +20,7 @@ namespace Monster.Middle.Processes.Sync.Managers
     public class SyncDirector
     {
         private readonly ConnectionRepository _connectionRepository;
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly ReferenceDataService _referenceDataService;
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
@@ -34,7 +34,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public SyncDirector(
                 ConnectionRepository connectionRepository,
-                SystemStateRepository stateRepository,
+                StateRepository stateRepository,
 
                 AcumaticaManager acumaticaManager, 
                 ShopifyManager shopifyManager, 
@@ -71,12 +71,12 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 _executionLogService.InsertExecutionLog("Testing Shopify Connection");
                 _shopifyManager.TestConnection();
-                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, SystemState.Ok);
+                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, SystemState.SystemFault);
+                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
             }
         }
 
@@ -87,13 +87,13 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _executionLogService.InsertExecutionLog("Testing Acumatica Connection");
                 _acumaticaManager.TestConnection();
                 _stateRepository.UpdateSystemState(
-                        x => x.AcumaticaConnState, SystemState.Ok);
+                        x => x.AcumaticaConnState, StateCode.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
                 _stateRepository.UpdateSystemState(
-                        x => x.AcumaticaConnState, SystemState.SystemFault);
+                        x => x.AcumaticaConnState, StateCode.SystemFault);
             }
         }
 
@@ -105,13 +105,13 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _acumaticaManager.PullReferenceData();
                 
                 _stateRepository.UpdateSystemState(
-                        x => x.AcumaticaRefDataState, SystemState.Ok);
+                        x => x.AcumaticaRefDataState, StateCode.Ok);
 
                 var preferences = _preferencesRepository.RetrievePreferences();
                 _referenceDataService.FilterPreferencesAgainstRefData(preferences);
                 _connectionRepository.SaveChanges();
 
-                var state = preferences.AreValid() ? SystemState.Ok : SystemState.Invalid;
+                var state = preferences.AreValid() ? StateCode.Ok : StateCode.Invalid;
 
                 _stateRepository.UpdateSystemState(x => x.PreferenceState, state);
             }
@@ -120,7 +120,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _logger.Error(ex);
 
                 _stateRepository.UpdateSystemState(
-                        x => x.AcumaticaRefDataState, SystemState.SystemFault);
+                        x => x.AcumaticaRefDataState, StateCode.SystemFault);
             }
         }
 
@@ -145,7 +145,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _logger.Error(ex);
 
                 _stateRepository.UpdateSystemState(
-                        x => x.WarehouseSyncState, SystemState.SystemFault);
+                        x => x.WarehouseSyncState, StateCode.SystemFault);
             }
         }
 
@@ -167,14 +167,14 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _shopifyManager.PullInventory();
                 _acumaticaManager.PullInventory();
                 
-                _stateRepository.UpdateSystemState(x => x.InventoryPullState, SystemState.Ok);
+                _stateRepository.UpdateSystemState(x => x.InventoryPullState, StateCode.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
 
                 _stateRepository.UpdateSystemState(
-                        x => x.InventoryPullState, SystemState.SystemFault);
+                        x => x.InventoryPullState, StateCode.SystemFault);
             }
         }
         

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Hangfire;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Helpers;
 
@@ -7,11 +8,11 @@ namespace Monster.Middle.Hangfire
 {
     public class JobStatusService
     {
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly JobRepository _jobRepository;
 
         public JobStatusService(
-                SystemStateRepository stateRepository, JobRepository jobRepository)
+                StateRepository stateRepository, JobRepository jobRepository)
         {
             _stateRepository = stateRepository;
             _jobRepository = jobRepository;

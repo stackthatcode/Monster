@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Instance;
 
 namespace Monster.Middle.Hangfire
 {
@@ -33,19 +34,19 @@ namespace Monster.Middle.Hangfire
             return RetrieveBackgroundJob(backgroundJobType) != null;
         }
 
-        public UsrBackgroundJob RetrieveBackgroundJob(int backgroundJobType)
+        public BackgroundJob RetrieveBackgroundJob(int backgroundJobType)
         {
             return Entities
-                .UsrBackgroundJobs
+                .BackgroundJobs
                 .FirstOrDefault(x => x.BackgroundJobType == backgroundJobType);
         }
 
-        public List<UsrBackgroundJob> RetrieveBackgroundJobs()
+        public List<BackgroundJob> RetrieveBackgroundJobs()
         {
-            return Entities.UsrBackgroundJobs.ToList();
+            return Entities.BackgroundJobs.ToList();
         }
 
-        public UsrBackgroundJob
+        public BackgroundJob
                     InsertBackgroundJob(int backgroundJobType, string hangFireJobId)
         {
             if (Exists(backgroundJobType))
@@ -53,7 +54,7 @@ namespace Monster.Middle.Hangfire
                 RemoveBackgroundJobs(backgroundJobType);
             }
             
-            var newJob = new UsrBackgroundJob()
+            var newJob = new BackgroundJob()
             {
                 BackgroundJobType = backgroundJobType,
                 HangFireJobId = hangFireJobId,
@@ -61,7 +62,7 @@ namespace Monster.Middle.Hangfire
                 LastUpdated = DateTime.UtcNow,
             };
 
-            Entities.UsrBackgroundJobs.Add(newJob);
+            Entities.BackgroundJobs.Add(newJob);
             Entities.SaveChanges();
             return newJob;
         }
@@ -69,13 +70,13 @@ namespace Monster.Middle.Hangfire
         public void RemoveBackgroundJobs(int backgroundJobType)
         {
             var jobs = Entities
-                .UsrBackgroundJobs
+                .BackgroundJobs
                 .Where(x => x.BackgroundJobType == backgroundJobType)
                 .ToList();
 
             foreach (var job in jobs)
             {
-                Entities.UsrBackgroundJobs.Remove(job);
+                Entities.BackgroundJobs.Remove(job);
                 Entities.SaveChanges();
             }
         }

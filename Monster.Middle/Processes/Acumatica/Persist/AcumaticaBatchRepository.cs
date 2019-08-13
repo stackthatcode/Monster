@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Instance;
 
 namespace Monster.Middle.Processes.Acumatica.Persist
 {
@@ -18,15 +19,15 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         public void Reset()
         {
             var existingState
-                = Entities.UsrAcumaticaBatchStates.FirstOrDefault();
+                = Entities.AcumaticaBatchStates.FirstOrDefault();
 
             if (existingState != null)
             {
-                Entities.UsrAcumaticaBatchStates.Remove(existingState);
+                Entities.AcumaticaBatchStates.Remove(existingState);
             }
 
-            var newState = new UsrAcumaticaBatchState();
-            Entities.UsrAcumaticaBatchStates.Add(newState);
+            var newState = new AcumaticaBatchState();
+            Entities.AcumaticaBatchStates.Add(newState);
             Entities.SaveChanges();
         }
 
@@ -60,17 +61,17 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         
 
 
-        public UsrAcumaticaBatchState Retrieve()
+        public AcumaticaBatchState Retrieve()
         {
             var output =
                 _dataContext
                     .Entities
-                    .UsrAcumaticaBatchStates.FirstOrDefault();
+                    .AcumaticaBatchStates.FirstOrDefault();
 
             if (output == null)
             {
-                var newState = new UsrAcumaticaBatchState();
-                Entities.UsrAcumaticaBatchStates.Add(newState);
+                var newState = new AcumaticaBatchState();
+                Entities.AcumaticaBatchStates.Add(newState);
                 return newState;
             }
             else

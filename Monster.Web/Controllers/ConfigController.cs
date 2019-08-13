@@ -2,9 +2,8 @@
 using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
-using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Sync.Model.Config;
@@ -13,6 +12,7 @@ using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
+using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Monster.Web.Plumbing;
@@ -24,8 +24,8 @@ namespace Monster.Web.Controllers
     [IdentityProcessor]
     public class ConfigController : Controller
     {
-        private readonly ConnectionRepository _tenantRepository;
-        private readonly SystemStateRepository _stateRepository;
+        private readonly ConnectionRepository _connectionRepository;
+        private readonly StateRepository _stateRepository;
 
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
@@ -38,8 +38,8 @@ namespace Monster.Web.Controllers
         private readonly SyncInventoryRepository _syncInventoryRepository;
 
         public ConfigController(
-                ConnectionRepository tenantRepository,
-                SystemStateRepository stateRepository,
+                ConnectionRepository connectionRepository,
+                StateRepository stateRepository,
 
                 ExecutionLogService logRepository,
                 OneTimeJobService oneTimeJobService,
@@ -53,7 +53,7 @@ namespace Monster.Web.Controllers
                 SyncInventoryRepository syncInventoryRepository)
         {
 
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _stateRepository = stateRepository;
             _oneTimeJobService = oneTimeJobService;
 
@@ -66,15 +66,7 @@ namespace Monster.Web.Controllers
             _jobStatusService = jobStatusService;
         }
 
-        
-        // The welcome page
-        //
-        [HttpGet]
-        public ActionResult Splash()
-        {
-            return View();
-        }
-        
+
         // Acumatica Connection (credentials stuff...)
         //        
         [HttpGet]
@@ -103,7 +95,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult AcumaticaCredentials()
         {
-            var tenant = _tenantRepository.Retrieve();
+            var tenant = _connectionRepository.Retrieve();
 
             var model = new AcumaticaCredentialsModel()
             {
@@ -127,16 +119,14 @@ namespace Monster.Web.Controllers
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
 
-            if (state.IsAcumaticaUrlFinalized)
+            if (state.AcumaticaConnState != StateCode.None)
             {
-                _tenantRepository
-                    .UpdateAcumaticaCredentials(
-                        model.UserName,
-                        model.Password);
+                _connectionRepository
+                    .UpdateAcumaticaCredentials(model.UserName, model.Password);
             }
             else
             {
-                _tenantRepository
+                _connectionRepository
                     .UpdateAcumaticaCredentials(
                         model.InstanceUrl,
                         model.Company,
@@ -220,9 +210,9 @@ namespace Monster.Web.Controllers
             data.AcumaticaTaxId = model.AcumaticaTaxId;
             data.AcumaticaTaxZone = model.AcumaticaTaxZone;
 
-            _tenantRepository.SaveChanges();
+            _connectionRepository.SaveChanges();
 
-            var state = data.AreValid() ? SystemState.Ok : SystemState.Invalid;
+            var state = data.AreValid() ? StateCode.Ok : StateCode.Invalid;
             _stateRepository.UpdateSystemState(x => x.PreferenceState, state);
 
             return JsonNetResult.Success();

@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Model.Misc

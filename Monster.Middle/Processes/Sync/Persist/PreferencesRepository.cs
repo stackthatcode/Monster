@@ -1,5 +1,6 @@
 ﻿using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Instance;
 
 namespace Monster.Middle.Processes.Sync.Persist
 {
@@ -16,25 +17,25 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         static readonly object PreferencesLock = new object();
 
-        public UsrPreference RetrievePreferences()
+        public Preference RetrievePreferences()
         {
             lock (PreferencesLock)
             {
-                if (!Entities.UsrPreferences.Any())
+                if (!Entities.Preferences.Any())
                 {
-                    var preferences = new UsrPreference();
+                    var preferences = new Preference();
                     preferences.SyncOrdersEnabled = true;
                     preferences.SyncInventoryEnabled = true;
                     preferences.SyncRefundsEnabled = true;
                     preferences.SyncShipmentsEnabled = true;
                     preferences.MaxParallelAcumaticaSyncs = 1;
 
-                    Entities.UsrPreferences.Add(preferences);
+                    Entities.Preferences.Add(preferences);
                     return preferences;
                 }
             }
 
-            return Entities.UsrPreferences.First();
+            return Entities.Preferences.First();
         }
 
         public void SaveChanges()

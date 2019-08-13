@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Sync.Model.Config;
 using Monster.Middle.Processes.Sync.Model.Extensions;
@@ -12,14 +13,14 @@ namespace Monster.Middle.Processes.Sync.Status
     public class ConfigStatusService
     {
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly ReferenceDataService _referenceDataService;
         
 
         public ConfigStatusService(
                 SyncInventoryRepository syncInventoryRepository, 
                 ReferenceDataService referenceDataService,
-                SystemStateRepository stateRepository)
+                StateRepository stateRepository)
         {
             _syncInventoryRepository = syncInventoryRepository;
             _stateRepository = stateRepository;
@@ -60,11 +61,9 @@ namespace Monster.Middle.Processes.Sync.Status
             var status = WarehouseSyncStatus();
 
             // TODO - maybe guard against transistions from SystemFault state... maybe
-
-            var systemState = status.IsOk ? SystemState.Ok : SystemState.Invalid;
-
+            //
+            var systemState = status.IsOk ? StateCode.Ok : StateCode.Invalid;
             _stateRepository.UpdateSystemState(x => x.WarehouseSyncState, systemState);
-
         }
 
 
@@ -75,7 +74,7 @@ namespace Monster.Middle.Processes.Sync.Status
             var model = new AcumaticaConnectionState()
             {
                 ConnectionState = state.AcumaticaConnState,
-                IsUrlFinalized = state.IsAcumaticaUrlFinalized,
+                IsUrlFinalized = state.AcumaticaConnState != StateCode.None,
                 IsRandomAccessMode = state.IsRandomAccessMode,
             };
 

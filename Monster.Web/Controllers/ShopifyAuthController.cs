@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using Monster.Middle.Attributes;
-using Monster.Middle.Hangfire;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
+using Monster.Web.Attributes;
 using Monster.Web.Models.ShopifyAuth;
 using Monster.Web.Plumbing;
 using Push.Foundation.Utilities.General;
@@ -26,9 +24,9 @@ namespace Monster.Web.Controllers
     public class ShopifyAuthController : Controller
     {
         private readonly OAuthApi _oAuthApi;
-        private readonly ConnectionRepository _tenantRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly ShopifyHttpContext _shopifyHttpContext;
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
         private readonly HmacCryptoService _hmacCrypto;
         
@@ -55,33 +53,41 @@ namespace Monster.Web.Controllers
         public ShopifyAuthController(
                 IPushLogger logger, 
                 OAuthApi oAuthApi, 
-                ConnectionRepository tenantRepository, 
+                ConnectionRepository connectionRepository, 
                 ShopifyHttpContext shopifyHttpContext, 
-                SystemStateRepository stateRepository, 
+                StateRepository stateRepository, 
                 HmacCryptoService hmacCrypto)
         {
             _logger = logger;
             _oAuthApi = oAuthApi;
-            _tenantRepository = tenantRepository;
+            _connectionRepository = connectionRepository;
             _shopifyHttpContext = shopifyHttpContext;
             _stateRepository = stateRepository;
             _hmacCrypto = hmacCrypto;
         }
-        
+
+
+        // The welcome page
+        //
+        [HttpGet]
+        public ActionResult Splash()
+        {
+            return View();
+        }
+
 
         [HttpGet]
         public ActionResult Domain()
         {
-            var tenant = _tenantRepository.Retrieve();
+            var tenant = _connectionRepository.Retrieve();
             var state = _stateRepository.RetrieveSystemStateNoTracking();
 
             var model = new DomainModel();
 
-            model.IsShopifyConnectionOk = state.ShopifyConnState == SystemState.Ok;
+            model.IsShopifyConnectionOk = state.ShopifyConnState == StateCode.Ok;
             model.IsShopifyConnectionBroken = state.ShopifyConnState.IsBroken();
 
             model.IsRandomAccessMode = state.IsRandomAccessMode;
-            model.IsShopifyUrlFinalized = state.IsShopifyUrlFinalized;
             model.ShopDomain = tenant.ShopifyDomain;
 
             return View(model);
@@ -99,9 +105,9 @@ namespace Monster.Web.Controllers
             string fullShopDomain;
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             
-            if (state.IsShopifyUrlFinalized)
+            if (state.ShopifyConnState != StateCode.None)
             {
-                var tenant = _tenantRepository.Retrieve();
+                var tenant = _connectionRepository.Retrieve();
                 fullShopDomain = tenant.ShopifyDomain;
             }
             else
@@ -125,7 +131,6 @@ namespace Monster.Web.Controllers
             return Redirect(finalUrl);
         }
         
-
         public ActionResult Return(string code, string shop, string returnUrl)
         {
             // Not to be confused with the Shopify HMAC security check
@@ -134,12 +139,13 @@ namespace Monster.Web.Controllers
             var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
 
             // Did the User hit the Back Button...?
-            if (_tenantRepository.IsSameAuthCode(codeHash))
+            if (_connectionRepository.IsSameAuthCode(codeHash))
             {
                 return Redirect("Domain");
             }
 
-            // Get Key and Secret credentials from config file
+            // Get Key and Secret credentials from config file - and there is not Instance-specific.
+            // 
             var credentials = ShopifyCredentialsConfig.Settings.ToApiKeyAndSecret(shop);
             _shopifyHttpContext.Initialize(credentials);
 
@@ -153,18 +159,22 @@ namespace Monster.Web.Controllers
                 // Get Access Token from Shopify and store
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
 
+                // TODO - attempt to match with ASP.NET User and Instance
+
+                // TODO - Initialize Connection for Instance
+
                 // Save Access Token and update State
-                _tenantRepository
+                _connectionRepository
                     .UpdateShopifyCredentials(shop, accessToken, codeHash);
 
                 _stateRepository
-                    .UpdateSystemState(x => x.ShopifyConnState, SystemState.Ok);
+                    .UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
                 _stateRepository
-                    .UpdateSystemState(x => x.ShopifyConnState, SystemState.SystemFault);
+                    .UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
 
                 return Redirect("Domain");
             }
@@ -198,6 +208,6 @@ namespace Monster.Web.Controllers
             // ... and compare
             return hashedResult == shopifyHmacHash;
         }
-
     }
 }
+

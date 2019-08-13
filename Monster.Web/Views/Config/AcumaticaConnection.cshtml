@@ -265,16 +265,16 @@ Monster.AcumaticaConnectionModel = function() {
 
 
     self.HasConnectionBeenSet = ko.computed(function() {
-        return self.ConnectionState() != SystemState.None;
+        return self.ConnectionState() != StateCode.None;
     });
 
     self.IsConnectionOk = ko.computed(function() {
-        return self.ConnectionState() == SystemState.Ok;
+        return self.ConnectionState() == StateCode.Ok;
     });
 
     self.IsConnectionBroken = ko.computed(function() {
-        return self.ConnectionState() == SystemState.SystemFault
-            || self.ConnectionState() == SystemState.Invalid;
+        return self.ConnectionState() == StateCode.SystemFault
+            || self.ConnectionState() == StateCode.Invalid;
     });
 
 
@@ -391,7 +391,7 @@ Monster.AcumaticaConnectionModel = function() {
             return;
         }
 
-        if (self.ConnectionState() == SystemState.None) {
+        if (self.ConnectionState() == StateCode.None) {
             self.ChangeSettingsClick();
         } else {
             self.ShowStatusPanel();

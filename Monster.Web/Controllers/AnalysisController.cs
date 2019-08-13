@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
-using Monster.Middle.Attributes;
+﻿using System.Web.Mvc;
 using Monster.Middle.Hangfire;
-using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
+using Monster.Web.Attributes;
 using Monster.Web.Models;
-using Monster.Web.Models.RealTime;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
 
@@ -18,7 +15,7 @@ namespace Monster.Web.Controllers
     [IdentityProcessor]
     public class AnalysisController : Controller
     {
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
         private readonly JobStatusService _jobStatusService;
         private readonly ConfigStatusService _statusService;
@@ -26,7 +23,7 @@ namespace Monster.Web.Controllers
         private readonly IPushLogger _logger;
 
         public AnalysisController(
-                SystemStateRepository stateRepository,
+                StateRepository stateRepository,
                 OneTimeJobService oneTimeJobService,
                 RecurringJobService recurringJobService,
                 JobStatusService jobStatusService,

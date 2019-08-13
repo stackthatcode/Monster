@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Hangfire;
-using Monster.Middle.Persist.Master;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Inventory;
-using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
+using BackgroundJob = Hangfire.BackgroundJob;
 
 
 namespace Monster.Middle.Hangfire
@@ -13,13 +11,13 @@ namespace Monster.Middle.Hangfire
     public class OneTimeJobService
     {
         private readonly ConnectionContext _tenantContext;
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly JobRepository _jobRepository;
 
 
         public OneTimeJobService(
             ConnectionContext tenantContext,
-            SystemStateRepository stateRepository, 
+            StateRepository stateRepository, 
             JobRepository jobRepository)
         {
             _tenantContext = tenantContext;

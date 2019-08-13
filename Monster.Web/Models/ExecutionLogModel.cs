@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 
 namespace Monster.Web.Models
 {
@@ -9,7 +9,7 @@ namespace Monster.Web.Models
         public string LogTime { get; set; }
         public string Content { get; set; }
 
-        public ExecutionLogModel(UsrExecutionLog entity)
+        public ExecutionLogModel(ExecutionLog entity)
         {
             LogTime = entity.DateCreated.ToString();
             Content = entity.LogContent;
@@ -19,7 +19,7 @@ namespace Monster.Web.Models
     public static class ExecutionLogModelExtensions
     {
         public static List<ExecutionLogModel> 
-                ToModel(this IEnumerable<UsrExecutionLog> input)
+                ToModel(this IEnumerable<ExecutionLog> input)
         {
             return input.Select(x => new ExecutionLogModel(x)).ToList();
         }

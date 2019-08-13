@@ -2,13 +2,14 @@
 using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
-using Monster.Middle.Attributes;
 using Monster.Middle.Hangfire;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
+using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Monster.Web.Models.RealTime;
@@ -21,7 +22,7 @@ namespace Monster.Web.Controllers
     [IdentityProcessor]
     public class RealTimeController : Controller
     {
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
         private readonly RecurringJobService _recurringJobService;
@@ -35,7 +36,7 @@ namespace Monster.Web.Controllers
         private readonly IPushLogger _logger;
 
         public RealTimeController(
-                SystemStateRepository stateRepository,
+                StateRepository stateRepository,
                 OneTimeJobService oneTimeJobService,
                 RecurringJobService recurringJobService,
                 JobStatusService jobStatusService,

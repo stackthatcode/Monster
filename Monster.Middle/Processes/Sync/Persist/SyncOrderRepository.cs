@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Shopify.Api.Transactions;
@@ -28,7 +29,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         //
         public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
-            var preferences = Entities.UsrPreferences.First();
+            var preferences = Entities.Preferences.First();
             var orderNumberStart = preferences.ShopifyOrderNumberStart ?? 0;
 
             return Entities

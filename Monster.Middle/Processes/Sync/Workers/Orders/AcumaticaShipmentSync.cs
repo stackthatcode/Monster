@@ -4,7 +4,7 @@ using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Shipment;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
         private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
 
         public AcumaticaShipmentSync(
@@ -36,7 +36,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     ShopifyOrderRepository shopifyOrderRepository,
                     AcumaticaShipmentPull acumaticaShipmentPull,
                     ShipmentClient shipmentClient, 
-                    SystemStateRepository stateRepository, 
+                    StateRepository stateRepository, 
                     ExecutionLogService logRepository)
         {
             _orderRepository = orderRepository;

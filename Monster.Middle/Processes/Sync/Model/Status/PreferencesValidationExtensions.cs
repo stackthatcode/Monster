@@ -1,4 +1,4 @@
-﻿using Monster.Middle.Persist.Tenant;
+﻿using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
@@ -6,7 +6,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
     public static class PreferencesValidationExtensions
     {
         // Seems obvious that we'll provide more detail for the future..
-        public static bool AreValid(this UsrPreference preferences)
+        public static bool AreValid(this Preference preferences)
         {
             return preferences.AcumaticaTimeZone.HasValue()
                    && preferences.AcumaticaDefaultItemClass.HasValue()

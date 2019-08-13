@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Instance;
 
 namespace Monster.Middle.Processes.Acumatica.Persist
 {
@@ -19,19 +20,19 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Reference data
         static object RefDataLock = new object();
-        public UsrAcumaticaRefData RetrieveReferenceData()
+        public AcumaticaRefData RetrieveReferenceData()
         {
             lock (RefDataLock)
             {
-                if (!_dataContext.Entities.UsrAcumaticaRefDatas.Any())
+                if (!_dataContext.Entities.AcumaticaRefDatas.Any())
                 {
-                    var newdata = new UsrAcumaticaRefData();
-                    _dataContext.Entities.UsrAcumaticaRefDatas.Add(newdata);
+                    var newdata = new AcumaticaRefData();
+                    _dataContext.Entities.AcumaticaRefDatas.Add(newdata);
                     _dataContext.Entities.SaveChanges();
                 }
             }
 
-            return _dataContext.Entities.UsrAcumaticaRefDatas.First();
+            return _dataContext.Entities.AcumaticaRefDatas.First();
         }
 
 

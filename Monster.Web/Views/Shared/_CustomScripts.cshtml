@@ -10,10 +10,10 @@
     Monster.BaseUrl = '@GlobalConfig.BaseUrl';
 
     var SystemState = SystemState || {};
-    SystemState.None = @SystemState.None;
-    SystemState.Ok = @SystemState.Ok;
-    SystemState.Invalid = @SystemState.Invalid;
-    SystemState.SystemFault = @SystemState.SystemFault;
+    StateCode.None = @StateCode.None;
+    StateCode.Ok = @StateCode.Ok;
+    StateCode.Invalid = @StateCode.Invalid;
+    StateCode.SystemFault = @StateCode.SystemFault;
 </script>
 @Scripts.Render("~/Scripts/AjaxFunctions.js?tmp=" + Guid.NewGuid())
 @Scripts.Render("~/Scripts/UtilityFunctions.js?tmp=" + Guid.NewGuid())

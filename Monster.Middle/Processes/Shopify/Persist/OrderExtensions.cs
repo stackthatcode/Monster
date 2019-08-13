@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Shopify.Persist

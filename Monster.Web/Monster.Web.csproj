@@ -214,6 +214,7 @@
     <Compile Include="Attributes\ValidateJsonAntiForgeryTokenAttribute.cs" />
     <Compile Include="Controllers\AnalysisController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\PublicController.cs" />
     <Compile Include="Controllers\RealTimeController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\ShopifyAuthController.cs" />
@@ -346,7 +347,7 @@
     <Content Include="Views\Shared\_TopBrand.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\Splash.cshtml" />
+    <Content Include="Views\Public\Splash.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\AcumaticaRefData.cshtml" />

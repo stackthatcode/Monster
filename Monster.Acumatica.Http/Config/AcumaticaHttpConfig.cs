@@ -10,7 +10,7 @@ namespace Monster.Acumatica.Config
         private const int DefaultMaxAttempts = 3;
         private const int DefaultTimeout = 180000;
         private const int DefaultThrottlingDelay = 250;
-        private const string DefaultVersionSegment = "/entity/Monster/17.200.001/";
+        private const string DefaultVersionSegment = "/entity/Default/17.200.001/";
         private const int DefaultPageSize = 50;
 
         private static readonly

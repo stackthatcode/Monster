@@ -1,7 +1,7 @@
 ﻿using System;
 using Hangfire;
 using Monster.Middle.Persist.Master;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Helpers;
@@ -14,14 +14,14 @@ namespace Monster.Middle.Hangfire
     {
         private readonly ConnectionContext _tenantContext;
         private readonly ConnectionRepository _connectionRepository;
-        private readonly SystemStateRepository _stateRepository;
+        private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _executionLogService;
 
 
         public RecurringJobService(
                 ConnectionContext tenantContext,
                 ConnectionRepository connectionRepository,
-                SystemStateRepository stateRepository, 
+                StateRepository stateRepository, 
                 ExecutionLogService executionLogService,
                 IPushLogger logger)
         {

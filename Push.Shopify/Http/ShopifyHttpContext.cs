@@ -69,6 +69,7 @@ namespace Push.Shopify.Http
             _httpClient.Timeout = new TimeSpan(0, 0, 0, _settings.Timeout);
 
             // Key and Secret authentication, for purpose of retrieving OAuth access token
+            //
             if (credentials is ApiKeyAndSecret)
             {
                 var oAuthKeyAndSecret = credentials as ApiKeyAndSecret;
@@ -80,6 +81,7 @@ namespace Push.Shopify.Http
             }
 
             // Authentication using OAuth access token
+            //
             if (credentials is OAuthAccessToken)
             {
                 var accessTokenCred = credentials as OAuthAccessToken;
@@ -88,6 +90,7 @@ namespace Push.Shopify.Http
             }
 
             // Authentication using Key Credentials i.e. Shopify private app
+            //
             if (credentials is PrivateAppCredentials)
             {
                 var privateAppCreds = credentials as PrivateAppCredentials;

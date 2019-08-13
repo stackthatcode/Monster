@@ -4,8 +4,9 @@ using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Hangfire;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
@@ -154,7 +155,7 @@ namespace Monster.Middle
             
             // Services
             builder.RegisterType<UrlService>().InstancePerLifetimeScope();            
-            builder.RegisterType<SystemStateRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
             builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();

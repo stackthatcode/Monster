@@ -1,4 +1,4 @@
-﻿using Monster.Middle.Persist.Tenant;
+﻿using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Transactions;
 

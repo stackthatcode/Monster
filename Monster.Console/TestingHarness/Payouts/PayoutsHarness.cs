@@ -17,7 +17,7 @@
         //            tenantContext.Initialize(tenantId);
 
         //            // Get the Installation's 
-        //            var tenantContextRepository = scope.Resolve<TenantRepository>();
+        //            var tenantContextRepository = scope.Resolve<connectionRepository>();
         //            var credentials = tenantContextRepository.RetrieveAcumaticaCredentials();
 
         //            // Load Payout configuration into Bank Import Service

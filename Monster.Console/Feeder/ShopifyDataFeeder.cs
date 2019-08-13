@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;

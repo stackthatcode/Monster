@@ -3,8 +3,9 @@ using System.Windows.Forms;
 using Autofac;
 using Monster.Middle;
 using Monster.Middle.Config;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
 
@@ -253,6 +254,11 @@ namespace Push.Foundation
 
                 this.textSummary.Text = output;
             });
+
+        }
+
+        private void TextMonsterSystemConnstr_TextChanged(object sender, EventArgs e)
+        {
 
         }
     }        

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Monster.Acumatica.Api.Distribution;
-using Monster.Middle.Persist.Tenant;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
