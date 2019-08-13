@@ -164,7 +164,7 @@
     <Compile Include="Helpers\QueryStringBuilder.cs" />
     <Compile Include="Mvc\RouteValueDictionaryExtensions.cs" />
     <Compile Include="Helpers\UrlExtensions.cs" />
-    <Compile Include="Identity\IdentityDbContext.cs" />
+    <Compile Include="Identity\PushIdentityDbContext.cs" />
     <Compile Include="Identity\IdentityRoleManager.cs" />
     <Compile Include="Identity\IdentitySignInManager.cs" />
     <Compile Include="Identity\IdentityUserManager.cs" />

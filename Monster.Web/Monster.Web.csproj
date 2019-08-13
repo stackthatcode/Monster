@@ -232,7 +232,7 @@
     <Compile Include="Models\RealTime\FilterSelectedType.cs" />
     <Compile Include="Models\RealTime\OrderSyncSummary.cs" />
     <Compile Include="Models\RealTime\LocationModel.cs" />
-    <Compile Include="Models\ShopifyAuth\DomainModel.cs" />
+    <Compile Include="Models\ShopifyAuth\ShopifyDomainModel.cs" />
     <Compile Include="Models\ShopifyAuth\ReturnModel.cs" />
     <Compile Include="Models\Config\WarehouseSyncStatusModel.cs" />
     <Compile Include="Plumbing\GlobalConfig.cs" />

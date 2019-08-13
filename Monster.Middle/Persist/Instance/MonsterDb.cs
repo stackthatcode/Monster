@@ -859,6 +859,7 @@ namespace Monster.Middle.Persist.Instance
     {
         public long Id { get; set; } // Id (Primary key)
         public int ShopifyConnState { get; set; } // ShopifyConnState
+        public bool IsShopifyUrlFinalized { get; set; } // IsShopifyUrlFinalized
         public int AcumaticaConnState { get; set; } // AcumaticaConnState
         public int AcumaticaRefDataState { get; set; } // AcumaticaRefDataState
         public int PreferenceState { get; set; } // PreferenceState
@@ -2202,6 +2203,7 @@ namespace Monster.Middle.Persist.Instance
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyConnState).HasColumnName(@"ShopifyConnState").HasColumnType("int").IsRequired();
+            Property(x => x.IsShopifyUrlFinalized).HasColumnName(@"IsShopifyUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.AcumaticaConnState).HasColumnName(@"AcumaticaConnState").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaRefDataState).HasColumnName(@"AcumaticaRefDataState").HasColumnType("int").IsRequired();
             Property(x => x.PreferenceState).HasColumnName(@"PreferenceState").HasColumnType("int").IsRequired();

@@ -88,12 +88,34 @@ namespace Monster.ConsoleApp
         }
 
 
+        static void ProvisionNewUserAccount(string userName, string shopifyDomain)
+        {
+            // TODO ...
+        }
 
         static void RunShopifyOrderFeeder()
         {
+            RunInLifetimeScope(
+                scope =>
+                {
+                    var feeder = scope.Resolve<ShopifyDataFeeder>();
+                    feeder.Run();
+                },
+                builder =>
+                {
+                    builder.RegisterType<ShopifyDataFeeder>().InstancePerLifetimeScope();
+                });
+        }
+
+        static void RunInLifetimeScope(
+                Action<ILifetimeScope> action,  Action<ContainerBuilder> builderPreExec = null)
+        {
             var builder = new ContainerBuilder();
             MiddleAutofac.Build(builder);
-            builder.RegisterType<ShopifyDataFeeder>().InstancePerLifetimeScope();
+            if (builderPreExec != null)
+            {
+                builderPreExec(builder);
+            }
             var container = builder.Build();
             using (var scope = container.BeginLifetimeScope())
             {
@@ -101,8 +123,7 @@ namespace Monster.ConsoleApp
 
                 try
                 {
-                    var feeder = scope.Resolve<ShopifyDataFeeder>();
-                    feeder.Run();
+                    action(scope);
                 }
                 catch (Exception ex)
                 {

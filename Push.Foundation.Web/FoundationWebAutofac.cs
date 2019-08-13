@@ -26,8 +26,8 @@ namespace Push.Foundation.Web
         {
             // OWIN framework objects
             builder
-                .RegisterType<Identity.IdentityDbContext>()
-                .As<Identity.IdentityDbContext>()
+                .RegisterType<Identity.PushIdentityDbContext>()
+                .As<Identity.PushIdentityDbContext>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<IdentityRoleManager>();
@@ -48,6 +48,7 @@ namespace Push.Foundation.Web
 
 
             // Standard ASP.NET OWIN data protection dependencies
+            //
             builder
                 .RegisterType<MachineKeyProtectionProvider>()
                 .As<IDataProtectionProvider>();
@@ -57,11 +58,6 @@ namespace Push.Foundation.Web
                 .As<IDataProtector>();
 
             builder.RegisterType<DataProtectorTokenProvider<ApplicationUser>>();
-
-            // These are stubbed out with "do nothing" services. Consumers of this library
-            // ... can easily register/inject their own appropriate implementation.
-            builder.RegisterType<EmailService>().As<IIdentityMessageService>();
-            builder.RegisterType<SmsService>().As<SmsService>();
         }
     }
 }

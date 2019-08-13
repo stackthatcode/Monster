@@ -4,7 +4,6 @@ using System.Linq;
 using System.Web.Mvc;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
-using Monster.Middle.Processes.Sync.Persist;
 using Monster.Web.Attributes;
 using Monster.Web.Models.ShopifyAuth;
 using Monster.Web.Plumbing;
@@ -67,33 +66,23 @@ namespace Monster.Web.Controllers
         }
 
 
-        // The welcome page
-        //
-        [HttpGet]
-        public ActionResult Splash()
-        {
-            return View();
-        }
-
-
         [HttpGet]
         public ActionResult Domain()
         {
-            var tenant = _connectionRepository.Retrieve();
+            var shopifyConnection = _connectionRepository.Retrieve();
             var state = _stateRepository.RetrieveSystemStateNoTracking();
 
-            var model = new DomainModel();
-
-            model.IsShopifyConnectionOk = state.ShopifyConnState == StateCode.Ok;
-            model.IsShopifyConnectionBroken = state.ShopifyConnState.IsBroken();
-
-            model.IsRandomAccessMode = state.IsRandomAccessMode;
-            model.ShopDomain = tenant.ShopifyDomain;
+            var model = new ShopifyDomainModel();
+            model.IsConnectionBroken = state.ShopifyConnState.IsBroken();
+            model.IsWizardMode = !state.IsRandomAccessMode;
+            model.CanEditShopifyUrl = !state.IsShopifyUrlFinalized;
+            model.ShopDomain = shopifyConnection.ShopifyDomain;
 
             return View(model);
         }
 
-        // Shopify OAuth Authentication (Authorization) flow        
+        // Shopify OAuth Authentication (Authorization) flow    
+        //
         public ActionResult Login(string shop, string returnUrl)
         {
             if (ShopifyCredentialsConfig.Settings.ApiKey.IsNullOrEmpty())
@@ -162,19 +151,23 @@ namespace Monster.Web.Controllers
                 // TODO - attempt to match with ASP.NET User and Instance
 
                 // TODO - Initialize Connection for Instance
+                
 
                 // Save Access Token and update State
                 _connectionRepository
                     .UpdateShopifyCredentials(shop, accessToken, codeHash);
 
-                _stateRepository
-                    .UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
+                _stateRepository.UpdateSystemState(
+                    x => x.ShopifyConnState, StateCode.Ok);
+
+                // TODO - Finalize Shopify URL
+
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                _stateRepository
-                    .UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
+                _stateRepository.UpdateSystemState(
+                    x => x.ShopifyConnState, StateCode.SystemFault);
 
                 return Redirect("Domain");
             }

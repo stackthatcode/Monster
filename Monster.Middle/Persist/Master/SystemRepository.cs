@@ -51,6 +51,13 @@ namespace Monster.Middle.Persist.Master
             return tenant;
         }
 
+        public void AssignInstanceToUser(Guid instanceId, Guid aspNetUserId)
+        {
+            var sql = @"UPDATE INSERT SET OwnerUserId = @aspNetUserId WHERE Id = @instanceId";
+            _connection.Execute(sql, new { instanceId, aspNetUserId });
+        }
+
+
         public void Dispose()
         {
             _connection?.Dispose();

@@ -4,6 +4,7 @@ using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Hangfire;
+using Monster.Middle.Identity;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Persist.Instance;
@@ -62,7 +63,7 @@ namespace Monster.Middle
 
             // ... and use same for IdentityDbContext OWIN stuff
             builder.Register(
-                    ctx => new IdentityDbContext(new SqlConnection(connectionString)))
+                    ctx => new PushIdentityDbContext(new SqlConnection(connectionString)))
                 .InstancePerLifetimeScope();
             
             // Persistence - Master and Tenant
@@ -78,6 +79,7 @@ namespace Monster.Middle
             builder.RegisterType<JobStatusService>().InstancePerLifetimeScope();
 
             // Process Registrations
+            RegisterIdentityPlumbing(builder);
             RegisterShopifyProcess(builder);            
             RegisterAcumaticaProcess(builder);            
             RegisterSyncProcess(builder);
@@ -91,6 +93,11 @@ namespace Monster.Middle
                 MonsterConfig.Settings.EncryptKey, MonsterConfig.Settings.EncryptIv));
 
             return builder;
+        }
+
+        private static void RegisterIdentityPlumbing(ContainerBuilder builder)
+        {
+            builder.RegisterType<IdentityService>();
         }
 
         private static void RegisterPayoutProcess(ContainerBuilder builder)
@@ -167,7 +174,6 @@ namespace Monster.Middle
             builder.RegisterType<ShipmentStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<FulfillmentStatusService>().InstancePerLifetimeScope();
             
-
             // Director Components
             builder.RegisterType<SyncManager>().InstancePerLifetimeScope();
             builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();
