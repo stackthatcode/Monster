@@ -9,7 +9,6 @@ namespace Push.Foundation.Tests.Web
     [TestFixture]
     public class ThrottlerTests
     {
-
         [Test]
         [Repeat(3)]
         public void ThrottlerCausesDelayForSameHost()

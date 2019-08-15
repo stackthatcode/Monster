@@ -48,6 +48,10 @@ namespace Monster.Web
                 // ... Status Code properly set to an HTTP 404
                 context.Response.StatusCode = 404;
             }
+            else if (lastError.IsHttpExceptionWithCode(401))
+            {
+                errorRoute.Values.Add("action", "Http401");
+            }
             else if (lastError.IsHttpExceptionWithCode(403))
             {
                 errorRoute.Values.Add("action", "Http403");

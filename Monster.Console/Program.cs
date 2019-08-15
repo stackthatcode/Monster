@@ -8,6 +8,7 @@ using Monster.ConsoleApp.Feeder;
 using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.Hangfire;
+using Monster.Middle.Identity;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 
@@ -18,6 +19,8 @@ namespace Monster.ConsoleApp
     {
         private const string RunHangfireBackgroundOption = "1";
         private const string RunShopifyOrderFeederOption = "2";
+        private const string ProvisionNewUserAccountOption = "3";
+        private const string HydrateSecurityConfigOption = "4";
 
         static void Main(string[] args)
         {
@@ -27,18 +30,19 @@ namespace Monster.ConsoleApp
             Console.WriteLine();
             Console.WriteLine($"{RunHangfireBackgroundOption} - Run Hangfire Background Service");
             Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
+            Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
+            Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
             var input = Console.ReadLine();
-
             if (input == RunHangfireBackgroundOption)
-            {
                 RunHangFireBackgroundService();
-            }
             if (input == RunShopifyOrderFeederOption)
-            {
                 RunShopifyOrderFeeder();
-            }
+            if (input == ProvisionNewUserAccountOption)
+                ProvisionNewUserAccount();
+            if (input == HydrateSecurityConfigOption)
+                HydrateSecurityConfig();
 
             Console.WriteLine("FIN");
             Console.ReadKey();
@@ -87,10 +91,42 @@ namespace Monster.ConsoleApp
             return container;
         }
 
-
-        static void ProvisionNewUserAccount(string userName, string shopifyDomain)
+        static void ProvisionNewUserAccount()
         {
-            // TODO ...
+            Console.WriteLine(Environment.NewLine + 
+                              "Enter New User's Email Address (which will be used as User ID)");
+            var email = Console.ReadLine();
+
+            Console.WriteLine(Environment.NewLine + 
+                              "Enter New User's Shopify Domain");
+            var domain = Console.ReadLine();
+
+            Console.WriteLine(Environment.NewLine + 
+                              $"New Account User ID: {email} - Shopify Domain: {domain}" + 
+                              Environment.NewLine + 
+                              "Please type 'YES' to proceed with provisioning");
+            var response = Console.ReadLine();
+            if (response.ToUpper().Trim() != "YES")
+            {
+                return;
+            }
+
+            Action<ILifetimeScope> process = scope =>
+            {
+                var identityService = scope.Resolve<IdentityService>();
+                var user = identityService.CreateNewAccount(email, domain).Result;
+
+
+            };
+        }
+
+        static void HydrateSecurityConfig()
+        {
+            RunInLifetimeScope(scope =>
+            {
+                var identityService = scope.Resolve<IdentityService>();
+                identityService.HydrateRolesAndAdmin();
+            });
         }
 
         static void RunShopifyOrderFeeder()

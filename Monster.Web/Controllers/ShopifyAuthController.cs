@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Web;
 using System.Web.Mvc;
+using Monster.Middle.Identity;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Web.Attributes;
@@ -25,6 +28,7 @@ namespace Monster.Web.Controllers
         private readonly OAuthApi _oAuthApi;
         private readonly ConnectionRepository _connectionRepository;
         private readonly ShopifyHttpContext _shopifyHttpContext;
+        private readonly IdentityService _identityService;
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
         private readonly HmacCryptoService _hmacCrypto;
@@ -54,6 +58,7 @@ namespace Monster.Web.Controllers
                 OAuthApi oAuthApi, 
                 ConnectionRepository connectionRepository, 
                 ShopifyHttpContext shopifyHttpContext, 
+                IdentityService identityService,
                 StateRepository stateRepository, 
                 HmacCryptoService hmacCrypto)
         {
@@ -61,6 +66,7 @@ namespace Monster.Web.Controllers
             _oAuthApi = oAuthApi;
             _connectionRepository = connectionRepository;
             _shopifyHttpContext = shopifyHttpContext;
+            _identityService = identityService;
             _stateRepository = stateRepository;
             _hmacCrypto = hmacCrypto;
         }
@@ -128,6 +134,7 @@ namespace Monster.Web.Controllers
             var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
 
             // Did the User hit the Back Button...?
+            //
             if (_connectionRepository.IsSameAuthCode(codeHash))
             {
                 return Redirect("Domain");
@@ -146,28 +153,29 @@ namespace Monster.Web.Controllers
                 }
 
                 // Get Access Token from Shopify and store
+                //
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
 
-                // TODO - attempt to match with ASP.NET User and Instance
-
-                // TODO - Initialize Connection for Instance
-                
+                // Attempt to locate the identity, as there are both a valid Domain and Access Token
+                //
+                var identity = _identityService.RetrieveIdentityContextByDomain(shop);
+                if (!identity.IsAuthenticated)
+                {
+                    throw new HttpException(
+                        (int)HttpStatusCode.Unauthorized, 
+                        $"Attempt to login using non-provisioned Shopify store {shop}");
+                }
 
                 // Save Access Token and update State
-                _connectionRepository
-                    .UpdateShopifyCredentials(shop, accessToken, codeHash);
-
-                _stateRepository.UpdateSystemState(
-                    x => x.ShopifyConnState, StateCode.Ok);
-
-                // TODO - Finalize Shopify URL
-
+                //
+                _connectionRepository.UpdateShopifyCredentials(shop, accessToken, codeHash);
+                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
+                _stateRepository.UpdateSystemState(x => x.IsShopifyUrlFinalized, true);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                _stateRepository.UpdateSystemState(
-                    x => x.ShopifyConnState, StateCode.SystemFault);
+                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
 
                 return Redirect("Domain");
             }

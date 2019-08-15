@@ -1,0 +1,14 @@
+﻿@using Monster.Web.Plumbing
+
+<main role="main" class="medium-size error-page">
+    @Html.Partial("_TopBrand")
+
+    <h1 class="mt-4 center">@GlobalConfig.AppName - HTTP 401 "Unauthorized"</h1>
+    <p class="lead center">Invalid authentication credentials.</p>
+
+    <p class="center">
+        You do not appear to have valid credentials.
+        Please try logging in again, and if that fails, contact customer support.
+    </p>
+</main>
+

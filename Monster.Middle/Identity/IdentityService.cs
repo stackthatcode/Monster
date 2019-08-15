@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Master;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
@@ -12,20 +14,29 @@ namespace Monster.Middle.Identity
 {
     public class IdentityService
     {
+        private readonly SystemRepository _systemRepository;
         private readonly PushIdentityDbContext _dbContext;
         private readonly IdentityUserManager _userManager;
         private readonly IdentityRoleManager _roleManager;
+        private readonly ConnectionContext _connectionContext;
+        private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
 
         public IdentityService(
+                SystemRepository systemRepository,
                 PushIdentityDbContext dbContext,
                 IdentityUserManager userManager,
                 IdentityRoleManager roleManager,
+                ConnectionContext connectionContext,
+                StateRepository stateRepository,
                 IPushLogger logger)
         {
+            _systemRepository = systemRepository;
             _dbContext = dbContext;
             _userManager = userManager;
             _roleManager = roleManager;
+            _connectionContext = connectionContext;
+            _stateRepository = stateRepository;
             _logger = logger;
         }
 
@@ -127,9 +138,66 @@ namespace Monster.Middle.Identity
                     return null;
                 }
 
+                var nextAvailableInstance = _systemRepository.RetrieveNextAvailableInstance();
+                if (nextAvailableInstance == null)
+                {
+                    _logger.Error("There are no Instances available for assignment");
+                    return null;
+                }
+
+                _systemRepository.AssignInstanceToUser(nextAvailableInstance.Id, user.Id);
+
                 transaction.Commit();
                 return user;
             }
+        }
+
+        public IdentityContext RetrieveIdentityContextByDomain(string domain)
+        {
+            var userId = _dbContext
+                .Users
+                .Where(x => x.Logins.Any(y => y.ProviderKey == domain))
+                .Select(x => x.Id)
+                .FirstOrDefault();
+
+            if (userId.IsNullOrEmpty())
+            {
+                return new IdentityContext();
+            }
+            else
+            {
+                return RetrieveIdentityContext(userId);
+            }
+        }
+
+        public IdentityContext RetrieveIdentityContext(string userId)
+        {
+            var context = new IdentityContext();
+
+            // ASP.NET User Identity
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            var userRoleIds = user.Roles.Select(x => x.RoleId);
+            var userRoles =
+                _roleManager.Roles
+                    .Where(x => userRoleIds.Contains(x.Id))
+                    .Select(x => x.Name)
+                    .ToList();
+
+            context.AspNetUserId = user.Id;
+            context.Email = user.Email;
+            context.AspNetRoles = userRoles;
+
+            // System -> Instance
+            var instance = _systemRepository.RetrieveInstanceByUserId(userId);
+            context.InstanceId = instance.Id;
+            context.InstanceNickName = instance.Nickname;
+
+            // Instance -> State
+            _connectionContext.InitializePersistOnly(instance.Id);
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
+            context.SystemState = state;
+
+            return context;
         }
     }
 }

@@ -44,14 +44,25 @@ namespace Monster.Middle.Persist.Master
                 Nickname = nickName,
             };
 
-            var sql =
-                @"INSERT INTO Instance VALUES ( @Id, @ConnectionString )";
-
+            var sql = @"INSERT INTO Instance VALUES ( @Id, @ConnectionString )";
             _connection.Execute(sql, tenant);
             return tenant;
         }
 
-        public void AssignInstanceToUser(Guid instanceId, Guid aspNetUserId)
+
+        public Instance RetrieveInstanceByUserId(string userId)
+        {
+            var sql = "SELECT * FROM Instance WHERE OwnerUserId = @userId";
+            return _connection.QueryFirstOrDefault<Instance>(sql, new { userId });
+        }
+
+        public Instance RetrieveNextAvailableInstance()
+        {
+            var sql = "SELECT * FROM Instance ORDER BY AvailabilityOrder";
+            return _connection.QueryFirstOrDefault<Instance>(sql);
+        }
+
+        public void AssignInstanceToUser(Guid instanceId, string aspNetUserId)
         {
             var sql = @"UPDATE INSERT SET OwnerUserId = @aspNetUserId WHERE Id = @instanceId";
             _connection.Execute(sql, new { instanceId, aspNetUserId });

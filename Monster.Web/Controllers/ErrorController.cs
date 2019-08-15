@@ -39,6 +39,21 @@ namespace Monster.Web.Controllers
             return View(model);
         }
 
+
+        [HttpGet]
+        [IdentityProcessor]
+        [AllowAnonymous]
+        public ActionResult Http401()
+        {
+            Response.ContentType = "text/html";
+            Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            Response.SuppressFormsAuthenticationRedirect = true;
+            Response.TrySkipIisCustomErrors = true;
+
+            return View();
+        }
+
+
         [HttpGet]
         [IdentityProcessor]
         [AllowAnonymous]

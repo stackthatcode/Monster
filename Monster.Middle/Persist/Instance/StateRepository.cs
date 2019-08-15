@@ -71,6 +71,15 @@ namespace Monster.Middle.Persist.Instance
             Entities.SaveChanges();
         }
 
+        public void UpdateSystemState(
+            Expression<Func<SystemState, bool>> memberExpression, bool newValue)
+        {
+            CreateSystemStateIfNotExists();
+            var state = Entities.SystemStates.First();
+            state.SetPropertyValue(memberExpression, newValue);
+            Entities.SaveChanges();
+        }
+
         public void UpdateIsRandomAccessMode(bool newValue)
         {
             CreateSystemStateIfNotExists();
