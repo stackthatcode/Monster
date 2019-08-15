@@ -7,6 +7,6 @@ namespace Monster.Middle.Persist.Master
         public Guid Id { get; set; }
         public string ConnectionString { get; set; }
         public string Nickname { get; set; }
-        public Guid OwnerUserId { get; set; }
+        public string OwnerUserId { get; set; }
     }
 }

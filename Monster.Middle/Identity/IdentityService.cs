@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
@@ -18,8 +21,10 @@ namespace Monster.Middle.Identity
         private readonly PushIdentityDbContext _dbContext;
         private readonly IdentityUserManager _userManager;
         private readonly IdentityRoleManager _roleManager;
+        private readonly IdentitySignInManager _signInManager;
         private readonly ConnectionContext _connectionContext;
         private readonly StateRepository _stateRepository;
+        private readonly ConnectionRepository _connectionRepository;
         private readonly IPushLogger _logger;
 
         public IdentityService(
@@ -27,20 +32,24 @@ namespace Monster.Middle.Identity
                 PushIdentityDbContext dbContext,
                 IdentityUserManager userManager,
                 IdentityRoleManager roleManager,
+                IdentitySignInManager signInManager,
                 ConnectionContext connectionContext,
                 StateRepository stateRepository,
+                ConnectionRepository connectionRepository,
                 IPushLogger logger)
         {
             _systemRepository = systemRepository;
             _dbContext = dbContext;
             _userManager = userManager;
             _roleManager = roleManager;
+            _signInManager = signInManager;
             _connectionContext = connectionContext;
             _stateRepository = stateRepository;
+            _connectionRepository = connectionRepository;
             _logger = logger;
         }
 
-        public  void HydrateRolesAndAdmin()
+        public  void PopulateRolesAndAdmin()
         {
             // Check to see if Role Exists, if not create it
             if (!_roleManager.RoleExists(SecurityConfig.AdminRole))
@@ -96,7 +105,6 @@ namespace Monster.Middle.Identity
                 }
             }
         }
-
 
         public async Task<ApplicationUser> ProvisionNewAccount(string emailAddress, string domain)
         {
@@ -174,8 +182,7 @@ namespace Monster.Middle.Identity
             return user;
         }
 
-
-        public IdentityContext RetrieveIdentityContextByDomain(string domain)
+        public IdentityContext HydrateIdentityContextByDomain(string domain)
         {
             var userId = _dbContext
                 .Users
@@ -183,10 +190,10 @@ namespace Monster.Middle.Identity
                 .Select(x => x.Id)
                 .FirstOrDefault();
 
-            return RetrieveIdentityContext(userId);
+            return HydrateIdentityContext(userId);
         }
 
-        public IdentityContext RetrieveIdentityContext(string userId)
+        public IdentityContext HydrateIdentityContext(string userId)
         {
             if (userId.IsNullOrEmpty())
             {
@@ -219,6 +226,12 @@ namespace Monster.Middle.Identity
             context.SystemState = state;
 
             return context;
+        }
+
+        public void SignInAspNetUser(string identityAspNetUserId)
+        {
+            var user = _userManager.Users.First(x => x.Id == identityAspNetUserId);
+            _signInManager.SignIn(user, true, true);
         }
     }
 }

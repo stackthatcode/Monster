@@ -125,7 +125,7 @@ namespace Monster.ConsoleApp
             RunInLifetimeScope(scope =>
             {
                 var identityService = scope.Resolve<IdentityService>();
-                identityService.HydrateRolesAndAdmin();
+                identityService.PopulateRolesAndAdmin();
             });
         }
 

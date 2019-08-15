@@ -1,6 +1,7 @@
 ﻿using System;
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Shopify.Http;
 
 namespace Monster.Middle.Persist.Instance
@@ -11,6 +12,7 @@ namespace Monster.Middle.Persist.Instance
         private readonly ConnectionRepository _connectionRepository;
         private readonly PersistContext _persistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
+        private readonly StateRepository _stateRepository;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
         
         // Why not add pass throughs to Shopify and Acumatica...?
@@ -25,12 +27,14 @@ namespace Monster.Middle.Persist.Instance
                 SystemRepository systemRepository, 
                 PersistContext persistContext, 
                 ShopifyHttpContext shopifyHttpContext,
+                StateRepository stateRepository,
                 AcumaticaHttpContext acumaticaHttpContext)
         {
             _connectionRepository = connectionRepository;
             _systemRepository = systemRepository;
             _persistContext = persistContext;
             _shopifyHttpContext = shopifyHttpContext;
+            _stateRepository = stateRepository;
             _acumaticaHttpContext = acumaticaHttpContext;
         }
 
@@ -65,7 +69,17 @@ namespace Monster.Middle.Persist.Instance
             _instanceId = instanceId;
             var installation = _systemRepository.RetrieveInstance(instanceId);
             _persistContext.Initialize(installation.ConnectionString);
-        }        
-        
+        }
+
+        public void UpdateShopifyConnectionAndCodeHash(string shop, string accessToken, string codeHash)
+        {
+            using (var transaction = _connectionRepository.BeginTransaction())
+            {
+                _connectionRepository.UpdateShopifyCredentials(shop, accessToken, codeHash);
+                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
+                _stateRepository.UpdateSystemState(x => x.IsShopifyUrlFinalized, true);
+                transaction.Commit();
+            }
+        }
     }
 }

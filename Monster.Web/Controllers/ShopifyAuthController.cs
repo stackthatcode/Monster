@@ -22,11 +22,11 @@ using Push.Shopify.Http;
 
 namespace Monster.Web.Controllers
 {
-    [IdentityProcessor]
     public class ShopifyAuthController : Controller
     {
         private readonly OAuthApi _oAuthApi;
         private readonly ConnectionRepository _connectionRepository;
+        private readonly ConnectionContext _connectionContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly IdentityService _identityService;
         private readonly StateRepository _stateRepository;
@@ -54,17 +54,19 @@ namespace Monster.Web.Controllers
                 };
 
         public ShopifyAuthController(
-                IPushLogger logger, 
                 OAuthApi oAuthApi, 
-                ConnectionRepository connectionRepository, 
+                ConnectionRepository connectionRepository,
+                ConnectionContext connectionContext,
                 ShopifyHttpContext shopifyHttpContext, 
                 IdentityService identityService,
                 StateRepository stateRepository, 
-                HmacCryptoService hmacCrypto)
+                HmacCryptoService hmacCrypto,
+                IPushLogger logger)
         {
             _logger = logger;
             _oAuthApi = oAuthApi;
             _connectionRepository = connectionRepository;
+            _connectionContext = connectionContext;
             _shopifyHttpContext = shopifyHttpContext;
             _identityService = identityService;
             _stateRepository = stateRepository;
@@ -73,34 +75,48 @@ namespace Monster.Web.Controllers
 
 
         [HttpGet]
+        [IdentityProcessor]
         public ActionResult Domain()
         {
-            var shopifyConnection = _connectionRepository.Retrieve();
-            var state = _stateRepository.RetrieveSystemStateNoTracking();
+            var identity = HttpContext.GetIdentity();
 
-            var model = new ShopifyDomainModel();
-            model.IsConnectionBroken = state.ShopifyConnState.IsBroken();
-            model.IsWizardMode = !state.IsRandomAccessMode;
-            model.CanEditShopifyUrl = !state.IsShopifyUrlFinalized;
-            model.ShopDomain = shopifyConnection.ShopifyDomain;
+            if (identity.IsAuthenticated)
+            {
+                _connectionContext.InitializePersistOnly(identity.InstanceId);
 
-            return View(model);
+                var state = identity.SystemState;
+                var shopifyConnection = _connectionRepository.Retrieve();
+
+                var model = new ShopifyDomainModel();
+                model.IsWizardMode = !state.IsRandomAccessMode;
+                model.IsConnectionBroken = state.ShopifyConnState.IsBroken();
+                model.CanEditShopifyUrl = !state.IsShopifyUrlFinalized;
+                model.ShopDomain = shopifyConnection.ShopifyDomain;
+
+                return View(model);
+            }
+            else
+            {
+                var model = new ShopifyDomainModel();
+                model.IsWizardMode = true;
+                model.IsConnectionBroken = false;
+                model.CanEditShopifyUrl = true;
+                model.ShopDomain = "";
+
+                return View(model);
+            }
         }
 
         // Shopify OAuth Authentication (Authorization) flow    
         //
+        [IdentityProcessor]
         public ActionResult Login(string shop, string returnUrl)
         {
-            if (ShopifyCredentialsConfig.Settings.ApiKey.IsNullOrEmpty())
-            {
-                throw new Exception("Null or empty Shopify -> ApiKey - please check configuration");
-            }
-
             // Guard against attempts to change finalized Shopify Domain
             string fullShopDomain;
-            var state = _stateRepository.RetrieveSystemStateNoTracking();
-            
-            if (state.ShopifyConnState != StateCode.None)
+           
+            var identity = HttpContext.GetIdentity();
+            if  (identity.IsAuthenticated && identity.SystemState.IsShopifyUrlFinalized)
             {
                 var tenant = _connectionRepository.Retrieve();
                 fullShopDomain = tenant.ShopifyDomain;
@@ -110,32 +126,28 @@ namespace Monster.Web.Controllers
                 fullShopDomain = shop.CorrectedShopUrl();
             }
             
-            // Build the Shopify OAuth request 
-            var scopes = _shopifyOAuthScopes.ToCommaDelimited();
-            var redirectUrl = GlobalConfig.Url("ShopifyAuth/Return");
-
-            var urlBase = $"https://{fullShopDomain}/admin/oauth/authorize";
-            var queryString =
-                new QueryStringBuilder()
-                    .Add("client_id", ShopifyCredentialsConfig.Settings.ApiKey)
-                    .Add("scope", scopes)
-                    .Add("redirect_uri", redirectUrl)
-                    .ToString();
-
-            var finalUrl = $"{urlBase}?{queryString}";
+            var finalUrl = BuildShopifyRedirectUrl(fullShopDomain);
             return Redirect(finalUrl);
         }
-        
+
+        // No [IdentityProcessor] attribute - the Identity will be dictated by "shop" i.e. domain
         public ActionResult Return(string code, string shop, string returnUrl)
         {
-            // Not to be confused with the Shopify HMAC security check
-            // We'll store this so we can verify that we're not hitting this
-            // ... action repeatedly i.e. browser back button
-            var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
-
-            // Did the User hit the Back Button...?
+            // Attempt to locate the identity, as there are both a valid Domain and Access Token
             //
-            if (_connectionRepository.IsSameAuthCode(codeHash))
+            var identity = _identityService.HydrateIdentityContextByDomain(shop);
+            if (!identity.IsAuthenticated)
+            {
+                throw new HttpException(
+                    (int)HttpStatusCode.Unauthorized,
+                    $"Attempt to login using non-provisioned Shopify store {shop}");
+            }
+
+            // Did the User hit the Back Button...? If so, the codeHash will be the same
+            //
+            var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
+            var identityContext = HttpContext.GetIdentity();
+            if (identityContext.IsAuthenticated && _connectionRepository.IsSameAuthCode(codeHash))
             {
                 return Redirect("Domain");
             }
@@ -152,25 +164,26 @@ namespace Monster.Web.Controllers
                     throw new Exception("Failed HMAC verification from Shopify Return");
                 }
 
-                // Get Access Token from Shopify and store
+                // Get Access Token from Shopify and 
                 //
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
+                _connectionContext.UpdateShopifyConnectionAndCodeHash(shop, accessToken, codeHash);
 
-                // Attempt to locate the identity, as there are both a valid Domain and Access Token
+                // Update IdentityContext 
                 //
-                var identity = _identityService.RetrieveIdentityContextByDomain(shop);
-                if (!identity.IsAuthenticated)
+                var updatedState = _stateRepository.RetrieveSystemStateNoTracking();
+                identity.UpdateState(updatedState);
+                HttpContext.SetIdentity(identity);
+
+                // Sign the User in
+                //
+                _identityService.SignInAspNetUser(identity.AspNetUserId);
+
+                var model = new ReturnModel
                 {
-                    throw new HttpException(
-                        (int)HttpStatusCode.Unauthorized, 
-                        $"Attempt to login using non-provisioned Shopify store {shop}");
-                }
-
-                // Save Access Token and update State
-                //
-                _connectionRepository.UpdateShopifyCredentials(shop, accessToken, codeHash);
-                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
-                _stateRepository.UpdateSystemState(x => x.IsShopifyUrlFinalized, true);
+                    IsWizardMode = !updatedState.IsRandomAccessMode
+                };
+                return View(model);
             }
             catch (Exception ex)
             {
@@ -179,24 +192,42 @@ namespace Monster.Web.Controllers
 
                 return Redirect("Domain");
             }
-
-            var state = _stateRepository.RetrieveSystemStateNoTracking();
-            var model = new ReturnModel()
-            {
-                IsWizardMode = !state.IsRandomAccessMode
-            };
-
-            return View(model);
         }
-        
+
+
+        private string BuildShopifyRedirectUrl(string fullShopDomain)
+        {
+            if (ShopifyCredentialsConfig.Settings.ApiKey.IsNullOrEmpty())
+            {
+                throw new Exception("Null or empty Shopify -> ApiKey - please check configuration");
+            }
+
+            // Build the Shopify OAuth request 
+            var scopes = _shopifyOAuthScopes.ToCommaDelimited();
+            var redirectUrl = GlobalConfig.Url("ShopifyAuth/Return");
+
+            var urlBase = $"https://{fullShopDomain}/admin/oauth/authorize";
+            var queryString =
+                new QueryStringBuilder()
+                    .Add("client_id", ShopifyCredentialsConfig.Settings.ApiKey)
+                    .Add("scope", scopes)
+                    .Add("redirect_uri", redirectUrl)
+                    .ToString();
+
+            var finalUrl = $"{urlBase}?{queryString}";
+            return finalUrl;
+        }
+
         private bool VerifyShopifyHmac()
         {
             // Extract and remove Shopify's HMAC parameter
+            //
             var queryStringDictionary = HttpContext.QueryStringToDictionary();
             var shopifyHmacHash = queryStringDictionary["hmac"].ToString();
             queryStringDictionary.Remove("hmac");
 
             // Lexographically order parameters and regenerate Query String
+            //
             var builder = new QueryStringBuilder();
             queryStringDictionary
                 .OrderBy(x => x.Key)
@@ -204,6 +235,7 @@ namespace Monster.Web.Controllers
             var queryString = builder.ToString();
 
             // Build HMAC digestion of query string...
+            //
             var hashedResult = _hmacCrypto. ToHexStringSha256(queryString);
 
             // ... and compare

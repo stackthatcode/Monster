@@ -43,7 +43,7 @@ namespace Monster.Middle.Persist.Master
                 Nickname = nickName,
             };
 
-            var sql = @"INSERT INTO Instance VALUES ( @Id, @ConnectionString )";
+            var sql = @"INSERT INTO Instance VALUES ( '@Id', @ConnectionString )";
             _connection.Execute(sql, tenant);
             return tenant;
         }

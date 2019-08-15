@@ -9,7 +9,8 @@ namespace Monster.Web.Attributes
         
         public static IdentityContext GetIdentity(this HttpContextBase context)
         {
-            return context.Items[Key] as IdentityContext;
+            var identity = context.Items[Key] as IdentityContext;
+            return identity ?? IdentityContext.AnonymousIdentity();
         }
 
         public static IdentityContext GetIdentity(this HttpContext context)
@@ -26,8 +27,6 @@ namespace Monster.Web.Attributes
         {
             context.Items[Key] = identity;
         }
-
-
     }
 }
 

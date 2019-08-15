@@ -13,7 +13,7 @@ namespace Monster.Web.Attributes
             var identityService = DependencyResolver.Current.GetService<IdentityService>();
 
             var userId = filterContext.HttpContext.User.ExtractUserId();
-            var identity = identityService.RetrieveIdentityContext(userId);
+            var identity = identityService.HydrateIdentityContext(userId);
 
             filterContext.HttpContext.SetIdentity(identity);
             logger.Debug(

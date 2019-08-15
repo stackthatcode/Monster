@@ -1,17 +1,16 @@
 ﻿@using Monster.Web.Attributes
 @using Monster.Web.Plumbing
+@{
+    var identityContext = Context.GetIdentity();
+}
 
 <nav class="navbar navbar-expand-lg navbar-expand-md navbar-expand-sm navbar-dark bg-primary">
     <a class="navbar-brand" href="#">
         <img src="@GlobalConfig.Url("Content/Logic-Automated-logo-horizontal-transparent-white.png")" width="130" />
     </a>
 
-    @{
-        var identityContext = Context.GetIdentity();
-    }
-
     <div class="navbar-collapse">
-        @if (identityContext != null)
+        @if (identityContext.IsAuthenticated)
         {
             if (identityContext.SystemState.IsRandomAccessMode)
             {

@@ -24,13 +24,23 @@ namespace Monster.Middle.Identity
         public string RolesFlattened => AspNetRoles.ToCommaDelimited();
         public bool IsAdmin => AspNetRoles.Contains(SecurityConfig.AdminRole);
         public bool IsAuthenticated =>
-                !AspNetRoles.Contains(SecurityConfig.AdminRole)
-                && !AspNetRoles.Contains(SecurityConfig.UserRole);
+                AspNetRoles.Contains(SecurityConfig.AdminRole)
+                || AspNetRoles.Contains(SecurityConfig.UserRole);
 
 
         public IdentityContext()
         {
             AspNetRoles = new List<string>();
+        }
+
+        public void UpdateState(SystemState state)
+        {
+            this.SystemState = state;
+        }
+
+        public static IdentityContext AnonymousIdentity()
+        {
+            return new IdentityContext();
         }
     }
 }
