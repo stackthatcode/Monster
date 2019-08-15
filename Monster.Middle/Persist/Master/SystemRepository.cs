@@ -14,10 +14,9 @@ namespace Monster.Middle.Persist.Master
         // TODO (BIG ONE!!!) - create a wrapper for the connection that 
         // ... allows us to reuse and control within same Autofac scope
         //
-        public SystemRepository(string connectionString)
+        public SystemRepository(SqlConnection connection)
         {
-            _connection = new SqlConnection(connectionString);
-            _connection.Open();
+            _connection = connection;
         }
 
         public IList<Instance> RetrieveInstances()
@@ -64,11 +63,11 @@ namespace Monster.Middle.Persist.Master
 
         public void AssignInstanceToUser(Guid instanceId, string aspNetUserId, string domain)
         {
-            var sql = @"UPDATE INSERT 
+            var sql = @"UPDATE Instance
                         SET OwnerUserId = @aspNetUserId,
                         OwnerNickName = @domain
                         WHERE Id = @instanceId";
-
+            
             _connection.Execute(sql, new { instanceId, aspNetUserId, domain });
         }
 

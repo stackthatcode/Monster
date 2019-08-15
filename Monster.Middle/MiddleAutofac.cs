@@ -24,7 +24,6 @@ using Monster.Middle.Processes.Sync.Workers.Orders;
 using Monster.Middle.Services;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
-using Push.Foundation.Web.Identity;
 using Push.Foundation.Web;
 using Push.Shopify;
 
@@ -56,17 +55,23 @@ namespace Monster.Middle
             
             // System-level Persistence always uses the MonsterConfig for its Connection String
             var connectionString = MonsterConfig.Settings.SystemDatabaseConnection;
-            builder
-                .Register(x => new SystemRepository(connectionString))
-                .InstancePerLifetimeScope();
 
             // Use this connection string for IdentityDbContext OWIN stuff
             builder
-                .Register(ctx => new SqlConnection(connectionString))
-                .As<DbConnection>();
+                .Register(ctx =>
+                {
+                    var connection = new SqlConnection(connectionString);
+                    connection.Open();
+                    return connection;
+                })
+                .As<SqlConnection>()
+                .As<DbConnection>()
+                .InstancePerLifetimeScope();
 
-            
-            // Persistence - Master and Tenant
+            // Persistence - Master-level
+            builder.RegisterType<SystemRepository>().InstancePerLifetimeScope();
+
+            // Persistence - Instance-level
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<ConnectionRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ConnectionContext>().InstancePerLifetimeScope();

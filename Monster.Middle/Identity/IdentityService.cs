@@ -97,15 +97,17 @@ namespace Monster.Middle.Identity
             }
         }
 
+
         public async Task<ApplicationUser> ProvisionNewAccount(string emailAddress, string domain)
         {
+            var user = new ApplicationUser()
+            {
+                Email = emailAddress,
+                UserName = emailAddress,
+            };
+
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
-                var user = new ApplicationUser()
-                {
-                    Email = emailAddress,
-                    UserName = emailAddress,
-                };
 
                 var createUserResult = await _userManager.CreateAsync(user);
                 if (!createUserResult.Succeeded)
@@ -116,6 +118,8 @@ namespace Monster.Middle.Identity
                     return null;
                 }
 
+                _logger.Info($"Created new User {user.Email}");
+
                 var addToRoleResult = await _userManager.AddToRoleAsync(user.Id, SecurityConfig.UserRole);
                 if (!addToRoleResult.Succeeded)
                 {
@@ -124,6 +128,8 @@ namespace Monster.Middle.Identity
                         $"{createUserResult.Errors.ToCommaDelimited()}");
                     return null;
                 }
+
+                _logger.Info($"Added User {user.Email} to Role {SecurityConfig.UserRole}");
 
                 var login = new UserLoginInfo("Shopify", domain);
 
@@ -136,19 +142,38 @@ namespace Monster.Middle.Identity
                     return null;
                 }
 
-                var nextAvailableInstance = _systemRepository.RetrieveNextAvailableInstance();
-                if (nextAvailableInstance == null)
-                {
-                    _logger.Error("There are no Instances available for assignment");
-                    return null;
-                }
-
-                _systemRepository.AssignInstanceToUser(nextAvailableInstance.Id, user.Id, domain);
+                _logger.Info($"Added User {user.Email} Login {login.LoginProvider} / {login.ProviderKey}");
 
                 transaction.Commit();
-                return user;
             }
+
+            return AssignNextAvailableInstanceToUser(emailAddress);
         }
+
+        public ApplicationUser AssignNextAvailableInstanceToUser(string userEmail)
+        {
+            var user = _userManager.FindByName(userEmail);
+            if (user == null)
+            {
+                _logger.Error($"Unable to locate User {userEmail}");
+                return null;
+            }
+
+            var login = user.Logins.First(x => x.LoginProvider == "Shopify");
+            var domain = login.ProviderKey;
+
+            var nextAvailableInstance = _systemRepository.RetrieveNextAvailableInstance();
+            if (nextAvailableInstance == null)
+            {
+                _logger.Error("There are no Instances available for assignment");
+                return null;
+            }
+
+            _systemRepository.AssignInstanceToUser(nextAvailableInstance.Id, user.Id, domain);
+            _logger.Info($"Assigned User {user.Email} to Instance {nextAvailableInstance.Id}");
+            return user;
+        }
+
 
         public IdentityContext RetrieveIdentityContextByDomain(string domain)
         {

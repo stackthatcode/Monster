@@ -17,6 +17,10 @@ namespace Monster.Middle.Persist.Instance
             }
 
             ConnectionString = connectionString;
+
+            // CRITICAL => Lifetime Scoped PersistContext always explicitly controls
+            // .. the life cycle of its (EF) Database Context
+            ///
             Entities = new MonsterDataContext(ConnectionString);
         }
 

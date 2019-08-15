@@ -115,9 +115,9 @@ namespace Monster.ConsoleApp
             {
                 var identityService = scope.Resolve<IdentityService>();
                 var user = identityService.ProvisionNewAccount(email, domain).Result;
-
-
             };
+
+            RunInLifetimeScope(process);
         }
 
         static void HydrateSecurityConfig()
@@ -167,7 +167,6 @@ namespace Monster.ConsoleApp
                 }
             }
         }
-
     }
 }
 
