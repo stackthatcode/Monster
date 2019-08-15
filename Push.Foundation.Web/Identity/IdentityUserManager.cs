@@ -1,13 +1,22 @@
 ﻿using System;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 
 namespace Push.Foundation.Web.Identity
 {
+    public class IdentityUserStore : UserStore<ApplicationUser>
+    {
+        public IdentityUserStore(PushIdentityDbContext context) : base(context)
+        {
+
+        }
+    }
+
     public class IdentityUserManager : UserManager<ApplicationUser>
     {
         public IdentityUserManager(
-                IUserStore<ApplicationUser> store,
+                IdentityUserStore store,
                 DataProtectorTokenProvider<ApplicationUser> userTokenProvider,
                 IIdentityMessageService emailService, 
                 SmsService smsService)

@@ -40,10 +40,10 @@ namespace Monster.Middle.Identity
             _logger = logger;
         }
 
-        public async void HydrateRolesAndAdmin()
+        public  void HydrateRolesAndAdmin()
         {
             // Check to see if Role Exists, if not create it
-            if (!await _roleManager.RoleExistsAsync(SecurityConfig.AdminRole))
+            if (!_roleManager.RoleExists(SecurityConfig.AdminRole))
             {
                 _logger.Info($"Role {SecurityConfig.AdminRole} does not exist - adding to Roles");
                 var result = _roleManager.Create(new IdentityRole(SecurityConfig.AdminRole));
@@ -53,7 +53,7 @@ namespace Monster.Middle.Identity
                 }
             }
 
-            if (!await _roleManager.RoleExistsAsync(SecurityConfig.UserRole))
+            if (!_roleManager.RoleExists(SecurityConfig.UserRole))
             {
                 _logger.Info($"Role {SecurityConfig.UserRole} does not exist - adding to Roles");
                 var result = _roleManager.Create(new IdentityRole(SecurityConfig.UserRole));
@@ -63,43 +63,41 @@ namespace Monster.Middle.Identity
                 }
             }
 
-            var adminUser = await _roleManager.FindByNameAsync(SecurityConfig.DefaultAdminEmail);
+            var adminUser = _userManager.FindByName(SecurityConfig.DefaultAdminEmail);
             if (adminUser == null)
             {
-                _logger.Info(
-                    $"Unable to locate default Sys Admin: {SecurityConfig.DefaultAdminEmail} - "
-                    + @"creating new Sys Admin");
-
-                var newAdminUser = new ApplicationUser()
+                using (var transaction = _dbContext.Database.BeginTransaction())
                 {
-                    UserName = SecurityConfig.DefaultAdminEmail,
-                    Email = SecurityConfig.DefaultAdminEmail,
-                };
+                    _logger.Info(
+                        $"Unable to locate default Sys Admin: {SecurityConfig.DefaultAdminEmail} - "
+                        + @"creating new Sys Admin");
 
-                var result = await _userManager.CreateAsync(newAdminUser, SecurityConfig.DefaultAdminPassword);
-                if (result.Succeeded == false)
-                {
-                    throw new Exception(
-                        $"UserManager.Create failed: {result.Errors.JoinByNewline()}");
+                    var newAdminUser = new ApplicationUser()
+                    {
+                        UserName = SecurityConfig.DefaultAdminEmail,
+                        Email = SecurityConfig.DefaultAdminEmail,
+                    };
+
+                    var result = _userManager.Create(newAdminUser, SecurityConfig.DefaultAdminPassword);
+                    if (result.Succeeded == false)
+                    {
+                        throw new Exception(
+                            $"UserManager.Create failed: {result.Errors.JoinByNewline()}");
+                    }
+
+                    var resultAddToAdmin = _userManager.AddToRole(newAdminUser.Id, SecurityConfig.AdminRole);
+                    if (resultAddToAdmin.Succeeded == false)
+                    {
+                        throw new Exception(
+                            $"UserManager.AddToRole (Admin) failed: {resultAddToAdmin.Errors.JoinByNewline()}");
+                    }
+
+                    transaction.Commit();
                 }
-
-                var resultAddToAdmin = await _userManager.AddToRoleAsync(newAdminUser.Id, SecurityConfig.AdminRole);
-                if (resultAddToAdmin.Succeeded == false)
-                {
-                    throw new Exception(
-                        $"UserManager.AddToRole (Admin) failed: {resultAddToAdmin.Errors.JoinByNewline()}");
-                }
-
-                //var resultAddToUser = userManager.AddToRole(newAdminUser.Id, SecurityConfig.UserRole);
-                //if (resultAddToUser.Succeeded == false)
-                //{
-                //    throw new Exception(
-                //        $"UserManager.AddToRole (User) failed: {resultAddToUser.Errors.JoinByNewline()}");
-                //}
             }
         }
 
-        public async Task<ApplicationUser> CreateNewAccount(string emailAddress, string shopifyUrl)
+        public async Task<ApplicationUser> ProvisionNewAccount(string emailAddress, string domain)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
@@ -127,7 +125,7 @@ namespace Monster.Middle.Identity
                     return null;
                 }
 
-                var login = new UserLoginInfo("Shopify", shopifyUrl);
+                var login = new UserLoginInfo("Shopify", domain);
 
                 var addLoginResult = await _userManager.AddLoginAsync(user.Id, login);
                 if (!addLoginResult.Succeeded)
@@ -145,7 +143,7 @@ namespace Monster.Middle.Identity
                     return null;
                 }
 
-                _systemRepository.AssignInstanceToUser(nextAvailableInstance.Id, user.Id);
+                _systemRepository.AssignInstanceToUser(nextAvailableInstance.Id, user.Id, domain);
 
                 transaction.Commit();
                 return user;
@@ -160,18 +158,16 @@ namespace Monster.Middle.Identity
                 .Select(x => x.Id)
                 .FirstOrDefault();
 
-            if (userId.IsNullOrEmpty())
-            {
-                return new IdentityContext();
-            }
-            else
-            {
-                return RetrieveIdentityContext(userId);
-            }
+            return RetrieveIdentityContext(userId);
         }
 
         public IdentityContext RetrieveIdentityContext(string userId)
         {
+            if (userId.IsNullOrEmpty())
+            {
+                return new IdentityContext();
+            }
+
             var context = new IdentityContext();
 
             // ASP.NET User Identity

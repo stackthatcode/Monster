@@ -6,7 +6,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Push.Foundation.Web.Identity
 {
-    public class PushIdentityDbContext : IdentityDbContext<IdentityUser>
+    public class PushIdentityDbContext : IdentityDbContext<ApplicationUser>
     {
         public Guid UniqueIdentifier { get; private set; }
 

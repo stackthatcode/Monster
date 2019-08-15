@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data.Common;
+using System.Data.SqlClient;
 using Autofac;
 using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
@@ -7,7 +8,6 @@ using Monster.Middle.Hangfire;
 using Monster.Middle.Identity;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
-using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
@@ -16,7 +16,6 @@ using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Managers;
-using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
@@ -61,10 +60,11 @@ namespace Monster.Middle
                 .Register(x => new SystemRepository(connectionString))
                 .InstancePerLifetimeScope();
 
-            // ... and use same for IdentityDbContext OWIN stuff
-            builder.Register(
-                    ctx => new PushIdentityDbContext(new SqlConnection(connectionString)))
-                .InstancePerLifetimeScope();
+            // Use this connection string for IdentityDbContext OWIN stuff
+            builder
+                .Register(ctx => new SqlConnection(connectionString))
+                .As<DbConnection>();
+
             
             // Persistence - Master and Tenant
             builder.RegisterType<PersistContext>().InstancePerLifetimeScope();

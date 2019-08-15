@@ -114,7 +114,7 @@ namespace Monster.ConsoleApp
             Action<ILifetimeScope> process = scope =>
             {
                 var identityService = scope.Resolve<IdentityService>();
-                var user = identityService.CreateNewAccount(email, domain).Result;
+                var user = identityService.ProvisionNewAccount(email, domain).Result;
 
 
             };

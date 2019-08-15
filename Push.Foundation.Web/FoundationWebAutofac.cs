@@ -27,18 +27,18 @@ namespace Push.Foundation.Web
             // OWIN framework objects
             builder
                 .RegisterType<Identity.PushIdentityDbContext>()
-                .As<Identity.PushIdentityDbContext>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<IdentityRoleManager>();
-            builder.RegisterType<IdentityUserManager>();
-            builder.RegisterType<IdentitySignInManager>();
-            builder.RegisterType<ClaimsRepository>();
+            builder.RegisterType<IdentityUserStore>().InstancePerLifetimeScope();
+            builder.RegisterType<IdentityUserManager>().InstancePerLifetimeScope();
+            builder.RegisterType<IdentityRoleManager>().InstancePerLifetimeScope();
+            builder.RegisterType<IdentitySignInManager>().InstancePerLifetimeScope();
+            builder.RegisterType<ClaimsRepository>().InstancePerLifetimeScope();
 
-            builder
-                .RegisterType<UserStore<ApplicationUser>>()
-                .As<IUserStore<ApplicationUser>>()
-                .As<UserStore<ApplicationUser>>();
+            //builder
+            //    .RegisterType<UserStore<ApplicationUser>>()
+            //    .As<IUserStore<ApplicationUser>>()
+            //    .As<UserStore<ApplicationUser>>();
 
             builder
                 .Register(ctx => new HttpContextWrapper(HttpContext.Current).GetOwinContext().Authentication)
@@ -58,6 +58,13 @@ namespace Push.Foundation.Web
                 .As<IDataProtector>();
 
             builder.RegisterType<DataProtectorTokenProvider<ApplicationUser>>();
+
+
+            // IMPORTANT- save these, else the OWIN dependency injection will complain!
+            //
+            builder.RegisterType<EmailService>().As<IIdentityMessageService>();
+            builder.RegisterType<SmsService>().As<SmsService>();
+
         }
     }
 }

@@ -62,10 +62,14 @@ namespace Monster.Middle.Persist.Master
             return _connection.QueryFirstOrDefault<Instance>(sql);
         }
 
-        public void AssignInstanceToUser(Guid instanceId, string aspNetUserId)
+        public void AssignInstanceToUser(Guid instanceId, string aspNetUserId, string domain)
         {
-            var sql = @"UPDATE INSERT SET OwnerUserId = @aspNetUserId WHERE Id = @instanceId";
-            _connection.Execute(sql, new { instanceId, aspNetUserId });
+            var sql = @"UPDATE INSERT 
+                        SET OwnerUserId = @aspNetUserId,
+                        OwnerNickName = @domain
+                        WHERE Id = @instanceId";
+
+            _connection.Execute(sql, new { instanceId, aspNetUserId, domain });
         }
 
 
