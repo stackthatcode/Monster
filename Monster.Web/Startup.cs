@@ -2,7 +2,6 @@
 using Microsoft.Owin;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
-using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Models.Config;
 using Owin;
 using Startup = Monster.Web.Startup;
@@ -15,12 +14,9 @@ namespace Monster.Web
         public void Configuration(IAppBuilder app)
         {            
             var autofacContainer = WebAutofac.Build();
-
             AutomapperConfigure();
 
-            // TODO - rip all that shit out and replace with Push
-            //AuthConfig.Configure(app, autofacContainer);
-            
+            AuthConfig.ConfigureAuth(app);
             HangFireConfig.Configure(app);
         }
 

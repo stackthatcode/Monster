@@ -82,8 +82,6 @@ namespace Monster.Web.Controllers
 
             if (identity.IsAuthenticated)
             {
-                _connectionContext.InitializePersistOnly(identity.InstanceId);
-
                 var state = identity.SystemState;
                 var shopifyConnection = _connectionRepository.Retrieve();
 
