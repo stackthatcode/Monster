@@ -134,6 +134,7 @@ namespace Monster.Web.Controllers
             // Attempt to locate the identity, as there are both a valid Domain and Access Token
             //
             var identity = _identityService.HydrateIdentityContextByDomain(shop);
+
             if (!identity.IsAuthenticated)
             {
                 throw new HttpException(
@@ -150,11 +151,6 @@ namespace Monster.Web.Controllers
                 return Redirect("Domain");
             }
 
-            // Get Key and Secret credentials from config file - and there is not Instance-specific.
-            // 
-            var credentials = ShopifyCredentialsConfig.Settings.ToApiKeyAndSecret(shop);
-            _shopifyHttpContext.Initialize(credentials);
-
             try
             {
                 if (!VerifyShopifyHmac())
@@ -162,8 +158,11 @@ namespace Monster.Web.Controllers
                     throw new Exception("Failed HMAC verification from Shopify Return");
                 }
 
-                // Get Access Token from Shopify and 
-                //
+                // Get Key and Secret credentials from config file - and there is not Instance-specific.
+                // 
+                var credentials = ShopifyCredentialsConfig.Settings.ToApiKeyAndSecret(shop);
+                _shopifyHttpContext.Initialize(credentials);
+
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
                 _connectionContext.UpdateShopifyConnectionAndCodeHash(shop, accessToken, codeHash);
 
@@ -179,7 +178,8 @@ namespace Monster.Web.Controllers
 
                 var model = new ReturnModel
                 {
-                    IsWizardMode = !updatedState.IsRandomAccessMode
+                    IsWizardMode = !updatedState.IsRandomAccessMode,
+                    IsConnectionOk = true,
                 };
                 return View(model);
             }
@@ -188,7 +188,12 @@ namespace Monster.Web.Controllers
                 _logger.Error(ex);
                 _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
 
-                return Redirect("Domain");
+                var model = new ReturnModel
+                {
+                    IsWizardMode = !identity.SystemState.IsRandomAccessMode,
+                    IsConnectionOk = false,
+                };
+                return View(model);
             }
         }
 
@@ -197,7 +202,8 @@ namespace Monster.Web.Controllers
         {
             if (ShopifyCredentialsConfig.Settings.ApiKey.IsNullOrEmpty())
             {
-                throw new Exception("Null or empty Shopify -> ApiKey - please check configuration");
+                throw new Exception(
+                    "Null or empty Shopify -> ApiKey - please check configuration");
             }
 
             // Build the Shopify OAuth request 

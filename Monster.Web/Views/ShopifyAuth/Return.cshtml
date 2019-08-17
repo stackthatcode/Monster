@@ -4,34 +4,48 @@
 <main role="main" class="medium-size">
     @Html.Partial("_TopBrand")
 
-    <hr/>
+    <hr />
     <h1 class="mt-4 center">Configuration - Shopify</h1>
     <p class="lead center">Connect @GlobalConfig.AppName to your Shopify Store</p>
 
-    <div class="alert alert-primary">
-        <strong>Shopify Connection - Successful</strong> - @GlobalConfig.AppName is now connected to your Shopify store.
-    </div>
-
-    <p>The next step in setup will be to connect @GlobalConfig.AppName with your Acumatica instance,
-        and to prepare your Acumatica instance for automated synchronization.</p>
-
-    @if (Model.IsWizardMode)
+    @if (Model.IsConnectionOk)
     {
-        <div class="center std-pad">
-            <a href="@GlobalConfig.Url("Config/AcumaticaConnection")"
-               class="btn btn-success btn-lg">Go to Acumatica Configuration
-                <i class="fas fa-sign-in-alt"></i>
-            </a>
+        <div class="alert alert-primary">
+            <strong>Shopify Connection - Successful</strong> - 
+            @GlobalConfig.AppName is now connected to your Shopify store.
         </div>
     }
     else
     {
-        <div class="center std-pad">
-            <a href="@GlobalConfig.DiagnosticsHome"
-               class="btn btn-secondary btn-lg">
-                Back to Diagnostics <i class="fas fa-undo"></i>
-            </a>
+        <div class="alert alert-danger">
+            <strong>Shopify Connection - Failed</strong> - 
+            @GlobalConfig.AppName was unable to connect to your Shopify store.
         </div>
     }
+
+    <p>
+        The next step in setup will be to connect @GlobalConfig.AppName with your Acumatica instance,
+        and to prepare your Acumatica instance for automated synchronization.
+    </p>
+    
+    <div class="center std-pad">
+        <a href="@GlobalConfig.Url("ShopifyAuth/Domain")" class="btn btn-secondary btn-lg">
+            Back to Shopify Domain <i class="fas fa-undo"></i>
+        </a>
+
+        @if (!Model.IsWizardMode)
+        {
+            <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
+                Back to Diagnostics <i class="fas fa-undo"></i>
+            </a>
+        }
+
+        @if (Model.IsWizardMode && Model.IsConnectionOk)
+        {
+            <a href="@GlobalConfig.Url("Config/AcumaticaConnection")" class="btn btn-success btn-lg">
+                To Acumatica Configuration <i class="fas fa-sign-in-alt"></i>
+            </a>
+        }
+    </div>
 </main>
 
