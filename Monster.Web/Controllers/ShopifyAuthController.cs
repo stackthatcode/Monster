@@ -145,8 +145,7 @@ namespace Monster.Web.Controllers
             // Did the User hit the Back Button...? If so, the codeHash will be the same
             //
             var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
-            var identityContext = HttpContext.GetIdentity();
-            if (identityContext.IsAuthenticated && _connectionRepository.IsSameAuthCode(codeHash))
+            if (_connectionRepository.IsSameAuthCode(codeHash))
             {
                 return Redirect("Domain");
             }

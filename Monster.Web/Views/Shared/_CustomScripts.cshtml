@@ -1,6 +1,4 @@
-﻿@using Monster.Middle.Hangfire
-@using Monster.Middle.Processes.Sync.Model.Misc
-@using Monster.Middle.Processes.Sync.Services
+﻿@using Monster.Middle.Processes.Sync.Model.Misc
 @using Monster.Web.Plumbing
 
 <!-- Monster - JavaScript -->
@@ -9,7 +7,7 @@
     var Monster = Monster || {};
     Monster.BaseUrl = '@GlobalConfig.BaseUrl';
 
-    var SystemState = SystemState || {};
+    var StateCode = StateCode || {};
     StateCode.None = @StateCode.None;
     StateCode.Ok = @StateCode.Ok;
     StateCode.Invalid = @StateCode.Invalid;
