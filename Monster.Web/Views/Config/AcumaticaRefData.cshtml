@@ -21,10 +21,9 @@
         <div data-bind="if: ReferenceDataState() == StateCode.None">
             <p>
                 This next step will require you to configure Acumatica so that
-                @GlobalConfig.AppName can properly push Shopify data during
-                real-time synchronization. This will involve creating
-                Item Classes, Payment Methods, Cash Accounts, Tax Categories, etc.
-                in Acumatica.
+                @GlobalConfig.AppName can properly synchronize you Shopify data.
+                This will involve creating Item Classes, Payment Methods, Cash Accounts, Tax Categories
+                and other data in Acumatica.
             </p>
 
             <div data-bind="template: { name: 'Pdf-Download' }"></div>
@@ -103,25 +102,24 @@
     </div>
 
     <script type="text/html" id="Pdf-Download">
-        <div data-bind="if: ReferenceDataState() != StateCode.Ok">
-            <p>
-                Download the following PDF document and execute all of the steps contained
-                therein to prepare your Acumatica instance for synchronization.
-                Once you have completed all steps, click the "Connect to Acumatica"
-                button to pull these settings.
-            </p>
-        </div>
-
-        <div data-bind="if: ReferenceDataState() == StateCode.Ok">
-            <p>
-                You can download the following PDF document as a reference
-                in case you want to change the way your Acumatica instance
-                is configured.
-            </p>
-        </div>
-
+        <div style="height:30px;"></div>
         <div class="card">
             <div class="card-body center">
+                <div data-bind="if: ReferenceDataState() != StateCode.Ok">
+                    <p>
+                        Download the following PDF document and execute all of the steps
+                        to prepare your Acumatica instance for synchronization with Shopify.
+                    </p>
+                </div>
+
+                <div data-bind="if: ReferenceDataState() == StateCode.Ok">
+                    <p>
+                        You can download the following PDF document as a reference
+                        in case you want to change the way your Acumatica instance
+                        is configured.
+                    </p>
+                </div>
+
                 <a target="_blank"
                    href="@GlobalConfig.Url("Content/Configuring Acumatica for Synchronization.pdf")">
                     <img style="width: 100px;" src="@GlobalConfig.Url("Content/pdf-icon.png")" />
@@ -143,91 +141,95 @@
     </div>
 </main>
 
-    <script>
-        var Monster = Monster || {};
+<script>
+    var Monster = Monster || {};
 
-        Monster.AcumaticaRefDataModel = function () {
-            var self = this;
+    Monster.AcumaticaRefDataModel = function () {
+        var self = this;
 
-            // View visibility
-            self.IsJobRunning = ko.observable();
-            self.JobRunningModel = new Monster.ExecutionLogModel();
+        // View visibility
+        //
+        self.IsJobRunning = ko.observable();
+        self.JobRunningModel = new Monster.ExecutionLogModel();
 
-            // System State
-            self.ReferenceDataState = ko.observable();
-            self.IsRandomAccessMode = ko.observable();
-            self.Validations = ko.observable();
-
-
-            self.HasReferenceDataBeenPulled = ko.computed(function () {
-                return self.ReferenceDataState() != StateCode.None;
-            });
-
-            self.IsReferenceDataOk = ko.computed(function () {
-                return self.ReferenceDataState() == StateCode.Ok;
-            });
-
-            self.IsReferenceDataBroken = ko.computed(function () {
-                return self.ReferenceDataState() == StateCode.SystemFault
-                    || self.ReferenceDataState() == StateCode.Invalid;
-            });
+        // System State
+        //
+        self.ReferenceDataState = ko.observable();
+        self.IsRandomAccessMode = ko.observable();
+        self.Validations = ko.observable();
 
 
-            // Control-visibility
-            self.IsNextButtonVisible = ko.computed(function () {
-                return !self.IsRandomAccessMode() && self.IsReferenceDataOk();
-            });
+        self.HasReferenceDataBeenPulled = ko.computed(function () {
+            return self.ReferenceDataState() != StateCode.None;
+        });
 
-            self.IsPrevButtonVisible = ko.computed(function () {
-                return !self.IsRandomAccessMode();
-            });
+        self.IsReferenceDataOk = ko.computed(function () {
+            return self.ReferenceDataState() == StateCode.Ok;
+        });
 
-            self.IsReturnButtonVisible = ko.computed(function () {
-                return self.IsRandomAccessMode();
-            });
+        self.IsReferenceDataBroken = ko.computed(function () {
+            return self.ReferenceDataState() == StateCode.SystemFault
+                || self.ReferenceDataState() == StateCode.Invalid;
+        });
+
+
+        // Control-visibility
+        //
+        self.IsNextButtonVisible = ko.computed(function () {
+            return !self.IsRandomAccessMode() && self.IsReferenceDataOk();
+        });
+
+        self.IsPrevButtonVisible = ko.computed(function () {
+            return !self.IsRandomAccessMode();
+        });
+
+        self.IsReturnButtonVisible = ko.computed(function () {
+            return self.IsRandomAccessMode();
+        });
 
 
 
-            // Actions
-            self.ConnectToAcumatica = function () {
-                var ajax = new Monster.Ajax();
-                ajax.HttpPost("Config/AcumaticaRefDataPull", {}, self.PollStatus);
-            };
-
-            self.PollStatus = function () {
-                var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("Config/AcumaticaRefDataStatus", self.ProcessStatus);
-            };
-
-            self.ProcessStatus = function (response) {
-                //console.log(response);
-
-                self.IsJobRunning(response.IsJobRunning);
-                self.JobRunningModel.Ingest(response.ExecutionLogs);
-                
-                // If still running, then show AJAX...
-                if (self.IsJobRunning()) {
-                    setTimeout(self.PollStatus, 1000);
-                    return;
-                }
-
-                // Else process System State info
-                self.ReferenceDataState(response.Status.ReferenceDataState);
-                self.IsRandomAccessMode(response.Status.IsRandomAccessMode);
-                self.Validations(response.Status.Validations);
-            };
-
-            self.Initialize = function () {
-                self.IsJobRunning(false);
-                self.PollStatus();
-            };
-
-            return self;
+        // Actions
+        //
+        self.ConnectToAcumatica = function () {
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("Config/AcumaticaRefDataPull", {}, self.PollStatus);
         };
 
-        var model = new Monster.AcumaticaRefDataModel();
-        model.Initialize();
-        ko.applyBindings(model);
-    </script>
+        self.PollStatus = function () {
+            var ajax = new Monster.Ajax();
+            ajax.DisablePopupsAndSpinners();
+            ajax.HttpGet("Config/AcumaticaRefDataStatus", self.ProcessStatus);
+        };
+
+        self.ProcessStatus = function (response) {
+            //console.log(response);
+
+            self.IsJobRunning(response.IsJobRunning);
+            self.JobRunningModel.Ingest(response.ExecutionLogs);
+            
+            // If still running, then show AJAX...
+            if (self.IsJobRunning()) {
+                setTimeout(self.PollStatus, 1000);
+                return;
+            }
+
+            // Else process System State info
+            self.ReferenceDataState(response.Status.ReferenceDataState);
+            self.IsRandomAccessMode(response.Status.IsRandomAccessMode);
+            self.Validations(response.Status.Validations);
+        };
+
+        self.Initialize = function () {
+            self.IsJobRunning(false);
+            self.PollStatus();
+        };
+
+        return self;
+    };
+
+    var model = new Monster.AcumaticaRefDataModel();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
 
