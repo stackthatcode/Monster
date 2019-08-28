@@ -12,14 +12,14 @@ namespace Monster.Web.Models.RealTime
 
         public bool MultipleWarehouses => WarehouseIds.Count > 1;
 
-        public static LocationModel Make(UsrShopifyLocation input)
+        public static LocationModel Make(ShopifyLocation input)
         {
             var output = new LocationModel();
             output.ShopifyLocationId = input.ShopifyLocationId;
             output.ShopifyLocationName = input.ShopifyLocationName;
             output.WarehouseIds
-                = input.UsrShopAcuWarehouseSyncs
-                    .Select(x => x.UsrAcumaticaWarehouse.AcumaticaWarehouseId)
+                = input.ShopAcuWarehouseSyncs
+                    .Select(x => x.AcumaticaWarehouse.AcumaticaWarehouseId)
                     .ToList();
 
             return output;
@@ -33,7 +33,7 @@ namespace Monster.Web.Models.RealTime
         public bool AnyMultipleWarehouseMapping => Locations.Any(x => x.MultipleWarehouses);
         
 
-        public static LocationsModel Make(IEnumerable<UsrShopifyLocation> locations)
+        public static LocationsModel Make(IEnumerable<ShopifyLocation> locations)
         {
             var output = new LocationsModel();
             output.Locations = locations.Select(x => LocationModel.Make(x)).ToList();

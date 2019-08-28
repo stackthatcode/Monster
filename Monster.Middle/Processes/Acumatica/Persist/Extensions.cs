@@ -23,14 +23,14 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                    order.AcumaticaStatus == "Back Order";
         }
         
-        public static bool IsMatchedToShopify(this UsrAcumaticaStockItem stockItem)
+        public static bool IsMatchedToShopify(this AcumaticaStockItem stockItem)
         {
-            return stockItem.UsrShopAcuItemSyncs.Count != 0;
+            return stockItem.ShopAcuItemSyncs.Count != 0;
         }
 
-        public static UsrAcumaticaWarehouse ByDetail(
-                    this List<UsrAcumaticaWarehouse> input, 
-                    UsrAcumaticaWarehouseDetail detail)
+        public static AcumaticaWarehouse ByDetail(
+                    this List<AcumaticaWarehouse> input, 
+                    AcumaticaWarehouseDetail detail)
         {
             return input.FirstOrDefault(
                     x => x.AcumaticaWarehouseId == detail.AcumaticaWarehouseId);
@@ -65,13 +65,13 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         }
 
 
-        public static UsrAcumaticaWarehouseDetail
+        public static AcumaticaWarehouseDetail
                 WarehouseDetail(
-                    this UsrAcumaticaStockItem input,
+                    this AcumaticaStockItem input,
                     string warehouseId)
         {
             return input
-                .UsrAcumaticaWarehouseDetails
+                .AcumaticaWarehouseDetails
                 .FirstOrDefault(x => x.AcumaticaWarehouseId == warehouseId);
         }
 

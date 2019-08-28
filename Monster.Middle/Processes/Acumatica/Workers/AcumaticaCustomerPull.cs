@@ -60,8 +60,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
 
             // Set the Batch State Pull End marker
-            var maxCustomerDate = _orderRepository.RetrieveCustomerMaxUpdatedDate();
-            var pullEnd = (maxCustomerDate ?? startOfRun).AddAcumaticaBatchFudge();
+            var pullEnd = (startOfRun).AddAcumaticaBatchFudge();
             _batchStateRepository.UpdateCustomersPullEnd(pullEnd);
         }
 

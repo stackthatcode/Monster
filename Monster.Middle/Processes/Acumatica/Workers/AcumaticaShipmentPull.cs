@@ -66,8 +66,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 RunAll();
             }
 
-            var maxOrderDate = _orderRepository.RetrieveShipmentMaxUpdatedDate();
-            var batchStateEnd = (maxOrderDate ?? startOfRun).AddAcumaticaBatchFudge();                
+            var batchStateEnd = (startOfRun).AddAcumaticaBatchFudge();                
             _batchStateRepository.UpdateShipmentsPullEnd(batchStateEnd);
         }
 

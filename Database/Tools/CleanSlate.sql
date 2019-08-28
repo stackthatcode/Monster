@@ -60,17 +60,17 @@ DELETE FROM usrShopifyLocation;
 
 -- Clear out System tables
 --
-DELETE FROM usrAcumaticaRefData
-DELETE FROM usrPreferences;
+DELETE FROM AcumaticaRefData
+DELETE FROM Preferences;
 
-DELETE FROM usrAcumaticaBatchState;
-DELETE FROM usrShopifyBatchState;
+DELETE FROM AcumaticaBatchState;
+DELETE FROM ShopifyBatchState;
 
-DELETE FROM usrBackgroundJob;
-DELETE FROM usrExecutionLog;
+DELETE FROM BackgroundJob;
+DELETE FROM ExecutionLog;
 
-DELETE FROM usrSystemState;
--- DELETE FROM usrTenant
+DELETE FROM SystemState;
+-- DELETE FROM Tenant
 
 
 

@@ -22,29 +22,29 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
         public string AcumaticaStockItemUrl { get; set; }
 
         public static VariantAndStockItemDto Make(
-                        UsrShopAcuItemSync input, 
+                        ShopAcuItemSync input, 
                         Func<long, long, string> variantUrlService,
                         Func<string, string> stockItemUrlService)
         {
             var output = new VariantAndStockItemDto();
-            output.MonsterVariantId = input.UsrShopifyVariant.MonsterId;
-            output.ShopifyProductId = input.UsrShopifyVariant.UsrShopifyProduct.ShopifyProductId;
-            output.ShopifyProductTitle = input.UsrShopifyVariant.UsrShopifyProduct.ShopifyTitle;
-            output.ShopifyProductType = input.UsrShopifyVariant.UsrShopifyProduct.ShopifyProductType;
-            output.ShopifyVendor = input.UsrShopifyVariant.UsrShopifyProduct.ShopifyVendor;
-            output.ShopifyVariantId = input.UsrShopifyVariant.ShopifyVariantId;
-            output.ShopifySku = input.UsrShopifyVariant.ShopifySku;
-            output.ShopifyVariantTitle = input.UsrShopifyVariant.ShopifyTitle;
+            output.MonsterVariantId = input.ShopifyVariant.MonsterId;
+            output.ShopifyProductId = input.ShopifyVariant.ShopifyProduct.ShopifyProductId;
+            output.ShopifyProductTitle = input.ShopifyVariant.ShopifyProduct.ShopifyTitle;
+            output.ShopifyProductType = input.ShopifyVariant.ShopifyProduct.ShopifyProductType;
+            output.ShopifyVendor = input.ShopifyVariant.ShopifyProduct.ShopifyVendor;
+            output.ShopifyVariantId = input.ShopifyVariant.ShopifyVariantId;
+            output.ShopifySku = input.ShopifyVariant.ShopifySku;
+            output.ShopifyVariantTitle = input.ShopifyVariant.ShopifyTitle;
 
             output.ShopifyVariantUrl 
                 = variantUrlService(
-                    input.UsrShopifyVariant.UsrShopifyProduct.ShopifyProductId,
-                    input.UsrShopifyVariant.ShopifyVariantId);
+                    input.ShopifyVariant.ShopifyProduct.ShopifyProductId,
+                    input.ShopifyVariant.ShopifyVariantId);
 
-            output.AcumaticaItemId = input.UsrAcumaticaStockItem.ItemId;
-            output.AcumaticaDescription = input.UsrAcumaticaStockItem.AcumaticaDescription;
+            output.AcumaticaItemId = input.AcumaticaStockItem.ItemId;
+            output.AcumaticaDescription = input.AcumaticaStockItem.AcumaticaDescription;
 
-            output.AcumaticaStockItemUrl = stockItemUrlService(input.UsrAcumaticaStockItem.ItemId);
+            output.AcumaticaStockItemUrl = stockItemUrlService(input.AcumaticaStockItem.ItemId);
 
             output.IsSyncEnabled = input.IsSyncEnabled;
 

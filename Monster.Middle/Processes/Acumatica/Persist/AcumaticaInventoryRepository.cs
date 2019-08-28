@@ -37,84 +37,69 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
 
 
-        public void InsertWarehouse(UsrAcumaticaWarehouse warehouse)
+        public void InsertWarehouse(AcumaticaWarehouse warehouse)
         {
-            Entities.UsrAcumaticaWarehouses.Add(warehouse);
+            Entities.AcumaticaWarehouses.Add(warehouse);
             Entities.SaveChanges();
         }
 
-        public IList<UsrAcumaticaWarehouse> RetrieveWarehouses()
+        public IList<AcumaticaWarehouse> RetrieveWarehouses()
         {
-            return Entities.UsrAcumaticaWarehouses.ToList();
+            return Entities.AcumaticaWarehouses.ToList();
         }
 
         // Acumatica persistence
         //
-        public UsrAcumaticaStockItem RetreiveStockItem(string itemId)
+        public AcumaticaStockItem RetreiveStockItem(string itemId)
         {
             return Entities
-                .UsrAcumaticaStockItems
-                .Include(x => x.UsrShopAcuItemSyncs)
+                .AcumaticaStockItems
+                .Include(x => x.ShopAcuItemSyncs)
                 .FirstOrDefault(x => x.ItemId == itemId);
         }
 
-        public UsrAcumaticaStockItem RetreiveStockItem(long monsterId)
+        public AcumaticaStockItem RetreiveStockItem(long monsterId)
         {
             return Entities
-                    .UsrAcumaticaStockItems
+                    .AcumaticaStockItems
                     .FirstOrDefault(x => x.MonsterId == monsterId);
         }
 
-        public List<UsrAcumaticaWarehouseDetail>
+        public List<AcumaticaWarehouseDetail>
                     RetrieveWarehouseDetails(long stockItemMonstedId)
         {
             return Entities
-                .UsrAcumaticaWarehouseDetails
+                .AcumaticaWarehouseDetails
                 .Where(x => x.ParentMonsterId == stockItemMonstedId)
                 .ToList();
         }
 
 
-        public void InsertWarehouseDetails(UsrAcumaticaWarehouseDetail details)
+        public void InsertWarehouseDetails(AcumaticaWarehouseDetail details)
         {
-            Entities.UsrAcumaticaWarehouseDetails.Add(details);
+            Entities.AcumaticaWarehouseDetails.Add(details);
             Entities.SaveChanges();
         }
 
 
-
-        public DateTime? RetrieveStockItemsMaxUpdatedDate()
+        public void InsertStockItems(AcumaticaStockItem item)
         {
-            if (Entities.UsrShopifyPayouts.Any())
-            {
-                return Entities.UsrAcumaticaStockItems
-                    .Select(x => x.LastUpdated)
-                    .Max();
-            }
-            else
-            {
-                return (DateTime?)null;
-            }
-        }
-
-        public void InsertStockItems(UsrAcumaticaStockItem item)
-        {
-            Entities.UsrAcumaticaStockItems.Add(item);
+            Entities.AcumaticaStockItems.Add(item);
             Entities.SaveChanges();
         }
 
-        public void InsertInventoryReceipt(UsrAcumaticaInventoryReceipt receipt)
+        public void InsertInventoryReceipt(AcumaticaInventoryReceipt receipt)
         {
-            Entities.UsrAcumaticaInventoryReceipts.Add(receipt);
+            Entities.AcumaticaInventoryReceipts.Add(receipt);
             Entities.SaveChanges();
         }
 
 
-        public List<UsrAcumaticaInventoryReceipt>
+        public List<AcumaticaInventoryReceipt>
                         RetrieveUnreleasedInventoryReceipts()
         {
             return Entities
-                    .UsrAcumaticaInventoryReceipts
+                    .AcumaticaInventoryReceipts
                     .Where(x => x.IsReleased == false)
                     .ToList();
         }

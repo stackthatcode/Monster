@@ -175,7 +175,6 @@
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\VariantAndStockItemDto.cs" />
     <Compile Include="Processes\Sync\Status\OrderStatusService.cs" />
-    <Compile Include="Processes\Sync\Status\InventoryStatusService.cs" />
     <Compile Include="Processes\Sync\Workers\Orders\ParallelWorker.cs" />
     <Compile Include="Processes\Acumatica\Services\ReferenceDataService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferencePull.cs" />

@@ -28,14 +28,14 @@ namespace Monster.Middle.Processes.Sync.Persist
         // Warehouses & Locations
         //
         public void InsertInventoryReceiptSync(
-                UsrShopifyInventoryLevel level, UsrAcumaticaInventoryReceipt receipt)
+                ShopifyInventoryLevel level, AcumaticaInventoryReceipt receipt)
         {
-            var sync = new UsrInventoryReceiptSync();
-            sync.UsrShopifyInventoryLevel = level;
-            sync.UsrAcumaticaInventoryReceipt = receipt;
+            var sync = new InventoryReceiptSync();
+            sync.ShopifyInventoryLevel = level;
+            sync.AcumaticaInventoryReceipt = receipt;
             sync.DateCreated = DateTime.Now;
             sync.LastUpdated = DateTime.Now;
-            Entities.UsrInventoryReceiptSyncs.Add(sync);
+            Entities.InventoryReceiptSyncs.Add(sync);
             Entities.SaveChanges();
         }
 
@@ -49,7 +49,7 @@ namespace Monster.Middle.Processes.Sync.Persist
             {
                 if (warehouse.HasMatch())
                 {
-                    var sync = warehouse.UsrShopAcuWarehouseSyncs.First();
+                    var sync = warehouse.ShopAcuWarehouseSyncs.First();
                     DeleteWarehouseSync(sync);
                 }
 
@@ -66,7 +66,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                 }
                 else
                 {
-                    var sync = warehouse.UsrShopAcuWarehouseSyncs.First();
+                    var sync = warehouse.ShopAcuWarehouseSyncs.First();
                     DeleteWarehouseSync(sync);
                 }
             }
@@ -78,89 +78,89 @@ namespace Monster.Middle.Processes.Sync.Persist
 
 
         public void InsertWarehouseSync(
-                UsrShopifyLocation location, UsrAcumaticaWarehouse warehouse)
+                ShopifyLocation location, AcumaticaWarehouse warehouse)
         {
-            var sync = new UsrShopAcuWarehouseSync();
-            sync.UsrShopifyLocation = location;
-            sync.UsrAcumaticaWarehouse = warehouse;
+            var sync = new ShopAcuWarehouseSync();
+            sync.ShopifyLocation = location;
+            sync.AcumaticaWarehouse = warehouse;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
-            Entities.UsrShopAcuWarehouseSyncs.Add(sync);
+            Entities.ShopAcuWarehouseSyncs.Add(sync);
             Entities.SaveChanges();
         }
 
-        public void DeleteWarehouseSync(UsrShopAcuWarehouseSync sync)
+        public void DeleteWarehouseSync(ShopAcuWarehouseSync sync)
         {
-            Entities.UsrShopAcuWarehouseSyncs.Remove(sync);
+            Entities.ShopAcuWarehouseSyncs.Remove(sync);
             Entities.SaveChanges();
         }
 
-        public UsrShopifyLocation RetrieveLocation(long shopifyLocationId)
+        public ShopifyLocation RetrieveLocation(long shopifyLocationId)
         {
             return Entities
-                .UsrShopifyLocations
-                .Include(x => x.UsrShopAcuWarehouseSyncs)
-                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse))
+                .ShopifyLocations
+                .Include(x => x.ShopAcuWarehouseSyncs)
+                .Include(x => x.ShopAcuWarehouseSyncs.Select(y => y.AcumaticaWarehouse))
                 .FirstOrDefault(x => x.ShopifyLocationId == shopifyLocationId);
         }
 
-        public List<UsrShopifyLocation> RetrieveLocations()
+        public List<ShopifyLocation> RetrieveLocations()
         {
             return Entities
-                .UsrShopifyLocations
+                .ShopifyLocations
                 .Where(x => x.ShopifyActive == true)
-                .Include(x => x.UsrShopAcuWarehouseSyncs)
-                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse))
+                .Include(x => x.ShopAcuWarehouseSyncs)
+                .Include(x => x.ShopAcuWarehouseSyncs.Select(y => y.AcumaticaWarehouse))
                 .ToList();
         }
 
-        public List<UsrShopifyLocation> RetrieveDeactivatedMatchedLocations()
+        public List<ShopifyLocation> RetrieveDeactivatedMatchedLocations()
         {
             return Entities
-                .UsrShopifyLocations
-                .Include(x => x.UsrShopAcuWarehouseSyncs)
-                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse))
+                .ShopifyLocations
+                .Include(x => x.ShopAcuWarehouseSyncs)
+                .Include(x => x.ShopAcuWarehouseSyncs.Select(y => y.AcumaticaWarehouse))
                 .Where(x => x.ShopifyActive == false)
-                .Where(x => x.UsrShopAcuWarehouseSyncs.Any())
+                .Where(x => x.ShopAcuWarehouseSyncs.Any())
                 .ToList();
         }
 
-        public List<UsrAcumaticaWarehouse> RetrieveWarehouses()
+        public List<AcumaticaWarehouse> RetrieveWarehouses()
         {
             return Entities
-                .UsrAcumaticaWarehouses
-                .Include(x => x.UsrShopAcuWarehouseSyncs)
-                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrShopifyLocation))
+                .AcumaticaWarehouses
+                .Include(x => x.ShopAcuWarehouseSyncs)
+                .Include(x => x.ShopAcuWarehouseSyncs.Select(y => y.ShopifyLocation))
                 .ToList();
         }
 
-        public List<UsrShopifyLocation> RetrieveMatchedLocations()
+        public List<ShopifyLocation> RetrieveMatchedLocations()
         {
             var output = Entities
-                .UsrShopifyLocations
-                .Include(x => x.UsrShopAcuWarehouseSyncs)
-                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrAcumaticaWarehouse))
-                .Where(x => x.UsrShopAcuWarehouseSyncs.Any());
+                .ShopifyLocations
+                .Include(x => x.ShopAcuWarehouseSyncs)
+                .Include(x => x.ShopAcuWarehouseSyncs.Select(y => y.AcumaticaWarehouse))
+                .Where(x => x.ShopAcuWarehouseSyncs.Any());
 
             return output.ToList();
         }
         
-        public List<UsrAcumaticaWarehouse> RetrieveMatchedWarehouses()
+        public List<AcumaticaWarehouse> RetrieveMatchedWarehouses()
         {
             return Entities
-                .UsrAcumaticaWarehouses
-                .Include(x => x.UsrShopAcuWarehouseSyncs)
-                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrShopifyLocation))
-                .Where(x => x.UsrShopAcuWarehouseSyncs.Any())
+                .AcumaticaWarehouses
+                .Include(x => x.ShopAcuWarehouseSyncs)
+                .Include(x => x.ShopAcuWarehouseSyncs.Select(y => y.ShopifyLocation))
+                .Where(x => x.ShopAcuWarehouseSyncs.Any())
                 .ToList();
         }
 
-        public UsrAcumaticaWarehouse RetrieveWarehouse(string warehouseId)
+        public AcumaticaWarehouse RetrieveWarehouse(string warehouseId)
         {
             return Entities
-                .UsrAcumaticaWarehouses
-                .Include(x => x.UsrShopAcuWarehouseSyncs)
-                .Include(x => x.UsrShopAcuWarehouseSyncs.Select(y => y.UsrShopifyLocation))
+                .AcumaticaWarehouses
+                .Include(x => x.ShopAcuWarehouseSyncs)
+                .Include(x => x.ShopAcuWarehouseSyncs.Select(y => y.ShopifyLocation))
                 .FirstOrDefault(x => x.AcumaticaWarehouseId == warehouseId);
         }
 
@@ -168,142 +168,142 @@ namespace Monster.Middle.Processes.Sync.Persist
         
         // Products/Variants and Stock Items
         //
-        public UsrShopifyVariant RetrieveVariant(long shopifyVariantId, string sku)
+        public ShopifyVariant RetrieveVariant(long shopifyVariantId, string sku)
         {
             return Entities
-                .UsrShopifyVariants
-                .Include(x => x.UsrShopAcuItemSyncs)
-                .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrAcumaticaStockItem))
+                .ShopifyVariants
+                .Include(x => x.ShopAcuItemSyncs)
+                .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
                 .FirstOrDefault(x => x.ShopifyVariantId == shopifyVariantId
                                      && x.ShopifySku == sku);
         }
 
-        public UsrAcumaticaStockItem RetrieveStockItem(string itemId)
+        public AcumaticaStockItem RetrieveStockItem(string itemId)
         {
             return Entities
-                .UsrAcumaticaStockItems
-                .Include(x => x.UsrShopAcuItemSyncs)
-                .Include(x => x.UsrAcumaticaWarehouseDetails)
-                .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrShopifyVariant))
+                .AcumaticaStockItems
+                .Include(x => x.ShopAcuItemSyncs)
+                .Include(x => x.AcumaticaWarehouseDetails)
+                .Include(x => x.ShopAcuItemSyncs.Select(y => y.ShopifyVariant))
                 .FirstOrDefault(x => x.ItemId == itemId);
         }
 
-        public List<UsrShopifyVariant> RetrieveUnmatchedVariants(long shopifyProductId)
+        public List<ShopifyVariant> RetrieveUnmatchedVariants(long shopifyProductId)
         {
             var output 
                 = Entities
-                    .UsrShopifyVariants
-                    .Include(x => x.UsrShopifyProduct)
-                    .Include(x => x.UsrShopAcuItemSyncs)
-                    .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrAcumaticaStockItem))
-                    .Where(x => x.UsrShopifyProduct.ShopifyProductId == shopifyProductId)
-                    .Where(x => !x.UsrShopAcuItemSyncs.Any());
+                    .ShopifyVariants
+                    .Include(x => x.ShopifyProduct)
+                    .Include(x => x.ShopAcuItemSyncs)
+                    .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
+                    .Where(x => x.ShopifyProduct.ShopifyProductId == shopifyProductId)
+                    .Where(x => !x.ShopAcuItemSyncs.Any());
 
             return output.ToList();
         }
 
-        public List<UsrShopifyVariant> RetrieveVariantsWithStockItems(string sku)
+        public List<ShopifyVariant> RetrieveVariantsWithStockItems(string sku)
         {
             return Entities
-                .UsrShopifyVariants
-                    .Include(x => x.UsrShopifyProduct)
-                    .Include(x => x.UsrShopAcuItemSyncs)
-                    .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrAcumaticaStockItem))
+                .ShopifyVariants
+                    .Include(x => x.ShopifyProduct)
+                    .Include(x => x.ShopAcuItemSyncs)
+                    .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
                     .Where(x => x.ShopifySku == sku)
                     .ToList();
         }
 
         public void InsertItemSync(
-                UsrShopifyVariant variant, UsrAcumaticaStockItem stockItem, bool isSyncEnabled)
+                ShopifyVariant variant, AcumaticaStockItem stockItem, bool isSyncEnabled)
         {
-            var sync = new UsrShopAcuItemSync();
-            sync.UsrShopifyVariant = variant;
-            sync.UsrAcumaticaStockItem = stockItem;
+            var sync = new ShopAcuItemSync();
+            sync.ShopifyVariant = variant;
+            sync.AcumaticaStockItem = stockItem;
             sync.IsSyncEnabled = isSyncEnabled;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
 
-            Entities.UsrShopAcuItemSyncs.Add(sync);
+            Entities.ShopAcuItemSyncs.Add(sync);
             Entities.SaveChanges();
         }
 
 
         // Inventory Price
         //
-        public List<UsrAcumaticaStockItem> RetrieveMatchedStockItemsNotSynced()
+        public List<AcumaticaStockItem> RetrieveStockItemsPriceNotSynced()
         {
             return Entities
-                    .UsrAcumaticaStockItems
-                    .Include(x => x.UsrShopAcuItemSyncs)
-                    .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrShopifyVariant))
+                    .AcumaticaStockItems
+                    .Include(x => x.ShopAcuItemSyncs)
+                    .Include(x => x.ShopAcuItemSyncs.Select(y => y.ShopifyVariant))
                     .Where(x => x.IsPriceSynced == false)
-                    .Where(x => x.UsrShopAcuItemSyncs.Any(y => y.IsSyncEnabled))
+                    .Where(x => x.ShopAcuItemSyncs.Any(y => y.IsSyncEnabled))
                     .ToList();
         }
         
         // Inventory and Warehouse Details
         //
-        public List<UsrShopifyInventoryLevel> RetrieveInventoryLevelsWithoutReceipts()
+        public List<ShopifyInventoryLevel> RetrieveInventoryLevelsWithoutReceipts()
         {
             return Entities
-                    .UsrShopifyInventoryLevels
-                    .Include(x => x.UsrShopifyVariant)
-                    .Include(x => x.UsrShopifyVariant.UsrShopAcuItemSyncs)
-                    .Include(x => x.UsrShopifyLocation)
-                    .Where(x => !x.UsrInventoryReceiptSyncs.Any() && x.ShopifyAvailableQuantity > 0)
+                    .ShopifyInventoryLevels
+                    .Include(x => x.ShopifyVariant)
+                    .Include(x => x.ShopifyVariant.ShopAcuItemSyncs)
+                    .Include(x => x.ShopifyLocation)
+                    .Where(x => !x.InventoryReceiptSyncs.Any() && x.ShopifyAvailableQuantity > 0)
                     .ToList();
         }
 
-        public List<UsrShopifyInventoryLevel> RetrieveInventoryLevels(long shopifyProductId)
+        public List<ShopifyInventoryLevel> RetrieveInventoryLevels(long shopifyProductId)
         {
             return Entities
-                .UsrShopifyInventoryLevels
-                .Include(x => x.UsrShopifyVariant)
-                .Include(x => x.UsrShopifyVariant.UsrShopAcuItemSyncs)
-                .Include(x => x.UsrShopifyLocation)
-                .Where(x => x.UsrShopifyVariant.UsrShopifyProduct.ShopifyProductId == shopifyProductId)
+                .ShopifyInventoryLevels
+                .Include(x => x.ShopifyVariant)
+                .Include(x => x.ShopifyVariant.ShopAcuItemSyncs)
+                .Include(x => x.ShopifyLocation)
+                .Where(x => x.ShopifyVariant.ShopifyProduct.ShopifyProductId == shopifyProductId)
                 .ToList();
         }
         
-
-        public List<UsrAcumaticaStockItem> RetrieveMatchedStockItemInventoryNotSynced()
+        public List<AcumaticaStockItem> RetrieveStockItemInventoryNotSynced()
         {
             return Entities
-                .UsrAcumaticaStockItems
-                .Include(x => x.UsrAcumaticaWarehouseDetails)
-                .Include(x => x.UsrShopAcuItemSyncs)
-                .Include(x => x.UsrShopAcuItemSyncs.Select(y => y.UsrShopifyVariant))
-                .Where(x => x.UsrShopAcuItemSyncs.Any(y => y.IsSyncEnabled)
-                            && x.UsrAcumaticaWarehouseDetails
+                .AcumaticaStockItems
+                .Include(x => x.AcumaticaWarehouseDetails)
+                .Include(x => x.ShopAcuItemSyncs)
+                .Include(x => x.ShopAcuItemSyncs.Select(y => y.ShopifyVariant))
+                .Where(x => x.ShopAcuItemSyncs.Any(y => y.IsSyncEnabled)
+                            && x.AcumaticaWarehouseDetails
                                     .Any(y => y.IsInventorySynced == false))
                 .ToList();
         }
 
 
+
         // Product/Variant-Stock Item Sync Control
         //
-        public List<UsrShopAcuItemSync> 
+        public List<ShopAcuItemSync> 
                     SearchVariantAndStockItems(string filterText, int syncEnabledFilter)
         {
             var termList = filterText.Split(' ').Where(x => x.Trim() != "").ToList();
 
             var dataSet
                 = Entities
-                    .UsrShopAcuItemSyncs
-                    .Include(x => x.UsrShopifyVariant)
-                    .Include(x => x.UsrShopifyVariant.UsrShopifyProduct)
-                    .Include(x => x.UsrAcumaticaStockItem);
+                    .ShopAcuItemSyncs
+                    .Include(x => x.ShopifyVariant)
+                    .Include(x => x.ShopifyVariant.ShopifyProduct)
+                    .Include(x => x.AcumaticaStockItem);
 
             foreach (var term in termList)
             {
                 dataSet = dataSet.Where(
-                    x => x.UsrShopifyVariant.ShopifyTitle.Contains(term) ||
-                         x.UsrShopifyVariant.ShopifySku.Contains(term) ||
-                         x.UsrShopifyVariant.UsrShopifyProduct.ShopifyProductType.Contains(term) ||
-                         x.UsrShopifyVariant.UsrShopifyProduct.ShopifyVendor.Contains(term) ||
-                         x.UsrShopifyVariant.UsrShopifyProduct.ShopifyTitle.Contains(term) ||
-                         x.UsrAcumaticaStockItem.ItemId.Contains(term) ||
-                         x.UsrAcumaticaStockItem.AcumaticaDescription.Contains(term));
+                    x => x.ShopifyVariant.ShopifyTitle.Contains(term) ||
+                         x.ShopifyVariant.ShopifySku.Contains(term) ||
+                         x.ShopifyVariant.ShopifyProduct.ShopifyProductType.Contains(term) ||
+                         x.ShopifyVariant.ShopifyProduct.ShopifyVendor.Contains(term) ||
+                         x.ShopifyVariant.ShopifyProduct.ShopifyTitle.Contains(term) ||
+                         x.AcumaticaStockItem.ItemId.Contains(term) ||
+                         x.AcumaticaStockItem.AcumaticaDescription.Contains(term));
             }
             if (syncEnabledFilter == SyncEnabledFilter.EnabledOnly)
             {
@@ -328,17 +328,17 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
 
-        public UsrShopifyProduct RetrieveProduct(long shopifyProductId)
+        public ShopifyProduct RetrieveProduct(long shopifyProductId)
         {
             return Entities
-                    .UsrShopifyProducts
-                    .Include(x => x.UsrShopifyVariants)
-                    .Include(x => x.UsrShopifyVariants.Select(y => y.UsrShopAcuItemSyncs))
-                    .Include(x => x.UsrShopifyVariants.Select(y => y.UsrShopifyInventoryLevels))
+                    .ShopifyProducts
+                    .Include(x => x.ShopifyVariants)
+                    .Include(x => x.ShopifyVariants.Select(y => y.ShopAcuItemSyncs))
+                    .Include(x => x.ShopifyVariants.Select(y => y.ShopifyInventoryLevels))
                     .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
 
-        public List<UsrShopifyProduct> ProductSearch(string terms)
+        public List<ShopifyProduct> ProductSearch(string terms)
         {
             var termList 
                 = terms.Split(' ')
@@ -347,10 +347,10 @@ namespace Monster.Middle.Processes.Sync.Persist
 
             var dataSet
                 = Entities
-                    .UsrShopifyProducts
-                    .Include(x => x.UsrShopifyVariants)
-                    .Include(x => x.UsrShopifyVariants.Select(y => y.UsrShopAcuItemSyncs))
-                    .Where(x => x.UsrShopifyVariants.Any(y => !y.UsrShopAcuItemSyncs.Any()));
+                    .ShopifyProducts
+                    .Include(x => x.ShopifyVariants)
+                    .Include(x => x.ShopifyVariants.Select(y => y.ShopAcuItemSyncs))
+                    .Where(x => x.ShopifyVariants.Any(y => !y.ShopAcuItemSyncs.Any()));
             
             foreach (var term in termList)
             {
@@ -358,8 +358,8 @@ namespace Monster.Middle.Processes.Sync.Persist
                     x => x.ShopifyTitle.Contains(term) ||
                          x.ShopifyProductType.Contains(term) ||
                          x.ShopifyVendor.Contains(term) ||
-                         x.UsrShopifyVariants.Any(y => y.ShopifySku.Contains(term)) ||
-                         x.UsrShopifyVariants.Any(y => y.ShopifyTitle.Contains(term)));
+                         x.ShopifyVariants.Any(y => y.ShopifySku.Contains(term)) ||
+                         x.ShopifyVariants.Any(y => y.ShopifyTitle.Contains(term)));
             }
 
             return dataSet.ToList();
@@ -368,7 +368,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         public void UpdateVariantSync(long monsterVariantId, bool syncEnabled)
         {
             var sync = 
-                Entities.UsrShopAcuItemSyncs
+                Entities.ShopAcuItemSyncs
                         .First(x => x.ShopifyVariantMonsterId == monsterVariantId);
             sync.IsSyncEnabled = syncEnabled;
             Entities.SaveChanges();
@@ -377,7 +377,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         public void UpdateVariantSync(List<long> monsterVariantIds, bool syncEnabled)
         {
             var variants =
-                Entities.UsrShopAcuItemSyncs
+                Entities.ShopAcuItemSyncs
                     .Where(x => monsterVariantIds.Contains(x.ShopifyVariantMonsterId))
                     .ToList();
 

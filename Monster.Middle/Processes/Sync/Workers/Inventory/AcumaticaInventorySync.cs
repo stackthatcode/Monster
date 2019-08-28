@@ -7,7 +7,6 @@ using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model;
 using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Misc;
@@ -26,7 +25,6 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
         private readonly DistributionClient _distributionClient;
         private readonly PreferencesRepository _preferencesRepository;
         private readonly ExecutionLogService _executionLogService;
-        private readonly IPushLogger _logger;
 
         public AcumaticaInventorySync(
                 AcumaticaInventoryRepository inventoryRepository,
@@ -40,11 +38,10 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             _inventoryRepository = inventoryRepository;
             _distributionClient = distributionClient;
             _preferencesRepository = preferencesRepository;
-            _logger = logger;
             _executionLogService = executionLogService;
         }
 
-        public void Run(AcumaticaInventoryImportContext context)
+        public void RunImportToAcumatica(AcumaticaInventoryImportContext context)
         {
             foreach (var shopifyProductId in context.ShopifyProductIds)
             {
@@ -62,8 +59,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             }
         }
 
-        public void RunStockItemPush(
-                AcumaticaInventoryImportContext context, UsrShopifyVariant variant)
+        private void RunStockItemPush(AcumaticaInventoryImportContext context, ShopifyVariant variant)
         {            
             var matchingShopifySkus =
                 _syncRepository
@@ -100,7 +96,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
         }
 
         public void StockItemPush(
-                AcumaticaInventoryImportContext context, UsrShopifyVariant variant)
+                AcumaticaInventoryImportContext context, ShopifyVariant variant)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
             var defaultItemClass = preferences.AcumaticaDefaultItemClass;
@@ -113,7 +109,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             var shopifyVariant = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
             var shopifyProduct
                 = variant
-                    .UsrShopifyProduct
+                    .ShopifyProduct
                     .ShopifyJson
                     .DeserializeFromJson<Product>();
             
@@ -136,7 +132,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             var item = result.DeserializeFromJson<StockItem>();
 
             // Create Monster record
-            var newStockItemRecord = new UsrAcumaticaStockItem()
+            var newStockItemRecord = new AcumaticaStockItem()
             {
                 ItemId = item.InventoryID.value,
                 AcumaticaJson = item.SerializeToJson(),
@@ -178,7 +174,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
 
 
             // Create Monster Record
-            var monsterReceipt = new UsrAcumaticaInventoryReceipt();
+            var monsterReceipt = new AcumaticaInventoryReceipt();
             monsterReceipt.AcumaticaRefNumber = resultObject.ReferenceNbr.value;
             monsterReceipt.AcumaticaJson = resultJson;
             monsterReceipt.IsReleased = false;
@@ -197,7 +193,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             }
         }
 
-        private InventoryReceipt BuildReceipt(List<UsrShopifyInventoryLevel> inventory)
+        private InventoryReceipt BuildReceipt(List<ShopifyInventoryLevel> inventory)
         {
             var postingDate = DateTime.UtcNow.Date;
 
@@ -213,11 +209,11 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
 
             foreach (var inventoryLevel in inventory)
             {
-                var variant = inventoryLevel.UsrShopifyVariant;
-                var location = inventoryLevel.UsrShopifyLocation;
+                var variant = inventoryLevel.ShopifyVariant;
+                var location = inventoryLevel.ShopifyLocation;
                 var stockItemId = variant.AcumaticaStockItemId();
 
-                var unitCogs = (double)inventoryLevel.UsrShopifyVariant.ShopifyCost;
+                var unitCogs = (double)inventoryLevel.ShopifyVariant.ShopifyCost;
 
                 var qty = (double) inventoryLevel.ShopifyAvailableQuantity;
                 var warehouseId = location.AcumaticaWarehouseId();

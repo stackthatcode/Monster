@@ -21,7 +21,7 @@ namespace Monster.Web.Models.RealTime
         
 
         public static ShopifyProductModel Make(
-                UsrShopifyProduct input, 
+                ShopifyProduct input, 
                 Func<long, string> productUrlBuilder,
                 bool includeVariantGraph = false)
         {
@@ -31,18 +31,18 @@ namespace Monster.Web.Models.RealTime
             output.ProductType = input.ShopifyProductType;
             output.Vendor = input.ShopifyVendor;
             output.ShopifyProductId = input.ShopifyProductId;
-            output.VariantCount = input.UsrShopifyVariants.Count();
+            output.VariantCount = input.ShopifyVariants.Count();
             output.ShopifyUrl = productUrlBuilder(input.ShopifyProductId);
 
             output.SyncedVariantCount
-                = input.UsrShopifyVariants
-                    .Count(x => x.UsrShopAcuItemSyncs != null 
-                                && x.UsrShopAcuItemSyncs.Count > 0);
+                = input.ShopifyVariants
+                    .Count(x => x.ShopAcuItemSyncs != null 
+                                && x.ShopAcuItemSyncs.Count > 0);
 
             if (includeVariantGraph)
             {
                 output.Variants
-                    = input.UsrShopifyVariants
+                    = input.ShopifyVariants
                         .Select(x => ShopifyVariantModel.Make(x))
                         .ToList();
             }
@@ -61,7 +61,7 @@ namespace Monster.Web.Models.RealTime
         public int AvailableQuantity { get; set; }
         public bool IsLoadedInAcumatica { get; set; }
 
-        public static ShopifyVariantModel Make(UsrShopifyVariant input)
+        public static ShopifyVariantModel Make(ShopifyVariant input)
         {
             var output = new ShopifyVariantModel();
             output.ShopifyVariantId = input.ShopifyVariantId;
@@ -69,7 +69,7 @@ namespace Monster.Web.Models.RealTime
             output.VariantTitle = input.ShopifyTitle;
             output.Price = (decimal)input.ToVariantObj().price;
             output.AvailableQuantity 
-                = input.UsrShopifyInventoryLevels.Sum(x => x.ShopifyAvailableQuantity);
+                = input.ShopifyInventoryLevels.Sum(x => x.ShopifyAvailableQuantity);
 
             output.IsLoadedInAcumatica = input.IsMatched();
 

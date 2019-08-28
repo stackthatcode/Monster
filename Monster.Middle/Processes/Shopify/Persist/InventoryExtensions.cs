@@ -17,64 +17,64 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
-        public static IList<UsrShopifyVariant> Exclude(
-                    this IEnumerable<UsrShopifyVariant> input, 
-                    UsrShopifyVariant exclude)
+        public static IList<ShopifyVariant> Exclude(
+                    this IEnumerable<ShopifyVariant> input, 
+                    ShopifyVariant exclude)
         {
             return input
                 .Where(x => x.ShopifyVariantId != exclude.ShopifyVariantId &&
                                     x.ShopifySku != exclude.ShopifySku).ToList();
         }
         
-        public static IList<UsrShopifyVariant> ExcludeMissing(
-                    this IEnumerable<UsrShopifyVariant> input)
+        public static IList<ShopifyVariant> ExcludeMissing(
+                    this IEnumerable<ShopifyVariant> input)
         {
             return input
                     .Where(x => x.IsMissing == false)
                     .ToList();
         }
         
-        public static IList<UsrShopifyVariant> 
-                    ExcludeMatched(this IEnumerable<UsrShopifyVariant> input)
+        public static IList<ShopifyVariant> 
+                    ExcludeMatched(this IEnumerable<ShopifyVariant> input)
         {
             return input
-                .Where(x => !x.UsrShopAcuItemSyncs.Any())
+                .Where(x => !x.ShopAcuItemSyncs.Any())
                 .ToList();
         }
 
-        public static UsrShopifyInventoryLevel 
-                    InventoryLevel(this UsrShopifyVariant input, long locationId)
+        public static ShopifyInventoryLevel 
+                    InventoryLevel(this ShopifyVariant input, long locationId)
         {
             return input
-                .UsrShopifyInventoryLevels
+                .ShopifyInventoryLevels
                 .FirstOrDefault(x => x.ShopifyLocationId == locationId);
         }
 
-        public static List<UsrShopifyInventoryLevel>
-                    WithMatchedVariants(this IEnumerable<UsrShopifyInventoryLevel> input)
+        public static List<ShopifyInventoryLevel>
+                    WithMatchedVariants(this IEnumerable<ShopifyInventoryLevel> input)
         {
-            return input.Where(x => x.UsrShopifyVariant.IsMatched()).ToList();
+            return input.Where(x => x.ShopifyVariant.IsMatched()).ToList();
         }
 
 
-        public static bool IsMatched(this UsrShopifyVariant variant)
+        public static bool IsMatched(this ShopifyVariant variant)
         {
-            return variant.UsrShopAcuItemSyncs.Any();
+            return variant.ShopAcuItemSyncs.Any();
         }
 
-        public static bool IsNotMatched(this UsrShopifyVariant variant)
+        public static bool IsNotMatched(this ShopifyVariant variant)
         {
             return !variant.IsMatched();
         }
 
-        public static Variant ToVariantObj(this UsrShopifyVariant variant)
+        public static Variant ToVariantObj(this ShopifyVariant variant)
         {
             return variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
         }
 
 
         public static double CogsByMarginPercent(
-                    this UsrShopifyVariant variant, double marginPercent)
+                    this ShopifyVariant variant, double marginPercent)
         {
             var variantObject 
                 = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
@@ -82,35 +82,35 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return variantObject.price * marginPercent;
         }
 
-        public static double CogsControlTotal(this List<UsrShopifyInventoryLevel> inventory)
+        public static double CogsControlTotal(this List<ShopifyInventoryLevel> inventory)
         {
             return (double)inventory.Sum(
-                x => x.ShopifyAvailableQuantity * x.UsrShopifyVariant.ShopifyCost);
+                x => x.ShopifyAvailableQuantity * x.ShopifyVariant.ShopifyCost);
         }
 
 
-        public static List<UsrShopifyInventoryLevel> ByParentProductId(
-                        this IEnumerable<UsrShopifyInventoryLevel> input, long parentMonsterId)
+        public static List<ShopifyInventoryLevel> ByParentProductId(
+                        this IEnumerable<ShopifyInventoryLevel> input, long parentMonsterId)
         {
             return input
-                .Where(x => x.UsrShopifyVariant.ParentMonsterId == parentMonsterId)
+                .Where(x => x.ShopifyVariant.ParentMonsterId == parentMonsterId)
                 .ToList();
         }
 
 
         public static int ControlQty(
-                this IEnumerable<UsrShopifyInventoryLevel> input)
+                this IEnumerable<ShopifyInventoryLevel> input)
         {
             return input.Sum(x => x.ShopifyAvailableQuantity);
 
         }
         public static double ControlCost(
-                this IEnumerable<UsrShopifyInventoryLevel> input,
+                this IEnumerable<ShopifyInventoryLevel> input,
                 double defaultCogs)
         {
             return input.Sum(
                 x =>
-                    x.UsrShopifyVariant.CogsByMarginPercent(defaultCogs)
+                    x.ShopifyVariant.CogsByMarginPercent(defaultCogs)
                     * x.ShopifyAvailableQuantity);
         }
     }

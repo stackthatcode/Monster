@@ -9,16 +9,16 @@ namespace Monster.Middle.Processes.Sync.Model.Extensions
 {
     public static class LocationExtensions
     {
-        public static UsrShopifyLocation FindByShopifyId(
-            this IList<UsrShopifyLocation> persistLocations,
+        public static ShopifyLocation FindByShopifyId(
+            this IList<ShopifyLocation> persistLocations,
             Location location)
         {
             return persistLocations
                 .FirstOrDefault(x => x.ShopifyLocationId == location.id);
         }
 
-        public static UsrAcumaticaWarehouse FindByAcumaticaId(
-            this IList<UsrAcumaticaWarehouse> persistWarehouses,
+        public static AcumaticaWarehouse FindByAcumaticaId(
+            this IList<AcumaticaWarehouse> persistWarehouses,
             Warehouse warehouse)
         {
             return persistWarehouses
@@ -26,20 +26,20 @@ namespace Monster.Middle.Processes.Sync.Model.Extensions
         }
 
         public static bool AutoMatches(
-                this UsrAcumaticaWarehouse warehouse, 
-                UsrShopifyLocation location)
+                this AcumaticaWarehouse warehouse, 
+                ShopifyLocation location)
         {
             return warehouse.AcumaticaWarehouseId == location.StandardizedName();
         }
 
         public static bool MatchesIdWithName(
-                this UsrShopifyLocation location, 
-                UsrAcumaticaWarehouse warehouse)
+                this ShopifyLocation location, 
+                AcumaticaWarehouse warehouse)
         {
             return warehouse.AcumaticaWarehouseId == location.StandardizedName();
         }
 
-        public static bool IsImproperlyMatched(this UsrShopifyLocation location)
+        public static bool IsImproperlyMatched(this ShopifyLocation location)
         {
             var warehouse = location.MatchedWarehouse();
             if (warehouse == null)
@@ -50,59 +50,59 @@ namespace Monster.Middle.Processes.Sync.Model.Extensions
             return !location.MatchesIdWithName(warehouse);
         }
 
-        public static bool HasMatch(this UsrAcumaticaWarehouse warehouse)
+        public static bool HasMatch(this AcumaticaWarehouse warehouse)
         {
-            return warehouse.UsrShopAcuWarehouseSyncs.Any();
+            return warehouse.ShopAcuWarehouseSyncs.Any();
         }
 
-        public static bool HasMatch(this UsrShopifyLocation location)
+        public static bool HasMatch(this ShopifyLocation location)
         {
-            return location.UsrShopAcuWarehouseSyncs.Any();
+            return location.ShopAcuWarehouseSyncs.Any();
         }
 
-        public static bool HasNoMatch(this UsrShopifyLocation location)
+        public static bool HasNoMatch(this ShopifyLocation location)
         {
             return !location.HasMatch();
         }
 
 
         public static 
-                IList<UsrAcumaticaWarehouse> Unmatched(
-                    this IEnumerable<UsrAcumaticaWarehouse> input)
+                IList<AcumaticaWarehouse> Unmatched(
+                    this IEnumerable<AcumaticaWarehouse> input)
         {
             return input
-                .Where(x => x.UsrShopAcuWarehouseSyncs.Count == 0)
+                .Where(x => x.ShopAcuWarehouseSyncs.Count == 0)
                 .ToList();
         }
         
 
-        public static IList<UsrShopifyLocation>
-                Unmatched(this IEnumerable<UsrShopifyLocation> input)
+        public static IList<ShopifyLocation>
+                Unmatched(this IEnumerable<ShopifyLocation> input)
         {
             return input.Where(x => x.HasNoMatch()).ToList();
         }
 
-        public static IList<UsrShopifyLocation>
-                Matched(this IEnumerable<UsrShopifyLocation> input)
+        public static IList<ShopifyLocation>
+                Matched(this IEnumerable<ShopifyLocation> input)
         {
             return input.Where(x => x.HasMatch()).ToList();
         }
 
         
-        public static UsrShopifyLocation 
-                MatchedLocation(this UsrAcumaticaWarehouse input)
+        public static ShopifyLocation 
+                MatchedLocation(this AcumaticaWarehouse input)
         {
             return input
-                .UsrShopAcuWarehouseSyncs
-                .FirstOrDefault()?.UsrShopifyLocation;
+                .ShopAcuWarehouseSyncs
+                .FirstOrDefault()?.ShopifyLocation;
         }
 
-        public static UsrAcumaticaWarehouse
-                MatchedWarehouse(this UsrShopifyLocation input)
+        public static AcumaticaWarehouse
+                MatchedWarehouse(this ShopifyLocation input)
         {
             return input
-                .UsrShopAcuWarehouseSyncs
-                .FirstOrDefault()?.UsrAcumaticaWarehouse;
+                .ShopAcuWarehouseSyncs
+                .FirstOrDefault()?.AcumaticaWarehouse;
         }
     }
 }

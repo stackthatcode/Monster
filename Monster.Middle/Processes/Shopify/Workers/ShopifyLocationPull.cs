@@ -43,7 +43,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 if (dataLocation == null)
                 {
-                    var newDataLocation = new UsrShopifyLocation
+                    var newDataLocation = new ShopifyLocation
                     {
                         ShopifyLocationId = shopifyLoc.id,
                         ShopifyJson = shopifyLoc.SerializeToJson(),

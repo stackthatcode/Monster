@@ -29,20 +29,6 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 
-        public DateTime? RetrieveOrderMaxUpdatedDate()
-        {
-            if (Entities.UsrShopifyOrders.Any())
-            {
-                return Entities.UsrShopifyOrders
-                            .Select(x => x.LastUpdated)
-                            .Max();
-            }
-            else
-            {
-                return (DateTime?) null;
-            }
-        }
-        
         public void InsertOrder(UsrShopifyOrder order)
         {
             Entities.UsrShopifyOrders.Add(order);
@@ -60,27 +46,6 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return Entities
                 .UsrShopifyCustomers
                 .FirstOrDefault(x => x.ShopifyCustomerId == shopifyCustomerId);
-        }
-
-        public DateTime? RetrieveCustomerMaxUpdatedDate()
-        {
-            if (Entities.UsrShopifyCustomers.Any())
-            {
-                return Entities.UsrShopifyCustomers
-                    .Select(x => x.LastUpdated)
-                    .Max();
-            }
-            else
-            {
-                return (DateTime?)null;
-            }
-        }
-        
-        public bool DoesShopifyCustomerExist(long shopifyCustomerId)
-        {
-            return Entities
-                .UsrShopifyCustomers
-                .Any(x => x.ShopifyCustomerId == shopifyCustomerId);
         }
 
         public void InsertCustomer(UsrShopifyCustomer customer)

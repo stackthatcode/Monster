@@ -41,20 +41,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                     x => x.AcumaticaMainContactEmail == email);
         }
         
-        public DateTime? RetrieveCustomerMaxUpdatedDate()
-        {
-            if (Entities.UsrAcumaticaCustomers.Any())
-            {
-                return Entities.UsrAcumaticaCustomers
-                    .Select(x => x.LastUpdated)
-                    .Max();
-            }
-            else
-            {
-                return (DateTime?)null;
-            }
-        }
-
         public void InsertCustomer(UsrAcumaticaCustomer customer)
         {
             Entities.UsrAcumaticaCustomers.Add(customer);
@@ -73,20 +59,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == acumaticaOrderNbr);
         }
 
-        public DateTime? RetrieveOrderMaxUpdatedDate()
-        {
-            if (Entities.UsrAcumaticaSalesOrders.Any())
-            {
-                return Entities.UsrAcumaticaSalesOrders
-                    .Select(x => x.LastUpdated)
-                    .Max();
-            }
-            else
-            {
-                return (DateTime?)null;
-            }
-        }
-        
 
         public void InsertSalesOrder(UsrAcumaticaSalesOrder order)
         {
@@ -172,20 +144,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Entities.SaveChanges();
         }
 
-        public DateTime? RetrieveShipmentMaxUpdatedDate()
-        {
-            if (Entities.UsrAcumaticaShipments.Any())
-            {
-                return Entities.UsrAcumaticaShipments
-                    .Select(x => x.LastUpdated)
-                    .Max();
-            }
-            else
-            {
-                return (DateTime?)null;
-            }
-        }
-        
 
         // These don't necessarily belong here
         //

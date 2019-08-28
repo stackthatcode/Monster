@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -85,10 +84,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             // Compute the Batch State Pull End
-            var maxUpdatedDate = _orderRepository.RetrieveCustomerMaxUpdatedDate();
-
-            var batchEnd = (maxUpdatedDate ?? startOfRun).AddShopifyBatchFudge();
-
+            var batchEnd = (startOfRun).AddShopifyBatchFudge();
             _batchRepository.UpdateCustomersPullEnd(batchEnd);
         }
 

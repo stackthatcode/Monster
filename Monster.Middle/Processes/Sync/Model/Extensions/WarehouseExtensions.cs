@@ -7,43 +7,43 @@ namespace Monster.Middle.Processes.Sync.Model.Extensions
 {
     public static class WarehouseExtensions
     {
-        public static string AcumaticaStockItemId(this UsrShopifyVariant input)
+        public static string AcumaticaStockItemId(this ShopifyVariant input)
         {
-            if (input.UsrShopAcuItemSyncs.Count == 0)
+            if (input.ShopAcuItemSyncs.Count == 0)
             {
                 throw new Exception("No synchronized Acumatica Stock Items");
             }
 
             return input
-                .UsrShopAcuItemSyncs
+                .ShopAcuItemSyncs
                 .First()
-                .UsrAcumaticaStockItem.ItemId;
+                .AcumaticaStockItem.ItemId;
         }
 
-        public static string AcumaticaWarehouseId(this UsrShopifyLocation input)
+        public static string AcumaticaWarehouseId(this ShopifyLocation input)
         {
-            if (input.UsrShopAcuWarehouseSyncs.Count == 0)
+            if (input.ShopAcuWarehouseSyncs.Count == 0)
             {
                 throw new Exception("Inventory Level not assigned to Location");
             }
 
             return input
-                .UsrShopAcuWarehouseSyncs
+                .ShopAcuWarehouseSyncs
                 .First()
-                .UsrAcumaticaWarehouse
+                .AcumaticaWarehouse
                 .AcumaticaWarehouseId;
         }
 
-        public static List<UsrAcumaticaWarehouse> 
-                    MatchedWarehouses(this UsrShopifyLocation location)
+        public static List<AcumaticaWarehouse> 
+                    MatchedWarehouses(this ShopifyLocation location)
         {
             return location
-                .UsrShopAcuWarehouseSyncs
-                .Select(x => x.UsrAcumaticaWarehouse)
+                .ShopAcuWarehouseSyncs
+                .Select(x => x.AcumaticaWarehouse)
                 .ToList();
         }
 
-        public static List<string> MatchedWarehouseIds(this UsrShopifyLocation location)
+        public static List<string> MatchedWarehouseIds(this ShopifyLocation location)
         {
             return location.MatchedWarehouses()
                 .Select(x => x.AcumaticaWarehouseId)

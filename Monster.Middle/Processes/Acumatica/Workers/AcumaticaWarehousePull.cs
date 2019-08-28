@@ -41,7 +41,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
                 if (warehouseRecord == null)
                 {
-                    var newDataWarehouse = new UsrAcumaticaWarehouse
+                    var newDataWarehouse = new AcumaticaWarehouse
                     {
                         AcumaticaWarehouseId = warehouse.WarehouseID.value,
                         AcumaticaJson = warehouse.SerializeToJson(),

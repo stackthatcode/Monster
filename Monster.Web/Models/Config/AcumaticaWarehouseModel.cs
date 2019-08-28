@@ -8,7 +8,7 @@ namespace Monster.Web.Models.Config
         public string AcumaticaWarehouseId { get; set; }
         public long? ShopifyLocationId { get; set; }
 
-        public static AcumaticaWarehouseModel Make(UsrAcumaticaWarehouse warehouse)
+        public static AcumaticaWarehouseModel Make(AcumaticaWarehouse warehouse)
         {
             var output = new AcumaticaWarehouseModel();
             output.AcumaticaWarehouseId = warehouse.AcumaticaWarehouseId;

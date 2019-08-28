@@ -90,9 +90,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             // Compute the Batch State end marker
-            var maxUpdatedDate = _orderRepository.RetrieveOrderMaxUpdatedDate();
-            var orderBatchEnd = (maxUpdatedDate ?? startOfRun).AddShopifyBatchFudge();            
-
+            var orderBatchEnd = (startOfRun).AddShopifyBatchFudge();
             _batchRepository.UpdateOrdersPullEnd(orderBatchEnd);
         }
 
@@ -116,8 +114,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             // Pull from Shopify
             var firstJson = _orderApi.Retrieve(firstFilter);
-            var firstOrders 
-                    = firstJson.DeserializeFromJson<OrderList>().orders;
+            var firstOrders = firstJson.DeserializeFromJson<OrderList>().orders;
             UpsertOrders(firstOrders);
 
             var currentPage = 2;
@@ -129,8 +126,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 // Pull from Shopify
                 var currentJson = _orderApi.Retrieve(currentFilter);
-                var currentOrders
-                    = currentJson.DeserializeFromJson<OrderList>().orders;
+                var currentOrders = currentJson.DeserializeFromJson<OrderList>().orders;
 
                 if (currentOrders.Count == 0)
                 {
@@ -138,7 +134,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 }
 
                 UpsertOrders(currentOrders);
-
                 currentPage++;
             }
 
@@ -171,8 +166,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         private void UpsertOrderAndCustomer(Order order)
         {
-            var monsterCustomerRecord =
-                _shopifyCustomerPull.UpsertCustomer(order.customer);
+            var monsterCustomerRecord = _shopifyCustomerPull.UpsertCustomer(order.customer);
              
             var existingOrder = _orderRepository.RetrieveOrder(order.id);
 

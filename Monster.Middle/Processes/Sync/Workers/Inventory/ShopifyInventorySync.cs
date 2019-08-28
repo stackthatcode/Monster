@@ -8,7 +8,6 @@ using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
-using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -24,7 +23,6 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly ExecutionLogService _executionLogService;
-        private readonly InventoryStatusService _statusService;
         private readonly IPushLogger _logger;
 
         public ShopifyInventorySync(
@@ -52,12 +50,12 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
 
         public void RunPriceUpdates()
         {
-            var stockItems = _syncInventoryRepository.RetrieveMatchedStockItemsNotSynced();
+            var stockItems = _syncInventoryRepository.RetrieveStockItemsPriceNotSynced();
 
             foreach (var stockItem in stockItems)
             {
-                var readyToSync = InventorySyncStatus.Make(stockItem).ReadyToSync();
-                if (readyToSync.Success)
+                var readyToSync = InventorySyncStatus.Make(stockItem).ReadyToSyncPrice();
+                if (!readyToSync.Success)
                 {
                     _logger.Debug($"Skipping PriceUpdate for {stockItem.ItemId}");
                     return;
@@ -70,7 +68,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             }
         }
 
-        public void PriceUpdate(UsrAcumaticaStockItem stockItem)
+        public void PriceUpdate(AcumaticaStockItem stockItem)
         {
             var stockItemRecord
                 = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
@@ -108,25 +106,25 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
         public void RunInventoryUpdate()
         {
             var stockItems = 
-                _syncInventoryRepository.RetrieveMatchedStockItemInventoryNotSynced();
+                _syncInventoryRepository.RetrieveStockItemInventoryNotSynced();
 
             foreach (var stockItem in stockItems)
             {
-                var readyToSync = InventorySyncStatus.Make(stockItem).ReadyToSync();
-                if (readyToSync.Success)
+                var readyToSync = InventorySyncStatus.Make(stockItem).ReadyToSyncInventory();
+                if (!readyToSync.Success)
                 {
                     _logger.Debug($"Skipping StockItemInventoryUpdate for {stockItem.ItemId}");
                     return;
                 }
                 
                 _executionLogService.RunTransaction(
-                        () => StockItemInventoryUpdate(stockItem),
+                        () => InventoryUpdate(stockItem),
                         SyncDescriptor.UpdateShopifyInventory,
                         SyncDescriptor.AcumaticaStockItem(stockItem));
             }
         }
 
-        public void StockItemInventoryUpdate(UsrAcumaticaStockItem stockItem)
+        public void InventoryUpdate(AcumaticaStockItem stockItem)
         {
             var variant
                 = _inventoryRepository
@@ -137,26 +135,24 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
                 _logger.Debug(
                     $"Skipping Inventory Update for " +
                     $"Variant {variant.ShopifySku} ({variant.ShopifyVariantId}) " +
-                    $"StockItem {stockItem} - " +
-                    $"reason: Missing Variant");
+                    $"StockItem {stockItem} - reason: Missing Variant");
                 return;
             }
 
-            foreach (var level in variant.UsrShopifyInventoryLevels)
+            foreach (var level in variant.ShopifyInventoryLevels)
             {
                 RunInventoryLevelUpdate(stockItem, level);
             }
         }
 
-        public void RunInventoryLevelUpdate(
-                    UsrAcumaticaStockItem stockItem, UsrShopifyInventoryLevel level)
+        public void RunInventoryLevelUpdate(AcumaticaStockItem stockItem, ShopifyInventoryLevel level)
         {
             var location = _syncInventoryRepository.RetrieveLocation(level.ShopifyLocationId);
             var warehouseIds = location.MatchedWarehouseIds();
             var details = stockItem.WarehouseDetails(warehouseIds);
 
             var totalQtyOnHand = (int)details.Sum(x => x.AcumaticaQtyOnHand);
-            var sku = level.UsrShopifyVariant.ShopifySku;
+            var sku = level.ShopifyVariant.ShopifySku;
             
             var levelDto = new InventoryLevel
             {

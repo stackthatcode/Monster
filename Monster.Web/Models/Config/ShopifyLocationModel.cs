@@ -8,7 +8,7 @@ namespace Monster.Web.Models.Config
         public string LocationName { get; set; }
         public bool IsActive { get; set; }
 
-        public static ShopifyLocationModel Make(UsrShopifyLocation location)
+        public static ShopifyLocationModel Make(ShopifyLocation location)
         {
             return new ShopifyLocationModel()
             {

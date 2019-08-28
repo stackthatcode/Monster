@@ -6,37 +6,37 @@ namespace Monster.Middle.Processes.Sync.Model.Extensions
 {
     public static class ItemExtensions
     {
-        public static UsrAcumaticaStockItem 
-                    MatchedStockItem(this UsrShopifyVariant input)
+        public static AcumaticaStockItem 
+                    MatchedStockItem(this ShopifyVariant input)
         {
-            return input.UsrShopAcuItemSyncs?.First().UsrAcumaticaStockItem;
+            return input.ShopAcuItemSyncs?.First().AcumaticaStockItem;
         }
 
-        public static List<UsrAcumaticaWarehouseDetail> 
-                    WarehouseDetails(this UsrAcumaticaStockItem input, string warehouseId)
+        public static List<AcumaticaWarehouseDetail> 
+                    WarehouseDetails(this AcumaticaStockItem input, string warehouseId)
         {
-            return input.UsrAcumaticaWarehouseDetails
+            return input.AcumaticaWarehouseDetails
                         .Where(x => x.AcumaticaWarehouseId == warehouseId)
                         .ToList();
         }
 
-        public static List<UsrAcumaticaWarehouseDetail>
-                    WarehouseDetails(this UsrAcumaticaStockItem input, List<string> warehouseIds)
+        public static List<AcumaticaWarehouseDetail>
+                    WarehouseDetails(this AcumaticaStockItem input, List<string> warehouseIds)
         {
-            return input.UsrAcumaticaWarehouseDetails
+            return input.AcumaticaWarehouseDetails
                 .Where(x => warehouseIds.Contains(x.AcumaticaWarehouseId))
                 .ToList();
         }
 
-        public static UsrShopifyVariant MatchedVariant(this UsrAcumaticaStockItem input)
+        public static ShopifyVariant MatchedVariant(this AcumaticaStockItem input)
         {
             return input
-                .UsrShopAcuItemSyncs?.First().UsrShopifyVariant;
+                .ShopAcuItemSyncs?.First().ShopifyVariant;
         }
 
-        public static bool HasMatch(this UsrAcumaticaStockItem input)
+        public static bool HasMatch(this AcumaticaStockItem input)
         {
-            return input.UsrShopAcuItemSyncs.Any();
+            return input.ShopAcuItemSyncs.Any();
         }
     }
 }

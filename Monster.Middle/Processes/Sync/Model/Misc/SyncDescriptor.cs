@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
             return $"Shopify Product {shopifyProductId}";
         }
 
-        public static string ShopifyVariant(UsrShopifyVariant variant)
+        public static string ShopifyVariant(ShopifyVariant variant)
         {
             return $"Shopify Variant {variant.ShopifySku} ({variant.ShopifyVariantId})";
         }
@@ -57,7 +57,7 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
         }
 
 
-        public static string AcumaticaStockItem(UsrAcumaticaStockItem stockItem)
+        public static string AcumaticaStockItem(AcumaticaStockItem stockItem)
         {
             return $"Acumatica Stock Item {stockItem.ItemId}";
         }

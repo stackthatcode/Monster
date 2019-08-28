@@ -174,12 +174,11 @@ namespace Monster.Middle
 
             // Status
             builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
-            builder.RegisterType<InventoryStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<OrderStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<ShipmentStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<FulfillmentStatusService>().InstancePerLifetimeScope();
             
-            // Director Components
+            // Management Objects
             builder.RegisterType<SyncManager>().InstancePerLifetimeScope();
             builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();
         }

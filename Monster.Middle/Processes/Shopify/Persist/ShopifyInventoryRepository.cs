@@ -19,75 +19,61 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
 
 
-        public void InsertLocation(UsrShopifyLocation location)
+        public void InsertLocation(ShopifyLocation location)
         {
-            Entities.UsrShopifyLocations.Add(location);
+            Entities.ShopifyLocations.Add(location);
             Entities.SaveChanges();
         }
 
-        public IList<UsrShopifyLocation> RetreiveLocations()
+        public IList<ShopifyLocation> RetreiveLocations()
         {
-            return Entities.UsrShopifyLocations.ToList();
+            return Entities.ShopifyLocations.ToList();
         }
 
 
 
         // Shopify persistence
         //
-        public UsrShopifyProduct RetrieveProduct(long shopifyProductId)
+        public ShopifyProduct RetrieveProduct(long shopifyProductId)
         {
             return Entities
-                .UsrShopifyProducts
+                .ShopifyProducts
                 .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
         
-        public UsrShopifyVariant RetrieveVariant(long shopifyVariantId)
+        public ShopifyVariant RetrieveVariant(long shopifyVariantId)
         {
             return Entities
-                .UsrShopifyVariants
-                .Include(x => x.UsrShopifyInventoryLevels)
+                .ShopifyVariants
+                .Include(x => x.ShopifyInventoryLevels)
                 .FirstOrDefault(x => x.ShopifyVariantId == shopifyVariantId);
         }
         
 
-        public DateTime? RetrieveProductMaxUpdatedDate()
+        public void InsertProduct(ShopifyProduct product)
         {
-            if (Entities.UsrShopifyProducts.Any())
-            {
-                return Entities.UsrShopifyProducts
-                            .Select(x => x.LastUpdated)
-                            .Max();
-            }
-            else
-            {
-                return (DateTime?) null;
-            }
-        }
-        
-        public void InsertProduct(UsrShopifyProduct product)
-        {
-            Entities.UsrShopifyProducts.Add(product);
+            Entities.ShopifyProducts.Add(product);
             Entities.SaveChanges();
         }
 
-        public void InsertVariant(UsrShopifyVariant variant)
+        public void InsertVariant(ShopifyVariant variant)
         {
-            Entities.UsrShopifyVariants.Add(variant);
+            Entities.ShopifyVariants.Add(variant);
             Entities.SaveChanges();
         }
 
-        public List<UsrShopifyInventoryLevel> 
+        public List<ShopifyInventoryLevel> 
                     RetrieveInventory(long shopifyInventoryItemId)
         {
             return Entities
-                    .UsrShopifyInventoryLevels
+                    .ShopifyInventoryLevels
                     .Where(x => x.ShopifyInventoryItemId == shopifyInventoryItemId)
                     .ToList();
         }
 
-        public void InsertInventory(UsrShopifyInventoryLevel inventory)
+        public void InsertInventory(ShopifyInventoryLevel inventory)
         {
-            Entities.UsrShopifyInventoryLevels.Add(inventory);
+            Entities.ShopifyInventoryLevels.Add(inventory);
             Entities.SaveChanges();
         }
 
@@ -95,10 +81,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         // Product to Stock Item matching 
         //
-        public List<UsrShopifyVariant> 
+        public List<ShopifyVariant> 
                         RetrieveVariantsByParent(long parentMonsterId)
         {
-            return Entities.UsrShopifyVariants
+            return Entities.ShopifyVariants
                     .Where(x => x.ParentMonsterId == parentMonsterId)
                     .ToList();
         }

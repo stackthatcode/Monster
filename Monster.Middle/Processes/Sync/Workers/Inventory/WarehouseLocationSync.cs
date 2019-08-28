@@ -26,12 +26,12 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             foreach (var location in locations)
             {
                 // The ToList() allows us to mutate the collection
-                foreach (var sync in location.UsrShopAcuWarehouseSyncs.ToList())
+                foreach (var sync in location.ShopAcuWarehouseSyncs.ToList())
                 {
                     using (var transaction = _repository.BeginTransaction())
                     {
                         var log = $"Removed match from Deactivated Location {location.ShopifyLocationName} " +
-                                  $"to Warehouse {sync.UsrAcumaticaWarehouse.AcumaticaWarehouseId}";
+                                  $"to Warehouse {sync.AcumaticaWarehouse.AcumaticaWarehouseId}";
 
                         _repository.DeleteWarehouseSync(sync);
                         _executionLogService.InsertExecutionLog(log);

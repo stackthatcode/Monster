@@ -45,9 +45,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         public void RunAutomatic()
         {
             var batchState = _batchRepository.Retrieve();
-
-            var msg = "Pulling Inventory from Shopify";
-            _executionLogService.InsertExecutionLog(msg);
+            _executionLogService.InsertExecutionLog("Pulling Inventory from Shopify");
 
             if (batchState.ShopifyProductsPullEnd.HasValue)
             {
@@ -95,9 +93,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             PullDeletedEventsAndUpsert(startOfRun);
 
             // Compute the Batch State end marker
-            var maxUpdatedDate = _inventoryRepository.RetrieveProductMaxUpdatedDate();
-            var batchEnd = (maxUpdatedDate ?? startOfRun).AddShopifyBatchFudge();
-                        
+            var batchEnd = startOfRun.AddShopifyBatchFudge();
             _batchRepository.UpdateProductsPullEnd(batchEnd);            
         }
 
@@ -110,8 +106,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             if (!batchState.ShopifyProductsPullEnd.HasValue)
             {
-                throw new Exception(
-                    "ShopifyProductsEndDate not set - must run Baseline Pull first");
+                throw new Exception("ShopifyProductsEndDate not set - must run Baseline Pull first");
             }
 
             var lastPullEnd = batchState.ShopifyProductsPullEnd.Value;
@@ -166,14 +161,13 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public long UpsertProductAndInventory(Product product)
         {
-            var existing =
-                _inventoryRepository.RetrieveProduct(product.id);
+            var existing = _inventoryRepository.RetrieveProduct(product.id);
 
             long productMonsterId;
                 
             if (existing == null)
             {
-                var data = new UsrShopifyProduct();
+                var data = new ShopifyProduct();
                 data.ShopifyProductId = product.id;
                 data.ShopifyTitle = product.title ?? "";
                 data.ShopifyProductType = product.product_type;
@@ -200,7 +194,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             // Write the Product Variants
-            UpsertVariants(productMonsterId, product);
+            UpsertProduct(productMonsterId, product);
 
             // Flags the missing Variants
             FlagMissingVariants(productMonsterId, product);
@@ -211,7 +205,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             return productMonsterId;
         }
 
-        public void UpsertVariants(long parentMonsterId, Product product)
+        public void UpsertProduct(long parentMonsterId, Product product)
         {
             foreach (var variant in product.variants)
             {
@@ -225,7 +219,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 
             if (existing == null)
             {
-                var data = new UsrShopifyVariant();
+                var data = new ShopifyVariant();
 
                 data.ParentMonsterId = parentProductId;
                 data.ShopifyVariantId = variant.id;
@@ -252,7 +246,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
-        
         public void FlagMissingVariants(long parentMonsterId, Product product)
         {
             var storedVariants = 
@@ -321,7 +314,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         }
 
         public void UpsertInventory(
-                    UsrShopifyVariant variant, 
+                    ShopifyVariant variant, 
                     InventoryItem shopifyItem,
                     List<InventoryLevel> shopifyLevels)
         {
@@ -341,7 +334,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 if (existingLevel == null)
                 {
-                    var newLevel = new UsrShopifyInventoryLevel();
+                    var newLevel = new ShopifyInventoryLevel();
                     newLevel.ParentMonsterId = variant.MonsterId;
                     newLevel.ShopifyInventoryItemId = shopifyLevel.inventory_item_id;
                     newLevel.ShopifyLocationId = shopifyLevel.location_id;
@@ -361,7 +354,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 }
             }
         }
-
 
         public void PullDeletedEventsAndUpsert(DateTime filterMinCreated)
         {
@@ -416,7 +408,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 product.IsDeleted = true;
 
-                foreach (var variant in product.UsrShopifyVariants)
+                foreach (var variant in product.ShopifyVariants)
                 {
                     variant.IsMissing = true;
                 }

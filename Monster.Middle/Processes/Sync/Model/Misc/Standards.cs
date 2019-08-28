@@ -33,13 +33,12 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
 
     public static class StandardizeExtensions
     {
-        public static string 
-                    StandardizedSku(this UsrShopifyVariant input)
+        public static string StandardizedSku(this ShopifyVariant input)
         {
             return Standards.Sku(input.ShopifySku);
         }
 
-        public static string StandardizedName(this UsrShopifyLocation input)
+        public static string StandardizedName(this ShopifyLocation input)
         {
             return Standards.LocationName(input.ShopifyLocationName);
         }

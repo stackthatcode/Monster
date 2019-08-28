@@ -164,7 +164,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             AcumaticaSessionRun(() =>
             {
-                _acumaticaInventorySync.Run(context);
+                _acumaticaInventorySync.RunImportToAcumatica(context);
             });
         }
 
