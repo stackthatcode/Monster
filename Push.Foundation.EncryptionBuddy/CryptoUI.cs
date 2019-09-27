@@ -126,10 +126,10 @@ namespace Push.Foundation
                     var item = this.comboShopifyTenantId.SelectedItem as ComboboxItem;
                     var tenantId = Guid.Parse(item.Value.ToString());
 
-                    var contextLoader = scope.Resolve<ConnectionContext>();
+                    var contextLoader = scope.Resolve<InstanceContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<ConnectionRepository>();
+                    var repository = scope.Resolve<ExternalServiceRepository>();
 
                     repository.CreateIfMissing();
                     repository.UpdateShopifyCredentials(
@@ -159,10 +159,10 @@ namespace Push.Foundation
                     var item = this.comboAcumaticaTenantId.SelectedItem as ComboboxItem;
                     var tenantId = Guid.Parse(item.Value.ToString());
 
-                    var contextLoader = scope.Resolve<ConnectionContext>();
+                    var contextLoader = scope.Resolve<InstanceContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<ConnectionRepository>();
+                    var repository = scope.Resolve<ExternalServiceRepository>();
 
                     repository.CreateIfMissing();
                     repository.UpdateAcumaticaCredentials(
@@ -235,12 +235,12 @@ namespace Push.Foundation
                 var systemRepository = scope.Resolve<SystemRepository>();
                 var tenant = systemRepository.RetrieveInstance(installationId);
 
-                var tenantContextLoader = scope.Resolve<ConnectionContext>();
+                var tenantContextLoader = scope.Resolve<InstanceContext>();
                 tenantContextLoader.InitializePersistOnly(installationId);
 
-                var persistContext = scope.Resolve<PersistContext>();
+                var persistContext = scope.Resolve<InstancePersistContext>();
 
-                var repository = scope.Resolve<ConnectionRepository>();
+                var repository = scope.Resolve<ExternalServiceRepository>();
                 var tenantContext = repository.Retrieve();
 
                 var output =

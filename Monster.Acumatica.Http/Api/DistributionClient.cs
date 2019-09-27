@@ -44,6 +44,13 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+        public string RetrieveItemWarehouses()
+        {
+            var response = _httpContext.Get("ItemWarehouse");
+            return response.Body;
+        }
+
+
         public string RetrieveStockItems(
                 DateTime? lastModified = null, int page = 1, int? pageSize = null)
         {

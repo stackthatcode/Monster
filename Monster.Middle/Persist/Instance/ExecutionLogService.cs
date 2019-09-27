@@ -9,10 +9,10 @@ namespace Monster.Middle.Processes.Sync.Services
 {
     public class ExecutionLogService
     {
-        private readonly PersistContext _dataContext;
+        private readonly InstancePersistContext _dataContext;
         private readonly IPushLogger _logger;
 
-        public ExecutionLogService(PersistContext dataContext, IPushLogger logger)
+        public ExecutionLogService(InstancePersistContext dataContext, IPushLogger logger)
         {
             _dataContext = dataContext;
             _logger = logger;
@@ -20,13 +20,24 @@ namespace Monster.Middle.Processes.Sync.Services
 
         private MonsterDataContext Entities => _dataContext.Entities;
 
-        public void InsertExecutionLog(string content)
+        public void InsertExecutionLog(string content, int level = LogLevel.Information)
         {
-            var logEntry = new ExecutionLog();
-            logEntry.LogContent = content;
-            logEntry.DateCreated = DateTime.UtcNow;
-            Entities.ExecutionLogs.Add(logEntry);
-            Entities.SaveChanges();
+            try
+            {
+                var logEntry = new ExecutionLog();
+                logEntry.LogContent = content;
+                logEntry.LogLevel = level;
+                logEntry.DateCreated = DateTime.UtcNow;
+                Entities.ExecutionLogs.Add(logEntry);
+                Entities.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                // Swallow the exception! - this is a logger
+                //
+                _logger.Info($"Failed attempt to add Execution Log ({level}) {content}");
+                _logger.Error(ex);
+            }
         }
 
         public List<ExecutionLog> RetrieveExecutionLogs(int take = 1000)
@@ -38,7 +49,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 .ToList();
         }
 
-        public bool RunTransaction(Action action, string type, string identifier)
+        public bool ExecuteWithFailLog(Action action, string type, string identifier)
         {
             try
             {

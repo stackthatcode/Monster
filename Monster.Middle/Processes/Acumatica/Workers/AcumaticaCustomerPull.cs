@@ -19,7 +19,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
-        private readonly ConnectionRepository _connectionRepository;
+        private readonly ExternalServiceRepository _connectionRepository;
         private readonly PreferencesRepository _preferencesRepository;
         private readonly IPushLogger _logger;
 
@@ -31,7 +31,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaOrderRepository orderRepository,
                 AcumaticaBatchRepository batchStateRepository,
                 AcumaticaTimeZoneService instanceTimeZoneService,
-                ConnectionRepository connectionRepository,
+                ExternalServiceRepository connectionRepository,
                 PreferencesRepository preferencesRepository,
                 IPushLogger logger)
         {

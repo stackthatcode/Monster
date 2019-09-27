@@ -3,17 +3,17 @@ using System.Configuration;
 using Monster.Acumatica.Http;
 using Push.Foundation.Utilities.Security;
 
+
 namespace Monster.Acumatica.Config
 {
     public class AcumaticaCredentialsConfig
     {
         private static readonly
                 Hashtable _settings =
-                    (Hashtable)ConfigurationManager
-                        .GetSection("acumaticaCredentials");
+                    (Hashtable)ConfigurationManager.GetSection("acumaticaCredentials");
 
         public static AcumaticaCredentialsConfig 
-            Settings { get; } = new AcumaticaCredentialsConfig();
+                    Settings { get; } = new AcumaticaCredentialsConfig();
         
         
         [ConfigurationProperty("Branch", IsRequired = false)]

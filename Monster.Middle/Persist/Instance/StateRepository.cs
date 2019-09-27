@@ -9,11 +9,11 @@ namespace Monster.Middle.Persist.Instance
 {
     public class StateRepository
     {
-        private readonly PersistContext _dataContext;
+        private readonly InstancePersistContext _dataContext;
 
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public StateRepository(PersistContext dataContext)
+        public StateRepository(InstancePersistContext dataContext)
         {
             _dataContext = dataContext;
         }
@@ -42,7 +42,6 @@ namespace Monster.Middle.Persist.Instance
                     newRecord.InventoryPullState = StateCode.None;
                     
                     newRecord.IsRandomAccessMode = false;
-                    newRecord.RealTimeHangFireJobId = null;
 
                     Entities.SystemStates.Add(newRecord);
                     Entities.SaveChanges();

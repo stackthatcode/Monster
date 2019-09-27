@@ -12,10 +12,10 @@ namespace Monster.Middle.Processes.Sync.Persist
 {
     public class SyncOrderRepository
     {
-        private readonly PersistContext _dataContext;
+        private readonly InstancePersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public SyncOrderRepository(PersistContext dataContext)
+        public SyncOrderRepository(InstancePersistContext dataContext)
         {
             _dataContext = dataContext;
         }

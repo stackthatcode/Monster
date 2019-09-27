@@ -5,7 +5,6 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync.Model.Config;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Status;
@@ -19,7 +18,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 {
     public class SyncDirector
     {
-        private readonly ConnectionRepository _connectionRepository;
+        private readonly ExternalServiceRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
         private readonly ReferenceDataService _referenceDataService;
         private readonly AcumaticaManager _acumaticaManager;
@@ -28,12 +27,12 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly SyncManager _syncManager;
         private readonly ExecutionLogService _executionLogService;
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly JobStatusService _jobStatusService;
+        private readonly JobMonitoringService _monitoringService;
         private readonly IPushLogger _logger;
 
 
         public SyncDirector(
-                ConnectionRepository connectionRepository,
+                ExternalServiceRepository connectionRepository,
                 StateRepository stateRepository,
 
                 AcumaticaManager acumaticaManager, 
@@ -44,7 +43,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ConfigStatusService inventoryStatusService,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
-                JobStatusService jobStatusService,
+                JobMonitoringService monitoringService,
                 IPushLogger logger)
         {
             _connectionRepository = connectionRepository;
@@ -59,7 +58,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _preferencesRepository = preferencesRepository;
             _referenceDataService = referenceDataService;
             _logger = logger;
-            _jobStatusService = jobStatusService;
+            _monitoringService = monitoringService;
         }
 
 
@@ -230,7 +229,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 sequence.Add(() => _syncManager.PushInventoryCountsToShopify());
             }
 
-            RunFullSync(sequence, false);
+            RunSequence(sequence, false);
         }
 
 
@@ -249,7 +248,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
 
-        private void RunFullSync(List<Action> actions, bool throwException = true)
+        private void RunSequence(List<Action> actions, bool throwException = true)
         {
             _executionLogService.InsertExecutionLog("End-to-End Sync - Processing ");
 
@@ -257,12 +256,11 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 try
                 {
-                    var state = _stateRepository.RetrieveSystemStateNoTracking();
+                    var monitor = _monitoringService.GetMonitoringDigest();
                     
-                    if (//!state.IsRealTimeSyncEnabled() ||
-                        _jobStatusService.IsOneTimeJobRunning(BackgroundJobType.EndToEndSync))
+                    if (monitor.IsJobTypeActive(BackgroundJobType.EndToEndSync))
                     {
-                        _executionLogService.InsertExecutionLog("Real-Time Sync - Interrupting");
+                        _executionLogService.InsertExecutionLog("End-to-End Sync - Interrupting");
                         return;
                     }
 

@@ -17,7 +17,7 @@ namespace Monster.Web.Controllers
     {
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
-        private readonly JobStatusService _jobStatusService;
+        private readonly JobMonitoringService _jobStatusService;
         private readonly ConfigStatusService _statusService;
         private readonly UrlService _urlService;
         private readonly IPushLogger _logger;
@@ -26,7 +26,7 @@ namespace Monster.Web.Controllers
                 StateRepository stateRepository,
                 OneTimeJobService oneTimeJobService,
                 RecurringJobService recurringJobService,
-                JobStatusService jobStatusService,
+                JobMonitoringService jobStatusService,
                 ConfigStatusService statusService,
                 ExecutionLogService logRepository,
                 SyncOrderRepository syncOrderRepository,

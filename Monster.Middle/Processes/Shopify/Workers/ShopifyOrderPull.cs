@@ -103,7 +103,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             if (!batchState.ShopifyOrdersPullEnd.HasValue)
             {
                 throw new Exception(
-                    "ShopifyOrdersPullEnd not set - must run Baseline Pull first");
+                    "ShopifyOrdersPullEnd not set - must execute RunAll() first");
             }
 
             var lastBatchStateEnd = batchState.ShopifyOrdersPullEnd.Value;

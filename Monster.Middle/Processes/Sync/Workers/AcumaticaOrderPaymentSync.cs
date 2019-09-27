@@ -49,7 +49,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
                 if (status.ShouldCreatePayment().Success)
                 {
-                    _logService.RunTransaction(
+                    _logService.ExecuteWithFailLog(
                             () => WritePaymentForOrders(transaction),
                             SyncDescriptor.CreateAcumaticaPayment,
                             SyncDescriptor.ShopifyTransaction(transaction));

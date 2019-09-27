@@ -2,7 +2,7 @@
 
 namespace Monster.Middle.Persist.Instance
 {
-    public class PersistContext : IDisposable
+    public class InstancePersistContext : IDisposable
     {
         public string ConnectionString { get; private set; }
         public Guid Id { get; } = Guid.NewGuid();

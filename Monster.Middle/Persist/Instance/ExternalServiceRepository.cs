@@ -8,15 +8,15 @@ using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Persist.Instance
 {
-    public class ConnectionRepository
+    public class ExternalServiceRepository
     {
-        private readonly PersistContext _dataContext;
+        private readonly InstancePersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
         private readonly ICryptoService _cryptoService;
 
-        public ConnectionRepository(
-                PersistContext dataContext,
+        public ExternalServiceRepository(
+                InstancePersistContext dataContext,
                 ICryptoService cryptoService)
         {
             _dataContext = dataContext;

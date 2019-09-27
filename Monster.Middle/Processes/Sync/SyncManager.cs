@@ -21,7 +21,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ILifetimeScope _lifetimeScope;
 
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly ConnectionContext _connectionContext;
+        private readonly InstanceContext _connectionContext;
         private readonly ExecutionLogService _executionLogService;
         private readonly AcumaticaHttpContext _acumaticaContext;
 
@@ -53,7 +53,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ShopifyFulfillmentSync shopifyFulfillmentSync,
 
                 PreferencesRepository preferencesRepository,
-                ConnectionContext connectionContext,
+                InstanceContext connectionContext,
                 ExecutionLogService executionLogService,
                 ILifetimeScope lifetimeScope,
                 IPushLogger logger)
@@ -116,7 +116,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
                 using (var childScope = _lifetimeScope.BeginLifetimeScope())
                 {
-                    var childConnectionContext = childScope.Resolve<ConnectionContext>();
+                    var childConnectionContext = childScope.Resolve<InstanceContext>();
                     var childAcumaticaContext = childScope.Resolve<AcumaticaHttpContext>();
                     var childOrderSync = childScope.Resolve<AcumaticaOrderSync>();
 

@@ -26,7 +26,7 @@ namespace Monster.Web.Controllers
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
         private readonly RecurringJobService _recurringJobService;
-        private readonly JobStatusService _jobStatusService;
+        private readonly JobMonitoringService _jobStatusService;
         private readonly ConfigStatusService _statusService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
@@ -39,7 +39,7 @@ namespace Monster.Web.Controllers
                 StateRepository stateRepository,
                 OneTimeJobService oneTimeJobService,
                 RecurringJobService recurringJobService,
-                JobStatusService jobStatusService,
+                JobMonitoringService jobStatusService,
                 ConfigStatusService statusService,
                 ExecutionLogService logRepository,
                 SyncOrderRepository syncOrderRepository,
@@ -75,25 +75,25 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult StartRealTime()
         {
-            _recurringJobService.StartRoutineSync();
+            _recurringJobService.StartEndToEndSync();
             return JsonNetResult.Success();
         }
 
         [HttpPost]
         public ActionResult PauseRealTime()
         {
-            _recurringJobService.PauseRoutineSync();
+            _recurringJobService.KillEndToEndSync();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
         public ActionResult RealTimeStatus()
         {
-            var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
-            var isRealTimeSyncRunning = _jobStatusService.IsRealTimeSyncRunning();
+            var monitoringDigest = _jobStatusService.GetMonitoringDigest();
+            var isRealTimeSyncRunning = monitoringDigest.IsJobTypeActive(BackgroundJobType.EndToEndSync);
+            var areAnyJobsRunning = monitoringDigest.AreAnyJobsActive;    
 
-            var isConfigReadyForRealTime = 
-                    _statusService.ConfigSummary().IsReadyForRealTimeSync;
+            var isConfigReadyForRealTime = _statusService.ConfigSummary().IsReadyForRealTimeSync;
 
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
 
@@ -175,7 +175,7 @@ namespace Monster.Web.Controllers
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.AreAnyBackgroundJobsRunning();
+            var areAnyJobsRunning = _jobStatusService.GetMonitoringDigest();
 
             var output = new
             {

@@ -14,7 +14,7 @@ namespace Monster.Middle.Processes.Payouts.Workers
 {
     public class ShopifyPayoutPullWorker
     {
-        private readonly ConnectionRepository _connectionRepository;
+        private readonly ExternalServiceRepository _connectionRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly ShopifyPayoutRepository _persistRepository;
         private readonly PreferencesRepository _preferencesRepository;
@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Payouts.Workers
         public int PayoutTransactionPagingLimit = 250;
 
         public ShopifyPayoutPullWorker(
-                ConnectionRepository connectionRepository,
+                ExternalServiceRepository connectionRepository,
                 ShopifyBatchRepository shopifyBatchRepository,
                 ShopifyPayoutRepository persistRepository,
                 PreferencesRepository preferencesRepository,

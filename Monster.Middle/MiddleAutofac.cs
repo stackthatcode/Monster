@@ -72,16 +72,15 @@ namespace Monster.Middle
             builder.RegisterType<SystemRepository>().InstancePerLifetimeScope();
 
             // Persistence - Instance-level
-            builder.RegisterType<PersistContext>().InstancePerLifetimeScope();
-            builder.RegisterType<ConnectionRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<ConnectionContext>().InstancePerLifetimeScope();
+            builder.RegisterType<InstancePersistContext>().InstancePerLifetimeScope();
+            builder.RegisterType<ExternalServiceRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<InstanceContext>().InstancePerLifetimeScope();
 
             // Job Running components
-            builder.RegisterType<JobRepository>().InstancePerLifetimeScope();
             builder.RegisterType<OneTimeJobService>().InstancePerLifetimeScope();
             builder.RegisterType<RecurringJobService>().InstancePerLifetimeScope();
             builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
-            builder.RegisterType<JobStatusService>().InstancePerLifetimeScope();
+            builder.RegisterType<JobMonitoringService>().InstancePerLifetimeScope();
 
             // Process Registrations
             RegisterIdentityPlumbing(builder);

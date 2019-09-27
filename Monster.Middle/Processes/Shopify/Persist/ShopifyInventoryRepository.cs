@@ -9,10 +9,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
 {
     public class ShopifyInventoryRepository
     {
-        private readonly PersistContext _dataContext;
+        private readonly InstancePersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public ShopifyInventoryRepository(PersistContext dataContext)
+        public ShopifyInventoryRepository(InstancePersistContext dataContext)
         {
             _dataContext = dataContext;
         }

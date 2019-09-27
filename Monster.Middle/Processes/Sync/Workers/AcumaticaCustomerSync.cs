@@ -40,7 +40,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             foreach (var shopifyCustomer in notLoadedCustomers)
             {
-                _executionLogService.RunTransaction(
+                _executionLogService.ExecuteWithFailLog(
                     () => PushCustomer(shopifyCustomer),
                     SyncDescriptor.CreateAcumaticaCustomer,
                     SyncDescriptor.ShopifyCustomer(shopifyCustomer));
@@ -50,7 +50,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             foreach (var shopifyCustomer in customersNeedingUpdate)
             {
-                _executionLogService.RunTransaction(
+                _executionLogService.ExecuteWithFailLog(
                     () => PushCustomer(shopifyCustomer),
                     SyncDescriptor.UpdateAcumaticaCustomer,
                     SyncDescriptor.ShopifyCustomer(shopifyCustomer));

@@ -13,13 +13,13 @@ namespace Monster.ConsoleApp.Feeder
 {
     public class ShopifyDataFeeder
     {
-        private readonly ConnectionContext _connection;
+        private readonly InstanceContext _connection;
         private readonly OrderApi _orderApi;
         private readonly CustomerApi _customerApi;
         private readonly IPushLogger _logger;
 
         public ShopifyDataFeeder(
-                ConnectionContext connection, 
+                InstanceContext connection, 
                 OrderApi orderApi, 
                 CustomerApi customerApi, 
                 IPushLogger logger)

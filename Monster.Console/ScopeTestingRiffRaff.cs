@@ -16,11 +16,11 @@ namespace Monster.ConsoleApp
         private static int _globalIdentifier = 1;
 
         private IPushLogger _logger;
-        private readonly PersistContext _persist;
+        private readonly InstancePersistContext _persist;
         public int Id = _globalIdentifier++;
 
         public ScopeTestingRiffRaff(
-                IPushLogger logger, PersistContext persist)
+                IPushLogger logger, InstancePersistContext persist)
         {
             _logger = logger;
             _persist = persist;

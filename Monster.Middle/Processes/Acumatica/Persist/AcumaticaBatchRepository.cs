@@ -7,10 +7,10 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 {
     public class AcumaticaBatchRepository
     {
-        private readonly PersistContext _dataContext;
+        private readonly InstancePersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public AcumaticaBatchRepository(PersistContext dataContext)
+        public AcumaticaBatchRepository(InstancePersistContext dataContext)
         {
             _dataContext = dataContext;
         }

@@ -61,7 +61,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
                     return;
                 }
 
-                _executionLogService.RunTransaction(
+                _executionLogService.ExecuteWithFailLog(
                         () => PriceUpdate(stockItem),
                         SyncDescriptor.UpdateShopifyPrice,
                         SyncDescriptor.AcumaticaStockItem(stockItem));
@@ -117,7 +117,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
                     return;
                 }
                 
-                _executionLogService.RunTransaction(
+                _executionLogService.ExecuteWithFailLog(
                         () => InventoryUpdate(stockItem),
                         SyncDescriptor.UpdateShopifyInventory,
                         SyncDescriptor.AcumaticaStockItem(stockItem));
@@ -139,6 +139,15 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
                 return;
             }
 
+            if (variant.ShopifyProduct.IsDeleted)
+            {
+                _logger.Debug(
+                    $"Skipping Inventory Update for " +
+                    $"Variant {variant.ShopifySku} ({variant.ShopifyVariantId}) " +
+                    $"StockItem {stockItem} - reason: Deleted Parent Product");
+                return;
+            }
+
             foreach (var level in variant.ShopifyInventoryLevels)
             {
                 RunInventoryLevelUpdate(stockItem, level);
@@ -150,7 +159,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             var location = _syncInventoryRepository.RetrieveLocation(level.ShopifyLocationId);
             var warehouseIds = location.MatchedWarehouseIds();
             var details = stockItem.WarehouseDetails(warehouseIds);
-
+                
             var totalQtyOnHand = (int)details.Sum(x => x.AcumaticaQtyOnHand);
             var sku = level.ShopifyVariant.ShopifySku;
             

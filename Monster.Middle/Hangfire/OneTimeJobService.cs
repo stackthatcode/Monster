@@ -10,19 +10,15 @@ namespace Monster.Middle.Hangfire
 {
     public class OneTimeJobService
     {
-        private readonly ConnectionContext _tenantContext;
-        private readonly StateRepository _stateRepository;
-        private readonly JobRepository _jobRepository;
+        private readonly InstanceContext _tenantContext;
+        private readonly JobMonitoringService _jobMonitoringService;
 
 
         public OneTimeJobService(
-            ConnectionContext tenantContext,
-            StateRepository stateRepository, 
-            JobRepository jobRepository)
+                InstanceContext tenantContext, JobMonitoringService jobMonitoringService)
         {
             _tenantContext = tenantContext;
-            _stateRepository = stateRepository;
-            _jobRepository = jobRepository;
+            _jobMonitoringService = jobMonitoringService;
         }
 
 
@@ -46,22 +42,14 @@ namespace Monster.Middle.Hangfire
     
         public void RunDiagnostics()
         {
-            QueueJob(BackgroundJobType.Diagnostics, 
-                x => x.RunDiagnostics(_tenantContext.InstanceId));
+            QueueJob(BackgroundJobType.Diagnostics, x => x.RunDiagnostics(_tenantContext.InstanceId));
         }
 
         public void PullInventory()
         {
-            QueueJob(BackgroundJobType.PullInventory, 
-                    x => x.PullInventory(_tenantContext.InstanceId));
+            QueueJob(BackgroundJobType.PullInventory, x => x.PullInventory(_tenantContext.InstanceId));
         }
         
-        public void EndToEndSync()
-        {
-            QueueJob(BackgroundJobType.EndToEndSync, 
-                    x => x.EndToEndSync(_tenantContext.InstanceId));
-        }
-
         public void ImportIntoAcumatica(
                 List<long> spids, bool createInventoryReceipts, bool automaticEnable)
         {
@@ -82,10 +70,17 @@ namespace Monster.Middle.Hangfire
         //
         private void QueueJob(int jobType, Expression<Action<JobRunner>> action)
         {
-            using (var transaction = _stateRepository.BeginTransaction())
+            var monitoringDigest = _jobMonitoringService.GetMonitoringDigest();
+
+            if (monitoringDigest.AreAnyJobsActive)
+            {
+                return;
+            }
+
+            using (var transaction = _jobMonitoringService.BeginTransaction())
             {
                 var jobId = BackgroundJob.Enqueue<JobRunner>(action);
-                _jobRepository.InsertBackgroundJob(jobType, jobId);
+                _jobMonitoringService.AddJobMonitor(jobType, jobId, false);
                 transaction.Commit();
             }
         }

@@ -1,81 +1,62 @@
 ﻿using System;
 using Hangfire;
-using Monster.Middle.Persist.Master;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
-using Push.Foundation.Utilities.Helpers;
-using Push.Foundation.Utilities.Logging;
 
 
 namespace Monster.Middle.Hangfire
 {
     public class RecurringJobService
     {
-        private readonly ConnectionContext _tenantContext;
-        private readonly ConnectionRepository _connectionRepository;
-        private readonly StateRepository _stateRepository;
+        private readonly InstanceContext _instanceContext;
         private readonly ExecutionLogService _executionLogService;
+        private readonly JobMonitoringService _jobMonitoringService;
 
 
         public RecurringJobService(
-                ConnectionContext tenantContext,
-                ConnectionRepository connectionRepository,
-                StateRepository stateRepository, 
+                InstanceContext instanceContext, 
                 ExecutionLogService executionLogService,
-                IPushLogger logger)
+                JobMonitoringService jobMonitoringService)
         {
-            _tenantContext = tenantContext;
-            _connectionRepository = connectionRepository;
-            _stateRepository = stateRepository;
+            _instanceContext = instanceContext;
             _executionLogService = executionLogService;
+            _jobMonitoringService = jobMonitoringService;
         }
 
-        public void StartRoutineSync()
+        public void StartEndToEndSync()
         {
-            var routineSyncJobId = RoutineSyncJobId();
-            using (var transaction = _stateRepository.BeginTransaction())
-            {
-                var state = _stateRepository.RetrieveSystemState();
+            var routineSyncJobId = _jobMonitoringService.RecurringEndToEndSyncJobId;
 
+            using (var transaction = _jobMonitoringService.BeginTransaction())
+            {
                 RecurringJob.AddOrUpdate<JobRunner>(
                     routineSyncJobId,
-                    x => x.EndToEndSync(_tenantContext.InstanceId),
+                    x => x.EndToEndSync(_instanceContext.InstanceId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 
-                state.RealTimeHangFireJobId = routineSyncJobId;
-                
-                _connectionRepository.Entities.SaveChanges();
+                _jobMonitoringService.AddJobMonitor(
+                        BackgroundJobType.EndToEndSync, routineSyncJobId, true);
+
+                _executionLogService.InsertExecutionLog("End-to-End Sync - Starting Background Job");
 
                 RecurringJob.Trigger(routineSyncJobId);
                 transaction.Commit();
             }
         }
 
-        public void PauseRoutineSync()
+        public void KillEndToEndSync()
         {
-            using (var transaction = _connectionRepository.BeginTransaction())
+            using (var transaction = _jobMonitoringService.BeginTransaction())
             {
-                var state = _stateRepository.RetrieveSystemState();
-                var jobId = state.RealTimeHangFireJobId;
-                if (jobId.IsNullOrEmpty())
-                {
-                    return;
-                }
+                var hangfireJobId = _jobMonitoringService.RecurringEndToEndSyncJobId;
+                RecurringJob.RemoveIfExists(hangfireJobId);
 
-                RecurringJob.RemoveIfExists(jobId);
-                state.RealTimeHangFireJobId = null;
-                _stateRepository.Entities.SaveChanges();
+                _jobMonitoringService.RemoveRecurringJobMonitor(_jobMonitoringService.RecurringEndToEndSyncJobId);
 
-                _executionLogService.InsertExecutionLog("Real-Time Sync - Initiating Pause");
+                _executionLogService.InsertExecutionLog("End-to-End Sync - Killing Background Job");
                 transaction.Commit();
             }
-        }
-
-        private string RoutineSyncJobId()
-        {
-            return "RoutineSync:" + _tenantContext.InstanceId;
         }
     }
 }

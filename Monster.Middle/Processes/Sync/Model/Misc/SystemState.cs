@@ -19,11 +19,6 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
             return state == StateCode.Invalid ||
                    state == StateCode.SystemFault;
         }
-
-        public static bool IsRealTimeSyncEnabled(this SystemState state)
-        {
-            return !state.RealTimeHangFireJobId.IsNullOrEmpty();
-        }
     }
 }
 

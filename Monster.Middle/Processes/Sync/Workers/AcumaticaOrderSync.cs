@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
@@ -118,14 +117,14 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             RunAcumaticaCustomerSync(orderRecord);
             
             var success = 
-                _logService.RunTransaction(
+                _logService.ExecuteWithFailLog(
                         () => PushOrder(orderRecord),
                         SyncDescriptor.CreateAcumaticaSalesOrder,
                         SyncDescriptor.ShopifyOrder(orderRecord));
 
             if (success)
             {
-                _logService.RunTransaction(
+                _logService.ExecuteWithFailLog(
                     () => PushOrder(orderRecord),
                     SyncDescriptor.UpdateAcumaticaSalesOrderTaxes,
                     SyncDescriptor.ShopifyOrder(orderRecord));

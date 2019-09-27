@@ -178,14 +178,14 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 if (status.DoesNotHaveCreditMemoInvoice)
                 {
                     var success = 
-                        _logService.RunTransaction(
+                        _logService.ExecuteWithFailLog(
                             () => PushReturnOrder(_return),
                             SyncDescriptor.CreateAcumaticaCreditMemo,
                             SyncDescriptor.ShopifyRefund(_return));
 
                     if (success)
                     {
-                        _logService.RunTransaction(
+                        _logService.ExecuteWithFailLog(
                             () => PushReturnOrderTaxes(_return),
                             SyncDescriptor.UpdateAcumaticaCreditMemoTaxes,
                             SyncDescriptor.ShopifyRefund(_return));
@@ -196,7 +196,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 
                 if (status.HasCreditMemoOrder && status.AreCreditMemoTaxesNotSynced)
                 {
-                    _logService.RunTransaction(
+                    _logService.ExecuteWithFailLog(
                         () => PushReturnOrderTaxes(_return),
                         SyncDescriptor.UpdateAcumaticaCreditMemoTaxes,
                         SyncDescriptor.ShopifyRefund(_return));
@@ -207,14 +207,14 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 if (status.DoesNotHaveCreditMemoInvoice)
                 {
                     var success =
-                        _logService.RunTransaction(
+                        _logService.ExecuteWithFailLog(
                             () => DetectReturnInvoice(_return),
                             SyncDescriptor.DetectAcumaticaCreditMemoInvoice,
                             SyncDescriptor.ShopifyRefund(_return));
 
                     if (success)
                     {
-                        _logService.RunTransaction(
+                        _logService.ExecuteWithFailLog(
                             () => CreateReturnInvoice(_return),
                             SyncDescriptor.CreateAcumaticaCreditMemoInvoice,
                             SyncDescriptor.ShopifyRefund(_return));
@@ -226,7 +226,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 if (status.HasCreditMemoInvoice && status.DoesNotHaveReleasedInvoice)
                 {
                     // No continue - keep processing with altered state
-                    _logService.RunTransaction(
+                    _logService.ExecuteWithFailLog(
                         () => DetectReturnInvoice(_return),
                         SyncDescriptor.DetectAcumaticaCreditMemoInvoice,
                         SyncDescriptor.ShopifyRefund(_return));
@@ -234,7 +234,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
                 if (status.HasCreditMemoInvoice && status.DoesNotHaveReleasedInvoice)
                 {
-                    _logService.RunTransaction(
+                    _logService.ExecuteWithFailLog(
                         () => ReleaseReturnInvoice(_return),
                         SyncDescriptor.ReleaseAcumaticaCreditMemoInvoice,
                         SyncDescriptor.ShopifyRefund(_return));

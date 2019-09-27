@@ -58,7 +58,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
                 if (syncReadiness.IsReady)
                 {
-                    _logService.RunTransaction(
+                    _logService.ExecuteWithFailLog(
                         () => PushFulfillmentToShopify(salesOrderRef), 
                         SyncDescriptor.CreateShopifyFulfillment, 
                         SyncDescriptor.AcumaticaShipmentSalesOrderRef(salesOrderRef));

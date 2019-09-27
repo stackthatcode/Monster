@@ -6,11 +6,11 @@ namespace Monster.Middle.Processes.Sync.Persist
 {
     public class PreferencesRepository
     {
-        private readonly PersistContext _dataContext;
+        private readonly InstancePersistContext _dataContext;
 
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public PreferencesRepository(PersistContext dataContext)
+        public PreferencesRepository(InstancePersistContext dataContext)
         {
             _dataContext = dataContext;
         }

@@ -22,9 +22,9 @@ namespace Monster.Middle.Identity
         private readonly IdentityUserManager _userManager;
         private readonly IdentityRoleManager _roleManager;
         private readonly IdentitySignInManager _signInManager;
-        private readonly ConnectionContext _connectionContext;
+        private readonly InstanceContext _connectionContext;
         private readonly StateRepository _stateRepository;
-        private readonly ConnectionRepository _connectionRepository;
+        private readonly ExternalServiceRepository _connectionRepository;
         private readonly IPushLogger _logger;
 
         public IdentityService(
@@ -33,9 +33,9 @@ namespace Monster.Middle.Identity
                 IdentityUserManager userManager,
                 IdentityRoleManager roleManager,
                 IdentitySignInManager signInManager,
-                ConnectionContext connectionContext,
+                InstanceContext connectionContext,
                 StateRepository stateRepository,
-                ConnectionRepository connectionRepository,
+                ExternalServiceRepository connectionRepository,
                 IPushLogger logger)
         {
             _systemRepository = systemRepository;

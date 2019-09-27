@@ -4,6 +4,23 @@ GO
 -- Shopify Workers checks
 --
 
+
+DROP VIEW IF EXISTS vw_SyncWarehousesAndLocations
+GO
+
+CREATE VIEW vw_SyncWarehousesAndLocations
+AS
+SELECT t1.MonsterId AS ShopifyLocationMonsterId, 
+		t1.ShopifyLocationName,
+		t1.ShopifyLocationId,
+		t2.Id AS AcumaticaWarehouseMonsterId,
+		t2.AcumaticaWarehouseId
+FROM ShopifyLocation t1
+	FULL OUTER JOIN AcumaticaWarehouse t2
+		ON t1.ShopifyLocationName = t2.AcumaticaWarehouseId;
+GO
+
+
 DROP VIEW IF EXISTS vw_ShopifyInventory 
 GO
 CREATE VIEW vw_ShopifyInventory
@@ -25,12 +42,158 @@ SELECT	t1.MonsterId,
 		t1.LastUpdated AS ProductLastUpdated,
 		t2.LastUpdated AS VariantLastUpdated,
 		t3.LastUpdated AS InventoryLevelLastUpdate
-FROM usrShopifyProduct t1
-	LEFT JOIN usrShopifyVariant t2
+FROM ShopifyProduct t1
+	LEFT JOIN ShopifyVariant t2
 		ON t2.ParentMonsterId = t1.MonsterId
-	LEFT JOIN usrShopifyInventoryLevel t3
+	LEFT JOIN ShopifyInventoryLevel t3
 		ON t3.ParentMonsterId = t2.MonsterId;
 GO
+
+
+DROP VIEW IF EXISTS vw_AcumaticaInventory 
+GO
+CREATE VIEW vw_AcumaticaInventory
+AS
+SELECT	t1.MonsterId, 
+		t1.ItemId,
+		t1.IsPriceSynced,
+		t2.AcumaticaWarehouseId,
+		t2.AcumaticaQtyOnHand,
+		t2.IsInventorySynced,
+		t1.LastUpdated AS StockItemLastUpdated,
+		t2.LastUpdated AS WarehouseDetailsLastUpdated
+FROM AcumaticaStockItem t1
+	LEFT JOIN AcumaticaWarehouseDetails t2
+		ON t2.ParentMonsterId = t1.MonsterId
+GO
+
+
+DROP VIEW IF EXISTS vw_SyncVariantsAndStockItems
+GO
+CREATE VIEW vw_SyncVariantsAndStockItems
+AS
+SELECT t1.ShopifyVariantId,
+	t1.ShopifyInventoryItemId,
+	t1.ShopifySku,
+	t1.ShopifyCost,
+	t1.ShopifyIsTracked,
+	t1.IsMissing,
+	t3.ItemId,
+	t1.LastUpdated AS VariantLastUpdated,
+	t3.LastUpdated AS StockItemLastUpdated
+FROM ShopifyVariant t1
+	FULL OUTER JOIN ShopAcuItemSync t2
+		ON t2.ShopifyVariantMonsterId = t1.MonsterId
+	FULL OUTER JOIN AcumaticaStockItem t3
+		ON t3.MonsterId = t2.AcumaticaItemMonsterId
+GO
+
+
+DROP VIEW IF EXISTS vw_SyncVariantsAndStockItems_Alt
+GO
+CREATE VIEW vw_SyncVariantsAndStockItems_Alt
+AS
+	SELECT	t2.MonsterId AS MonsterVariantId, t2.ShopifyProductId, t2.ShopifyTitle AS ShopifyProductTitle, t2.ShopifyVendor, t2.ShopifyProductType,
+			t1.ShopifyVariantId, t1.ShopifySku, t1.ShopifyTitle AS ShopifyVariantTitle, t4.ItemId AS AcumaticaItemId,
+			t4.AcumaticaDescription, t3.IsSyncEnabled
+	FROM ShopifyVariant t1 
+		INNER JOIN ShopifyProduct t2
+			ON t1.ParentMonsterId = t2.MonsterId
+		INNER JOIN ShopAcuItemSync t3
+			ON t1.MonsterId = t3.ShopifyVariantMonsterId
+		INNER JOIN AcumaticaStockItem t4
+			ON t3.AcumaticaItemMonsterId = t4.MonsterId;		
+GO
+
+
+DROP VIEW IF EXISTS vw_SyncAcumaticaInventory
+GO
+CREATE VIEW vw_SyncAcumaticaInventory
+AS
+SELECT t1.ItemId AS AcumaticaItemId, 
+	t3.AcumaticaWarehouseId, 
+	t3.AcumaticaQtyOnHand, 
+	t4.Id AS WarehouseSyncId,
+	t2.Id AS ItemSyncId
+FROM AcumaticaStockItem t1
+	FULL OUTER JOIN ShopAcuItemSync t2
+		ON t1.MonsterId = t2.AcumaticaItemMonsterId
+	FULL OUTER JOIN AcumaticaWarehouseDetails t3
+		ON t1.MonsterId = t3.ParentMonsterId
+	FULL OUTER JOIN ShopAcuWarehouseSync t4
+		ON t3.WarehouseMonsterId = t4.AcumaticaWarehouseMonsterId;
+GO
+
+DROP VIEW IF EXISTS vw_SyncShopifyInventory
+GO
+CREATE VIEW vw_SyncShopifyInventory
+AS
+SELECT	t1.MonsterId AS MonsterVariantId,
+		t1.ShopifySku, 
+		t1.ShopifyVariantId, 
+		t2.ShopifyAvailableQuantity, 
+		t2.ShopifyLocationId,
+		t5.ShopifyLocationName,
+		t3.Id AS LocationSyncId, 
+		t4.Id AS VariantSyncId
+FROM ShopifyVariant t1
+	FULL OUTER JOIN ShopifyInventoryLevel t2
+		ON t1.MonsterId = t2.ParentMonsterId
+	FULL OUTER JOIN ShopAcuWarehouseSync t3
+		ON t2.LocationMonsterId = t3.ShopifyLocationMonsterId
+	FULL OUTER JOIN ShopAcuItemSync t4
+		ON t1.MonsterId = t4.ShopifyVariantMonsterId 
+	FULL OUTER JOIN ShopifyLocation t5
+		ON t2.LocationMonsterId = t5.MonsterId;
+GO
+
+DROP VIEW IF EXISTS vw_SyncInventoryAllInclusive
+GO
+CREATE VIEW vw_SyncInventoryAllInclusive
+AS 
+SELECT t1.ShopifySku, 
+	t2.AcumaticaItemId,
+	t1.ShopifyVariantId,
+	t1.ShopifyLocationId,
+	t1.ShopifyLocationName,
+	t2.AcumaticaWarehouseId,
+	t1.ShopifyAvailableQuantity,
+	t2.AcumaticaQtyOnHand
+FROM vw_SyncShopifyInventory t1
+	FULL OUTER JOIN vw_SyncAcumaticaInventory t2
+		ON t1.LocationSyncId = t2.WarehouseSyncId
+		AND t1.VariantSyncId = t2.ItemSyncId
+GO
+
+DROP VIEW IF EXISTS vw_SyncInventoryLevelAndReceipts
+GO
+CREATE VIEW vw_SyncInventoryLevelAndReceipts
+AS
+	SELECT 
+		t4.ShopifySku,
+		t1.MonsterId,
+		t1.ShopifyInventoryItemId,
+		t1.ShopifyLocationId,
+		t1.ShopifyAvailableQuantity,
+		t3.AcumaticaRefNumber,
+		t3.IsReleased,
+		t1.LastUpdated AS InventoryLevelLastUpdated,
+		t3.LastUpdate AS InventoryReceiptLastUpdated
+	FROM ShopifyInventoryLevel t1
+		FULL OUTER JOIN InventoryReceiptSync t2
+			ON t2.ShopifyInventoryMonsterId = t1.MonsterId
+		FULL OUTER JOIN AcumaticaInventoryReceipt t3
+			ON t3.MonsterId = t2.AcumaticaInvReceiptMonsterId
+		FULL OUTER JOIN ShopifyVariant t4
+			ON t4.MonsterId = t1.ParentMonsterId
+GO
+
+
+
+
+
+
+
 
 DROP VIEW IF EXISTS vw_ShopifyOrderCustomer 
 GO
@@ -51,6 +214,7 @@ FROM usrShopifyOrder t1
 		ON t2.Id = t1.CustomerMonsterId;
 GO
 
+
 DROP VIEW IF EXISTS vw_ShopifyOrderRefunds
 GO
 CREATE VIEW vw_ShopifyOrderRefunds
@@ -68,6 +232,7 @@ FROM usrShopifyOrder t1
 	LEFT OUTER JOIN usrShopifyRefund t2
 		ON t2.OrderMonsterId = t1.Id;
 GO
+
 
 DROP VIEW IF EXISTS vw_ShopifyOrderFulfillments
 GO
@@ -113,22 +278,6 @@ GO
 
 -- Acumatica Workers checks
 --
-
-DROP VIEW IF EXISTS vw_AcumaticaInventory 
-GO
-CREATE VIEW vw_AcumaticaInventory
-AS
-SELECT	t1.MonsterId, 
-		t1.ItemId,
-		t2.AcumaticaWarehouseId,
-		t2.AcumaticaQtyOnHand,
-		t2.IsInventorySynced,
-		t1.LastUpdated AS StockItemLastUpdated,
-		t2.LastUpdated AS WarehouseDetailsLastUpdated
-FROM usrAcumaticaStockItem t1
-	LEFT JOIN usrAcumaticaWarehouseDetails t2
-		ON t2.ParentMonsterId = t1.MonsterId
-GO
 
 DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndCustomer
 GO
@@ -181,149 +330,6 @@ GO
 
 -- Sync Workers checks
 --
-
-
-DROP VIEW IF EXISTS vw_SyncWarehousesAndLocations
-GO
-
-CREATE VIEW vw_SyncWarehousesAndLocations
-AS
-SELECT t1.MonsterId AS ShopifyLocationMonsterId, 
-		t1.ShopifyLocationName,
-		t1.ShopifyLocationId,
-		t2.Id AS AcumaticaWarehouseMonsterId,
-		t2.AcumaticaWarehouseId
-FROM usrShopifyLocation t1
-	FULL OUTER JOIN usrAcumaticaWarehouse t2
-		ON t1.ShopifyLocationName = t2.AcumaticaWarehouseId;
-GO
-
-
-DROP VIEW IF EXISTS vw_SyncVariantsAndStockItems
-GO
-CREATE VIEW vw_SyncVariantsAndStockItems
-AS
-SELECT t1.ShopifyVariantId,
-	t1.ShopifyInventoryItemId,
-	t1.ShopifySku,
-	t1.ShopifyCost,
-	t1.ShopifyIsTracked,
-	t1.IsMissing,
-	t3.ItemId,
-	t1.LastUpdated AS VariantLastUpdated,
-	t3.LastUpdated AS StockItemLastUpdated
-FROM usrShopifyVariant t1
-	FULL OUTER JOIN usrShopAcuItemSync t2
-		ON t2.ShopifyVariantMonsterId = t1.MonsterId
-	FULL OUTER JOIN usrAcumaticaStockItem t3
-		ON t3.MonsterId = t2.AcumaticaItemMonsterId
-GO
-
-
-DROP VIEW IF EXISTS vw_SyncAcumaticaInventory
-GO
-CREATE VIEW vw_SyncAcumaticaInventory
-AS
-SELECT t1.ItemId AS AcumaticaItemId, 
-	t3.AcumaticaWarehouseId, 
-	t3.AcumaticaQtyOnHand, 
-	t4.Id AS WarehouseSyncId,
-	t2.Id AS ItemSyncId
-FROM usrAcumaticaStockItem t1
-	FULL OUTER JOIN usrShopAcuItemSync t2
-		ON t1.MonsterId = t2.AcumaticaItemMonsterId
-	FULL OUTER JOIN usrAcumaticaWarehouseDetails t3
-		ON t1.MonsterId = t3.ParentMonsterId
-	FULL OUTER JOIN usrShopAcuWarehouseSync t4
-		ON t3.WarehouseMonsterId = t4.AcumaticaWarehouseMonsterId;
-GO
-
-
-DROP VIEW IF EXISTS vw_SyncShopifyInventory
-GO
-CREATE VIEW vw_SyncShopifyInventory
-AS
-SELECT	t1.MonsterId AS MonsterVariantId,
-		t1.ShopifySku, 
-		t1.ShopifyVariantId, 
-		t2.ShopifyAvailableQuantity, 
-		t2.ShopifyLocationId,
-		t5.ShopifyLocationName,
-		t3.Id AS LocationSyncId, 
-		t4.Id AS VariantSyncId
-FROM usrShopifyVariant t1
-	FULL OUTER JOIN usrShopifyInventoryLevel t2
-		ON t1.MonsterId = t2.ParentMonsterId
-	FULL OUTER JOIN usrShopAcuWarehouseSync t3
-		ON t2.LocationMonsterId = t3.ShopifyLocationMonsterId
-	FULL OUTER JOIN usrShopAcuItemSync t4
-		ON t1.MonsterId = t4.ShopifyVariantMonsterId 
-	FULL OUTER JOIN usrShopifyLocation t5
-		ON t2.LocationMonsterId = t5.MonsterId;
-GO
-
-
-DROP VIEW IF EXISTS vw_SyncInventoryAllInclusive
-GO
-CREATE VIEW vw_SyncInventoryAllInclusive
-AS 
-SELECT t1.ShopifySku, 
-	t2.AcumaticaItemId,
-	t1.ShopifyVariantId,
-	t1.ShopifyLocationId,
-	t1.ShopifyLocationName,
-	t2.AcumaticaWarehouseId,
-	t1.ShopifyAvailableQuantity,
-	t2.AcumaticaQtyOnHand
-FROM vw_SyncShopifyInventory t1
-	FULL OUTER JOIN vw_SyncAcumaticaInventory t2
-		ON t1.LocationSyncId = t2.WarehouseSyncId
-		AND t1.VariantSyncId = t2.ItemSyncId
-GO
-
-
-DROP VIEW IF EXISTS vw_SyncVariantAndStockItem
-GO
-CREATE VIEW vw_SyncVariantAndStockItem
-AS
-	SELECT	t2.MonsterId AS MonsterVariantId, t2.ShopifyProductId, t2.ShopifyTitle AS ShopifyProductTitle, t2.ShopifyVendor, t2.ShopifyProductType,
-			t1.ShopifyVariantId, t1.ShopifySku, t1.ShopifyTitle AS ShopifyVariantTitle, t4.ItemId AS AcumaticaItemId,
-			t4.AcumaticaDescription, t3.IsSyncEnabled
-	FROM usrShopifyVariant t1 
-		INNER JOIN usrShopifyProduct t2
-			ON t1.ParentMonsterId = t2.MonsterId
-		INNER JOIN usrShopAcuItemSync t3
-			ON t1.MonsterId = t3.ShopifyVariantMonsterId
-		INNER JOIN usrAcumaticaStockItem t4
-			ON t3.AcumaticaItemMonsterId = t4.MonsterId;		
-GO
-
-
-
-DROP VIEW IF EXISTS vw_SyncInventoryLevelAndReceipts
-GO
-CREATE VIEW vw_SyncInventoryLevelAndReceipts
-AS
-	SELECT 
-		t4.ShopifySku,
-		t1.MonsterId,
-		t1.ShopifyInventoryItemId,
-		t1.ShopifyLocationId,
-		t1.ShopifyAvailableQuantity,
-		t3.AcumaticaRefNumber,
-		t3.IsReleased,
-		t1.LastUpdated AS InventoryLevelLastUpdated,
-		t3.LastUpdate AS InventoryReceiptLastUpdated
-	FROM usrShopifyInventoryLevel t1
-		FULL OUTER JOIN usrInventoryReceiptSync t2
-			ON t2.ShopifyInventoryMonsterId = t1.MonsterId
-		FULL OUTER JOIN usrAcumaticaInventoryReceipt t3
-			ON t3.MonsterId = t2.AcumaticaInvReceiptMonsterId
-		FULL OUTER JOIN usrShopifyVariant t4
-			ON t4.MonsterId = t1.ParentMonsterId
-GO
-
-
 
 
 DROP VIEW IF EXISTS vw_SyncCustomerWithCustomers
@@ -439,21 +445,14 @@ FROM usrShopifyOrder t1
 GO
 
 
-SELECT * FROM vw_ShopifyInventory;
 SELECT * FROM vw_ShopifyOrderCustomer;
 SELECT * FROM vw_ShopifyOrderRefunds;
 SELECT * FROM vw_ShopifyOrderFulfillments;
 SELECT * FROM vw_ShopifyOrderTransactions;
 
-SELECT * FROM vw_AcumaticaInventory;
 SELECT * FROM vw_AcumaticaSalesOrderAndCustomer;
 SELECT * FROM vw_AcumaticaSalesOrderAndShipmentInvoices;
 SELECT * FROM vw_AcumaticaSalesOrderAndShipments;
-
-SELECT * FROM vw_SyncWarehousesAndLocations;
-SELECT * FROM vw_SyncVariantsAndStockItems;
-SELECT * FROM vw_SyncInventoryLevelAndReceipts;
-SELECT * FROM vw_SyncInventoryAllInclusive;		-- Identifies unmatched Stock Items-Variants
 
 SELECT * FROM vw_SyncCustomerWithCustomers;
 SELECT * FROM vw_SyncOrdersAndSalesOrders;		-- Identifies unsynced Orders-Sales Orders

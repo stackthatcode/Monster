@@ -4,9 +4,9 @@ namespace Monster.Middle.Processes.Sync.Services
 {
     public class UrlService
     {
-        private readonly ConnectionRepository _connectionRepository;
+        private readonly ExternalServiceRepository _connectionRepository;
 
-        public UrlService(ConnectionRepository connectionRepository)
+        public UrlService(ExternalServiceRepository connectionRepository)
         {
             _connectionRepository = connectionRepository;
         }

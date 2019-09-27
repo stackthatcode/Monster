@@ -11,10 +11,10 @@ namespace Monster.Middle.Processes.Sync.Persist
 {
     public class SyncInventoryRepository
     {
-        private readonly PersistContext _dataContext;
+        private readonly InstancePersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public SyncInventoryRepository(PersistContext dataContext)
+        public SyncInventoryRepository(InstancePersistContext dataContext)
         {
             _dataContext = dataContext;
         }

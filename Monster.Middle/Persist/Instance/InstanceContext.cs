@@ -6,11 +6,11 @@ using Push.Shopify.Http;
 
 namespace Monster.Middle.Persist.Instance
 {
-    public class ConnectionContext
+    public class InstanceContext
     {
         private readonly SystemRepository _systemRepository;
-        private readonly ConnectionRepository _connectionRepository;
-        private readonly PersistContext _persistContext;
+        private readonly ExternalServiceRepository _connectionRepository;
+        private readonly InstancePersistContext _persistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly StateRepository _stateRepository;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
@@ -22,10 +22,10 @@ namespace Monster.Middle.Persist.Instance
 
         public readonly Guid ConnectionIdentifier = Guid.NewGuid();
 
-        public ConnectionContext(
-                ConnectionRepository connectionRepository, 
+        public InstanceContext(
+                ExternalServiceRepository connectionRepository, 
                 SystemRepository systemRepository, 
-                PersistContext persistContext, 
+                InstancePersistContext persistContext, 
                 ShopifyHttpContext shopifyHttpContext,
                 StateRepository stateRepository,
                 AcumaticaHttpContext acumaticaHttpContext)

@@ -248,8 +248,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public void FlagMissingVariants(long parentMonsterId, Product product)
         {
-            var storedVariants = 
-                _inventoryRepository.RetrieveVariantsByParent(parentMonsterId);
+            var storedVariants = _inventoryRepository.RetrieveVariantsByParent(parentMonsterId);
 
             foreach (var variant in storedVariants)
             {

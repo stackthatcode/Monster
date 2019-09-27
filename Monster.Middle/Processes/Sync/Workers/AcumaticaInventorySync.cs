@@ -49,17 +49,17 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
 
                 foreach (var variant in variants)
                 {
-                    RunStockItemPush(context, variant);
+                    RunStockItemImport(context, variant);
                 }
 
                 if (context.CreateInventoryReceipts)
                 {
-                    RunInventoryReceiptPush(shopifyProductId);
+                    RunInventoryReceiptImport(shopifyProductId);
                 }
             }
         }
 
-        private void RunStockItemPush(AcumaticaInventoryImportContext context, ShopifyVariant variant)
+        private void RunStockItemImport(AcumaticaInventoryImportContext context, ShopifyVariant variant)
         {            
             var matchingShopifySkus =
                 _syncRepository
@@ -90,13 +90,13 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
 
             // With neither duplicates or Auto-matching having succeeded,
             // ... we'll create a new Stock Item in Acumatica
-            _executionLogService.RunTransaction(
+            _executionLogService.ExecuteWithFailLog(
                     () => StockItemPush(context, variant),
                     SyncDescriptor.CreateStockItem, SyncDescriptor.ShopifyVariant(variant));
         }
 
         public void StockItemPush(
-                AcumaticaInventoryImportContext context, ShopifyVariant variant)
+                    AcumaticaInventoryImportContext context, ShopifyVariant variant)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
             var defaultItemClass = preferences.AcumaticaDefaultItemClass;
@@ -152,9 +152,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             }
         }
 
-        public void RunInventoryReceiptPush(long shopifyProductId)
+        public void RunInventoryReceiptImport(long shopifyProductId)
         {
-            _executionLogService.RunTransaction(
+            _executionLogService.ExecuteWithFailLog(
                     () => InventoryReceiptPush(shopifyProductId),
                     SyncDescriptor.CreateInventoryReceipt, 
                     SyncDescriptor.ShopifyProduct(shopifyProductId));
