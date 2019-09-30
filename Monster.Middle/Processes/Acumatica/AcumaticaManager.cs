@@ -1,8 +1,9 @@
 ﻿using System;
 using Monster.Acumatica.Http;
+using Monster.Middle.Processes.Acumatica.Workers;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.Processes.Acumatica.Workers
+namespace Monster.Middle.Processes.Acumatica
 {
     public class AcumaticaManager
     {
@@ -45,16 +46,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void PullReferenceData()
         {
-            var sequence = new Action[]
+            SessionRun(() =>
             {
-                () => _acumaticaReferencePull.RunItemClass(),
-                () => _acumaticaReferencePull.RunPaymentMethod(),
-                () => _acumaticaReferencePull.RunTaxCategories(),
-                () => _acumaticaReferencePull.RunTaxIds(),
-                () => _acumaticaReferencePull.RunTaxZones()
-            };
-            
-            SessionRun(sequence);
+                _acumaticaReferencePull.RunItemClass();
+                _acumaticaReferencePull.RunPaymentMethod();
+                _acumaticaReferencePull.RunTaxCategories();
+                _acumaticaReferencePull.RunTaxIds();
+                _acumaticaReferencePull.RunTaxZones();
+            });
         }
         
         public void PullWarehouses()
@@ -69,18 +68,16 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void PullOrdersAndCustomersAndShipments()
         {
-            var sequence = new Action[]
+            SessionRun(() =>
             {
-                () => _acumaticaCustomerPull.RunAutomatic(),
-                () => _acumaticaOrderPull.RunAutomatic(),
-                () => _acumaticaShipmentPull.RunAutomatic()
-            };
-
-            SessionRun(sequence, throwException:false);
+                _acumaticaCustomerPull.RunAutomatic();
+                _acumaticaOrderPull.RunAutomatic();
+                _acumaticaShipmentPull.RunAutomatic();
+            });
         }
 
 
-        public void SessionRun(Action action, bool throwException = true)
+        public void SessionRun(Action action)
         {
             try
             {
@@ -91,14 +88,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
                 action();
             }
-            catch (Exception ex)
-            {
-                if (throwException)
-                {
-                    throw;
-                }
-                _logger.Error(ex);
-            }
             finally
             {
                 if (_acumaticaHttpContext.IsLoggedIn)
@@ -107,36 +96,5 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 }
             }
         }
-
-        public void SessionRun(Action[] actions, bool throwException = true)
-        {
-            foreach (var action in actions)
-            {
-                try
-                {
-                    if (!_acumaticaHttpContext.IsLoggedIn)
-                    {
-                        _acumaticaHttpContext.Login();
-                    }
-
-                    action();
-                }
-                catch (Exception ex)
-                {
-                    if (throwException)
-                    {
-                        throw;
-                    }
-
-                    _logger.Error(ex);
-                }
-            }
-
-            if (_acumaticaHttpContext.IsLoggedIn)
-            {
-                _acumaticaHttpContext.Logout();
-            }
-        }
     }
 }
-

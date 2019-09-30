@@ -8,6 +8,7 @@ using Monster.Middle.Hangfire;
 using Monster.Middle.Identity;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
@@ -179,7 +180,7 @@ namespace Monster.Middle
             
             // Management Objects
             builder.RegisterType<SyncManager>().InstancePerLifetimeScope();
-            builder.RegisterType<SyncDirector>().InstancePerLifetimeScope();
+            builder.RegisterType<ProcessDirector>().InstancePerLifetimeScope();
         }
     }
 }

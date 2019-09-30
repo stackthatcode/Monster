@@ -39,7 +39,7 @@ namespace Monster.Middle.Persist.Instance
                     newRecord.AcumaticaRefDataState = StateCode.None;
                     newRecord.PreferenceState = StateCode.None;
                     newRecord.WarehouseSyncState = StateCode.None;
-                    newRecord.InventoryPullState = StateCode.None;
+                    newRecord.InventoryRefreshState = StateCode.None;
                     
                     newRecord.IsRandomAccessMode = false;
 

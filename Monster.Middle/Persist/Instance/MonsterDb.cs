@@ -1183,7 +1183,7 @@ namespace Monster.Middle.Persist.Instance
         public int AcumaticaRefDataState { get; set; } // AcumaticaRefDataState
         public int PreferenceState { get; set; } // PreferenceState
         public int WarehouseSyncState { get; set; } // WarehouseSyncState
-        public int InventoryPullState { get; set; } // InventoryPullState
+        public int InventoryRefreshState { get; set; } // InventoryPullState
         public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
     }
 
@@ -2502,7 +2502,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaRefDataState).HasColumnName(@"AcumaticaRefDataState").HasColumnType("int").IsRequired();
             Property(x => x.PreferenceState).HasColumnName(@"PreferenceState").HasColumnType("int").IsRequired();
             Property(x => x.WarehouseSyncState).HasColumnName(@"WarehouseSyncState").HasColumnType("int").IsRequired();
-            Property(x => x.InventoryPullState).HasColumnName(@"InventoryPullState").HasColumnType("int").IsRequired();
+            Property(x => x.InventoryRefreshState).HasColumnName(@"InventoryPullState").HasColumnType("int").IsRequired();
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
         }
     }

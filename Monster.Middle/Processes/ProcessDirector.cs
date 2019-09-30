@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
@@ -16,7 +17,7 @@ using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Sync.Managers
 {
-    public class SyncDirector
+    public class ProcessDirector
     {
         private readonly ExternalServiceRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
@@ -31,7 +32,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly IPushLogger _logger;
 
 
-        public SyncDirector(
+        public ProcessDirector(
                 ExternalServiceRepository connectionRepository,
                 StateRepository stateRepository,
 
@@ -96,22 +97,25 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
 
-        public void PullAcumaticaRefData()
+        public void RefreshAcumaticaRefData()
         {
             try
             {
                 _executionLogService.InsertExecutionLog("Pulling Acumatica Reference Data");
                 _acumaticaManager.PullReferenceData();
                 
+                // Update the Reference Data State
+                //
                 _stateRepository.UpdateSystemState(
                         x => x.AcumaticaRefDataState, StateCode.Ok);
 
+                // Update the Preferences State
+                //
                 var preferences = _preferencesRepository.RetrievePreferences();
                 _referenceDataService.FilterPreferencesAgainstRefData(preferences);
                 _connectionRepository.SaveChanges();
 
                 var state = preferences.AreValid() ? StateCode.Ok : StateCode.Invalid;
-
                 _stateRepository.UpdateSystemState(x => x.PreferenceState, state);
             }
             catch (Exception ex)
@@ -151,7 +155,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         public void RunDiagnostics()
         {
             ConnectToShopify();
-            PullAcumaticaRefData();
+            RefreshAcumaticaRefData();
             SyncWarehouseAndLocation();
         }
 
@@ -159,29 +163,33 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         // Inventory Jobs 
         //
-        public void PullInventory()
+        public void RefreshInventory()
         {
             try
             {
                 _shopifyManager.PullInventory();
                 _acumaticaManager.PullInventory();
                 
-                _stateRepository.UpdateSystemState(x => x.InventoryPullState, StateCode.Ok);
+                _stateRepository.UpdateSystemState(
+                    x => x.InventoryRefreshState, StateCode.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
+                var msg = "Encountered error while executing Inventory Refresh";
+                _executionLogService.InsertExecutionLog(msg);
 
                 _stateRepository.UpdateSystemState(
-                        x => x.InventoryPullState, StateCode.SystemFault);
+                    x => x.InventoryRefreshState, StateCode.SystemFault);
             }
         }
         
-        public void ImportIntoAcumatica(AcumaticaInventoryImportContext context)
+        public void ImportInventoryToAcumatica(AcumaticaInventoryImportContext context)
         {
             Run(() => _shopifyManager.PullInventory());
             Run(() => _syncManager.ImportIntoAcumatica(context));
         }
+
 
 
         // Synchronization
@@ -229,7 +237,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 sequence.Add(() => _syncManager.PushInventoryCountsToShopify());
             }
 
-            RunSequence(sequence, false);
+            RunSequence(sequence);
         }
 
 
@@ -248,9 +256,9 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
 
-        private void RunSequence(List<Action> actions, bool throwException = true)
+        private void RunSequence(List<Action> actions)
         {
-            _executionLogService.InsertExecutionLog("End-to-End Sync - Processing ");
+            _executionLogService.InsertExecutionLog("End-to-End Sync - Running");
 
             foreach (var action in actions)
             {
@@ -258,7 +266,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 {
                     var monitor = _monitoringService.GetMonitoringDigest();
                     
-                    if (monitor.IsJobTypeActive(BackgroundJobType.EndToEndSync))
+                    if (!monitor.IsJobTypeActive(BackgroundJobType.EndToEndSync))
                     {
                         _executionLogService.InsertExecutionLog("End-to-End Sync - Interrupting");
                         return;
@@ -268,16 +276,10 @@ namespace Monster.Middle.Processes.Sync.Managers
                 }
                 catch (Exception ex)
                 {
-                    if (throwException)
-                    {
-                        throw;
-                    }
-
                     _logger.Error(ex);
                 }
             }
         }
-        
     }
 }
 

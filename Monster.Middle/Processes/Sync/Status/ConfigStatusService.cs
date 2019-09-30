@@ -105,7 +105,7 @@ namespace Monster.Middle.Processes.Sync.Status
                 ShopifyConnection = state.ShopifyConnState,
                 AcumaticaConnection = state.AcumaticaConnState,
                 AcumaticaReferenceData = state.AcumaticaRefDataState,
-                InventoryPull = state.InventoryPullState,
+                InventoryPull = state.InventoryRefreshState,
                 PreferenceSelections = state.PreferenceState,
                 WarehouseSync = state.WarehouseSyncState
             };

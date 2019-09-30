@@ -181,7 +181,7 @@ namespace Monster.Web.Controllers
             {
                 AreAnyJobsRunning = areAnyJobsRunning,
                 Logs = logs,
-                SystemState = state.InventoryPullState,
+                SystemState = state.InventoryRefreshState,
             };
 
             return new JsonNetResult(output);

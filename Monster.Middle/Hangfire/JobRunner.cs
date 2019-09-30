@@ -10,7 +10,7 @@ namespace Monster.Middle.Hangfire
 {
     public class JobRunner
     {
-        private readonly SyncDirector _director;
+        private readonly ProcessDirector _processDirector;
         private readonly InstanceContext _instanceContext;
         private readonly JobMonitoringService _jobMonitoringService;
         private readonly ExecutionLogService _executionLogService;
@@ -21,13 +21,13 @@ namespace Monster.Middle.Hangfire
         static readonly NamedLock InstanceLock = new NamedLock("InstanceLock");
 
         public JobRunner(
-                SyncDirector director, 
+                ProcessDirector processDirector, 
                 InstanceContext instanceContext,
                 JobMonitoringService jobMonitoringService, 
                 IPushLogger logger, 
                 ExecutionLogService executionLogService)
         {
-            _director = director;
+            _processDirector = processDirector;
             _instanceContext = instanceContext;
             _jobMonitoringService = jobMonitoringService;
             _logger = logger;
@@ -38,44 +38,44 @@ namespace Monster.Middle.Hangfire
         public void RunConnectToAcumatica(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, _director.ConnectToAcumatica, BackgroundJobType.ConnectToAcumatica);
+                instanceId, _processDirector.ConnectToAcumatica, BackgroundJobType.ConnectToAcumatica);
         }
 
         public void RunPullAcumaticaRefData(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, _director.PullAcumaticaRefData, BackgroundJobType.PullAcumaticaRefData);
+                instanceId, _processDirector.RefreshAcumaticaRefData, BackgroundJobType.PullAcumaticaRefData);
         }
 
         public void RunSyncWarehouseAndLocation(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, _director.SyncWarehouseAndLocation, BackgroundJobType.SyncWarehouseAndLocation);
+                instanceId, _processDirector.SyncWarehouseAndLocation, BackgroundJobType.SyncWarehouseAndLocation);
         }
 
         public void RunDiagnostics(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, _director.RunDiagnostics, BackgroundJobType.Diagnostics);
+                instanceId, _processDirector.RunDiagnostics, BackgroundJobType.Diagnostics);
         }
         
         public void PullInventory(Guid instanceId)
         {
-            ExecuteOnePerInstance(instanceId, _director.PullInventory, BackgroundJobType.PullInventory);
+            ExecuteOnePerInstance(instanceId, _processDirector.RefreshInventory, BackgroundJobType.PullInventory);
         }
         
         public void ImportIntoAcumatica(Guid instanceId, AcumaticaInventoryImportContext context)
         {
             ExecuteOnePerInstance(
                 instanceId, 
-                () => _director.ImportIntoAcumatica(context), 
+                () => _processDirector.ImportInventoryToAcumatica(context), 
                 BackgroundJobType.ImportIntoAcumatica);
         }
         
         public void EndToEndSync(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, () => _director.EndToEndSync(), BackgroundJobType.EndToEndSync);
+                instanceId, () => _processDirector.EndToEndSync(), BackgroundJobType.EndToEndSync);
         }
         
 
@@ -88,7 +88,8 @@ namespace Monster.Middle.Hangfire
 
                 if (!InstanceLock.Acquire(instanceId.ToString()))
                 {
-                    _jobMonitoringService.RemoveOneTimeJobMonitor(jobType);
+                    // *** Not so sure about this
+                    //_jobMonitoringService.RemoveOneTimeJobMonitor(jobType);
 
                     var msg = $"Failed to acquire {InstanceLock.MethodName} lock for {instanceId}";
                     _executionLogService.InsertExecutionLog(msg, LogLevel.Debug);

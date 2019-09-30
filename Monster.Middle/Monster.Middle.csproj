@@ -195,13 +195,13 @@
     <Compile Include="Processes\Sync\Persist\SyncInventoryRepository.cs" />
     <Compile Include="Processes\Sync\Model\Orders\OrderSummaryViewDto.cs" />
     <Compile Include="Processes\Sync\Persist\SyncOrderRepository.cs" />
-    <Compile Include="Processes\Acumatica\Workers\AcumaticaManager.cs" />
+    <Compile Include="Processes\Acumatica\AcumaticaManager.cs" />
     <Compile Include="Processes\Sync\Model\Status\WarehouseSyncSummary.cs" />
     <Compile Include="Processes\Sync\Status\ConfigStatusService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInventoryPull.cs" />
     <Compile Include="Processes\Sync\Workers\ShopifyInventorySync.cs" />
     <Compile Include="Processes\Sync\Workers\WarehouseLocationSync.cs" />
-    <Compile Include="Processes\Shopify\Workers\ShopifyManager.cs" />
+    <Compile Include="Processes\Shopify\ShopifyManager.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyInventoryPull.cs" />
     <Compile Include="Processes\Shopify\Persist\InventoryExtensions.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyLocationPull.cs" />
@@ -229,7 +229,7 @@
     <Compile Include="Processes\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Processes\Sync\Model\Misc\SystemStateSummaryModel.cs" />
     <Compile Include="Processes\Sync\Services\UrlService.cs" />
-    <Compile Include="Processes\Sync\SyncDirector.cs" />
+    <Compile Include="Processes\ProcessDirector.cs" />
     <Compile Include="Identity\IdentityContext.cs" />
     <Compile Include="Identity\IdentityService.cs" />
     <Compile Include="Identity\SecurityConfig.cs" />
