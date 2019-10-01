@@ -29,7 +29,12 @@ namespace Monster.Middle.Hangfire
         {
             return Entities.Database.BeginTransaction();
         }
-        
+
+        public bool IsEndToEndSyncRunning()
+        {
+            return GetMonitoringDigest().IsJobTypeActive(BackgroundJobType.EndToEndSync);
+        }
+
         public InstanceMonitorDigest GetMonitoringDigest()
         {
             var jobRecords = Entities.JobMonitors.AsNoTracking().ToList();

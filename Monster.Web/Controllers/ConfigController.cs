@@ -6,7 +6,7 @@ using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
-using Monster.Middle.Processes.Sync.Model.Config;
+using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;

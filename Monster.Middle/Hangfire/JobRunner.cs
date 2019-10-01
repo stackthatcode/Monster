@@ -1,5 +1,6 @@
 ﻿using System;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Managers;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Services;

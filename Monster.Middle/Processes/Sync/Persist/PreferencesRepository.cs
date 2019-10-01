@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                     preferences.SyncOrdersEnabled = true;
                     preferences.SyncInventoryEnabled = true;
                     preferences.SyncRefundsEnabled = true;
-                    preferences.SyncShipmentsEnabled = true;
+                    preferences.SyncFulfillmentsEnabled = true;
                     preferences.MaxParallelAcumaticaSyncs = 1;
 
                     Entities.Preferences.Add(preferences);

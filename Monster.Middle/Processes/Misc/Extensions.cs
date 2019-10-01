@@ -1,8 +1,9 @@
 ﻿using System.Data.Entity;
 using System.Linq;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
 
-namespace Monster.Middle.Persist.Instance
+namespace Monster.Middle.Processes.Misc
 {
     public static class Extensions
     {

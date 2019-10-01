@@ -969,7 +969,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
         public bool SyncOrdersEnabled { get; set; } // SyncOrdersEnabled
         public bool SyncInventoryEnabled { get; set; } // SyncInventoryEnabled
-        public bool SyncShipmentsEnabled { get; set; } // SyncShipmentsEnabled
+        public bool SyncFulfillmentsEnabled { get; set; } // SyncFulfillmentsEnabled
         public bool SyncRefundsEnabled { get; set; } // SyncRefundsEnabled
         public System.DateTime? ShopifyOrderDateStart { get; set; } // ShopifyOrderDateStart
         public int? ShopifyOrderNumberStart { get; set; } // ShopifyOrderNumberStart
@@ -1183,8 +1183,13 @@ namespace Monster.Middle.Persist.Instance
         public int AcumaticaRefDataState { get; set; } // AcumaticaRefDataState
         public int PreferenceState { get; set; } // PreferenceState
         public int WarehouseSyncState { get; set; } // WarehouseSyncState
-        public int InventoryRefreshState { get; set; } // InventoryPullState
+        public int InventoryRefreshState { get; set; } // InventoryRefreshState
         public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
+        public int OrderCustomersTransPullState { get; set; } // OrderCustomersTransPullState
+        public int SyncOrdersState { get; set; } // SyncOrdersState
+        public int SyncRefundsState { get; set; } // SyncRefundsState
+        public int SyncFulfillmentsState { get; set; } // SyncFulfillmentsState
+        public int SyncInventoryCountState { get; set; } // SyncInventoryCountState
     }
 
     // usrAcumaticaCreditMemo
@@ -2286,7 +2291,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaTaxId).HasColumnName(@"AcumaticaTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.SyncOrdersEnabled).HasColumnName(@"SyncOrdersEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncInventoryEnabled).HasColumnName(@"SyncInventoryEnabled").HasColumnType("bit").IsRequired();
-            Property(x => x.SyncShipmentsEnabled).HasColumnName(@"SyncShipmentsEnabled").HasColumnType("bit").IsRequired();
+            Property(x => x.SyncFulfillmentsEnabled).HasColumnName(@"SyncFulfillmentsEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncRefundsEnabled).HasColumnName(@"SyncRefundsEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyOrderDateStart).HasColumnName(@"ShopifyOrderDateStart").HasColumnType("date").IsOptional();
             Property(x => x.ShopifyOrderNumberStart).HasColumnName(@"ShopifyOrderNumberStart").HasColumnType("int").IsOptional();
@@ -2502,8 +2507,13 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaRefDataState).HasColumnName(@"AcumaticaRefDataState").HasColumnType("int").IsRequired();
             Property(x => x.PreferenceState).HasColumnName(@"PreferenceState").HasColumnType("int").IsRequired();
             Property(x => x.WarehouseSyncState).HasColumnName(@"WarehouseSyncState").HasColumnType("int").IsRequired();
-            Property(x => x.InventoryRefreshState).HasColumnName(@"InventoryPullState").HasColumnType("int").IsRequired();
+            Property(x => x.InventoryRefreshState).HasColumnName(@"InventoryRefreshState").HasColumnType("int").IsRequired();
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
+            Property(x => x.OrderCustomersTransPullState).HasColumnName(@"OrderCustomersTransPullState").HasColumnType("int").IsRequired();
+            Property(x => x.SyncOrdersState).HasColumnName(@"SyncOrdersState").HasColumnType("int").IsRequired();
+            Property(x => x.SyncRefundsState).HasColumnName(@"SyncRefundsState").HasColumnType("int").IsRequired();
+            Property(x => x.SyncFulfillmentsState).HasColumnName(@"SyncFulfillmentsState").HasColumnType("int").IsRequired();
+            Property(x => x.SyncInventoryCountState).HasColumnName(@"SyncInventoryCountState").HasColumnType("int").IsRequired();
         }
     }
 

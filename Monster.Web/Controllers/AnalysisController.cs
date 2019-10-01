@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using Monster.Middle.Hangfire;
-using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes;
+using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;

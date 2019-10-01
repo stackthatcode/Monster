@@ -138,7 +138,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             AcumaticaSessionRun(() => _acumaticaPaymentSync.RunPaymentsForOrders());
         }
 
-        public void RoutineRefundSync()
+        public void RefundSync()
         {
             AcumaticaSessionRun(() =>
             {
@@ -148,7 +148,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             });
         }
         
-        public void RoutineFulfillmentSync()
+        public void FulfillmentSync()
         {
             // Sync Shipments to Shopify Fulfillments
             _shopifyFulfillmentSync.Run();

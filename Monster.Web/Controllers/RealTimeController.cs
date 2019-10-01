@@ -4,7 +4,9 @@ using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -111,7 +113,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult EndToEnd()
         {
-            _oneTimeJobService.EndToEndSync();
+            //_oneTimeJobService.();
             return JsonNetResult.Success();
         }
 
@@ -141,7 +143,7 @@ namespace Monster.Web.Controllers
             data.SyncOrdersEnabled = input.SyncOrdersEnabled;
             data.SyncInventoryEnabled = input.SyncInventoryEnabled;
             data.SyncRefundsEnabled = input.SyncRefundsEnabled;
-            data.SyncShipmentsEnabled = input.SyncShipmentsEnabled;
+            data.SyncFulfillmentsEnabled = input.SyncShipmentsEnabled;
             _preferencesRepository.SaveChanges();
 
             return JsonNetResult.Success();
@@ -152,8 +154,9 @@ namespace Monster.Web.Controllers
         {
             var data = _preferencesRepository.RetrievePreferences();
 
-            if (data.ShopifyOrderDateStart.HasValue && data.ShopifyOrderDateStart.Value.Date !=
-                model.ShopifyOrderDateStart.Value.Date)
+            if (data.ShopifyOrderDateStart.HasValue 
+                    && data.ShopifyOrderDateStart.Value.Date 
+                    != model.ShopifyOrderDateStart.Value.Date)
             {
                 _acumaticaBatchRepository.Reset();
             }

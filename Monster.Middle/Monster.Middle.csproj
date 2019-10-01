@@ -141,8 +141,9 @@
     <Compile Include="Hangfire\HangFireLogger.cs" />
     <Compile Include="Hangfire\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
-    <Compile Include="Persist\Instance\Extensions.cs" />
-    <Compile Include="Persist\Instance\LogLevel.cs" />
+    <Compile Include="Processes\Misc\Extensions.cs" />
+    <Compile Include="Processes\Misc\LogLevel.cs" />
+    <Compile Include="Processes\Misc\StateExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Extensions\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
@@ -151,14 +152,14 @@
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
     <Compile Include="Processes\Sync\Status\FulfillmentStatusService.cs" />
     <Compile Include="Processes\Sync\Status\ShipmentStatusService.cs" />
-    <Compile Include="Persist\Instance\ExecutionLogService.cs" />
+    <Compile Include="Processes\Misc\ExecutionLogService.cs" />
     <Compile Include="Persist\Instance\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Processes\Sync\Persist\PreferencesRepository.cs" />
-    <Compile Include="Persist\Instance\StateRepository.cs" />
+    <Compile Include="Processes\Misc\StateRepository.cs" />
     <Compile Include="Processes\Sync\Model\Misc\SystemState.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Extensions\RefundExtensions.cs" />

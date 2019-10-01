@@ -7,6 +7,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes;
+using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;

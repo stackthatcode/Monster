@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
+using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Misc;
@@ -24,7 +26,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ReferenceDataService _referenceDataService;
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
-        private readonly ConfigStatusService _inventoryStatusService;
+        private readonly ConfigStatusService _configStatusService;
         private readonly SyncManager _syncManager;
         private readonly ExecutionLogService _executionLogService;
         private readonly PreferencesRepository _preferencesRepository;
@@ -41,7 +43,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 SyncManager syncManager,
 
                 ExecutionLogService executionLogService,
-                ConfigStatusService inventoryStatusService,
+                ConfigStatusService configStatusService,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
                 JobMonitoringService monitoringService,
@@ -55,7 +57,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _syncManager = syncManager;
 
             _executionLogService = executionLogService;
-            _inventoryStatusService = inventoryStatusService;
+            _configStatusService = configStatusService;
             _preferencesRepository = preferencesRepository;
             _referenceDataService = referenceDataService;
             _logger = logger;
@@ -141,7 +143,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _syncManager.SynchronizeWarehouseLocation();
 
                 // Step 3 - Determine resultant System State
-                _inventoryStatusService.UpdateWarehouseSyncStatus();
+                _configStatusService.UpdateWarehouseSyncStatus();
             }
             catch (Exception ex)
             {
@@ -167,6 +169,8 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
+                _executionLogService.InsertExecutionLog("Inventory Refresh - encountered error");
+
                 _shopifyManager.PullInventory();
                 _acumaticaManager.PullInventory();
                 
@@ -176,8 +180,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                var msg = "Encountered error while executing Inventory Refresh";
-                _executionLogService.InsertExecutionLog(msg);
+                _executionLogService.InsertExecutionLog("Inventory Refresh - encountered error");
 
                 _stateRepository.UpdateSystemState(
                     x => x.InventoryRefreshState, StateCode.SystemFault);
@@ -186,8 +189,17 @@ namespace Monster.Middle.Processes.Sync.Managers
         
         public void ImportInventoryToAcumatica(AcumaticaInventoryImportContext context)
         {
-            Run(() => _shopifyManager.PullInventory());
-            Run(() => _syncManager.ImportIntoAcumatica(context));
+            RefreshInventory();
+
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
+            if (state.InventoryRefreshState != StateCode.Ok)
+            {
+                var msg = "Inventory Refresh is broken; aborting Inventory Import";
+                _executionLogService.InsertExecutionLog(msg);
+                return;
+            }
+
+            _syncManager.ImportIntoAcumatica(context);
         }
 
 
@@ -196,79 +208,81 @@ namespace Monster.Middle.Processes.Sync.Managers
         //
         public void EndToEndSync()
         {
+            _executionLogService.InsertExecutionLog("End-to-End - process starting");
+
+            EndToEndRunner(
+                new Action[] 
+                {
+                    () => _shopifyManager.PullCustomers(),
+                    () => _shopifyManager.PullOrders(),
+                    () => _shopifyManager.PullTransactions(),
+                    () => _acumaticaManager.PullOrdersCustomerShipments()
+                },
+                x => x.OrderCustomersTransPullState,
+                "End-to-End - Customers, Orders, Transactions and Shipments Pull");
+
+            EndToEndRunner(
+                new Action[]
+                {
+                    () => _shopifyManager.PullInventory(),
+                    () => _acumaticaManager.PullInventory(),
+                },
+                x => x.InventoryRefreshState, 
+                "End-to-End - Refresh Inventory (Pull)");
+
             var preferences = _preferencesRepository.RetrievePreferences();
-            var sequence = new List<Action>();
-
-            sequence.AddRange(new Action[] {
-                () => _shopifyManager.PullCustomers(),
-                () => _shopifyManager.PullOrders(),
-                () => _shopifyManager.PullTransactions(),
-                () => _acumaticaManager.PullOrdersAndCustomersAndShipments(),
-            });
-
             if (preferences.SyncOrdersEnabled)
             {
-                sequence.AddRange(new Action[]
-                {
-                    () => _syncManager.RoutineCustomerSync(),
-                    () => _syncManager.RoutineOrdersSync(),
-                    () => _syncManager.RoutinePaymentSync(),
-                });
+                EndToEndRunner(
+                    new Action[]
+                    {
+                        () => _syncManager.RoutineCustomerSync(),
+                        () => _syncManager.RoutineOrdersSync(),
+                        () => _syncManager.RoutinePaymentSync(),
+                    },
+                    x => x.SyncOrdersState,
+                    "End-to-End - Customers, Orders, Payment Sync");
             }
 
             if (preferences.SyncRefundsEnabled)
             {
-                sequence.Add(() => _syncManager.RoutineRefundSync());
+                EndToEndRunner(
+                    new Action[] { () => _syncManager.RefundSync() },
+                    x => x.SyncRefundsState,
+                    "End-to-End - Refund Sync");
             }
 
-            if (preferences.SyncShipmentsEnabled)
+            if (preferences.SyncFulfillmentsEnabled)
             {
-                sequence.Add(() => _syncManager.RoutineFulfillmentSync());
+                EndToEndRunner(
+                    new Action[] { () => _syncManager.FulfillmentSync() },
+                    x => x.SyncFulfillmentsState,
+                    "End-to-End - Fulfillment Sync");
             }
-
-            sequence.AddRange(new Action[]
-            {
-                () => _shopifyManager.PullInventory(),
-                () => _acumaticaManager.PullInventory(),
-            });
 
             if (preferences.SyncInventoryEnabled)
             {
-                sequence.Add(() => _syncManager.PushInventoryCountsToShopify());
+                EndToEndRunner(
+                    new Action[] { () => _syncManager.PushInventoryCountsToShopify() },
+                    x => x.SyncInventoryCountState,
+                    "End-to-End - Inventory Count Sync");
             }
 
-            RunSequence(sequence);
+            _executionLogService.InsertExecutionLog("End-to-End - process finishing");
         }
 
 
-        // Swallows Exceptions to enable sequences of tasks to be run 
-        // ... uninterrupted even if one fails
-        //
-        private void Run(Action task)
-        {
-            try
-            {
-                task();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-        }
 
-        private void RunSequence(List<Action> actions)
+        private void EndToEndRunner(
+                    Action[] actions, Expression<Func<SystemState, int>> stateVariable, string name)
         {
-            _executionLogService.InsertExecutionLog("End-to-End Sync - Running");
-
             foreach (var action in actions)
             {
                 try
                 {
-                    var monitor = _monitoringService.GetMonitoringDigest();
-                    
-                    if (!monitor.IsJobTypeActive(BackgroundJobType.EndToEndSync))
+                    if (!_monitoringService.IsEndToEndSyncRunning())
                     {
-                        _executionLogService.InsertExecutionLog("End-to-End Sync - Interrupting");
+                        _executionLogService.InsertExecutionLog($"{name} - interrupting");
                         return;
                     }
 
@@ -276,9 +290,14 @@ namespace Monster.Middle.Processes.Sync.Managers
                 }
                 catch (Exception ex)
                 {
+                    _stateRepository.UpdateSystemState(stateVariable, StateCode.SystemFault);
+                    _executionLogService.InsertExecutionLog($"{name} - encountered an error");
                     _logger.Error(ex);
+                    return;
                 }
             }
+
+            _stateRepository.UpdateSystemState(stateVariable, StateCode.Ok);
         }
     }
 }

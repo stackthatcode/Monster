@@ -2,10 +2,11 @@
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Foundation.Utilities.General;
 
-namespace Monster.Middle.Persist.Instance
+namespace Monster.Middle.Processes.Misc
 {
     public class StateRepository
     {
@@ -61,8 +62,7 @@ namespace Monster.Middle.Persist.Instance
             return Entities.SystemStates.First();
         }
 
-        public void UpdateSystemState(
-                Expression<Func<SystemState, int>> memberExpression, int newValue)
+        public void UpdateSystemState(Expression<Func<SystemState, int>> memberExpression, int newValue)
         {
             CreateSystemStateIfNotExists();
             var state = Entities.SystemStates.First();

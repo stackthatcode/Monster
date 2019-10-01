@@ -66,7 +66,7 @@ namespace Monster.Middle.Processes.Acumatica
             SessionRun(() => _acumaticaInventoryPull.RunAutomatic());
         }
 
-        public void PullOrdersAndCustomersAndShipments()
+        public void PullOrdersCustomerShipments()
         {
             SessionRun(() =>
             {

@@ -1,8 +1,10 @@
 ﻿using System;
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Shopify.Http;
+
 
 namespace Monster.Middle.Persist.Instance
 {

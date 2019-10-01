@@ -318,8 +318,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     List<InventoryLevel> shopifyLevels)
         {
             var existingLevels =
-                _inventoryRepository
-                    .RetrieveInventory(variant.ShopifyInventoryItemId);
+                _inventoryRepository.RetrieveInventory(variant.ShopifyInventoryItemId);
 
             var locations = _inventoryRepository.RetreiveLocations();
 
@@ -401,16 +400,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     continue;
                 }
 
-                var product
-                    = _inventoryRepository
-                        .RetrieveProduct(_event.subject_id);
-
+                var product = _inventoryRepository.RetrieveProduct(_event.subject_id);
                 product.IsDeleted = true;
-
-                foreach (var variant in product.ShopifyVariants)
-                {
-                    variant.IsMissing = true;
-                }
+                product.ShopifyVariants.ForEach(x => x.IsMissing = true);
 
                 _inventoryRepository.SaveChanges();
             }

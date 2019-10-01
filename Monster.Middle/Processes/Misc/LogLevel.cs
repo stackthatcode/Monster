@@ -1,4 +1,4 @@
-﻿namespace Monster.Middle.Persist.Instance
+﻿namespace Monster.Middle.Processes.Misc
 {
     public class LogLevel
     {

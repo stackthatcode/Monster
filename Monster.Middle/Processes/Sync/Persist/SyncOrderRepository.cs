@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Shopify.Api.Transactions;
 

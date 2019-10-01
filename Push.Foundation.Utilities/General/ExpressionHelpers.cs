@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Push.Utilities.General
+namespace Push.Foundation.Utilities.General
 {
     public class ExpressionHelpers
     {
