@@ -2,7 +2,7 @@
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 
-namespace Monster.Middle.Processes.Sync.Model.Extensions
+namespace Monster.Middle.Processes.Sync.Persist.Matching
 {
     public static class ItemExtensions
     {

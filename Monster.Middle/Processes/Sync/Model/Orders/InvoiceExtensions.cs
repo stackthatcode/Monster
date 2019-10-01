@@ -1,6 +1,6 @@
 ﻿using Monster.Acumatica.Api.SalesOrder;
 
-namespace Monster.Middle.Processes.Sync.Model.Extensions
+namespace Monster.Middle.Processes.Sync.Persist.Matching
 {
     public static class InvoiceExtensions
     {

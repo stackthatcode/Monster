@@ -1,7 +1,7 @@
 ﻿using System;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model.Extensions;
+using Monster.Middle.Processes.Sync.Persist.Matching;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;

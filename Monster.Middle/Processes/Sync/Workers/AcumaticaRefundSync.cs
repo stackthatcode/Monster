@@ -8,10 +8,11 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
+using Monster.Middle.Processes.Sync.Persist.Matching;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -180,15 +181,15 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     var success = 
                         _logService.ExecuteWithFailLog(
                             () => PushReturnOrder(_return),
-                            SyncDescriptor.CreateAcumaticaCreditMemo,
-                            SyncDescriptor.ShopifyRefund(_return));
+                            LoggingDescriptors.CreateAcumaticaCreditMemo,
+                            LoggingDescriptors.ShopifyRefund(_return));
 
                     if (success)
                     {
                         _logService.ExecuteWithFailLog(
                             () => PushReturnOrderTaxes(_return),
-                            SyncDescriptor.UpdateAcumaticaCreditMemoTaxes,
-                            SyncDescriptor.ShopifyRefund(_return));
+                            LoggingDescriptors.UpdateAcumaticaCreditMemoTaxes,
+                            LoggingDescriptors.ShopifyRefund(_return));
                     }
 
                     continue;
@@ -198,8 +199,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 {
                     _logService.ExecuteWithFailLog(
                         () => PushReturnOrderTaxes(_return),
-                        SyncDescriptor.UpdateAcumaticaCreditMemoTaxes,
-                        SyncDescriptor.ShopifyRefund(_return));
+                        LoggingDescriptors.UpdateAcumaticaCreditMemoTaxes,
+                        LoggingDescriptors.ShopifyRefund(_return));
 
                     continue;
                 }
@@ -209,15 +210,15 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     var success =
                         _logService.ExecuteWithFailLog(
                             () => DetectReturnInvoice(_return),
-                            SyncDescriptor.DetectAcumaticaCreditMemoInvoice,
-                            SyncDescriptor.ShopifyRefund(_return));
+                            LoggingDescriptors.DetectAcumaticaCreditMemoInvoice,
+                            LoggingDescriptors.ShopifyRefund(_return));
 
                     if (success)
                     {
                         _logService.ExecuteWithFailLog(
                             () => CreateReturnInvoice(_return),
-                            SyncDescriptor.CreateAcumaticaCreditMemoInvoice,
-                            SyncDescriptor.ShopifyRefund(_return));
+                            LoggingDescriptors.CreateAcumaticaCreditMemoInvoice,
+                            LoggingDescriptors.ShopifyRefund(_return));
                     }
 
                     continue;
@@ -228,16 +229,16 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     // No continue - keep processing with altered state
                     _logService.ExecuteWithFailLog(
                         () => DetectReturnInvoice(_return),
-                        SyncDescriptor.DetectAcumaticaCreditMemoInvoice,
-                        SyncDescriptor.ShopifyRefund(_return));
+                        LoggingDescriptors.DetectAcumaticaCreditMemoInvoice,
+                        LoggingDescriptors.ShopifyRefund(_return));
                 }
 
                 if (status.HasCreditMemoInvoice && status.DoesNotHaveReleasedInvoice)
                 {
                     _logService.ExecuteWithFailLog(
                         () => ReleaseReturnInvoice(_return),
-                        SyncDescriptor.ReleaseAcumaticaCreditMemoInvoice,
-                        SyncDescriptor.ShopifyRefund(_return));
+                        LoggingDescriptors.ReleaseAcumaticaCreditMemoInvoice,
+                        LoggingDescriptors.ShopifyRefund(_return));
 
                     continue;
                 }

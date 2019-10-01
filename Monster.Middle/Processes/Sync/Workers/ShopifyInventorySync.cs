@@ -3,10 +3,11 @@ using System.Linq;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model.Extensions;
+using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
+using Monster.Middle.Processes.Sync.Persist.Matching;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -14,7 +15,7 @@ using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
 using Push.Shopify.Api.Product;
 
-namespace Monster.Middle.Processes.Sync.Workers.Inventory
+namespace Monster.Middle.Processes.Sync.Workers
 {
     public class ShopifyInventorySync
     {
@@ -63,8 +64,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
 
                 _executionLogService.ExecuteWithFailLog(
                         () => PriceUpdate(stockItem),
-                        SyncDescriptor.UpdateShopifyPrice,
-                        SyncDescriptor.AcumaticaStockItem(stockItem));
+                        LoggingDescriptors.UpdateShopifyPrice,
+                        LoggingDescriptors.AcumaticaStockItem(stockItem));
             }
         }
 
@@ -119,8 +120,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
                 
                 _executionLogService.ExecuteWithFailLog(
                         () => InventoryUpdate(stockItem),
-                        SyncDescriptor.UpdateShopifyInventory,
-                        SyncDescriptor.AcumaticaStockItem(stockItem));
+                        LoggingDescriptors.UpdateShopifyInventory,
+                        LoggingDescriptors.AcumaticaStockItem(stockItem));
             }
         }
 

@@ -2,7 +2,7 @@
 
 namespace Monster.Middle.Processes.Sync.Model.Misc
 {
-    public static class SyncDescriptor
+    public static class LoggingDescriptors
     {
         public const string UpdateShopifyPrice = "Update Shopify Price";
         public const string UpdateShopifyInventory = "Update Shopify Inventory";

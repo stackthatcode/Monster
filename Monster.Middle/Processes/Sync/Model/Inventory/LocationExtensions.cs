@@ -5,7 +5,7 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Shopify.Api.Inventory;
 
-namespace Monster.Middle.Processes.Sync.Model.Extensions
+namespace Monster.Middle.Processes.Sync.Persist.Matching
 {
     public static class LocationExtensions
     {

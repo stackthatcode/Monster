@@ -6,8 +6,8 @@ using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
@@ -42,8 +42,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             {
                 _executionLogService.ExecuteWithFailLog(
                     () => PushCustomer(shopifyCustomer),
-                    SyncDescriptor.CreateAcumaticaCustomer,
-                    SyncDescriptor.ShopifyCustomer(shopifyCustomer));
+                    LoggingDescriptors.CreateAcumaticaCustomer,
+                    LoggingDescriptors.ShopifyCustomer(shopifyCustomer));
             }
 
             var customersNeedingUpdate = _syncOrderRepository.RetrieveCustomersNeedingUpdate();
@@ -52,8 +52,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             {
                 _executionLogService.ExecuteWithFailLog(
                     () => PushCustomer(shopifyCustomer),
-                    SyncDescriptor.UpdateAcumaticaCustomer,
-                    SyncDescriptor.ShopifyCustomer(shopifyCustomer));
+                    LoggingDescriptors.UpdateAcumaticaCustomer,
+                    LoggingDescriptors.ShopifyCustomer(shopifyCustomer));
             }
         }
 

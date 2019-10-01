@@ -9,9 +9,10 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
+using Monster.Middle.Processes.Sync.Persist.Matching;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.General;
@@ -119,15 +120,15 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             var success = 
                 _logService.ExecuteWithFailLog(
                         () => PushOrder(orderRecord),
-                        SyncDescriptor.CreateAcumaticaSalesOrder,
-                        SyncDescriptor.ShopifyOrder(orderRecord));
+                        LoggingDescriptors.CreateAcumaticaSalesOrder,
+                        LoggingDescriptors.ShopifyOrder(orderRecord));
 
             if (success)
             {
                 _logService.ExecuteWithFailLog(
                     () => PushOrder(orderRecord),
-                    SyncDescriptor.UpdateAcumaticaSalesOrderTaxes,
-                    SyncDescriptor.ShopifyOrder(orderRecord));
+                    LoggingDescriptors.UpdateAcumaticaSalesOrderTaxes,
+                    LoggingDescriptors.ShopifyOrder(orderRecord));
             }
         }
         

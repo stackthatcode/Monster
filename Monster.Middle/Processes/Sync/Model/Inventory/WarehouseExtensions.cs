@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 
-namespace Monster.Middle.Processes.Sync.Model.Extensions
+namespace Monster.Middle.Processes.Sync.Model.Inventory
 {
     public static class WarehouseExtensions
     {

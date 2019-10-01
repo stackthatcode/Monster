@@ -7,7 +7,6 @@ using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Persist;
@@ -92,7 +91,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             // ... we'll create a new Stock Item in Acumatica
             _executionLogService.ExecuteWithFailLog(
                     () => StockItemPush(context, variant),
-                    SyncDescriptor.CreateStockItem, SyncDescriptor.ShopifyVariant(variant));
+                    LoggingDescriptors.CreateStockItem, LoggingDescriptors.ShopifyVariant(variant));
         }
 
         public void StockItemPush(
@@ -116,7 +115,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
             var newStockItem = new StockItem();
             newStockItem.InventoryID = variant.StandardizedSku().ToValue();
             newStockItem.Description = 
-                Standards.StockItemTitle(shopifyProduct, shopifyVariant).ToValue();
+                Canonizers.StockItemTitle(shopifyProduct, shopifyVariant).ToValue();
 
             newStockItem.DefaultPrice = ((double)shopifyVariant.price).ToValue();
             newStockItem.DefaultWarehouseID = defaultWarehouseId.ToValue();
@@ -156,8 +155,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Inventory
         {
             _executionLogService.ExecuteWithFailLog(
                     () => InventoryReceiptPush(shopifyProductId),
-                    SyncDescriptor.CreateInventoryReceipt, 
-                    SyncDescriptor.ShopifyProduct(shopifyProductId));
+                    LoggingDescriptors.CreateInventoryReceipt, 
+                    LoggingDescriptors.ShopifyProduct(shopifyProductId));
         }
 
         public void InventoryReceiptPush(long shopifyProductId)

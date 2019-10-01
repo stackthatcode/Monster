@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-using Monster.Middle.Processes.Sync.Model.Misc;
-using Monster.Middle.Processes.Sync.Services;
+using Monster.Middle.Processes.Misc;
 
 namespace Monster.Middle.Processes.Sync.Model.Config
 {

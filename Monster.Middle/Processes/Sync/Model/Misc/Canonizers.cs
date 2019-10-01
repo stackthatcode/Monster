@@ -4,7 +4,7 @@ using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Model.Misc
 {
-    public class Standards
+    public class Canonizers
     {
         public static string StockItemTitle(Product product, Variant variant)
         {
@@ -31,16 +31,16 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
         }
     }
 
-    public static class StandardizeExtensions
+    public static class CanonizerExtensions
     {
         public static string StandardizedSku(this ShopifyVariant input)
         {
-            return Standards.Sku(input.ShopifySku);
+            return Canonizers.Sku(input.ShopifySku);
         }
 
         public static string StandardizedName(this ShopifyLocation input)
         {
-            return Standards.LocationName(input.ShopifyLocationName);
+            return Canonizers.LocationName(input.ShopifyLocationName);
         }
     }
 }

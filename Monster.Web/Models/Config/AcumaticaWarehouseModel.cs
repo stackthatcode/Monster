@@ -1,5 +1,5 @@
 ﻿using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Sync.Model.Extensions;
+using Monster.Middle.Processes.Sync.Persist.Matching;
 
 namespace Monster.Web.Models.Config
 {

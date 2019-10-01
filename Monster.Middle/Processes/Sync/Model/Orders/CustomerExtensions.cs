@@ -4,7 +4,7 @@ using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Json;
 
-namespace Monster.Middle.Processes.Sync.Model.Extensions
+namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class CustomerExtensions
     {

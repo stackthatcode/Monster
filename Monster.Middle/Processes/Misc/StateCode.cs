@@ -1,8 +1,4 @@
-﻿using Monster.Middle.Persist.Instance;
-using Monster.Middle.Persist.Instance;
-using Push.Foundation.Utilities.Helpers;
-
-namespace Monster.Middle.Processes.Sync.Model.Misc
+﻿namespace Monster.Middle.Processes.Misc
 {
     public class StateCode
     {

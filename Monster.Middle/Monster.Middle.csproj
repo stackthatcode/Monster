@@ -141,10 +141,9 @@
     <Compile Include="Hangfire\HangFireLogger.cs" />
     <Compile Include="Hangfire\HangFireLogProvider.cs" />
     <Compile Include="Hangfire\NamedLock.cs" />
-    <Compile Include="Processes\Misc\Extensions.cs" />
     <Compile Include="Processes\Misc\LogLevel.cs" />
     <Compile Include="Processes\Misc\StateExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\InvoiceExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\PaymentSyncStatus.cs" />
@@ -160,11 +159,9 @@
     </Compile>
     <Compile Include="Processes\Sync\Persist\PreferencesRepository.cs" />
     <Compile Include="Processes\Misc\StateRepository.cs" />
-    <Compile Include="Processes\Sync\Model\Misc\SystemState.cs" />
+    <Compile Include="Processes\Misc\StateCode.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\RefundExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\TransactionExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Misc\SyncDescriptor.cs" />
+    <Compile Include="Processes\Sync\Model\Misc\LoggingDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\AcumaticaInventoryImportContext.cs" />
     <Compile Include="Processes\Sync\Model\Misc\SyncEnabledFilter.cs" />
     <Compile Include="Processes\Sync\Model\Config\ItemClassModel.cs" />
@@ -182,15 +179,15 @@
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferencePull.cs" />
     <Compile Include="Processes\Shopify\Persist\OrderExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\TransactionExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\CustomerExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\ItemExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\ShipmentExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\WarehouseExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Orders\CustomerExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Orders\ItemExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Orders\ShipmentExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Inventory\WarehouseExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyBatchRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\FinancialStatus.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\LocationExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Inventory\LocationExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyOrderRepository.cs" />
-    <Compile Include="Processes\Sync\Model\Extensions\OrderExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Orders\OrderExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Config\AcumaticaConnectionState.cs" />
     <Compile Include="Processes\Sync\Model\Config\AcumaticaReferenceDataState.cs" />
     <Compile Include="Processes\Sync\Persist\SyncInventoryRepository.cs" />
@@ -207,7 +204,7 @@
     <Compile Include="Processes\Shopify\Persist\InventoryExtensions.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyLocationPull.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaInventorySync.cs" />
-    <Compile Include="Processes\Sync\Model\Misc\Standards.cs" />
+    <Compile Include="Processes\Sync\Model\Misc\Canonizers.cs" />
     <Compile Include="Processes\Sync\SyncManager.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaOrderPaymentSync.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaShipmentPull.cs" />
@@ -243,7 +240,7 @@
     <Compile Include="Persist\Instance\InstancePersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persist\Instance\ExternalServiceRepository.cs" />
-    <Compile Include="Processes\Sync\Model\Misc\AcumaticaTimeZone.cs" />
+    <Compile Include="Processes\Sync\Services\AcumaticaTimeZone.cs" />
     <Compile Include="Utility\TimeZoneTranslator.cs" />
     <Compile Include="Processes\Sync\Services\AcumaticaTimeZoneService.cs" />
   </ItemGroup>

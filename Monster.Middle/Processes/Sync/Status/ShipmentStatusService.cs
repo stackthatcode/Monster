@@ -1,9 +1,9 @@
 ﻿using System;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Model.Extensions;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
+using Monster.Middle.Processes.Sync.Persist.Matching;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Status

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Monster.Acumatica.Api.SalesOrder;
 
-namespace Monster.Middle.Processes.Sync.Model.Extensions
+namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class ShipmentExtensions
     {
