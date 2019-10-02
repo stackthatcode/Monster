@@ -44,6 +44,12 @@ namespace Monster.Middle.Processes.Misc
                     
                     newRecord.IsRandomAccessMode = false;
 
+                    newRecord.OrderCustomersTransPullState = StateCode.None;
+                    newRecord.SyncOrdersState = StateCode.None;
+                    newRecord.SyncRefundsState = StateCode.None;
+                    newRecord.SyncFulfillmentsState = StateCode.None;
+                    newRecord.SyncInventoryCountState = StateCode.None;
+
                     Entities.SystemStates.Add(newRecord);
                     Entities.SaveChanges();
                 }
@@ -55,6 +61,14 @@ namespace Monster.Middle.Processes.Misc
             CreateSystemStateIfNotExists();
             return Entities.SystemStates.AsNoTracking().First();
         }
+
+        public bool CheckSystemState(Func<SystemState, bool> test)
+        {
+            var state = RetrieveSystemStateNoTracking();
+            return test(state);
+        }
+
+
 
         public SystemState RetrieveSystemState()
         {

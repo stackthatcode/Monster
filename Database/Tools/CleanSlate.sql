@@ -5,56 +5,53 @@ GO
 
 -- Clean Synchronization 
 --
-DELETE FROM usrShopAcuRefundCM;
-DELETE FROM usrShopifyAcuPayment;
-DELETE FROM usrShopAcuShipmentSync;
-DELETE FROM usrShopAcuOrderSync;
-DELETE FROM usrShopAcuCustomerSync;
+DELETE FROM ShopAcuRefundCM;
+DELETE FROM ShopifyAcuPayment;
+DELETE FROM ShopAcuShipmentSync;
+DELETE FROM ShopAcuOrderSync;
+DELETE FROM ShopAcuCustomerSync;
 
-DELETE FROM usrInventoryReceiptSync;
-DELETE FROM usrShopAcuItemSync;
-DELETE FROM usrShopAcuWarehouseSync;
+DELETE FROM InventoryReceiptSync;
+DELETE FROM ShopAcuItemSync;
+DELETE FROM ShopAcuWarehouseSync;
 
 
 
 -- Acumatica Sales Order data
 --
-DELETE FROM usrAcumaticaCreditMemo;
-
-DELETE FROM usrAcumaticaShipmentSalesOrderRef;
-DELETE FROM usrAcumaticaShipment;
-
-DELETE FROM usrAcumaticaSoShipmentInvoice;
-DELETE FROM usrAcumaticaSalesOrder;
-
-DELETE FROM usrAcumaticaCustomer;
+DELETE FROM AcumaticaCreditMemo;
+DELETE FROM AcumaticaShipmentSalesOrderRef;
+DELETE FROM AcumaticaShipment;
+DELETE FROM AcumaticaSoShipmentInvoice;
+DELETE FROM AcumaticaSalesOrder;
+DELETE FROM AcumaticaCustomer;
 
 
 
 -- Acumatica Inventory data
 --
-DELETE FROM usrAcumaticaInventoryReceipt;
-DELETE FROM usrAcumaticaWarehouseDetails;
-DELETE FROM usrAcumaticaStockItem;
-DELETE FROM usrAcumaticaWarehouse;
+DELETE FROM AcumaticaInventoryReceipt;
+DELETE FROM AcumaticaWarehouseDetails;
+DELETE FROM AcumaticaStockItem;
+DELETE FROM AcumaticaWarehouse;
 
 
 
 -- Shopify data
 --
-DELETE FROM usrShopifyPayout;
-DELETE FROM usrShopifyPayoutTransaction;
+DELETE FROM ShopifyPayout;
+DELETE FROM ShopifyPayoutTransaction;
 
-DELETE FROM usrShopifyTransaction;
-DELETE FROM usrShopifyRefund;
-DELETE FROM usrShopifyFulfillment;
-DELETE FROM usrShopifyOrder;
-DELETE FROM usrShopifyCustomer;
+DELETE FROM ShopifyTransaction;
+DELETE FROM ShopifyRefund;
+DELETE FROM ShopifyFulfillment;
+DELETE FROM ShopifyOrder;
+DELETE FROM ShopifyCustomer;
 
-DELETE FROM usrShopifyInventoryLevel;
-DELETE FROM usrShopifyVariant;
-DELETE FROM usrShopifyProduct;
-DELETE FROM usrShopifyLocation;
+DELETE FROM ShopifyInventoryLevel;
+DELETE FROM ShopifyVariant;
+DELETE FROM ShopifyProduct;
+DELETE FROM ShopifyLocation;
 
 
 
@@ -66,7 +63,7 @@ DELETE FROM Preferences;
 DELETE FROM AcumaticaBatchState;
 DELETE FROM ShopifyBatchState;
 
-DELETE FROM BackgroundJob;
+DELETE FROM JobMonitor;
 DELETE FROM ExecutionLog;
 
 DELETE FROM SystemState;
@@ -78,8 +75,8 @@ DELETE FROM SystemState;
 ALTER DATABASE Monster0001 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
 ALTER DATABASE Monster0001 SET MULTI_USER
 
-ALTER DATABASE AcuInst6 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
-ALTER DATABASE AcuInst6 SET MULTI_USER
+ALTER DATABASE AcuInst0001 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
+ALTER DATABASE AcuInst0001 SET MULTI_USER
 
 
 /*
@@ -91,6 +88,6 @@ RESTORE DATABASE AcuInst6
 FROM DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\Backup\AcuInst2.bak'
 */
 
-UPDATE AcuInst6..Users SET Password = '123456'
+UPDATE AcuInst0001..Users SET Password = '123456'
 
 

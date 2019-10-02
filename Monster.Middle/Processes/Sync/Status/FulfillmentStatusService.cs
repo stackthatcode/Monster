@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
 
         public FulfillmentSyncReadiness
-                    IsReadyToSyncWithShopify(UsrAcumaticaShipmentSalesOrderRef salesOrderRef)
+                    IsReadyToSyncWithShopify(AcumaticaShipmentSalesOrderRef salesOrderRef)
         {
             var output = new FulfillmentSyncReadiness();
             var salesOrder = _syncOrderRepository.RetrieveSalesOrder(salesOrderRef.AcumaticaOrderNbr);
@@ -35,7 +35,7 @@ namespace Monster.Middle.Processes.Sync.Status
                 = _syncOrderRepository.AnyUnsyncedFulfillments(shopifyOrderId);
 
             // Unmatched Warehouse
-            var shipmentRecord = salesOrderRef.UsrAcumaticaShipment;
+            var shipmentRecord = salesOrderRef.AcumaticaShipment;
             var shipment = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
 
             var warehouseRecord =

@@ -4,6 +4,7 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -99,7 +100,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
         }
 
-        public UsrAcumaticaCustomer UpsertCustomerToPersist(Customer customer)
+        public AcumaticaCustomer UpsertCustomerToPersist(Customer customer)
         {
             var existingData
                 = _orderRepository.RetrieveCustomer(customer.CustomerID.value);

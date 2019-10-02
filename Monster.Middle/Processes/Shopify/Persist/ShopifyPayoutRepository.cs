@@ -19,52 +19,52 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         // Preferences
         //
-        public UsrPayoutPreference RetrievePayoutPreferences()
+        public PayoutPreference RetrievePayoutPreferences()
         {
-            return Entities.UsrPayoutPreferences.FirstOrDefault();
+            return Entities.PayoutPreferences.FirstOrDefault();
         }
 
 
         // Payouts aka Payout Headers
         //
-        public List<UsrShopifyPayout> RetrievePayouts(int limit = 50)
+        public List<ShopifyPayout> RetrievePayouts(int limit = 50)
         {
             return Entities
-                    .UsrShopifyPayouts
+                    .ShopifyPayouts
                     .OrderByDescending(x => x.ShopifyPayoutId)
                     .Take(limit)
                     .ToList();
         }
 
-        public UsrShopifyPayout RetrievePayout(long shopifyPayoutId)
+        public ShopifyPayout RetrievePayout(long shopifyPayoutId)
         {
             return Entities
-                    .UsrShopifyPayouts
+                    .ShopifyPayouts
                     .FirstOrDefault(x => x.ShopifyPayoutId == shopifyPayoutId);
         }
 
-        public List<UsrShopifyPayout> RetrievePayoutsNotYetProcessedByBank()
+        public List<ShopifyPayout> RetrievePayoutsNotYetProcessedByBank()
         {
             return Entities
-                    .UsrShopifyPayouts
+                    .ShopifyPayouts
                     .Where(x => x.ShopifyLastStatus == "scheduled" ||
                                 x.ShopifyLastStatus == "in_transit")
                     .ToList();
         }
 
-        public List<UsrShopifyPayout> RetrieveIncompletePayoutImports()
+        public List<ShopifyPayout> RetrieveIncompletePayoutImports()
         {
             return Entities
-                    .UsrShopifyPayouts
+                    .ShopifyPayouts
                     .Where(x => x.AllTransDownloaded == false)
                     .OrderBy(x => x.ShopifyPayoutId)
                     .ToList();
         }
 
         
-        public void InsertPayoutHeader(UsrShopifyPayout payout)
+        public void InsertPayoutHeader(ShopifyPayout payout)
         {
-            Entities.UsrShopifyPayouts.Add(payout);
+            Entities.ShopifyPayouts.Add(payout);
             Entities.SaveChanges();
         }
 
@@ -91,29 +91,29 @@ namespace Monster.Middle.Processes.Shopify.Persist
         // Transactions aka Payout Detail
         //
 
-        public List<UsrShopifyPayoutTransaction> 
+        public List<ShopifyPayoutTransaction> 
                 RetrievePayoutTransactions(long shopifyPayoutId)
         {
-            return Entities.UsrShopifyPayoutTransactions
+            return Entities.ShopifyPayoutTransactions
                     .Where(x => x.ShopifyPayoutId == shopifyPayoutId)
                     .ToList();
         }
 
-        public UsrShopifyPayoutTransaction
+        public ShopifyPayoutTransaction
                     RetrievePayoutTransaction(
                         long shopifyPayoutId, long shopifyTransactionId)
         {
             return Entities
-                    .UsrShopifyPayoutTransactions
+                    .ShopifyPayoutTransactions
                     .FirstOrDefault(
                         x => x.ShopifyPayoutId == shopifyPayoutId &&
                              x.ShopifyPayoutTransId == shopifyTransactionId);
         }
         
         public void InsertPayoutTransaction(
-                        UsrShopifyPayoutTransaction transaction)
+                        ShopifyPayoutTransaction transaction)
         {
-            Entities.UsrShopifyPayoutTransactions.Add(transaction);
+            Entities.ShopifyPayoutTransactions.Add(transaction);
             Entities.SaveChanges();
         }
     }

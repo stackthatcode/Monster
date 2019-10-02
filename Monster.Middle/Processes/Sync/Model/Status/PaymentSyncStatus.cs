@@ -14,15 +14,15 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public bool HasBeenSynced { get; set; }
 
 
-        public static PaymentSyncStatus Make(UsrShopifyTransaction transaction)
+        public static PaymentSyncStatus Make(ShopifyTransaction transaction)
         {
             var output = new PaymentSyncStatus();
             output.ShopifyTransactionId = transaction.ShopifyTransactionId;
-            output.ShopifyOrderNumber = transaction.UsrShopifyOrder.ShopifyOrderNumber;
+            output.ShopifyOrderNumber = transaction.ShopifyOrder.ShopifyOrderNumber;
             output.ShopifyStatus = transaction.ShopifyStatus;
             output.ShopifyKind = transaction.ShopifyKind;
             output.ShopifyGateway = transaction.ShopifyGateway;
-            output.HasBeenSynced = transaction.UsrShopifyAcuPayment != null;
+            output.HasBeenSynced = transaction.ShopifyAcuPayment != null;
             return output;
         }
 

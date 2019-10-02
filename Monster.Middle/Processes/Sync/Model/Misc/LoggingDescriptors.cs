@@ -35,25 +35,25 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
             return $"Shopify Variant {variant.ShopifySku} ({variant.ShopifyVariantId})";
         }
         
-        public static string ShopifyCustomer(UsrShopifyCustomer customer)
+        public static string ShopifyCustomer(ShopifyCustomer customer)
         {
             return $"Shopify Customer {customer.ShopifyCustomerId}";
         }
 
-        public static string ShopifyOrder(UsrShopifyOrder shopifyOrder)
+        public static string ShopifyOrder(ShopifyOrder shopifyOrder)
         {
             return $"Shopify Order {shopifyOrder.ShopifyOrderNumber} ({shopifyOrder.ShopifyOrderId})";
         }
 
-        public static string ShopifyTransaction(UsrShopifyTransaction transaction)
+        public static string ShopifyTransaction(ShopifyTransaction transaction)
         {
             return $"Shopify Transaction {transaction.ShopifyKind} ({transaction.ShopifyTransactionId})";
         }
 
-        public static string ShopifyRefund(UsrShopifyRefund shopifyRefund)
+        public static string ShopifyRefund(ShopifyRefund shopifyRefund)
         {
             return $"Shopify Refund {shopifyRefund.ShopifyRefundId} " + 
-                   $"(Order #{shopifyRefund.UsrShopifyOrder.ShopifyOrderNumber})";
+                   $"(Order #{shopifyRefund.ShopifyOrder.ShopifyOrderNumber})";
         }
 
 
@@ -62,14 +62,14 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
             return $"Acumatica Stock Item {stockItem.ItemId}";
         }
 
-        public static string AcumaticaSalesOrder(UsrAcumaticaSalesOrder salesOrder)
+        public static string AcumaticaSalesOrder(AcumaticaSalesOrder salesOrder)
         {
             return $"Acumatica Sales Order {salesOrder.AcumaticaOrderNbr}";
         }
 
         public static string 
                 AcumaticaShipmentSalesOrderRef(
-                    UsrAcumaticaShipmentSalesOrderRef shipmentSalesOrderRef)
+                    AcumaticaShipmentSalesOrderRef shipmentSalesOrderRef)
         {
             return $"Acumatica Shipment {shipmentSalesOrderRef.AcumaticaShipmentNbr} " +
                 $"for Sales Order {shipmentSalesOrderRef.AcumaticaOrderNbr}";

@@ -6,14 +6,14 @@ namespace Monster.Middle.Processes.Shopify.Persist
 {
     public static class OrderExtensions
     {
-        public static Order ToShopifyObj(this UsrShopifyOrder input)
+        public static Order ToShopifyObj(this ShopifyOrder input)
         {
             return input.ShopifyJson.DeserializeToOrder();
         }
 
-        public static Refund ToRefundObj(this UsrShopifyRefund input)
+        public static Refund ToRefundObj(this ShopifyRefund input)
         {
-            var shopifyOrderRecord = input.UsrShopifyOrder;
+            var shopifyOrderRecord = input.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
             return shopifyOrder.refunds.First(x => x.id == input.ShopifyRefundId);
         }

@@ -130,7 +130,7 @@ namespace Monster.Middle.Processes.Payouts
         }
 
         public void WritePayoutTransaction(
-                        UsrShopifyPayoutTransaction transaction)
+                        ShopifyPayoutTransaction transaction)
         {
             var transObject = transaction.Json.DeserializeFromJson<PayoutTransaction>();
 

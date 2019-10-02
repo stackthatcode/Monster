@@ -6,45 +6,45 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
     public static class OrderExtensions
     {
 
-        public static UsrAcumaticaSalesOrder 
-                    MatchingSalesOrder(this UsrShopifyOrder order)
+        public static AcumaticaSalesOrder 
+                    MatchingSalesOrder(this ShopifyOrder order)
         {
-            if (!order.UsrShopAcuOrderSyncs.Any())
+            if (!order.ShopAcuOrderSyncs.Any())
             {
                 return null;
             }
             else
             {
                 return order
-                    .UsrShopAcuOrderSyncs
+                    .ShopAcuOrderSyncs
                     .First()
-                    .UsrAcumaticaSalesOrder;
+                    .AcumaticaSalesOrder;
             }
         }
 
 
-        public static bool HasMatch(this UsrShopifyOrder order)
+        public static bool HasMatch(this ShopifyOrder order)
         {
             return order.MatchingSalesOrder() != null;
         }
 
-        public static string AcumaticaSalesOrderId(this UsrShopifyOrder order)
+        public static string AcumaticaSalesOrderId(this ShopifyOrder order)
         {
             return order.HasMatch() ? order.MatchingSalesOrder().AcumaticaOrderNbr : null;
         }
 
 
         public static bool
-                IsFromShopify(this UsrAcumaticaSalesOrder order)
+                IsFromShopify(this AcumaticaSalesOrder order)
         {
             // TODO - add intelligence to check for our Monster Stamp
-            return order.UsrShopAcuOrderSyncs.Any();
+            return order.ShopAcuOrderSyncs.Any();
         }
 
-        public static UsrShopifyOrder
-                MatchingShopifyOrder(this UsrAcumaticaSalesOrder order)
+        public static ShopifyOrder
+                MatchingShopifyOrder(this AcumaticaSalesOrder order)
         {
-            return order.UsrShopAcuOrderSyncs.FirstOrDefault()?.UsrShopifyOrder;
+            return order.ShopAcuOrderSyncs.FirstOrDefault()?.ShopifyOrder;
         }
 
     }

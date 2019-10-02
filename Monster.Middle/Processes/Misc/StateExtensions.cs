@@ -20,5 +20,35 @@ namespace Monster.Middle.Processes.Misc
         {
             return state.AcumaticaConnState != StateCode.None;
         }
+
+        public static bool CanSyncOrdersToAcumatica(this SystemState state)
+        {
+            return state.AcumaticaConnState == StateCode.Ok &&
+                   state.AcumaticaRefDataState == StateCode.Ok &&
+                   state.WarehouseSyncState == StateCode.Ok &&
+                   state.ShopifyConnState == StateCode.Ok &&
+                   state.OrderCustomersTransPullState == StateCode.Ok;
+        }
+
+        public static bool CanSyncRefundsToAcumatica(this SystemState state)
+        {
+            return state.CanSyncOrdersToAcumatica() &&
+                   state.SyncOrdersState == StateCode.Ok;
+        }
+
+        public static bool CanSyncFulfillmentsToShopify(this SystemState state)
+        {
+            return state.ShopifyConnState == StateCode.Ok &&
+                   state.InventoryRefreshState == StateCode.Ok &&
+                   state.OrderCustomersTransPullState == StateCode.Ok;
+        }
+
+        public static bool CanSyncInventoryCountsToShopify(this SystemState state)
+        {
+            return state.ShopifyConnState == StateCode.Ok &&
+                   state.InventoryRefreshState == StateCode.Ok &&
+                   state.OrderCustomersTransPullState == StateCode.Ok;
+        }
+
     }
 }

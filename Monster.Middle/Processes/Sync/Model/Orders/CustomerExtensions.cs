@@ -8,9 +8,9 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class CustomerExtensions
     {
-        public static UsrAcumaticaCustomer ToMonsterRecord(this Customer customer)
+        public static AcumaticaCustomer ToMonsterRecord(this Customer customer)
         {
-            var output = new UsrAcumaticaCustomer();
+            var output = new AcumaticaCustomer();
             output.AcumaticaCustomerId = customer.CustomerID.value;
             output.AcumaticaJson = customer.SerializeToJson();
             output.AcumaticaMainContactEmail = customer.MainContact.Email.value;
@@ -19,20 +19,20 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
             return output;
         }
 
-        public static UsrAcumaticaCustomer Match(this UsrShopifyCustomer input)
+        public static AcumaticaCustomer Match(this ShopifyCustomer input)
         {
             return input
-                .UsrShopAcuCustomerSyncs
+                .ShopAcuCustomerSyncs
                 .FirstOrDefault()?
-                .UsrAcumaticaCustomer;
+                .AcumaticaCustomer;
         }
 
-        public static bool HasMatch(this UsrShopifyCustomer input)
+        public static bool HasMatch(this ShopifyCustomer input)
         {
             return input.Match() != null;
         }
 
-        public static string AcumaticaCustId(this UsrShopifyCustomer input)
+        public static string AcumaticaCustId(this ShopifyCustomer input)
         {
             return input.HasMatch() ? input.Match().AcumaticaCustomerId : null;
         }

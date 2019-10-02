@@ -21,17 +21,17 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         // Shopify Order persistence
         //
-        public UsrShopifyOrder RetrieveOrder(long shopifyOrderId)
+        public ShopifyOrder RetrieveOrder(long shopifyOrderId)
         {
             return Entities
-                .UsrShopifyOrders
-                .Include(x => x.UsrShopifyCustomer)
+                .ShopifyOrders
+                .Include(x => x.ShopifyCustomer)
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 
-        public void InsertOrder(UsrShopifyOrder order)
+        public void InsertOrder(ShopifyOrder order)
         {
-            Entities.UsrShopifyOrders.Add(order);
+            Entities.ShopifyOrders.Add(order);
             Entities.SaveChanges();
         }
         
@@ -40,50 +40,50 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         // Shopify Customer persistence
         // 
-        public UsrShopifyCustomer 
+        public ShopifyCustomer 
                     RetrieveCustomer(long shopifyCustomerId)
         {
             return Entities
-                .UsrShopifyCustomers
+                .ShopifyCustomers
                 .FirstOrDefault(x => x.ShopifyCustomerId == shopifyCustomerId);
         }
 
-        public void InsertCustomer(UsrShopifyCustomer customer)
+        public void InsertCustomer(ShopifyCustomer customer)
         {
-            Entities.UsrShopifyCustomers.Add(customer);
+            Entities.ShopifyCustomers.Add(customer);
             Entities.SaveChanges();
         }
 
 
 
-        public UsrShopifyFulfillment RetreiveFulfillment(long shopifyFulfillmentId)
+        public ShopifyFulfillment RetreiveFulfillment(long shopifyFulfillmentId)
         {
             return Entities
-                .UsrShopifyFulfillments
-                .Include(x => x.UsrShopifyOrder)
+                .ShopifyFulfillments
+                .Include(x => x.ShopifyOrder)
                 .FirstOrDefault(x => x.ShopifyFulfillmentId == shopifyFulfillmentId);
         }
 
-        public void InsertFulfillment(UsrShopifyFulfillment fulfillment)
+        public void InsertFulfillment(ShopifyFulfillment fulfillment)
         {
-            Entities.UsrShopifyFulfillments.Add(fulfillment);
+            Entities.ShopifyFulfillments.Add(fulfillment);
             Entities.SaveChanges();
         }
         
-        public void InsertRefund(UsrShopifyRefund refund)
+        public void InsertRefund(ShopifyRefund refund)
         {
-            Entities.UsrShopifyRefunds.Add(refund);
+            Entities.ShopifyRefunds.Add(refund);
             Entities.SaveChanges();
         }
 
 
         // Transactions
         public void ImprintTransactions(
-                long orderMonsterId, List<UsrShopifyTransaction> transactions)
+                long orderMonsterId, List<ShopifyTransaction> transactions)
         {
             var existingRecords =
                 Entities
-                    .UsrShopifyTransactions
+                    .ShopifyTransactions
                     .Where(x => x.OrderMonsterId == orderMonsterId)
                     .ToList();
             
@@ -95,7 +95,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
                     latest.DateCreated = DateTime.UtcNow;
                     latest.LastUpdated = DateTime.UtcNow;
 
-                    Entities.UsrShopifyTransactions.Add(latest);
+                    Entities.ShopifyTransactions.Add(latest);
                 }
                 else
                 {
@@ -109,16 +109,16 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 }
             }
 
-            var order = Entities.UsrShopifyOrders.First(x => x.Id == orderMonsterId);
+            var order = Entities.ShopifyOrders.First(x => x.Id == orderMonsterId);
             order.AreTransactionsUpdated = true;
 
             Entities.SaveChanges();
         }
 
-        public List<UsrShopifyOrder> RetrieveOrdersNeedingTransactionPull()
+        public List<ShopifyOrder> RetrieveOrdersNeedingTransactionPull()
         {
             return Entities
-                .UsrShopifyOrders
+                .ShopifyOrders
                 .Where(x => x.AreTransactionsUpdated == false)
                 .ToList();
         }

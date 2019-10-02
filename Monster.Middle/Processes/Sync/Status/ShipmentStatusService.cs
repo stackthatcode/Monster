@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
 
         public  ShipmentSyncReadiness
-                    IsReadyToSyncWithAcumatica(UsrShopifyFulfillment fulfillmentRecord)
+                    IsReadyToSyncWithAcumatica(ShopifyFulfillment fulfillmentRecord)
         {
             var output = new ShipmentSyncReadiness();
 

@@ -120,7 +120,7 @@ namespace Monster.Middle.Processes.Payouts.Workers
             {
                 _logger.Debug($"Creating record for Shopify Payout Header {payout.id}");
 
-                var newPayout = new UsrShopifyPayout()
+                var newPayout = new ShopifyPayout()
                 {
                     ShopifyPayoutId = payout.id,
                     ShopifyLastStatus = payout.status,
@@ -231,7 +231,7 @@ namespace Monster.Middle.Processes.Payouts.Workers
                         $"Payout Id: {transaction.payout_id} - " +
                         $"(Transaction) Id {transaction.id}");
 
-                    var newTransaction = new UsrShopifyPayoutTransaction()
+                    var newTransaction = new ShopifyPayoutTransaction()
                     {
                         MonsterParentId = payoutHeader.Id,
                         ShopifyPayoutId = transaction.payout_id.Value,

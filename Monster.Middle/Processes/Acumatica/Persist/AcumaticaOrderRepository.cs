@@ -25,25 +25,25 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Acumatica Customer
         //
-        public UsrAcumaticaCustomer RetrieveCustomer(string acumaticaCustomerId)
+        public AcumaticaCustomer RetrieveCustomer(string acumaticaCustomerId)
         {
             return Entities
-                .UsrAcumaticaCustomers
+                .AcumaticaCustomers
                 .FirstOrDefault(
                     x => x.AcumaticaCustomerId == acumaticaCustomerId);
         }
 
-        public UsrAcumaticaCustomer RetrieveCustomerByEmail(string email)
+        public AcumaticaCustomer RetrieveCustomerByEmail(string email)
         {
             return Entities
-                .UsrAcumaticaCustomers
+                .AcumaticaCustomers
                 .FirstOrDefault(
                     x => x.AcumaticaMainContactEmail == email);
         }
         
-        public void InsertCustomer(UsrAcumaticaCustomer customer)
+        public void InsertCustomer(AcumaticaCustomer customer)
         {
-            Entities.UsrAcumaticaCustomers.Add(customer);
+            Entities.AcumaticaCustomers.Add(customer);
             Entities.SaveChanges();
         }
         
@@ -51,28 +51,28 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Sales Order
         //
-        public UsrAcumaticaSalesOrder RetrieveSalesOrder(string acumaticaOrderNbr)
+        public AcumaticaSalesOrder RetrieveSalesOrder(string acumaticaOrderNbr)
         {
             return Entities
-                .UsrAcumaticaSalesOrders
-                .Include(x => x.UsrShopAcuOrderSyncs)
+                .AcumaticaSalesOrders
+                .Include(x => x.ShopAcuOrderSyncs)
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == acumaticaOrderNbr);
         }
 
 
-        public void InsertSalesOrder(UsrAcumaticaSalesOrder order)
+        public void InsertSalesOrder(AcumaticaSalesOrder order)
         {
-            Entities.UsrAcumaticaSalesOrders.Add(order);
+            Entities.AcumaticaSalesOrders.Add(order);
             Entities.SaveChanges();
         }
 
         public void ImprintSoShipmentInvoices(
                 long monsterSalesOrderId, 
-                List<UsrAcumaticaSoShipmentInvoice> newestRecords)
+                List<AcumaticaSoShipmentInvoice> newestRecords)
         {
             var existingRecords =
                 Entities
-                    .UsrAcumaticaSoShipmentInvoices
+                    .AcumaticaSoShipmentInvoices
                     .Where(x => x.SalesOrderMonsterId == monsterSalesOrderId)
                     .ToList();
 
@@ -88,7 +88,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 }
                 else
                 {
-                    Entities.UsrAcumaticaSoShipmentInvoices.Remove(existingRecord);
+                    Entities.AcumaticaSoShipmentInvoices.Remove(existingRecord);
                     Entities.SaveChanges();
                 }
             }
@@ -102,7 +102,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                     newestRecord.LastUpdated = DateTime.UtcNow;
                     newestRecord.IsLatestPulled = false;
 
-                    Entities.UsrAcumaticaSoShipmentInvoices.Add(newestRecord);
+                    Entities.AcumaticaSoShipmentInvoices.Add(newestRecord);
                     Entities.SaveChanges();
                 }
             }
@@ -116,47 +116,47 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         public bool ShipmentExists(string shipmentNbr)
         {
             return Entities
-                .UsrAcumaticaShipments
+                .AcumaticaShipments
                 .Any(x => x.AcumaticaShipmentNbr == shipmentNbr);
         }
         
-        public UsrAcumaticaShipment RetrieveShipment(string shipmentNbr)
+        public AcumaticaShipment RetrieveShipment(string shipmentNbr)
         {
             return Entities
-                .UsrAcumaticaShipments
-                .Include(x => x.UsrAcumaticaShipmentSalesOrderRefs)
-                .Include(x => x.UsrAcumaticaShipmentSalesOrderRefs.Select(y => y.UsrShopAcuShipmentSyncs))
+                .AcumaticaShipments
+                .Include(x => x.AcumaticaShipmentSalesOrderRefs)
+                .Include(x => x.AcumaticaShipmentSalesOrderRefs.Select(y => y.ShopAcuShipmentSyncs))
                 .FirstOrDefault(x => x.AcumaticaShipmentNbr == shipmentNbr);
         }
 
-        public UsrAcumaticaShipment RetrieveShipment(long shipmentMonsterId)
+        public AcumaticaShipment RetrieveShipment(long shipmentMonsterId)
         {
             return Entities
-                .UsrAcumaticaShipments
-                .Include(x => x.UsrAcumaticaShipmentSalesOrderRefs)
-                .Include(x => x.UsrAcumaticaShipmentSalesOrderRefs.Select(y => y.UsrShopAcuShipmentSyncs))
+                .AcumaticaShipments
+                .Include(x => x.AcumaticaShipmentSalesOrderRefs)
+                .Include(x => x.AcumaticaShipmentSalesOrderRefs.Select(y => y.ShopAcuShipmentSyncs))
                 .FirstOrDefault(x => x.Id == shipmentMonsterId);
         }
         
-        public void InsertShipment(UsrAcumaticaShipment shipment)
+        public void InsertShipment(AcumaticaShipment shipment)
         {
-            Entities.UsrAcumaticaShipments.Add(shipment);
+            Entities.AcumaticaShipments.Add(shipment);
             Entities.SaveChanges();
         }
 
 
         // These don't necessarily belong here
         //
-        public List<UsrAcumaticaShipmentSalesOrderRef> 
+        public List<AcumaticaShipmentSalesOrderRef> 
                                 RetrieveUnsyncedShipmentSalesOrderRefs()
         {            
             return Entities
-                .UsrAcumaticaShipmentSalesOrderRefs
-                .Include(x => x.UsrAcumaticaShipment)
+                .AcumaticaShipmentSalesOrderRefs
+                .Include(x => x.AcumaticaShipment)
                 .Where(x => 
-                    x.UsrAcumaticaShipment.AcumaticaStatus == Status.Completed)
+                    x.AcumaticaShipment.AcumaticaStatus == Status.Completed)
                 .Where(x => !Entities
-                                .UsrShopAcuShipmentSyncs
+                                .ShopAcuShipmentSyncs
                                 .Select(y => y.AcumaticaShipDetailMonsterId)
                                 .Contains(x.Id))
                 .ToList();
@@ -165,19 +165,19 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         public bool IsMonsterSyncedOrder(string orderNbr)
         {
             return Entities
-                .UsrAcumaticaSalesOrders
+                .AcumaticaSalesOrders
                 .Any(x => x.AcumaticaOrderNbr == orderNbr
-                          && x.UsrShopAcuOrderSyncs.Any());
+                          && x.ShopAcuOrderSyncs.Any());
         }
 
 
         public void ImprintShipmentOrderRefs(
                 long monsterShipmentId, 
-                List<UsrAcumaticaShipmentSalesOrderRef> newestRecords)
+                List<AcumaticaShipmentSalesOrderRef> newestRecords)
         {
             var existingRecords =
                 Entities
-                    .UsrAcumaticaShipmentSalesOrderRefs
+                    .AcumaticaShipmentSalesOrderRefs
                     .Where(x => x.ShipmentMonsterId == monsterShipmentId)
                     .ToList();
             
@@ -189,7 +189,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 }
                 else
                 {
-                    Entities.UsrAcumaticaShipmentSalesOrderRefs.Remove(existingRecord);
+                    Entities.AcumaticaShipmentSalesOrderRefs.Remove(existingRecord);
                     Entities.SaveChanges();
                 }
             }
@@ -203,7 +203,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                     newestRecord.DateCreated = DateTime.UtcNow;
                     newestRecord.LastUpdated = DateTime.UtcNow;
 
-                    Entities.UsrAcumaticaShipmentSalesOrderRefs.Add(newestRecord);
+                    Entities.AcumaticaShipmentSalesOrderRefs.Add(newestRecord);
                     Entities.SaveChanges();
                 }                
             }

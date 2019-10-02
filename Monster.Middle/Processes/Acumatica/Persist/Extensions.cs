@@ -17,7 +17,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             return input.AddMinutes(FudgeFactorMinutes);
         }
 
-        public static bool IsReadyForShipment(this UsrAcumaticaSalesOrder order)
+        public static bool IsReadyForShipment(this AcumaticaSalesOrder order)
         {
             return order.AcumaticaStatus == "Open" || 
                    order.AcumaticaStatus == "Back Order";
@@ -38,28 +38,28 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
 
         public static bool AnyMatch(
-                    this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
-                    UsrAcumaticaShipmentSalesOrderRef other)
+                    this IEnumerable<AcumaticaShipmentSalesOrderRef> input,
+                    AcumaticaShipmentSalesOrderRef other)
         {
             return input.Any(x => x.IsMatch(other));
         }
-        public static UsrAcumaticaShipmentSalesOrderRef Match(
-                    this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
-                    UsrAcumaticaShipmentSalesOrderRef other)
+        public static AcumaticaShipmentSalesOrderRef Match(
+                    this IEnumerable<AcumaticaShipmentSalesOrderRef> input,
+                    AcumaticaShipmentSalesOrderRef other)
         {
             return input.FirstOrDefault(x => x.IsMatch(other));
         }
 
         public static bool IsMatch(
-                this UsrAcumaticaShipmentSalesOrderRef input, UsrAcumaticaShipmentSalesOrderRef other)
+                this AcumaticaShipmentSalesOrderRef input, AcumaticaShipmentSalesOrderRef other)
         {
             return input.AcumaticaOrderNbr == other.AcumaticaOrderNbr
                    && input.AcumaticaShipmentNbr == other.AcumaticaShipmentNbr;
         }
 
-        public static UsrAcumaticaShipmentSalesOrderRef FindMatch(
-                this IEnumerable<UsrAcumaticaShipmentSalesOrderRef> input,
-                UsrAcumaticaShipmentSalesOrderRef findMe)
+        public static AcumaticaShipmentSalesOrderRef FindMatch(
+                this IEnumerable<AcumaticaShipmentSalesOrderRef> input,
+                AcumaticaShipmentSalesOrderRef findMe)
         {
             return input.FirstOrDefault(x => x.IsMatch(findMe));
         }
@@ -76,20 +76,20 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         }
 
         public static List<string> 
-                    UniqueOrderNbrs(this UsrAcumaticaShipment input)
+                    UniqueOrderNbrs(this AcumaticaShipment input)
         {
             return input
-                    .UsrAcumaticaShipmentSalesOrderRefs
+                    .AcumaticaShipmentSalesOrderRefs
                     .Select(x => x.AcumaticaOrderNbr)
                     .ToList();
         }
 
-        public static Shipment ToAcuObject(this UsrAcumaticaShipment input)
+        public static Shipment ToAcuObject(this AcumaticaShipment input)
         {
             return input.AcumaticaJson.DeserializeFromJson<Shipment>();
         }
 
-        public static SalesOrder ToAcuObject(this UsrAcumaticaSalesOrder input)
+        public static SalesOrder ToAcuObject(this AcumaticaSalesOrder input)
         {
             return input.DetailsJson.DeserializeFromJson<SalesOrder>();
         }
@@ -97,21 +97,21 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
 
         public static bool AnyMatch(
-            this IEnumerable<UsrAcumaticaSoShipmentInvoice> input,
-            UsrAcumaticaSoShipmentInvoice other)
+            this IEnumerable<AcumaticaSoShipmentInvoice> input,
+            AcumaticaSoShipmentInvoice other)
         {
             return input.Any(x => x.IsMatch(other));
         }
 
-        public static UsrAcumaticaSoShipmentInvoice Match(
-            this IEnumerable<UsrAcumaticaSoShipmentInvoice> input,
-            UsrAcumaticaSoShipmentInvoice other)
+        public static AcumaticaSoShipmentInvoice Match(
+            this IEnumerable<AcumaticaSoShipmentInvoice> input,
+            AcumaticaSoShipmentInvoice other)
         {
             return input.FirstOrDefault(x => x.IsMatch(other));
         }
         
         public static bool IsMatch(
-            this UsrAcumaticaSoShipmentInvoice input, UsrAcumaticaSoShipmentInvoice other)
+            this AcumaticaSoShipmentInvoice input, AcumaticaSoShipmentInvoice other)
         {
             return input.AcumaticaShipmentNbr == other.AcumaticaShipmentNbr;
         }

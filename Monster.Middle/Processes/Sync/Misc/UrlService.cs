@@ -1,6 +1,6 @@
 ﻿using Monster.Middle.Persist.Instance;
 
-namespace Monster.Middle.Processes.Sync.Services
+namespace Monster.Middle.Processes.Sync.Misc
 {
     public class UrlService
     {

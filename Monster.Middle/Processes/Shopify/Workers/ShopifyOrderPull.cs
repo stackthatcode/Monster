@@ -172,7 +172,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             if (existingOrder == null)
             {
-                var newOrder = new UsrShopifyOrder();
+                var newOrder = new ShopifyOrder();
                 newOrder.ShopifyOrderId = order.id;
                 newOrder.ShopifyOrderNumber = order.order_number;
                 newOrder.ShopifyIsCancelled = order.cancelled_at != null;
@@ -206,12 +206,12 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var fulfillmentRecord
                     = orderRecord
-                        .UsrShopifyFulfillments
+                        .ShopifyFulfillments
                         .FirstOrDefault(x => x.ShopifyFulfillmentId == fulfillment.id);
 
                 if (fulfillmentRecord == null)
                 {
-                    var newRecord = new UsrShopifyFulfillment();
+                    var newRecord = new ShopifyFulfillment();
                     newRecord.OrderMonsterId = orderRecord.Id;
                     newRecord.ShopifyFulfillmentId = fulfillment.id;
                     newRecord.ShopifyOrderId = order.id;
@@ -239,16 +239,16 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var refundRecord
                     = orderRecord
-                        .UsrShopifyRefunds
+                        .ShopifyRefunds
                         .FirstOrDefault(x => x.ShopifyRefundId == refund.id);
 
                 if (refundRecord == null)
                 {
-                    var newRecord = new UsrShopifyRefund();
+                    var newRecord = new ShopifyRefund();
                     newRecord.ShopifyRefundId = refund.id;
                     newRecord.ShopifyOrderId = order.id;
                     newRecord.ShopifyIsCancellation = !order.fulfillments.Any();
-                    newRecord.UsrShopifyOrder = orderRecord;
+                    newRecord.ShopifyOrder = orderRecord;
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
 

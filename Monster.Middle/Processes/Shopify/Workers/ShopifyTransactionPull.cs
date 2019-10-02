@@ -29,12 +29,12 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var transactionsJson = _orderApi.RetrieveTransactions(orderRecord.ShopifyOrderId);
                 var transactions = transactionsJson.DeserializeFromJson<TransactionList>();
-                var transactionRecords = new List<UsrShopifyTransaction>();
+                var transactionRecords = new List<ShopifyTransaction>();
                 var order = orderRecord.ToShopifyObj();
 
                 foreach (var transaction in transactions.transactions)
                 {
-                    var record = new UsrShopifyTransaction();
+                    var record = new ShopifyTransaction();
 
                     if (transaction.kind == TransactionKind.Refund)
                     {

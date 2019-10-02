@@ -58,7 +58,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             foreach (var fulfillment in fulfillments)
             {
-                var acumaticaOrder = fulfillment.UsrShopifyOrder.MatchingSalesOrder();
+                var acumaticaOrder = fulfillment.ShopifyOrder.MatchingSalesOrder();
 
                 if (acumaticaOrder == null)
                 {
@@ -88,7 +88,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             WriteShipmentToAcumatica(fulfillment);
         }
         
-        private void WriteShipmentToAcumatica(UsrShopifyFulfillment fulfillmentRecord)
+        private void WriteShipmentToAcumatica(ShopifyFulfillment fulfillmentRecord)
         {
             var shopifyOrderRecord 
                 = _orderRepository.RetrieveShopifyOrder(fulfillmentRecord.ShopifyOrderId);
@@ -101,7 +101,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             // Isolate the corresponding Acumatica Sales Order and Customer
             var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
-            var customerNbr = salesOrderRecord.UsrAcumaticaCustomer.AcumaticaCustomerId;
+            var customerNbr = salesOrderRecord.AcumaticaCustomer.AcumaticaCustomerId;
 
             // Create the Shipment API payload
             var shipment = new Shipment();
@@ -149,7 +149,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 // NOTE - every Shopify Fulfillment will create
                 // .. exactly one Acumatica Shipment, thus we can do this
                 var shipmentSoRecord
-                    = shipmentRecord.UsrAcumaticaShipmentSalesOrderRefs.First();
+                    = shipmentRecord.AcumaticaShipmentSalesOrderRefs.First();
 
                 _orderRepository
                     .InsertShipmentDetailSync(fulfillmentRecord, shipmentSoRecord);
@@ -175,7 +175,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             }
         }
 
-        public void ConfirmShipment(UsrAcumaticaShipment shipmentRecord)
+        public void ConfirmShipment(AcumaticaShipment shipmentRecord)
         {
             var payload = new ShipmentConfirmation(shipmentRecord.AcumaticaShipmentNbr);
 
@@ -202,7 +202,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
 
         // ON HOLD - pending any usage of Shopify-based Fulfillment
-        public void CreateInvoiceForShipment(UsrAcumaticaShipment shipmentRecord)
+        public void CreateInvoiceForShipment(AcumaticaShipment shipmentRecord)
         {
             //var shipment = shipmentRecord.ToAcuObject();
             //var customerId = shipment.CustomerID.value;

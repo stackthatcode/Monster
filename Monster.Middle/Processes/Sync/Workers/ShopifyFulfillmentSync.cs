@@ -67,7 +67,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
 
         public void PushFulfillmentToShopify(
-                    UsrAcumaticaShipmentSalesOrderRef shipmentSalesOrderRef)
+                    AcumaticaShipmentSalesOrderRef shipmentSalesOrderRef)
         {
             var orderRecord =
                 _syncOrderRepository.RetrieveSalesOrder(shipmentSalesOrderRef.AcumaticaOrderNbr);
@@ -79,7 +79,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             var shopifyOrderRecord = orderRecord.MatchingShopifyOrder();
             var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();            
-            var shipmentRecord = shipmentSalesOrderRef.UsrAcumaticaShipment;
+            var shipmentRecord = shipmentSalesOrderRef.AcumaticaShipment;
             var shipment 
                 = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
             
@@ -119,7 +119,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             var resultFulfillmentParent = result.DeserializeFromJson<FulfillmentParent>();
             
             // Save the result
-            var fulfillmentRecord = new UsrShopifyFulfillment();
+            var fulfillmentRecord = new ShopifyFulfillment();
             fulfillmentRecord.OrderMonsterId = shopifyOrderRecord.Id;
             fulfillmentRecord.ShopifyOrderId = shopifyOrder.id;
             fulfillmentRecord.ShopifyFulfillmentId 

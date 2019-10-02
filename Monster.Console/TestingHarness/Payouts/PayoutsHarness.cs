@@ -146,7 +146,7 @@
 
         //        var payout_id = 11111111111;
 
-        //        var payout = new UsrShopifyPayout()
+        //        var payout = new ShopifyPayout()
         //        {
         //            ShopifyPayoutId = 11111111111,
         //            ShopifyLastStatus = "paid",
@@ -186,7 +186,8 @@
         //                source_order_id = 500000000 + counter,
         //            };
 
-        //            var transaction = new UsrShopifyPayoutTransaction()
+        //            var transaction = new
+        // ShopifyPayoutTransaction()
         //            {
         //                ShopifyPayoutId = payout_id,
         //                CreatedDate = DateTime.UtcNow,

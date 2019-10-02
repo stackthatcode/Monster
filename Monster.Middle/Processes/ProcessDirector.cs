@@ -231,41 +231,47 @@ namespace Monster.Middle.Processes.Sync.Managers
                 "End-to-End - Refresh Inventory (Pull)");
 
             var preferences = _preferencesRepository.RetrievePreferences();
-            if (preferences.SyncOrdersEnabled)
+
+
+            if (preferences.SyncOrdersEnabled
+                    && _stateRepository.CheckSystemState(x => x.CanSyncOrdersToAcumatica()))
             {
                 EndToEndRunner(
                     new Action[]
                     {
-                        () => _syncManager.RoutineCustomerSync(),
-                        () => _syncManager.RoutineOrdersSync(),
-                        () => _syncManager.RoutinePaymentSync(),
+                        () => _syncManager.SyncCustomersToAcumatica(),
+                        () => _syncManager.SyncOrdersToAcumatica(),
+                        () => _syncManager.SyncPaymentsToAcumatica(),
                     },
                     x => x.SyncOrdersState,
-                    "End-to-End - Customers, Orders, Payment Sync");
+                    "End-to-End - Sync Customers, Orders, Payments to Acumatica");
             }
 
-            if (preferences.SyncRefundsEnabled)
+            if (preferences.SyncRefundsEnabled
+                    && _stateRepository.CheckSystemState(x => x.CanSyncRefundsToAcumatica()))
             {
                 EndToEndRunner(
-                    new Action[] { () => _syncManager.RefundSync() },
+                    new Action[] { () => _syncManager.SyncRefundsToAcumatica() },
                     x => x.SyncRefundsState,
-                    "End-to-End - Refund Sync");
+                    "End-to-End - Sync Refunds to Acumatica");
             }
 
-            if (preferences.SyncFulfillmentsEnabled)
+            if (preferences.SyncFulfillmentsEnabled
+                    && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
             {
                 EndToEndRunner(
-                    new Action[] { () => _syncManager.FulfillmentSync() },
+                    new Action[] { () => _syncManager.SyncFulfillmentsToShopify() },
                     x => x.SyncFulfillmentsState,
-                    "End-to-End - Fulfillment Sync");
+                    "End-to-End - Sync Fulfillments to Shopify");
             }
 
-            if (preferences.SyncInventoryEnabled)
+            if (preferences.SyncInventoryEnabled
+                    && _stateRepository.CheckSystemState(x => x.CanSyncInventoryCountsToShopify()))
             {
                 EndToEndRunner(
-                    new Action[] { () => _syncManager.PushInventoryCountsToShopify() },
+                    new Action[] { () => _syncManager.SyncInventoryCountsToShopify() },
                     x => x.SyncInventoryCountState,
-                    "End-to-End - Inventory Count Sync");
+                    "End-to-End - Sync Inventory Count to Shopify");
             }
 
             _executionLogService.InsertExecutionLog("End-to-End - process finishing");

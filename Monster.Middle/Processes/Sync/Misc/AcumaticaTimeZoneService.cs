@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Services;
-using TimeZone = Monster.Middle.Processes.Sync.Model.Misc.TimeZone;
 
-namespace Monster.Middle.Processes.Sync.Services
+namespace Monster.Middle.Processes.Sync.Misc
 {
     public class AcumaticaTimeZoneService
     {

@@ -78,12 +78,12 @@ namespace Monster.Middle.Processes.Sync.Managers
         }
 
 
-        public void RoutineCustomerSync()
+        public void SyncCustomersToAcumatica()
         {
             AcumaticaSessionRun(() => _acumaticaCustomerSync.Run());
         }
 
-        public void RoutineOrdersSync()
+        public void SyncOrdersToAcumatica()
         {
             var preferenece = _preferencesRepository.RetrievePreferences();
             var msg = $"Starting Order Sync with {preferenece.MaxParallelAcumaticaSyncs} worker(s)";
@@ -133,12 +133,12 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
         
-        public void RoutinePaymentSync()
+        public void SyncPaymentsToAcumatica()
         {
             AcumaticaSessionRun(() => _acumaticaPaymentSync.RunPaymentsForOrders());
         }
 
-        public void RefundSync()
+        public void SyncRefundsToAcumatica()
         {
             AcumaticaSessionRun(() =>
             {
@@ -148,13 +148,12 @@ namespace Monster.Middle.Processes.Sync.Managers
             });
         }
         
-        public void FulfillmentSync()
+        public void SyncFulfillmentsToShopify()
         {
             // Sync Shipments to Shopify Fulfillments
             _shopifyFulfillmentSync.Run();
         }
         
-
         public void SynchronizeWarehouseLocation()
         {
             _warehouseLocationSync.Run();
@@ -168,7 +167,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             });
         }
 
-        public void PushInventoryCountsToShopify()
+        public void SyncInventoryCountsToShopify()
         {
             _shopifyInventorySync.Run();
         }
@@ -182,7 +181,6 @@ namespace Monster.Middle.Processes.Sync.Managers
         }
 
 
-
         public void AcumaticaSessionRun(Action action)
         {
             AcumaticaSessionRun(action, _acumaticaContext);
@@ -192,12 +190,12 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                context.Login();
+                if (!_acumaticaContext.IsLoggedIn)
+                {
+                    context.Login();
+                }
+
                 action();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
             }
             finally
             {

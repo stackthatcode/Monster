@@ -67,10 +67,10 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             //}
         }
         
-        public void PushCancelsQuantityUpdate(UsrShopifyRefund refundRecord)
+        public void PushCancelsQuantityUpdate(ShopifyRefund refundRecord)
         {
             // First, pull down the latest Order in case the Details record id's have mutated
-            var salesOrderRecord = refundRecord.UsrShopifyOrder.MatchingSalesOrder();
+            var salesOrderRecord = refundRecord.ShopifyOrder.MatchingSalesOrder();
             _acumaticaOrderPull.RunAcumaticaOrderDetails(salesOrderRecord.AcumaticaOrderNbr);
 
             // Push an update to the Sales Order
@@ -83,19 +83,19 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             // Update the Tax Loaded flag
             refundRecord
-                .UsrShopifyOrder
-                .UsrShopAcuOrderSyncs.First()
+                .ShopifyOrder
+                .ShopAcuOrderSyncs.First()
                 .IsTaxLoadedToAcumatica = false;
 
             _syncOrderRepository.SaveChanges();
             
             // Update the Sales Taxes
-            //_acumaticaOrderSync.PushOrderTaxesToAcumatica(refundRecord.UsrShopifyOrder);
+            //_acumaticaOrderSync.PushOrderTaxesToAcumatica(refundRecord.ShopifyOrder);
         }
         
-        public SalesOrderUpdateHeader BuildUpdateForCancels(UsrShopifyRefund refundRecord)
+        public SalesOrderUpdateHeader BuildUpdateForCancels(ShopifyRefund refundRecord)
         {
-            var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
+            var shopifyOrderRecord = refundRecord.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
             var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
@@ -132,10 +132,10 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
         // TODO - Abstract and move to AcumaticaOrderPull
         //
-        public void PushCancelsTaxesUpdate(UsrShopifyRefund refundRecord)
+        public void PushCancelsTaxesUpdate(ShopifyRefund refundRecord)
         {
             // First refresh the SalesOrder -> TaxDetailId
-            var salesOrderRecord = refundRecord.UsrShopifyOrder.MatchingSalesOrder();
+            var salesOrderRecord = refundRecord.ShopifyOrder.MatchingSalesOrder();
 
             var taxId = RetrieveTaxId(salesOrderRecord.AcumaticaOrderNbr, SalesOrderType.SO);
 
@@ -147,7 +147,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 return;
             }
             
-            salesOrderRecord.UsrShopAcuOrderSyncs.First().AcumaticaTaxDetailId = taxId;
+            salesOrderRecord.ShopAcuOrderSyncs.First().AcumaticaTaxDetailId = taxId;
             _syncOrderRepository.SaveChanges();
 
             _acumaticaOrderSync.RunOrder(refundRecord.ShopifyOrderId);
@@ -245,24 +245,24 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             }
         }
 
-        public void PushReturnOrder(UsrShopifyRefund refundRecord)
+        public void PushReturnOrder(ShopifyRefund refundRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-            var shopifyOrder = refundRecord.UsrShopifyOrder.ToShopifyObj();
+            var shopifyOrder = refundRecord.ShopifyOrder.ToShopifyObj();
 
             var creditMemo = BuildReturnForCredit(refundRecord, preferences);
 
             var result = _salesOrderClient.WriteSalesOrder(creditMemo.SerializeToJson());
             var resultCmOrder = result.DeserializeFromJson<SalesOrder>();
 
-            var syncRecord = new UsrShopAcuRefundCm();
+            var syncRecord = new ShopAcuRefundCm();
             syncRecord.AcumaticaCreditMemoOrderNbr = resultCmOrder.OrderNbr.value;            
             syncRecord.IsCmOrderTaxLoaded = false;
             syncRecord.AcumaticaCreditMemoInvoiceNbr = null;
             syncRecord.IsCmInvoiceReleased = false;
             syncRecord.IsComplete = false;
 
-            syncRecord.UsrShopifyRefund = refundRecord;
+            syncRecord.ShopifyRefund = refundRecord;
             syncRecord.DateCreated = DateTime.UtcNow;
             syncRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.InsertRefundSync(syncRecord);
@@ -274,12 +274,12 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             _logService.InsertExecutionLog(log);
         }
 
-        public void PushReturnOrderTaxes(UsrShopifyRefund refundRecord)
+        public void PushReturnOrderTaxes(ShopifyRefund refundRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-            var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
+            var shopifyOrderRecord = refundRecord.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();            
-            var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
+            var syncRecord = refundRecord.ShopAcuRefundCms.First();
             
             // Write the Sales Tax 
             var taxId = RetrieveTaxId(syncRecord.AcumaticaCreditMemoOrderNbr, SalesOrderType.CM);
@@ -314,9 +314,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             _syncOrderRepository.SaveChanges();
         }
 
-        public void DetectReturnInvoice(UsrShopifyRefund refundRecord)
+        public void DetectReturnInvoice(ShopifyRefund refundRecord)
         {
-            var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
+            var syncRecord = refundRecord.ShopAcuRefundCms.First();
             var cmOrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr;
 
             // Get the Sales Order from LIVE
@@ -337,9 +337,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             }
         }
         
-        public void CreateReturnInvoice(UsrShopifyRefund refundRecord)
+        public void CreateReturnInvoice(ShopifyRefund refundRecord)
         {
-            var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
+            var syncRecord = refundRecord.ShopAcuRefundCms.First();
             var cmOrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr;
 
             // Get the Sales Order from LIVE
@@ -383,9 +383,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             _syncOrderRepository.SaveChanges();
         }
 
-        public void DetectReleasedInvoice(UsrShopifyRefund refundRecord)
+        public void DetectReleasedInvoice(ShopifyRefund refundRecord)
         {
-            var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
+            var syncRecord = refundRecord.ShopAcuRefundCms.First();
             var creditMemoInvoiceNbr = syncRecord.AcumaticaCreditMemoInvoiceNbr;
 
             // Get the Sales Order from LIVE
@@ -408,9 +408,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             }
         }
 
-        public void ReleaseReturnInvoice(UsrShopifyRefund refundRecord)
+        public void ReleaseReturnInvoice(ShopifyRefund refundRecord)
         {
-            var syncRecord = refundRecord.UsrShopAcuRefundCms.First();
+            var syncRecord = refundRecord.ShopAcuRefundCms.First();
             var creditMemoInvoiceNbr = syncRecord.AcumaticaCreditMemoInvoiceNbr;
 
             // Get the Sales Order from LIVE
@@ -434,9 +434,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
         }
         
         private ReturnForCreditWrite 
-                    BuildReturnForCredit(UsrShopifyRefund refundRecord, Preference preferences)
+                    BuildReturnForCredit(ShopifyRefund refundRecord, Preference preferences)
         {
-            var shopifyOrderRecord = refundRecord.UsrShopifyOrder;
+            var shopifyOrderRecord = refundRecord.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
             var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
             var salesOrder = salesOrderRecord.ToAcuObject();

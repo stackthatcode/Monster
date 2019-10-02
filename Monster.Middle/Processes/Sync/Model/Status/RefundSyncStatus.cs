@@ -18,10 +18,10 @@ namespace Monster.Middle.Processes.Sync.Model.Status
             HasCreditMemoInvoiceReleased = false;
         }
 
-        public static RefundSyncStatus Make(UsrShopifyRefund refund)
+        public static RefundSyncStatus Make(ShopifyRefund refund)
         {
             var output = new RefundSyncStatus();
-            var syncRecord = refund.UsrShopAcuRefundCms.FirstOrDefault();
+            var syncRecord = refund.ShopAcuRefundCms.FirstOrDefault();
             if (syncRecord == null)
             {
                 return output;

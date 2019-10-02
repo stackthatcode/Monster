@@ -6,6 +6,7 @@ using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Services;
@@ -129,7 +130,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
         }
 
-        public UsrAcumaticaSalesOrder UpsertOrderToPersist(SalesOrder order)
+        public AcumaticaSalesOrder UpsertOrderToPersist(SalesOrder order)
         {
             var orderNbr = order.OrderNbr.value;
             var existingData = _orderRepository.RetrieveSalesOrder(orderNbr);
@@ -141,7 +142,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 var customerMonsterId
                     = _customerPull.RunAndUpsertCustomerIfNotExists(customerId);
 
-                var newData = new UsrAcumaticaSalesOrder();
+                var newData = new AcumaticaSalesOrder();
                 newData.AcumaticaOrderNbr = orderNbr;
                 newData.DetailsJson = order.SerializeToJson();
                 newData.ShipmentsJson = null;
@@ -181,13 +182,13 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         }        
         
         public void UpsertShipmentInvoiceStubs(
-                UsrAcumaticaSalesOrder orderRecord, List<SalesOrderShipment> shipments)
+                AcumaticaSalesOrder orderRecord, List<SalesOrderShipment> shipments)
         {
-            var translation = new List<UsrAcumaticaSoShipmentInvoice>();
+            var translation = new List<AcumaticaSoShipmentInvoice>();
 
             foreach (var shipment in shipments)
             {
-                var record = new UsrAcumaticaSoShipmentInvoice();
+                var record = new AcumaticaSoShipmentInvoice();
                 record.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 record.AcumaticaInvoiceNbr = shipment.InvoiceNbr.value;
 

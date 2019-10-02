@@ -8,7 +8,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 {
     public static class InventoryExtensions
     {       
-        public static bool IsPaid(this UsrShopifyOrder order)
+        public static bool IsPaid(this ShopifyOrder order)
         {
             return
                 order.ShopifyFinancialStatus == FinancialStatus.Paid ||

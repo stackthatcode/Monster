@@ -50,7 +50,7 @@ namespace Monster.Middle.Processes.Sync.Status
             return output;
         }
 
-        private List<LineItem> LineItemsWithUnmatchedVariants(UsrShopifyOrder orderRecord)
+        private List<LineItem> LineItemsWithUnmatchedVariants(ShopifyOrder orderRecord)
         {
             var order = orderRecord.ToShopifyObj();
             var output = new List<LineItem>();

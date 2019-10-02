@@ -7,34 +7,34 @@ namespace Monster.Middle.Processes.Shopify.Persist
     public static class TransactionExtensions
     {
         public static bool IsMatch(
-                this UsrShopifyTransaction input, 
-                UsrShopifyTransaction other)
+                this ShopifyTransaction input, 
+                ShopifyTransaction other)
         {
             return input.ShopifyTransactionId == other.ShopifyTransactionId;
         }
 
         public static bool AnyMatch(
-                this IEnumerable<UsrShopifyTransaction> input,
-                UsrShopifyTransaction other)
+                this IEnumerable<ShopifyTransaction> input,
+                ShopifyTransaction other)
         {
             return input.Any(x => x.IsMatch(other));
         }
 
-        public static UsrShopifyTransaction Match(
-                    this IEnumerable<UsrShopifyTransaction> input,
-                    UsrShopifyTransaction other)
+        public static ShopifyTransaction Match(
+                    this IEnumerable<ShopifyTransaction> input,
+                    ShopifyTransaction other)
         {
             return input.FirstOrDefault(x => x.IsMatch(other));
         }
 
-        public static long CustomerId(this UsrShopifyTransaction transactionRecord)
+        public static long CustomerId(this ShopifyTransaction transactionRecord)
         {
-            return transactionRecord.UsrShopifyOrder.UsrShopifyCustomer.ShopifyCustomerId;
+            return transactionRecord.ShopifyOrder.ShopifyCustomer.ShopifyCustomerId;
         }
 
-        public static long OrderId(this UsrShopifyTransaction transactionRecord)
+        public static long OrderId(this ShopifyTransaction transactionRecord)
         {
-            return transactionRecord.UsrShopifyOrder.ShopifyOrderId;
+            return transactionRecord.ShopifyOrder.ShopifyOrderId;
         }
 
     }

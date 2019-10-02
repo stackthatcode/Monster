@@ -27,58 +27,58 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Order Syncing
         //
-        public List<UsrShopifyOrder> RetrieveShopifyOrdersNotSynced()
+        public List<ShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
             var preferences = Entities.Preferences.First();
             var orderNumberStart = preferences.ShopifyOrderNumberStart ?? 0;
 
             return Entities
-                .UsrShopifyOrders
+                .ShopifyOrders
                 .Where(x => x.ShopifyOrderNumber >= orderNumberStart
-                            && !x.UsrShopAcuOrderSyncs.Any())
-                .Include(x => x.UsrShopifyCustomer)
-                .Include(x => x.UsrShopifyTransactions)
-                .Include(x => x.UsrShopifyTransactions.Select(y => y.UsrShopifyAcuPayment))
+                            && !x.ShopAcuOrderSyncs.Any())
+                .Include(x => x.ShopifyCustomer)
+                .Include(x => x.ShopifyTransactions)
+                .Include(x => x.ShopifyTransactions.Select(y => y.ShopifyAcuPayment))
                 .ToList();
         }
 
-        public UsrShopifyOrder RetrieveShopifyOrder(long shopifyOrderId)
+        public ShopifyOrder RetrieveShopifyOrder(long shopifyOrderId)
         {
             return Entities
-                .UsrShopifyOrders
-                .Include(x => x.UsrShopAcuOrderSyncs)
-                .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
-                .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder.UsrAcumaticaCustomer))
+                .ShopifyOrders
+                .Include(x => x.ShopAcuOrderSyncs)
+                .Include(x => x.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder))
+                .Include(x => x.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder.AcumaticaCustomer))
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 
-        public UsrAcumaticaSalesOrder RetrieveSalesOrder(string orderNbr)
+        public AcumaticaSalesOrder RetrieveSalesOrder(string orderNbr)
         {
             return Entities
-                .UsrAcumaticaSalesOrders
-                .Include(x => x.UsrShopAcuOrderSyncs)
-                .Include(x => x.UsrAcumaticaCustomer)
-                .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrShopifyOrder))
-                .Include(x => x.UsrShopAcuOrderSyncs.Select(y => y.UsrShopifyOrder.UsrShopifyCustomer))
+                .AcumaticaSalesOrders
+                .Include(x => x.ShopAcuOrderSyncs)
+                .Include(x => x.AcumaticaCustomer)
+                .Include(x => x.ShopAcuOrderSyncs.Select(y => y.ShopifyOrder))
+                .Include(x => x.ShopAcuOrderSyncs.Select(y => y.ShopifyOrder.ShopifyCustomer))
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
         
-        public UsrShopAcuOrderSync
+        public ShopAcuOrderSync
             InsertOrderSync(
-                UsrShopifyOrder shopifyOrder,
-                UsrAcumaticaSalesOrder acumaticaSalesOrder,
+                ShopifyOrder shopifyOrder,
+                AcumaticaSalesOrder acumaticaSalesOrder,
                 string taxDetailId,
                 bool isTaxLoadedToAcumatica)
         {
-            var sync = new UsrShopAcuOrderSync();
-            sync.UsrShopifyOrder = shopifyOrder;
-            sync.UsrAcumaticaSalesOrder = acumaticaSalesOrder;
+            var sync = new ShopAcuOrderSync();
+            sync.ShopifyOrder = shopifyOrder;
+            sync.AcumaticaSalesOrder = acumaticaSalesOrder;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
             sync.AcumaticaTaxDetailId = taxDetailId;
             sync.IsTaxLoadedToAcumatica = isTaxLoadedToAcumatica;
 
-            Entities.UsrShopAcuOrderSyncs.Add(sync);
+            Entities.ShopAcuOrderSyncs.Add(sync);
             Entities.SaveChanges();
             return sync;
         }
@@ -87,37 +87,37 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Customer syncing
         //
-        public UsrShopifyCustomer RetrieveCustomer(long shopifyCustomerId)
+        public ShopifyCustomer RetrieveCustomer(long shopifyCustomerId)
         {
             return Entities
-                .UsrShopifyCustomers
-                .Include(x => x.UsrShopAcuCustomerSyncs)
-                .Include(x => x.UsrShopAcuCustomerSyncs.Select(y => y.UsrAcumaticaCustomer))
+                .ShopifyCustomers
+                .Include(x => x.ShopAcuCustomerSyncs)
+                .Include(x => x.ShopAcuCustomerSyncs.Select(y => y.AcumaticaCustomer))
                 .FirstOrDefault(x => x.ShopifyCustomerId == shopifyCustomerId);
         }
 
-        public List<UsrShopifyCustomer> RetrieveUnsyncedShopifyCustomers()
+        public List<ShopifyCustomer> RetrieveUnsyncedShopifyCustomers()
         {
             return Entities
-                .UsrShopifyCustomers
-                .Where(x => !x.UsrShopAcuCustomerSyncs.Any())
-                .Where(x => Entities.UsrShopifyOrders.Any(
-                    y => y.UsrShopifyCustomer.ShopifyCustomerId == x.ShopifyCustomerId))
+                .ShopifyCustomers
+                .Where(x => !x.ShopAcuCustomerSyncs.Any())
+                .Where(x => Entities.ShopifyOrders.Any(
+                    y => y.ShopifyCustomer.ShopifyCustomerId == x.ShopifyCustomerId))
                 .ToList();
         }
 
-        public List<UsrShopifyCustomer> RetrieveCustomersNeedingUpdate()
+        public List<ShopifyCustomer> RetrieveCustomersNeedingUpdate()
         {
             return Entities
-                .UsrShopifyCustomers
-                .Where(x => x.UsrShopAcuCustomerSyncs.Any() &&
+                .ShopifyCustomers
+                .Where(x => x.ShopAcuCustomerSyncs.Any() &&
                             x.IsUpdatedInAcumatica == false)
                 .ToList();
         }
 
-        public void InsertCustomerSync(UsrShopAcuCustomerSync input)
+        public void InsertCustomerSync(ShopAcuCustomerSync input)
         {
-            Entities.UsrShopAcuCustomerSyncs.Add(input);
+            Entities.ShopAcuCustomerSyncs.Add(input);
             Entities.SaveChanges();
         }
 
@@ -125,22 +125,22 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Shopify Fulfillments
         //
-        public List<UsrShopifyFulfillment> RetrieveFulfillmentsNotSynced()
+        public List<ShopifyFulfillment> RetrieveFulfillmentsNotSynced()
         {
             return Entities
-                .UsrShopifyFulfillments
-                .Include(x => x.UsrShopifyOrder)
-                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
-                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder))
-                .Where(x => !x.UsrShopAcuShipmentSyncs.Any())
+                .ShopifyFulfillments
+                .Include(x => x.ShopifyOrder)
+                .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs)
+                .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder))
+                .Where(x => !x.ShopAcuShipmentSyncs.Any())
                 .ToList();
         }
 
-        public List<UsrShopifyFulfillment> RetrieveFulfillment(long shopifyOrderId)
+        public List<ShopifyFulfillment> RetrieveFulfillment(long shopifyOrderId)
         {
             return Entities
-                    .UsrShopifyFulfillments
-                    .Include(x => x.UsrShopAcuShipmentSyncs)
+                    .ShopifyFulfillments
+                    .Include(x => x.ShopAcuShipmentSyncs)
                     .Where(x => x.ShopifyOrderId == shopifyOrderId)
                     .ToList();
         }
@@ -148,39 +148,39 @@ namespace Monster.Middle.Processes.Sync.Persist
         public bool AnyUnsyncedFulfillments(long shopifyOrderId)
         {
             return Entities
-                .UsrShopifyFulfillments
-                .Any(x => !x.UsrShopAcuShipmentSyncs.Any());
+                .ShopifyFulfillments
+                .Any(x => !x.ShopAcuShipmentSyncs.Any());
         }
         
 
         public void InsertShipmentDetailSync(
-                UsrShopifyFulfillment fulfillment, 
-                UsrAcumaticaShipmentSalesOrderRef detail)
+                ShopifyFulfillment fulfillment, 
+                AcumaticaShipmentSalesOrderRef detail)
         {
-            var sync = new UsrShopAcuShipmentSync();
-            sync.UsrShopifyFulfillment = fulfillment;
-            sync.UsrAcumaticaShipmentSalesOrderRef = detail;
+            var sync = new ShopAcuShipmentSync();
+            sync.ShopifyFulfillment = fulfillment;
+            sync.AcumaticaShipmentSalesOrderRef = detail;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
-            Entities.UsrShopAcuShipmentSyncs.Add(sync);
+            Entities.ShopAcuShipmentSyncs.Add(sync);
             Entities.SaveChanges();
         }
         
-        public List<UsrAcumaticaShipment> 
+        public List<AcumaticaShipment> 
                         RetrieveShipmentsByMonsterNotConfirmed()
         {
             return Entities
-                .UsrAcumaticaShipments
+                .AcumaticaShipments
                 .Where(x => x.IsCreatedByMonster 
                             && x.AcumaticaStatus == ShipmentStatus.Open)
                 .ToList();
         }
 
-        public List<UsrAcumaticaShipment> 
+        public List<AcumaticaShipment> 
                         RetrieveShipmentsByMonsterWithNoInvoice()
         {
             return Entities
-                .UsrAcumaticaShipments
+                .AcumaticaShipments
                 .Where(x => x.IsCreatedByMonster 
                             && x.AcumaticaStatus == ShipmentStatus.Confirmed)
                 .ToList();
@@ -189,60 +189,60 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Shopify Refunds
         //
-        public List<UsrShopifyRefund> RetrieveReturnsNotSynced()
+        public List<ShopifyRefund> RetrieveReturnsNotSynced()
         {
             return RefundRecordGraph
-                    .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
+                    .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any())
                     .Where(x => x.ShopifyIsCancellation == false)
-                    .Where(x => x.UsrShopAcuRefundCms.Any() == false ||
-                                x.UsrShopAcuRefundCms.Any(y => y.IsComplete == false))
+                    .Where(x => x.ShopAcuRefundCms.Any() == false ||
+                                x.ShopAcuRefundCms.Any(y => y.IsComplete == false))
                     .ToList();
         }
 
-        public UsrShopifyRefund RetrieveRefundAndSync(long shopifyRefundId)
+        public ShopifyRefund RetrieveRefundAndSync(long shopifyRefundId)
         {
             return Entities
-                .UsrShopifyRefunds
-                .Include(x => x.UsrShopAcuRefundCms)
+                .ShopifyRefunds
+                .Include(x => x.ShopAcuRefundCms)
                 .FirstOrDefault(x => x.ShopifyRefundId == shopifyRefundId);
         }
 
-        public List<UsrShopifyRefund> RetrieveCancelsNotSynced()
+        public List<ShopifyRefund> RetrieveCancelsNotSynced()
         {
             return RefundRecordGraph
-                .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any())
+                .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any())
                 .Where(x => x.ShopifyIsCancellation && !x.IsCancellationSynced)
                 .ToList();
         }
         
-        private IQueryable<UsrShopifyRefund> RefundRecordGraph => 
+        private IQueryable<ShopifyRefund> RefundRecordGraph => 
             Entities
-                .UsrShopifyRefunds
-                .Include(x => x.UsrShopifyOrder)
-                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs)
-                .Include(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Select(y => y.UsrAcumaticaSalesOrder));
+                .ShopifyRefunds
+                .Include(x => x.ShopifyOrder)
+                .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs)
+                .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder));
         
-        public void InsertRefundSync(UsrShopAcuRefundCm input)
+        public void InsertRefundSync(ShopAcuRefundCm input)
         {
-            Entities.UsrShopAcuRefundCms.Add(input);
+            Entities.ShopAcuRefundCms.Add(input);
             Entities.SaveChanges();
         }
 
 
         // Shopify Transactions
         //
-        public List<UsrShopifyTransaction> RetrieveUnsyncedPayments()
+        public List<ShopifyTransaction> RetrieveUnsyncedPayments()
         {
-            return Entities.UsrShopifyTransactions
-                .Include(x => x.UsrShopifyOrder)
-                .Include(x => x.UsrShopifyOrder.UsrShopifyCustomer)
-                .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any()
+            return Entities.ShopifyTransactions
+                .Include(x => x.ShopifyOrder)
+                .Include(x => x.ShopifyOrder.ShopifyCustomer)
+                .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any()
                             && x.ShopifyGateway != Gateway.Manual
                             && x.ShopifyStatus == TransactionStatus.Success
                             && (x.ShopifyKind == TransactionKind.Capture
                                 || x.ShopifyKind == TransactionKind.Sale
                                 || x.ShopifyKind == TransactionKind.Refund)
-                            && x.UsrShopifyAcuPayment == null)
+                            && x.ShopifyAcuPayment == null)
                 .ToList();
         }
 
@@ -250,25 +250,25 @@ namespace Monster.Middle.Processes.Sync.Persist
         // NOTE - this does not indicate whether the Credit Memo and Credit Memo Invoice
         // ... have yet been created for this Refund - we'll need to pull the Order Refund
         // ... and its sync record for that
-        public List<UsrShopifyTransaction> RetrieveUnsyncedRefunds()
+        public List<ShopifyTransaction> RetrieveUnsyncedRefunds()
         {
-            return Entities.UsrShopifyTransactions
-                .Include(x => x.UsrShopifyOrder)
-                .Include(x => x.UsrShopifyOrder.UsrShopifyCustomer)
-                .Where(x => x.UsrShopifyOrder.UsrShopAcuOrderSyncs.Any()
+            return Entities.ShopifyTransactions
+                .Include(x => x.ShopifyOrder)
+                .Include(x => x.ShopifyOrder.ShopifyCustomer)
+                .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any()
                             && x.ShopifyGateway != Gateway.Manual
                             && x.ShopifyStatus == TransactionStatus.Success
                             && x.ShopifyKind == TransactionKind.Refund
                             && x.ShopifyRefundId != null
-                            && x.UsrShopifyAcuPayment == null)
+                            && x.ShopifyAcuPayment == null)
                 .ToList();
         }
         
 
 
-        public void InsertPayment(UsrShopifyAcuPayment payment)
+        public void InsertPayment(ShopifyAcuPayment payment)
         {
-            Entities.UsrShopifyAcuPayments.Add(payment);
+            Entities.ShopifyAcuPayments.Add(payment);
             Entities.SaveChanges();
         }
 

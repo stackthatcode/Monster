@@ -136,7 +136,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
         // Push Order
         //
-        private void PushOrder(UsrShopifyOrder shopifyOrderRecord)
+        private void PushOrder(ShopifyOrder shopifyOrderRecord)
         {
             if (shopifyOrderRecord.HasMatch())
             {
@@ -197,7 +197,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
 
         private static SalesOrder BuildNewSalesOrderHeader(
-                Order shopifyOrder, UsrAcumaticaCustomer customer, Preference preferences)
+                Order shopifyOrder, AcumaticaCustomer customer, Preference preferences)
         {
             var salesOrder = new SalesOrder();
             salesOrder.Details = new List<SalesOrderDetail>();
@@ -272,10 +272,10 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
         // Push Order Taxes
         //
-        public void PushOrderTaxes(UsrShopifyOrder shopifyOrderRecord)
+        public void PushOrderTaxes(ShopifyOrder shopifyOrderRecord)
         {
             // Arrange
-            var syncRecord = shopifyOrderRecord.UsrShopAcuOrderSyncs.FirstOrDefault();
+            var syncRecord = shopifyOrderRecord.ShopAcuOrderSyncs.FirstOrDefault();
             if (syncRecord == null)
             {
                 return;
@@ -283,7 +283,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             var preferences = _preferencesRepository.RetrievePreferences();
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-            var acumaticaRecord = syncRecord.UsrAcumaticaSalesOrder;
+            var acumaticaRecord = syncRecord.AcumaticaSalesOrder;
             
             // Create Tax Details payload
             var taxDetails = new TaxDetails();
@@ -316,11 +316,11 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
         // Invoke the Acumatica Customer Sync
         //
-        public void RunAcumaticaCustomerSync(UsrShopifyOrder shopifyOrder)
+        public void RunAcumaticaCustomerSync(ShopifyOrder shopifyOrder)
         {
             var customer =
                 _syncOrderRepository
-                    .RetrieveCustomer(shopifyOrder.UsrShopifyCustomer.ShopifyCustomerId);
+                    .RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
 
             if (!customer.HasMatch())
             {

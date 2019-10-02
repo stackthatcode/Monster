@@ -5,6 +5,7 @@ using Monster.Acumatica.Api.Shipment;
 using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Services;
@@ -127,7 +128,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
         }
         
-        public UsrAcumaticaShipment 
+        public AcumaticaShipment 
                     UpsertShipmentToPersist(Shipment shipment, bool isCreatedByMonster = false)
         {
             var shipmentNbr = shipment.ShipmentNbr.value;
@@ -135,7 +136,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             if (existingData == null)
             {
-                var newData = new UsrAcumaticaShipment();
+                var newData = new AcumaticaShipment();
                 newData.AcumaticaJson = shipment.SerializeToJson();
                 newData.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 newData.AcumaticaStatus = shipment.Status.value;
@@ -168,7 +169,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     long monsterShipmentId, Shipment shipment)
         {
             var currentDetailRecords 
-                    = new List<UsrAcumaticaShipmentSalesOrderRef>();
+                    = new List<AcumaticaShipmentSalesOrderRef>();
 
             foreach (var detail in shipment.Details)
             {
@@ -176,7 +177,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                         =  _orderRepository.IsMonsterSyncedOrder(detail.OrderNbr.value);
                     
                 var currentDetailRecord =
-                    new UsrAcumaticaShipmentSalesOrderRef
+                    new AcumaticaShipmentSalesOrderRef
                     {
                         ShipmentMonsterId = monsterShipmentId,
                         AcumaticaShipmentNbr = shipment.ShipmentNbr.value,

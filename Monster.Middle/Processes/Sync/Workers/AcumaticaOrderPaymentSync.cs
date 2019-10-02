@@ -58,7 +58,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             }
         }
         
-        public void WritePaymentForOrders(UsrShopifyTransaction transactionRecord)
+        public void WritePaymentForOrders(ShopifyTransaction transactionRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
             var transaction 
@@ -91,8 +91,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             var resultPayment = resultJson.DeserializeFromJson<PaymentWrite>();
 
             // Create Monster Sync Record
-            var paymentRecord = new UsrShopifyAcuPayment();
-            paymentRecord.UsrShopifyTransaction = transactionRecord;
+            var paymentRecord = new ShopifyAcuPayment();
+            paymentRecord.ShopifyTransaction = transactionRecord;
             paymentRecord.ShopifyPaymentNbr = resultPayment.ReferenceNbr.value;
             paymentRecord.AcumaticaPaymentType = resultPayment.Type.value;
             paymentRecord.DateCreated = DateTime.UtcNow;
@@ -123,14 +123,14 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 
                 // Return/Restock Refund - Credit Memo Order and Invoice are created
                 //
-                if (refund.UsrShopAcuRefundCms.Any(x => x.IsComplete))
+                if (refund.ShopAcuRefundCms.Any(x => x.IsComplete))
                 {
                     WriteRefundPayment(transaction);
                 }
             }
         }
         
-        public void WriteRefundPayment(UsrShopifyTransaction transactionRecord)
+        public void WriteRefundPayment(ShopifyTransaction transactionRecord)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
             var transaction = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
@@ -156,9 +156,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             // Amounts
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
 
-            if (refund.UsrShopAcuRefundCms.Any())
+            if (refund.ShopAcuRefundCms.Any())
             {
-                var refundSync = refund.UsrShopAcuRefundCms.First();
+                var refundSync = refund.ShopAcuRefundCms.First();
                 
                 var salesInvoice =
                     _salesOrderClient.RetrieveSalesOrderInvoice(
@@ -192,8 +192,8 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             // Create Monster Sync Record
             //
-            var paymentRecord = new UsrShopifyAcuPayment();
-            paymentRecord.UsrShopifyTransaction = transactionRecord;
+            var paymentRecord = new ShopifyAcuPayment();
+            paymentRecord.ShopifyTransaction = transactionRecord;
             paymentRecord.ShopifyPaymentNbr = resultPayment.ReferenceNbr.value;
             paymentRecord.AcumaticaPaymentType = resultPayment.Type.value;
             paymentRecord.DateCreated = DateTime.UtcNow;

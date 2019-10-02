@@ -137,7 +137,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _batchRepository.UpdateCustomersPullEnd(startOfPullRun);
         }
 
-        public UsrShopifyCustomer Run(long shopifyCustomerId)
+        public ShopifyCustomer Run(long shopifyCustomerId)
         {
            var customerJson = _customerApi.Retrieve(shopifyCustomerId);
             var customer
@@ -156,14 +156,14 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
-        public UsrShopifyCustomer UpsertCustomer(Customer customer)
+        public ShopifyCustomer UpsertCustomer(Customer customer)
         {
             var existingCustomer 
                 = _orderRepository.RetrieveCustomer(customer.id);
 
             if (existingCustomer == null)
             {
-                var newCustomer = new UsrShopifyCustomer();
+                var newCustomer = new ShopifyCustomer();
                 newCustomer.ShopifyCustomerId = customer.id;
                 newCustomer.ShopifyJson = customer.SerializeToJson();
                 newCustomer.ShopifyPrimaryEmail = customer.email;

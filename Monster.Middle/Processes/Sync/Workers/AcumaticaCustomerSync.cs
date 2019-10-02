@@ -58,7 +58,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
         }
 
 
-        public UsrAcumaticaCustomer PushCustomer(UsrShopifyCustomer shopifyCustomerRecord)
+        public AcumaticaCustomer PushCustomer(ShopifyCustomer shopifyCustomerRecord)
         {
             var shopifyCustomer =
                 shopifyCustomerRecord
@@ -84,13 +84,13 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             using (var transaction = _syncOrderRepository.BeginTransaction())
             {
                 var output = _acumaticaCustomerPull.UpsertCustomerToPersist(customerResult);
-                var existingSync = output.UsrShopAcuCustomerSyncs.FirstOrDefault();
+                var existingSync = output.ShopAcuCustomerSyncs.FirstOrDefault();
 
                 if (existingSync == null)
                 {
-                    var syncRecord = new UsrShopAcuCustomerSync();
-                    syncRecord.UsrShopifyCustomer = shopifyCustomerRecord;
-                    syncRecord.UsrAcumaticaCustomer = output;
+                    var syncRecord = new ShopAcuCustomerSync();
+                    syncRecord.ShopifyCustomer = shopifyCustomerRecord;
+                    syncRecord.AcumaticaCustomer = output;
                     syncRecord.DateCreated = DateTime.UtcNow;
                     syncRecord.LastUpdated = DateTime.UtcNow;
                     _syncOrderRepository.InsertCustomerSync(syncRecord);

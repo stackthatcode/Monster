@@ -226,7 +226,7 @@
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Processes\Sync\Model\Misc\SystemStateSummaryModel.cs" />
-    <Compile Include="Processes\Sync\Services\UrlService.cs" />
+    <Compile Include="Processes\Sync\Misc\UrlService.cs" />
     <Compile Include="Processes\ProcessDirector.cs" />
     <Compile Include="Identity\IdentityContext.cs" />
     <Compile Include="Identity\IdentityService.cs" />
@@ -240,9 +240,9 @@
     <Compile Include="Persist\Instance\InstancePersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persist\Instance\ExternalServiceRepository.cs" />
-    <Compile Include="Processes\Sync\Services\AcumaticaTimeZone.cs" />
+    <Compile Include="Processes\Sync\Misc\AcumaticaTimeZone.cs" />
     <Compile Include="Utility\TimeZoneTranslator.cs" />
-    <Compile Include="Processes\Sync\Services\AcumaticaTimeZoneService.cs" />
+    <Compile Include="Processes\Sync\Misc\AcumaticaTimeZoneService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
