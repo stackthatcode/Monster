@@ -80,7 +80,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void SyncCustomersToAcumatica()
         {
-            AcumaticaSessionRun(() => _acumaticaCustomerSync.Run());
+            _acumaticaContext.SessionRun(() => _acumaticaCustomerSync.Run());
         }
 
         public void SyncOrdersToAcumatica()
@@ -123,8 +123,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     _logger.Debug(
                         $"OrderSyncInChildScope - Acumatica Context: {childAcumaticaContext.ObjectIdentifier}");
                     childConnectionContext.Initialize(instanceId);
-
-                    AcumaticaSessionRun(() => childOrderSync.RunWorker(queue), childAcumaticaContext);
+                    childAcumaticaContext.SessionRun(() => childOrderSync.RunWorker(queue));
                 }
             }
             catch (Exception ex)
@@ -135,12 +134,12 @@ namespace Monster.Middle.Processes.Sync.Managers
         
         public void SyncPaymentsToAcumatica()
         {
-            AcumaticaSessionRun(() => _acumaticaPaymentSync.RunPaymentsForOrders());
+            _acumaticaContext.SessionRun(() => _acumaticaPaymentSync.RunPaymentsForOrders());
         }
 
         public void SyncRefundsToAcumatica()
         {
-            AcumaticaSessionRun(() =>
+            _acumaticaContext.SessionRun(() =>
             {
                 _acumaticaRefundSync.RunReturns();
                 _acumaticaRefundSync.RunCancels();
@@ -161,7 +160,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void ImportIntoAcumatica(AcumaticaInventoryImportContext context)
         {
-            AcumaticaSessionRun(() =>
+            _acumaticaContext.SessionRun(() =>
             {
                 _acumaticaInventorySync.RunImportToAcumatica(context);
             });
@@ -174,36 +173,10 @@ namespace Monster.Middle.Processes.Sync.Managers
         
         public void SingleOrderPush(long shopifyOrderId)
         {
-            AcumaticaSessionRun(() =>
+            _acumaticaContext.SessionRun(() =>
             {
                 _acumaticaOrderSync.RunOrder(shopifyOrderId);
             });
-        }
-
-
-        public void AcumaticaSessionRun(Action action)
-        {
-            AcumaticaSessionRun(action, _acumaticaContext);
-        }
-
-        public void AcumaticaSessionRun(Action action, AcumaticaHttpContext context)
-        {
-            try
-            {
-                if (!_acumaticaContext.IsLoggedIn)
-                {
-                    context.Login();
-                }
-
-                action();
-            }
-            finally
-            {
-                if (context.IsLoggedIn)
-                {
-                    context.Logout();
-                }
-            }
         }
     }
 }

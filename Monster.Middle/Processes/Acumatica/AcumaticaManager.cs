@@ -40,13 +40,12 @@ namespace Monster.Middle.Processes.Acumatica
 
         public void TestConnection()
         {
-            _acumaticaHttpContext.Login();
-            _acumaticaHttpContext.Logout();
+            _acumaticaHttpContext.SessionRun(() => {});
         }
 
         public void PullReferenceData()
         {
-            SessionRun(() =>
+            _acumaticaHttpContext.SessionRun(() =>
             {
                 _acumaticaReferencePull.RunItemClass();
                 _acumaticaReferencePull.RunPaymentMethod();
@@ -58,43 +57,24 @@ namespace Monster.Middle.Processes.Acumatica
         
         public void PullWarehouses()
         {
-            SessionRun(() => _acumaticaWarehousePull.Run());
+            _acumaticaHttpContext.SessionRun(() => _acumaticaWarehousePull.Run());
         }
 
         public void PullInventory()
         {
-            SessionRun(() => _acumaticaInventoryPull.RunAutomatic());
+            _acumaticaHttpContext.SessionRun(() => _acumaticaInventoryPull.RunAutomatic());
         }
 
         public void PullOrdersCustomerShipments()
         {
-            SessionRun(() =>
-            {
-                _acumaticaCustomerPull.RunAutomatic();
-                _acumaticaOrderPull.RunAutomatic();
-                _acumaticaShipmentPull.RunAutomatic();
-            });
+            _acumaticaHttpContext.
+                SessionRun(() =>
+                {
+                    _acumaticaCustomerPull.RunAutomatic();
+                    _acumaticaOrderPull.RunAutomatic();
+                    _acumaticaShipmentPull.RunAutomatic();
+                });
         }
 
-
-        public void SessionRun(Action action)
-        {
-            try
-            {
-                if (!_acumaticaHttpContext.IsLoggedIn)
-                {
-                    _acumaticaHttpContext.Login();
-                }
-
-                action();
-            }
-            finally
-            {
-                if (_acumaticaHttpContext.IsLoggedIn)
-                {
-                    _acumaticaHttpContext.Logout();
-                }
-            }
-        }
     }
 }

@@ -188,6 +188,7 @@ namespace Monster.Acumatica.Http
         public ResponseEnvelope ProcessStatusCodes(ResponseEnvelope response, string errorContext)
         {
             // All other non-200 calls throw an exception
+            //
             if (response.HasBadStatusCode)
             {
                 throw new Exception(
@@ -197,6 +198,27 @@ namespace Monster.Acumatica.Http
 
             return response;
         }
+
+        public void SessionRun(Action action)
+        {
+            try
+            {
+                if (!IsLoggedIn)
+                {
+                    Login();
+                }
+
+                action();
+            }
+            finally
+            {
+                if (IsLoggedIn)
+                {
+                    Logout();
+                }
+            }
+        }
+
 
         public void Dispose()
         {
