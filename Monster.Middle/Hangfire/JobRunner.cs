@@ -92,7 +92,7 @@ namespace Monster.Middle.Hangfire
                     // *** Not so sure about this
                     //_jobMonitoringService.RemoveOneTimeJobMonitor(jobType);
 
-                    var msg = $"Failed to acquire {InstanceLock.MethodName} lock for {instanceId}";
+                    var msg = $"Failed to acquire lock '{InstanceLock.MethodName}' for {instanceId}";
                     _executionLogService.InsertExecutionLog(msg, LogLevel.Debug);
                     return;
                 }
@@ -111,11 +111,12 @@ namespace Monster.Middle.Hangfire
             }
             catch (Exception ex)
             {
+                InstanceLock.Free(instanceId.ToString());
+
                 // If this is One-Time Job, this will remove the Monitor now that the Job has failed
                 //
                 _jobMonitoringService.RemoveOneTimeJobMonitor(jobType);
 
-                InstanceLock.Free(instanceId.ToString());
                 _logger.Error(ex);
                 throw;
             }

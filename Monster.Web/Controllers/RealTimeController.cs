@@ -177,7 +177,8 @@ namespace Monster.Web.Controllers
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.GetMonitoringDigest();
+            var areAnyJobsRunning
+                = _jobStatusService.GetMonitoringDigest().AreAnyJobsActive;
 
             var output = new
             {

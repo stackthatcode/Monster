@@ -2260,7 +2260,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ItemId).HasColumnName(@"ItemId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
-            Property(x => x.AcumaticaDescription).HasColumnName(@"AcumaticaDescription").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(200);
+            Property(x => x.AcumaticaDescription).HasColumnName(@"AcumaticaDescription").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(200);
             Property(x => x.IsPriceSynced).HasColumnName(@"IsPriceSynced").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();

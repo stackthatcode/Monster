@@ -80,7 +80,8 @@ namespace Monster.Web.Controllers
         {
             var status = _statusService.AcumaticaConnectionStatus();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.GetMonitoringDigest();
+            var areAnyJobsRunning 
+                = _jobStatusService.GetMonitoringDigest().AreAnyJobsActive;
 
             var model = new
             {
@@ -160,7 +161,8 @@ namespace Monster.Web.Controllers
             var status = _statusService.AcumaticaReferenceDataStatus();
 
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.GetMonitoringDigest();
+            var areAnyJobsRunning
+                = _jobStatusService.GetMonitoringDigest().AreAnyJobsActive;
 
             var model = new
             {
