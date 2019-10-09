@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Monster.Acumatica.Api;
+using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
-using Monster.Middle.Services;
 using Push.Foundation.Utilities.Json;
 
 
@@ -125,7 +123,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     continue;
                 }
 
-                UpsertOrderToPersist(order);
+                //UpsertOrderToPersist(order);
                 PullAndUpsertShipmentInvoiceRefs(order.OrderNbr.value);
             }
         }

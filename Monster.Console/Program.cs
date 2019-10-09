@@ -4,11 +4,16 @@ using Autofac;
 using Hangfire;
 using Hangfire.Logging;
 using Hangfire.SqlServer;
+using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Feeder;
 using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.Hangfire;
 using Monster.Middle.Identity;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Acumatica.Workers;
+using Monster.Middle.Processes.Shopify.Workers;
+using Monster.Middle.Processes.Sync.Workers.Orders;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 
@@ -22,6 +27,8 @@ namespace Monster.ConsoleApp
         private const string ProvisionNewUserAccountOption = "3";
         private const string HydrateSecurityConfigOption = "4";
 
+        private const string RunAcumaticaOrderSyncOption = "11";
+
         static void Main(string[] args)
         {
             Console.WriteLine($"Bridge Console App");
@@ -32,6 +39,9 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
             Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
             Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
+            Console.WriteLine();
+            Console.WriteLine($"{RunAcumaticaOrderSyncOption} - Run Acumatica Order Sync");
+
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
             var input = Console.ReadLine();
@@ -43,6 +53,8 @@ namespace Monster.ConsoleApp
                 ProvisionNewUserAccount();
             if (input == HydrateSecurityConfigOption)
                 HydrateSecurityConfig();
+            if (input == RunAcumaticaOrderSyncOption)
+                RunAcumaticaOrderSync();
 
             Console.WriteLine("FIN");
             Console.ReadKey();
@@ -141,6 +153,25 @@ namespace Monster.ConsoleApp
                 {
                     builder.RegisterType<ShopifyDataFeeder>().InstancePerLifetimeScope();
                 });
+        }
+
+        static void RunAcumaticaOrderSync()
+        {
+            RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+
+                var acumaticaOrderPull = scope.Resolve<AcumaticaOrderPull>();
+                var shopifyOrderPull = scope.Resolve<ShopifyOrderPull>();
+                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+                var orderSync = scope.Resolve<AcumaticaOrderSync>();
+
+                instanceContext.Initialize(Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212"));
+
+                //acumaticaContext.SessionRun(() => acumaticaOrderPull.RunAutomatic());
+                //shopifyOrderPull.RunAutomatic();
+                acumaticaContext.SessionRun(() => orderSync.Run());
+            });
         }
 
         static void RunInLifetimeScope(

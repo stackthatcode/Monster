@@ -30,7 +30,9 @@ namespace Monster.Acumatica.Api
         public string RetrieveSalesOrders(
                 DateTime? lastModified = null, int page = 1, int? pageSize = null)
         {
-            var queryString = "$expand=Details,ShippingSettings";
+           // var adhocSchemaJson = _httpContext.Get($"SalesOrder/$adhocSchema");
+
+            var queryString = "$custom=Document.UsrTaxSnapshot&$expand=Details,ShippingSettings";
 
             if (lastModified.HasValue)
             {
@@ -69,10 +71,9 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-
         public string WriteSalesOrder(string json)
         {
-            var response = _httpContext.Put("SalesOrder", json);
+            var response = _httpContext.Put("SalesOrder?$custom=Document.UsrTaxSnapshot", json);
             LogSalesOrderDetailIds(response.Body);
             return response.Body;
         }
@@ -87,9 +88,7 @@ namespace Monster.Acumatica.Api
         
         public string ReleaseSalesInvoice(string invoiceType, string json)
         {
-            var response =
-                _httpContext.Post(
-                    $"SalesInvoice/ReleaseSalesInvoice", json);
+            var response = _httpContext.Post($"SalesInvoice/ReleaseSalesInvoice", json);
 
             return response.Body;
         }

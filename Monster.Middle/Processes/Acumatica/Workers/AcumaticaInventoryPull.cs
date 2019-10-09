@@ -94,8 +94,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var updateMinUtc = batchState.AcumaticaStockItemPullEnd;
             var updateMin = _instanceTimeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
 
-            var itemWarehouses = _inventoryClient.RetrieveItemWarehouses();
-
             var json = _inventoryClient.RetrieveStockItems(updateMin);
             var stockItems = json.DeserializeFromJson<List<StockItem>>();
 

@@ -57,29 +57,24 @@ namespace Monster.Middle.Processes.Sync.Status
 
             foreach (var lineItem in order.line_items)
             {
+                if (!lineItem.variant_id.HasValue || lineItem.sku == null)
+                {
+                    output.Add(lineItem);
+                    continue;
+                }
+
                 var variant =
                     _syncInventoryRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
 
                 if (variant == null || variant.IsNotMatched())
                 {
                     output.Add(lineItem);
+                    continue;
                 }
             }
 
             return output;
         }
-
-
-
-        //private OrderSyncSummary BuildOrderSummary()
-        //{
-        //    var output = new OrderSyncSummary();
-        //    output.TotalOrders = _syncOrderRepository.RetrieveTotalOrders();
-        //    output.TotalOrdersWithSalesOrders = _syncOrderRepository.RetrieveTotalOrdersSynced();
-        //    output.TotalOrdersWithShipments = _syncOrderRepository.RetrieveTotalOrdersOnShipments();
-        //    output.TotalOrdersWithInvoices = _syncOrderRepository.RetrieveTotalOrdersInvoiced();
-        //    return output;
-        //}
 
     }
 }

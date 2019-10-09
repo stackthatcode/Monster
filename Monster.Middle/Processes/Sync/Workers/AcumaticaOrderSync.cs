@@ -97,9 +97,9 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
                 if (!status.IsReadyToSync().Success)
                 {
-                    _pushLogger.Debug(
-                        $"Skipping Sync for Order {order.ShopifyOrderNumber} ({order.ShopifyOrderId}) - " +
-                        status.IsReadyToSync().FailureMessages.ToCommaDelimited());
+                    var msg = $"Skipping Sync for Order {order.ShopifyOrderNumber} ({order.ShopifyOrderId}) - " +
+                              status.IsReadyToSync().FailureMessages.ToCommaDelimited();
+                    _pushLogger.Debug(msg);
                     continue;
                 }
 
@@ -108,9 +108,6 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
             return output;
         }
-
-        
-        
 
         private void PushOrderWithCustomerAndTaxes(long shopifyOrderId)
         {
@@ -161,6 +158,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             salesOrder.ShipToAddressOverride = true.ToValue();
             salesOrder.ShipToAddress = shippingAddress;
             
+            // Build Line Items
             foreach (var lineItem in shopifyOrder.line_items)
             {
                 var variant =
@@ -180,6 +178,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             }
             
             // *** IMPORTANT - do not use the member that contains 
+            //
             var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
             var resultSalesOrder = resultJson.DeserializeFromJson<SalesOrder>();
 
@@ -188,7 +187,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             var acumaticaRecord = _acumaticaOrderPull.UpsertOrderToPersist(resultSalesOrder);
             var taxDetailsId = resultSalesOrder.TaxDetails.First().id;            
             _syncOrderRepository
-                    .InsertOrderSync(shopifyOrderRecord, acumaticaRecord, taxDetailsId, false);
+                .InsertOrderSync(shopifyOrderRecord, acumaticaRecord, taxDetailsId, false);
 
             _logService.InsertExecutionLog(
                     $"Created Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
@@ -215,7 +214,21 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 OverrideTaxZone = true.ToValue(),
                 CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
             };
-            
+
+            //salesOrder.custom = new StringValue("123456890");
+
+            salesOrder.custom = new SalesOrderCustom()
+            {
+                Document = new SalesOrderCustom.CustomDocument()
+                {
+                    UsrTaxSnapshot = new SalesOrderCustom.CustomField
+                    {
+                        type = "CustomStringField",
+                        value = "JONES12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
+                    }
+                }
+            };
+
 
             // Create Tax Details payload
             var taxDetails = new TaxDetails();

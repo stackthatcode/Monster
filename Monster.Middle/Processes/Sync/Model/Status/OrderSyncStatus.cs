@@ -33,8 +33,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public bool IsCancelledBeforeSync => !HasBeenSynced && IsCancelled;
 
         public bool IsFulfilledBeforeSync 
-                => !HasBeenSynced &&
-                    FulfillmentStatus != Push.Shopify.Api.Order.FulfillmentStatus.NoFulfillment;
+                => !HasBeenSynced && FulfillmentStatus.HasValue() &&
+                   FulfillmentStatus != Push.Shopify.Api.Order.FulfillmentStatus.NoFulfillment;
 
         
         public ValidationResult IsReadyToSync()
@@ -46,7 +46,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
                 .Add(x => !x.UsesUnmatchedVariants, 
                     "Shopify Order references Variants not loaded into Acumatica")
 
-                .Add(x => !x.OrderNumberValidForSync, 
+                .Add(x => x.OrderNumberValidForSync, 
                     $"Shopify Order number not within Preferences -> Starting Order Number")
 
                 .Add(x => !x.IsCancelledBeforeSync,

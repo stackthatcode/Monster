@@ -56,7 +56,10 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue ShipVia { get; set; }
         public StringValue Status { get; set; }
         public DoubleValue TaxTotal { get; set; }
-        public StringValue custom { get; set; }
+
+        //public StringValue custom { get; set; }
+        public SalesOrderCustom custom { get; set; }
+
         public List<object> files { get; set; }
         
         public ShippingSettings ShippingSettings { get; set; }
@@ -76,6 +79,25 @@ namespace Monster.Acumatica.Api.SalesOrder
             return Details.FirstOrDefault(x => x.id == id);
         }
     }
+
+
+    public class SalesOrderCustom
+    {
+        public class CustomDocument
+        {
+            public CustomField UsrTaxSnapshot { get; set;}
+
+        }
+
+        public class CustomField
+        {
+            public string type { get; set; }
+            public string value { get; set; }
+        }
+
+        public CustomDocument Document { get; set; }
+    }
+
 
 
     public class SalesOrderDetail

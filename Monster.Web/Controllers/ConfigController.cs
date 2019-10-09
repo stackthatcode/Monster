@@ -325,7 +325,7 @@ namespace Monster.Web.Controllers
         public ActionResult ConfigDiagnosisRunStatus()
         {
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.GetMonitoringDigest();
+            var areAnyJobsRunning = _jobStatusService.GetMonitoringDigest().AreAnyJobsActive;
 
             var model = new
             {
