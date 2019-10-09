@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Monster.TaxTransfer
 {
@@ -10,10 +8,14 @@ namespace Monster.TaxTransfer
         public List<TransferTaxLine> TaxLines { get; set; }
         public bool IsTaxable { get; set; }
 
+        public TransferFreight()
+        {
+            TaxLines = new List<TransferTaxLine>();
+        }
+
         public decimal TotalPrice { get; set; }
         public decimal TaxableAmount => IsTaxable ? TotalPrice : 0m;
         public decimal NonTaxableAmount => IsTaxable ? 0m : TotalPrice;
-
-        public decimal TotalTax => TaxLines.Sum(x => Math.Round(x.Rate * TotalPrice, 2));
+        public decimal TotalTax => TaxLines.CalculateTaxes(TaxableAmount);
     }
 }

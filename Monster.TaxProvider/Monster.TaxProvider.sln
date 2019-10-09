@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.TaxProvider", "Mons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.TaxTransfer", "..\Monster.TaxTransfer\Monster.TaxTransfer.csproj", "{7F7D0032-B991-43B4-B43E-29305048A8DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monster.TaxTransfer.Tests", "..\Monster.TaxTransfer.Tests\Monster.TaxTransfer.Tests.csproj", "{EAC76299-2E48-4231-997D-B0F67240E4E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{7F7D0032-B991-43B4-B43E-29305048A8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F7D0032-B991-43B4-B43E-29305048A8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F7D0032-B991-43B4-B43E-29305048A8DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAC76299-2E48-4231-997D-B0F67240E4E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAC76299-2E48-4231-997D-B0F67240E4E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAC76299-2E48-4231-997D-B0F67240E4E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAC76299-2E48-4231-997D-B0F67240E4E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

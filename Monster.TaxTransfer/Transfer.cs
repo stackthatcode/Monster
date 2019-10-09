@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Monster.TaxTransfer
@@ -10,14 +11,27 @@ namespace Monster.TaxTransfer
         public TransferFreight Freight { get; set; }
         public List<TransferRefund> Refunds { get; set; }
 
-        public decimal TotalTaxableAmount 
-            => LineItems.Sum(x => x.TaxableAmount) + Freight.TaxableAmount;
-        public decimal TotalNonTaxableAmount 
-            => LineItems.Sum(x => x.NonTaxableAmount) + Freight.NonTaxableAmount;
-        public decimal TotalTax => LineItems.Sum(x => x.TotalTax) + Freight.TotalTax;
+        public Transfer()
+        {
+            LineItems = new List<TransferLineItem>();
+            Freight = new TransferFreight();
+            Refunds = new List<TransferRefund>();
+        }
 
-        public decimal TotalTaxableAmountAfterRefunds => TotalTaxableAmount - Refunds.Sum(x => x.TotalTaxableAmount);
-        public decimal TotalNonTaxableAmountAfterRefunds => TotalNonTaxableAmount - Refunds.Sum(x => x.TotalNonTaxableAmount);
+        public decimal TotalLineItemTax => LineItems.Sum(x => x.TotalTax);
+        public decimal TotalTax => TotalLineItemTax - Freight.TotalTax;
+
         public decimal TotalTaxAfterRefunds => TotalTax - Refunds.Sum(x => x.TotalTax);
+
+        // TODO - Shipping Taxes After Refunds
+
+        public decimal CalculateTaxes(string inventoryId, int modifiedQuantity)
+        {
+            var lineitem = LineItems.FirstOrDefault(x => x.InventoryID == inventoryId);
+            if (lineitem == null)
+            {
+                throw new Exception($"Unable to locate Inventory ID == {}");
+            }
+        }
     }
 }
