@@ -123,7 +123,7 @@ namespace Monster.TaxProvider
                 {
                     new TaxProviderSetting(
                         "JONESTAX",
-                        "TAXREPORTINGPROVIDER",
+                        "TAXRPTPROVIDER",
                         1,
                         "Tax Reporting Provider",
                         string.Empty,

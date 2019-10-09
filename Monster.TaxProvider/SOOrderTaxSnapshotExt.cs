@@ -1,11 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
-using PX.Data;
+﻿using PX.Data;
 using PX.Objects.SO;
-using PX.Objects.TX;
-using PX.TaxProvider;
-using TaxDetail = PX.TaxProvider.TaxDetail;
 
 
 namespace Monster.TaxProvider
