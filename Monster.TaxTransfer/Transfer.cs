@@ -6,7 +6,7 @@ namespace Monster.TaxTransfer
 {
     public class Transfer
     {
-        public string ExternalSystemRefNbr { get; set; }
+        public string ExternalRefNbr { get; set; }
         public List<TransferLineItem> LineItems { get; set; }
         public TransferFreight Freight { get; set; }
         public List<TransferRefund> Refunds { get; set; }
@@ -19,18 +19,23 @@ namespace Monster.TaxTransfer
         }
 
         public decimal TotalLineItemTax => LineItems.Sum(x => x.TotalTax);
-        public decimal TotalTax => TotalLineItemTax - Freight.TotalTax;
+        public decimal TotalTax => TotalLineItemTax + Freight.TotalTax;
 
-        public decimal TotalTaxAfterRefunds => TotalTax - Refunds.Sum(x => x.TotalTax);
+        public decimal TotalLineItemTaxAfterRefunds => TotalTax - Refunds.Sum(x => x.NonFreightTax);
+        public decimal TotalFreightTaxAfterRefunds => Freight.TotalTax - Refunds.Sum(x => x.NonFreightTax);
+        public decimal TotalTaxAfterRefunds => TotalLineItemTaxAfterRefunds + TotalFreightTaxAfterRefunds;
 
-        // TODO - Shipping Taxes After Refunds
 
-        public decimal CalculateTaxes(string inventoryId, int modifiedQuantity)
+        public decimal CalcSplitShipmentTaxes(string inventoryId, int quantity)
         {
             var lineitem = LineItems.FirstOrDefault(x => x.InventoryID == inventoryId);
             if (lineitem == null)
             {
-                throw new Exception($"Unable to locate Inventory ID == {}");
+                throw new Exception($"Unable to locate Inventory ID == {inventoryId}");
+            }
+            else
+            {
+                return lineitem.CalcSplitShipmentTaxes(quantity);
             }
         }
     }

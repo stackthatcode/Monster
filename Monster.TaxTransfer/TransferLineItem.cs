@@ -6,6 +6,7 @@ namespace Monster.TaxTransfer
 {
     public class TransferLineItem
     {
+        public string ExternalRefNbr { get; set; }
         public string InventoryID { get; set; }
         public bool IsTaxable { get; set; }
         public int Quantity { get; set; }
@@ -19,13 +20,11 @@ namespace Monster.TaxTransfer
 
         public decimal TotalPrice => Quantity * UnitPrice;
         public decimal TaxableAmount => IsTaxable ? TotalPrice : 0m;
-        public decimal NonTaxableAmount => IsTaxable ? 0m : TotalPrice;
+        public decimal TotalTax => IsTaxable ? TaxLines.CalculateTaxes(TaxableAmount) : 0m;
 
-        public decimal TotalTax => TaxLines.CalculateTaxes(TaxableAmount);
-
-        public decimal CalculateTaxes(int modifiedQuantity)
+        public decimal CalcSplitShipmentTaxes(int shippedQty)
         {
-            return TaxLines.CalculateTaxes(modifiedQuantity * UnitPrice);
+            return TaxLines.CalculateTaxes(shippedQty * UnitPrice);
         }
     }
 }

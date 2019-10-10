@@ -2,6 +2,7 @@
 using System.Linq;
 using Newtonsoft.Json;
 using PX.Data;
+using PX.Objects.AR;
 using PX.Objects.SO;
 using PX.Objects.TX;
 using PX.TaxProvider;
@@ -50,6 +51,15 @@ namespace Monster.TaxProvider
                            Equal<Required<SOOrderShipment.invoiceNbr>>>>
                    .Select(graph, "000016"));
             //.InvoiceType;
+
+            var taxTrans = (
+                PXSelect<ARTaxTran, Where<ARTaxTran.refNbr, 
+                    Equal<Required<ARTaxTran.refNbr>>>>.Select(graph, "000018"));
+
+            foreach (var trans in taxTrans)
+            {
+
+            }
 
             var salesOrder =
                 ((SOOrder)PXSelect<SOOrder,
