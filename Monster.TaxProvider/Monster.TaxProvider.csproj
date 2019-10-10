@@ -77,7 +77,7 @@
     <Compile Include="Calc\TaxCalcRequestFreight.cs" />
     <Compile Include="Calc\TaxCalcRequestNonFreight.cs" />
     <Compile Include="Calc\TaxCalcResult.cs" />
-    <Compile Include="Calc\AcumaticaTaxCalculator.cs" />
+    <Compile Include="Calc\TaxCalcService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Monster.TaxTransfer\Monster.TaxTransfer.csproj">

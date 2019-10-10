@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monster.TaxProvider.Bql;
+using Monster.TaxProvider.Calc;
 using Monster.TaxProvider.Helpers;
 using Newtonsoft.Json;
 using PX.Data;
@@ -36,9 +37,17 @@ namespace Monster.TaxProvider
                     TaxProviderSettingControlType.Text),
             }.ToArray();
 
+
+        // Primary worker that orchestrates Tax Transfers and Acumatica Sales Orders/Invoices
+        //
+        private TaxCalcService _taxCalculator;
+
+
+
         public void Initialize(IEnumerable<ITaxProviderSetting> settings)
         {
             _settings = settings.ToList();
+            _taxCalculator = new TaxCalcService();
         }
 
         public PingResult Ping()
@@ -57,43 +66,26 @@ namespace Monster.TaxProvider
 
             if (context.TaxRequestType == TaxRequestType.SalesOrder)
             {
-                return GetTaxesForSalesOrder(context);
-            }
-            if (context.TaxRequestType == TaxRequestType.SOShipmentInvoice)
-            {
-                return GetTaxesForSOShipmentInvoice(context);
+                var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
+                return GetTaxStub(100m);
             }
             if (context.TaxRequestType == TaxRequestType.SOFreight)
             {
-                return GetTaxesForFreight(context);
+                var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
+                return GetTaxStub(90m);
+            }
+            if (context.TaxRequestType == TaxRequestType.SOShipmentInvoice)
+            {
+                var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
+                return GetTaxStub(80m);
             }
 
             throw new ArgumentException($"Unable to process DocCode {request.DocCode}");
         }
 
-        public GetTaxResult GetTaxesForSalesOrder(DocContext context)
-        {
-            var repository = new AcumaticaBqlRepository(new PXGraph());
-            var transfer = repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
-            return GetTaxStub();
-        }
-
-        public GetTaxResult GetTaxesForSOShipmentInvoice(DocContext context)
-        {
-            var repository = new AcumaticaBqlRepository(new PXGraph());
-            var transfer = repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
-            return GetTaxStub();
-        }
-
-        public GetTaxResult GetTaxesForFreight(DocContext context)
-        {
-            var repository = new AcumaticaBqlRepository(new PXGraph());
-            var transfer = repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
-            return GetTaxStub();
-        }
 
 
-        public GetTaxResult GetTaxStub()
+        public GetTaxResult GetTaxStub(decimal taxAmount)
         {
             var output = new GetTaxResult();
             var taxLines = new List<TaxLine>();
@@ -102,7 +94,7 @@ namespace Monster.TaxProvider
             {
                 TaxName = "MANUALID",
                 Rate = 0.0875m,
-                TaxAmount = 87.50m,
+                TaxAmount = taxAmount,
                 TaxableAmount = 1000m,
                 TaxCalculationLevel = TaxCalculationLevel.CalcOnItemAmt,
             };
@@ -111,14 +103,14 @@ namespace Monster.TaxProvider
             {
                 Index = 1,
                 Rate = 0.0875m,
-                TaxAmount = 87.50m,
+                TaxAmount = taxAmount,
                 TaxableAmount = 1000m,
                 TaxDetails = new[] { details },
             });
 
             output.TaxLines = taxLines.ToArray();
             output.TotalAmount = 1000m;
-            output.TotalTaxAmount = 87.50m;
+            output.TotalTaxAmount = taxAmount;
             output.TaxSummary = new TaxDetail[] { details };
             output.IsSuccess = true;
 
@@ -181,7 +173,13 @@ namespace Monster.TaxProvider
                 throw new Exception($"Unable to locate Setting {EXTTAXREPORTER}");
             }
 
-            var provider = TaxPluginMaint.CreateTaxProvider(graph, setting.Value);
+            var providerId = setting.Value;
+            if (providerId == TaxProviderID)
+            {
+                throw new Exception($"{TaxProviderID} is not configured to handle Tax Reporting");
+            }
+
+            var provider = TaxPluginMaint.CreateTaxProvider(graph, providerId);
             return provider;
         }
     }
