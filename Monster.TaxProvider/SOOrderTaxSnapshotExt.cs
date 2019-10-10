@@ -6,7 +6,7 @@ namespace Monster.TaxProvider
 {
     public class SOOrderTaxSnapshotExt : PXCacheExtension<SOOrder>
     {
-        [PXDBString(4000)]
+        [PXDBString()]
         [PXUIField(DisplayName = "External Tax Snapshot")]
         public virtual string UsrTaxSnapshot { get; set; }
         public abstract class usrTaxSnapshot : IBqlField { }

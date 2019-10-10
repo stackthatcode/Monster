@@ -65,9 +65,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AcumaticaBqlRepository.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="SOOrderTaxSnapshotExt.cs" />
-    <Compile Include="MonsterTaxProvider.cs" />
+    <Compile Include="LogicAutomatedTaxProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaxCalcRequestFreight.cs" />
+    <Compile Include="TaxCalcRequestNonFreight.cs" />
+    <Compile Include="TaxCalcResult.cs" />
+    <Compile Include="AcumaticaTaxCalculator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Monster.TaxTransfer\Monster.TaxTransfer.csproj">
+      <Project>{7F7D0032-B991-43B4-B43E-29305048A8DE}</Project>
+      <Name>Monster.TaxTransfer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -25,42 +25,5 @@ namespace Monster.TaxTransfer
         {
             return LineItems.FirstOrDefault(x => x.InventoryID == inventoryID);
         }
-
-
-        public TaxCalcResult CalcSplitShipmentTaxes(TaxCalcRequestFreight request)
-        {
-            // Acumatica idiom: the entire Freight charge is covered on the first Shipment Invoice
-            //
-            var result = new TaxCalcResult();
-            result.TaxableAmount = request.TaxableAmount;
-            result.TaxAmount = TotalFreightTaxAfterRefunds;
-            return result;
-        }
-
-        public TaxCalcResult CalcSplitShipmentTaxes(TaxCalcRequestNonFreight request)
-        {
-            var result = new TaxCalcResult();
-
-            foreach (var requestLineItem in request.LineItems)
-            {
-                var transferLineItem = this.LineItem(requestLineItem.InventoryID);
-                if (transferLineItem == null)
-                {
-                    result.ErrorMessages.Add($"Unable to locate Inventory ID {requestLineItem.InventoryID}");
-                    continue;
-                }
-
-                var taxes = transferLineItem.TaxLines.CalculateTaxes(requestLineItem.LineAmount);
-
-                if (taxes > 0.00m)
-                {
-                    result.TaxableAmount += requestLineItem.LineAmount;
-                    result.TaxAmount += taxes;
-                }
-            }
-
-            result.Rate = 0.00m;
-            return result;
-        }
     }
 }

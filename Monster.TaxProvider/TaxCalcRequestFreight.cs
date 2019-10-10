@@ -1,4 +1,4 @@
-﻿namespace Monster.TaxTransfer
+﻿namespace Monster.TaxProvider
 {
     public class TaxCalcRequestFreight
     {
