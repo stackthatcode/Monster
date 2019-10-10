@@ -1,19 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Monster.TaxTransfer;
+using Newtonsoft.Json;
 using PX.Data;
 using PX.Objects.AR;
 using PX.Objects.SO;
+using PX.SM;
 
-namespace Monster.TaxProvider
+namespace Monster.TaxProvider.Bql
 {
     public class AcumaticaBqlRepository
     {
+        private readonly PXGraph _graph;
+
+        public AcumaticaBqlRepository(PXGraph graph)
+        {
+            _graph = graph;
+        }
+
+
+        public Transfer RetrieveTaxTransfer(string orderType, string orderNumber)
+        {
+            var salesOrder =
+                ((SOOrder) PXSelect<SOOrder,
+                        Where<SOOrder.orderNbr, Equal<Required<SOOrder.orderNbr>>,
+                            And<SOOrder.orderType, Equal<Required<SOOrder.orderType>>>>>
+                    .Select(_graph, orderNumber, orderType));
+
+            var salesOrderExt = PXCache<SOOrder>.GetExtension<SOOrderTaxSnapshotExt>(salesOrder);
+            //var salesOrderExt = salesOrder.GetExtension<SOOrderTaxSnapshotExt>();
+            
+            return JsonConvert.DeserializeObject<Transfer>(salesOrderExt.UsrTaxSnapshot);
+        }
+
+
         public void DoItNow()
         {
             var graph = new PXGraph();
+
+
 
             var shipment =
                 ((SOOrderShipment)

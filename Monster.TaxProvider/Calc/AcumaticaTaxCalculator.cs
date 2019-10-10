@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Monster.TaxTransfer;
+﻿using Monster.TaxTransfer;
 
-namespace Monster.TaxProvider
+namespace Monster.TaxProvider.Calc
 {
     public class AcumaticaTaxCalculator
     {
@@ -17,6 +12,7 @@ namespace Monster.TaxProvider
             var result = new TaxCalcResult();
             result.TaxableAmount = request.TaxableAmount;
             result.TaxAmount = transfer.TotalFreightTaxAfterRefunds;
+            result.Rate = 0.00m;
             return result;
         }
 

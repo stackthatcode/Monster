@@ -11,15 +11,13 @@ namespace Monster.TaxProvider
 {
     public class LogicAutomatedTaxProvider : ITaxProvider
     {
-        // TODO - Change name to LOGICATAX
-        //
-        public const string TaxProviderID = "JONESTAX";
+        public const string TaxProviderID = "LOGICAUTAX";
         private readonly Logger _logger = new Logger();
         public IReadOnlyList<string> Attributes => new List<string>().AsReadOnly();
 
         // Settings 
         //
-        public const string TAXRPTPROVIDER = "TAXRPTPROVIDER";
+        public const string EXTTAXREPORTER = "EXTTAXREPORTER";
 
         private List<ITaxProviderSetting> _settings;
 
@@ -29,7 +27,7 @@ namespace Monster.TaxProvider
             {
                 new TaxProviderSetting(
                     TaxProviderID,
-                    TAXRPTPROVIDER,
+                    EXTTAXREPORTER,
                     1,
                     "External Tax Reporting Provider",
                     string.Empty,
@@ -49,12 +47,11 @@ namespace Monster.TaxProvider
         public GetTaxResult GetTax(GetTaxRequest request)
         {
             var json = JsonConvert.SerializeObject(request);
-            var output = new GetTaxResult();
-
             _logger.Info($"GetTaxRequest - {json}");
 
             // If this is for an Invoice then 
-            
+            var output = new GetTaxResult();
+
 
             var taxLines = new List<TaxLine>();
 
@@ -135,10 +132,10 @@ namespace Monster.TaxProvider
 
         private ITaxProvider ReportingTaxProviderFactory(PXGraph graph)
         {
-            var setting = _settings.FirstOrDefault(x => x.SettingID == TAXRPTPROVIDER);
+            var setting = _settings.FirstOrDefault(x => x.SettingID == EXTTAXREPORTER);
             if (setting == null)
             {
-                throw new Exception($"Unable to locate Setting {TAXRPTPROVIDER}");
+                throw new Exception($"Unable to locate Setting {EXTTAXREPORTER}");
             }
 
             var provider = TaxPluginMaint.CreateTaxProvider(graph, setting.Value);

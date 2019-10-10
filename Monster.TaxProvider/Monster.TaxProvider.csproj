@@ -65,15 +65,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AcumaticaBqlRepository.cs" />
+    <Compile Include="Bql\AcumaticaBqlRepository.cs" />
+    <Compile Include="Helpers\DocContext.cs" />
+    <Compile Include="Helpers\DocType.cs" />
+    <Compile Include="Helpers\Module.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="SOOrderTaxSnapshotExt.cs" />
     <Compile Include="LogicAutomatedTaxProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TaxCalcRequestFreight.cs" />
-    <Compile Include="TaxCalcRequestNonFreight.cs" />
-    <Compile Include="TaxCalcResult.cs" />
-    <Compile Include="AcumaticaTaxCalculator.cs" />
+    <Compile Include="Calc\TaxCalcRequestFreight.cs" />
+    <Compile Include="Calc\TaxCalcRequestNonFreight.cs" />
+    <Compile Include="Calc\TaxCalcResult.cs" />
+    <Compile Include="Calc\AcumaticaTaxCalculator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Monster.TaxTransfer\Monster.TaxTransfer.csproj">

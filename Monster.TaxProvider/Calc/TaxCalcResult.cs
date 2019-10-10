@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Monster.TaxProvider
+namespace Monster.TaxProvider.Calc
 {
     public class TaxCalcResult
     {
