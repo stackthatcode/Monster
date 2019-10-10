@@ -3,13 +3,13 @@ using Newtonsoft.Json;
 using PX.Data;
 using PX.Objects.AR;
 using PX.Objects.SO;
-using PX.SM;
 
 namespace Monster.TaxProvider.Bql
 {
     public class AcumaticaBqlRepository
     {
         private readonly PXGraph _graph;
+        private readonly Logger _logger = new Logger();
 
         public AcumaticaBqlRepository(PXGraph graph)
         {
@@ -17,17 +17,24 @@ namespace Monster.TaxProvider.Bql
         }
 
 
-        public Transfer RetrieveTaxTransfer(string orderType, string orderNumber)
+        public SOOrder RetrieveSalesOrder(string orderType, string orderNumber)
         {
             var salesOrder =
-                ((SOOrder) PXSelect<SOOrder,
+                ((SOOrder)PXSelect<SOOrder,
                         Where<SOOrder.orderNbr, Equal<Required<SOOrder.orderNbr>>,
                             And<SOOrder.orderType, Equal<Required<SOOrder.orderType>>>>>
                     .Select(_graph, orderNumber, orderType));
+            return salesOrder;
+        }
 
+        public Transfer RetrieveTaxTransfer(string orderType, string orderNumber)
+        {
+            var salesOrder = RetrieveSalesOrder(orderType, orderNumber);
             var salesOrderExt = PXCache<SOOrder>.GetExtension<SOOrderTaxSnapshotExt>(salesOrder);
+
             //var salesOrderExt = salesOrder.GetExtension<SOOrderTaxSnapshotExt>();
-            
+            _logger.Info(salesOrderExt.UsrTaxSnapshot);
+
             return JsonConvert.DeserializeObject<Transfer>(salesOrderExt.UsrTaxSnapshot);
         }
 
@@ -35,8 +42,6 @@ namespace Monster.TaxProvider.Bql
         public void DoItNow()
         {
             var graph = new PXGraph();
-
-
 
             var shipment =
                 ((SOOrderShipment)

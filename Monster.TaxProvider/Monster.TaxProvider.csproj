@@ -69,6 +69,7 @@
     <Compile Include="Helpers\DocContext.cs" />
     <Compile Include="Helpers\DocType.cs" />
     <Compile Include="Helpers\Module.cs" />
+    <Compile Include="Helpers\TaxRequestType.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="SOOrderTaxSnapshotExt.cs" />
     <Compile Include="LogicAutomatedTaxProvider.cs" />

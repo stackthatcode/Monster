@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Monster.TaxProvider.Bql;
+using Monster.TaxProvider.Helpers;
 using Newtonsoft.Json;
 using PX.Data;
 using PX.Objects.TX;
@@ -49,10 +51,51 @@ namespace Monster.TaxProvider
             var json = JsonConvert.SerializeObject(request);
             _logger.Info($"GetTaxRequest - {json}");
 
-            // If this is for an Invoice then 
+            var context = DocContext.Decode(request.DocCode);
+            var contextJson = JsonConvert.SerializeObject(context);
+            _logger.Info($"DocContext - {contextJson}");
+
+            if (context.TaxRequestType == TaxRequestType.SalesOrder)
+            {
+                return GetTaxesForSalesOrder(context);
+            }
+            if (context.TaxRequestType == TaxRequestType.SOShipmentInvoice)
+            {
+                return GetTaxesForSOShipmentInvoice(context);
+            }
+            if (context.TaxRequestType == TaxRequestType.SOFreight)
+            {
+                return GetTaxesForFreight(context);
+            }
+
+            throw new ArgumentException($"Unable to process DocCode {request.DocCode}");
+        }
+
+        public GetTaxResult GetTaxesForSalesOrder(DocContext context)
+        {
+            var repository = new AcumaticaBqlRepository(new PXGraph());
+            var transfer = repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
+            return GetTaxStub();
+        }
+
+        public GetTaxResult GetTaxesForSOShipmentInvoice(DocContext context)
+        {
+            var repository = new AcumaticaBqlRepository(new PXGraph());
+            var transfer = repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
+            return GetTaxStub();
+        }
+
+        public GetTaxResult GetTaxesForFreight(DocContext context)
+        {
+            var repository = new AcumaticaBqlRepository(new PXGraph());
+            var transfer = repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
+            return GetTaxStub();
+        }
+
+
+        public GetTaxResult GetTaxStub()
+        {
             var output = new GetTaxResult();
-
-
             var taxLines = new List<TaxLine>();
 
             var details = new TaxDetail()

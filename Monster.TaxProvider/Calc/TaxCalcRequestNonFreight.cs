@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 
-
-namespace Monster.TaxTransfer
+namespace Monster.TaxProvider.Calc
 {
     public class TaxCalcRequestNonFreight 
     {

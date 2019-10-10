@@ -1,9 +1,19 @@
 ﻿using Monster.TaxTransfer;
+using PX.TaxProvider;
 
 namespace Monster.TaxProvider.Calc
 {
     public class AcumaticaTaxCalculator
     {
+        public TaxCalcResult CalcSalesOrderLineItemsTax(Transfer transfer, GetTaxRequest request)
+        {
+            var result = new TaxCalcResult();
+            result.TaxableAmount = transfer.;
+            result.Rate = 0.00m;
+            result.TaxAmount = transfer.TotalLineItemTaxAfterRefunds;
+            return result;
+        }
+
         public TaxCalcResult 
                 CalcSplitShipmentTaxes(Transfer transfer, TaxCalcRequestFreight request)
         {

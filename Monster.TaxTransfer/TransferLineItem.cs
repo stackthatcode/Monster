@@ -6,12 +6,13 @@ namespace Monster.TaxTransfer
     {
         public string ExternalRefNbr { get; set; }
         public string InventoryID { get; set; }
-        public int OriginalQuantity { get; set; }
+        public int Quantity { get; set; }   
         public decimal UnitPrice { get; set; }
-        public decimal OriginalLineAmount => OriginalQuantity * UnitPrice;
-
+        public decimal LineAmount => Quantity * UnitPrice;
         public bool IsTaxable { get; set; }
-        public decimal OriginalTotalTax { get; set; }
+        public decimal TaxableAmount => IsTaxable ? LineAmount : 0m;
+        public decimal TaxAmount { get; set; }
+
         public List<TransferTaxLine> TaxLines { get; set; }
 
 

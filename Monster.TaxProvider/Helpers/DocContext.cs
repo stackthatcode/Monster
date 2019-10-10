@@ -5,12 +5,15 @@ namespace Monster.TaxProvider.Helpers
 {
     public class DocContext
     {
-        public bool IsFreight { get; private set; }
-        public bool IsInvoice { get; private set; }
-        public bool IsSalesOrder { get; private set; }
-
+        public TaxRequestType TaxRequestType { get; set; }
+        public string TaxRequestTypeName => TaxRequestType.ToString();
         public string RefType { get; private set; }
         public string RefNbr { get; private set; }
+
+        public DocContext()
+        {
+            TaxRequestType = TaxRequestType.Undetermined;
+        }
 
 
         public static DocContext Decode(string docCode)
@@ -21,7 +24,7 @@ namespace Monster.TaxProvider.Helpers
             {
                 return new DocContext
                 {
-                    IsFreight = true,
+                    TaxRequestType = TaxRequestType.SalesOrder,
                     RefType = parts[0],
                     RefNbr = parts[1]
                 };
@@ -31,7 +34,7 @@ namespace Monster.TaxProvider.Helpers
             {
                 return new DocContext
                 {
-                    IsFreight = false,
+                    TaxRequestType = TaxRequestType.SOFreight,
                     RefType = parts[1],
                     RefNbr = parts[2],
                 };
@@ -41,7 +44,7 @@ namespace Monster.TaxProvider.Helpers
             {
                 return new DocContext
                 {
-                    IsFreight = false,
+                    TaxRequestType = TaxRequestType.SOShipmentInvoice,
                     RefType = parts[1],
                     RefNbr = parts[2],
                 };
@@ -51,3 +54,4 @@ namespace Monster.TaxProvider.Helpers
         }
     }
 }
+
