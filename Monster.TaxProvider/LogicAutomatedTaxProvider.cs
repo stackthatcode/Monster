@@ -64,6 +64,11 @@ namespace Monster.TaxProvider
             var contextJson = JsonConvert.SerializeObject(context);
             _logger.Info($"DocContext - {contextJson}");
 
+            if (context.TaxRequestType == TaxRequestType.Undetermined)
+            {
+                return GetTaxStub(0m);
+            }
+
             if (context.TaxRequestType == TaxRequestType.SalesOrder)
             {
                 var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
@@ -76,7 +81,7 @@ namespace Monster.TaxProvider
             }
             if (context.TaxRequestType == TaxRequestType.SOShipmentInvoice)
             {
-                var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
+                //var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
                 return GetTaxStub(80m);
             }
 

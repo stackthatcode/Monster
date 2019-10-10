@@ -78,8 +78,7 @@ namespace Monster.TaxProvider.Calc
         }
 
 
-
-        public TaxCalcResult CalculateInvoiceFreightTax(DocContext context)
+        public TaxCalcResult CalcInvoiceFreightTax(DocContext context)
         {
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
             var result = new TaxCalcResult();
@@ -89,7 +88,6 @@ namespace Monster.TaxProvider.Calc
             // ELSE RETURN CALC SPLIT SHIPMENT FREIGHT TAX
             return result;
         }
-
 
         public TaxCalcResult CalcSplitShipmentFreightTax(Transfer transfer, TaxCalcRequestFreight request)
         {
@@ -101,7 +99,6 @@ namespace Monster.TaxProvider.Calc
             result.TaxAmount = transfer.TotalFreightTaxAfterRefunds;
             return result;
         }
-
 
     }
 }

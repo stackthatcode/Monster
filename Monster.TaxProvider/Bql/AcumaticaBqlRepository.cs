@@ -33,7 +33,7 @@ namespace Monster.TaxProvider.Bql
             var salesOrderExt = PXCache<SOOrder>.GetExtension<SOOrderTaxSnapshotExt>(salesOrder);
 
             //var salesOrderExt = salesOrder.GetExtension<SOOrderTaxSnapshotExt>();
-            _logger.Info(salesOrderExt.UsrTaxSnapshot);
+            _logger.Info("Tax Transfer loaded from Acumatica - " + salesOrderExt.UsrTaxSnapshot);
 
             return JsonConvert.DeserializeObject<Transfer>(salesOrderExt.UsrTaxSnapshot);
         }

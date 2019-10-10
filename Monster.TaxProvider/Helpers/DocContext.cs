@@ -24,23 +24,23 @@ namespace Monster.TaxProvider.Helpers
             {
                 return new DocContext
                 {
-                    TaxRequestType = TaxRequestType.SalesOrder,
+                    TaxRequestType = TaxRequestType.SOFreight,
                     RefType = parts[0],
                     RefNbr = parts[1]
                 };
             }
 
-            if (parts[0] == DocType.SalesOrder && parts[0] == DocType.SalesOrder)
+            if (parts[0] == DocType.SalesOrder && parts[1] == DocType.SalesOrder)
             {
                 return new DocContext
                 {
-                    TaxRequestType = TaxRequestType.SOFreight,
+                    TaxRequestType = TaxRequestType.SalesOrder,
                     RefType = parts[1],
                     RefNbr = parts[2],
                 };
             }
 
-            if (parts[0] == Module.AR && parts[1] == DocType.SalesOrder)
+            if (parts[0] == Module.AR && parts[1] == DocType.Invoice)
             {
                 return new DocContext
                 {
@@ -50,7 +50,10 @@ namespace Monster.TaxProvider.Helpers
                 };
             }
 
-            throw new ArgumentException($"DocCode {docCode} is currently not supported.");
+            return new DocContext()
+            {
+                TaxRequestType = TaxRequestType.Undetermined
+            };
         }
     }
 }
