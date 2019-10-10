@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Monster.TaxTransfer.Tests
 {
@@ -7,7 +6,7 @@ namespace Monster.TaxTransfer.Tests
     public class CalculationFixture
     {
         [Test]
-        public void PlainVanillaTaxes()
+        public void TaxesWithNoShipping()
         {
             // Arrange
             var transfer = new Transfer();
@@ -23,13 +22,13 @@ namespace Monster.TaxTransfer.Tests
             });
 
             // Act
-            Assert.AreEqual(transfer.OriginalTotalTax, 26.73m);
-            Assert.AreEqual(transfer.TotalLineItemTaxAfterRefunds, 26.73m);
-            Assert.AreEqual(transfer.TotalFreightTaxAfterRefunds, 0.00m);
+            Assert.AreEqual(26.73m, transfer.OriginalTotalTax);
+            Assert.AreEqual(26.73m, transfer.TotalLineItemTaxAfterRefunds);
+            Assert.AreEqual(0.00m, transfer.TotalFreightTaxAfterRefunds);
         }
-
-
-        public void VerifyAfterRefundCalculations()
+        
+        [Test]
+        public void TaxesWithShipping()
         {
             // Arrange
             var transfer = new Transfer();
@@ -40,6 +39,33 @@ namespace Monster.TaxTransfer.Tests
                 IsTaxable = true,
                 OriginalQuantity = 3,
                 UnitPrice = 114.95m,
+                OriginalTotalTax = 26.73m,
+                TaxLines = TestTaxes.DefaultTaxes
+            });
+
+            transfer.Freight.TaxLines = TestTaxes.DefaultTaxes;
+            transfer.Freight.IsTaxable = true;
+            transfer.Freight.OriginalTotalTax = 5.00m;
+
+            // Act
+            Assert.AreEqual(31.73m, transfer.OriginalTotalTax);
+            Assert.AreEqual(26.73m, transfer.TotalLineItemTaxAfterRefunds);
+            Assert.AreEqual(5.00m, transfer.TotalFreightTaxAfterRefunds);
+        }
+
+        [Test]
+        public void TaxesNoShippingAndTwoLineItemRefunds()
+        {
+            // Arrange
+            var transfer = new Transfer();
+
+            transfer.LineItems.Add(new TransferLineItem
+            {
+                InventoryID = "ROUNDING-DOOM",
+                IsTaxable = true,
+                OriginalQuantity = 3,
+                UnitPrice = 114.95m,
+                OriginalTotalTax = 26.73m,
                 TaxLines = TestTaxes.DefaultTaxes
             });
 
@@ -50,10 +76,90 @@ namespace Monster.TaxTransfer.Tests
                 RefundAmount = 114.95m,
             });
 
+            transfer.Refunds.Add(new TransferRefund
+            {
+                FreightTax = 0m,
+                NonFreightTax = 8.91m,
+                RefundAmount = 114.95m,
+            });
+
             // Act
-            Assert.AreEqual(transfer.OriginalTotalTax, 26.73m);
-            Assert.AreEqual(transfer.TotalLineItemTaxAfterRefunds, 26.73m);
-            Assert.AreEqual(transfer.TotalFreightTaxAfterRefunds, 17.82m);
+            Assert.AreEqual(26.73m, transfer.OriginalTotalTax);
+            Assert.AreEqual(8.91m, transfer.TotalLineItemTaxAfterRefunds);
+            Assert.AreEqual(0m, transfer.TotalFreightTaxAfterRefunds);
+        }
+
+        [Test]
+        public void TaxesWithShippingAndOneLineItemRefund()
+        {
+            // Arrange
+            var transfer = new Transfer();
+
+            transfer.LineItems.Add(new TransferLineItem
+            {
+                InventoryID = "ROUNDING-DOOM",
+                IsTaxable = true,
+                OriginalQuantity = 3,
+                UnitPrice = 114.95m,
+                OriginalTotalTax = 26.73m,
+                TaxLines = TestTaxes.DefaultTaxes
+            });
+
+            transfer.Freight.TaxLines = TestTaxes.DefaultTaxes;
+            transfer.Freight.IsTaxable = true;
+            transfer.Freight.OriginalTotalTax = 5.00m;
+
+            transfer.Refunds.Add(new TransferRefund
+            {
+                FreightTax = 0m,
+                NonFreightTax = 8.91m,
+                RefundAmount = 114.95m,
+            });
+
+            // Act
+            Assert.AreEqual(31.73m, transfer.OriginalTotalTax);
+            Assert.AreEqual(17.82m, transfer.TotalLineItemTaxAfterRefunds);
+            Assert.AreEqual(5.00m, transfer.TotalFreightTaxAfterRefunds);
+        }
+
+        [Test]
+        public void TaxesWithShippingAndLineItemRefundAndPartialShippingRefund()
+        {
+            // Arrange
+            var transfer = new Transfer();
+
+            transfer.LineItems.Add(new TransferLineItem
+            {
+                InventoryID = "ROUNDING-DOOM",
+                IsTaxable = true,
+                OriginalQuantity = 3,
+                UnitPrice = 114.95m,
+                OriginalTotalTax = 26.73m,
+                TaxLines = TestTaxes.DefaultTaxes
+            });
+
+            transfer.Freight.TaxLines = TestTaxes.DefaultTaxes;
+            transfer.Freight.IsTaxable = true;
+            transfer.Freight.OriginalTotalTax = 5.00m;
+
+            transfer.Refunds.Add(new TransferRefund
+            {
+                FreightTax = 0.00m,
+                NonFreightTax = 8.91m,
+                RefundAmount = 114.95m,
+            });
+
+            transfer.Refunds.Add(new TransferRefund
+            {
+                FreightTax = 2.50m,
+                NonFreightTax = 0.00m,
+                RefundAmount = 25.00m,
+            });
+
+            // Act
+            Assert.AreEqual(31.73m, transfer.OriginalTotalTax);
+            Assert.AreEqual(17.82m, transfer.TotalLineItemTaxAfterRefunds);
+            Assert.AreEqual(2.50m, transfer.TotalFreightTaxAfterRefunds);
         }
     }
 }
