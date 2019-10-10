@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Monster.TaxTransfer
@@ -18,25 +17,50 @@ namespace Monster.TaxTransfer
             Refunds = new List<TransferRefund>();
         }
 
-        public decimal TotalLineItemTax => LineItems.Sum(x => x.TotalTax);
-        public decimal TotalTax => TotalLineItemTax + Freight.TotalTax;
-
-        public decimal TotalLineItemTaxAfterRefunds => TotalTax - Refunds.Sum(x => x.NonFreightTax);
-        public decimal TotalFreightTaxAfterRefunds => Freight.TotalTax - Refunds.Sum(x => x.NonFreightTax);
-        public decimal TotalTaxAfterRefunds => TotalLineItemTaxAfterRefunds + TotalFreightTaxAfterRefunds;
-
-
-        public decimal CalcSplitShipmentTaxes(string inventoryId, int quantity)
+        public decimal OriginalTotalTax => LineItems.Sum(x => x.OriginalTotalTax) + Freight.OriginalTotalTax;
+        public decimal TotalLineItemTaxAfterRefunds => LineItems.Sum(x => x.OriginalTotalTax) - Refunds.Sum(x => x.NonFreightTax);
+        public decimal TotalFreightTaxAfterRefunds => Freight.OriginalTotalTax - Refunds.Sum(x => x.FreightTax);
+        
+        public TransferLineItem LineItem(string inventoryID)
         {
-            var lineitem = LineItems.FirstOrDefault(x => x.InventoryID == inventoryId);
-            if (lineitem == null)
+            return LineItems.FirstOrDefault(x => x.InventoryID == inventoryID);
+        }
+
+
+        public TaxCalcResult CalcSplitShipmentTaxes(TaxCalcRequestFreight request)
+        {
+            // Acumatica idiom: the entire Freight charge is covered on the first Shipment Invoice
+            //
+            var result = new TaxCalcResult();
+            result.TaxableAmount = request.TaxableAmount;
+            result.TaxAmount = TotalFreightTaxAfterRefunds;
+            return result;
+        }
+
+        public TaxCalcResult CalcSplitShipmentTaxes(TaxCalcRequestNonFreight request)
+        {
+            var result = new TaxCalcResult();
+
+            foreach (var requestLineItem in request.LineItems)
             {
-                throw new Exception($"Unable to locate Inventory ID == {inventoryId}");
+                var transferLineItem = this.LineItem(requestLineItem.InventoryID);
+                if (transferLineItem == null)
+                {
+                    result.ErrorMessages.Add($"Unable to locate Inventory ID {requestLineItem.InventoryID}");
+                    continue;
+                }
+
+                var taxes = transferLineItem.TaxLines.CalculateTaxes(requestLineItem.LineAmount);
+
+                if (taxes > 0.00m)
+                {
+                    result.TaxableAmount += requestLineItem.LineAmount;
+                    result.TaxAmount += taxes;
+                }
             }
-            else
-            {
-                return lineitem.CalcSplitShipmentTaxes(quantity);
-            }
+
+            result.Rate = 0.00m;
+            return result;
         }
     }
 }

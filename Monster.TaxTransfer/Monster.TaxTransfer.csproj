@@ -39,6 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TaxCalcRequestFreight.cs" />
+    <Compile Include="TaxCalcResult.cs" />
+    <Compile Include="TaxCalcRequestNonFreight.cs" />
     <Compile Include="Transfer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TransferFreight.cs" />
