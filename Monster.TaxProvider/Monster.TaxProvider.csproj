@@ -66,7 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bql\AcumaticaBqlRepository.cs" />
-    <Compile Include="Calc\ARTaxTranExtensions.cs" />
+    <Compile Include="Calc\ARTaxTranDigest.cs" />
     <Compile Include="Context\DocContext.cs" />
     <Compile Include="Context\AcumaticaDocType.cs" />
     <Compile Include="Context\AcumaticaModule.cs" />

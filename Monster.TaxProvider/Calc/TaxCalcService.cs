@@ -7,6 +7,7 @@ using Monster.TaxTransfer;
 using Newtonsoft.Json;
 using PX.Data;
 using PX.Objects.AR;
+using PX.Objects.SO;
 using PX.TaxProvider;
 
 namespace Monster.TaxProvider.Calc
@@ -46,6 +47,8 @@ namespace Monster.TaxProvider.Calc
             {
                 return ProcessResults(InvoiceTax(request));
             }
+
+            // TODO - where is the Invoice Freight Tax computed...?
 
             return BlankResult();
         }
@@ -102,45 +105,77 @@ namespace Monster.TaxProvider.Calc
         }
 
 
+        // InvoiceTax and InvoiceFreightTax obliterate the tax rounding issue
+        //
         private ProviderTaxCalcResult InvoiceTax(GetTaxRequest request)
         {
             var context = DocContext.ExtractContext(request);
 
-            // TODO - Get Sales Order by Invoice
-            // IF THE BTP == 0, TAX = TAXAFTERREFUND - SUM(INVOICE TAXES)
-            // ELSE RETURN CALC SPLIT SHIPMENT TAX
+            var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.RefType, context.RefNbr);
 
-            var result = new ProviderTaxCalcResult();
-
-            return result;
-        }
-
-        private IList<ARTaxTranDigest> OtherTaxTransactions(DocContext context)
-        {
-            if (context.DocContextType != DocContextType.SOShipmentInvoice)
+            if (salesOrder.OpenOrderQty == 0)
             {
-                throw new ArgumentException(
-                    $"OtherTaxTransactions requires DocContextType {DocContextType.SOShipmentInvoice}");
+                var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
+                var arTrans = BuildTaxTranDigest(context, AcumaticaLineItemsTaxID);
+                var arTransJson = JsonConvert.SerializeObject(arTrans);
+
+                _logger.Info($"ARTrans Digest - {arTransJson}");
+
+                var taxableAmount = 
+                    transfer.TotalTaxableLineAmountsAfterRefund - arTrans.Sum(x => x.TaxableAmount);
+
+                var taxAmount = 
+                    transfer.TotalLineItemTaxAfterRefunds - arTrans.Sum(x => x.TaxAmount);
+
+                return ProviderTaxCalcResult.Make(AcumaticaLineItemsTaxID, taxableAmount, taxAmount, 0m);
             }
-
-            var salesOrder = _repository.RetrieveSalesOrder(context.RefType, context.RefNbr);
-            var transactions = 
-                _repository.RetrieveARTaxTransactions(salesOrder.OrderType, salesOrder.OrderNbr);
-
-            return transactions.Select(x => ((ARTaxTran) x).ToDigest()).ToList();
+            else
+            {
+                return InvoiceSplitShipmentTax(request);
+            }
         }
-
 
         private ProviderTaxCalcResult InvoiceFreightTax(GetTaxRequest request)
         {
-            throw new NotImplementedException(
-                    "Which Doc Type corresponds to Invoice Freight? Haven't seen it yet!");
+            var context = DocContext.ExtractContext(request);
 
-            // TODO
-            // IF THE BTP == 0, TAX = FREIGHTTAXAFTERREFUND - SUM(INVOICE FREIGHT TAXES)
-            // ELSE RETURN CALC SPLIT SHIPMENT FREIGHT TAX
-            //var result = new ProviderTaxCalcResult();
-            //return result;
+            var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.RefType, context.RefNbr);
+
+            if (salesOrder.OpenOrderQty == 0)
+            {
+                var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
+                var arTrans = BuildTaxTranDigest(context, AcumaticaFreightTaxID);
+                var arTransJson = JsonConvert.SerializeObject(arTrans);
+
+                _logger.Info($"ARTrans Digest - {arTransJson}");
+
+                var taxableAmount = 
+                    transfer.TotalTaxableFreightAmountAfterRefund - arTrans.Sum(x => x.TaxableAmount);
+
+                var taxAmount = 
+                    transfer.TotalFreightTaxAfterRefunds - arTrans.Sum(x => x.TaxAmount);
+
+                return ProviderTaxCalcResult.Make(AcumaticaFreightTaxID, taxableAmount, taxAmount, 0m);
+            }
+            else
+            {
+                return InvoiceSplitShipmentTax(request);
+            }
+        }
+
+
+
+        private IList<ARTaxTranDigest> BuildTaxTranDigest(DocContext context, string taxId)
+        {
+            var salesOrder =
+                _repository.RetrieveSalesOrderByInvoice(context.RefType, context.RefNbr);
+
+            var arTrans =
+                _repository
+                    .RetrieveARTaxTransactions(salesOrder.OrderType, salesOrder.OrderNbr, taxId)
+                    .ToDigests()
+                    .ExcludeInvoice(context.RefType, context.RefNbr);
+            return arTrans;
         }
 
 
@@ -165,7 +200,6 @@ namespace Monster.TaxProvider.Calc
                 }
 
                 var transferTax = transfer.SplitShipmentLineItemTax(lineItem.ItemCode, (int)lineItem.Quantity);
-
                 transferTaxes.Add(transferTax);
             }
 
@@ -181,6 +215,8 @@ namespace Monster.TaxProvider.Calc
             result.Rate = 0.00m;
             return result;
         }
+
+
 
         // Acumatica idioms - the entire Freight charge is covered on the first Shipment Invoice
         //

@@ -1,4 +1,8 @@
-﻿using PX.Objects.AR;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using PX.Data;
+using PX.Objects.AR;
 
 namespace Monster.TaxProvider.Calc
 {
@@ -22,6 +26,21 @@ namespace Monster.TaxProvider.Calc
             output.TaxableAmount = input.TaxableAmt ?? 0m;
             output.TaxAmount = input.TaxAmt ?? 0m;
             return output;
+        }
+
+        public static IList<ARTaxTranDigest> ToDigests(this PXResultset<ARTaxTran> input)
+        {
+            return input.Select(x => ((ARTaxTran)x).ToDigest()).ToList();
+        }
+
+        public static IList<ARTaxTranDigest> ExcludeInvoice(
+                this IEnumerable<ARTaxTranDigest> input, 
+                string invoiceType, 
+                string invoiceNbr)
+        {
+            return input
+                .Where(x => x.InvoiceNbr != invoiceNbr && x.InvoiceType != invoiceType)
+                .ToList();
         }
     }
 }

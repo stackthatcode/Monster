@@ -18,7 +18,8 @@ namespace Monster.TaxProvider.Bql
             _graph = graph;
         }
 
-        public PXResultset<ARTaxTran> RetrieveARTaxTransactions(string orderType, string orderNbr)
+        public PXResultset<ARTaxTran> RetrieveARTaxTransactions(
+                    string orderType, string orderNbr, string taxId)
         {
             var taxTrans =
                 PXSelectJoin<ARTaxTran,
@@ -26,8 +27,9 @@ namespace Monster.TaxProvider.Bql
                             On<ARTaxTran.refNbr, Equal<SOOrderShipment.invoiceNbr>,
                                 And<ARTaxTran.tranType, Equal<SOOrderShipment.invoiceType>>>>,
                         Where<SOOrderShipment.orderType, Equal<Required<SOOrderShipment.orderType>>,
-                            And<SOOrderShipment.orderNbr, Equal<Required<SOOrderShipment.orderNbr>>>>>
-                    .Select(_graph, orderType, orderNbr);
+                            And<SOOrderShipment.orderNbr, Equal<Required<SOOrderShipment.orderNbr>>,
+                            And<ARTaxTran.taxID, Equal<Required<ARTran.taxID>>>>>>
+                    .Select(_graph, orderType, orderNbr, taxId);
 
             return taxTrans;
         }

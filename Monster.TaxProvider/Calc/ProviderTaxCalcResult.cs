@@ -48,5 +48,16 @@ namespace Monster.TaxProvider.Calc
 
             return output;
         }
+
+        public static ProviderTaxCalcResult Make(
+                string taxId, decimal taxableAmount, decimal taxAmount, decimal rate)
+        {
+            var output = new ProviderTaxCalcResult();
+            output.TaxID = taxId;
+            output.Rate = rate;
+            output.TaxableAmount = taxableAmount;
+            output.TaxAmount = taxAmount;
+            return output;
+        }
     }
 }
