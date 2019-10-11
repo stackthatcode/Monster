@@ -28,6 +28,8 @@ namespace Monster.TaxTransfer
         public decimal TotalFreightTaxAfterRefunds 
                     => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
 
+        public decimal TotalPrice => LineItems.Sum(x => x.LineAmount) + Freight.Price + TotalTax;
+
         public bool LineItemExists(string inventoryID)
         {
             return LineItem(inventoryID) != null;

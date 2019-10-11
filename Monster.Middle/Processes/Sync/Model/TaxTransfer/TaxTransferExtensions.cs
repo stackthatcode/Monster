@@ -32,6 +32,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
                 xferLineItem.UnitPrice = line_item.price;   // TODO - resolve this
                 xferLineItem.IsTaxable = line_item.taxable;
                 xferLineItem.TaxAmount = line_item.Tax;
+                xferLineItem.TaxLines = line_item.tax_lines.ToTransferTaxLines();
 
                 transfer.LineItems.Add(xferLineItem);
             }

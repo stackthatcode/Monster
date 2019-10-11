@@ -24,7 +24,7 @@ namespace Push.Shopify.Api.Order
 
         // Computed fields
         [JsonIgnore]
-        public decimal TotalTaxes => tax_lines.Sum(x => x.rate);        
+        public decimal TotalTaxes => tax_lines.Sum(x => x.price);        
     }
 }
 

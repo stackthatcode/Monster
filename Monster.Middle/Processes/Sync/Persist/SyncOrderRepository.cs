@@ -63,20 +63,14 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
         
-        public ShopAcuOrderSync
-            InsertOrderSync(
-                ShopifyOrder shopifyOrder,
-                AcumaticaSalesOrder acumaticaSalesOrder,
-                string taxDetailId,
-                bool isTaxLoadedToAcumatica)
+        public ShopAcuOrderSync InsertOrderSync(
+                ShopifyOrder shopifyOrder, AcumaticaSalesOrder acumaticaSalesOrder)
         {
             var sync = new ShopAcuOrderSync();
             sync.ShopifyOrder = shopifyOrder;
             sync.AcumaticaSalesOrder = acumaticaSalesOrder;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
-            sync.AcumaticaTaxDetailId = taxDetailId;
-            sync.IsTaxLoadedToAcumatica = isTaxLoadedToAcumatica;
 
             Entities.ShopAcuOrderSyncs.Add(sync);
             Entities.SaveChanges();

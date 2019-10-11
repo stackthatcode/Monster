@@ -158,7 +158,7 @@ namespace Monster.ConsoleApp
         static void RunAcumaticaOrderSync()
         {
             Console.WriteLine(
-                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1778846826540");
+                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1778846826540)");
             var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1778846826540").ToLong();
 
             RunInLifetimeScope(scope =>
@@ -183,10 +183,8 @@ namespace Monster.ConsoleApp
         {
             var builder = new ContainerBuilder();
             MiddleAutofac.Build(builder);
-            if (builderPreExec != null)
-            {
-                builderPreExec(builder);
-            }
+            builderPreExec?.Invoke(builder);
+
             var container = builder.Build();
             using (var scope = container.BeginLifetimeScope())
             {
