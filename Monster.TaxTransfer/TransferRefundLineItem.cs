@@ -2,7 +2,7 @@
 
 namespace Monster.TaxTransfer
 {
-    [Obsolete("Unnecessary detail - it's the consumer's job to aggregate!")]
+    [Obsolete("Deferred - it's the consumer's job to aggregate - for now")]
     public class TransferRefundLineItem
     {
         public string ExternalRefNbr { get; set; }

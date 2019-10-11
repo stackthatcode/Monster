@@ -16,7 +16,6 @@ namespace Monster.TaxProvider.Bql
             _graph = graph;
         }
 
-
         public SOOrder RetrieveSalesOrder(string orderType, string orderNumber)
         {
             var salesOrder =

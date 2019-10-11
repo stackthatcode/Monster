@@ -18,7 +18,8 @@ namespace Monster.TaxTransfer
 
     public static class TransferTaxLineFunctions
     {
-        public static decimal CalculateTaxes(this IEnumerable<TransferTaxLine> taxLines, decimal price)
+        public static decimal CalculateTaxes(
+                this IEnumerable<TransferTaxLine> taxLines, decimal price)
         {
             return taxLines.Sum(x => Math.Round(price * x.Rate, 2));
         }

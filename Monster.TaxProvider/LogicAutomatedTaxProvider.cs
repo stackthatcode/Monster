@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Monster.TaxProvider.Bql;
 using Monster.TaxProvider.Calc;
-using Monster.TaxProvider.Helpers;
+using Monster.TaxProvider.Context;
 using Newtonsoft.Json;
 using PX.Data;
 using PX.Objects.TX;
@@ -47,7 +46,7 @@ namespace Monster.TaxProvider
         public void Initialize(IEnumerable<ITaxProviderSetting> settings)
         {
             _settings = settings.ToList();
-            _taxCalculator = new TaxCalcService();
+            _taxCalculator = new TaxCalcService(_logger);
         }
 
         public PingResult Ping()
@@ -59,68 +58,9 @@ namespace Monster.TaxProvider
         {
             var json = JsonConvert.SerializeObject(request);
             _logger.Info($"GetTaxRequest - {json}");
-
-            var context = DocContext.Decode(request.DocCode);
-            var contextJson = JsonConvert.SerializeObject(context);
-            _logger.Info($"DocContext - {contextJson}");
-
-            if (context.TaxRequestType == TaxRequestType.Undetermined)
-            {
-                return GetTaxStub(0m);
-            }
-
-            if (context.TaxRequestType == TaxRequestType.SalesOrder)
-            {
-                var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
-                return GetTaxStub(100m);
-            }
-            if (context.TaxRequestType == TaxRequestType.SOFreight)
-            {
-                var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
-                return GetTaxStub(90m);
-            }
-            if (context.TaxRequestType == TaxRequestType.SOShipmentInvoice)
-            {
-                //var result = _taxCalculator.CalcSalesOrderLineAmountsTax(context);
-                return GetTaxStub(80m);
-            }
-
-            throw new ArgumentException($"Unable to process DocCode {request.DocCode}");
+            return _taxCalculator.Calculate(request);
         }
 
-
-
-        public GetTaxResult GetTaxStub(decimal taxAmount)
-        {
-            var output = new GetTaxResult();
-            var taxLines = new List<TaxLine>();
-
-            var details = new TaxDetail()
-            {
-                TaxName = "MANUALID",
-                Rate = 0.0875m,
-                TaxAmount = taxAmount,
-                TaxableAmount = 1000m,
-                TaxCalculationLevel = TaxCalculationLevel.CalcOnItemAmt,
-            };
-
-            taxLines.Add(new TaxLine()
-            {
-                Index = 1,
-                Rate = 0.0875m,
-                TaxAmount = taxAmount,
-                TaxableAmount = 1000m,
-                TaxDetails = new[] { details },
-            });
-
-            output.TaxLines = taxLines.ToArray();
-            output.TotalAmount = 1000m;
-            output.TotalTaxAmount = taxAmount;
-            output.TaxSummary = new TaxDetail[] { details };
-            output.IsSuccess = true;
-
-            return output;
-        }
 
         public PostTaxResult PostTax(PostTaxRequest request)
         {

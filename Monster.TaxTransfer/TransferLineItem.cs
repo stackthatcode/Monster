@@ -16,6 +16,7 @@ namespace Monster.TaxTransfer
         public List<TransferTaxLine> TaxLines { get; set; }
 
 
+
         public TransferLineItem()
         {
             TaxLines = new List<TransferTaxLine>();

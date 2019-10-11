@@ -1,6 +1,10 @@
-﻿using Monster.TaxProvider.Bql;
-using Monster.TaxProvider.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Monster.TaxProvider.Bql;
+using Monster.TaxProvider.Context;
 using Monster.TaxTransfer;
+using Newtonsoft.Json;
 using PX.Data;
 using PX.TaxProvider;
 
@@ -8,40 +12,103 @@ namespace Monster.TaxProvider.Calc
 {
     public class TaxCalcService
     {
+        public const string AcumaticaLineItemsTaxID = "EXTLINEITEMS";
+        public const string AcumaticaFreightTaxID = "EXTFREIGHT";
+
+        private readonly Logger _logger;
         private readonly AcumaticaBqlRepository _repository;
 
-        public TaxCalcService()
+        public TaxCalcService(Logger logger)
         {
+            _logger = logger;
             _repository = new AcumaticaBqlRepository(new PXGraph());
         }
 
-        public TaxCalcResult CalcSalesOrderLineAmountsTax(DocContext context)
+        public GetTaxResult Calculate(GetTaxRequest request)
+        {
+            var context = DocContext.ExtractContext(request);
+            var contextJson = JsonConvert.SerializeObject(context);
+
+            _logger.Info($"DocContext - {contextJson}");
+
+            if (context.DocContextType == DocContextType.SalesOrder)
+            {
+                return ProcessResults(SalesOrderLineAmountsTax(context));
+            }
+
+            if (context.DocContextType == DocContextType.SOFreight)
+            {
+                return ProcessResults(SalesOrderFreightTax(context));
+            }
+
+            if (context.DocContextType == DocContextType.SOShipmentInvoice)
+            {
+                return ProcessResults(InvoiceTax(request));
+            }
+
+            return BlankResult();
+        }
+
+        private GetTaxResult BlankResult()
+        {
+            var result = new ProviderTaxCalcResult();
+            result.TaxID = AcumaticaLineItemsTaxID;
+            result.TaxableAmount = 0m;
+            result.Rate = 0m;
+            result.TaxAmount = 0m;
+            return result.ToGetTaxResult();
+        }
+
+        private GetTaxResult ProcessResults(ProviderTaxCalcResult result)
+        {
+            if (result.Failed)
+            {
+                var log = "TaxCalcService -> Calculate failed:" + Environment.NewLine;
+                result.ErrorMessages.ForEach(x => log += x + Environment.NewLine);
+                _logger.Info(log);
+
+                throw new Exception("TaxCalcService -> Calculate failed");
+            }
+            else
+            {
+                return result.ToGetTaxResult();
+            }
+        }
+
+
+        private ProviderTaxCalcResult SalesOrderLineAmountsTax(DocContext context)
         {
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
 
-            var result = new TaxCalcResult();
+            var result = new ProviderTaxCalcResult();
+            result.TaxID = AcumaticaLineItemsTaxID;
             result.TaxableAmount = transfer.TotalTaxableLineAmountsAfterRefund;
             result.Rate = 0.00m;
             result.TaxAmount = transfer.TotalLineItemTaxAfterRefunds;
             return result;
         }
 
-        public TaxCalcResult CalcSalesOrderFreightTax(DocContext context)
+        private ProviderTaxCalcResult SalesOrderFreightTax(DocContext context)
         {
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
 
-            var result = new TaxCalcResult();
-            result.TaxableAmount = transfer.TotalTaxableFreightAfterRefund;
+            var result = new ProviderTaxCalcResult();
+            result.TaxID = AcumaticaFreightTaxID;
+            result.TaxableAmount = transfer.TotalTaxableFreightAmountAfterRefund;
             result.Rate = 0.00m;
             result.TaxAmount = transfer.TotalFreightTaxAfterRefunds;
             return result;
         }
-        
 
-        public TaxCalcResult CalculateInvoiceTax(DocContext context)
+
+        private ProviderTaxCalcResult InvoiceTax(GetTaxRequest request)
         {
+            var context = DocContext.ExtractContext(request);
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
-            var result = new TaxCalcResult();
+
+            // TODO - Get Sales Order by Invoice
+
+            var result = new ProviderTaxCalcResult();
 
             // TODO
             // IF THE BTP == 0, TAX = TAXAFTERREFUND - SUM(INVOICE TAXES)
@@ -49,52 +116,60 @@ namespace Monster.TaxProvider.Calc
             return result;
         }
 
-        // Attempts to simulate Tax Calculation using the loaded Rate tables
-        //
-        public TaxCalcResult CalcSplitShipmentTax(Transfer transfer, TaxCalcRequestNonFreight request)
+        private ProviderTaxCalcResult InvoiceFreightTax(GetTaxRequest request)
         {
-            var result = new TaxCalcResult();
+            throw new NotImplementedException(
+                    "Which Doc Type corresponds to Invoice Freight? Haven't seen it yet!");
 
-            foreach (var requestLineItem in request.LineItems)
+            //var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
+            //var result = new ProviderTaxCalcResult();
+            //// TODO
+            //// IF THE BTP == 0, TAX = FREIGHTTAXAFTERREFUND - SUM(INVOICE FREIGHT TAXES)
+            //// ELSE RETURN CALC SPLIT SHIPMENT FREIGHT TAX
+            //return result;
+        }
+
+
+        // Recreate Tax Calculation using the Tax Transfer
+        //
+        private ProviderTaxCalcResult InvoiceSplitShipmentTax(GetTaxRequest request)
+        {
+            var context = DocContext.ExtractContext(request);
+            var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
+
+            var result = new ProviderTaxCalcResult();
+            var transferTaxes = new List<TransferTaxCalc>();
+
+            foreach (var lineItem in request.CartItems)
             {
-                var transferLineItem = transfer.LineItem(requestLineItem.InventoryID);
-                if (transferLineItem == null)
+                if (transfer.LineItemExists(lineItem.ItemCode) == false)
                 {
-                    result.ErrorMessages.Add($"Unable to locate Inventory ID {requestLineItem.InventoryID}");
+                    result.ErrorMessages.Add(
+                        $"Unable to locate Inventory ID {lineItem.ItemCode} in Tax Transfer");
                     continue;
                 }
 
-                var taxes = transferLineItem.TaxLines.CalculateTaxes(requestLineItem.LineAmount);
+                var transferTax = transfer.SplitShipmentLineItemTax(lineItem.ItemCode, (int)lineItem.Quantity);
 
-                if (taxes > 0.00m)
-                {
-                    result.TaxableAmount += requestLineItem.LineAmount;
-                    result.TaxAmount += taxes;
-                }
+                transferTaxes.Add(transferTax);
             }
 
+            result.TaxableAmount = transferTaxes.Sum(x => x.TaxableAmount);
+            result.TaxAmount = transferTaxes.Sum(x => x.TaxAmount);
             result.Rate = 0.00m;
             return result;
         }
 
-
-        public TaxCalcResult CalcInvoiceFreightTax(DocContext context)
+        private ProviderTaxCalcResult InvoiceSplitShipmentFreightTax(GetTaxRequest request)
         {
+            var context = DocContext.ExtractContext(request);
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
-            var result = new TaxCalcResult();
 
-            // TODO
-            // IF THE BTP == 0, TAX = FREIGHTTAXAFTERREFUND - SUM(INVOICE FREIGHT TAXES)
-            // ELSE RETURN CALC SPLIT SHIPMENT FREIGHT TAX
-            return result;
-        }
-
-        public TaxCalcResult CalcSplitShipmentFreightTax(Transfer transfer, TaxCalcRequestFreight request)
-        {
             // Acumatica idiom: the entire Freight charge is covered on the first Shipment Invoice
             //
-            var result = new TaxCalcResult();
-            result.TaxableAmount = request.TaxableAmount;
+            var cartItem = request.CartItems.First();
+            var result = new ProviderTaxCalcResult();
+            result.TaxableAmount = cartItem.Amount;
             result.Rate = 0.00m;
             result.TaxAmount = transfer.TotalFreightTaxAfterRefunds;
             return result;

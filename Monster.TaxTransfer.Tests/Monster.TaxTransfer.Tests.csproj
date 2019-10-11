@@ -49,8 +49,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JsonFactoryFixture.cs" />
-    <Compile Include="CalculationFixture.cs" />
+    <Compile Include="PropertyCalcsFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SplitShipmentsFixtures.cs" />
     <Compile Include="TestTaxes.cs" />
   </ItemGroup>
   <ItemGroup>

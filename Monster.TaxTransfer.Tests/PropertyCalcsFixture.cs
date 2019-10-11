@@ -3,7 +3,7 @@
 namespace Monster.TaxTransfer.Tests
 {
     [TestFixture]
-    public class CalculationFixture
+    public class PropertyCalcsFixture
     {
         [Test]
         public void TaxesWithNoShipping()
@@ -53,7 +53,7 @@ namespace Monster.TaxTransfer.Tests
             Assert.AreEqual(26.73m, transfer.TotalLineItemTaxAfterRefunds);
             Assert.AreEqual(5.00m, transfer.TotalFreightTaxAfterRefunds);
             Assert.AreEqual(344.85m, transfer.TotalTaxableLineAmountsAfterRefund);
-            Assert.AreEqual(50.0m, transfer.TotalTaxableFreightAfterRefund);
+            Assert.AreEqual(50.0m, transfer.TotalTaxableFreightAmountAfterRefund);
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace Monster.TaxTransfer.Tests
             Assert.AreEqual(8.91m, transfer.TotalLineItemTaxAfterRefunds);
             Assert.AreEqual(0m, transfer.TotalFreightTaxAfterRefunds);
             Assert.AreEqual(114.95m, transfer.TotalTaxableLineAmountsAfterRefund);
-            Assert.AreEqual(0m, transfer.TotalTaxableFreightAfterRefund);
+            Assert.AreEqual(0m, transfer.TotalTaxableFreightAmountAfterRefund);
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace Monster.TaxTransfer.Tests
             Assert.AreEqual(17.82m, transfer.TotalLineItemTaxAfterRefunds);
             Assert.AreEqual(5.00m, transfer.TotalFreightTaxAfterRefunds);
             Assert.AreEqual(229.90m, transfer.TotalTaxableLineAmountsAfterRefund);
-            Assert.AreEqual(50.0m, transfer.TotalTaxableFreightAfterRefund);
+            Assert.AreEqual(50.0m, transfer.TotalTaxableFreightAmountAfterRefund);
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace Monster.TaxTransfer.Tests
             Assert.AreEqual(17.82m, transfer.TotalLineItemTaxAfterRefunds);
             Assert.AreEqual(2.50m, transfer.TotalFreightTaxAfterRefunds);
             Assert.AreEqual(229.90m, transfer.TotalTaxableLineAmountsAfterRefund);
-            Assert.AreEqual(25.00m, transfer.TotalTaxableFreightAfterRefund);
+            Assert.AreEqual(25.00m, transfer.TotalTaxableFreightAmountAfterRefund);
 
         }
     }

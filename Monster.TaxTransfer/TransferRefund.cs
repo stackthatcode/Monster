@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Monster.TaxTransfer
+﻿namespace Monster.TaxTransfer
 {
     public class TransferRefund
     {
