@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Monster.TaxTransfer
+﻿namespace Monster.TaxTransfer
 {
     public class TransferTaxCalc
     {

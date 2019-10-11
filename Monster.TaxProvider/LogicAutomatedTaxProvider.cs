@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monster.TaxProvider.Calc;
-using Monster.TaxProvider.Context;
 using Newtonsoft.Json;
 using PX.Data;
 using PX.Objects.TX;
 using PX.TaxProvider;
-using TaxDetail = PX.TaxProvider.TaxDetail;
+
 
 namespace Monster.TaxProvider
 {
@@ -39,14 +38,14 @@ namespace Monster.TaxProvider
 
         // Primary worker that orchestrates Tax Transfers and Acumatica Sales Orders/Invoices
         //
-        private TaxCalcService _taxCalculator;
+        private TaxCalcService _taxCalcService;
 
 
 
         public void Initialize(IEnumerable<ITaxProviderSetting> settings)
         {
             _settings = settings.ToList();
-            _taxCalculator = new TaxCalcService(_logger);
+            _taxCalcService = new TaxCalcService(_logger);
         }
 
         public PingResult Ping()
@@ -58,60 +57,40 @@ namespace Monster.TaxProvider
         {
             var json = JsonConvert.SerializeObject(request);
             _logger.Info($"GetTaxRequest - {json}");
-            return _taxCalculator.Calculate(request);
+            return _taxCalcService.Calculate(request);
         }
 
 
         public PostTaxResult PostTax(PostTaxRequest request)
         {
-            var output = new PostTaxResult();
-            output.IsSuccess = true;
-            return output;
+            var json = JsonConvert.SerializeObject(request);
+            _logger.Info($"PostTax - {json}");
 
-            // NEED TO MAKE SURE NO RUNAWAY CALLS
-            //var json = JsonConvert.SerializeObject(request);
-            //_logger.Info($"PostTax - {json}");
-
-            //var graph = new PXGraph();
-            //var provider = ReportingTaxProviderFactory(graph);
-
-            //provider.PostTax(request);
+            var provider = ExternalReportingProvider();
+            return provider.PostTax(request);
         }
 
         public CommitTaxResult CommitTax(CommitTaxRequest request)
         {
-            var output = new CommitTaxResult();
-            output.IsSuccess = true;
-            return output;
+            var json = JsonConvert.SerializeObject(request);
+            _logger.Info($"CommitTax - {json}");
 
-            // NEED TO MAKE SURE NO RUNAWAY CALLS
-            //var json = JsonConvert.SerializeObject(request);
-            //_logger.Info($"CommitTax - {json}");
-
-            //var graph = new PXGraph();
-            //var provider = ReportingTaxProviderFactory(graph);
-
-            //provider.CommitTax(request);
+            var provider = ExternalReportingProvider();
+            return provider.CommitTax(request);
         }
 
         public VoidTaxResult VoidTax(VoidTaxRequest request)
         {
-            var output = new VoidTaxResult();
-            output.IsSuccess = true;
-            return output;
+            var json = JsonConvert.SerializeObject(request);
+            _logger.Info($"VoidTax - {json}");
 
-            // NEED TO MAKE SURE NO RUNAWAY CALLS
-            //var json = JsonConvert.SerializeObject(request);
-            //_logger.Info($"VoidTax - {json}");
-
-            //var graph = new PXGraph();
-            //var provider = ReportingTaxProviderFactory(graph);
-
-            //provider.VoidTax(request);
+            var provider = ExternalReportingProvider();
+            return provider.VoidTax(request);
         }
 
-        private ITaxProvider ReportingTaxProviderFactory(PXGraph graph)
+        private ITaxProvider ExternalReportingProvider()
         {
+            var graph = new PXGraph();
             var setting = _settings.FirstOrDefault(x => x.SettingID == EXTTAXREPORTER);
             if (setting == null)
             {
@@ -119,12 +98,19 @@ namespace Monster.TaxProvider
             }
 
             var providerId = setting.Value;
+            _logger.Info($"ExternalReportingProvider - {providerId}");
+
             if (providerId == TaxProviderID)
             {
                 throw new Exception($"{TaxProviderID} is not configured to handle Tax Reporting");
             }
 
             var provider = TaxPluginMaint.CreateTaxProvider(graph, providerId);
+            if (provider is LogicAutomatedTaxProvider)
+            {
+                throw new Exception($"{TaxProviderID} is not configured to handle Tax Reporting");
+            }
+
             return provider;
         }
     }

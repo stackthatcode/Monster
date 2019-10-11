@@ -22,8 +22,7 @@ namespace Monster.TaxTransfer
         public decimal TotalTaxableFreightAmountAfterRefund
             => Freight.TaxableAmount - Refunds.Sum(x => x.TaxableFreightAmount);
 
-        public decimal TotalTax 
-                    => LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
+        public decimal TotalTax => LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
         public decimal TotalLineItemTaxAfterRefunds 
                     => LineItems.Sum(x => x.TaxAmount) - Refunds.Sum(x => x.TotalLineItemsTax);
         public decimal TotalFreightTaxAfterRefunds 

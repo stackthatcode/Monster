@@ -71,6 +71,7 @@
     <Compile Include="Context\AcumaticaModule.cs" />
     <Compile Include="Context\DocContextType.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="StubTaxProvider.cs" />
     <Compile Include="SOOrderTaxSnapshotExt.cs" />
     <Compile Include="LogicAutomatedTaxProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

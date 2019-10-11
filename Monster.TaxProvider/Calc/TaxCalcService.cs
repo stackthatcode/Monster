@@ -104,15 +104,13 @@ namespace Monster.TaxProvider.Calc
         private ProviderTaxCalcResult InvoiceTax(GetTaxRequest request)
         {
             var context = DocContext.ExtractContext(request);
-            var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
 
             // TODO - Get Sales Order by Invoice
+            // IF THE BTP == 0, TAX = TAXAFTERREFUND - SUM(INVOICE TAXES)
+            // ELSE RETURN CALC SPLIT SHIPMENT TAX
 
             var result = new ProviderTaxCalcResult();
 
-            // TODO
-            // IF THE BTP == 0, TAX = TAXAFTERREFUND - SUM(INVOICE TAXES)
-            // ELSE RETURN CALC SPLIT SHIPMENT TAX
             return result;
         }
 
@@ -121,11 +119,10 @@ namespace Monster.TaxProvider.Calc
             throw new NotImplementedException(
                     "Which Doc Type corresponds to Invoice Freight? Haven't seen it yet!");
 
-            //var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
+            // TODO
+            // IF THE BTP == 0, TAX = FREIGHTTAXAFTERREFUND - SUM(INVOICE FREIGHT TAXES)
+            // ELSE RETURN CALC SPLIT SHIPMENT FREIGHT TAX
             //var result = new ProviderTaxCalcResult();
-            //// TODO
-            //// IF THE BTP == 0, TAX = FREIGHTTAXAFTERREFUND - SUM(INVOICE FREIGHT TAXES)
-            //// ELSE RETURN CALC SPLIT SHIPMENT FREIGHT TAX
             //return result;
         }
 
@@ -135,17 +132,18 @@ namespace Monster.TaxProvider.Calc
         private ProviderTaxCalcResult InvoiceSplitShipmentTax(GetTaxRequest request)
         {
             var context = DocContext.ExtractContext(request);
-            var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
 
-            var result = new ProviderTaxCalcResult();
+            // Calculate Taxes using Transfer
+            //
+            var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
             var transferTaxes = new List<TransferTaxCalc>();
+            var messages = new List<string>();
 
             foreach (var lineItem in request.CartItems)
             {
                 if (transfer.LineItemExists(lineItem.ItemCode) == false)
                 {
-                    result.ErrorMessages.Add(
-                        $"Unable to locate Inventory ID {lineItem.ItemCode} in Tax Transfer");
+                    messages.Add($"Unable to locate Inventory ID {lineItem.ItemCode} in Tax Transfer");
                     continue;
                 }
 
@@ -154,19 +152,26 @@ namespace Monster.TaxProvider.Calc
                 transferTaxes.Add(transferTax);
             }
 
+            var json = JsonConvert.SerializeObject(transferTaxes);
+            _logger.Info("Transfer - Split Shipment Tax - " + json);
+
+            // Translate from bounded context 
+            //
+            var result = new ProviderTaxCalcResult();
+            result.ErrorMessages = messages;
             result.TaxableAmount = transferTaxes.Sum(x => x.TaxableAmount);
             result.TaxAmount = transferTaxes.Sum(x => x.TaxAmount);
             result.Rate = 0.00m;
             return result;
         }
 
+        // Acumatica idioms - the entire Freight charge is covered on the first Shipment Invoice
+        //
         private ProviderTaxCalcResult InvoiceSplitShipmentFreightTax(GetTaxRequest request)
         {
             var context = DocContext.ExtractContext(request);
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
 
-            // Acumatica idiom: the entire Freight charge is covered on the first Shipment Invoice
-            //
             var cartItem = request.CartItems.First();
             var result = new ProviderTaxCalcResult();
             result.TaxableAmount = cartItem.Amount;
@@ -174,6 +179,6 @@ namespace Monster.TaxProvider.Calc
             result.TaxAmount = transfer.TotalFreightTaxAfterRefunds;
             return result;
         }
-
     }
 }
+
