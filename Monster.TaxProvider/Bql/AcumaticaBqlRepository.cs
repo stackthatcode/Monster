@@ -1,4 +1,6 @@
-﻿using Monster.TaxTransfer;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Monster.TaxTransfer;
 using Newtonsoft.Json;
 using PX.Data;
 using PX.Objects.AR;
@@ -14,6 +16,31 @@ namespace Monster.TaxProvider.Bql
         public AcumaticaBqlRepository(PXGraph graph)
         {
             _graph = graph;
+        }
+
+        public PXResultset<ARTaxTran> RetrieveARTaxTransactions(string orderType, string orderNbr)
+        {
+            var taxTrans =
+                PXSelectJoin<ARTaxTran,
+                        InnerJoin<SOOrderShipment,
+                            On<ARTaxTran.refNbr, Equal<SOOrderShipment.invoiceNbr>,
+                                And<ARTaxTran.tranType, Equal<SOOrderShipment.invoiceType>>>>,
+                        Where<SOOrderShipment.orderType, Equal<Required<SOOrderShipment.orderType>>,
+                            And<SOOrderShipment.orderNbr, Equal<Required<SOOrderShipment.orderNbr>>>>>
+                    .Select(_graph, orderType, orderNbr);
+
+            return taxTrans;
+        }
+
+        public SOOrder RetrieveSalesOrderByInvoice(string invoiceType, string invoiceNbr)
+        {
+            var soShipment =
+                ((SOOrderShipment)PXSelect<SOOrderShipment,
+                        Where<SOOrderShipment.invoiceNbr, Equal<Required<SOOrderShipment.invoiceNbr>>,
+                            And<SOOrderShipment.invoiceType, Equal<Required<SOOrderShipment.invoiceType>>>>>
+                    .Select(_graph, invoiceNbr, invoiceType));
+
+            return RetrieveSalesOrder(soShipment.OrderType, soShipment.OrderNbr);
         }
 
         public SOOrder RetrieveSalesOrder(string orderType, string orderNumber)
@@ -35,38 +62,6 @@ namespace Monster.TaxProvider.Bql
             _logger.Info("Tax Transfer loaded from Acumatica - " + salesOrderExt.UsrTaxSnapshot);
 
             return JsonConvert.DeserializeObject<Transfer>(salesOrderExt.UsrTaxSnapshot);
-        }
-
-
-        public void DoItNow()
-        {
-            var graph = new PXGraph();
-
-            var shipment =
-                ((SOOrderShipment)
-                    PXSelect<SOOrderShipment,
-                            Where<SOOrderShipment.invoiceNbr,
-                                Equal<Required<SOOrderShipment.invoiceNbr>>>>
-                        .Select(graph, "000016"));
-            //.InvoiceType;
-
-            var taxTrans = (
-                PXSelect<ARTaxTran, Where<ARTaxTran.refNbr,
-                    Equal<Required<ARTaxTran.refNbr>>>>.Select(graph, "000018"));
-
-            foreach (var trans in taxTrans)
-            {
-
-            }
-
-            var salesOrder =
-                ((SOOrder)PXSelect<SOOrder,
-                        Where<SOOrder.orderNbr, Equal<Required<SOOrder.orderNbr>>>>
-                    .Select(graph, "000004"));
-            //var salesOrderExt = salesOrder.GetExtension<SOOrderTaxSnapshotExt>();
-
-            var salesOrderExt = PXCache<SOOrder>.GetExtension<SOOrderTaxSnapshotExt>(salesOrder);
-            var snapshot = salesOrderExt.UsrTaxSnapshot;
         }
     }
 }

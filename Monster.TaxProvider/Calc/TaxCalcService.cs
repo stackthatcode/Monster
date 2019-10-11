@@ -6,6 +6,7 @@ using Monster.TaxProvider.Context;
 using Monster.TaxTransfer;
 using Newtonsoft.Json;
 using PX.Data;
+using PX.Objects.AR;
 using PX.TaxProvider;
 
 namespace Monster.TaxProvider.Calc
@@ -113,6 +114,22 @@ namespace Monster.TaxProvider.Calc
 
             return result;
         }
+
+        private IList<ARTaxTranDigest> OtherTaxTransactions(DocContext context)
+        {
+            if (context.DocContextType != DocContextType.SOShipmentInvoice)
+            {
+                throw new ArgumentException(
+                    $"OtherTaxTransactions requires DocContextType {DocContextType.SOShipmentInvoice}");
+            }
+
+            var salesOrder = _repository.RetrieveSalesOrder(context.RefType, context.RefNbr);
+            var transactions = 
+                _repository.RetrieveARTaxTransactions(salesOrder.OrderType, salesOrder.OrderNbr);
+
+            return transactions.Select(x => ((ARTaxTran) x).ToDigest()).ToList();
+        }
+
 
         private ProviderTaxCalcResult InvoiceFreightTax(GetTaxRequest request)
         {
