@@ -14,7 +14,7 @@ SELECT * FROM MonsterSys..Instance;
 
 --DELETE FROM ShopAcuOrderSync;
 
-SELECT * FROM AcuInst0001..SOOrder;
+SELECT OrderType, OrderNbr, OpenOrderQty FROM AcuInst0001..SOOrder;
 
 SELECT * FROM AcuInst0001..ARTax;
 
@@ -25,15 +25,16 @@ SELECT * FROM AcuInst0001..SOOrderShipment;
 SELECT * FROM AcuInst0001..TaxTran;
 
 
-SELECT t1.* 
-FROM AcuInst0001..TaxTran t1 INNER JOIN 
-	AcuInst0001..SOOrderShipment t2
+SELECT t1.*
+FROM AcuInst0001..TaxTran t1 
+	INNER JOIN AcuInst0001..SOOrderShipment t2
 		ON t1.RefNbr = t2.InvoiceNbr AND t1.TranType = t2.InvoiceType
-WHERE t2.OrderNbr = 
-AND t2.OrderType = 'SO'
+WHERE t2.OrderNbr = 000009 AND t2.OrderType = 'SO'
+
 
 
 SELECT * FROM AcuInst0001..SOOrder;
+
 
 
 UPDATE AcuInst0001..SOOrder 

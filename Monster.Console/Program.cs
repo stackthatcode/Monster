@@ -40,7 +40,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
             Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
             Console.WriteLine();
-            Console.WriteLine($"{RunAcumaticaOrderSyncOption} - Run Acumatica Order Sync");
+            Console.WriteLine($"{RunAcumaticaOrderSyncOption} - AcumaticaOrderSync -> RunOrder");
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
@@ -157,6 +157,10 @@ namespace Monster.ConsoleApp
 
         static void RunAcumaticaOrderSync()
         {
+            Console.WriteLine(
+                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1778846826540");
+            var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1778846826540").ToLong();
+
             RunInLifetimeScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
@@ -170,7 +174,7 @@ namespace Monster.ConsoleApp
 
                 //acumaticaContext.SessionRun(() => acumaticaOrderPull.RunAutomatic());
                 //shopifyOrderPull.RunAutomatic();
-                acumaticaContext.SessionRun(() => orderSync.Run());
+                acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
             });
         }
 
