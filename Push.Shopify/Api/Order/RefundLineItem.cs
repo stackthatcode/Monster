@@ -10,7 +10,7 @@
         public decimal subtotal { get; set; }
         public decimal total_tax { get; set; }
 
-        public decimal Total => subtotal + total_tax;
+        public bool IsTaxable => total_tax > 0;
     }
 }
 

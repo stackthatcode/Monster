@@ -149,6 +149,7 @@
     <Compile Include="Processes\Sync\Model\Status\PaymentSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\RefundSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
+    <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
     <Compile Include="Processes\Sync\Status\FulfillmentStatusService.cs" />
     <Compile Include="Processes\Sync\Status\ShipmentStatusService.cs" />
     <Compile Include="Processes\Misc\ExecutionLogService.cs" />
@@ -261,6 +262,10 @@
     <ProjectReference Include="..\Monster.Acumatica.Http\Monster.Acumatica.csproj">
       <Project>{e31f2a05-6346-48d5-b323-3d048ab0e392}</Project>
       <Name>Monster.Acumatica</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Monster.TaxTransfer\Monster.TaxTransfer.csproj">
+      <Project>{7F7D0032-B991-43B4-B43E-29305048A8DE}</Project>
+      <Name>Monster.TaxTransfer</Name>
     </ProjectReference>
     <ProjectReference Include="..\Push.Foundation.Utilities\Push.Foundation.Utilities.csproj">
       <Project>{4e08819b-bab3-46ee-9479-141af7a4057d}</Project>

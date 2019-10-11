@@ -164,7 +164,6 @@ namespace Monster.TaxProvider.Calc
         }
 
 
-
         private IList<ARTaxTranDigest> BuildTaxTranDigest(DocContext context, string taxId)
         {
             var salesOrder =
@@ -215,8 +214,6 @@ namespace Monster.TaxProvider.Calc
             result.Rate = 0.00m;
             return result;
         }
-
-
 
         // Acumatica idioms - the entire Freight charge is covered on the first Shipment Invoice
         //

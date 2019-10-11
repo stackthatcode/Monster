@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
@@ -11,10 +12,12 @@ using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
+using Monster.Middle.Processes.Sync.Model.TaxTransfer;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Persist.Matching;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
+using Monster.TaxTransfer;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -171,7 +174,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
 
                 detail.InventoryID = stockItem.ItemId.ToValue();
                 detail.OrderQty = ((double)lineItem.RefundCancelAdjustedQuantity).ToValue();
-                detail.ExtendedPrice = ((double) lineItem.TotalAfterDiscount).ToValue();                
+                detail.ExtendedPrice = ((double) lineItem.PriceAfterDiscount).ToValue();                
                 detail.TaxCategory = preferences.AcumaticaTaxCategory.ToValue();
 
                 salesOrder.Details.Add(detail);
@@ -215,7 +218,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
             };
 
-            //salesOrder.custom = new StringValue("123456890");
+            var taxTransferJson = shopifyOrder.ToTaxTransfer().SerializeToJson();
 
             salesOrder.custom = new SalesOrderCustom()
             {
@@ -224,7 +227,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                     UsrTaxSnapshot = new SalesOrderCustom.CustomField
                     {
                         type = "CustomStringField",
-                        value = "JONES12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
+                        value = taxTransferJson,
                     }
                 }
             };

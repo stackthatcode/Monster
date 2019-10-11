@@ -37,7 +37,7 @@ namespace Push.Shopify.Api.Order
         public decimal total_line_items_price { get; set; }
         
         public List<LineItem> line_items { get; set; }
-        public List<OrderTaxLine> tax_lines { get; set; }
+        public List<TaxLine> tax_lines { get; set; }
         public List<ShippingLine> shipping_lines { get; set; }
         public List<Refund> refunds { get; set; }
 
@@ -92,33 +92,17 @@ namespace Push.Shopify.Api.Order
                             .Sum(x => x.TotalAllocations);
 
         [JsonIgnore]
-        public decimal RefundTransactionTotal => refunds.Sum(x => x.TransactionTotal);
-
-        [JsonIgnore]
-        public decimal RefundTotal => refunds.Sum(x => x.Total);
-
-        [JsonIgnore]
-        public decimal RefundTaxTotal => refunds.Sum(x => x.TaxTotal);
-        
-        [JsonIgnore]
         public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
-
-        [JsonIgnore]
-        public decimal ShippingDiscountsTotal
-                        => discount_applications
-                            .Where(x => x.target_type == DiscountTargetType.ShippingLine)
-                            .Sum(x => x.TotalAllocations);
 
         [JsonIgnore]
         public decimal ShippingTotal => shipping_lines.Sum(x => x.price);
 
         [JsonIgnore]
-        public decimal ShippingDiscountedTotal => ShippingTotal - ShippingDiscountsTotal;
+        public decimal ShippingDiscountedTotal => shipping_lines.Sum(x => x.discounted_price);
 
 
         public List<LineItem> 
-            LineItemsWithAdhocVariants 
-                => line_items.Where(x => x.variant_id == null).ToList();
+                LineItemsWithAdhocVariants => line_items.Where(x => x.variant_id == null).ToList();
 
 
         public LineItem LineItem(string sku)
@@ -155,7 +139,6 @@ namespace Push.Shopify.Api.Order
             line_items.ForEach(x => x.Parent = this);
             discount_applications.ForEach(x => x.Parent = this);
             refunds.ForEach(x => x.Parent = this);
-            tax_lines.ForEach(x => x.Parent = this);
         }
 
         public List<DiscountAllocation> FindAllocations(DiscountApplication application)

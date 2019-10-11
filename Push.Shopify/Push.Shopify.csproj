@@ -106,6 +106,7 @@
     <Compile Include="Api\Order\DiscountCode.cs" />
     <Compile Include="Api\Order\DiscountConstants.cs" />
     <Compile Include="Api\Order\FulfillmentStatus.cs" />
+    <Compile Include="Api\Order\RefundLineItem.cs" />
     <Compile Include="Api\Order\RestockType.cs" />
     <Compile Include="Api\Order\Fulfillment.cs" />
     <Compile Include="Api\Order\LineItem.cs" />
@@ -116,13 +117,10 @@
     <Compile Include="Api\Order\PaymentDetails.cs" />
     <Compile Include="Api\Order\Receipt.cs" />
     <Compile Include="Api\Order\Refund.cs" />
-    <Compile Include="Api\Order\RefundLineItem.cs" />
     <Compile Include="Api\Order\RootObject.cs" />
     <Compile Include="Api\Order\ShippingAddress.cs" />
     <Compile Include="Api\Order\ShippingLine.cs" />
-    <Compile Include="Api\Order\RefundTaxLine.cs" />
     <Compile Include="Api\Order\TaxLine.cs" />
-    <Compile Include="Api\Order\OrderTaxLine.cs" />
     <Compile Include="Api\Order\ValueType.cs" />
     <Compile Include="Api\Payout\BalanceTransaction.cs" />
     <Compile Include="Api\Payout\Payouts.cs" />

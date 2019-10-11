@@ -23,70 +23,48 @@ namespace Push.Shopify.Api.Order
         public Order Parent { get; set; }
 
 
-
-        //
         // Computed properties
         //
-        [JsonIgnore]
-        public bool IsValid => transactions.Any() && transactions.All(x => x.IsSuccess);
+        //[JsonIgnore]
+        //public bool IsValid => transactions.Any() && transactions.All(x => x.IsSuccess);
+        //
+
+        public decimal RefundAmount => transactions.Where(x => x.IsSuccess).Sum(x => x.amount);
+
+        public IEnumerable<OrderAdjustment> ShippingAdjustments 
+                => order_adjustments.Where(x => x.IsShippingAdjustment);
+
+        public IEnumerable<OrderAdjustment> RefundDiscrepancies 
+                => order_adjustments.Where(x => x.IsRefundDiscrepancy);
 
         [JsonIgnore]
-        public decimal TransactionTotal 
-                        => transactions.Sum(x => x.amount);
-
-
-        [JsonIgnore]
-        public decimal RefundLineItemTotal 
-                        => refund_line_items.Sum(x => x.Total);
-        
-        [JsonIgnore]
-        public decimal ShippingAdjustmentTotal =>
-                            -(order_adjustments
-                                .Where(x => x.IsShippingAdjustment)
-                                .Sum(x => x.Total));
+        public decimal TotalTaxableShippingAdjustment => 
+            -(ShippingAdjustments
+                .Where(x => x.IsTaxable)
+                .Sum(x => x.amount));
 
         [JsonIgnore]
-        public decimal RefundDiscrepancyTotal =>
-                            -(order_adjustments
-                                .Where(x => x.IsRefundDiscrepancy)
-                                .Sum(x => x.Total));
+        public decimal TotalShippingAdjustmentTax =>
+            -(ShippingAdjustments
+                .Where(x => x.IsTaxable)
+                .Sum(x => x.tax_amount));
 
         [JsonIgnore]
-        public decimal Total => 
-                RefundLineItemTotal + ShippingAdjustmentTotal + RefundDiscrepancyTotal;
+        public decimal TotalLineItemTax => refund_line_items.Sum(x => x.total_tax);
 
         [JsonIgnore]
-        public decimal TaxTotal =>
-                refund_line_items.Sum(x => x.total_tax) +
-                -(order_adjustments.Sum(x => x.tax_amount));
-
-        [JsonIgnore]
-        public decimal TaxableAmountRefunded => CancelledLineItems.Sum(x => x.subtotal);
-
-        [JsonIgnore]
-        public List<RefundTaxLine> 
-                TaxBreakdown => Parent
-                        .tax_lines
-                        .Select(x => new RefundTaxLine()
-                                {
-                                    Rate = x.rate,
-                                    Title = x.title,
-                                    Price = x.PercentOfTotalTaxes * this.TaxTotal,
-                                })
-                        .ToList();
+        public decimal TotalTaxableLineItemAmount 
+            => refund_line_items
+                .Where(x => x.IsTaxable)
+                .Sum(x => x.subtotal);
 
         [JsonIgnore]
         public List<RefundLineItem> CancelledLineItems =>
-            refund_line_items
-                .Where(x => x.restock_type == "cancel")
-                .ToList();
+            refund_line_items.Where(x => x.restock_type == "cancel").ToList();
 
         [JsonIgnore]
         public List<RefundLineItem> Returns =>
-            refund_line_items
-                .Where(x => x.restock_type == "return")
-                .ToList();
-
+            refund_line_items.Where(x => x.restock_type == "return").ToList();
 
 
         public bool HasTransaction(long transaction_id)
