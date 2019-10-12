@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Monster.TaxTransfer;
 using Push.Shopify.Api.Order;
 
@@ -18,7 +15,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
 
             transfer.Freight.Price = shopifyOrder.ShippingDiscountedTotal;
             transfer.Freight.IsTaxable
-                = shopifyOrder.ShippingTotal > 0 && shopifyOrder.ShippingTax == 0;
+                = shopifyOrder.ShippingTotal > 0 && shopifyOrder.ShippingTax > 0;
             transfer.Freight.TaxLines
                 = shopifyOrder.shipping_lines[0].tax_lines.ToTransferTaxLines();
             transfer.Freight.TaxAmount = shopifyOrder.ShippingTax;

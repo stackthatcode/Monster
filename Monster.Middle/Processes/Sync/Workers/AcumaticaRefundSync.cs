@@ -84,8 +84,7 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
             // Update the Tax Loaded flag
             refundRecord
                 .ShopifyOrder
-                .ShopAcuOrderSyncs.First()
-                .IsTaxLoadedToAcumatica = false;
+                .ShopAcuOrderSyncs.First();
 
             _syncOrderRepository.SaveChanges();
             
@@ -147,7 +146,6 @@ namespace Monster.Middle.Processes.Sync.Workers.Orders
                 return;
             }
             
-            salesOrderRecord.ShopAcuOrderSyncs.First().AcumaticaTaxDetailId = taxId;
             _syncOrderRepository.SaveChanges();
 
             _acumaticaOrderSync.RunOrder(refundRecord.ShopifyOrderId);
