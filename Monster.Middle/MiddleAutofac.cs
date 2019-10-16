@@ -84,8 +84,8 @@ namespace Monster.Middle
             // Job Running components
             builder.RegisterType<OneTimeJobService>().InstancePerLifetimeScope();
             builder.RegisterType<RecurringJobService>().InstancePerLifetimeScope();
-            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
-            builder.RegisterType<JobMonitoringService>().InstancePerLifetimeScope();
+            builder.RegisterType<ExclusiveJobRunner>().InstancePerLifetimeScope();
+            builder.RegisterType<ExclusiveJobMonitoringService>().InstancePerLifetimeScope();
 
             // Process Registrations
             RegisterIdentityPlumbing(builder);

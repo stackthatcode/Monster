@@ -132,9 +132,9 @@
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Hangfire\Extensions.cs" />
-    <Compile Include="Hangfire\JobRunner.cs" />
-    <Compile Include="Hangfire\BackgroundJobType.cs" />
-    <Compile Include="Hangfire\JobMonitoringService.cs" />
+    <Compile Include="Hangfire\ExclusiveJobRunner.cs" />
+    <Compile Include="Hangfire\ExclusiveJobType.cs" />
+    <Compile Include="Hangfire\ExclusiveJobMonitoringService.cs" />
     <Compile Include="Hangfire\InstanceMonitorDigest.cs" />
     <Compile Include="Hangfire\RecurringJobService.cs" />
     <Compile Include="Hangfire\OneTimeJobService.cs" />

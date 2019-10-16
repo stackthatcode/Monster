@@ -9,11 +9,11 @@ using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Hangfire
 {
-    public class JobRunner
+    public class ExclusiveJobRunner
     {
         private readonly ProcessDirector _processDirector;
         private readonly InstanceContext _instanceContext;
-        private readonly JobMonitoringService _jobMonitoringService;
+        private readonly ExclusiveJobMonitoringService _jobMonitoringService;
         private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
 
@@ -21,10 +21,10 @@ namespace Monster.Middle.Hangfire
         //
         static readonly NamedLock InstanceLock = new NamedLock("InstanceLock");
 
-        public JobRunner(
+        public ExclusiveJobRunner(
                 ProcessDirector processDirector, 
                 InstanceContext instanceContext,
-                JobMonitoringService jobMonitoringService, 
+                ExclusiveJobMonitoringService jobMonitoringService, 
                 IPushLogger logger, 
                 ExecutionLogService executionLogService)
         {
@@ -39,30 +39,30 @@ namespace Monster.Middle.Hangfire
         public void RunConnectToAcumatica(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, _processDirector.ConnectToAcumatica, BackgroundJobType.ConnectToAcumatica);
+                instanceId, _processDirector.ConnectToAcumatica, ExclusiveJobType.ConnectToAcumatica);
         }
 
         public void RunPullAcumaticaRefData(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, _processDirector.RefreshAcumaticaRefData, BackgroundJobType.PullAcumaticaRefData);
+                instanceId, _processDirector.RefreshAcumaticaRefData, ExclusiveJobType.PullAcumaticaRefData);
         }
 
         public void RunSyncWarehouseAndLocation(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, _processDirector.SyncWarehouseAndLocation, BackgroundJobType.SyncWarehouseAndLocation);
+                instanceId, _processDirector.SyncWarehouseAndLocation, ExclusiveJobType.SyncWarehouseAndLocation);
         }
 
         public void RunDiagnostics(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, _processDirector.RunDiagnostics, BackgroundJobType.Diagnostics);
+                instanceId, _processDirector.RunDiagnostics, ExclusiveJobType.Diagnostics);
         }
         
         public void PullInventory(Guid instanceId)
         {
-            ExecuteOnePerInstance(instanceId, _processDirector.RefreshInventory, BackgroundJobType.PullInventory);
+            ExecuteOnePerInstance(instanceId, _processDirector.RefreshInventory, ExclusiveJobType.PullInventory);
         }
         
         public void ImportIntoAcumatica(Guid instanceId, AcumaticaInventoryImportContext context)
@@ -70,13 +70,13 @@ namespace Monster.Middle.Hangfire
             ExecuteOnePerInstance(
                 instanceId, 
                 () => _processDirector.ImportInventoryToAcumatica(context), 
-                BackgroundJobType.ImportIntoAcumatica);
+                ExclusiveJobType.ImportIntoAcumatica);
         }
         
         public void EndToEndSync(Guid instanceId)
         {
             ExecuteOnePerInstance(
-                instanceId, () => _processDirector.EndToEndSync(), BackgroundJobType.EndToEndSync);
+                instanceId, () => _processDirector.EndToEndSync(), ExclusiveJobType.EndToEndSync);
         }
         
 
@@ -89,15 +89,13 @@ namespace Monster.Middle.Hangfire
 
                 if (!InstanceLock.Acquire(instanceId.ToString()))
                 {
-                    // *** Not so sure about this
-                    //_jobMonitoringService.RemoveOneTimeJobMonitor(jobType);
-
                     var msg = $"Failed to acquire lock '{InstanceLock.MethodName}' for {instanceId}";
                     _executionLogService.InsertExecutionLog(msg, LogLevel.Debug);
                     return;
                 }
 
                 // Execute the requested task
+                //
                 action();
                 
                 // If this is One-Time Job, this will remove the Monitor now that the Job is completed

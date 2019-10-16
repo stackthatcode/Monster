@@ -27,7 +27,7 @@ namespace Monster.Web.Controllers
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
         private readonly RecurringJobService _recurringJobService;
-        private readonly JobMonitoringService _jobStatusService;
+        private readonly ExclusiveJobMonitoringService _jobStatusService;
         private readonly ConfigStatusService _statusService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
@@ -40,7 +40,7 @@ namespace Monster.Web.Controllers
                 StateRepository stateRepository,
                 OneTimeJobService oneTimeJobService,
                 RecurringJobService recurringJobService,
-                JobMonitoringService jobStatusService,
+                ExclusiveJobMonitoringService jobStatusService,
                 ConfigStatusService statusService,
                 ExecutionLogService logRepository,
                 SyncOrderRepository syncOrderRepository,
@@ -91,7 +91,7 @@ namespace Monster.Web.Controllers
         public ActionResult RealTimeStatus()
         {
             var monitoringDigest = _jobStatusService.GetMonitoringDigest();
-            var isRealTimeSyncRunning = monitoringDigest.IsJobTypeActive(BackgroundJobType.EndToEndSync);
+            var isRealTimeSyncRunning = monitoringDigest.IsJobTypeActive(ExclusiveJobType.EndToEndSync);
             var areAnyJobsRunning = monitoringDigest.AreAnyJobsActive;    
 
             var isConfigReadyForRealTime = _statusService.ConfigSummary().IsReadyForRealTimeSync;

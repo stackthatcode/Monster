@@ -47,10 +47,10 @@ namespace Monster.Middle.Processes.Sync.Model.Status
                     "Shopify Order references Variants not loaded into Acumatica")
 
                 .Add(x => x.OrderNumberValidForSync, 
-                    $"Shopify Order number not within Preferences -> Starting Order Number")
+                    $"Shopify Order number not greater than or equal to Preferences -> Starting Order Number")
 
                 .Add(x => !x.IsCancelledBeforeSync,
-                    $"Shopify Order has been cancelled before sync with Acumatica")
+                    $"Shopify Order has been canceled before sync with Acumatica")
 
                 .Add(x => !x.IsFulfilledBeforeSync,
                     $"Shopify Order has been fulfilled before sync with Acumatica");

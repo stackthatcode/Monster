@@ -29,7 +29,7 @@ namespace Monster.Web.Controllers
 
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobService _oneTimeJobService;
-        private readonly JobMonitoringService _jobStatusService;
+        private readonly ExclusiveJobMonitoringService _jobStatusService;
 
         private readonly ConfigStatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
@@ -43,7 +43,7 @@ namespace Monster.Web.Controllers
 
                 ExecutionLogService logRepository,
                 OneTimeJobService oneTimeJobService,
-                JobMonitoringService jobStatusService,
+                ExclusiveJobMonitoringService jobStatusService,
 
                 ConfigStatusService statusService, 
                 ReferenceDataService referenceDataService, 

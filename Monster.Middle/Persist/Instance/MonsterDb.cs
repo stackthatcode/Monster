@@ -50,9 +50,9 @@ namespace Monster.Middle.Persist.Instance
         System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; } // AcumaticaWarehouse
         System.Data.Entity.DbSet<AcumaticaWarehouseDetail> AcumaticaWarehouseDetails { get; set; } // AcumaticaWarehouseDetails
         System.Data.Entity.DbSet<Connection> Connections { get; set; } // Connections
+        System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; } // ExclusiveJobMonitor
         System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; } // ExecutionLog
         System.Data.Entity.DbSet<InventoryReceiptSync> InventoryReceiptSyncs { get; set; } // InventoryReceiptSync
-        System.Data.Entity.DbSet<JobMonitor> JobMonitors { get; set; } // JobMonitor
         System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; } // PayoutPreferences
         System.Data.Entity.DbSet<Preference> Preferences { get; set; } // Preferences
         System.Data.Entity.DbSet<ShopAcuCustomerSync> ShopAcuCustomerSyncs { get; set; } // ShopAcuCustomerSync
@@ -120,9 +120,9 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; } // AcumaticaWarehouse
         public System.Data.Entity.DbSet<AcumaticaWarehouseDetail> AcumaticaWarehouseDetails { get; set; } // AcumaticaWarehouseDetails
         public System.Data.Entity.DbSet<Connection> Connections { get; set; } // Connections
+        public System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; } // ExclusiveJobMonitor
         public System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; } // ExecutionLog
         public System.Data.Entity.DbSet<InventoryReceiptSync> InventoryReceiptSyncs { get; set; } // InventoryReceiptSync
-        public System.Data.Entity.DbSet<JobMonitor> JobMonitors { get; set; } // JobMonitor
         public System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; } // PayoutPreferences
         public System.Data.Entity.DbSet<Preference> Preferences { get; set; } // Preferences
         public System.Data.Entity.DbSet<ShopAcuCustomerSync> ShopAcuCustomerSyncs { get; set; } // ShopAcuCustomerSync
@@ -217,9 +217,9 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new AcumaticaWarehouseConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaWarehouseDetailConfiguration());
             modelBuilder.Configurations.Add(new ConnectionConfiguration());
+            modelBuilder.Configurations.Add(new ExclusiveJobMonitorConfiguration());
             modelBuilder.Configurations.Add(new ExecutionLogConfiguration());
             modelBuilder.Configurations.Add(new InventoryReceiptSyncConfiguration());
-            modelBuilder.Configurations.Add(new JobMonitorConfiguration());
             modelBuilder.Configurations.Add(new PayoutPreferenceConfiguration());
             modelBuilder.Configurations.Add(new PreferenceConfiguration());
             modelBuilder.Configurations.Add(new ShopAcuCustomerSyncConfiguration());
@@ -269,9 +269,9 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new AcumaticaWarehouseConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaWarehouseDetailConfiguration(schema));
             modelBuilder.Configurations.Add(new ConnectionConfiguration(schema));
+            modelBuilder.Configurations.Add(new ExclusiveJobMonitorConfiguration(schema));
             modelBuilder.Configurations.Add(new ExecutionLogConfiguration(schema));
             modelBuilder.Configurations.Add(new InventoryReceiptSyncConfiguration(schema));
-            modelBuilder.Configurations.Add(new JobMonitorConfiguration(schema));
             modelBuilder.Configurations.Add(new PayoutPreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new PreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopAcuCustomerSyncConfiguration(schema));
@@ -339,9 +339,9 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; }
         public System.Data.Entity.DbSet<AcumaticaWarehouseDetail> AcumaticaWarehouseDetails { get; set; }
         public System.Data.Entity.DbSet<Connection> Connections { get; set; }
+        public System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; }
         public System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; }
         public System.Data.Entity.DbSet<InventoryReceiptSync> InventoryReceiptSyncs { get; set; }
-        public System.Data.Entity.DbSet<JobMonitor> JobMonitors { get; set; }
         public System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; }
         public System.Data.Entity.DbSet<Preference> Preferences { get; set; }
         public System.Data.Entity.DbSet<ShopAcuCustomerSync> ShopAcuCustomerSyncs { get; set; }
@@ -394,9 +394,9 @@ namespace Monster.Middle.Persist.Instance
             AcumaticaWarehouses = new FakeDbSet<AcumaticaWarehouse>("Id");
             AcumaticaWarehouseDetails = new FakeDbSet<AcumaticaWarehouseDetail>("MonsterId");
             Connections = new FakeDbSet<Connection>("Id");
+            ExclusiveJobMonitors = new FakeDbSet<ExclusiveJobMonitor>("Id");
             ExecutionLogs = new FakeDbSet<ExecutionLog>("Id");
             InventoryReceiptSyncs = new FakeDbSet<InventoryReceiptSync>("Id");
-            JobMonitors = new FakeDbSet<JobMonitor>("Id");
             PayoutPreferences = new FakeDbSet<PayoutPreference>("Id");
             Preferences = new FakeDbSet<Preference>("Id");
             ShopAcuCustomerSyncs = new FakeDbSet<ShopAcuCustomerSync>("Id");
@@ -1065,6 +1065,18 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaPassword { get; set; } // AcumaticaPassword (length: 500)
     }
 
+    // ExclusiveJobMonitor
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class ExclusiveJobMonitor
+    {
+        public long Id { get; set; } // Id (Primary key)
+        public int BackgroundJobType { get; set; } // BackgroundJobType
+        public string HangFireJobId { get; set; } // HangFireJobId (length: 100)
+        public bool IsMarkedForDeath { get; set; } // IsMarkedForDeath
+        public System.DateTime DateCreated { get; set; } // DateCreated
+        public System.DateTime LastUpdated { get; set; } // LastUpdated
+    }
+
     // ExecutionLog
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class ExecutionLog
@@ -1096,18 +1108,6 @@ namespace Monster.Middle.Persist.Instance
         /// Parent ShopifyInventoryLevel pointed by [InventoryReceiptSync].([ShopifyInventoryMonsterId]) (FK_usrInventoryReceiptSync_usrShopifyInventoryLevels)
         /// </summary>
         public virtual ShopifyInventoryLevel ShopifyInventoryLevel { get; set; } // FK_usrInventoryReceiptSync_usrShopifyInventoryLevels
-    }
-
-    // JobMonitor
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class JobMonitor
-    {
-        public long Id { get; set; } // Id (Primary key)
-        public int BackgroundJobType { get; set; } // BackgroundJobType
-        public string HangFireJobId { get; set; } // HangFireJobId (length: 100)
-        public bool IsRecurring { get; set; } // IsRecurring
-        public System.DateTime DateCreated { get; set; } // DateCreated
-        public System.DateTime LastUpdated { get; set; } // LastUpdated
     }
 
     // PayoutPreferences
@@ -2346,6 +2346,29 @@ namespace Monster.Middle.Persist.Instance
         }
     }
 
+    // ExclusiveJobMonitor
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class ExclusiveJobMonitorConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ExclusiveJobMonitor>
+    {
+        public ExclusiveJobMonitorConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public ExclusiveJobMonitorConfiguration(string schema)
+        {
+            ToTable("ExclusiveJobMonitor", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.BackgroundJobType).HasColumnName(@"BackgroundJobType").HasColumnType("int").IsRequired();
+            Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
+            Property(x => x.IsMarkedForDeath).HasColumnName(@"IsMarkedForDeath").HasColumnType("bit").IsRequired();
+            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
+            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+        }
+    }
+
     // ExecutionLog
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class ExecutionLogConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ExecutionLog>
@@ -2390,29 +2413,6 @@ namespace Monster.Middle.Persist.Instance
             // Foreign keys
             HasRequired(a => a.AcumaticaInventoryReceipt).WithMany(b => b.InventoryReceiptSyncs).HasForeignKey(c => c.AcumaticaInvReceiptMonsterId).WillCascadeOnDelete(false); // FK_usrInventoryReceiptSync_usrAcumaticaInventoryReceipt
             HasRequired(a => a.ShopifyInventoryLevel).WithMany(b => b.InventoryReceiptSyncs).HasForeignKey(c => c.ShopifyInventoryMonsterId).WillCascadeOnDelete(false); // FK_usrInventoryReceiptSync_usrShopifyInventoryLevels
-        }
-    }
-
-    // JobMonitor
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class JobMonitorConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<JobMonitor>
-    {
-        public JobMonitorConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public JobMonitorConfiguration(string schema)
-        {
-            ToTable("JobMonitor", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.BackgroundJobType).HasColumnName(@"BackgroundJobType").HasColumnType("int").IsRequired();
-            Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
-            Property(x => x.IsRecurring).HasColumnName(@"IsRecurring").HasColumnType("bit").IsRequired();
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }
     }
 

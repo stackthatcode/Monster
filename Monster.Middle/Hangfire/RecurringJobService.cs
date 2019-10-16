@@ -10,13 +10,13 @@ namespace Monster.Middle.Hangfire
     {
         private readonly InstanceContext _instanceContext;
         private readonly ExecutionLogService _executionLogService;
-        private readonly JobMonitoringService _jobMonitoringService;
+        private readonly ExclusiveJobMonitoringService _jobMonitoringService;
 
 
         public RecurringJobService(
                 InstanceContext instanceContext, 
                 ExecutionLogService executionLogService,
-                JobMonitoringService jobMonitoringService)
+                ExclusiveJobMonitoringService jobMonitoringService)
         {
             _instanceContext = instanceContext;
             _executionLogService = executionLogService;
@@ -25,22 +25,22 @@ namespace Monster.Middle.Hangfire
 
         public void StartEndToEndSync()
         {
-            var routineSyncJobId = _jobMonitoringService.RecurringEndToEndSyncJobId;
+            var jobId = _jobMonitoringService.RecurringEndToEndSyncJobId;
 
             using (var transaction = _jobMonitoringService.BeginTransaction())
             {
-                RecurringJob.AddOrUpdate<JobRunner>(
-                    routineSyncJobId,
+                RecurringJob.AddOrUpdate<ExclusiveJobRunner>(
+                    jobId,
                     x => x.EndToEndSync(_instanceContext.InstanceId),
                     "*/1 * * * *",
                     TimeZoneInfo.Utc);
 
                 _jobMonitoringService.AddJobMonitor(
-                        BackgroundJobType.EndToEndSync, routineSyncJobId, true);
+                        ExclusiveJobType.EndToEndSync, jobId);
 
                 _executionLogService.InsertExecutionLog("End-to-End Sync - Starting Background Job");
 
-                RecurringJob.Trigger(routineSyncJobId);
+                RecurringJob.Trigger(jobId);
                 transaction.Commit();
             }
         }

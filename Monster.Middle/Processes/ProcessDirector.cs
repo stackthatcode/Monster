@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly SyncManager _syncManager;
         private readonly ExecutionLogService _executionLogService;
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly JobMonitoringService _monitoringService;
+        private readonly ExclusiveJobMonitoringService _monitoringService;
         private readonly IPushLogger _logger;
 
 
@@ -43,7 +43,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ConfigStatusService configStatusService,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
-                JobMonitoringService monitoringService,
+                ExclusiveJobMonitoringService monitoringService,
                 IPushLogger logger)
         {
             _connectionRepository = connectionRepository;

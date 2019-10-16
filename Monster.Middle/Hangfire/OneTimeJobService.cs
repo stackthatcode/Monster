@@ -11,11 +11,11 @@ namespace Monster.Middle.Hangfire
     public class OneTimeJobService
     {
         private readonly InstanceContext _tenantContext;
-        private readonly JobMonitoringService _jobMonitoringService;
+        private readonly ExclusiveJobMonitoringService _jobMonitoringService;
 
 
         public OneTimeJobService(
-                InstanceContext tenantContext, JobMonitoringService jobMonitoringService)
+                InstanceContext tenantContext, ExclusiveJobMonitoringService jobMonitoringService)
         {
             _tenantContext = tenantContext;
             _jobMonitoringService = jobMonitoringService;
@@ -24,30 +24,30 @@ namespace Monster.Middle.Hangfire
 
         public void ConnectToAcumatica()
         {
-            QueueJob(BackgroundJobType.ConnectToAcumatica,
+            QueueJob(ExclusiveJobType.ConnectToAcumatica,
                 x => x.RunConnectToAcumatica(_tenantContext.InstanceId));
         }
 
         public void PullAcumaticaRefData()
         {
-            QueueJob(BackgroundJobType.PullAcumaticaRefData, 
+            QueueJob(ExclusiveJobType.PullAcumaticaRefData, 
                 x => x.RunPullAcumaticaRefData(_tenantContext.InstanceId));
         }
 
         public void SyncWarehouseAndLocation()
         {
-            QueueJob(BackgroundJobType.SyncWarehouseAndLocation,
+            QueueJob(ExclusiveJobType.SyncWarehouseAndLocation,
                 x => x.RunSyncWarehouseAndLocation(_tenantContext.InstanceId));
         }
     
         public void RunDiagnostics()
         {
-            QueueJob(BackgroundJobType.Diagnostics, x => x.RunDiagnostics(_tenantContext.InstanceId));
+            QueueJob(ExclusiveJobType.Diagnostics, x => x.RunDiagnostics(_tenantContext.InstanceId));
         }
 
         public void PullInventory()
         {
-            QueueJob(BackgroundJobType.PullInventory, x => x.PullInventory(_tenantContext.InstanceId));
+            QueueJob(ExclusiveJobType.PullInventory, x => x.PullInventory(_tenantContext.InstanceId));
         }
         
         public void ImportIntoAcumatica(
@@ -60,7 +60,7 @@ namespace Monster.Middle.Hangfire
                 IsSyncEnabled = automaticEnable,
             };
 
-            QueueJob(BackgroundJobType.ImportIntoAcumatica,
+            QueueJob(ExclusiveJobType.ImportIntoAcumatica,
                     x => x.ImportIntoAcumatica(_tenantContext.InstanceId, context));
         }
         
@@ -68,7 +68,7 @@ namespace Monster.Middle.Hangfire
 
         // Worker methods
         //
-        private void QueueJob(int jobType, Expression<Action<JobRunner>> action)
+        private void QueueJob(int jobType, Expression<Action<ExclusiveJobRunner>> action)
         {
             var monitoringDigest = _jobMonitoringService.GetMonitoringDigest();
 
@@ -79,8 +79,10 @@ namespace Monster.Middle.Hangfire
 
             using (var transaction = _jobMonitoringService.BeginTransaction())
             {
-                var jobId = BackgroundJob.Enqueue<JobRunner>(action);
-                _jobMonitoringService.AddJobMonitor(jobType, jobId, false);
+                var jobId = BackgroundJob.Enqueue<ExclusiveJobRunner>(action);
+                var monitor = _jobMonitoringService.AddJobMonitor(jobType, jobId);
+                monitor.HangFireJobId = jobId;
+
                 transaction.Commit();
             }
         }

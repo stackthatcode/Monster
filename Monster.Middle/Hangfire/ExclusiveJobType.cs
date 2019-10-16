@@ -2,7 +2,7 @@
 
 namespace Monster.Middle.Hangfire
 {
-    public class BackgroundJobType
+    public static class ExclusiveJobType
     {
         public const int ConnectToAcumatica = 1;
         public const int PullAcumaticaRefData = 2;
@@ -12,7 +12,13 @@ namespace Monster.Middle.Hangfire
         public const int ImportIntoAcumatica = 6;
         public const int EndToEndSync = 7;
 
-        public readonly Dictionary<int, string> Name = new Dictionary<int, string>()
+
+        public static bool IsRecurring(this int jobType)
+        {
+            return jobType == EndToEndSync;
+        }
+
+        public static readonly Dictionary<int, string> Name = new Dictionary<int, string>()
         {
             { ConnectToAcumatica, "ConnectToAcumatica" },
             { PullAcumaticaRefData, "PullAcumaticaRefData" },
