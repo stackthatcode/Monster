@@ -4,10 +4,10 @@ using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
-using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
@@ -80,8 +80,7 @@ namespace Monster.Web.Controllers
         {
             var status = _statusService.AcumaticaConnectionStatus();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning 
-                = _jobStatusService.ExtractMonitoringDigest().AreAnyJobsActive;
+            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
 
             var model = new
             {
@@ -161,8 +160,8 @@ namespace Monster.Web.Controllers
             var status = _statusService.AcumaticaReferenceDataStatus();
 
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning
-                = _jobStatusService.ExtractMonitoringDigest().AreAnyJobsActive;
+            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
+
 
             var model = new
             {
@@ -241,14 +240,14 @@ namespace Monster.Web.Controllers
         public ActionResult WarehouseSyncStatus()
         {
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var monitorDigest = _jobStatusService.ExtractMonitoringDigest();
-            
+            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
+
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             var details = _statusService.WarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
             {
-                IsJobRunning = monitorDigest.AreAnyJobsActive,
+                IsJobRunning = areAnyJobsRunning,
                 ExecutionLogs = logs,
 
                 WarehouseSyncState = state.WarehouseSyncState,
@@ -325,7 +324,7 @@ namespace Monster.Web.Controllers
         public ActionResult ConfigDiagnosisRunStatus()
         {
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.ExtractMonitoringDigest().AreAnyJobsActive;
+            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
 
             var model = new
             {

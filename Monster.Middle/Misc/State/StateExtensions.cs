@@ -2,7 +2,7 @@
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 
-namespace Monster.Middle.Processes.Misc
+namespace Monster.Middle.Misc.State
 {
     public static class StateExtensions
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Monster.Acumatica.Http;
+using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Master;
-using Monster.Middle.Processes.Misc;
 using Push.Shopify.Http;
 
 
@@ -11,7 +11,8 @@ namespace Monster.Middle.Persist.Instance
     {
         private readonly InstanceRepository _systemRepository;
         private readonly ExternalServiceRepository _connectionRepository;
-        private readonly ProcessPersistContext _persistContext;
+        private readonly ProcessPersistContext _processPersistContext;
+        private readonly MiscPersistContext _miscPersistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly StateRepository _stateRepository;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
@@ -24,16 +25,18 @@ namespace Monster.Middle.Persist.Instance
         public readonly Guid ConnectionIdentifier = Guid.NewGuid();
 
         public InstanceContext(
-                ExternalServiceRepository connectionRepository, 
                 InstanceRepository systemRepository, 
-                ProcessPersistContext persistContext, 
+                ProcessPersistContext processPersistContext,
+                MiscPersistContext miscPersistContext,
+                ExternalServiceRepository connectionRepository,
                 ShopifyHttpContext shopifyHttpContext,
                 StateRepository stateRepository,
                 AcumaticaHttpContext acumaticaHttpContext)
         {
             _connectionRepository = connectionRepository;
             _systemRepository = systemRepository;
-            _persistContext = persistContext;
+            _processPersistContext = processPersistContext;
+            _miscPersistContext = miscPersistContext;
             _shopifyHttpContext = shopifyHttpContext;
             _stateRepository = stateRepository;
             _acumaticaHttpContext = acumaticaHttpContext;
@@ -47,10 +50,13 @@ namespace Monster.Middle.Persist.Instance
             _instanceId = instanceId;
             var instance = _systemRepository.RetrieveInstance(instanceId);
 
-            // Load the Installation into Persist 
-            _persistContext.Initialize(instance.ConnectionString);
+            // Load the Instance Connection String
+            // 
+            _processPersistContext.Initialize(instance.ConnectionString);
+            _miscPersistContext.Initialize(instance.ConnectionString);
 
             // Shopify
+            //
             var shopifyCredentials = _connectionRepository.RetrieveShopifyCredentials();
             if (shopifyCredentials != null)
             {
@@ -58,6 +64,7 @@ namespace Monster.Middle.Persist.Instance
             }
 
             // Acumatica
+            //
             var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
             if (acumaticaCredentials != null)
             {
@@ -69,10 +76,10 @@ namespace Monster.Middle.Persist.Instance
         {
             _instanceId = instanceId;
             var instance = _systemRepository.RetrieveInstance(instanceId);
-            _persistContext.Initialize(instance.ConnectionString);
+            _processPersistContext.Initialize(instance.ConnectionString);
         }
 
-        public void UpdateShopifyConnectionAndCodeHash(string shop, string accessToken, string codeHash)
+        public void UpdateShopifyCredentials(string shop, string accessToken, string codeHash)
         {
             using (var transaction = _connectionRepository.BeginTransaction())
             {

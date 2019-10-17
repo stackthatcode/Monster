@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Misc;
 using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Misc.Logging
 {
     public class ExecutionLogService
     {
-        private readonly ProcessPersistContext _dataContext;
+        private readonly MiscPersistContext _dataContext;
         private readonly IPushLogger _logger;
 
-        public ExecutionLogService(ProcessPersistContext dataContext, IPushLogger logger)
+        public ExecutionLogService(MiscPersistContext dataContext, IPushLogger logger)
         {
             _dataContext = dataContext;
             _logger = logger;

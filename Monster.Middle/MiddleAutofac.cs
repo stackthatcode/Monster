@@ -7,6 +7,7 @@ using Monster.Middle.Config;
 using Monster.Middle.Identity;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes;
@@ -14,7 +15,6 @@ using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Payouts;
 using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
@@ -75,10 +75,16 @@ namespace Monster.Middle
             // Persistence - Master-level
             builder.RegisterType<InstanceRepository>().InstancePerLifetimeScope();
 
-            // Persistence - Instance-level
-            builder.RegisterType<ProcessPersistContext>().InstancePerLifetimeScope();
-            builder.RegisterType<ExternalServiceRepository>().InstancePerLifetimeScope();
+            // Persistence - Instance level parent wrapper
             builder.RegisterType<InstanceContext>().InstancePerLifetimeScope();
+
+            // Persistence - Instance-level Entity Framework wrappers
+            builder.RegisterType<MiscPersistContext>().InstancePerLifetimeScope();
+            builder.RegisterType<ProcessPersistContext>().InstancePerLifetimeScope();
+
+            // Instance level 
+            builder.RegisterType<ExternalServiceRepository>().InstancePerLifetimeScope();
+
 
             // Job Running components
             builder.RegisterType<OneTimeJobScheduler>().InstancePerLifetimeScope();

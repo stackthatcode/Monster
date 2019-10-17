@@ -5,9 +5,9 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Monster.Middle.Identity;
+using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes;
-using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Web.Attributes;
 using Monster.Web.Models.ShopifyAuth;
@@ -165,7 +165,7 @@ namespace Monster.Web.Controllers
                 _shopifyHttpContext.Initialize(credentials);
 
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
-                _connectionContext.UpdateShopifyConnectionAndCodeHash(shop, accessToken, codeHash);
+                _connectionContext.UpdateShopifyCredentials(shop, accessToken, codeHash);
 
                 // Update IdentityContext 
                 //

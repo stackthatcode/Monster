@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Hangfire;
-using Hangfire.Storage;
 using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Helpers;
 
@@ -12,7 +10,7 @@ namespace Monster.Middle.Misc.Hangfire
     public class JobMonitoringService
     {
         private readonly InstanceContext _instanceContext;
-        private readonly ProcessPersistContext _dataContext;
+        private readonly MiscPersistContext _dataContext;
         private MonsterDataContext Entities => _dataContext.Entities;
         
         // Always use the same Job ID for Recurring Jobs
@@ -20,8 +18,7 @@ namespace Monster.Middle.Misc.Hangfire
         public string RecurringEndToEndSyncJobId => "RecurringEndToEndSync:" + _instanceContext.InstanceId;
 
 
-        public JobMonitoringService(
-                InstanceContext instanceContext, ProcessPersistContext dataContext)
+        public JobMonitoringService(InstanceContext instanceContext, MiscPersistContext dataContext)
         {
             _instanceContext = instanceContext;
             _dataContext = dataContext;

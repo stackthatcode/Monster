@@ -3,18 +3,17 @@ using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Foundation.Utilities.General;
 
-namespace Monster.Middle.Processes.Misc
+namespace Monster.Middle.Misc.State
 {
     public class StateRepository
     {
-        private readonly ProcessPersistContext _dataContext;
+        private readonly MiscPersistContext _dataContext;
 
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public StateRepository(ProcessPersistContext dataContext)
+        public StateRepository(MiscPersistContext dataContext)
         {
             _dataContext = dataContext;
         }

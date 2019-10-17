@@ -4,8 +4,8 @@ using System.Web.Mvc;
 using AutoMapper;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.State;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Status;
@@ -175,8 +175,7 @@ namespace Monster.Web.Controllers
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning
-                = _jobStatusService.ExtractMonitoringDigest().AreAnyJobsActive;
+            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
 
             var output = new
             {

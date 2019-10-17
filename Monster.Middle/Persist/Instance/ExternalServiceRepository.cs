@@ -16,8 +16,7 @@ namespace Monster.Middle.Persist.Instance
         private readonly ICryptoService _cryptoService;
 
         public ExternalServiceRepository(
-                ProcessPersistContext dataContext,
-                ICryptoService cryptoService)
+                ProcessPersistContext dataContext, ICryptoService cryptoService)
         {
             _dataContext = dataContext;
             _cryptoService = cryptoService;
