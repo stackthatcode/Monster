@@ -10,11 +10,11 @@ namespace Monster.Middle.Processes.Misc
 {
     public class StateRepository
     {
-        private readonly InstancePersistContext _dataContext;
+        private readonly ProcessPersistContext _dataContext;
 
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public StateRepository(InstancePersistContext dataContext)
+        public StateRepository(ProcessPersistContext dataContext)
         {
             _dataContext = dataContext;
         }

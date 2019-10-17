@@ -1072,7 +1072,7 @@ namespace Monster.Middle.Persist.Instance
         public long Id { get; set; } // Id (Primary key)
         public int BackgroundJobType { get; set; } // BackgroundJobType
         public string HangFireJobId { get; set; } // HangFireJobId (length: 100)
-        public bool IsMarkedForDeath { get; set; } // IsMarkedForDeath
+        public bool ReceivedKillSignal { get; set; } // ReceivedKillSignal
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
     }
@@ -2363,7 +2363,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.BackgroundJobType).HasColumnName(@"BackgroundJobType").HasColumnType("int").IsRequired();
             Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
-            Property(x => x.IsMarkedForDeath).HasColumnName(@"IsMarkedForDeath").HasColumnType("bit").IsRequired();
+            Property(x => x.ReceivedKillSignal).HasColumnName(@"ReceivedKillSignal").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }

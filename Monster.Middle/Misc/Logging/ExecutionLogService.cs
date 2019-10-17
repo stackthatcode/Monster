@@ -5,14 +5,14 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Misc;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.Processes.Sync.Services
+namespace Monster.Middle.Misc.Logging
 {
     public class ExecutionLogService
     {
-        private readonly InstancePersistContext _dataContext;
+        private readonly ProcessPersistContext _dataContext;
         private readonly IPushLogger _logger;
 
-        public ExecutionLogService(InstancePersistContext dataContext, IPushLogger logger)
+        public ExecutionLogService(ProcessPersistContext dataContext, IPushLogger logger)
         {
             _dataContext = dataContext;
             _logger = logger;

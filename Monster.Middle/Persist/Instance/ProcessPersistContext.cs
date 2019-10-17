@@ -2,7 +2,7 @@
 
 namespace Monster.Middle.Persist.Instance
 {
-    public class InstancePersistContext : IDisposable
+    public class ProcessPersistContext : IDisposable
     {
         public string ConnectionString { get; private set; }
         public Guid Id { get; } = Guid.NewGuid();
@@ -13,14 +13,14 @@ namespace Monster.Middle.Persist.Instance
         {
             if (Entities != null)
             {
-                throw new Exception("PersistContext already initialized");
+                throw new Exception("InstancePersistContext already initialized");
             }
 
             ConnectionString = connectionString;
 
             // CRITICAL => Lifetime Scoped PersistContext always explicitly controls
             // .. the life cycle of its (EF) Database Context
-            ///
+            //
             Entities = new MonsterDataContext(ConnectionString);
         }
 

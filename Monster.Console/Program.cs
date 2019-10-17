@@ -8,11 +8,12 @@ using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Feeder;
 using Monster.Middle;
 using Monster.Middle.Config;
-using Monster.Middle.Hangfire;
 using Monster.Middle.Identity;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
+using Monster.Middle.Processes.Sync.Workers;
 using Monster.Middle.Processes.Sync.Workers.Orders;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
@@ -98,7 +99,7 @@ namespace Monster.ConsoleApp
             JobStorage.Current = new SqlServerStorage(systemDbConnection);
 
             // HangFireLogProvider -> HangFireLogger -> LoggerSingleton
-            LogProvider.SetCurrentLogProvider(new HangFireLogProvider());
+            LogProvider.SetCurrentLogProvider(new HangfireLogProvider());
 
             return container;
         }

@@ -10,13 +10,13 @@ namespace Monster.Middle.Persist.Instance
 {
     public class ExternalServiceRepository
     {
-        private readonly InstancePersistContext _dataContext;
+        private readonly ProcessPersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
         private readonly ICryptoService _cryptoService;
 
         public ExternalServiceRepository(
-                InstancePersistContext dataContext,
+                ProcessPersistContext dataContext,
                 ICryptoService cryptoService)
         {
             _dataContext = dataContext;

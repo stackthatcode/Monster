@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Monster.Middle.Hangfire;
+using Monster.Middle.Misc.Hangfire;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
@@ -9,7 +10,6 @@ using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.Logging;
 
@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly SyncManager _syncManager;
         private readonly ExecutionLogService _executionLogService;
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly ExclusiveJobMonitoringService _monitoringService;
+        private readonly JobMonitoringService _monitoringService;
         private readonly IPushLogger _logger;
 
 
@@ -43,7 +43,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ConfigStatusService configStatusService,
                 ReferenceDataService referenceDataService,
                 PreferencesRepository preferencesRepository,
-                ExclusiveJobMonitoringService monitoringService,
+                JobMonitoringService monitoringService,
                 IPushLogger logger)
         {
             _connectionRepository = connectionRepository;
@@ -283,9 +283,10 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 try
                 {
-                    if (!_monitoringService.IsEndToEndSyncRunning())
+                    var monitor = _monitoringService.RetrieveMonitorByType(BackgroundJobType.EndToEndSync);
+                    if (monitor == null || monitor.ReceivedKillSignal)
                     {
-                        _executionLogService.InsertExecutionLog($"{name} - interrupting");
+                        _executionLogService.InsertExecutionLog($"{name} - execution has been interrupted");
                         return;
                     }
 

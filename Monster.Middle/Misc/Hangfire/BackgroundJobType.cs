@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 
-namespace Monster.Middle.Hangfire
+namespace Monster.Middle.Misc.Hangfire
 {
-    public static class ExclusiveJobType
+    public static class BackgroundJobType
     {
         public const int ConnectToAcumatica = 1;
-        public const int PullAcumaticaRefData = 2;
+        public const int RefreshAcumaticaRefData = 2;
         public const int SyncWarehouseAndLocation = 3;
         public const int Diagnostics = 4;
-        public const int PullInventory = 5;
+        public const int RefreshInventory = 5;
         public const int ImportIntoAcumatica = 6;
         public const int EndToEndSync = 7;
 
@@ -20,13 +20,13 @@ namespace Monster.Middle.Hangfire
 
         public static readonly Dictionary<int, string> Name = new Dictionary<int, string>()
         {
-            { ConnectToAcumatica, "ConnectToAcumatica" },
-            { PullAcumaticaRefData, "PullAcumaticaRefData" },
-            { SyncWarehouseAndLocation, "SyncWarehouseAndLocation" },
+            { ConnectToAcumatica, "Connect to Acumatica" },
+            { RefreshAcumaticaRefData, "Refresh Acumatica Reference Data" },
+            { SyncWarehouseAndLocation, "Sync Warehouse and Location" },
             { Diagnostics, "Diagnostics" },
-            { PullInventory, "PullInventory" },
-            { ImportIntoAcumatica, "ImportIntoAcumatica" },
-            { EndToEndSync, "EndToEndSync" },
+            { RefreshInventory, "RefreshInventory" },
+            { ImportIntoAcumatica, "Import into Acumatica" },
+            { EndToEndSync, "End To End Sync" },
         };
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Services;
 
-namespace Monster.Middle.Processes.Sync.Misc
+namespace Monster.Middle.Utility
 {
     public class AcumaticaTimeZoneService
     {

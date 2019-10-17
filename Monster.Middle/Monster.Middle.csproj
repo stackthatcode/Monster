@@ -131,18 +131,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
-    <Compile Include="Hangfire\Extensions.cs" />
-    <Compile Include="Hangfire\ExclusiveJobRunner.cs" />
-    <Compile Include="Hangfire\ExclusiveJobType.cs" />
-    <Compile Include="Hangfire\ExclusiveJobMonitoringService.cs" />
-    <Compile Include="Hangfire\InstanceMonitorDigest.cs" />
-    <Compile Include="Hangfire\RecurringJobService.cs" />
-    <Compile Include="Hangfire\OneTimeJobService.cs" />
-    <Compile Include="Hangfire\HangFireLogger.cs" />
-    <Compile Include="Hangfire\HangFireLogProvider.cs" />
-    <Compile Include="Hangfire\NamedLock.cs" />
-    <Compile Include="Processes\Misc\LogLevel.cs" />
-    <Compile Include="Processes\Misc\StateExtensions.cs" />
+    <Compile Include="Misc\Hangfire\HangfireExtensions.cs" />
+    <Compile Include="Misc\Hangfire\JobRunner.cs" />
+    <Compile Include="Misc\Hangfire\BackgroundJobType.cs" />
+    <Compile Include="Misc\Hangfire\JobMonitoringService.cs" />
+    <Compile Include="Misc\Hangfire\RecurringJobScheduler.cs" />
+    <Compile Include="Misc\Hangfire\OneTimeJobScheduler.cs" />
+    <Compile Include="Misc\Hangfire\HangfireLogger.cs" />
+    <Compile Include="Misc\Hangfire\HangfireLogProvider.cs" />
+    <Compile Include="Misc\Hangfire\NamedLock.cs" />
+    <Compile Include="Persist\Instance\MiscPersistContext.cs" />
+    <Compile Include="Misc\Logging\LogLevel.cs" />
+    <Compile Include="Misc\State\StateExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
@@ -152,15 +152,15 @@
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
     <Compile Include="Processes\Sync\Status\FulfillmentStatusService.cs" />
     <Compile Include="Processes\Sync\Status\ShipmentStatusService.cs" />
-    <Compile Include="Processes\Misc\ExecutionLogService.cs" />
+    <Compile Include="Misc\Logging\ExecutionLogService.cs" />
     <Compile Include="Persist\Instance\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Processes\Sync\Persist\PreferencesRepository.cs" />
-    <Compile Include="Processes\Misc\StateRepository.cs" />
-    <Compile Include="Processes\Misc\StateCode.cs" />
+    <Compile Include="Misc\State\StateRepository.cs" />
+    <Compile Include="Misc\State\StateCode.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Misc\LoggingDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\AcumaticaInventoryImportContext.cs" />
@@ -227,23 +227,23 @@
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
     <Compile Include="Processes\Sync\Model\Misc\SystemStateSummaryModel.cs" />
-    <Compile Include="Processes\Sync\Misc\UrlService.cs" />
+    <Compile Include="Utility\UrlService.cs" />
     <Compile Include="Processes\ProcessDirector.cs" />
     <Compile Include="Identity\IdentityContext.cs" />
     <Compile Include="Identity\IdentityService.cs" />
     <Compile Include="Identity\SecurityConfig.cs" />
     <Compile Include="Persist\Instance\InstanceContext.cs" />
-    <Compile Include="Persist\Master\SystemRepository.cs" />
+    <Compile Include="Persist\Master\InstanceRepository.cs" />
     <Compile Include="Persist\Master\Instance.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyInventoryRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyPayoutRepository.cs" />
     <Compile Include="MiddleAutofac.cs" />
-    <Compile Include="Persist\Instance\InstancePersistContext.cs" />
+    <Compile Include="Persist\Instance\ProcessPersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Persist\Instance\ExternalServiceRepository.cs" />
-    <Compile Include="Processes\Sync\Misc\AcumaticaTimeZone.cs" />
+    <Compile Include="Utility\AcumaticaTimeZone.cs" />
     <Compile Include="Utility\TimeZoneTranslator.cs" />
-    <Compile Include="Processes\Sync\Misc\AcumaticaTimeZoneService.cs" />
+    <Compile Include="Utility\AcumaticaTimeZoneService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

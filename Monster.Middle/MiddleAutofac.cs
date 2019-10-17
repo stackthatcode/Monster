@@ -4,8 +4,9 @@ using Autofac;
 using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
-using Monster.Middle.Hangfire;
 using Monster.Middle.Identity;
+using Monster.Middle.Misc.Hangfire;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes;
@@ -19,14 +20,12 @@ using Monster.Middle.Processes.Payouts.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Managers;
-using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
 using Monster.Middle.Processes.Sync.Workers;
-using Monster.Middle.Processes.Sync.Workers.Inventory;
 using Monster.Middle.Processes.Sync.Workers.Orders;
 using Monster.Middle.Services;
+using Monster.Middle.Utility;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
 using Push.Foundation.Web;
@@ -74,18 +73,18 @@ namespace Monster.Middle
                 .InstancePerLifetimeScope();
 
             // Persistence - Master-level
-            builder.RegisterType<SystemRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<InstanceRepository>().InstancePerLifetimeScope();
 
             // Persistence - Instance-level
-            builder.RegisterType<InstancePersistContext>().InstancePerLifetimeScope();
+            builder.RegisterType<ProcessPersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<ExternalServiceRepository>().InstancePerLifetimeScope();
             builder.RegisterType<InstanceContext>().InstancePerLifetimeScope();
 
             // Job Running components
-            builder.RegisterType<OneTimeJobService>().InstancePerLifetimeScope();
-            builder.RegisterType<RecurringJobService>().InstancePerLifetimeScope();
-            builder.RegisterType<ExclusiveJobRunner>().InstancePerLifetimeScope();
-            builder.RegisterType<ExclusiveJobMonitoringService>().InstancePerLifetimeScope();
+            builder.RegisterType<OneTimeJobScheduler>().InstancePerLifetimeScope();
+            builder.RegisterType<RecurringJobScheduler>().InstancePerLifetimeScope();
+            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
+            builder.RegisterType<JobMonitoringService>().InstancePerLifetimeScope();
 
             // Process Registrations
             RegisterIdentityPlumbing(builder);

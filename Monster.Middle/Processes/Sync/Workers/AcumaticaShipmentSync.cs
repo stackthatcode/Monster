@@ -4,6 +4,7 @@ using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Shipment;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
@@ -12,12 +13,11 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Persist.Matching;
-using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
 
-namespace Monster.Middle.Processes.Sync.Workers.Orders
+namespace Monster.Middle.Processes.Sync.Workers
 {
     [Obsolete]
     public class AcumaticaShipmentSync

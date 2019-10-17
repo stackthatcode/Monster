@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
-using Monster.Middle.Hangfire;
+using Monster.Middle.Misc.Hangfire;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
@@ -10,7 +11,6 @@ using Monster.Middle.Processes.Misc;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Status;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
@@ -28,8 +28,8 @@ namespace Monster.Web.Controllers
         private readonly StateRepository _stateRepository;
 
         private readonly ExecutionLogService _logRepository;
-        private readonly OneTimeJobService _oneTimeJobService;
-        private readonly ExclusiveJobMonitoringService _jobStatusService;
+        private readonly OneTimeJobScheduler _oneTimeJobService;
+        private readonly JobMonitoringService _jobStatusService;
 
         private readonly ConfigStatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
@@ -42,8 +42,8 @@ namespace Monster.Web.Controllers
                 StateRepository stateRepository,
 
                 ExecutionLogService logRepository,
-                OneTimeJobService oneTimeJobService,
-                ExclusiveJobMonitoringService jobStatusService,
+                OneTimeJobScheduler oneTimeJobService,
+                JobMonitoringService jobStatusService,
 
                 ConfigStatusService statusService, 
                 ReferenceDataService referenceDataService, 
@@ -81,7 +81,7 @@ namespace Monster.Web.Controllers
             var status = _statusService.AcumaticaConnectionStatus();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             var areAnyJobsRunning 
-                = _jobStatusService.GetMonitoringDigest().AreAnyJobsActive;
+                = _jobStatusService.ExtractMonitoringDigest().AreAnyJobsActive;
 
             var model = new
             {
@@ -151,7 +151,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult AcumaticaRefDataPull()
         {
-            _oneTimeJobService.PullAcumaticaRefData();
+            _oneTimeJobService.RefreshAcumaticaReferenceData();
             return JsonNetResult.Success();
         }
 
@@ -162,7 +162,7 @@ namespace Monster.Web.Controllers
 
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             var areAnyJobsRunning
-                = _jobStatusService.GetMonitoringDigest().AreAnyJobsActive;
+                = _jobStatusService.ExtractMonitoringDigest().AreAnyJobsActive;
 
             var model = new
             {
@@ -241,7 +241,7 @@ namespace Monster.Web.Controllers
         public ActionResult WarehouseSyncStatus()
         {
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var monitorDigest = _jobStatusService.GetMonitoringDigest();
+            var monitorDigest = _jobStatusService.ExtractMonitoringDigest();
             
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             var details = _statusService.WarehouseSyncStatus();
@@ -325,7 +325,7 @@ namespace Monster.Web.Controllers
         public ActionResult ConfigDiagnosisRunStatus()
         {
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.GetMonitoringDigest().AreAnyJobsActive;
+            var areAnyJobsRunning = _jobStatusService.ExtractMonitoringDigest().AreAnyJobsActive;
 
             var model = new
             {

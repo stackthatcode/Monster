@@ -4,15 +4,15 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
 
-namespace Monster.Middle.Processes.Sync.Workers.Orders
+namespace Monster.Middle.Processes.Sync.Workers
 {
     public class AcumaticaCustomerSync
     {

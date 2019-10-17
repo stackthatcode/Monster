@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.General;
 
-
 namespace Monster.Middle.Identity
 {
     public class IdentityContext

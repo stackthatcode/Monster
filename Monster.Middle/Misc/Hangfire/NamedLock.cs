@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-
-namespace Monster.Middle.Hangfire
+namespace Monster.Middle.Misc.Hangfire
 {
     public class NamedLock
     {

@@ -2,7 +2,6 @@
 using Monster.Acumatica.Http;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Misc;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Shopify.Http;
 
 
@@ -10,24 +9,24 @@ namespace Monster.Middle.Persist.Instance
 {
     public class InstanceContext
     {
-        private readonly SystemRepository _systemRepository;
+        private readonly InstanceRepository _systemRepository;
         private readonly ExternalServiceRepository _connectionRepository;
-        private readonly InstancePersistContext _persistContext;
+        private readonly ProcessPersistContext _persistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly StateRepository _stateRepository;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
         
         // Why not add pass throughs to Shopify and Acumatica...?
         // Lifetime Scope says we're safe
-        
+        //
         private Guid? _instanceId;
 
         public readonly Guid ConnectionIdentifier = Guid.NewGuid();
 
         public InstanceContext(
                 ExternalServiceRepository connectionRepository, 
-                SystemRepository systemRepository, 
-                InstancePersistContext persistContext, 
+                InstanceRepository systemRepository, 
+                ProcessPersistContext persistContext, 
                 ShopifyHttpContext shopifyHttpContext,
                 StateRepository stateRepository,
                 AcumaticaHttpContext acumaticaHttpContext)
@@ -69,8 +68,8 @@ namespace Monster.Middle.Persist.Instance
         public void InitializePersistOnly(Guid instanceId)
         {
             _instanceId = instanceId;
-            var installation = _systemRepository.RetrieveInstance(instanceId);
-            _persistContext.Initialize(installation.ConnectionString);
+            var instance = _systemRepository.RetrieveInstance(instanceId);
+            _persistContext.Initialize(instance.ConnectionString);
         }
 
         public void UpdateShopifyConnectionAndCodeHash(string shop, string accessToken, string codeHash)

@@ -9,10 +9,10 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 {
     public class AcumaticaInventoryRepository
     {
-        private readonly InstancePersistContext _dataContext;
+        private readonly ProcessPersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public AcumaticaInventoryRepository(InstancePersistContext dataContext)
+        public AcumaticaInventoryRepository(ProcessPersistContext dataContext)
         {
             _dataContext = dataContext;
         }

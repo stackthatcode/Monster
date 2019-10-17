@@ -1,8 +1,8 @@
 ﻿using System.Linq;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Services;
 
-namespace Monster.Middle.Processes.Sync.Workers.Inventory
+namespace Monster.Middle.Processes.Sync.Workers
 {
     public class WarehouseLocationSync
     {

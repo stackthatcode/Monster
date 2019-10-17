@@ -1,4 +1,4 @@
-﻿namespace Monster.Middle.Processes.Sync.Misc
+﻿namespace Monster.Middle.Utility
 {
     public class TimeZone
     {

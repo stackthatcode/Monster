@@ -1,9 +1,9 @@
 ﻿using Hangfire.Logging;
 using Push.Foundation.Utilities.Logging;
 
-namespace Monster.Middle.Hangfire
+namespace Monster.Middle.Misc.Hangfire
 {
-    public class HangFireLogProvider : ILogProvider
+    public class HangfireLogProvider : ILogProvider
     {
         private static IPushLogger _loggerInstance;
 
@@ -14,7 +14,7 @@ namespace Monster.Middle.Hangfire
 
         public ILog GetLogger(string name)
         {
-            return new HangFireLogger(_loggerInstance);
+            return new HangfireLogger(_loggerInstance);
         }
     }
 }

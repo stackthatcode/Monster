@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -7,9 +6,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
-using Monster.Middle.Processes;
 using Monster.Middle.Processes.Misc;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
@@ -19,7 +16,7 @@ namespace Monster.Middle.Identity
 {
     public class IdentityService
     {
-        private readonly SystemRepository _systemRepository;
+        private readonly InstanceRepository _systemRepository;
         private readonly PushIdentityDbContext _dbContext;
         private readonly IdentityUserManager _userManager;
         private readonly IdentityRoleManager _roleManager;
@@ -30,7 +27,7 @@ namespace Monster.Middle.Identity
         private readonly IPushLogger _logger;
 
         public IdentityService(
-                SystemRepository systemRepository,
+                InstanceRepository systemRepository,
                 PushIdentityDbContext dbContext,
                 IdentityUserManager userManager,
                 IdentityRoleManager roleManager,
