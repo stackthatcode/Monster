@@ -50,52 +50,36 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var batchState = _batchStateRepository.Retrieve();
             if (batchState.AcumaticaOrdersPullEnd.HasValue)
             {
-                RunUpdated();
+                var updateMinUtc = batchState.AcumaticaOrdersPullEnd;
+                var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+
+                RunWithPaging(updateMin);
             }
             else
             {
-                RunAll();
+                var preferences = _preferencesRepository.RetrievePreferences();
+                if (preferences.StartingShopifyOrderCreatedAtUtc == null)
+                {
+                    throw new Exception("StartingShopifyOrderCreatedAtUtc has not been set");
+                }
+
+                var orderStartDate = preferences.StartingShopifyOrderCreatedAtUtc.Value;
+                var orderUpdateMin = _timeZoneService.ToAcumaticaTimeZone(orderStartDate);
+
+                RunWithPaging(orderUpdateMin);
             }
         }
 
-        private void RunAll()
-        {
-            var startOfRun = DateTime.UtcNow;
-
-            var preferences = _preferencesRepository.RetrievePreferences();
-            var orderStartDate = preferences.ShopifyOrderDateStart.Value;
-            var orderUpdateMin = _timeZoneService.ToAcumaticaTimeZone(orderStartDate);
-
-            RunWithPaging(orderUpdateMin);
-
-            // Set the Batch State Pull End marker
-            var pullEnd = (startOfRun).AddAcumaticaBatchFudge();
-                
-            _batchStateRepository.UpdateOrdersPullEnd(pullEnd);
-        }
-
-        private void RunUpdated()
-        {
-            var startOfRun = DateTime.UtcNow;
-
-            var batchState = _batchStateRepository.Retrieve();
-            var updateMinUtc = batchState.AcumaticaOrdersPullEnd;
-            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
-
-            RunWithPaging(updateMin);
-
-            _batchStateRepository.UpdateOrdersPullEnd(startOfRun);
-        }
-
-
         private void RunWithPaging(DateTime lastModified)
         {
+            var startOfRun = DateTime.UtcNow;
             var page = 1;
 
             while (true)
             {
                 var json = _salesOrderClient.RetrieveSalesOrders(lastModified, page, PageSize);
                 var orders = json.DeserializeFromJson<List<SalesOrder>>();
+
                 UpsertOrdersToPersist(orders);
 
                 if (orders.Count == 0)
@@ -104,8 +88,12 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 }
                 page++;
             }
-        }
 
+            // Set the Batch State Pull End marker
+            //
+            var batchStateEnd = (startOfRun).AddAcumaticaBatchFudge();
+            _batchStateRepository.UpdateOrdersPullEnd(batchStateEnd);
+        }
 
         public void RunAcumaticaOrderDetails(string orderId)
         {
@@ -113,7 +101,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             UpsertOrderToPersist(salesOrder.DeserializeFromJson<SalesOrder>());
         }
 
-        
         public void UpsertOrdersToPersist(List<SalesOrder> orders)
         {
             foreach (var order in orders)
@@ -123,7 +110,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     continue;
                 }
 
-                //UpsertOrderToPersist(order);
+                UpsertOrderToPersist(order);
                 PullAndUpsertShipmentInvoiceRefs(order.OrderNbr.value);
             }
         }
@@ -135,10 +122,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             if (existingData == null)
             {
-                // Locate Acumatica Customer..
+                // Locate Acumatica Customer...
+                //
                 var customerId = order.CustomerID.value;
-                var customerMonsterId
-                    = _customerPull.RunAndUpsertCustomerIfNotExists(customerId);
+                var customerMonsterId = _customerPull.RunAndUpsertCustomerIfNotExists(customerId);
 
                 var newData = new AcumaticaSalesOrder();
                 newData.AcumaticaOrderNbr = orderNbr;

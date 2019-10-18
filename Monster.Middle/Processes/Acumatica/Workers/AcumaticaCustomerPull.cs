@@ -102,8 +102,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public AcumaticaCustomer UpsertCustomerToPersist(Customer customer)
         {
-            var existingData
-                = _orderRepository.RetrieveCustomer(customer.CustomerID.value);
+            // This Customer must be associated with a Sales Order
+            //
+
+            var existingData = _orderRepository.RetrieveCustomer(customer.CustomerID.value);
 
             if (existingData == null)
             {

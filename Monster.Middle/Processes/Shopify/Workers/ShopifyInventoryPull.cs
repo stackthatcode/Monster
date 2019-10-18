@@ -53,7 +53,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 firstFilter.UpdatedAtMinUtc = batchState.ShopifyProductsPullEnd.Value;
                 firstFilter.Page = 1;
 
-                RunUpdated();
+                Run(firstFilter);
             }
             else
             {
@@ -61,7 +61,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 var firstFilter = new SearchFilter();
                 firstFilter.Page = 1;
 
-                Run(new SearchFilter());
+                Run(firstFilter);
             }
         }
 
