@@ -1,5 +1,6 @@
 ﻿using System;
 using Monster.Acumatica.Http;
+using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Master;
 using Push.Shopify.Http;
@@ -76,6 +77,7 @@ namespace Monster.Middle.Persist.Instance
         {
             _instanceId = instanceId;
             var instance = _systemRepository.RetrieveInstance(instanceId);
+            _miscPersistContext.Initialize(instance.ConnectionString);
             _processPersistContext.Initialize(instance.ConnectionString);
         }
 

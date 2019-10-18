@@ -34,6 +34,8 @@ namespace Monster.Middle.Misc.Hangfire
                 "*/1 * * * *",
                 TimeZoneInfo.Utc);
 
+            _jobMonitoringService.AssignHangfireJob(monitor.Id, jobId);
+
             _executionLogService.InsertExecutionLog("End-to-End Sync - Starting Background Job");
 
             RecurringJob.Trigger(jobId);

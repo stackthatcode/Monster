@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;

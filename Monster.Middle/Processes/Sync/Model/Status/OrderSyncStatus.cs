@@ -10,7 +10,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
     {
         public long ShopifyOrderId { get; set; }
         public long ShopifyOrderNumber { get; set; }        
-        public long? PreferencesStartingOrderNum { get; set; }
+        public long PreferencesStartingOrderId { get; set; }
+
         public List<LineItem> LineItemsWithAdhocVariants { get; set; }
         public List<LineItem> LineItemsWithUnmatchedVariants { get; set; }
         public bool IsPaid { get; set; }
@@ -24,10 +25,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public bool UsesAdhocVariants => LineItemsWithAdhocVariants.Count > 0;
         public bool UsesUnmatchedVariants => LineItemsWithUnmatchedVariants.Count > 0;
 
-        public bool OrderNumberValidForSync 
-                => !PreferencesStartingOrderNum.HasValue ||
-                        ShopifyOrderNumber >= PreferencesStartingOrderNum.Value;
-
+        public bool OrderNumberValidForSync => ShopifyOrderId >= PreferencesStartingOrderId;
+        
         public bool HasBeenSynced => AcumaticaSalesOrderId.HasValue();
 
         public bool IsCancelledBeforeSync => !HasBeenSynced && IsCancelled;

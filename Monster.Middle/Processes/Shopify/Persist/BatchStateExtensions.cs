@@ -4,12 +4,11 @@ namespace Monster.Middle.Processes.Shopify.Persist
 {
     public static class BatchStateExtensions
     {
-        public const int PullEndFudgeMinutes = -10;
+        public const int PullEndFudgeMinutes = -5;
 
-        public static DateTime AddShopifyBatchFudge(this DateTime input)
+        public static DateTime SubtractFudgeFactor(this DateTime input)
         {
             return input.AddMinutes(PullEndFudgeMinutes);
         }
-
     }
 }

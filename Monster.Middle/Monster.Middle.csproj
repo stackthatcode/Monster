@@ -240,7 +240,7 @@
     <Compile Include="MiddleAutofac.cs" />
     <Compile Include="Persist\Instance\ProcessPersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Persist\Instance\ExternalServiceRepository.cs" />
+    <Compile Include="Misc\External\ExternalServiceRepository.cs" />
     <Compile Include="Utility\AcumaticaTimeZone.cs" />
     <Compile Include="Utility\TimeZoneTranslator.cs" />
     <Compile Include="Utility\AcumaticaTimeZoneService.cs" />

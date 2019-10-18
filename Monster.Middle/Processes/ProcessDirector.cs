@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
@@ -100,7 +101,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                _executionLogService.InsertExecutionLog("Pulling Acumatica Reference Data");
+                _executionLogService.InsertExecutionLog("Refreshing Acumatica Reference Data");
                 _acumaticaManager.PullReferenceData();
                 
                 // Update the Reference Data State
@@ -130,7 +131,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                _executionLogService.InsertExecutionLog("Pulling Acumatica Warehouses and Shopify Locations");
+                _executionLogService.InsertExecutionLog("Refresh Acumatica Warehouses and Shopify Locations");
 
                 // Step 1 - Pull Locations and Warehouses
                 _acumaticaManager.PullWarehouses();

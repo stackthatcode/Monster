@@ -45,26 +45,30 @@ namespace Monster.Middle.Processes.Shopify.Workers
         public void RunAutomatic()
         {
             var batchState = _batchRepository.Retrieve();
-            _executionLogService.InsertExecutionLog("Pulling Inventory from Shopify");
+            _executionLogService.InsertExecutionLog("Refreshing Inventory from Shopify");
 
             if (batchState.ShopifyProductsPullEnd.HasValue)
             {
+                var firstFilter = new SearchFilter();
+                firstFilter.UpdatedAtMinUtc = batchState.ShopifyProductsPullEnd.Value;
+                firstFilter.Page = 1;
+
                 RunUpdated();
             }
             else
             {
-                RunAll();
+                // For the first run, we pull the complete catalog of Shopify Products
+                var firstFilter = new SearchFilter();
+                firstFilter.Page = 1;
+
+                Run(new SearchFilter());
             }
         }
 
-        private void RunAll()
+        private void Run(SearchFilter firstFilter)
         {
-            _logger.Debug("ShopifyInventoryPull -> RunAll()");
-
             // We've hanging on to this to compute the end of the Batch State
             var startOfRun = DateTime.UtcNow;
-
-            var firstFilter = new SearchFilter();
             var firstJson = _productApi.Retrieve(firstFilter);
             var firstProducts = firstJson.DeserializeFromJson<ProductList>().products;
 
@@ -93,58 +97,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
             PullDeletedEventsAndUpsert(startOfRun);
 
             // Compute the Batch State end marker
-            var batchEnd = startOfRun.AddShopifyBatchFudge();
+            var batchEnd = startOfRun.SubtractFudgeFactor();
             _batchRepository.UpdateProductsPullEnd(batchEnd);            
-        }
-
-        private void RunUpdated()
-        {
-            _logger.Debug("ShopifyInventoryPull -> RunUpdated()");
-
-            var startOfRun = DateTime.UtcNow;
-            var batchState = _batchRepository.Retrieve();
-
-            if (!batchState.ShopifyProductsPullEnd.HasValue)
-            {
-                throw new Exception("ShopifyProductsEndDate not set - must run Baseline Pull first");
-            }
-
-            var lastPullEnd = batchState.ShopifyProductsPullEnd.Value;
-            
-            var firstFilter = new SearchFilter();
-            firstFilter.UpdatedAtMinUtc = lastPullEnd;
-            firstFilter.Page = 1;
-
-            // Pull from Shopify
-            var firstJson = _productApi.Retrieve(firstFilter);
-            var firstProducts = firstJson.DeserializeFromJson<ProductList>().products;
-            UpsertProductsAndInventory(firstProducts);
-
-            var currentPage = 2;
-
-            while (true)
-            {
-                var currentFilter = new SearchFilter();
-                currentFilter.UpdatedAtMinUtc = lastPullEnd;
-                currentFilter.Page = currentPage;
-
-                // Pull from Shopify
-                var currentJson = _productApi.Retrieve(currentFilter);
-                var currentProducts = currentJson.DeserializeFromJson<ProductList>().products;
-                UpsertProductsAndInventory(currentProducts);
-
-                if (currentProducts.Count == 0)
-                {
-                    break;
-                }
-
-                currentPage++;
-            }
-
-            // Get all of the Delete Events
-            PullDeletedEventsAndUpsert(lastPullEnd);
-
-            _batchRepository.UpdateProductsPullEnd(startOfRun);
         }
 
         public long Run(long shopifyProductId)
@@ -401,12 +355,17 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 }
 
                 var product = _inventoryRepository.RetrieveProduct(_event.subject_id);
+                if (product == null)
+                {
+                    continue;
+                }
+
                 product.IsDeleted = true;
                 product.ShopifyVariants.ForEach(x => x.IsMissing = true);
 
                 _inventoryRepository.SaveChanges();
             }
         }
-
     }
 }
+

@@ -33,7 +33,11 @@ namespace Monster.Middle.Processes.Sync.Status
 
             output.ShopifyOrderId = shopifyOrderId;
             output.ShopifyOrderNumber = orderRecord.ShopifyOrderNumber;
-            output.PreferencesStartingOrderNum = preferences.ShopifyOrderNumberStart;
+
+            // If the Starting Shopify Order weren't populated, we would not be here i.e.
+            // ... the Shopify Order would not have been pulled from API
+            //
+            output.PreferencesStartingOrderId = preferences.StartingShopifyOrderId.Value;
                 
             output.LineItemsWithAdhocVariants 
                         = orderRecord.ToShopifyObj().LineItemsWithAdhocVariants;

@@ -4,7 +4,6 @@ using Push.Foundation.Web.Helpers;
 
 namespace Push.Shopify.Api
 {
-
     public class SearchFilter
     {
         public int? Page { get; set; }

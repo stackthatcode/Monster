@@ -117,12 +117,6 @@
         </span>
 
         <span data-bind="if: IsCompleteSyncButtonEnabled">
-            <!--
-            <a href="#" data-bind="click: RunOnetimeClick" class="btn btn-primary btn-lg">
-                Run One-Time Sync <i class="fas fa-bolt"></i>
-            </a>
-            -->
-
             <a href="#" data-bind="click: StartRealTimeClick" class="btn btn-primary btn-lg">
                 Start Real Time End-to-End Sync <i class="fas fa-bolt"></i>
             </a>
@@ -527,17 +521,6 @@
                     self.PollStatus();
                 });
         };
-
-        //self.RunOnetimeClick = function() {
-        //    flow.exec(
-        //        function() {
-        //            var ajax = new Monster.Ajax();
-        //            ajax.HttpPost("RealTime/EndToEnd", {}, this);
-        //        },
-        //        function(response) {
-        //            self.PollStatus();
-        //        });
-        //};
 
         self.PauseRealTimeClick = function() {
             flow.exec(

@@ -30,11 +30,11 @@ namespace Monster.Middle.Processes.Sync.Persist
         public List<ShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
             var preferences = Entities.Preferences.First();
-            var orderNumberStart = preferences.ShopifyOrderNumberStart ?? 0;
+            var orderNumberStart = preferences.StartingShopifyOrderId ?? 0;
 
             return Entities
                 .ShopifyOrders
-                .Where(x => x.ShopifyOrderNumber >= orderNumberStart
+                .Where(x => x.ShopifyOrderId >= orderNumberStart
                             && !x.ShopAcuOrderSyncs.Any())
                 .Include(x => x.ShopifyCustomer)
                 .Include(x => x.ShopifyTransactions)

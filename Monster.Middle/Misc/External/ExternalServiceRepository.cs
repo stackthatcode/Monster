@@ -1,12 +1,13 @@
 ﻿using System.Data.Entity;
 using System.Linq;
 using Monster.Acumatica.Http;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
 
-namespace Monster.Middle.Persist.Instance
+namespace Monster.Middle.Misc.External
 {
     public class ExternalServiceRepository
     {

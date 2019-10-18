@@ -168,22 +168,29 @@ namespace Monster.Middle.Misc.Hangfire
                 RecurringJob.RemoveIfExists(RecurringEndToEndSyncJobId);
             }
 
-            // Remove any Job Monitor that is corrupted, or doesn't have a valid Hangfire Job
             var monitors = Entities.ExclusiveJobMonitors.ToList();
 
             using (var connection = JobStorage.Current.GetConnection())
             {
                 foreach (var monitor in monitors)
                 {
+                    // Remove any Job Monitor that is corrupted -- or doesn't have a valid Hangfire Job
+                    //
                     if (monitor.HangFireJobId.IsNullOrEmpty())
                     {
                         RemoveJobMonitor(monitor.Id);
                         continue;
                     }
-                    var hangfireRecord = connection.GetJobData(monitor.HangFireJobId);
-                    if (!hangfireRecord.IsAlive())
+
+                    // Remove any Job Monitor for a One-Time Job that is no longer Alive
+                    //
+                    if (monitor.BackgroundJobType.IsOneTime())
                     {
-                        RemoveJobMonitor(monitor.Id);
+                        var hangfireRecord = connection.GetJobData(monitor.HangFireJobId);
+                        if (!hangfireRecord.IsAlive())
+                        {
+                            RemoveJobMonitor(monitor.Id);
+                        }
                     }
                 }
             }

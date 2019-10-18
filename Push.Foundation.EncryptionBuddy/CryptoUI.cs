@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using Autofac;
 using Monster.Middle;
 using Monster.Middle.Config;
+using Monster.Middle.Misc.External;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
 using Monster.Middle.Persist.Instance;

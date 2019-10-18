@@ -15,7 +15,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly CustomerApi _customerApi;
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _batchRepository;
-        private readonly IPushLogger _logger;
         private readonly PreferencesRepository _preferencesRepository;
 
         
@@ -23,46 +22,50 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 CustomerApi customerApi,
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository batchRepository,
-                PreferencesRepository preferencesRepository,
-                IPushLogger logger)
+                PreferencesRepository preferencesRepository)
         {
             _customerApi = customerApi;
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
             _preferencesRepository = preferencesRepository;
-            _logger = logger;
         }
 
 
         public void RunAutomatic()
         {
-            var batchState = _batchRepository.Retrieve();
-            if (batchState.ShopifyCustomersPullEnd.HasValue)
+            var preferences = _preferencesRepository.RetrievePreferences();
+            if (preferences.StartingShopifyOrderCreatedAtUtc == null)
             {
-                RunUpdated();
+                throw new Exception("StartingShopifyOrderCreatedAtUtc has not been set");
+            }
+
+            var batchState = _batchRepository.Retrieve();
+
+            if (batchState.ShopifyCustomersPullEnd == null)
+            {
+                var firstFilter = new SearchFilter();
+                firstFilter.Page = 1;
+                firstFilter.UpdatedAtMinUtc = preferences.StartingShopifyOrderCreatedAtUtc.Value;
+
+                Run(firstFilter);
             }
             else
             {
-                RunAll();
+                var firstFilter = new SearchFilter();
+                firstFilter.Page = 1;
+                firstFilter.UpdatedAtMinUtc = batchState.ShopifyCustomersPullEnd.Value;
+
+                Run(firstFilter);
             }
         }
 
-        private void RunAll()
+        private void Run(SearchFilter firstFilter)
         {
-            _logger.Debug("ShopifyCustomerPull -> RunAll()");
-
             var startOfRun = DateTime.UtcNow;
-            var preferences = _preferencesRepository.RetrievePreferences();
-
-            var firstFilter = new SearchFilter();
-            firstFilter.CreatedAtMinUtc = preferences.ShopifyOrderDateStart;
-
             var firstJson = _customerApi.Retrieve(firstFilter);
-            var firstCustomers 
-                = firstJson.DeserializeFromJson<CustomerList>().customers;
+            var firstCustomers = firstJson.DeserializeFromJson<CustomerList>().customers;
 
             UpsertCustomers(firstCustomers);
-
             var currentPage = 2;
 
             while (true)
@@ -70,8 +73,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 var currentFilter = firstFilter.Clone();
                 currentFilter.Page = currentPage;
                 var currentJson = _customerApi.Retrieve(currentFilter);
-                var currentCustomers 
-                    = currentJson.DeserializeFromJson<CustomerList>().customers;
+                var currentCustomers = currentJson.DeserializeFromJson<CustomerList>().customers;
 
                 if (currentCustomers.Count == 0)
                 {
@@ -79,71 +81,19 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 }
 
                 UpsertCustomers(currentCustomers);
-
                 currentPage++;
             }
 
             // Compute the Batch State Pull End
-            var batchEnd = (startOfRun).AddShopifyBatchFudge();
+            //
+            var batchEnd = (startOfRun).SubtractFudgeFactor();
             _batchRepository.UpdateCustomersPullEnd(batchEnd);
-        }
-
-        private void RunUpdated()
-        {
-            _logger.Debug("ShopifyCustomerPull -> RunUpdated()");
-
-            var batchState = _batchRepository.Retrieve();
-
-            if (!batchState.ShopifyCustomersPullEnd.HasValue)
-            {
-                throw new Exception(
-                    "ShopifyCustomersPullEnd not set - must run Baseline Pull first");
-            }
-
-            var lastBatchStateEnd = batchState.ShopifyCustomersPullEnd.Value;
-            var startOfPullRun = DateTime.UtcNow; // Trick - we won't use this in filtering
-
-            var firstFilter = new SearchFilter();
-            firstFilter.Page = 1;
-            firstFilter.UpdatedAtMinUtc = lastBatchStateEnd;
-
-            // Pull from Shopify
-            var firstJson = _customerApi.Retrieve(firstFilter);
-            var firstCustomers = firstJson.DeserializeFromJson<CustomerList>().customers;
-            UpsertCustomers(firstCustomers);
-
-            var currentPage = 2;
-
-            while (true)
-            {
-                var currentFilter = firstFilter.Clone();
-                currentFilter.Page = currentPage;
-
-                // Pull from Shopify
-                var currentJson = _customerApi.Retrieve(currentFilter);
-                var currentCustomers 
-                    = currentJson.DeserializeFromJson<CustomerList>().customers;
-
-                UpsertCustomers(currentCustomers);
-
-                if (currentCustomers.Count == 0)
-                {
-                    break;
-                }
-
-                currentPage++;
-            }
-
-            _batchRepository.UpdateCustomersPullEnd(startOfPullRun);
         }
 
         public ShopifyCustomer Run(long shopifyCustomerId)
         {
            var customerJson = _customerApi.Retrieve(shopifyCustomerId);
-            var customer
-                = customerJson
-                    .DeserializeFromJson<CustomerParent>()
-                    .customer;
+           var customer = customerJson.DeserializeFromJson<CustomerParent>().customer;
 
            return UpsertCustomer(customer);
         }

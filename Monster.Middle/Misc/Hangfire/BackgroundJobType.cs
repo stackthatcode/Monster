@@ -18,6 +18,11 @@ namespace Monster.Middle.Misc.Hangfire
             return jobType == EndToEndSync;
         }
 
+        public static bool IsOneTime(this int jobType)
+        {
+            return !jobType.IsRecurring();
+        }
+
         public static readonly Dictionary<int, string> Name = new Dictionary<int, string>()
         {
             { ConnectToAcumatica, "Connect to Acumatica" },
