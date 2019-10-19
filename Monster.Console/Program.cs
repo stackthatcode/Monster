@@ -166,10 +166,10 @@ namespace Monster.ConsoleApp
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
 
-                var acumaticaOrderPull = scope.Resolve<AcumaticaOrderPull>();
-                var shopifyOrderPull = scope.Resolve<ShopifyOrderPull>();
+                var acumaticaOrderPull = scope.Resolve<AcumaticaOrderGet>();
+                var shopifyOrderPull = scope.Resolve<ShopifyOrderGet>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
-                var orderSync = scope.Resolve<AcumaticaOrderSync>();
+                var orderSync = scope.Resolve<AcumaticaOrderPut>();
 
                 instanceContext.Initialize(Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212"));
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using AutoMapper;
@@ -149,17 +150,19 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult OrderSyncSettingsUpdate(OrderSyncSettingsModel model)
         {
+            throw new NotImplementedException();
+
             var data = _preferencesRepository.RetrievePreferences();
 
-            if (data.ShopifyOrderDateStart.HasValue 
-                    && data.ShopifyOrderDateStart.Value.Date 
-                    != model.ShopifyOrderDateStart.Value.Date)
+            if (data.StartingShopifyOrderId.HasValue
+                && data.StartingShopifyOrderId != model.StartingShopifyOrderId)
             {
+                // TODO - are we sure about this...?
                 _acumaticaBatchRepository.Reset();
             }
 
-            data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
-            data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;
+            //data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
+            //data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;
             data.MaxParallelAcumaticaSyncs = model.MaxParallelAcumaticaSyncs;
             _preferencesRepository.SaveChanges();
 

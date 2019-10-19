@@ -31,31 +31,31 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Entities.SaveChanges();
         }
 
-        public void UpdateCustomersPullEnd(DateTime endTimeUtc)
+        public void UpdateCustomersGetEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
-            existingState.AcumaticaCustomersPullEnd = endTimeUtc;
+            existingState.AcumaticaCustomersGetEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
         public void UpdateProductsEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
-            existingState.AcumaticaStockItemPullEnd = endTimeUtc;
+            existingState.AcumaticaStockItemGetEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
-        public void UpdateOrdersPullEnd(DateTime endTimeUtc)
+        public void UpdateOrdersGetEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
-            existingState.AcumaticaOrdersPullEnd = endTimeUtc;
+            existingState.AcumaticaOrdersGetEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
-        public void UpdateShipmentsPullEnd(DateTime endTimeUtc)
+        public void UpdateShipmentsGetEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
-            existingState.AcumaticaShipmentsPullEnd = endTimeUtc;
+            existingState.AcumaticaShipmentsGetEnd = endTimeUtc;
             Entities.SaveChanges();
         }
         

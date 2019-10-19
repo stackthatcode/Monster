@@ -9,14 +9,14 @@ using Push.Shopify.Api.Inventory;
 
 namespace Monster.Middle.Processes.Shopify.Workers
 {
-    public class ShopifyLocationPull
+    public class ShopifyLocationGet
     {
         private readonly ProductApi _productApi;
         private readonly ShopifyInventoryRepository _locationRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly IPushLogger _logger;
 
-        public ShopifyLocationPull(
+        public ShopifyLocationGet(
                 ProductApi productApi,
                 ShopifyInventoryRepository locationRepository, 
                 ShopifyBatchRepository shopifyBatchRepository, 

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Monster.Acumatica.Api;
-using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Utility;
 using Push.Foundation.Utilities.Json;
@@ -13,21 +13,20 @@ using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Acumatica.Workers
 {
-    public class AcumaticaOrderPull
+    public class AcumaticaOrderGet
     {
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaBatchRepository _batchStateRepository;
+        private readonly AcumaticaHttpConfig _acumaticaHttpConfig;
         private readonly AcumaticaOrderRepository _orderRepository;
-        private readonly AcumaticaCustomerPull _customerPull;
+        private readonly AcumaticaCustomerGet _customerPull;
         private readonly AcumaticaTimeZoneService _timeZoneService;
         private readonly PreferencesRepository _preferencesRepository;
 
-        public int PageSize = 50;
 
-
-        public AcumaticaOrderPull(
+        public AcumaticaOrderGet(
                 AcumaticaOrderRepository orderRepository,
-                AcumaticaCustomerPull customerPull,
+                AcumaticaCustomerGet customerPull,
                 AcumaticaTimeZoneService timeZoneService,
                 AcumaticaBatchRepository batchStateRepository,
                 AcumaticaHttpConfig acumaticaHttpConfig,
@@ -38,61 +37,57 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _customerPull = customerPull;
             _timeZoneService = timeZoneService;
             _batchStateRepository = batchStateRepository;
+            _acumaticaHttpConfig = acumaticaHttpConfig;
             _salesOrderClient = salesOrderClient;
             _preferencesRepository = preferencesRepository;
-
-            PageSize = acumaticaHttpConfig.PageSize;
         }
 
 
         public void RunAutomatic()
         {
             var batchState = _batchStateRepository.Retrieve();
-            if (batchState.AcumaticaOrdersPullEnd.HasValue)
-            {
-                var updateMinUtc = batchState.AcumaticaOrdersPullEnd;
-                var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
+            var preferences = _preferencesRepository.RetrievePreferences();
+            preferences.AssertStartingOrderIsValid();
 
-                RunWithPaging(updateMin);
+            if (batchState.AcumaticaOrdersGetEnd.HasValue)
+            {
+                var updateMinUtc = batchState.AcumaticaOrdersGetEnd.Value;
+                RunWithPaging(updateMinUtc);
             }
             else
             {
-                var preferences = _preferencesRepository.RetrievePreferences();
-                if (preferences.StartingShopifyOrderCreatedAtUtc == null)
-                {
-                    throw new Exception("StartingShopifyOrderCreatedAtUtc has not been set");
-                }
+                var orderStartDateUtc = preferences.StartingShopifyOrderCreatedAtUtc.Value;
 
-                var orderStartDate = preferences.StartingShopifyOrderCreatedAtUtc.Value;
-                var orderUpdateMin = _timeZoneService.ToAcumaticaTimeZone(orderStartDate);
-
-                RunWithPaging(orderUpdateMin);
+                RunWithPaging(orderStartDateUtc);
             }
         }
 
-        private void RunWithPaging(DateTime lastModified)
+        private void RunWithPaging(DateTime lastModifiedMinUtc)
         {
             var startOfRun = DateTime.UtcNow;
+            var lastModifiedMin = _timeZoneService.ToAcumaticaTimeZone(lastModifiedMinUtc);
+
             var page = 1;
+            var pageSize = _acumaticaHttpConfig.PageSize;
 
             while (true)
             {
-                var json = _salesOrderClient.RetrieveSalesOrders(lastModified, page, PageSize);
+                var json = _salesOrderClient.RetrieveSalesOrders(lastModifiedMin, page, pageSize);
                 var orders = json.DeserializeFromJson<List<SalesOrder>>();
-
-                UpsertOrdersToPersist(orders);
 
                 if (orders.Count == 0)
                 {
                     break;
                 }
+
+                UpsertOrdersToPersist(orders);
                 page++;
             }
 
             // Set the Batch State Pull End marker
             //
             var batchStateEnd = (startOfRun).AddAcumaticaBatchFudge();
-            _batchStateRepository.UpdateOrdersPullEnd(batchStateEnd);
+            _batchStateRepository.UpdateOrdersGetEnd(batchStateEnd);
         }
 
         public void RunAcumaticaOrderDetails(string orderId)

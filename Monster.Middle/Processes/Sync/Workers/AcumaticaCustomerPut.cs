@@ -14,15 +14,15 @@ using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
-    public class AcumaticaCustomerSync
+    public class AcumaticaCustomerPut
     {
-        private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
+        private readonly AcumaticaCustomerGet _acumaticaCustomerPull;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly CustomerClient _customerClient;
         private readonly ExecutionLogService _executionLogService;
 
-        public AcumaticaCustomerSync(
-                AcumaticaCustomerPull acumaticaCustomerPull,
+        public AcumaticaCustomerPut(
+                AcumaticaCustomerGet acumaticaCustomerPull,
                 SyncOrderRepository syncOrderRepository, 
                 CustomerClient customerClient, 
                 ExecutionLogService executionLogService)

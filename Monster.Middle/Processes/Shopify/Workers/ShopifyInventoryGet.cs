@@ -14,7 +14,7 @@ using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Shopify.Workers
 {
-    public class ShopifyInventoryPull
+    public class ShopifyInventoryGet
     {
         private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
         
-        public ShopifyInventoryPull(
+        public ShopifyInventoryGet(
                 IPushLogger logger,
                 ProductApi productApi,
                 InventoryApi inventoryApi,
@@ -47,10 +47,10 @@ namespace Monster.Middle.Processes.Shopify.Workers
             var batchState = _batchRepository.Retrieve();
             _executionLogService.InsertExecutionLog("Refreshing Inventory from Shopify");
 
-            if (batchState.ShopifyProductsPullEnd.HasValue)
+            if (batchState.ShopifyProductsGetEnd.HasValue)
             {
                 var firstFilter = new SearchFilter();
-                firstFilter.UpdatedAtMinUtc = batchState.ShopifyProductsPullEnd.Value;
+                firstFilter.UpdatedAtMinUtc = batchState.ShopifyProductsGetEnd.Value;
                 firstFilter.Page = 1;
 
                 Run(firstFilter);
@@ -98,7 +98,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             // Compute the Batch State end marker
             var batchEnd = startOfRun.SubtractFudgeFactor();
-            _batchRepository.UpdateProductsPullEnd(batchEnd);            
+            _batchRepository.UpdateProductsGetEnd(batchEnd);            
         }
 
         public long Run(long shopifyProductId)

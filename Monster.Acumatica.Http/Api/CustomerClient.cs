@@ -1,4 +1,5 @@
 ﻿using System;
+using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
 using Push.Foundation.Utilities.Logging;
@@ -9,21 +10,27 @@ namespace Monster.Acumatica.Api
     public class CustomerClient
     {
         private readonly AcumaticaHttpContext _httpContext;
+        private readonly AcumaticaHttpConfig _config;
 
-        public CustomerClient(AcumaticaHttpContext httpContext)
+        public CustomerClient(AcumaticaHttpContext httpContext, AcumaticaHttpConfig config)
         {
             _httpContext = httpContext;
+            _config = config;
         }
         
-        public string RetrieveCustomers(DateTime? lastModified = null)
+        public string RetrieveCustomers(DateTime lastModified, int page = 1, int? pageSize = null)
         {
             var queryString = "$expand=MainContact";
 
-            if (lastModified.HasValue)
-            {
-                var restDate = lastModified.Value.ToAcumaticaRestDate();
-                queryString += $"&$filter=LastModifiedDateTime gt datetimeoffset'{restDate}'";
-            }
+            // Date filtering
+            //
+            var restDate = lastModified.ToAcumaticaRestDate();
+            queryString += $"&$filter=LastModifiedDateTime gt datetimeoffset'{restDate}'";
+
+            // Paging
+            //
+            pageSize = pageSize ?? _config.PageSize;
+            queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
 
             var response = _httpContext.Get($"Customer?{queryString}");
             return response.Body;

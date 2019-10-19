@@ -12,22 +12,21 @@ using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Acumatica.Workers
 {
-    public class AcumaticaInventoryPull
+    public class AcumaticaInventoryGet
     {
         private readonly DistributionClient _inventoryClient;
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
+        private readonly AcumaticaHttpConfig _config;
         private readonly ExecutionLogService _executionLogService;
 
-        public int PageSize = 50;
-
-        public AcumaticaInventoryPull(
+        public AcumaticaInventoryGet(
                     DistributionClient inventoryClient, 
                     AcumaticaInventoryRepository inventoryRepository,
                     AcumaticaBatchRepository batchStateRepository,
                     AcumaticaTimeZoneService instanceTimeZoneService,
-                    AcumaticaHttpConfig acumaticaHttpConfig,
+                    AcumaticaHttpConfig config,
                     ExecutionLogService executionLogService)
         {
             _inventoryClient = inventoryClient;
@@ -35,8 +34,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository = batchStateRepository;
             _executionLogService = executionLogService;
             _instanceTimeZoneService = instanceTimeZoneService;
-
-            PageSize = acumaticaHttpConfig.PageSize;
+            _config = config;
         }
 
 
@@ -45,24 +43,31 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var batchState = _batchStateRepository.Retrieve();
             _executionLogService.InsertExecutionLog("Refreshing Stock Items from Acumatica");
 
-            if (batchState.AcumaticaStockItemPullEnd.HasValue)
+            if (batchState.AcumaticaStockItemGetEnd.HasValue)
             {
-                RunUpdated();
+                Run(batchState.AcumaticaStockItemGetEnd);
             }
             else
             {
-                RunAll();
+                Run();
             }
         }
 
-        public void RunAll()
+        public void Run(DateTime? lastModifiedMinUtc = null)
         {
             var startOfRun = DateTime.UtcNow;
             var page = 1;
-            
+
+            var lastModifiedAcuTime
+                = lastModifiedMinUtc.HasValue
+                    ? _instanceTimeZoneService.ToAcumaticaTimeZone(lastModifiedMinUtc.Value)
+                    : (DateTime?) null;
+
             while (true)
             {
-                var json = _inventoryClient.RetrieveStockItems(page: page, pageSize: PageSize);
+                var json = 
+                    _inventoryClient.RetrieveStockItems(
+                        page: page, pageSize: _config.PageSize, lastModified: lastModifiedAcuTime);
 
                 var stockItems = json.DeserializeFromJson<List<StockItem>>();
 
@@ -80,27 +85,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository.UpdateProductsEnd(batchStateEnd);
         }
         
-        public void RunUpdated()
-        {
-            var startOfRun = DateTime.UtcNow;
-
-            var batchState = _batchStateRepository.Retrieve();
-            if (!batchState.AcumaticaStockItemPullEnd.HasValue)
-            {
-                throw new Exception(
-                    "AcumaticaStockItemPullEnd is null - run Acumatica Baseline Pull first");
-            }
-
-            var updateMinUtc = batchState.AcumaticaStockItemPullEnd;
-            var updateMin = _instanceTimeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
-
-            var json = _inventoryClient.RetrieveStockItems(updateMin);
-            var stockItems = json.DeserializeFromJson<List<StockItem>>();
-
-            UpsertStockItemToPersist(stockItems);
-
-            _batchStateRepository.UpdateProductsEnd(startOfRun);
-        }
 
         public void UpsertStockItemToPersist(List<StockItem> items)
         {

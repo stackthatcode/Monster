@@ -1,4 +1,5 @@
-﻿using Monster.Middle.Persist.Instance;
+﻿using System;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
@@ -6,7 +7,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
     public static class PreferencesValidationExtensions
     {
         // Seems obvious that we'll provide more detail for the future..
-        public static bool AreValid(this Preference preferences)
+        public static bool AreAcumaticaPreferencesValid(this Preference preferences)
         {
             return preferences.AcumaticaTimeZone.HasValue()
                    && preferences.AcumaticaDefaultItemClass.HasValue()
@@ -16,5 +17,17 @@ namespace Monster.Middle.Processes.Sync.Model.Status
                    && preferences.AcumaticaTaxId.HasValue()
                    && preferences.AcumaticaTaxZone.HasValue();
         }
+
+
+        public static void AssertStartingOrderIsValid(this Preference preferences)
+        {
+            if (preferences.StartingShopifyOrderId == null ||
+                preferences.StartingShopifyOrderCreatedAtUtc == null ||
+                preferences.StartingShopifyOrderName.IsNullOrEmpty())
+            {
+                throw new Exception("StartingShopifyOrderCreatedAtUtc has not been set");
+            }
+        }
     }
 }
+

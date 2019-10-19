@@ -20,23 +20,23 @@ using Push.Shopify.Api.Order;
 namespace Monster.Middle.Processes.Sync.Workers
 {
     [Obsolete]
-    public class AcumaticaShipmentSync
+    public class AcumaticaShipmentPut
     {
         private readonly SyncOrderRepository _orderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly ShipmentStatusService _fulfillmentStatusService;
 
-        private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
+        private readonly AcumaticaShipmentGet _acumaticaShipmentPull;
         private readonly ShipmentClient _shipmentClient;
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
 
-        public AcumaticaShipmentSync(
+        public AcumaticaShipmentPut(
                     SyncOrderRepository orderRepository,
                     SyncInventoryRepository syncInventoryRepository,
                     ShopifyOrderRepository shopifyOrderRepository,
-                    AcumaticaShipmentPull acumaticaShipmentPull,
+                    AcumaticaShipmentGet acumaticaShipmentPull,
                     ShipmentClient shipmentClient, 
                     StateRepository stateRepository, 
                     ExecutionLogService logRepository)

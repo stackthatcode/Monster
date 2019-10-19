@@ -115,7 +115,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _referenceDataService.FilterPreferencesAgainstRefData(preferences);
                 _connectionRepository.SaveChanges();
 
-                var state = preferences.AreValid() ? StateCode.Ok : StateCode.Invalid;
+                var state = preferences.AreAcumaticaPreferencesValid() ? StateCode.Ok : StateCode.Invalid;
                 _stateRepository.UpdateSystemState(x => x.PreferenceState, state);
             }
             catch (Exception ex)

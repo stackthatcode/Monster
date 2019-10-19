@@ -8,23 +8,23 @@ namespace Monster.Middle.Processes.Acumatica
     public class AcumaticaManager
     {
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
-        private readonly AcumaticaReferencePull _acumaticaReferencePull;
-        private readonly AcumaticaWarehousePull _acumaticaWarehousePull;
-        private readonly AcumaticaInventoryPull _acumaticaInventoryPull;
-        private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
-        private readonly AcumaticaOrderPull _acumaticaOrderPull;
-        private readonly AcumaticaShipmentPull _acumaticaShipmentPull;
+        private readonly AcumaticaReferenceGet _acumaticaReferencePull;
+        private readonly AcumaticaWarehouseGet _acumaticaWarehousePull;
+        private readonly AcumaticaInventoryGet _acumaticaInventoryPull;
+        private readonly AcumaticaCustomerGet _acumaticaCustomerPull;
+        private readonly AcumaticaOrderGet _acumaticaOrderPull;
+        private readonly AcumaticaShipmentGet _acumaticaShipmentPull;
         private readonly IPushLogger _logger;
 
 
         public AcumaticaManager(
                 AcumaticaHttpContext acumaticaHttpContext,
-                AcumaticaReferencePull acumaticaReferencePull,
-                AcumaticaCustomerPull acumaticaCustomerPull, 
-                AcumaticaOrderPull acumaticaOrderPull,                 
-                AcumaticaShipmentPull acumaticaShipmentPull, 
-                AcumaticaWarehousePull acumaticaWarehousePull, 
-                AcumaticaInventoryPull acumaticaInventoryPull,                 
+                AcumaticaReferenceGet acumaticaReferencePull,
+                AcumaticaCustomerGet acumaticaCustomerPull, 
+                AcumaticaOrderGet acumaticaOrderPull,                 
+                AcumaticaShipmentGet acumaticaShipmentPull, 
+                AcumaticaWarehouseGet acumaticaWarehousePull, 
+                AcumaticaInventoryGet acumaticaInventoryPull,                 
                 IPushLogger logger)
         {
             _acumaticaHttpContext = acumaticaHttpContext;

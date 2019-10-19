@@ -17,7 +17,7 @@ using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
-    public class AcumaticaInventorySync
+    public class AcumaticaInventoryPut
     {
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly SyncInventoryRepository _syncRepository;
@@ -25,7 +25,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly PreferencesRepository _preferencesRepository;
         private readonly ExecutionLogService _executionLogService;
 
-        public AcumaticaInventorySync(
+        public AcumaticaInventoryPut(
                 AcumaticaInventoryRepository inventoryRepository,
                 SyncInventoryRepository syncRepository,                    
                 DistributionClient distributionClient,

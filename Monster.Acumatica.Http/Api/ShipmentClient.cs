@@ -1,4 +1,5 @@
 ﻿using System;
+using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
 using Push.Foundation.Utilities.Logging;
@@ -8,56 +9,38 @@ namespace Monster.Acumatica.Api
     public class ShipmentClient
     {
         private readonly AcumaticaHttpContext _httpContext;
-        private readonly IPushLogger _logger;
+        private readonly AcumaticaHttpConfig _config;
 
-        public ShipmentClient(IPushLogger logger, AcumaticaHttpContext httpContext)
+        public ShipmentClient(AcumaticaHttpContext httpContext, AcumaticaHttpConfig config)
         {
-            _logger = logger;
             _httpContext = httpContext;
+            _config = config;
         }
 
 
-        public string RetrieveShipments(
-                DateTime? lastModified = null, string expand = "Details",
-                int page = 1, int? pageSize = null)
+        public string RetrieveShipments(DateTime minLastModified, 
+                string expand = "Details", int page = 1, int? pageSize = null)
         {
             var queryString = $"$expand={expand}";
 
-            if (lastModified.HasValue)
-            {
-                var restDate = lastModified.Value.ToAcumaticaRestDate();
-                queryString += $"&$filter=LastModifiedDateTime gt datetimeoffset'{restDate}'";
-            }
+            // Date filtering
+            //
+            var restDate = minLastModified.ToAcumaticaRestDate();
+            queryString += $"&$filter=LastModifiedDateTime gt datetimeoffset'{restDate}'";
 
-            if (pageSize.HasValue)
-            {
-                queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
-            }
+            // Paging
+            //
+            pageSize = pageSize ?? _config.PageSize;
+            queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
 
             var response = _httpContext.Get($"Shipment?{queryString}");
             return response.Body;
         }
 
-        public string ShipmentUrl(string shipmentNbr)
-        {
-            return
-                $"{_httpContext.BaseAddress}" +
-                $"/Main?ScreenId=SO301000&OrderType=SO&ShipmentNbr={shipmentNbr}";
-        }
-
-        public string ShipmentInvoiceUrl(string invoiceNbr)
-        {
-            return
-                $"{_httpContext.BaseAddress}" +
-                $"/Main?ScreenId=SO303000&DocType=INV&RefNbr={invoiceNbr}";
-        }
-
-
         public string RetrieveShipment(string shipmentNbr)
         {
             var queryString = "$expand=Details";
-            var response = 
-                    _httpContext.Get($"Shipment/{shipmentNbr}?{queryString}");
+            var response = _httpContext.Get($"Shipment/{shipmentNbr}?{queryString}");
             return response.Body;
         }
 

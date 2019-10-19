@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
@@ -11,20 +12,20 @@ using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Shopify.Workers
 {
-    public class ShopifyOrderPull
+    public class ShopifyOrderGet
     {
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _batchRepository;
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly ShopifyCustomerPull _shopifyCustomerPull;
+        private readonly ShopifyCustomerGet _shopifyCustomerPull;
         private readonly OrderApi _orderApi;
 
 
-        public ShopifyOrderPull(
+        public ShopifyOrderGet(
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository batchRepository,
                 PreferencesRepository preferencesRepository,
-                ShopifyCustomerPull shopifyCustomerPull,
+                ShopifyCustomerGet shopifyCustomerPull,
                 OrderApi orderApi)
         {
             _orderRepository = orderRepository;
@@ -37,19 +38,16 @@ namespace Monster.Middle.Processes.Shopify.Workers
         public void RunAutomatic()
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-            if (preferences.StartingShopifyOrderId == null)
-            {
-                throw new Exception("StartingShopifyOrderId not set");
-            }
+            preferences.AssertStartingOrderIsValid();
 
             var batchState = _batchRepository.Retrieve();
 
-            if (batchState.ShopifyOrdersPullEnd.HasValue)
+            if (batchState.ShopifyOrdersGetEnd.HasValue)
             {
                 var filter = new SearchFilter();
                 filter.OrderByUpdatedAt();
                 filter.SinceId = preferences.StartingShopifyOrderId.Value;
-                filter.UpdatedAtMinUtc = batchState.ShopifyOrdersPullEnd.Value;
+                filter.UpdatedAtMinUtc = batchState.ShopifyOrdersGetEnd.Value;
 
                 Run(filter);
             }
@@ -93,7 +91,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             // Set the Batch State end marker to the time when this run started
             //
             var orderBatchEnd = (startOfRun).SubtractFudgeFactor();
-            _batchRepository.UpdateOrdersPullEnd(orderBatchEnd);
+            _batchRepository.UpdateOrdersGetEnd(orderBatchEnd);
         }
 
         public void Run(long shopifyOrderId)

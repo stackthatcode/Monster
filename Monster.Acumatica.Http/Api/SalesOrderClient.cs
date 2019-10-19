@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
 using Push.Foundation.Utilities.Json;
@@ -10,40 +11,38 @@ namespace Monster.Acumatica.Api
 {
     public class SalesOrderClient
     {
-        protected readonly AcumaticaHttpContext _httpContext;
-        protected readonly IPushLogger _logger;
+        private readonly AcumaticaHttpContext _httpContext;
+        private readonly AcumaticaHttpConfig _config;
+        private readonly IPushLogger _logger;
         
-        public SalesOrderClient(IPushLogger logger, AcumaticaHttpContext httpContext)
+        public SalesOrderClient(
+                IPushLogger logger, AcumaticaHttpContext httpContext, AcumaticaHttpConfig config)
         {
             _logger = logger;
             _httpContext = httpContext;
+            _config = config;
         }
         
 
-        public string OrderInterfaceUrlById(string salesOrderId)
-        {
-            return 
-                $"{_httpContext.BaseAddress}Main" +
-                $"?ScreenId=SO301000&OrderType=SO&OrderNbr={salesOrderId}";
-        }
-        
         public string RetrieveSalesOrders(
-                DateTime? lastModified = null, int page = 1, int? pageSize = null)
+                DateTime lastModified, int page = 1, int? pageSize = null)
         {
-           // var adhocSchemaJson = _httpContext.Get($"SalesOrder/$adhocSchema");
+            
+            var queryString = "$expand=Details,ShippingSettings";
 
-            var queryString = "$custom=Document.UsrTaxSnapshot&$expand=Details,ShippingSettings";
+            // Date filtering
+            //
+            var restDate = lastModified.ToAcumaticaRestDate();
+            queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
 
-            if (lastModified.HasValue)
-            {
-                var restDate = lastModified.Value.ToAcumaticaRestDate();
-                queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
-            }
+            // Paging
+            //
+            pageSize = pageSize ?? _config.PageSize;
+            queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
 
-            if (pageSize.HasValue)
-            {
-                queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
-            }
+            // Customer Tax Snapshot field
+            //
+            queryString += "&$custom=Document.UsrTaxSnapshot";
 
             var response = _httpContext.Get($"SalesOrder?{queryString}");
             return response.Body;
@@ -64,7 +63,8 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string RetrieveSalesOrder(string orderNbr, string orderType, string expand = "Shipments")
+        public string RetrieveSalesOrder(
+                    string orderNbr, string orderType, string expand = "Shipments")
         {
             var path = $"SalesOrder/{orderType}/{orderNbr}?$expand={expand}";
             var response = _httpContext.Get(path);
@@ -80,16 +80,13 @@ namespace Monster.Acumatica.Api
 
         public string PrepareSalesInvoice(string json)
         {
-            var response = 
-                _httpContext.Post("SalesOrder/PrepareSalesInvoice", json);
-
+            var response = _httpContext.Post("SalesOrder/PrepareSalesInvoice", json);
             return response.Body;
         }
         
         public string ReleaseSalesInvoice(string invoiceType, string json)
         {
             var response = _httpContext.Post($"SalesInvoice/ReleaseSalesInvoice", json);
-
             return response.Body;
         }
 
@@ -108,8 +105,7 @@ namespace Monster.Acumatica.Api
             foreach (var detail in details)
             {
                 _logger.Trace(
-                    $"{detail.InventoryID.value} - {detail.id}" + 
-                    $" - OrderQty {detail.OrderQty.value}");
+                    $"{detail.InventoryID.value} - {detail.id}" + $" - OrderQty {detail.OrderQty.value}");
             }
         }
         
@@ -119,15 +115,5 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get(url);
             return response.Body;
         }
-
-
-        public string RetrieveInvoices()
-        {
-            var url = $"Invoice";
-            var response = _httpContext.Get(url);
-            return response.Body;
-        }
     }
-
 }
-

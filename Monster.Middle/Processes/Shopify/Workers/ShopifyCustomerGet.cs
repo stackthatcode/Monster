@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
-using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Customer;
 
 namespace Monster.Middle.Processes.Shopify.Workers
 {
-    public class ShopifyCustomerPull
+    public class ShopifyCustomerGet
     {
         private readonly CustomerApi _customerApi;
         private readonly ShopifyOrderRepository _orderRepository;
@@ -18,7 +18,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly PreferencesRepository _preferencesRepository;
 
         
-        public ShopifyCustomerPull(
+        public ShopifyCustomerGet(
                 CustomerApi customerApi,
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository batchRepository,
@@ -34,14 +34,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
         public void RunAutomatic()
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-            if (preferences.StartingShopifyOrderCreatedAtUtc == null)
-            {
-                throw new Exception("StartingShopifyOrderCreatedAtUtc has not been set");
-            }
+            preferences.AssertStartingOrderIsValid();
 
             var batchState = _batchRepository.Retrieve();
 
-            if (batchState.ShopifyCustomersPullEnd == null)
+            if (batchState.ShopifyCustomersGetEnd == null)
             {
                 var firstFilter = new SearchFilter();
                 firstFilter.Page = 1;
@@ -53,7 +50,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var firstFilter = new SearchFilter();
                 firstFilter.Page = 1;
-                firstFilter.UpdatedAtMinUtc = batchState.ShopifyCustomersPullEnd.Value;
+                firstFilter.UpdatedAtMinUtc = batchState.ShopifyCustomersGetEnd.Value;
 
                 Run(firstFilter);
             }
@@ -87,7 +84,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             // Compute the Batch State Pull End
             //
             var batchEnd = (startOfRun).SubtractFudgeFactor();
-            _batchRepository.UpdateCustomersPullEnd(batchEnd);
+            _batchRepository.UpdateCustomersGetEnd(batchEnd);
         }
 
         public ShopifyCustomer Run(long shopifyCustomerId)

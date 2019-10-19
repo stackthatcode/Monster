@@ -20,26 +20,26 @@ using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
-    public class AcumaticaRefundSync
+    public class AcumaticaRefundPut
     {
         private readonly ExecutionLogService _logService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncRepository;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly AcumaticaOrderPull _acumaticaOrderPull;
-        private readonly AcumaticaOrderSync _acumaticaOrderSync;
+        private readonly AcumaticaOrderGet _acumaticaOrderPull;
+        private readonly AcumaticaOrderPut _acumaticaOrderSync;
         private readonly IPushLogger _logger;
 
-        public AcumaticaRefundSync(
+        public AcumaticaRefundPut(
 
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncRepository,
                     SalesOrderClient salesOrderClient, 
                     PreferencesRepository preferencesRepository, 
                     ExecutionLogService logService, 
-                    AcumaticaOrderPull acumaticaOrderPull, 
-                    AcumaticaOrderSync acumaticaOrderSync,
+                    AcumaticaOrderGet acumaticaOrderPull, 
+                    AcumaticaOrderPut acumaticaOrderSync,
                     IPushLogger logger)
         {
             _syncOrderRepository = syncOrderRepository;

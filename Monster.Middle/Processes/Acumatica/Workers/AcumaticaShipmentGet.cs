@@ -3,52 +3,39 @@ using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Acumatica.Config;
-using Monster.Middle.Misc.External;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Utility;
 using Push.Foundation.Utilities.Json;
-using Push.Foundation.Utilities.Logging;
+
 
 namespace Monster.Middle.Processes.Acumatica.Workers
 {
-    public class AcumaticaShipmentPull
+    public class AcumaticaShipmentGet
     {
         private readonly ShipmentClient _shipmentClient;
         private readonly AcumaticaOrderRepository _orderRepository;
-        private readonly AcumaticaCustomerPull _acumaticaCustomerPull;
-
-        private readonly ExternalServiceRepository _connectionRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly AcumaticaTimeZoneService _timeZoneService;
-        private readonly IPushLogger _logger;
         private readonly PreferencesRepository _preferencesRepository;
+        private readonly AcumaticaHttpConfig _config;
 
-        public const int InitialBatchStateFudgeMin = -15;
-        public int PageSize = 50;
-
-        public AcumaticaShipmentPull(
+        public AcumaticaShipmentGet(
                 AcumaticaOrderRepository orderRepository,
-                AcumaticaCustomerPull acumaticaCustomerPull,
                 AcumaticaBatchRepository batchStateRepository,
                 AcumaticaTimeZoneService timeZoneService,
-                AcumaticaHttpConfig acumaticaHttpConfig,
+                AcumaticaHttpConfig config,
                 ShipmentClient shipmentClient,
-                ExternalServiceRepository connectionRepository,
-                PreferencesRepository preferencesRepository,
-                IPushLogger logger)
+                PreferencesRepository preferencesRepository)
         {
-            _acumaticaCustomerPull = acumaticaCustomerPull;
             _orderRepository = orderRepository;
             _batchStateRepository = batchStateRepository;
             _timeZoneService = timeZoneService;
+            _config = config;
             _shipmentClient = shipmentClient;
-            _connectionRepository = connectionRepository;
             _preferencesRepository = preferencesRepository;
-            _logger = logger;
-
-            PageSize = acumaticaHttpConfig.PageSize;
         }
 
 
@@ -56,52 +43,46 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var startOfRun = DateTime.UtcNow;
             var batchState = _batchStateRepository.Retrieve();
+            var preferences = _preferencesRepository.RetrievePreferences();
+            preferences.AssertStartingOrderIsValid();
 
-            if (batchState.AcumaticaShipmentsPullEnd.HasValue)
+            if (batchState.AcumaticaShipmentsGetEnd.HasValue)
             {
-                RunUpdated();
+                var updateMinUtc = batchState.AcumaticaShipmentsGetEnd.Value;
+                RunWithPaging(updateMinUtc);
             }
             else
             {
-                RunAll();
+                var orderStartUtc = preferences.StartingShopifyOrderCreatedAtUtc.Value;
+                RunWithPaging(orderStartUtc);
             }
 
             var batchStateEnd = (startOfRun).AddAcumaticaBatchFudge();                
-            _batchStateRepository.UpdateShipmentsPullEnd(batchStateEnd);
+            _batchStateRepository.UpdateShipmentsGetEnd(batchStateEnd);
         }
 
-        private void RunAll()
-        {
-            var preferences = _preferencesRepository.RetrievePreferences();
-            var orderStart = preferences.ShopifyOrderDateStart.Value;
-            var updateMin = _timeZoneService.ToAcumaticaTimeZone(orderStart);
-
-            RunWithPaging(updateMin);
-        }
         
-        private void RunUpdated()
+        private void RunWithPaging(DateTime updateMinUtc)
         {
-            var batchState = _batchStateRepository.Retrieve();
-            var updateMinUtc = batchState.AcumaticaShipmentsPullEnd;
-            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc.Value);
-            
-            RunWithPaging(updateMin);
-        }
-
-        private void RunWithPaging(DateTime updateMin)
-        {
+            var updateMin = _timeZoneService.ToAcumaticaTimeZone(updateMinUtc);
             var page = 1;
 
             while (true)
             {
-                var json = _shipmentClient.RetrieveShipments(updateMin, ShipmentExpand.Details);
+                var json = _shipmentClient
+                    .RetrieveShipments(
+                        updateMin, ShipmentExpand.Details, page, _config.PageSize);
+
                 var shipments = json.DeserializeFromJson<List<Shipment>>();
                 UpsertShipmentsToPersist(shipments);
 
                 // Need to do this because Acumatica constrains the number of Details
                 // ... that can be expanded per call
+                //
                 var packagesJson
-                    = _shipmentClient.RetrieveShipments(updateMin, ShipmentExpand.Packages);
+                    = _shipmentClient.RetrieveShipments(
+                        updateMin, ShipmentExpand.Packages, page, _config.PageSize);
+
                 var shipmentsWithPackages = packagesJson.DeserializeFromJson<List<Shipment>>();
                 shipments.AppendPackageRefs(shipmentsWithPackages);
 
@@ -167,13 +148,12 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void UpsertShipmentSalesOrderRefs(
                     long monsterShipmentId, Shipment shipment)
         {
-            var currentDetailRecords 
-                    = new List<AcumaticaShipmentSalesOrderRef>();
+            var currentDetailRecords = new List<AcumaticaShipmentSalesOrderRef>();
 
             foreach (var detail in shipment.Details)
             {
                 var isMonsterSyncedOrder 
-                        =  _orderRepository.IsMonsterSyncedOrder(detail.OrderNbr.value);
+                        = _orderRepository.IsMonsterSyncedOrder(detail.OrderNbr.value);
                     
                 var currentDetailRecord =
                     new AcumaticaShipmentSalesOrderRef

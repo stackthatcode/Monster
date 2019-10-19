@@ -7,12 +7,12 @@ using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Shopify.Workers
 {
-    public class ShopifyTransactionPull
+    public class ShopifyTransactionGet
     {
         private readonly OrderApi _orderApi;
         private readonly ShopifyOrderRepository _orderRepository;
         
-        public ShopifyTransactionPull(
+        public ShopifyTransactionGet(
                 OrderApi orderApi,
                 ShopifyOrderRepository orderRepository)
         {

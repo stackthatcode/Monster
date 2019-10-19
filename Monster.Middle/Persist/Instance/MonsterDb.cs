@@ -762,11 +762,11 @@ namespace Monster.Middle.Persist.Instance
     public class AcumaticaBatchState
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? AcumaticaStockItemPullEnd { get; set; } // AcumaticaStockItemPullEnd
-        public System.DateTime? AcumaticaItemWarehousePullEnd { get; set; } // AcumaticaItemWarehousePullEnd
-        public System.DateTime? AcumaticaCustomersPullEnd { get; set; } // AcumaticaCustomersPullEnd
-        public System.DateTime? AcumaticaOrdersPullEnd { get; set; } // AcumaticaOrdersPullEnd
-        public System.DateTime? AcumaticaShipmentsPullEnd { get; set; } // AcumaticaShipmentsPullEnd
+        public System.DateTime? AcumaticaStockItemGetEnd { get; set; } // AcumaticaStockItemGetEnd
+        public System.DateTime? AcumaticaItemWarehouseGetEnd { get; set; } // AcumaticaItemWarehouseGetEnd
+        public System.DateTime? AcumaticaCustomersGetEnd { get; set; } // AcumaticaCustomersGetEnd
+        public System.DateTime? AcumaticaOrdersGetEnd { get; set; } // AcumaticaOrdersGetEnd
+        public System.DateTime? AcumaticaShipmentsGetEnd { get; set; } // AcumaticaShipmentsGetEnd
     }
 
     // AcumaticaCreditMemo
@@ -1303,10 +1303,10 @@ namespace Monster.Middle.Persist.Instance
     public class ShopifyBatchState
     {
         public long Id { get; set; } // Id (Primary key)
-        public System.DateTime? ShopifyProductsPullEnd { get; set; } // ShopifyProductsPullEnd
-        public System.DateTime? ShopifyOrdersPullEnd { get; set; } // ShopifyOrdersPullEnd
-        public System.DateTime? ShopifyCustomersPullEnd { get; set; } // ShopifyCustomersPullEnd
-        public System.DateTime? ShopifyPayoutPullEnd { get; set; } // ShopifyPayoutPullEnd
+        public System.DateTime? ShopifyProductsGetEnd { get; set; } // ShopifyProductsGetEnd
+        public System.DateTime? ShopifyOrdersGetEnd { get; set; } // ShopifyOrdersGetEnd
+        public System.DateTime? ShopifyCustomersGetEnd { get; set; } // ShopifyCustomersGetEnd
+        public System.DateTime? ShopifyPayoutGetEnd { get; set; } // ShopifyPayoutGetEnd
     }
 
     // ShopifyCustomer
@@ -2035,11 +2035,11 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.AcumaticaStockItemPullEnd).HasColumnName(@"AcumaticaStockItemPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaItemWarehousePullEnd).HasColumnName(@"AcumaticaItemWarehousePullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaCustomersPullEnd).HasColumnName(@"AcumaticaCustomersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaOrdersPullEnd).HasColumnName(@"AcumaticaOrdersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.AcumaticaShipmentsPullEnd).HasColumnName(@"AcumaticaShipmentsPullEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaStockItemGetEnd).HasColumnName(@"AcumaticaStockItemGetEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaItemWarehouseGetEnd).HasColumnName(@"AcumaticaItemWarehouseGetEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaCustomersGetEnd).HasColumnName(@"AcumaticaCustomersGetEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaOrdersGetEnd).HasColumnName(@"AcumaticaOrdersGetEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.AcumaticaShipmentsGetEnd).HasColumnName(@"AcumaticaShipmentsGetEnd").HasColumnType("datetime").IsOptional();
         }
     }
 
@@ -2671,10 +2671,10 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyProductsPullEnd).HasColumnName(@"ShopifyProductsPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.ShopifyOrdersPullEnd).HasColumnName(@"ShopifyOrdersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.ShopifyCustomersPullEnd).HasColumnName(@"ShopifyCustomersPullEnd").HasColumnType("datetime").IsOptional();
-            Property(x => x.ShopifyPayoutPullEnd).HasColumnName(@"ShopifyPayoutPullEnd").HasColumnType("date").IsOptional();
+            Property(x => x.ShopifyProductsGetEnd).HasColumnName(@"ShopifyProductsGetEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyOrdersGetEnd).HasColumnName(@"ShopifyOrdersGetEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyCustomersGetEnd).HasColumnName(@"ShopifyCustomersGetEnd").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyPayoutGetEnd).HasColumnName(@"ShopifyPayoutGetEnd").HasColumnType("date").IsOptional();
         }
     }
 

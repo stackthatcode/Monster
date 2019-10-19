@@ -131,11 +131,11 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyOrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyPayoutRepository>().InstancePerLifetimeScope();
 
-            builder.RegisterType<ShopifyLocationPull>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyInventoryPull>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyCustomerPull>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyOrderPull>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyTransactionPull>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyLocationGet>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyInventoryGet>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyCustomerGet>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyOrderGet>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyTransactionGet>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyManager>().InstancePerLifetimeScope();
         }
 
@@ -146,12 +146,12 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaOrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventoryRepository>().InstancePerLifetimeScope();
 
-            builder.RegisterType<AcumaticaWarehousePull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaInventoryPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaCustomerPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaOrderPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaShipmentPull>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaReferencePull>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaWarehouseGet>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaInventoryGet>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaCustomerGet>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaOrderGet>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaShipmentGet>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaReferenceGet>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();
 
@@ -162,18 +162,18 @@ namespace Monster.Middle
         {
             // Inventory 
             builder.RegisterType<SyncInventoryRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyInventorySync>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaInventorySync>().InstancePerLifetimeScope();
-            builder.RegisterType<WarehouseLocationSync>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyInventoryPut>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaInventoryPut>().InstancePerLifetimeScope();
+            builder.RegisterType<WarehouseLocationPut>().InstancePerLifetimeScope();
             
             // Orders
             builder.RegisterType<SyncOrderRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyFulfillmentSync>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaCustomerSync>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaOrderSync>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaShipmentSync>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaRefundSync>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaOrderPaymentSync>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyFulfillmentPut>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaCustomerPut>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaOrderPut>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaShipmentPut>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaRefundPut>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaOrderPaymentPut>().InstancePerLifetimeScope();
             
             // Services
             builder.RegisterType<UrlService>().InstancePerLifetimeScope();            

@@ -17,7 +17,7 @@ using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
-    public class ShopifyInventorySync
+    public class ShopifyInventoryPut
     {
         private readonly InventoryApi _inventoryApi;
         private readonly ProductApi _productApi;
@@ -26,7 +26,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
 
-        public ShopifyInventorySync(
+        public ShopifyInventoryPut(
                 InventoryApi inventoryApi,
                 ProductApi productApi,
                 ShopifyInventoryRepository inventoryRepository, 

@@ -23,32 +23,32 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ExecutionLogService _executionLogService;
         private readonly AcumaticaHttpContext _acumaticaContext;
 
-        private readonly WarehouseLocationSync _warehouseLocationSync;
-        private readonly ShopifyInventorySync _shopifyInventorySync;
-        private readonly ShopifyFulfillmentSync _shopifyFulfillmentSync;
+        private readonly WarehouseLocationPut _warehouseLocationSync;
+        private readonly ShopifyInventoryPut _shopifyInventorySync;
+        private readonly ShopifyFulfillmentPut _shopifyFulfillmentSync;
 
-        private readonly AcumaticaCustomerSync _acumaticaCustomerSync;
-        private readonly AcumaticaOrderSync _acumaticaOrderSync;
-        private readonly AcumaticaShipmentSync _acumaticaShipmentSync;
-        private readonly AcumaticaInventorySync _acumaticaInventorySync;
-        private readonly AcumaticaOrderPaymentSync _acumaticaPaymentSync;
-        private readonly AcumaticaRefundSync _acumaticaRefundSync;
+        private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
+        private readonly AcumaticaOrderPut _acumaticaOrderSync;
+        private readonly AcumaticaShipmentPut _acumaticaShipmentSync;
+        private readonly AcumaticaInventoryPut _acumaticaInventorySync;
+        private readonly AcumaticaOrderPaymentPut _acumaticaPaymentSync;
+        private readonly AcumaticaRefundPut _acumaticaRefundSync;
         
         private readonly IPushLogger _logger;
 
 
         public SyncManager(
                 AcumaticaHttpContext acumaticaContext,
-                AcumaticaCustomerSync acumaticaCustomerSync,
-                AcumaticaOrderSync acumaticaOrderSync,
-                AcumaticaShipmentSync acumaticaShipmentSync,
-                AcumaticaInventorySync acumaticaInventorySync,
-                AcumaticaRefundSync acumaticaRefundSync, 
-                AcumaticaOrderPaymentSync acumaticaPaymentSync,
+                AcumaticaCustomerPut acumaticaCustomerSync,
+                AcumaticaOrderPut acumaticaOrderSync,
+                AcumaticaShipmentPut acumaticaShipmentSync,
+                AcumaticaInventoryPut acumaticaInventorySync,
+                AcumaticaRefundPut acumaticaRefundSync, 
+                AcumaticaOrderPaymentPut acumaticaPaymentSync,
 
-                WarehouseLocationSync warehouseLocationSync,
-                ShopifyInventorySync shopifyInventorySync,
-                ShopifyFulfillmentSync shopifyFulfillmentSync,
+                WarehouseLocationPut warehouseLocationSync,
+                ShopifyInventoryPut shopifyInventorySync,
+                ShopifyFulfillmentPut shopifyFulfillmentSync,
 
                 PreferencesRepository preferencesRepository,
                 InstanceContext connectionContext,
@@ -116,7 +116,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 {
                     var childConnectionContext = childScope.Resolve<InstanceContext>();
                     var childAcumaticaContext = childScope.Resolve<AcumaticaHttpContext>();
-                    var childOrderSync = childScope.Resolve<AcumaticaOrderSync>();
+                    var childOrderSync = childScope.Resolve<AcumaticaOrderPut>();
 
                     _logger.Debug(
                         $"OrderSyncInChildScope - Acumatica Context: {childAcumaticaContext.ObjectIdentifier}");

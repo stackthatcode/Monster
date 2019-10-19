@@ -17,7 +17,7 @@ using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
-    public class AcumaticaOrderPaymentSync
+    public class AcumaticaOrderPaymentPut
     {
         private readonly ExecutionLogService _logService;
         private readonly SyncOrderRepository _syncOrderRepository;
@@ -25,7 +25,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SalesOrderClient _salesOrderClient;
         private readonly PreferencesRepository _preferencesRepository;
 
-        public AcumaticaOrderPaymentSync(
+        public AcumaticaOrderPaymentPut(
                     SyncOrderRepository syncOrderRepository, 
                     PaymentClient paymentClient, 
                     PreferencesRepository preferencesRepository, 

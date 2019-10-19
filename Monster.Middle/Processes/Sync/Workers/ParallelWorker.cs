@@ -2,9 +2,9 @@
 {
     public class ParallelWorker
     {
-        private readonly AcumaticaOrderSync _acumaticaOrderSync;
+        private readonly AcumaticaOrderPut _acumaticaOrderSync;
 
-        public ParallelWorker(AcumaticaOrderSync acumaticaOrderSync)
+        public ParallelWorker(AcumaticaOrderPut acumaticaOrderSync)
         {
             _acumaticaOrderSync = acumaticaOrderSync;
         }

@@ -5,13 +5,13 @@ using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Acumatica.Workers
 {
-    public class AcumaticaReferencePull
+    public class AcumaticaReferenceGet
     {
         private readonly AcumaticaInventoryRepository _dataRepository;
         private readonly ReferenceClient _referenceApi;
         private readonly IPushLogger _logger;
 
-        public AcumaticaReferencePull(
+        public AcumaticaReferenceGet(
                 AcumaticaInventoryRepository dataRepository,
                 ReferenceClient referenceApi,
                 IPushLogger logger)

@@ -4,12 +4,12 @@ using Monster.Middle.Processes.Sync.Persist;
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
-    public class WarehouseLocationSync
+    public class WarehouseLocationPut
     {
         private readonly SyncInventoryRepository _repository;
         private readonly ExecutionLogService _executionLogService;
 
-        public WarehouseLocationSync(
+        public WarehouseLocationPut(
                 SyncInventoryRepository repository, 
                 ExecutionLogService executionLogService)
         {

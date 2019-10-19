@@ -17,7 +17,7 @@ using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
-    public class ShopifyFulfillmentSync
+    public class ShopifyFulfillmentPut
     {
         private readonly FulfillmentApi _fulfillmentApi;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly ExecutionLogService _logService;
         private readonly FulfillmentStatusService _fulfillmentStatusService;
 
-        public ShopifyFulfillmentSync(
+        public ShopifyFulfillmentPut(
                 ShopifyOrderRepository shopifyOrderRepository,
                 AcumaticaOrderRepository orderRepository, 
                 SyncOrderRepository syncOrderRepository,

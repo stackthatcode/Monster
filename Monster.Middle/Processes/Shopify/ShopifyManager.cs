@@ -4,19 +4,19 @@ namespace Monster.Middle.Processes.Shopify.Workers
 {
     public class ShopifyManager
     {
-        private readonly ShopifyLocationPull _shopifyLocationPull;
-        private readonly ShopifyInventoryPull _shopifyInventoryPull;
-        private readonly ShopifyCustomerPull _shopifyCustomerPull;
-        private readonly ShopifyOrderPull _shopifyOrderPull;
-        private readonly ShopifyTransactionPull _shopifyTransactionPull;
+        private readonly ShopifyLocationGet _shopifyLocationPull;
+        private readonly ShopifyInventoryGet _shopifyInventoryPull;
+        private readonly ShopifyCustomerGet _shopifyCustomerPull;
+        private readonly ShopifyOrderGet _shopifyOrderPull;
+        private readonly ShopifyTransactionGet _shopifyTransactionPull;
         private readonly OrderApi _orderApi;
 
         public ShopifyManager(
-            ShopifyLocationPull shopifyLocationPull,
-            ShopifyInventoryPull shopifyInventoryPull, 
-            ShopifyCustomerPull shopifyCustomerPull, 
-            ShopifyOrderPull shopifyOrderPull, 
-            ShopifyTransactionPull shopifyTransactionPull, 
+            ShopifyLocationGet shopifyLocationPull,
+            ShopifyInventoryGet shopifyInventoryPull, 
+            ShopifyCustomerGet shopifyCustomerPull, 
+            ShopifyOrderGet shopifyOrderPull, 
+            ShopifyTransactionGet shopifyTransactionPull, 
             OrderApi orderApi)
         {
             _shopifyLocationPull = shopifyLocationPull;

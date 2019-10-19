@@ -214,7 +214,7 @@ namespace Monster.Web.Controllers
 
             _connectionRepository.SaveChanges();
 
-            var state = data.AreValid() ? StateCode.Ok : StateCode.Invalid;
+            var state = data.AreAcumaticaPreferencesValid() ? StateCode.Ok : StateCode.Invalid;
             _stateRepository.UpdateSystemState(x => x.PreferenceState, state);
 
             return JsonNetResult.Success();

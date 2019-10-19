@@ -10,13 +10,13 @@ using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Middle.Processes.Acumatica.Workers
 {
-    public class AcumaticaWarehousePull
+    public class AcumaticaWarehouseGet
     {
         private readonly AcumaticaInventoryRepository _dataRepository;
         private readonly DistributionClient _acumaticaInventoryApi;
         private readonly IPushLogger _logger;
 
-        public AcumaticaWarehousePull(
+        public AcumaticaWarehouseGet(
                 AcumaticaInventoryRepository dataRepository,
                 DistributionClient acumaticaInventoryApi,
                 IPushLogger logger)

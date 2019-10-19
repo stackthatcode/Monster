@@ -4,6 +4,7 @@ namespace Monster.Web.Models.Config
 {
     public class OrderSyncSettingsModel
     {
+        public long StartingShopifyOrderId { get; set; }
         public DateTime? ShopifyOrderDateStart { get; set; }
 
         public string ShopifyOrderDateStartFormatted
