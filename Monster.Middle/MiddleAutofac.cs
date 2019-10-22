@@ -101,7 +101,7 @@ namespace Monster.Middle
             RegisterPayoutProcess(builder);
 
             // Misc
-            builder.RegisterType<TimeZoneTranslator>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyTimeZoneTranslator>().InstancePerLifetimeScope();
 
             // Crypto faculties
             builder.Register<ICryptoService>(x => new AesCrypto(

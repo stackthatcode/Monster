@@ -9,7 +9,7 @@ namespace Monster.ConsoleApp
     // *** Testing LifeTime Scope
 
 
-    public class ScopeTestingRiffRaff
+    public class AutofacScopeTester
     {
         private static int _globalIdentifier = 1;
 
@@ -17,7 +17,7 @@ namespace Monster.ConsoleApp
         private readonly ProcessPersistContext _persist;
         public int Id = _globalIdentifier++;
 
-        public ScopeTestingRiffRaff(
+        public AutofacScopeTester(
                 IPushLogger logger, ProcessPersistContext persist)
         {
             _logger = logger;
@@ -28,11 +28,11 @@ namespace Monster.ConsoleApp
         public static void ScheduleSomeTrouble()
         {
             // *** Testing LifeTime Scope
-            var jobId1 = BackgroundJob.Enqueue<ScopeTestingRiffRaff>(
+            var jobId1 = BackgroundJob.Enqueue<AutofacScopeTester>(
                 x => x.Run());
-            var jobId2 = BackgroundJob.Enqueue<ScopeTestingRiffRaff>(
+            var jobId2 = BackgroundJob.Enqueue<AutofacScopeTester>(
                 x => x.Run());
-            var jobId3 = BackgroundJob.Enqueue<ScopeTestingRiffRaff>(
+            var jobId3 = BackgroundJob.Enqueue<AutofacScopeTester>(
                 x => x.Run());
             // *** Testing LifeTime Scope
         }

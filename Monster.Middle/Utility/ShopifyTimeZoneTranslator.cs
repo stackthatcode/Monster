@@ -1,16 +1,12 @@
 ﻿using System;
 using Push.Foundation.Utilities.Helpers;
-using TimeZoneConverter;
 
+// ReSharper disable once CheckNamespace
 namespace Monster.Middle.Services
 {
 
-    public class TimeZoneTranslator
+    public class ShopifyTimeZoneTranslator
     {
-        public TimeZoneTranslator()
-        {
-        }
-
         // Returns Date + Midnight of that Date in another Time Zone based on *now* in UTC
         public DateTime Today(string shopifyTimeZone)
         {
@@ -36,7 +32,7 @@ namespace Monster.Middle.Services
     // After all that dependency injecting hemming and hawwing, eh?
     public static class TimeZoneTranslatorExtensions
     {
-        private static readonly TimeZoneTranslator _translator = new TimeZoneTranslator();
+        private static readonly ShopifyTimeZoneTranslator _translator = new ShopifyTimeZoneTranslator();
 
         public static DateTime Today(string shopifyTimeZone)
         {

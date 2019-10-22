@@ -242,7 +242,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Misc\External\ExternalServiceRepository.cs" />
     <Compile Include="Utility\AcumaticaTimeZone.cs" />
-    <Compile Include="Utility\TimeZoneTranslator.cs" />
+    <Compile Include="Utility\ShopifyTimeZoneTranslator.cs" />
     <Compile Include="Utility\AcumaticaTimeZoneService.cs" />
   </ItemGroup>
   <ItemGroup>

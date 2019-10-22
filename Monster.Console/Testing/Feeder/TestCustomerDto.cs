@@ -1,4 +1,4 @@
-﻿namespace Monster.ConsoleApp.Feeder
+﻿namespace Monster.ConsoleApp.Testing.Feeder
 {
     public class TestCustomerDto
     {

@@ -81,24 +81,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Feeder\OrderPayload.cs" />
-    <Compile Include="Feeder\ShopifyDataFeeder.cs" />
-    <Compile Include="Feeder\TestCustomerDto.cs" />
-    <Compile Include="ScopeTestingRiffRaff.cs" />
-    <Compile Include="TestingHarness\Payouts\PayoutsHarness.cs" />
-    <Compile Include="TestingHarness\Shopify\MetafieldProcesses.cs" />
-    <Compile Include="TestingHarness\Acumatica\AcumaticaHarness.cs" />
+    <Compile Include="AutofacRunner.cs" />
+    <Compile Include="Testing\Feeder\OrderPayload.cs" />
+    <Compile Include="Testing\Feeder\ShopifyDataFeeder.cs" />
+    <Compile Include="Testing\Feeder\TestCustomerDto.cs" />
+    <Compile Include="Testing\MoreTestingStuff.cs" />
+    <Compile Include="Testing\TestingStuff.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestingHarness\Shopify\ShopifyHarness.cs" />
-    <Compile Include="TestingHarness\Shopify\TestProcesses.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
       <TransformOnBuild>true</TransformOnBuild>
     </None>
-    <Content Include="Feeder\TestCustomers.json">
+    <Content Include="Testing\Feeder\TestCustomers.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="App.Debug.config">

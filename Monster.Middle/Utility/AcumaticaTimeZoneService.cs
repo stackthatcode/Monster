@@ -9,17 +9,16 @@ namespace Monster.Middle.Utility
     {
         private readonly PreferencesRepository _preferencesRepository;
 
-        public AcumaticaTimeZoneService(
-                PreferencesRepository preferencesRepository)
+        public AcumaticaTimeZoneService(PreferencesRepository preferencesRepository)
         {
             _preferencesRepository = preferencesRepository;
         }
 
-        public DateTime ToAcumaticaTimeZone(DateTime input)
+        public DateTime ToAcumaticaTimeZone(DateTime dateTimeUTC)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
 
-            return input.ToTimeZone(preferences.AcumaticaTimeZone);
+            return dateTimeUTC.ToTimeZone(preferences.AcumaticaTimeZone);
         }
 
         public List<TimeZone> RetrieveTimeZones()

@@ -94,11 +94,12 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _batchRepository.UpdateOrdersGetEnd(orderBatchEnd);
         }
 
-        public void Run(long shopifyOrderId)
+        public OrderParent Run(long shopifyOrderId)
         {
             var orderJson = _orderApi.Retrieve(shopifyOrderId);
             var order = orderJson.DeserializeToOrderParent();
             UpsertOrderAndCustomer(order.order);
+            return order;
         }
 
 

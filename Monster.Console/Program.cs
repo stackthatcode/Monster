@@ -4,19 +4,12 @@ using Autofac;
 using Hangfire;
 using Hangfire.Logging;
 using Hangfire.SqlServer;
-using Monster.Acumatica.Http;
-using Monster.ConsoleApp.Feeder;
+using Monster.ConsoleApp.Testing;
 using Monster.Middle;
 using Monster.Middle.Config;
 using Monster.Middle.Identity;
 using Monster.Middle.Misc.Hangfire;
-using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync.Workers;
-using Monster.Middle.Processes.Sync.Workers.Orders;
 using Push.Foundation.Utilities.Helpers;
-using Push.Foundation.Utilities.Logging;
 
 
 namespace Monster.ConsoleApp
@@ -24,11 +17,13 @@ namespace Monster.ConsoleApp
     class Program
     {
         private const string RunHangfireBackgroundOption = "1";
-        private const string RunShopifyOrderFeederOption = "2";
-        private const string ProvisionNewUserAccountOption = "3";
-        private const string HydrateSecurityConfigOption = "4";
+        private const string ProvisionNewUserAccountOption = "2";
+        private const string HydrateSecurityConfigOption = "3";
 
-        private const string RunAcumaticaOrderSyncOption = "11";
+        private const string RunShopifyOrderFeederOption = "11";
+        private const string RunAcumaticaOrderSyncOption = "12";
+        private const string ShopifyOrderTimezoneTest = "13";
+
 
         static void Main(string[] args)
         {
@@ -37,30 +32,43 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"Logic Automated LLC - all rights reserved");
             Console.WriteLine();
             Console.WriteLine($"{RunHangfireBackgroundOption} - Run Hangfire Background Service");
-            Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
             Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
             Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
+
+            // Testing functions
+            //
             Console.WriteLine();
+            Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
             Console.WriteLine($"{RunAcumaticaOrderSyncOption} - AcumaticaOrderSync -> RunOrder");
+            Console.WriteLine($"{ShopifyOrderTimezoneTest} - Shopify Order to Acumatica Timezone Test");
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
             var input = Console.ReadLine();
+
+            // Monster utility functions
+            //
             if (input == RunHangfireBackgroundOption)
                 RunHangFireBackgroundService();
-            if (input == RunShopifyOrderFeederOption)
-                RunShopifyOrderFeeder();
             if (input == ProvisionNewUserAccountOption)
                 ProvisionNewUserAccount();
             if (input == HydrateSecurityConfigOption)
                 HydrateSecurityConfig();
-            if (input == RunAcumaticaOrderSyncOption)
-                RunAcumaticaOrderSync();
 
+            // Testing functions
+            //
+            if (input == RunShopifyOrderFeederOption)
+                MoreTestingStuff.RunShopifyOrderFeeder();
+            if (input == RunAcumaticaOrderSyncOption)
+                MoreTestingStuff.RunAcumaticaOrderSync();
+            if (input == ShopifyOrderTimezoneTest)
+                MoreTestingStuff.RunShopifyOrderTimezoneTest();
+            
             Console.WriteLine("FIN");
             Console.ReadKey();
         }
-        
+
+
         static void RunHangFireBackgroundService()
         {            
             ConfigureHangFire();
@@ -130,77 +138,18 @@ namespace Monster.ConsoleApp
                 var user = identityService.ProvisionNewAccount(email, domain).Result;
             };
 
-            RunInLifetimeScope(process);
+            AutofacRunner.RunInLifetimeScope(process);
         }
 
         static void HydrateSecurityConfig()
         {
-            RunInLifetimeScope(scope =>
+            AutofacRunner.RunInLifetimeScope(scope =>
             {
                 var identityService = scope.Resolve<IdentityService>();
                 identityService.PopulateRolesAndAdmin();
             });
         }
 
-        static void RunShopifyOrderFeeder()
-        {
-            RunInLifetimeScope(
-                scope =>
-                {
-                    var feeder = scope.Resolve<ShopifyDataFeeder>();
-                    feeder.Run();
-                },
-                builder =>
-                {
-                    builder.RegisterType<ShopifyDataFeeder>().InstancePerLifetimeScope();
-                });
-        }
-
-        static void RunAcumaticaOrderSync()
-        {
-            Console.WriteLine(
-                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1778846826540)");
-            var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1778846826540").ToLong();
-
-            RunInLifetimeScope(scope =>
-            {
-                var instanceContext = scope.Resolve<InstanceContext>();
-
-                var acumaticaOrderPull = scope.Resolve<AcumaticaOrderGet>();
-                var shopifyOrderPull = scope.Resolve<ShopifyOrderGet>();
-                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
-                var orderSync = scope.Resolve<AcumaticaOrderPut>();
-
-                instanceContext.Initialize(Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212"));
-
-                //acumaticaContext.SessionRun(() => acumaticaOrderPull.RunAutomatic());
-                //shopifyOrderPull.RunAutomatic();
-                acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
-            });
-        }
-
-        static void RunInLifetimeScope(
-                Action<ILifetimeScope> action,  Action<ContainerBuilder> builderPreExec = null)
-        {
-            var builder = new ContainerBuilder();
-            MiddleAutofac.Build(builder);
-            builderPreExec?.Invoke(builder);
-
-            var container = builder.Build();
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var logger = scope.Resolve<IPushLogger>();
-
-                try
-                {
-                    action(scope);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex);
-                }
-            }
-        }
     }
 }
 
