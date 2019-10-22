@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Autofac;
 using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Testing.Feeder;
@@ -10,6 +6,7 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Workers;
+using Monster.Middle.Utility;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.ConsoleApp.Testing
@@ -67,12 +64,14 @@ namespace Monster.ConsoleApp.Testing
                 instanceContext.Initialize(TestInstanceId);
 
                 var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
+                var acumaticaTimeZone = scope.Resolve<AcumaticaTimeZoneService>();
 
                 var order = shopifyOrderGet.Run(shopifyOrderId).order;
 
                 var createdAt = order.created_at;
                 var createdAtUtc = order.created_at.ToUniversalTime();
 
+                var acumaticaTime = acumaticaTimeZone.ToAcumaticaTimeZone(createdAtUtc.DateTime);
             });
         }
     }

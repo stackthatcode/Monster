@@ -91,6 +91,7 @@ namespace Monster.Middle.Misc.Hangfire
                     var msg = $"Job Monitor {jobMonitorId} is missing or corrupted";
                     _executionLogService.Log(msg);
                     _jobMonitoringService.CleanupPostExecution(jobMonitorId);
+                    InstanceLock.Free(instanceId.ToString());
                     return;
                 }
 
@@ -99,6 +100,7 @@ namespace Monster.Middle.Misc.Hangfire
                     var msg = $"Job Monitor {jobMonitorId} has received signal";
                     _executionLogService.Log(msg);
                     _jobMonitoringService.CleanupPostExecution(jobMonitorId);
+                    InstanceLock.Free(instanceId.ToString());
                     return;
                 }
 
