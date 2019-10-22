@@ -2,6 +2,7 @@
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
+using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 
 
@@ -43,10 +44,11 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
         
-        public string WriteCustomer(string content)
+        public Customer.Customer WriteCustomer(Customer.Customer customer)
         {
+            var content = customer.SerializeToJson();
             var response = _httpContext.Put("Customer", content);
-            return response.Body;
+            return response.Body.DeserializeFromJson<Customer.Customer>();
         }        
     }
 }

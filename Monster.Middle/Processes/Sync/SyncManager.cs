@@ -29,7 +29,6 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPut _acumaticaOrderSync;
-        private readonly AcumaticaShipmentPut _acumaticaShipmentSync;
         private readonly AcumaticaInventoryPut _acumaticaInventorySync;
         private readonly AcumaticaOrderPaymentPut _acumaticaPaymentSync;
         private readonly AcumaticaRefundPut _acumaticaRefundSync;
@@ -41,7 +40,6 @@ namespace Monster.Middle.Processes.Sync.Managers
                 AcumaticaHttpContext acumaticaContext,
                 AcumaticaCustomerPut acumaticaCustomerSync,
                 AcumaticaOrderPut acumaticaOrderSync,
-                AcumaticaShipmentPut acumaticaShipmentSync,
                 AcumaticaInventoryPut acumaticaInventorySync,
                 AcumaticaRefundPut acumaticaRefundSync, 
                 AcumaticaOrderPaymentPut acumaticaPaymentSync,
@@ -62,8 +60,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _acumaticaRefundSync = acumaticaRefundSync;
             _acumaticaPaymentSync = acumaticaPaymentSync;
             _acumaticaOrderSync = acumaticaOrderSync;
-            _acumaticaShipmentSync = acumaticaShipmentSync;
-
+            
             _shopifyFulfillmentSync = shopifyFulfillmentSync;
             _preferencesRepository = preferencesRepository;
 
@@ -85,7 +82,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             var preferenece = _preferencesRepository.RetrievePreferences();
             var msg = $"Starting Order Sync with {preferenece.MaxParallelAcumaticaSyncs} worker(s)";
-            _executionLogService.InsertExecutionLog(msg);
+            _executionLogService.Log(msg);
 
             ServicePointManager.DefaultConnectionLimit = 100;
             var queue = _acumaticaOrderSync.BuildQueue();

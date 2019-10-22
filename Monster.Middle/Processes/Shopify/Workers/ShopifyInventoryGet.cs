@@ -45,7 +45,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         public void RunAutomatic()
         {
             var batchState = _batchRepository.Retrieve();
-            _executionLogService.InsertExecutionLog("Refreshing Inventory from Shopify");
+            _executionLogService.Log("Refreshing Inventory from Shopify");
 
             if (batchState.ShopifyProductsGetEnd.HasValue)
             {

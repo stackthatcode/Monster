@@ -129,33 +129,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             return salesOrderUpdate;
         }
 
-        // TODO - Abstract and move to AcumaticaOrderPull
-        //
-        public void PushCancelsTaxesUpdate(ShopifyRefund refundRecord)
-        {
-            // First refresh the SalesOrder -> TaxDetailId
-            var salesOrderRecord = refundRecord.ShopifyOrder.MatchingSalesOrder();
-
-            var taxId = RetrieveTaxId(salesOrderRecord.AcumaticaOrderNbr, SalesOrderType.SO);
-
-            if (taxId == null)
-            {
-                refundRecord.IsCancellationSynced = true;
-                refundRecord.LastUpdated = DateTime.UtcNow;
-                _syncOrderRepository.SaveChanges();
-                return;
-            }
-            
-            _syncOrderRepository.SaveChanges();
-
-            _acumaticaOrderSync.RunOrder(refundRecord.ShopifyOrderId);
-
-            // Now we can flag Refunds Cancellation as synced
-            refundRecord.IsCancellationSynced = true;
-            refundRecord.LastUpdated = DateTime.UtcNow;
-            _syncOrderRepository.SaveChanges();
-        }
-        
 
 
         // Refunds-Returns
@@ -173,71 +146,15 @@ namespace Monster.Middle.Processes.Sync.Workers
                     continue;
                 }
 
-                // Write a Credit Memo and Taxes (ha!) to Acumatica for restocked items
-                if (status.DoesNotHaveCreditMemoInvoice)
+
+                // *** TODO - this should be a Return for Credit
+                //
+                // Write a Credit Memo to Acumatica for restocked items
+                if (status.DoesNotHaveCreditMemoOrder)
                 {
-                    var success = 
-                        _logService.ExecuteWithFailLog(
-                            () => PushReturnOrder(_return),
-                            LoggingDescriptors.CreateAcumaticaCreditMemo,
-                            LoggingDescriptors.ShopifyRefund(_return));
-
-                    if (success)
-                    {
-                        _logService.ExecuteWithFailLog(
-                            () => PushReturnOrderTaxes(_return),
-                            LoggingDescriptors.UpdateAcumaticaCreditMemoTaxes,
-                            LoggingDescriptors.ShopifyRefund(_return));
-                    }
-
-                    continue;
-                }
-                
-                if (status.HasCreditMemoOrder && status.AreCreditMemoTaxesNotSynced)
-                {
-                    _logService.ExecuteWithFailLog(
-                        () => PushReturnOrderTaxes(_return),
-                        LoggingDescriptors.UpdateAcumaticaCreditMemoTaxes,
-                        LoggingDescriptors.ShopifyRefund(_return));
-
-                    continue;
-                }
-
-                if (status.DoesNotHaveCreditMemoInvoice)
-                {
-                    var success =
-                        _logService.ExecuteWithFailLog(
-                            () => DetectReturnInvoice(_return),
-                            LoggingDescriptors.DetectAcumaticaCreditMemoInvoice,
-                            LoggingDescriptors.ShopifyRefund(_return));
-
-                    if (success)
-                    {
-                        _logService.ExecuteWithFailLog(
-                            () => CreateReturnInvoice(_return),
-                            LoggingDescriptors.CreateAcumaticaCreditMemoInvoice,
-                            LoggingDescriptors.ShopifyRefund(_return));
-                    }
-
-                    continue;
-                }
-
-                if (status.HasCreditMemoInvoice && status.DoesNotHaveReleasedInvoice)
-                {
-                    // No continue - keep processing with altered state
-                    _logService.ExecuteWithFailLog(
-                        () => DetectReturnInvoice(_return),
-                        LoggingDescriptors.DetectAcumaticaCreditMemoInvoice,
-                        LoggingDescriptors.ShopifyRefund(_return));
-                }
-
-                if (status.HasCreditMemoInvoice && status.DoesNotHaveReleasedInvoice)
-                {
-                    _logService.ExecuteWithFailLog(
-                        () => ReleaseReturnInvoice(_return),
-                        LoggingDescriptors.ReleaseAcumaticaCreditMemoInvoice,
-                        LoggingDescriptors.ShopifyRefund(_return));
-
+                    var content = LogBuilder.CreateAcumaticaCreditMemo(_return);
+                    _logService.Log(content);
+                    PushReturnOrder(_return);
                     continue;
                 }
             }
@@ -269,168 +186,9 @@ namespace Monster.Middle.Processes.Sync.Workers
                 $"Created Credit Memo {resultCmOrder.OrderNbr.value} in Acumatica from " +
                 $"Shopify Order #{shopifyOrder.order_number}";
 
-            _logService.InsertExecutionLog(log);
+            _logService.Log(log);
         }
 
-        public void PushReturnOrderTaxes(ShopifyRefund refundRecord)
-        {
-            var preferences = _preferencesRepository.RetrievePreferences();
-            var shopifyOrderRecord = refundRecord.ShopifyOrder;
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();            
-            var syncRecord = refundRecord.ShopAcuRefundCms.First();
-            
-            // Write the Sales Tax 
-            var taxId = RetrieveTaxId(syncRecord.AcumaticaCreditMemoOrderNbr, SalesOrderType.CM);
-
-            if (taxId == null)
-            {
-                syncRecord.IsCmOrderTaxLoaded = true;
-                syncRecord.LastUpdated = DateTime.Today;
-                _syncOrderRepository.SaveChanges();
-                return;
-            }
-
-            var taxUpdate = new TaxDetails();
-            taxUpdate.id = taxId;
-            taxUpdate.TaxID = preferences.AcumaticaTaxId.ToValue();
-            taxUpdate.TaxRate = ((double)0).ToValue();
-            taxUpdate.TaxableAmount = ((double)shopifyOrder.TaxableAmountTotalAfterRefundCancels).ToValue();
-            taxUpdate.TaxAmount = ((double)shopifyOrder.TaxTotalAfterRefundCancels).ToValue();
-
-            var creditMemoWrite = new ReturnForCreditWrite();
-            creditMemoWrite.OrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr.ToValue();
-            creditMemoWrite.OrderType = SalesOrderType.CM.ToValue();
-            creditMemoWrite.TaxDetails = new List<TaxDetails>() {taxUpdate};
-
-            var result = _salesOrderClient.WriteSalesOrder(creditMemoWrite.SerializeToJson());
-
-            var log = $"Wrote taxes for Credit Memo {syncRecord.AcumaticaCreditMemoOrderNbr} in Acumatica";
-            _logService.InsertExecutionLog(log);
-
-            syncRecord.IsCmOrderTaxLoaded = true;
-            syncRecord.LastUpdated = DateTime.Today;
-            _syncOrderRepository.SaveChanges();
-        }
-
-        public void DetectReturnInvoice(ShopifyRefund refundRecord)
-        {
-            var syncRecord = refundRecord.ShopAcuRefundCms.First();
-            var cmOrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr;
-
-            // Get the Sales Order from LIVE
-            var json =
-                _salesOrderClient.RetrieveSalesOrder(
-                    cmOrderNbr, SalesOrderType.CM, SalesOrderExpand.Shipments);
-            var salesOrder = json.ToSalesOrderObj();
-
-            if (salesOrder.HasInvoicedShipment()
-                && syncRecord.AcumaticaCreditMemoInvoiceNbr == null)
-            {
-                syncRecord.AcumaticaCreditMemoInvoiceNbr = salesOrder.ShipmentInvoiceNbr();
-                syncRecord.LastUpdated = DateTime.UtcNow;
-                _syncOrderRepository.SaveChanges();
-
-                var msg = $"Detected CM Invoice {salesOrder.ShipmentInvoiceNbr()} for CM Order {cmOrderNbr}";
-                _logService.InsertExecutionLog(msg);
-            }
-        }
-        
-        public void CreateReturnInvoice(ShopifyRefund refundRecord)
-        {
-            var syncRecord = refundRecord.ShopAcuRefundCms.First();
-            var cmOrderNbr = syncRecord.AcumaticaCreditMemoOrderNbr;
-
-            // Get the Sales Order from LIVE
-            var salesOrderPre =
-                _salesOrderClient
-                    .RetrieveSalesOrder(cmOrderNbr, SalesOrderType.CM, SalesOrderExpand.Shipments)
-                    .ToSalesOrderObj();
-            
-            // Invoke the PrepareInvoice method
-            var entityAsString = new {
-                entity = new 
-                {
-                    OrderNbr = cmOrderNbr.ToValue(),
-                    OrderType = SalesOrderType.CM.ToValue(),
-                }
-            }.SerializeToJson();
-
-            _salesOrderClient.PrepareSalesInvoice(entityAsString);
-
-            // Get the Invoice Number and store with the Sync Record
-            var salesOrderPost =
-                _salesOrderClient
-                    .RetrieveSalesOrder(cmOrderNbr, SalesOrderType.CM, SalesOrderExpand.Shipments)
-                    .ToSalesOrderObj();
-
-            if (!salesOrderPost.Shipments.Any())
-            {
-                // Waiting for Acumatica caching to catch-up 
-                _logger.Info(
-                    "Acumatica Prepare Sales Invoice stale cache detected " +
-                    $"for Sales Order Credit Memo {cmOrderNbr}");
-                return;
-            }
-
-            var invoiceNbr = salesOrderPost.ShipmentInvoiceNbr();
-            var log = $"Prepared CM Invoice {invoiceNbr} for CM Order {cmOrderNbr}";
-            _logService.InsertExecutionLog(log);
-
-            syncRecord.AcumaticaCreditMemoInvoiceNbr = invoiceNbr;
-            syncRecord.LastUpdated = DateTime.UtcNow;
-            _syncOrderRepository.SaveChanges();
-        }
-
-        public void DetectReleasedInvoice(ShopifyRefund refundRecord)
-        {
-            var syncRecord = refundRecord.ShopAcuRefundCms.First();
-            var creditMemoInvoiceNbr = syncRecord.AcumaticaCreditMemoInvoiceNbr;
-
-            // Get the Sales Order from LIVE
-            var invoice = 
-                _salesOrderClient
-                    .RetrieveSalesOrderInvoice(creditMemoInvoiceNbr, SalesInvoiceType.Credit_Memo)
-                    .ToSalesOrderInvoiceObj();
-
-            var status = RefundSyncStatus.Make(refundRecord);
-
-            if (invoice.IsReleased() && status.DoesNotHaveReleasedInvoice)
-            {
-                syncRecord.IsCmInvoiceReleased = true;
-                syncRecord.IsComplete = true;
-                syncRecord.LastUpdated = DateTime.UtcNow;
-                _syncOrderRepository.SaveChanges();
-
-                var msg = $"Detected Release for CM Invoice {invoice.ReferenceNbr.value}";
-                _logService.InsertExecutionLog(msg);
-            }
-        }
-
-        public void ReleaseReturnInvoice(ShopifyRefund refundRecord)
-        {
-            var syncRecord = refundRecord.ShopAcuRefundCms.First();
-            var creditMemoInvoiceNbr = syncRecord.AcumaticaCreditMemoInvoiceNbr;
-
-            // Get the Sales Order from LIVE
-            var invoicePre
-                = _salesOrderClient
-                    .RetrieveSalesOrderInvoice(creditMemoInvoiceNbr, SalesInvoiceType.Credit_Memo)
-                    .ToSalesOrderInvoiceObj();
-            
-            // Invoke the PrepareInvoice method
-            var entityAsString = new { entity = invoicePre }.SerializeToJson();
-            _salesOrderClient.ReleaseSalesInvoice(SalesInvoiceType.Credit_Memo, entityAsString);
-
-            // Get the Invoice Number and store with the Sync Record
-            var log = $"Released CM Invoice {invoicePre.ReferenceNbr.value}";
-            _logService.InsertExecutionLog(log);
-
-            syncRecord.IsCmInvoiceReleased = true;
-            syncRecord.IsComplete = true;
-            syncRecord.LastUpdated = DateTime.UtcNow;
-            _syncOrderRepository.SaveChanges();
-        }
-        
         private ReturnForCreditWrite 
                     BuildReturnForCredit(ShopifyRefund refundRecord, Preference preferences)
         {
@@ -465,8 +223,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             return creditMemo;
         }
 
-        private ReturnForCreditWriteDetail 
-                    BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
+        private ReturnForCreditWriteDetail
+            BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
         {
             var lineItem = shopifyOrder.LineItem(_return.line_item_id);
             var variant = _syncRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
@@ -482,17 +240,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
             return detail;
         }
-        
-        private string RetrieveTaxId(string orderNbr, string orderType)
-        {
-            var json = 
-                _salesOrderClient
-                    .RetrieveSalesOrder(orderNbr, orderType, SalesOrderExpand.TaxDetails);
-
-            var order = json.DeserializeFromJson<SalesOrder>();
-            return order.TaxDetails.Any() ? order.TaxDetails.First().id : null;
-        }
-        
     }
 }
 

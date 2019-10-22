@@ -34,7 +34,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                                   $"to Warehouse {sync.AcumaticaWarehouse.AcumaticaWarehouseId}";
 
                         _repository.DeleteWarehouseSync(sync);
-                        _executionLogService.InsertExecutionLog(log);
+                        _executionLogService.Log(log);
 
                         transaction.Commit();
                     }

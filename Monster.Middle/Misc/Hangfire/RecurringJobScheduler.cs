@@ -36,7 +36,7 @@ namespace Monster.Middle.Misc.Hangfire
 
             _jobMonitoringService.AssignHangfireJob(monitor.Id, jobId);
 
-            _executionLogService.InsertExecutionLog("End-to-End Sync - Starting Background Job");
+            _executionLogService.Log("End-to-End Sync - Starting Background Job");
 
             RecurringJob.Trigger(jobId);
         }
@@ -47,7 +47,7 @@ namespace Monster.Middle.Misc.Hangfire
             if (monitor != null)
             {
                 _jobMonitoringService.SendKillSignal(monitor.Id);
-                _executionLogService.InsertExecutionLog($"End-to-End Sync - kill signal sent to Job {monitor.Id}");
+                _executionLogService.Log($"End-to-End Sync - kill signal sent to Job {monitor.Id}");
             }
         }
     }

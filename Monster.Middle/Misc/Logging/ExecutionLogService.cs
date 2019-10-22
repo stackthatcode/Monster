@@ -19,7 +19,7 @@ namespace Monster.Middle.Misc.Logging
 
         private MonsterDataContext Entities => _dataContext.Entities;
 
-        public void InsertExecutionLog(string content, int level = LogLevel.Information)
+        public void Log(string content, int level = LogLevel.Information)
         {
             try
             {
@@ -47,21 +47,5 @@ namespace Monster.Middle.Misc.Logging
                 .Take(take)
                 .ToList();
         }
-
-        public bool ExecuteWithFailLog(Action action, string type, string identifier)
-        {
-            try
-            {
-                action();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                InsertExecutionLog($"Failed to execute {type} for {identifier}");
-                return false;
-            }
-        }
-
     }
 }

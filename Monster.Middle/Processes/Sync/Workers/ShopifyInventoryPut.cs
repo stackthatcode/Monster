@@ -62,10 +62,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                     return;
                 }
 
-                _executionLogService.ExecuteWithFailLog(
-                        () => PriceUpdate(stockItem),
-                        LoggingDescriptors.UpdateShopifyPrice,
-                        LoggingDescriptors.AcumaticaStockItem(stockItem));
+                _executionLogService.Log(LogBuilder.UpdateShopifyPrice(stockItem));
+                PriceUpdate(stockItem);
             }
         }
 
@@ -93,8 +91,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
-                var log = $"Updated Shopify Variant {variantSku} price to {price}";
-                _executionLogService.InsertExecutionLog(log);
+                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, (decimal)price);
+                _executionLogService.Log(log);
 
                 stockItem.IsPriceSynced = true;
                 stockItem.LastUpdated = DateTime.UtcNow;
@@ -117,11 +115,10 @@ namespace Monster.Middle.Processes.Sync.Workers
                     _logger.Debug($"Skipping StockItemInventoryUpdate for {stockItem.ItemId}");
                     return;
                 }
-                
-                _executionLogService.ExecuteWithFailLog(
-                        () => InventoryUpdate(stockItem),
-                        LoggingDescriptors.UpdateShopifyInventory,
-                        LoggingDescriptors.AcumaticaStockItem(stockItem));
+
+                var content = LogBuilder.UpdateShopifyInventory(stockItem);
+                _executionLogService.Log(content);
+                InventoryUpdate(stockItem);
             }
         }
 
@@ -179,7 +176,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var log = $"Updated Shopify Variant {sku} " +
                           $"in Location {location.ShopifyLocationName} to Available Qty {totalQtyOnHand}";
 
-                _executionLogService.InsertExecutionLog(log);
+                _executionLogService.Log(log);
 
                 // Flag Acumatica Warehouse Detail as synchronized
                 details.ForEach(x => x.IsInventorySynced = true);

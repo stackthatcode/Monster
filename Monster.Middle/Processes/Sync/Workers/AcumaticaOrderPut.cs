@@ -111,11 +111,10 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
             RunAcumaticaCustomerSync(orderRecord);
-            
-            _logService.ExecuteWithFailLog(
-                    () => PushOrder(orderRecord),
-                    LoggingDescriptors.CreateAcumaticaSalesOrder,
-                    LoggingDescriptors.ShopifyOrder(orderRecord));
+
+            var logContent = LogBuilder.CreateAcumaticaSalesOrder(orderRecord);
+            _logService.Log(logContent);
+            PushOrder(orderRecord);
         }
         
 
@@ -173,7 +172,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var acumaticaRecord = _acumaticaOrderPull.UpsertOrderToPersist(resultSalesOrder);
             _syncOrderRepository.InsertOrderSync(shopifyOrderRecord, acumaticaRecord);
                 
-            _logService.InsertExecutionLog(
+            _logService.Log(
                     $"Created Order {acumaticaRecord.AcumaticaOrderNbr} in Acumatica " +
                     $"from Shopify Order #{shopifyOrderRecord.ShopifyOrderNumber}");
         }

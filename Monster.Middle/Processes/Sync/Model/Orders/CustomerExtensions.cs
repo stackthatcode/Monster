@@ -32,6 +32,12 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
             return input.Match() != null;
         }
 
+        public static ShopAcuCustomerSync SyncRecord(this ShopifyCustomer input)
+        {
+            return input.ShopAcuCustomerSyncs.FirstOrDefault();
+        }
+
+
         public static string AcumaticaCustId(this ShopifyCustomer input)
         {
             return input.HasMatch() ? input.Match().AcumaticaCustomerId : null;

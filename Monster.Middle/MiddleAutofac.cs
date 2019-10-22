@@ -171,7 +171,6 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyFulfillmentPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaCustomerPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPut>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaShipmentPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaRefundPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPaymentPut>().InstancePerLifetimeScope();
             

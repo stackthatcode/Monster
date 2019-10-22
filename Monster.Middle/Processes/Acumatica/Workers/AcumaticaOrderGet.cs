@@ -106,7 +106,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 }
 
                 UpsertOrderToPersist(order);
-                PullAndUpsertShipmentInvoiceRefs(order.OrderNbr.value);
             }
         }
 
@@ -115,36 +114,54 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var orderNbr = order.OrderNbr.value;
             var existingData = _orderRepository.RetrieveSalesOrder(orderNbr);
 
-            if (existingData == null)
-            {
-                // Locate Acumatica Customer...
-                //
-                var customerId = order.CustomerID.value;
-                var customerMonsterId = _customerPull.RunAndUpsertCustomerIfNotExists(customerId);
-
-                var newData = new AcumaticaSalesOrder();
-                newData.AcumaticaOrderNbr = orderNbr;
-                newData.DetailsJson = order.SerializeToJson();
-                newData.ShipmentsJson = null;
-                newData.AcumaticaStatus = order.Status.value;
-                newData.CustomerMonsterId = customerMonsterId;
-                newData.DateCreated = DateTime.UtcNow;
-                newData.LastUpdated = DateTime.UtcNow;
-
-                _orderRepository.InsertSalesOrder(newData);
-                return newData;
-            }
-            else
+            if (existingData != null)
             {
                 existingData.DetailsJson = order.SerializeToJson();
                 existingData.AcumaticaStatus = order.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
-                
                 _orderRepository.SaveChanges();
+
+                PullAndUpsertShipmentInvoiceRefs(orderNbr);
                 return existingData;
             }
+            else
+            {
+                return null;
+
+                // Disabled for now
+                //
+                //SalesOrderRecovery(order);
+            }
         }
-        
+
+        // *** SAVE - Specifically for instances where the Sales Order in Acumatica was loaded
+        // ... from Monster, but Monster experienced data-loss i.e. this is disaster recovery
+        //
+        public void SalesOrderRecovery(SalesOrder order)
+        {
+            //var orderNbr = order.OrderNbr.value;
+
+            //// Locate Acumatica Customer...
+            ////
+            //var customerId = order.CustomerID.value;
+
+            //// *** Pending Disaster Recovery
+            ////
+            //var customerMonsterId = _customerPull.RunAndUpsertCustomerIfNotExists(customerId);
+
+            //var newData = new AcumaticaSalesOrder();
+            //newData.AcumaticaOrderNbr = orderNbr;
+            //newData.DetailsJson = order.SerializeToJson();
+            //newData.ShipmentsJson = null;
+            //newData.AcumaticaStatus = order.Status.value;
+            //newData.CustomerMonsterId = customerMonsterId;
+            //newData.DateCreated = DateTime.UtcNow;
+            //newData.LastUpdated = DateTime.UtcNow;
+
+            //_orderRepository.InsertSalesOrder(newData);
+            //return newData;
+        }
+
         public void PullAndUpsertShipmentInvoiceRefs(string orderNbr)
         {
             var json = _salesOrderClient.RetrieveSalesOrderShipments(orderNbr);

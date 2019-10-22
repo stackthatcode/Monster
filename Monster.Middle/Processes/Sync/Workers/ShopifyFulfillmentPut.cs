@@ -57,10 +57,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 if (syncReadiness.IsReady)
                 {
-                    _logService.ExecuteWithFailLog(
-                        () => PushFulfillmentToShopify(salesOrderRef), 
-                        LoggingDescriptors.CreateShopifyFulfillment, 
-                        LoggingDescriptors.AcumaticaShipmentSalesOrderRef(salesOrderRef));
+                    var content = LogBuilder.CreateShopifyFulfillment(salesOrderRef);
+                    _logService.Log(content);
+                    PushFulfillmentToShopify(salesOrderRef);
                 }
             }
         }
@@ -137,7 +136,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var log = $"Created Shopify Order #{shopifyOrder.order_number} Fulfillment " +
                           $"from Acumatica Shipment {shipment.ShipmentNbr.value}";
 
-                _logService.InsertExecutionLog(log);
+                _logService.Log(log);
                 transaction.Commit();
             }
         }

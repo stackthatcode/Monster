@@ -42,19 +42,9 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         public bool DoesNotHaveCreditMemoOrder => !HasCreditMemoOrder;
 
-        public bool AreCreditMemoTaxesNotSynced => !AreCreditMemoTaxesSynced;
-
-        public bool HasCreditMemoInvoice => AcumaticaCreditMemoInvoiceNbr.HasValue();
-
-        public bool DoesNotHaveCreditMemoInvoice => !HasCreditMemoInvoice;
-
-        public bool DoesNotHaveReleasedInvoice
-                    => DoesNotHaveCreditMemoInvoice || !HasCreditMemoInvoiceReleased;
-
         public bool IsSyncComplete
                     => HasCreditMemoOrder
                        && AreCreditMemoTaxesSynced
-                       && HasCreditMemoInvoice
                        && HasCreditMemoInvoiceReleased;
 
 

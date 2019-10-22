@@ -143,6 +143,7 @@
     <Compile Include="Persist\Instance\MiscPersistContext.cs" />
     <Compile Include="Misc\Logging\LogLevel.cs" />
     <Compile Include="Misc\State\StateExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Misc\LogDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
@@ -162,7 +163,7 @@
     <Compile Include="Misc\State\StateRepository.cs" />
     <Compile Include="Misc\State\StateCode.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Misc\LoggingDescriptors.cs" />
+    <Compile Include="Processes\Sync\Model\Misc\LogBuilder.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\AcumaticaInventoryImportContext.cs" />
     <Compile Include="Processes\Sync\Model\Misc\SyncEnabledFilter.cs" />
     <Compile Include="Processes\Sync\Model\Config\ItemClassModel.cs" />
@@ -213,7 +214,6 @@
     <Compile Include="Processes\Acumatica\Workers\AcumaticaCustomerGet.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaCustomerPut.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaRefundPut.cs" />
-    <Compile Include="Processes\Sync\Workers\AcumaticaShipmentPut.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaOrderPut.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaConstants.cs" />
     <Compile Include="Processes\Sync\Model\Status\ShipmentSyncReadiness.cs" />

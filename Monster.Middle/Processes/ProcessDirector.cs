@@ -69,7 +69,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                _executionLogService.InsertExecutionLog("Testing Shopify Connection");
+                _executionLogService.Log("Testing Shopify Connection");
                 _shopifyManager.TestConnection();
                 _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
             }
@@ -84,7 +84,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                _executionLogService.InsertExecutionLog("Testing Acumatica Connection");
+                _executionLogService.Log("Testing Acumatica Connection");
                 _acumaticaManager.TestConnection();
                 _stateRepository.UpdateSystemState(
                         x => x.AcumaticaConnState, StateCode.Ok);
@@ -101,7 +101,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                _executionLogService.InsertExecutionLog("Refreshing Acumatica Reference Data");
+                _executionLogService.Log("Refreshing Acumatica Reference Data");
                 _acumaticaManager.PullReferenceData();
                 
                 // Update the Reference Data State
@@ -131,7 +131,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                _executionLogService.InsertExecutionLog("Refresh Acumatica Warehouses and Shopify Locations");
+                _executionLogService.Log("Refresh Acumatica Warehouses and Shopify Locations");
 
                 // Step 1 - Pull Locations and Warehouses
                 _acumaticaManager.PullWarehouses();
@@ -167,7 +167,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                _executionLogService.InsertExecutionLog("Inventory Refresh - encountered error");
+                _executionLogService.Log("Inventory Refresh - encountered error");
 
                 _shopifyManager.PullInventory();
                 _acumaticaManager.PullInventory();
@@ -178,7 +178,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                _executionLogService.InsertExecutionLog("Inventory Refresh - encountered error");
+                _executionLogService.Log("Inventory Refresh - encountered error");
 
                 _stateRepository.UpdateSystemState(
                     x => x.InventoryRefreshState, StateCode.SystemFault);
@@ -193,7 +193,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             if (state.InventoryRefreshState != StateCode.Ok)
             {
                 var msg = "Inventory Refresh is broken; aborting Inventory Import";
-                _executionLogService.InsertExecutionLog(msg);
+                _executionLogService.Log(msg);
                 return;
             }
 
@@ -206,7 +206,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         //
         public void EndToEndSync()
         {
-            _executionLogService.InsertExecutionLog("End-to-End - process starting");
+            _executionLogService.Log("End-to-End - process starting");
 
             EndToEndRunner(
                 new Action[] 
@@ -272,7 +272,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     "End-to-End - Sync Inventory Count to Shopify");
             }
 
-            _executionLogService.InsertExecutionLog("End-to-End - process finishing");
+            _executionLogService.Log("End-to-End - process finishing");
         }
 
 
@@ -287,7 +287,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     var monitor = _monitoringService.RetrieveMonitorByType(BackgroundJobType.EndToEndSync);
                     if (monitor == null || monitor.ReceivedKillSignal)
                     {
-                        _executionLogService.InsertExecutionLog($"{name} - execution has been interrupted");
+                        _executionLogService.Log($"{name} - execution has been interrupted");
                         return;
                     }
 
@@ -296,7 +296,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 catch (Exception ex)
                 {
                     _stateRepository.UpdateSystemState(stateVariable, StateCode.SystemFault);
-                    _executionLogService.InsertExecutionLog($"{name} - encountered an error");
+                    _executionLogService.Log($"{name} - encountered an error");
                     _logger.Error(ex);
                     return;
                 }

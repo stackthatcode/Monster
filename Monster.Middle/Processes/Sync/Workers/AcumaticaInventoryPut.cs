@@ -23,21 +23,21 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncInventoryRepository _syncRepository;
         private readonly DistributionClient _distributionClient;
         private readonly PreferencesRepository _preferencesRepository;
-        private readonly ExecutionLogService _executionLogService;
+        private readonly ExecutionLogService _logService;
 
         public AcumaticaInventoryPut(
                 AcumaticaInventoryRepository inventoryRepository,
                 SyncInventoryRepository syncRepository,                    
                 DistributionClient distributionClient,
                 PreferencesRepository preferencesRepository,
-                ExecutionLogService executionLogService,
+                ExecutionLogService logService,
                 IPushLogger logger)
         {
             _syncRepository = syncRepository;
             _inventoryRepository = inventoryRepository;
             _distributionClient = distributionClient;
             _preferencesRepository = preferencesRepository;
-            _executionLogService = executionLogService;
+            _logService = logService;
         }
 
         public void RunImportToAcumatica(AcumaticaInventoryImportContext context)
@@ -67,7 +67,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (matchingShopifySkus.Count > 1)
             {
-                _executionLogService.InsertExecutionLog(
+                _logService.Log(
                     $"Shopify Variant SKU {variant.ShopifySku} has duplicates in Shopify");
                 return;
             }
@@ -77,8 +77,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (stockItem != null && !stockItem.IsMatchedToShopify())
             {
-                _executionLogService
-                    .InsertExecutionLog(
+                _logService
+                    .Log(
                         $"Auto-matched Stock Item {stockItem.ItemId} " +
                         $"to Shopify Variant {variant.ShopifyVariantId}");
 
@@ -89,9 +89,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // With neither duplicates or Auto-matching having succeeded,
             // ... we'll create a new Stock Item in Acumatica
-            _executionLogService.ExecuteWithFailLog(
-                    () => StockItemPush(context, variant),
-                    LoggingDescriptors.CreateStockItem, LoggingDescriptors.ShopifyVariant(variant));
+            //
+            _logService.Log(LogBuilder.CreateStockItem(variant));
+            StockItemPush(context, variant);
         }
 
         public void StockItemPush(
@@ -146,17 +146,15 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _syncRepository.InsertItemSync(variant, newStockItemRecord, context.IsSyncEnabled);
 
                 var log = $"Created Stock Item {item.InventoryID.value} in Acumatica";
-                _executionLogService.InsertExecutionLog(log);
+                _logService.Log(log);
                 transaction.Commit();
             }
         }
 
         public void RunInventoryReceiptImport(long shopifyProductId)
         {
-            _executionLogService.ExecuteWithFailLog(
-                    () => InventoryReceiptPush(shopifyProductId),
-                    LoggingDescriptors.CreateInventoryReceipt, 
-                    LoggingDescriptors.ShopifyProduct(shopifyProductId));
+            LogBuilder.CreateInventoryReceipt(shopifyProductId);
+            InventoryReceiptPush(shopifyProductId);
         }
 
         public void InventoryReceiptPush(long shopifyProductId)
@@ -184,7 +182,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _inventoryRepository.InsertInventoryReceipt(monsterReceipt);
 
             var log = $"Created Inventory Receipt {monsterReceipt.AcumaticaRefNumber} in Acumatica";
-            _executionLogService.InsertExecutionLog(log);
+            _logService.Log(log);
 
             foreach (var level in inventoryForSyncing)
             {

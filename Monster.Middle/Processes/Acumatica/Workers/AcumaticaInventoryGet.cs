@@ -41,7 +41,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunAutomatic()
         {
             var batchState = _batchStateRepository.Retrieve();
-            _executionLogService.InsertExecutionLog("Refreshing Stock Items from Acumatica");
+            _executionLogService.Log("Refreshing Stock Items from Acumatica");
 
             if (batchState.AcumaticaStockItemGetEnd.HasValue)
             {

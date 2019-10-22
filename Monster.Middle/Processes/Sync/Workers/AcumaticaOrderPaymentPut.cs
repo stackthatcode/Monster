@@ -49,10 +49,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 if (status.ShouldCreatePayment().Success)
                 {
-                    _logService.ExecuteWithFailLog(
-                            () => WritePaymentForOrders(transaction),
-                            LoggingDescriptors.CreateAcumaticaPayment,
-                            LoggingDescriptors.ShopifyTransaction(transaction));
+                    _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
+                    WritePaymentForOrders(transaction);
                 }
             }
         }
@@ -99,7 +97,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _syncOrderRepository.InsertPayment(paymentRecord);
 
             // Write Execution Log
-            _logService.InsertExecutionLog($"Created {payment.Description.value}");
+            _logService.Log($"Created {payment.Description.value}");
         }
 
         
@@ -200,7 +198,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _syncOrderRepository.InsertPayment(paymentRecord);
 
             // Write Execution Log
-            _logService.InsertExecutionLog($"Created {payment.Description.value}");
+            _logService.Log($"Created {payment.Description.value}");
         }
     }
 }

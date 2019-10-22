@@ -82,14 +82,14 @@ namespace Monster.Middle.Misc.Hangfire
                 if (!InstanceLock.Acquire(instanceId.ToString()))
                 {
                     var msg = $"Failed to acquire lock '{InstanceLock.MethodName}' for {instanceId}";
-                    _executionLogService.InsertExecutionLog(msg, LogLevel.Debug);
+                    _executionLogService.Log(msg, LogLevel.Debug);
                     return;
                 }
 
                 if (_jobMonitoringService.IsCorrupted(jobMonitorId))
                 {
                     var msg = $"Job Monitor {jobMonitorId} is missing or corrupted";
-                    _executionLogService.InsertExecutionLog(msg);
+                    _executionLogService.Log(msg);
                     _jobMonitoringService.CleanupPostExecution(jobMonitorId);
                     return;
                 }
@@ -97,7 +97,7 @@ namespace Monster.Middle.Misc.Hangfire
                 if (_jobMonitoringService.IsMissingOrReceivedKillSignal(jobMonitorId))
                 {
                     var msg = $"Job Monitor {jobMonitorId} has received signal";
-                    _executionLogService.InsertExecutionLog(msg);
+                    _executionLogService.Log(msg);
                     _jobMonitoringService.CleanupPostExecution(jobMonitorId);
                     return;
                 }

@@ -108,8 +108,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
         }
         
-        public AcumaticaShipment 
-                    UpsertShipmentToPersist(Shipment shipment, bool isCreatedByMonster = false)
+        public AcumaticaShipment UpsertShipmentToPersist(Shipment shipment)
         {
             var shipmentNbr = shipment.ShipmentNbr.value;
             var existingData = _orderRepository.RetrieveShipment(shipmentNbr);
@@ -121,7 +120,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 newData.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 newData.AcumaticaStatus = shipment.Status.value;
                 newData.AcumaticaTrackingNbr = shipment.LeadTrackingNbr;
-                newData.IsCreatedByMonster = isCreatedByMonster;
                 newData.DateCreated = DateTime.UtcNow;
                 newData.LastUpdated = DateTime.UtcNow;
 

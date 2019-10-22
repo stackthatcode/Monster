@@ -160,25 +160,6 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
         
-        public List<AcumaticaShipment> 
-                        RetrieveShipmentsByMonsterNotConfirmed()
-        {
-            return Entities
-                .AcumaticaShipments
-                .Where(x => x.IsCreatedByMonster 
-                            && x.AcumaticaStatus == ShipmentStatus.Open)
-                .ToList();
-        }
-
-        public List<AcumaticaShipment> 
-                        RetrieveShipmentsByMonsterWithNoInvoice()
-        {
-            return Entities
-                .AcumaticaShipments
-                .Where(x => x.IsCreatedByMonster 
-                            && x.AcumaticaStatus == ShipmentStatus.Confirmed)
-                .ToList();
-        }
 
 
         // Shopify Refunds

@@ -3,72 +3,117 @@ GO
 
 
 
--- Clean Synchronization 
+-- Clean Synchronization data
 --
-DELETE FROM ShopAcuRefundCM;
-DELETE FROM ShopifyAcuPayment;
-DELETE FROM ShopAcuShipmentSync;
-DELETE FROM ShopAcuOrderSync;
-DELETE FROM ShopAcuCustomerSync;
+DROP PROCEDURE IF EXISTS dbo.DeleteAllSyncRecords
+GO
 
-DELETE FROM InventoryReceiptSync;
-DELETE FROM ShopAcuItemSync;
-DELETE FROM ShopAcuWarehouseSync;
+CREATE PROCEDURE dbo.DeleteAllSyncRecords
+AS
+	DELETE FROM ShopAcuRefundCM;
+	DELETE FROM ShopifyAcuPayment;
+	DELETE FROM ShopAcuShipmentSync;
+	DELETE FROM ShopAcuOrderSync;
+	DELETE FROM ShopAcuCustomerSync;
+
+	DELETE FROM InventoryReceiptSync;
+	DELETE FROM ShopAcuItemSync;
+	DELETE FROM ShopAcuWarehouseSync;
+GO
 
 
 
 -- Acumatica Sales Order data
 --
-DELETE FROM AcumaticaCreditMemo;
-DELETE FROM AcumaticaShipmentSalesOrderRef;
-DELETE FROM AcumaticaShipment;
-DELETE FROM AcumaticaSoShipmentInvoice;
-DELETE FROM AcumaticaSalesOrder;
-DELETE FROM AcumaticaCustomer;
+DROP PROCEDURE IF EXISTS dbo.DeleteAllAcumaticaOrderRecords
+GO
+
+CREATE PROCEDURE dbo.DeleteAllAcumaticaOrderRecords
+AS
+
+	DELETE FROM AcumaticaCreditMemo;
+	DELETE FROM AcumaticaShipmentSalesOrderRef;
+	DELETE FROM AcumaticaShipment;
+	DELETE FROM AcumaticaSoShipmentInvoice;
+	DELETE FROM AcumaticaSalesOrder;
+	DELETE FROM AcumaticaCustomer;
+GO
 
 
 
 -- Acumatica Inventory data
 --
-DELETE FROM AcumaticaInventoryReceipt;
-DELETE FROM AcumaticaWarehouseDetails;
-DELETE FROM AcumaticaStockItem;
-DELETE FROM AcumaticaWarehouse;
+DROP PROCEDURE IF EXISTS dbo.DeleteAllAcumaticaInventoryRecords
+GO
+
+CREATE PROCEDURE dbo.DeleteAllAcumaticaInventoryRecords
+AS
+	DELETE FROM AcumaticaInventoryReceipt;
+	DELETE FROM AcumaticaWarehouseDetails;
+	DELETE FROM AcumaticaStockItem;
+	DELETE FROM AcumaticaWarehouse;
+GO
 
 
 
--- Shopify data
+-- Delete all Shopify Order data
 --
-DELETE FROM ShopifyPayout;
-DELETE FROM ShopifyPayoutTransaction;
+DROP PROCEDURE IF EXISTS dbo.DeleteAllShopifyOrderRecords
+GO
 
-DELETE FROM ShopifyTransaction;
-DELETE FROM ShopifyRefund;
-DELETE FROM ShopifyFulfillment;
-DELETE FROM ShopifyOrder;
-DELETE FROM ShopifyCustomer;
+CREATE PROCEDURE dbo.DeleteAllShopifyOrderRecords
+AS
+	DELETE FROM ShopifyPayout;
+	DELETE FROM ShopifyPayoutTransaction;
 
-DELETE FROM ShopifyInventoryLevel;
-DELETE FROM ShopifyVariant;
-DELETE FROM ShopifyProduct;
-DELETE FROM ShopifyLocation;
+	DELETE FROM ShopifyTransaction;
+	DELETE FROM ShopifyRefund;
+	DELETE FROM ShopifyFulfillment;
+	DELETE FROM ShopifyOrder;
+	DELETE FROM ShopifyCustomer;
+GO
 
+-- Delete all Shopify Inventory data
+--
+DROP PROCEDURE IF EXISTS dbo.DeleteAllShopifyInventoryRecords
+GO
+
+CREATE PROCEDURE dbo.DeleteAllShopifyInventoryRecords
+AS
+	DELETE FROM ShopifyInventoryLevel;
+	DELETE FROM ShopifyVariant;
+	DELETE FROM ShopifyProduct;
+	DELETE FROM ShopifyLocation;
+GO
 
 
 -- Clear out System tables
 --
-DELETE FROM AcumaticaRefData
-DELETE FROM Preferences;
+DROP PROCEDURE IF EXISTS dbo.DeleteAllSystemRecords
+GO
 
-DELETE FROM AcumaticaBatchState;
-DELETE FROM ShopifyBatchState;
+CREATE PROCEDURE dbo.DeleteAllSystemRecords
+AS
+	DELETE FROM AcumaticaBatchState;
+	DELETE FROM ShopifyBatchState;
 
-DELETE FROM JobMonitor;
-DELETE FROM ExecutionLog;
+	DELETE FROM AcumaticaRefData
+	DELETE FROM Preferences;
 
-DELETE FROM SystemState;
--- DELETE FROM Tenant
+	DELETE FROM SystemState;
 
+	DELETE FROM ExclusiveJobMonitor;
+	DELETE FROM ExecutionLog;
+GO
+
+
+
+EXEC dbo.DeleteAllSyncRecords;
+EXEC dbo.DeleteAllAcumaticaOrderRecords;
+EXEC dbo.DeleteAllAcumaticaInventoryRecords;
+EXEC dbo.DeleteAllShopifyOrderRecords;
+EXEC dbo.DeleteAllShopifyInventoryRecords;
+EXEC dbo.DeleteAllSystemRecords;
 
 
 

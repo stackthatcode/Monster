@@ -46,8 +46,14 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Entities.AcumaticaCustomers.Add(customer);
             Entities.SaveChanges();
         }
-        
-        
+
+        public void UpdateCustomer(string customerId)
+        {
+            var customer = Entities.AcumaticaCustomers.First(x => x.AcumaticaCustomerId == customerId);
+            Entities.SaveChanges();
+        }
+
+
 
         // Sales Order
         //

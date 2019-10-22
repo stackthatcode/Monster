@@ -893,7 +893,6 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaShipmentNbr { get; set; } // AcumaticaShipmentNbr (length: 50)
         public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 25)
         public string AcumaticaTrackingNbr { get; set; } // AcumaticaTrackingNbr (length: 100)
-        public bool IsCreatedByMonster { get; set; } // IsCreatedByMonster
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1150,7 +1149,6 @@ namespace Monster.Middle.Persist.Instance
         public long AcumaticaCustomerMonsterId { get; set; } // AcumaticaCustomerMonsterId
         public long ShopifyCustomerMonsterId { get; set; } // ShopifyCustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
-        public System.DateTime LastUpdated { get; set; } // LastUpdated
 
         // Foreign keys
 
@@ -1451,7 +1449,7 @@ namespace Monster.Middle.Persist.Instance
         public bool ShopifyIsCancelled { get; set; } // ShopifyIsCancelled
         public string ShopifyFinancialStatus { get; set; } // ShopifyFinancialStatus (length: 25)
         public bool AreTransactionsUpdated { get; set; } // AreTransactionsUpdated
-        public long? CustomerMonsterId { get; set; } // CustomerMonsterId
+        public long CustomerMonsterId { get; set; } // CustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -2182,7 +2180,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaShipmentNbr).HasColumnName(@"AcumaticaShipmentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaTrackingNbr).HasColumnName(@"AcumaticaTrackingNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
-            Property(x => x.IsCreatedByMonster).HasColumnName(@"IsCreatedByMonster").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }
@@ -2489,7 +2486,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaCustomerMonsterId).HasColumnName(@"AcumaticaCustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyCustomerMonsterId).HasColumnName(@"ShopifyCustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
             HasRequired(a => a.AcumaticaCustomer).WithMany(b => b.ShopAcuCustomerSyncs).HasForeignKey(c => c.AcumaticaCustomerMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuCustomerSync_usrAcumaticaCustomer
@@ -2804,12 +2800,12 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyIsCancelled).HasColumnName(@"ShopifyIsCancelled").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyFinancialStatus).HasColumnName(@"ShopifyFinancialStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AreTransactionsUpdated).HasColumnName(@"AreTransactionsUpdated").HasColumnType("bit").IsRequired();
-            Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsOptional();
+            Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
-            HasOptional(a => a.ShopifyCustomer).WithMany(b => b.ShopifyOrders).HasForeignKey(c => c.CustomerMonsterId).WillCascadeOnDelete(false); // FK_usrShopifyOrder_usrShopifyCustomer
+            HasRequired(a => a.ShopifyCustomer).WithMany(b => b.ShopifyOrders).HasForeignKey(c => c.CustomerMonsterId).WillCascadeOnDelete(false); // FK_usrShopifyOrder_usrShopifyCustomer
         }
     }
 

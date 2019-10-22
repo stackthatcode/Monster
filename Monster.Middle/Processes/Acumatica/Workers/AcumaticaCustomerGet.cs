@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Config;
-using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Utility;
@@ -17,8 +15,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
     public class AcumaticaCustomerGet
     {
         private readonly CustomerClient _customerClient;
-        private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
+        private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
         private readonly PreferencesRepository _preferencesRepository;
         private readonly AcumaticaHttpConfig _config;
@@ -75,7 +73,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     break;
                 }
 
-                UpsertCustomersToPersist(customers);
+                foreach (var customer in customers)
+                {
+                    UpdateCustomerToPersist(customer);
+
+                    // Disaster recovery
+                    // AttemptToLinkCustomerWithExistingRecord()
+                }
+
                 page++;
             }
 
@@ -83,57 +88,42 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository.UpdateCustomersGetEnd(GetEnd);
         }
 
-
-        public void UpsertCustomersToPersist(List<Customer> customers)
+        private void UpdateCustomerToPersist(Customer acumaticaCustomer)
         {
-            foreach (var customer in customers)
-            {
-                UpsertCustomerToPersist(customer);
-            }
-        }
+            var existingRecord =
+                _orderRepository.RetrieveCustomer(acumaticaCustomer.CustomerID.value);
 
-        public AcumaticaCustomer UpsertCustomerToPersist(Customer customer)
-        {
-            // This Customer must be associated with a Sales Order
-            //
-            var existingData = _orderRepository.RetrieveCustomer(customer.CustomerID.value);
-
-            if (existingData == null)
+            if (existingRecord != null)
             {
-                var newData = customer.ToMonsterRecord();
-                _orderRepository.InsertCustomer(newData);
-                return newData;
-            }
-            else
-            {
-                existingData.AcumaticaJson = customer.SerializeToJson();
-                existingData.AcumaticaMainContactEmail = customer.MainContact.Email.value;
-                existingData.LastUpdated = DateTime.UtcNow;
-
+                existingRecord.AcumaticaJson = acumaticaCustomer.SerializeToJson();
+                existingRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
+                existingRecord.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();
-                return existingData;
             }
         }
-        
-        public long RunAndUpsertCustomerIfNotExists(string acumaticaCustomerId)
-        {
-            var existingCustomer
-                    = _orderRepository.RetrieveCustomer(acumaticaCustomerId);
 
-            if (existingCustomer == null)
-            {
-                var customerJson = _customerClient.RetrieveCustomer(acumaticaCustomerId);
-                var customer = customerJson.DeserializeFromJson<Customer>();
-                var newData = customer.ToMonsterRecord();
 
-                _orderRepository.InsertCustomer(newData);
-                return newData.Id;
-            }
-            else
-            {
-                return existingCustomer.Id;
-            }
-        }
+        //// *** Pending Disaster Recovery
+        ////
+        //public long RunAndUpsertCustomerIfNotExists(string acumaticaCustomerId)
+        //{
+        //    var existingCustomer
+        //            = _orderRepository.RetrieveCustomer(acumaticaCustomerId);
+
+        //    if (existingCustomer == null)
+        //    {
+        //        var customerJson = _customerClient.RetrieveCustomer(acumaticaCustomerId);
+        //        var customer = customerJson.DeserializeFromJson<Customer>();
+        //        var newData = customer.ToMonsterRecord();
+
+        //        _orderRepository.InsertCustomer(newData);
+        //        return newData.Id;
+        //    }
+        //    else
+        //    {
+        //        return existingCustomer.Id;
+        //    }
+        //}
     }
 }
 
