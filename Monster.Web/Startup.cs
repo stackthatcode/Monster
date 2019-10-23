@@ -3,6 +3,7 @@ using Microsoft.Owin;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Web.Models.Config;
+using Monster.Web.Models.Sync;
 using Owin;
 using Startup = Monster.Web.Startup;
 
@@ -26,7 +27,6 @@ namespace Monster.Web
             {
                 x.CreateMap<Preference, PreferencesModel>();
                 x.CreateMap<SystemState, ConfigStateSummaryModel>();
-                x.CreateMap<Preference, SyncEnablesModel>();
                 x.CreateMap<Preference, OrderSyncSettingsModel>();
             });
         }

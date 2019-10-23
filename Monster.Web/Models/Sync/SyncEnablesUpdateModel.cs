@@ -1,6 +1,6 @@
-﻿namespace Monster.Web.Models.Config
+﻿namespace Monster.Web.Models.Sync
 {
-    public class SyncEnablesModel
+    public class SyncEnablesUpdateModel
     {
         public bool SyncOrdersEnabled { get; set; }
         public bool SyncInventoryEnabled { get; set; }
@@ -8,4 +8,3 @@
         public bool SyncRefundsEnabled { get; set; }
     }
 }
-

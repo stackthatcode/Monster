@@ -6,25 +6,26 @@
         max-width: 860px;
         padding: 0 15px;
     }
+
     .sync-label {
-        display:inline-block; 
-        font-weight:500; 
-        color:#999999;
+        display: inline-block;
+        font-weight: 500;
+        color: #999999;
     }
+
     .sync-setting {
-        display:inline-block;
+        display: inline-block;
         text-align: left;
         font-weight: 700;
-        color:#777777;
+        color: #777777;
     }
-    
+
     .sync-link {
-        display:inline-block;
+        display: inline-block;
         text-align: left;
         font-weight: 700;
     }
 </style>
-
 
 <main role="main" class="medium-size">
     @Html.Partial("_TopBrand")
@@ -43,15 +44,15 @@
                 <div data-bind="if: AreAnyJobsRunning">
                     <div data-bind="template: { name: 'Running-State' }"></div>
                 </div>
-                
+
                 <div data-bind="ifnot: AreAnyJobsRunning">
                     <div data-bind="template: { name: 'Non-Running-State' }"></div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div data-bind="template: { name: 'Order-Sync-Settings', data: OrderSyncSettingsPopupModel }"></div>
+
+    <div data-bind="template: { name: 'Order-Sync-Settings-Popup', data: OrderSyncSettingsPopupModel }"></div>
 </main>
 
 <script type="text/html" id="Running-State">
@@ -70,7 +71,7 @@
         <div data-bind="template: { name: 'Job-Running-Spinner' }"></div>
     </div>
 
-    <hr/>
+    <hr />
 
     <div data-bind="if: IsKillEndToEndButtonEnabled">
         <a href="#" data-bind="click: PauseEndToEndClick"
@@ -84,20 +85,22 @@
             Pause Real-Time Sync <i class="fas fa-bolt"></i>
         </button>
     </div>
-                    
+
     <div style="height: 15px;"></div>
 
     <div data-bind="template: { name: 'Execution-Log-Ticker', data: JobRunningModel }"></div>
 </script>
 
 <script type="text/html" id="Non-Running-State">
-    <div data-bind="if: ShowEndToEndDiagnosticsOk">
-        <div class="alert alert-info">
-            <strong>End-to-End Synchronization - Diagnostics OK</strong>
-        </div>
-    </div>
+    <div data-bind="template: {name: 'End-To-End-Start-Panel', data: EndToEndStartModel }"></div>
 
-    <div data-bind="ifnot: ShowEndToEndDiagnosticsOk">
+    <div style="height: 15px;"></div>
+
+    <div data-bind="template: { name: 'Sync-Settings', data: SyncSettingsModel }"></div>
+</script>
+
+<script type="text/html" id="End-To-End-Start-Panel">
+    <div data-bind="ifnot: IsConfigReadyForEndToEnd">
         <div class="alert alert-danger">
             <strong>End-to-End Synchronization - Disabled</strong>
         </div>
@@ -107,6 +110,12 @@
             <a href="@GlobalConfig.Url("Config/Diagnostics")">Configuration Diagnostics</a>
             to identify and correct the issue.
         </p>
+    </div>
+
+    <div data-bind="if: IsConfigReadyForEndToEnd">
+        <div class="alert alert-info">
+            <strong>End-to-End Synchronization - Diagnostics OK</strong>
+        </div>
     </div>
 
     <div style="height: 15px;"></div>
@@ -124,95 +133,100 @@
             </a>
         </span>
     </div>
+</script>
 
-    <div style="height: 15px;"></div>
-    
+<script type="text/html" id="Sync-Settings">
     <div style="font-size:0.9em; color:#999999; font-weight:500; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
         Sync Preferences
     </div>
-    
-    <div data-bind="template: { name: 'Sync-Settings', data: SyncSettingsModel }"></div>
-</script>
 
-<script type="text/html" id="Sync-Settings">    
     <table class="table" style="max-width: 550px; margin-left: auto; margin-right: auto;">
         <tbody>
-        <tr>
-            <td>
-                <div style="clear:both; vertical-align: middle;" 
-                     data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
-                </div>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    <div style="clear: both; vertical-align: middle;"
+                         data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
+                    </div>
+                </td>
+            </tr>
 
-        <tr>
-            <td>
-                <div style="float:left;">
-                    <div style="clear:both; text-align: left;">
-                        <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Number</span>
+            <tr>
+                <td>
+                    <div style="float: left;">
 
-                        <span data-bind="if: ShopifyOrderHref">
-                            <a class="sync-link" 
-                               data-bind="attr: { href: ShopifyOrderHref }" 
-                               target="_blank">
-                                <span data-bind="text: StartingShopifyOrderNameFormatted">
-                                </span>
-                            </a>
-                        </span>
-                        <span data-bind="ifnot: ShopifyOrderHref">
-                            <span class="sync-setting" data-bind="text: StartingShopifyOrderNameFormatted">
+                        <!-- Starting Order Number -->
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Starting Order Number</span>
+
+                            <!-- Display Link if populated... -->
+                            <span data-bind="if: ShopifyOrderHref">
+                                <a class="sync-link"
+                                   data-bind="attr: { href: ShopifyOrderHref }"
+                                   target="_blank">
+                                    <span data-bind="text: StartingOrderName">
+                                    </span>
+                                </a>
                             </span>
-                        </span>
+
+                            <!-- ... else show alternate text -->
+                            <span data-bind="ifnot: ShopifyOrderHref">
+                                <span class="sync-setting" data-bind="text: StartingOrderName">
+                                </span>
+                            </span>
+                        </div>
+
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
+                            <span class="sync-setting" data-bind="text: StartOrderCreatedAtUtc">
+                            </span>
+                        </div>
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
+                            <span class="sync-setting" data-bind="text: MaxParallelAcumaticaSyncs"></span>
+                        </div>
+
                     </div>
 
-                    <div style="clear:both; text-align: left;">
-                        <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Date (UTC)</span>                
-                        <span class="sync-setting" data-bind="text: StartingShopifyOrderCreatedAtUtcFormatted">
-                        </span>
+                    <div style="float: right; padding-top: 15px;">
+                        <a href="#" class="btn btn-primary btn-sm"
+                           data-bind="click: EditOrderSettingsClick"
+                           style="padding-top: 8px; padding-bottom: 8px;">
+                            EDIT SETTINGS <i class="fa fa-pencil-alt"></i>
+                        </a>
                     </div>
 
-                    <div style="clear:both; text-align: left;">
-                        <span class="sync-label" style="min-width:200px; text-align: left;">Max Parallel Syncs</span>                
-                        <span class="sync-setting" data-bind="text: MaxParallelAcumaticaSyncs"></span>
+                    <div style="clear: both;" data-bind="if: true">
+                        <div style="height: 20px;"></div>
+                        <div class="alert alert-secondary">
+                            <strong>Starting Order must be set to start End-to-End</strong>
+                        </div>
                     </div>
-                </div>
-                
-                <div style="float:right; padding-top:15px;">
-                    <a href="#" class="btn btn-primary btn-sm" 
-                       data-bind="click: EditOrderSettingsClick"
-                       style="padding-top:8px; padding-bottom: 8px;">
-                        EDIT SETTINGS <i class="fa fa-pencil-alt"></i>
-                    </a>
-                </div>
-            </td>
-        </tr>
-        
-        <tr>
-            <td style="vertical-align: middle;" 
-                data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }">
-            </td>
-        </tr>
-        <tr>
-            <td style="vertical-align: middle;" 
-                data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }">
-            </td>
-        </tr>
-        <tr>
-            <td style="vertical-align: middle;" 
-                data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }">
-            </td>
-        </tr>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }"></td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
+            </tr>
         </tbody>
     </table>
 </script>
 
 <script type="text/html" id="Sync-Enable-Item">
     <div class="sync-label" style="margin-top:10px; float:left;" data-bind="text: Label"></div>
-                
+
     <!-- Rounded switch -->
     <div style="text-align:center; float:right; width:70px;">
         <label class="switch" style="margin-bottom: 0;">
-            <input type="checkbox" 
+            <input type="checkbox"
                    data-bind="checked: IsEnabled, click: Clicked">
             <span class="slider round"></span>
         </label>
@@ -225,8 +239,8 @@
     </div>
 </script>
 
-<script id="Order-Sync-Settings" type="text/html">
-    <div class="modal fade" id="order-sync-settings-modal" tabindex="-1" 
+<script id="Order-Sync-Settings-Popup" type="text/html">
+    <div class="modal fade" id="order-sync-settings-modal" tabindex="-1"
          role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
 
         <div class="modal-dialog" role="document" style="max-width:600px;">
@@ -272,12 +286,12 @@
                             with an Order Number equal to or greater than this.
                         </small>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="orderNumber">
                             Maximum # of Parallel Syncs to Acumatica
                         </label>
-                        <select  class="form-control" data-bind="value: MaxParallelSyncs">
+                        <select class="form-control" data-bind="value: MaxParallelSyncs">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -287,7 +301,7 @@
                             <option value="7">7</option>
                             <option value="8">8</option>
                         </select>
-                        
+
                         <small id="orderNumberHelp" class="form-text text-muted">
                             @GlobalConfig.AppName will run up to this many syncs to Acumatica at the same time.
                             <div style="font-weight:700;">WARNING - be sure confirm that you have enough Acumatica licenses </div>
@@ -316,7 +330,14 @@
 <script>
     var Monster = Monster || {};
 
-    Monster.SyncEnabledModel = function(label, event) {
+    var eventKeys = {
+        UpdateSyncEnables: "/UpdateSyncEnables",
+        LaunchOrderSyncSettings: "/LaunchOrderSyncSettings",
+        RefreshSyncSettings: "/RefreshSyncSettings",
+        PollJobStatus: "/PollJobStatus",
+    };
+
+    Monster.SyncEnabledModel = function (label, event) {
         var self = this;
 
         self.IsEnabled = ko.observable(true);
@@ -328,7 +349,7 @@
             return true;
         };
 
-        self.Set = function(enabled) {
+        self.Set = function (enabled) {
             self.IsEnabled(enabled);
         }
 
@@ -337,7 +358,7 @@
         return self;
     };
 
-    Monster.OrderSyncSettingsPopupModel = function() {
+    Monster.OrderSyncSettingsPopupModel = function () {
         var self = this;
 
         self.SelectedStartingDate = ko.observable();
@@ -345,18 +366,18 @@
         self.MaxParallelSyncs = ko.observable();
 
         self.ShowValidation = ko.observable(false);
-        
-        self.StartingDateValid = ko.computed(function() {
+
+        self.StartingDateValid = ko.computed(function () {
             return Monster.IsDate(self.SelectedStartingDate());
         });
 
-        self.SaveSettings = function() {
+        self.SaveSettings = function () {
             self.ShowValidation(true);
             if (!self.StartingDateValid()) {
                 return;
             }
             flow.exec(
-                function() {
+                function () {
                     var ajax = new Monster.Ajax();
                     var data = {
                         ShopifyOrderDateStart: self.SelectedStartingDate(),
@@ -371,7 +392,7 @@
                 });
         };
 
-        self.Close = function() {
+        self.Close = function () {
             $("#order-sync-settings-modal").modal('hide');
         }
 
@@ -382,22 +403,22 @@
                 self.ShopifyOrderNumberStart(null);
             }
         };
-        
+
         self.ShopifyOrderNumberStart.subscribe(function () {
             self.ShopifyOrderNumberStartBlur();
         });
 
         self.LaunchEditOrderSyncSettings = function () {
             flow.exec(
-                function() {
+                function () {
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
                 },
                 function (response) {
                     var settings = response.OrderSyncSettingsModel;
 
-                    self.ShopifyOrderNumberStart(settings.StartingShopifyOrderNameFormatted);
-                    self.SelectedStartingDate(settings.StartingShopifyOrderNameFormatted);
+                    self.ShopifyOrderNumberStart(settings.StartingOrderName);
+                    self.SelectedStartingDate(settings.StartingOrderName);
                     self.MaxParallelSyncs(settings.MaxParallelAcumaticaSyncs);
 
                     $("#order-sync-settings-modal").modal('show');
@@ -411,49 +432,165 @@
     Monster.SyncSettingsModel = function () {
         var self = this;
 
+        // Sync Enables
         self.SyncInventoryEnabled
-                = new Monster.SyncEnabledModel("Inventory Synchronization", "/UpdateSyncSettings");
+            = new Monster.SyncEnabledModel("Inventory Synchronization", eventKeys.UpdateSyncEnables);
         self.SyncOrdersEnabled
-                = new Monster.SyncEnabledModel("Order Synchronization", "/UpdateSyncSettings");
+            = new Monster.SyncEnabledModel("Order Synchronization", eventKeys.UpdateSyncEnables);
         self.SyncShipmentsEnabled
-                = new Monster.SyncEnabledModel("Shipment Synchronization", "/UpdateSyncSettings");
+            = new Monster.SyncEnabledModel("Shipment Synchronization", eventKeys.UpdateSyncEnables);
         self.SyncRefundsEnabled
-                = new Monster.SyncEnabledModel("Refund Synchronization", "/UpdateSyncSettings");
+            = new Monster.SyncEnabledModel("Refund Synchronization", eventKeys.UpdateSyncEnables);
 
-
-        // Order Sync settings
+        // Order Sync Settings data
         //
-        self.StartingShopifyOrderNameFormatted = ko.observable();
-        self.StartingShopifyOrderIdFormatted = ko.observable();
-        self.StartingShopifyOrderCreatedAtUtcFormatted  = ko.observable();
-
+        self.StartingOrderName = ko.observable();
+        self.StartingOrderId = ko.observable();
+        self.StartOrderCreatedAtUtc = ko.observable();
         self.ShopifyOrderHref = ko.observable();
-
         self.MaxParallelAcumaticaSyncs = ko.observable();
 
+        // Model populating function
+        //
+        self.Populate = function (settings) {
 
-        self.EditOrderSettingsClick = function () {
-            Monster.Events.publish("/LaunchOrderSyncSettings");
+            self.StartingOrderId(settings.StartingOrderId);
+            self.StartingOrderName(settings.StartingOrderName);
+            self.StartOrderCreatedAtUtc(settings.StartOrderCreatedAtUtc);
+            self.ShopifyOrderHref(settings.ShopifyOrderHref);
+            self.MaxParallelAcumaticaSyncs(settings.MaxParallelAcumaticaSyncs);
         };
 
-        self.Refresh = function(callback) {
+        Monster.Events.subscribe(eventKeys.UpdateSyncEnables, self.UpdateSyncEnables);
+
+        self.EditOrderSettingsClick = function () {
+            Monster.Events.publish(eventKeys.LaunchOrderSyncSettings);
+        };
+
+        self.UpdateSyncEnables = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    var model = {
+                        SyncInventoryEnabled: self.SyncInventoryEnabled.IsEnabled(),
+                        SyncOrdersEnabled: self.SyncOrdersEnabled.IsEnabled(),
+                        SyncShipmentsEnabled: self.SyncShipmentsEnabled.IsEnabled(),
+                        SyncRefundsEnabled: self.SyncRefundsEnabled.IsEnabled(),
+                    };
+
+                    ajax.HttpPost("Sync/UpdateSyncEnables", model, this);
+                },
+                function () {
+                    Monster.Events.publish(eventKeys.RefreshSyncSettings);
+                });
+        };
+
+        return self;
+    };
+
+    Monster.EndToEndStartModel = function () {
+        var self = this;
+
+        // End-to-End Sync readiness
+        //
+        self.IsConfigReadyForEndToEnd = ko.observable(false);
+        self.IsStartingOrderReadyForEndToEnd = ko.observable(false);
+        self.CanEndToEndSyncBeStarted = ko.observable(false);
+
+        // Computed properties
+        //
+        self.IsCompleteSyncButtonEnabled = ko.computed(function () {
+            return !self.AreAnyJobsRunning() && self.CanEndToEndSyncBeStarted();
+        });
+
+        self.IsKillEndToEndButtonEnabled = ko.computed(function () {
+            return self.IsEndToEndSyncRunning();
+        });
+
+        // Model loading function
+        //
+        self.Populate = function (model) {
+            self.IsConfigReadyForEndToEnd(model.IsConfigReadyForEndToEnd);
+            self.IsStartingOrderReadyForEndToEnd(model.IsStartingOrderReadyForEndToEnd);
+            self.CanEndToEndSyncBeStarted(model.CanEndToEndSyncBeStarted);
+        };
+
+        // Interactivity to trigger the End-to-End-Sync
+        //
+        self.StartEndToEndClick = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("Sync/StartEndToEnd", {}, this);
+                },
+                function (response) {
+                    self.PollJobStatus();
+                });
+        };
+
+        self.PauseEndToEndClick = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("Sync/PauseEndToEnd", {}, this);
+                },
+                function (response) {
+                });
+        };
+
+
+        return self;
+    }
+
+    Monster.ParentInterface = function () {
+        var self = this;
+
+        // Current Job status
+        //
+        self.AreAnyJobsRunning = ko.observable(false);
+        self.IsEndToEndSyncRunning = ko.observable(false);
+
+        self.JobRunningModel = new Monster.ExecutionLogModel();
+        self.EndToEndStartModel = new Monster.EndToEndStartModel();
+        self.SyncSettingsModel = new Monster.SyncSettingsModel();
+        self.OrderSyncSettingsPopupModel = new Monster.OrderSyncSettingsPopupModel();
+
+        // Polling Function
+        //
+        self.PollJobStatus = function () {
             flow.exec(function () {
+                var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
+                ajax.HttpGet("Sync/EndToEndStatus", this);
+            },
+                function (response) {
+                    // End-to-End readiness
+                    //
+                    self.EndToEndStartModel.Populate(response.EndToEndStartModel);
+
+                    // Job Running status/panel
+                    //
+                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
+                    self.JobRunningModel.Ingest(response.Logs);
+
+                    if (self.AreAnyJobsRunning()) {
+                        setTimeout(self.PollJobStatus, 1000);
+                    } else {
+                        self.SyncSettingsModel.Refresh();
+                    }
+                });
+        };
+
+        self.RefreshSyncSettings = function (callback) {
+            flow.exec(
+                function () {
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
                 },
                 function (response) {
-
                     // Sync Settings for Order translation
                     //
                     var settings = response.OrderSyncSettingsModel;
-
-                    self.StartingShopifyOrderNameFormatted(settings.StartingShopifyOrderNameFormatted);
-                    self.StartingShopifyOrderIdFormatted(settings.StartingShopifyOrderIdFormatted);
-                    self.StartingShopifyOrderCreatedAtUtcFormatted(settings.StartingShopifyOrderCreatedAtUtcFormatted);
-
-                    self.ShopifyOrderHref(settings.ShopifyOrderHref);
-
-                    self.MaxParallelAcumaticaSyncs(settings.MaxParallelAcumaticaSyncs);
 
                     // Sync Enables model translation
                     //
@@ -462,110 +599,19 @@
                     self.SyncInventoryEnabled.Set(enables.SyncInventoryEnabled);
                     self.SyncOrdersEnabled.Set(enables.SyncOrdersEnabled);
                     self.SyncShipmentsEnabled.Set(enables.SyncShipmentsEnabled);
-                    self.SyncRefundsEnabled.Set(enables.SyncRefundsEnabled);                    
+                    self.SyncRefundsEnabled.Set(enables.SyncRefundsEnabled);
 
                     if (callback) {
                         callback();
                     }
                 });
-        };
-
-        self.UpdateSyncSettings = function() {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    var model = {
-                        SyncInventoryEnabled: self.SyncInventoryEnabled.IsEnabled(),
-                        SyncOrdersEnabled: self.SyncOrdersEnabled.IsEnabled(),
-                        SyncShipmentsEnabled: self.SyncShipmentsEnabled.IsEnabled(),
-                        SyncRefundsEnabled: self.SyncRefundsEnabled.IsEnabled(),                
-                    };
-                    ajax.HttpPost("Sync/SyncEnablesUpdate", model, this);
-                },
-                function (response) {
-                    self.Refresh();
-                });
             };
 
-        Monster.Events.subscribe("/RefreshSyncSettings", self.Refresh);
-        Monster.Events.subscribe("/UpdateSyncSettings", self.UpdateSyncSettings);
+        Monster.Events.subscribe(eventKeys.RefreshSyncSettings, self.RefreshSyncSettings);
 
-        return self;
-    };
 
-    Monster.ParentInterface = function () {
-        var self = this;
-
-        self.AreAnyJobsRunning = ko.observable(false);
-        self.IsEndToEndSyncRunning = ko.observable(false);
-        self.CanEndToEndSyncBeStarted  = ko.observable(false);
-
-        self.JobRunningModel = new Monster.ExecutionLogModel();
-        self.OrderSyncSettingsPopupModel = new Monster.OrderSyncSettingsPopupModel();
-        self.SyncSettingsModel = new Monster.SyncSettingsModel();
-        
-        // Computed properties
-        //
-        self.IsCompleteSyncButtonEnabled = ko.computed(function () {
-            return !self.AreAnyJobsRunning() && self.CanEndToEndSyncBeStarted ();
-        });
-
-        self.IsKillEndToEndButtonEnabled = ko.computed(function() {
-            return self.IsEndToEndSyncRunning();
-        });
-
-        self.ShowEndToEndDiagnosticsOk = ko.computed(function() {
-            return self.CanEndToEndSyncBeStarted();
-        });
-
-    
-        // Polling Function
-        self.PollStatus = function() {
-            flow.exec(function() {
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("Sync/EndToEndStatus", this);
-                },
-                function (response) {
-                    //console.log(response);
-
-                    self.IsEndToEndSyncRunning(response.IsEndToEndSyncRunning);
-                    self.CanEndToEndSyncBeStarted(response.CanEndToEndSyncBeStarted);
-
-                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                    self.JobRunningModel.Ingest(response.Logs);
-
-                    if (self.AreAnyJobsRunning()) {
-                        setTimeout(self.PollStatus, 1000);
-                    } else {
-                        self.SyncSettingsModel.Refresh();
-                    }
-                });
-        };
-        
-        self.StartEndToEndClick = function() {
-            flow.exec(
-                function() {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Sync/StartEndToEnd", {}, this);
-                },
-                function(response) {
-                    self.PollStatus();
-                });
-        };
-
-        self.PauseEndToEndClick = function() {
-            flow.exec(
-                function() {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Sync/PauseEndToEnd", {}, this);
-                },
-                function(response) {
-                });
-        };
-    
-        self.Initialize = function() {
-            self.PollStatus();
+        self.Initialize = function () {
+            self.PollJobStatus();
             $('#datepicker').datepicker({ uiLibrary: 'bootstrap4' });
         };
 

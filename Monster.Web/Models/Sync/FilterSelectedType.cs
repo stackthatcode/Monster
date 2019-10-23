@@ -1,4 +1,4 @@
-﻿namespace Monster.Web.Models.RealTime
+﻿namespace Monster.Web.Models.Sync
 {
     public class FilterSelectedType
     {

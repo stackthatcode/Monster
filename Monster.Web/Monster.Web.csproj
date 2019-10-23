@@ -222,16 +222,18 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Config\AcumaticaCredentialsModel.cs" />
+    <Compile Include="Models\Sync\EndToEndStartModel.cs" />
     <Compile Include="Models\Config\ShopifyLocationModel.cs" />
     <Compile Include="Models\Config\AcumaticaWarehouseModel.cs" />
-    <Compile Include="Models\Config\SyncEnablesModel.cs" />
-    <Compile Include="Models\Config\OrderSyncSettingsModel.cs" />
+    <Compile Include="Models\Sync\SyncEnablesUpdateModel.cs" />
+    <Compile Include="Models\Sync\SyncSettingsModel.cs" />
+    <Compile Include="Models\Sync\OrderSyncSettingsModel.cs" />
     <Compile Include="Models\ExecutionLogModel.cs" />
     <Compile Include="Models\Config\PreferencesModel.cs" />
-    <Compile Include="Models\RealTime\ShopifyProductModel.cs" />
-    <Compile Include="Models\RealTime\FilterSelectedType.cs" />
-    <Compile Include="Models\RealTime\OrderSyncSummary.cs" />
-    <Compile Include="Models\RealTime\LocationModel.cs" />
+    <Compile Include="Models\Sync\ShopifyProductModel.cs" />
+    <Compile Include="Models\Sync\FilterSelectedType.cs" />
+    <Compile Include="Models\Sync\OrderSyncSummary.cs" />
+    <Compile Include="Models\Sync\LocationModel.cs" />
     <Compile Include="Models\ShopifyAuth\ShopifyDomainModel.cs" />
     <Compile Include="Models\ShopifyAuth\ReturnModel.cs" />
     <Compile Include="Models\Config\WarehouseSyncStatusModel.cs" />

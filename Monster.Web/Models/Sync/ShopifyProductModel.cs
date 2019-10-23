@@ -4,7 +4,7 @@ using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 
-namespace Monster.Web.Models.RealTime
+namespace Monster.Web.Models.Sync
 {
     public class ShopifyProductModel
     {

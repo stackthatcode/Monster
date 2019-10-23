@@ -2,7 +2,7 @@
 using System.Globalization;
 using Push.Foundation.Utilities.Helpers;
 
-namespace Monster.Web.Models.Config
+namespace Monster.Web.Models.Sync
 {
     public class OrderSyncSettingsModel
     {

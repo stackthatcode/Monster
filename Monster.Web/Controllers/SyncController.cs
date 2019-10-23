@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using AutoMapper;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
@@ -13,8 +12,8 @@ using Monster.Middle.Processes.Sync.Status;
 using Monster.Middle.Utility;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
-using Monster.Web.Models.Config;
-using Monster.Web.Models.RealTime;
+using Monster.Web.Models.Sync;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Web.Json;
 
 
@@ -99,11 +98,13 @@ namespace Monster.Web.Controllers
                 AreAnyJobsRunning = areAnyJobsRunning,
                 Logs = logs,
 
-                IsEndToEndSyncRunning = isEndToEndSyncRunning,  // Specifically for UI choices
-
-                IsStartingOrderReadyForEndToEnd = status.IsStartingOrderReadyForEndToEnd,
-                IsConfigReadyForEndToEnd = status.ConfigStateSummaryModel.IsConfigReadyForEndToEnd,
-                CanEndToEndSyncBeStarted = status.CanEndToEndSyncBeStarted,
+                EndToEndStartModel = new
+                {
+                    IsEndToEndSyncRunning = isEndToEndSyncRunning,  // Dictates whether to show Disable button
+                    IsStartingOrderReadyForEndToEnd = status.IsStartingOrderReadyForEndToEnd,
+                    IsConfigReadyForEndToEnd = status.ConfigStateSummaryModel.IsConfigReadyForEndToEnd,
+                    CanEndToEndSyncBeStarted = status.CanEndToEndSyncBeStarted,
+                }
             };
 
             return new JsonNetResult(output);
@@ -118,33 +119,31 @@ namespace Monster.Web.Controllers
         {
             var preferences = _preferencesRepository.RetrievePreferences();
 
-            var syncEnablesModel = Mapper.Map<SyncEnablesModel>(preferences);
+            var output = new SyncSettingsModel();
 
-            var orderSyncSettingsModel = new OrderSyncSettingsModel();
+            output.SyncOrdersEnabled = preferences.SyncOrdersEnabled;
+            output.SyncInventoryEnabled = preferences.SyncInventoryEnabled;
+            output.SyncRefundsEnabled = preferences.SyncRefundsEnabled;
+            output.SyncShipmentsEnabled = preferences.SyncFulfillmentsEnabled;
 
-            orderSyncSettingsModel.StartingShopifyOrderId = preferences.StartingShopifyOrderId;
-            orderSyncSettingsModel.StartingShopifyOrderName = preferences.StartingShopifyOrderName;
-            orderSyncSettingsModel
-                    .StartingShopifyOrderCreatedAtUtc = preferences.StartingShopifyOrderCreatedAtUtc;
+            output.StartingOrderId = preferences.StartingShopifyOrderId;
+            output.StartingOrderName 
+                    = preferences.StartingShopifyOrderName.IsNullOrEmptyAlt("(not set)");
+            output.StartOrderCreatedAtUtc
+                = preferences.StartingShopifyOrderCreatedAtUtc?.ToString() ?? "(not set)";
 
             if (preferences.StartingShopifyOrderId.HasValue)
             {
-                orderSyncSettingsModel.ShopifyOrderHref
-                    = _urlService.ShopifyOrderUrl(preferences.StartingShopifyOrderId.Value);
+                output.StartingOrderHref = _urlService.ShopifyOrderUrl(preferences.StartingShopifyOrderId.Value);
             }
-            orderSyncSettingsModel.MaxParallelAcumaticaSyncs = preferences.MaxParallelAcumaticaSyncs;
 
-            var output = new
-            {
-                SyncEnablesModel = syncEnablesModel,
-                OrderSyncSettingsModel = orderSyncSettingsModel,
-            };
+            output.MaxParallelAcumaticaSyncs = preferences.MaxParallelAcumaticaSyncs;
 
             return new JsonNetResult(output);
         }
 
         [HttpPost]
-        public ActionResult SyncEnablesUpdate(SyncEnablesModel input)
+        public ActionResult UpdateSyncEnables(SyncEnablesUpdateModel input)
         {
             var data = _preferencesRepository.RetrievePreferences();
             data.SyncOrdersEnabled = input.SyncOrdersEnabled;
