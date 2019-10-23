@@ -4,7 +4,6 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Persist.Matching;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Status

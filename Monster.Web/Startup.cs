@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Owin;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Web.Models.Config;
 using Owin;
 using Startup = Monster.Web.Startup;
@@ -25,7 +25,7 @@ namespace Monster.Web
             Mapper.Initialize(x =>
             {
                 x.CreateMap<Preference, PreferencesModel>();
-                x.CreateMap<SystemState, SystemStateSummaryModel>();
+                x.CreateMap<SystemState, ConfigStateSummaryModel>();
                 x.CreateMap<Preference, SyncEnablesModel>();
                 x.CreateMap<Preference, OrderSyncSettingsModel>();
             });

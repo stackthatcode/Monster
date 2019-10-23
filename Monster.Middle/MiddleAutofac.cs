@@ -11,7 +11,6 @@ using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
-using Monster.Middle.Processes;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
@@ -24,7 +23,6 @@ using Monster.Middle.Processes.Sync.Managers;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Status;
 using Monster.Middle.Processes.Sync.Workers;
-using Monster.Middle.Processes.Sync.Workers.Orders;
 using Monster.Middle.Services;
 using Monster.Middle.Utility;
 using Push.Foundation.Utilities.Logging;
@@ -161,12 +159,14 @@ namespace Monster.Middle
         private static void RegisterSyncProcess(ContainerBuilder builder)
         {
             // Inventory 
+            //
             builder.RegisterType<SyncInventoryRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventoryPut>().InstancePerLifetimeScope();
             builder.RegisterType<WarehouseLocationPut>().InstancePerLifetimeScope();
             
             // Orders
+            //
             builder.RegisterType<SyncOrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyFulfillmentPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaCustomerPut>().InstancePerLifetimeScope();
@@ -175,6 +175,7 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaOrderPaymentPut>().InstancePerLifetimeScope();
             
             // Services
+            //
             builder.RegisterType<UrlService>().InstancePerLifetimeScope();            
             builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
             builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
@@ -182,12 +183,14 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();
 
             // Status
+            //
             builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<OrderStatusService>().InstancePerLifetimeScope();
-            builder.RegisterType<ShipmentStatusService>().InstancePerLifetimeScope();
+            builder.RegisterType<EndToEndStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<FulfillmentStatusService>().InstancePerLifetimeScope();
             
             // Management Objects
+            //
             builder.RegisterType<SyncManager>().InstancePerLifetimeScope();
             builder.RegisterType<ProcessDirector>().InstancePerLifetimeScope();
         }

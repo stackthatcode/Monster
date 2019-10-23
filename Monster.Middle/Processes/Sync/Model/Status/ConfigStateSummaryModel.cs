@@ -1,8 +1,8 @@
 ﻿using Monster.Middle.Misc.State;
 
-namespace Monster.Middle.Processes.Sync.Model.Misc
+namespace Monster.Middle.Processes.Sync.Model.Status
 {
-    public class SystemStateSummaryModel
+    public class ConfigStateSummaryModel
     {
         public int ShopifyConnection { get; set; }
         public int AcumaticaConnection { get; set; }
@@ -11,7 +11,7 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
         public int WarehouseSync { get; set; }
         public int InventoryPull { get; set; }
         
-        public bool IsReadyForRealTimeSync =>
+        public bool IsConfigReadyForEndToEnd =>
                 this.ShopifyConnection == StateCode.Ok
                 && this.AcumaticaConnection == StateCode.Ok
                 && this.AcumaticaReferenceData == StateCode.Ok

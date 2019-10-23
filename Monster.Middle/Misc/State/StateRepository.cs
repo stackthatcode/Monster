@@ -84,7 +84,7 @@ namespace Monster.Middle.Misc.State
         }
 
         public void UpdateSystemState(
-            Expression<Func<SystemState, bool>> memberExpression, bool newValue)
+                Expression<Func<SystemState, bool>> memberExpression, bool newValue)
         {
             CreateSystemStateIfNotExists();
             var state = Entities.SystemStates.First();

@@ -215,7 +215,7 @@
     <Compile Include="Controllers\AnalysisController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\PublicController.cs" />
-    <Compile Include="Controllers\RealTimeController.cs" />
+    <Compile Include="Controllers\SyncController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\ShopifyAuthController.cs" />
     <Compile Include="Global.asax.cs">
@@ -329,10 +329,10 @@
     <Content Include="Views\Config\Warehouses.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\RealTime\InventorySyncControl.cshtml" />
+    <Content Include="Views\Sync\InventorySyncControl.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\RealTime\RealTime.cshtml" />
+    <Content Include="Views\Sync\EndToEnd.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\ShopifyAuth\Domain.cshtml" />
@@ -374,7 +374,7 @@
     <Content Include="Views\Shared\_SharedKnockoutViews.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\RealTime\ImportIntoAcumatica.cshtml" />
+    <Content Include="Views\Sync\ImportIntoAcumatica.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\CompleteScreen.cshtml" />

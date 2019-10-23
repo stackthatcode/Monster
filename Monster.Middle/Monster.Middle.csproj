@@ -145,14 +145,15 @@
     <Compile Include="Misc\State\StateExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Misc\LogDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Status\EndToEndSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\PaymentSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\RefundSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
+    <Compile Include="Processes\Sync\Status\EndToEndStatusService.cs" />
     <Compile Include="Processes\Sync\Status\FulfillmentStatusService.cs" />
-    <Compile Include="Processes\Sync\Status\ShipmentStatusService.cs" />
     <Compile Include="Misc\Logging\ExecutionLogService.cs" />
     <Compile Include="Persist\Instance\MonsterDb.cs">
       <DependentUpon>MonsterDb.tt</DependentUpon>
@@ -165,7 +166,7 @@
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Misc\LogBuilder.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\AcumaticaInventoryImportContext.cs" />
-    <Compile Include="Processes\Sync\Model\Misc\SyncEnabledFilter.cs" />
+    <Compile Include="Processes\Sync\Model\Status\SyncEnabledFilter.cs" />
     <Compile Include="Processes\Sync\Model\Config\ItemClassModel.cs" />
     <Compile Include="Processes\Sync\Model\Config\PaymentMethodModel.cs" />
     <Compile Include="Processes\Sync\Model\Status\PreferencesValidationExtensions.cs" />
@@ -226,7 +227,7 @@
     <Compile Include="Processes\Payouts\Workers\BankImportService.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
-    <Compile Include="Processes\Sync\Model\Misc\SystemStateSummaryModel.cs" />
+    <Compile Include="Processes\Sync\Model\Status\ConfigStateSummaryModel.cs" />
     <Compile Include="Utility\UrlService.cs" />
     <Compile Include="Processes\ProcessDirector.cs" />
     <Compile Include="Identity\IdentityContext.cs" />

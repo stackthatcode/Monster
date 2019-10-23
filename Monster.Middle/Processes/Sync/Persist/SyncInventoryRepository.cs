@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist.Matching;
 
 

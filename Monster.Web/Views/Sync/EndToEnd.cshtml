@@ -17,6 +17,12 @@
         font-weight: 700;
         color:#777777;
     }
+    
+    .sync-link {
+        display:inline-block;
+        text-align: left;
+        font-weight: 700;
+    }
 </style>
 
 
@@ -49,12 +55,12 @@
 </main>
 
 <script type="text/html" id="Running-State">
-    <div data-bind="if: IsRealTimeSyncRunning">
+    <div data-bind="if: IsEndToEndSyncRunning">
         <div class="alert alert-success">
             <strong>Real-Time Synchronization - Enabled</strong>
         </div>
     </div>
-    <div data-bind="ifnot: IsRealTimeSyncRunning">
+    <div data-bind="ifnot: IsEndToEndSyncRunning">
         <div class="alert alert-secondary">
             <strong>Real-Time Synchronization - Disabled</strong>
         </div>
@@ -66,14 +72,14 @@
 
     <hr/>
 
-    <div data-bind="if: IsKillRealTimeButtonEnabled">
-        <a href="#" data-bind="click: PauseRealTimeClick"
+    <div data-bind="if: IsKillEndToEndButtonEnabled">
+        <a href="#" data-bind="click: PauseEndToEndClick"
            class="btn btn-primary btn-lg">
             Pause Real-Time Sync <i class="fas fa-bolt"></i>
         </a>
     </div>
 
-    <div data-bind="ifnot: IsKillRealTimeButtonEnabled">
+    <div data-bind="ifnot: IsKillEndToEndButtonEnabled">
         <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
             Pause Real-Time Sync <i class="fas fa-bolt"></i>
         </button>
@@ -85,13 +91,13 @@
 </script>
 
 <script type="text/html" id="Non-Running-State">
-    <div data-bind="if: ShowRealTimeDiagnosticsOk">
+    <div data-bind="if: ShowEndToEndDiagnosticsOk">
         <div class="alert alert-info">
             <strong>End-to-End Synchronization - Diagnostics OK</strong>
         </div>
     </div>
 
-    <div data-bind="ifnot: ShowRealTimeDiagnosticsOk">
+    <div data-bind="ifnot: ShowEndToEndDiagnosticsOk">
         <div class="alert alert-danger">
             <strong>End-to-End Synchronization - Disabled</strong>
         </div>
@@ -108,17 +114,13 @@
     <div class="center">
         <span data-bind="ifnot: IsCompleteSyncButtonEnabled">
             <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
-                Run One-Time Sync <i class="fas fa-times"></i>
-            </button>
-
-            <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
-                Start Real-Time Sync <i class="fas fa-times"></i>
+                Start End-to-End Sync <i class="fas fa-bolt"></i>
             </button>
         </span>
 
         <span data-bind="if: IsCompleteSyncButtonEnabled">
-            <a href="#" data-bind="click: StartRealTimeClick" class="btn btn-primary btn-lg">
-                Start Real Time End-to-End Sync <i class="fas fa-bolt"></i>
+            <a href="#" data-bind="click: StartEndToEndClick" class="btn btn-primary btn-lg">
+                Start End-to-End Sync <i class="fas fa-bolt"></i>
             </a>
         </span>
     </div>
@@ -147,17 +149,28 @@
             <td>
                 <div style="float:left;">
                     <div style="clear:both; text-align: left;">
-                        <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Date</span>                
-                        <span class="sync-setting" data-bind="text: ShopifyOrderDateStartFormatted">
+                        <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Number</span>
+
+                        <span data-bind="if: ShopifyOrderHref">
+                            <a class="sync-link" 
+                               data-bind="attr: { href: ShopifyOrderHref }" 
+                               target="_blank">
+                                <span data-bind="text: StartingShopifyOrderNameFormatted">
+                                </span>
+                            </a>
+                        </span>
+                        <span data-bind="ifnot: ShopifyOrderHref">
+                            <span class="sync-setting" data-bind="text: StartingShopifyOrderNameFormatted">
+                            </span>
                         </span>
                     </div>
-                    
+
                     <div style="clear:both; text-align: left;">
-                        <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Number</span>                
-                        <span class="sync-setting" data-bind="text: ShopifyOrderNumberStartFormatted">
-                        </span>                        
+                        <span class="sync-label" style="min-width:200px; text-align: left;">Starting Order Date (UTC)</span>                
+                        <span class="sync-setting" data-bind="text: StartingShopifyOrderCreatedAtUtcFormatted">
+                        </span>
                     </div>
-                    
+
                     <div style="clear:both; text-align: left;">
                         <span class="sync-label" style="min-width:200px; text-align: left;">Max Parallel Syncs</span>                
                         <span class="sync-setting" data-bind="text: MaxParallelAcumaticaSyncs"></span>
@@ -351,7 +364,7 @@
                         MaxParallelAcumaticaSyncs: self.MaxParallelSyncs(),
                     };
 
-                    ajax.HttpPost("RealTime/OrderSyncSettingsUpdate", data, this);
+                    ajax.HttpPost("Sync/OrderSyncSettingsUpdate", data, this);
                 },
                 function (response) {
                     Monster.Events.publish("/RefreshSyncSettings", self.Close);
@@ -374,23 +387,24 @@
             self.ShopifyOrderNumberStartBlur();
         });
 
-        self.Launch = function () {
+        self.LaunchEditOrderSyncSettings = function () {
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("RealTime/SyncSettingsAndEnables", this);
+                    ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
                 },
                 function (response) {
                     var settings = response.OrderSyncSettingsModel;
-                    self.SelectedStartingDate(settings.ShopifyOrderDateStartFormatted);
-                    self.ShopifyOrderNumberStart(settings.ShopifyOrderNumberStartFormatted);
+
+                    self.ShopifyOrderNumberStart(settings.StartingShopifyOrderNameFormatted);
+                    self.SelectedStartingDate(settings.StartingShopifyOrderNameFormatted);
                     self.MaxParallelSyncs(settings.MaxParallelAcumaticaSyncs);
 
                     $("#order-sync-settings-modal").modal('show');
                 });
         };
 
-        Monster.Events.subscribe("/LaunchOrderSyncSettings", self.Launch);
+        Monster.Events.subscribe("/LaunchOrderSyncSettings", self.LaunchEditOrderSyncSettings);
         return self;
     };
 
@@ -406,9 +420,17 @@
         self.SyncRefundsEnabled
                 = new Monster.SyncEnabledModel("Refund Synchronization", "/UpdateSyncSettings");
 
-        self.ShopifyOrderDateStartFormatted = ko.observable();
-        self.ShopifyOrderNumberStartFormatted = ko.observable();
+
+        // Order Sync settings
+        //
+        self.StartingShopifyOrderNameFormatted = ko.observable();
+        self.StartingShopifyOrderIdFormatted = ko.observable();
+        self.StartingShopifyOrderCreatedAtUtcFormatted  = ko.observable();
+
+        self.ShopifyOrderHref = ko.observable();
+
         self.MaxParallelAcumaticaSyncs = ko.observable();
+
 
         self.EditOrderSettingsClick = function () {
             Monster.Events.publish("/LaunchOrderSyncSettings");
@@ -417,17 +439,26 @@
         self.Refresh = function(callback) {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("RealTime/SyncSettingsAndEnables", this);
+                    ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
                 },
                 function (response) {
-                    //console.log(response);
 
+                    // Sync Settings for Order translation
+                    //
                     var settings = response.OrderSyncSettingsModel;
-                    self.ShopifyOrderDateStartFormatted(settings.ShopifyOrderDateStartFormatted);
-                    self.ShopifyOrderNumberStartFormatted(settings.ShopifyOrderNumberStartFormatted);
+
+                    self.StartingShopifyOrderNameFormatted(settings.StartingShopifyOrderNameFormatted);
+                    self.StartingShopifyOrderIdFormatted(settings.StartingShopifyOrderIdFormatted);
+                    self.StartingShopifyOrderCreatedAtUtcFormatted(settings.StartingShopifyOrderCreatedAtUtcFormatted);
+
+                    self.ShopifyOrderHref(settings.ShopifyOrderHref);
+
                     self.MaxParallelAcumaticaSyncs(settings.MaxParallelAcumaticaSyncs);
 
+                    // Sync Enables model translation
+                    //
                     var enables = response.SyncEnablesModel;
+
                     self.SyncInventoryEnabled.Set(enables.SyncInventoryEnabled);
                     self.SyncOrdersEnabled.Set(enables.SyncOrdersEnabled);
                     self.SyncShipmentsEnabled.Set(enables.SyncShipmentsEnabled);
@@ -449,7 +480,7 @@
                         SyncShipmentsEnabled: self.SyncShipmentsEnabled.IsEnabled(),
                         SyncRefundsEnabled: self.SyncRefundsEnabled.IsEnabled(),                
                     };
-                    ajax.HttpPost("RealTime/SyncEnablesUpdate", model, this);
+                    ajax.HttpPost("Sync/SyncEnablesUpdate", model, this);
                 },
                 function (response) {
                     self.Refresh();
@@ -462,12 +493,12 @@
         return self;
     };
 
-    Monster.RealTimeModel = function () {
+    Monster.ParentInterface = function () {
         var self = this;
 
         self.AreAnyJobsRunning = ko.observable(false);
-        self.IsRealTimeSyncRunning = ko.observable(false);
-        self.IsConfigReadyForRealTime = ko.observable(false);
+        self.IsEndToEndSyncRunning = ko.observable(false);
+        self.CanEndToEndSyncBeStarted  = ko.observable(false);
 
         self.JobRunningModel = new Monster.ExecutionLogModel();
         self.OrderSyncSettingsPopupModel = new Monster.OrderSyncSettingsPopupModel();
@@ -476,15 +507,15 @@
         // Computed properties
         //
         self.IsCompleteSyncButtonEnabled = ko.computed(function () {
-            return !self.AreAnyJobsRunning() && self.IsConfigReadyForRealTime();
+            return !self.AreAnyJobsRunning() && self.CanEndToEndSyncBeStarted ();
         });
 
-        self.IsKillRealTimeButtonEnabled = ko.computed(function() {
-            return self.IsRealTimeSyncRunning();
+        self.IsKillEndToEndButtonEnabled = ko.computed(function() {
+            return self.IsEndToEndSyncRunning();
         });
 
-        self.ShowRealTimeDiagnosticsOk = ko.computed(function() {
-            return self.IsConfigReadyForRealTime();
+        self.ShowEndToEndDiagnosticsOk = ko.computed(function() {
+            return self.CanEndToEndSyncBeStarted();
         });
 
     
@@ -493,14 +524,15 @@
             flow.exec(function() {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/RealTimeStatus", this);
+                    ajax.HttpGet("Sync/EndToEndStatus", this);
                 },
                 function (response) {
                     //console.log(response);
 
+                    self.IsEndToEndSyncRunning(response.IsEndToEndSyncRunning);
+                    self.CanEndToEndSyncBeStarted(response.CanEndToEndSyncBeStarted);
+
                     self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                    self.IsRealTimeSyncRunning(response.IsRealTimeSyncRunning);
-                    self.IsConfigReadyForRealTime(response.IsConfigReadyForRealTime);
                     self.JobRunningModel.Ingest(response.Logs);
 
                     if (self.AreAnyJobsRunning()) {
@@ -511,22 +543,22 @@
                 });
         };
         
-        self.StartRealTimeClick = function() {
+        self.StartEndToEndClick = function() {
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("RealTime/StartRealTime", {}, this);
+                    ajax.HttpPost("Sync/StartEndToEnd", {}, this);
                 },
                 function(response) {
                     self.PollStatus();
                 });
         };
 
-        self.PauseRealTimeClick = function() {
+        self.PauseEndToEndClick = function() {
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("RealTime/PauseRealTime", {}, this);
+                    ajax.HttpPost("Sync/PauseEndToEnd", {}, this);
                 },
                 function(response) {
                 });
@@ -534,15 +566,13 @@
     
         self.Initialize = function() {
             self.PollStatus();
-            $('#datepicker').datepicker({
-                uiLibrary: 'bootstrap4'
-            });
+            $('#datepicker').datepicker({ uiLibrary: 'bootstrap4' });
         };
 
         return self;
     };
 
-    var model = new Monster.RealTimeModel();
+    var model = new Monster.ParentInterface();
     ko.applyBindings(model);
     model.Initialize();
 </script>

@@ -21,7 +21,7 @@
         <p class="lead center">Configuration Diagnostics</p>
     </div>
 
-    <!-- Will yield to showing Real Time Sync in case somehow both got triggered -->
+    <!-- Will yield to showing End-to-End Sync in case somehow both got triggered -->
     <div data-bind="if: IsJobRunning">
         <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
     </div>
@@ -30,21 +30,21 @@
         <div class="std-pad-b">
             <div class="card">
                 <div class="card-body std-pad-b">
-                    <div data-bind="if: IsReadyForRealTimeSync">
+                    <div data-bind="if: IsConfigReadyForEndToEnd">
                         <div class="alert alert-info">
-                            <strong>System OK - Ready to Start Real-Time Sync</strong>
+                            <strong>System OK - Ready to Start End-to-End Sync</strong>
                         </div>
 
                         <p>
                             Your @GlobalConfig.AppName diagnostics appear healthy (see summary below).
                             You can modify your configuration and re-run diagnostics, as needed.
-                            Else, you can now start Real-Time Synchronization.
+                            Else, you can now start End-to-End Synchronization.
                         </p>
                     </div>
 
-                    <div data-bind="ifnot: IsReadyForRealTimeSync">
+                    <div data-bind="ifnot: IsConfigReadyForEndToEnd">
                         <div class="alert alert-danger">
-                            <strong>Real-Time Synchronization - Disabled</strong>
+                            <strong>End-to-End Synchronization - Disabled</strong>
                         </div>
 
                         <p>
@@ -128,7 +128,7 @@ Monster.InventoryConfigModel = function() {
     self.JobRunningModel = new Monster.ExecutionLogModel();
     
     // Diagnosis
-    self.IsReadyForRealTimeSync = ko.observable(false);
+    self.IsConfigReadyForEndToEnd = ko.observable(false);
     self.ConfigDiagnosis = ko.observableArray();
 
     self.StartConfigDiagnosisClick = function () {
@@ -196,7 +196,7 @@ Monster.InventoryConfigModel = function() {
                 ];
 
                 self.ConfigDiagnosis(configData);
-                self.IsReadyForRealTimeSync(response.IsReadyForRealTimeSync);
+                self.IsConfigReadyForEndToEnd(response.IsConfigReadyForEndToEnd);
             });
     };
     

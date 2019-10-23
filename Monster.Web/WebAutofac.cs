@@ -36,7 +36,7 @@ namespace Monster.Web
             builder.RegisterType<PublicController>();
             builder.RegisterType<ShopifyAuthController>();
             builder.RegisterType<ConfigController>();
-            builder.RegisterType<RealTimeController>();
+            builder.RegisterType<SyncController>();
             builder.RegisterType<AnalysisController>();
             builder.RegisterType<ErrorController>();
 

@@ -339,7 +339,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ConfigDiagnosis()
         {
-            var output = _statusService.ConfigSummary();
+            var output = _statusService.GetConfigSummary();
             return new JsonNetResult(output);
         }
 

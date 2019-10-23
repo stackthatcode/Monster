@@ -2,7 +2,6 @@
 using Monster.Middle.Misc.State;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Sync.Model.Config;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Persist.Matching;
@@ -97,10 +96,10 @@ namespace Monster.Middle.Processes.Sync.Status
         }
 
 
-        public SystemStateSummaryModel ConfigSummary()
+        public ConfigStateSummaryModel GetConfigSummary()
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
-            var output = new SystemStateSummaryModel()
+            var output = new ConfigStateSummaryModel()
             {
                 ShopifyConnection = state.ShopifyConnState,
                 AcumaticaConnection = state.AcumaticaConnState,

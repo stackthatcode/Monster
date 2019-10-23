@@ -98,6 +98,26 @@ namespace Monster.Middle.Persist.Instance
         System.Data.Entity.DbSet Set(System.Type entityType);
         System.Data.Entity.DbSet<TEntity> Set<TEntity>() where TEntity : class;
         string ToString();
+
+        // Stored Procedures
+        int DeleteAllAcumaticaInventoryRecords();
+        // DeleteAllAcumaticaInventoryRecordsAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
+
+        int DeleteAllAcumaticaOrderRecords();
+        // DeleteAllAcumaticaOrderRecordsAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
+
+        int DeleteAllShopifyInventoryRecords();
+        // DeleteAllShopifyInventoryRecordsAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
+
+        int DeleteAllShopifyOrderRecords();
+        // DeleteAllShopifyOrderRecordsAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
+
+        int DeleteAllSyncRecords();
+        // DeleteAllSyncRecordsAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
+
+        int DeleteAllSystemRecords();
+        // DeleteAllSystemRecordsAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
+
     }
 
     #endregion
@@ -306,6 +326,62 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new VwSyncVariantsAndStockItemsAltConfiguration(schema));
             return modelBuilder;
         }
+
+        // Stored Procedures
+        public int DeleteAllAcumaticaInventoryRecords()
+        {
+            var procResultParam = new System.Data.SqlClient.SqlParameter { ParameterName = "@procResult", SqlDbType = System.Data.SqlDbType.Int, Direction = System.Data.ParameterDirection.Output };
+
+            Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, "EXEC @procResult = [dbo].[DeleteAllAcumaticaInventoryRecords] ", procResultParam);
+
+            return (int) procResultParam.Value;
+        }
+
+        public int DeleteAllAcumaticaOrderRecords()
+        {
+            var procResultParam = new System.Data.SqlClient.SqlParameter { ParameterName = "@procResult", SqlDbType = System.Data.SqlDbType.Int, Direction = System.Data.ParameterDirection.Output };
+
+            Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, "EXEC @procResult = [dbo].[DeleteAllAcumaticaOrderRecords] ", procResultParam);
+
+            return (int) procResultParam.Value;
+        }
+
+        public int DeleteAllShopifyInventoryRecords()
+        {
+            var procResultParam = new System.Data.SqlClient.SqlParameter { ParameterName = "@procResult", SqlDbType = System.Data.SqlDbType.Int, Direction = System.Data.ParameterDirection.Output };
+
+            Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, "EXEC @procResult = [dbo].[DeleteAllShopifyInventoryRecords] ", procResultParam);
+
+            return (int) procResultParam.Value;
+        }
+
+        public int DeleteAllShopifyOrderRecords()
+        {
+            var procResultParam = new System.Data.SqlClient.SqlParameter { ParameterName = "@procResult", SqlDbType = System.Data.SqlDbType.Int, Direction = System.Data.ParameterDirection.Output };
+
+            Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, "EXEC @procResult = [dbo].[DeleteAllShopifyOrderRecords] ", procResultParam);
+
+            return (int) procResultParam.Value;
+        }
+
+        public int DeleteAllSyncRecords()
+        {
+            var procResultParam = new System.Data.SqlClient.SqlParameter { ParameterName = "@procResult", SqlDbType = System.Data.SqlDbType.Int, Direction = System.Data.ParameterDirection.Output };
+
+            Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, "EXEC @procResult = [dbo].[DeleteAllSyncRecords] ", procResultParam);
+
+            return (int) procResultParam.Value;
+        }
+
+        public int DeleteAllSystemRecords()
+        {
+            var procResultParam = new System.Data.SqlClient.SqlParameter { ParameterName = "@procResult", SqlDbType = System.Data.SqlDbType.Int, Direction = System.Data.ParameterDirection.Output };
+
+            Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, "EXEC @procResult = [dbo].[DeleteAllSystemRecords] ", procResultParam);
+
+            return (int) procResultParam.Value;
+        }
+
     }
     #endregion
 
@@ -488,6 +564,44 @@ namespace Monster.Middle.Persist.Instance
         public override string ToString()
         {
             throw new System.NotImplementedException();
+        }
+
+
+        // Stored Procedures
+        public int DeleteAllAcumaticaInventoryRecords()
+        {
+
+            return 0;
+        }
+
+        public int DeleteAllAcumaticaOrderRecords()
+        {
+
+            return 0;
+        }
+
+        public int DeleteAllShopifyInventoryRecords()
+        {
+
+            return 0;
+        }
+
+        public int DeleteAllShopifyOrderRecords()
+        {
+
+            return 0;
+        }
+
+        public int DeleteAllSyncRecords()
+        {
+
+            return 0;
+        }
+
+        public int DeleteAllSystemRecords()
+        {
+
+            return 0;
         }
 
     }
@@ -1681,6 +1795,7 @@ namespace Monster.Middle.Persist.Instance
         public int PreferenceState { get; set; } // PreferenceState
         public int WarehouseSyncState { get; set; } // WarehouseSyncState
         public int InventoryRefreshState { get; set; } // InventoryRefreshState
+        public int StartingShopifyOrderState { get; set; } // StartingShopifyOrderState
         public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
         public int OrderCustomersTransPullState { get; set; } // OrderCustomersTransPullState
         public int SyncOrdersState { get; set; } // SyncOrdersState
@@ -3002,6 +3117,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.PreferenceState).HasColumnName(@"PreferenceState").HasColumnType("int").IsRequired();
             Property(x => x.WarehouseSyncState).HasColumnName(@"WarehouseSyncState").HasColumnType("int").IsRequired();
             Property(x => x.InventoryRefreshState).HasColumnName(@"InventoryRefreshState").HasColumnType("int").IsRequired();
+            Property(x => x.StartingShopifyOrderState).HasColumnName(@"StartingShopifyOrderState").HasColumnType("int").IsRequired();
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
             Property(x => x.OrderCustomersTransPullState).HasColumnName(@"OrderCustomersTransPullState").HasColumnType("int").IsRequired();
             Property(x => x.SyncOrdersState).HasColumnName(@"SyncOrdersState").HasColumnType("int").IsRequired();
@@ -3271,6 +3387,10 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.IsSyncEnabled).HasColumnName(@"IsSyncEnabled").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
         }
     }
+
+    #endregion
+
+    #region Stored procedure return models
 
     #endregion
 

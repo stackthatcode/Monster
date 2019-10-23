@@ -1,20 +1,30 @@
 ﻿using System;
+using System.Globalization;
+using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Web.Models.Config
 {
     public class OrderSyncSettingsModel
     {
-        public long StartingShopifyOrderId { get; set; }
-        public DateTime? ShopifyOrderDateStart { get; set; }
+        public long? StartingShopifyOrderId { get; set; }
+        public string StartingShopifyOrderIdFormatted 
+                => StartingShopifyOrderId.HasValue ? StartingShopifyOrderId.ToString() : "(not set)";
 
-        public string ShopifyOrderDateStartFormatted
-            => (ShopifyOrderDateStart ?? DateTime.Today).Date.ToString("MM/dd/yyyy");
+        public string ShopifyOrderHref { get; set; }
 
-        public int? ShopifyOrderNumberStart { get; set; }
+        public bool IsSet => StartingShopifyOrderId.HasValue;
 
-        public string ShopifyOrderNumberStartFormatted =>
-            ShopifyOrderNumberStart.HasValue 
-                ? ShopifyOrderNumberStart.Value.ToString() : "(not set)";
+
+        public string StartingShopifyOrderName { get; set; }
+        public string StartingShopifyOrderNameFormatted 
+                => StartingShopifyOrderName.IsNullOrEmptyAlt("(not set)");
+
+
+        public DateTime? StartingShopifyOrderCreatedAtUtc { get; set; }
+        public string StartingShopifyOrderCreatedAtUtcFormatted
+                => StartingShopifyOrderCreatedAtUtc != null
+                    ? StartingShopifyOrderCreatedAtUtc.Value.ToString(CultureInfo.InvariantCulture) 
+                    : "(not set)";
 
         public int MaxParallelAcumaticaSyncs { get; set; }
     }

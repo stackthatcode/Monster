@@ -15,14 +15,13 @@ using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
 using Monster.Web.Models.RealTime;
-using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
 
 
 namespace Monster.Web.Controllers
 {
     [IdentityProcessor]
-    public class RealTimeController : Controller
+    public class SyncController : Controller
     {
         private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
@@ -30,26 +29,25 @@ namespace Monster.Web.Controllers
         private readonly RecurringJobScheduler _recurringJobService;
         private readonly JobMonitoringService _jobStatusService;
         private readonly ConfigStatusService _statusService;
-        private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
+        private readonly EndToEndStatusService _endStatusService;
         private readonly PreferencesRepository _preferencesRepository;
         private readonly UrlService _urlService;
-        private readonly IPushLogger _logger;
 
-        public RealTimeController(
+
+        public SyncController(
                 StateRepository stateRepository,
                 OneTimeJobScheduler oneTimeJobService,
                 RecurringJobScheduler recurringJobService,
                 JobMonitoringService jobStatusService,
                 ConfigStatusService statusService,
                 ExecutionLogService logRepository,
-                SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 PreferencesRepository preferencesRepository,
                 AcumaticaBatchRepository acumaticaBatchRepository,
-                UrlService urlService,
-                IPushLogger logger)
+                EndToEndStatusService endStatusService,
+                UrlService urlService)
         {
             _stateRepository = stateRepository;
             _oneTimeJobService = oneTimeJobService;
@@ -57,11 +55,10 @@ namespace Monster.Web.Controllers
             _jobStatusService = jobStatusService;
             _statusService = statusService;
             _logRepository = logRepository;
-            _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _urlService = urlService;
-            _logger = logger;
             _acumaticaBatchRepository = acumaticaBatchRepository;
+            _endStatusService = endStatusService;
             _preferencesRepository = preferencesRepository;
         }
 
@@ -69,66 +66,78 @@ namespace Monster.Web.Controllers
         // Status inquiries
         // 
         [HttpGet]
-        public ActionResult RealTime()
+        public ActionResult EndToEnd()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult StartRealTime()
+        public ActionResult StartEndToEnd()
         {
             _recurringJobService.StartEndToEndSync();
             return JsonNetResult.Success();
         }
 
         [HttpPost]
-        public ActionResult PauseRealTime()
+        public ActionResult PauseEndToEnd()
         {
             _recurringJobService.KillEndToEndSync();
             return JsonNetResult.Success();
         }
 
         [HttpGet]
-        public ActionResult RealTimeStatus()
+        public ActionResult EndToEndStatus()
         {
-            var isRealTimeSyncRunning = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync);
+            var isEndToEndSyncRunning = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync);
             var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
-            
-            var isConfigReadyForRealTime = _statusService.ConfigSummary().IsReadyForRealTimeSync;
 
+            var status = _endStatusService.GetEndToEndSyncStatus();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
 
             var output = new
             {
                 AreAnyJobsRunning = areAnyJobsRunning,
-                IsRealTimeSyncRunning = isRealTimeSyncRunning,
-                IsConfigReadyForRealTime = isConfigReadyForRealTime,
                 Logs = logs,
+
+                IsEndToEndSyncRunning = isEndToEndSyncRunning,  // Specifically for UI choices
+
+                IsStartingOrderReadyForEndToEnd = status.IsStartingOrderReadyForEndToEnd,
+                IsConfigReadyForEndToEnd = status.ConfigStateSummaryModel.IsConfigReadyForEndToEnd,
+                CanEndToEndSyncBeStarted = status.CanEndToEndSyncBeStarted,
             };
 
             return new JsonNetResult(output);
         }
 
-        [HttpPost]
-        public ActionResult EndToEnd()
-        {
-            return JsonNetResult.Success();
-        }
 
 
-        // Real-Time Settings
+        // End-to-End Sync Settings
         //
         [HttpGet]
         public ActionResult SyncSettingsAndEnables()
         {
             var preferences = _preferencesRepository.RetrievePreferences();
-            var SyncEnablesModel = Mapper.Map<SyncEnablesModel>(preferences);
-            var OrderSyncSettingsModel = Mapper.Map<OrderSyncSettingsModel>(preferences);
+
+            var syncEnablesModel = Mapper.Map<SyncEnablesModel>(preferences);
+
+            var orderSyncSettingsModel = new OrderSyncSettingsModel();
+
+            orderSyncSettingsModel.StartingShopifyOrderId = preferences.StartingShopifyOrderId;
+            orderSyncSettingsModel.StartingShopifyOrderName = preferences.StartingShopifyOrderName;
+            orderSyncSettingsModel
+                    .StartingShopifyOrderCreatedAtUtc = preferences.StartingShopifyOrderCreatedAtUtc;
+
+            if (preferences.StartingShopifyOrderId.HasValue)
+            {
+                orderSyncSettingsModel.ShopifyOrderHref
+                    = _urlService.ShopifyOrderUrl(preferences.StartingShopifyOrderId.Value);
+            }
+            orderSyncSettingsModel.MaxParallelAcumaticaSyncs = preferences.MaxParallelAcumaticaSyncs;
 
             var output = new
             {
-                SyncEnablesModel,
-                OrderSyncSettingsModel,
+                SyncEnablesModel = syncEnablesModel,
+                OrderSyncSettingsModel = orderSyncSettingsModel,
             };
 
             return new JsonNetResult(output);
@@ -292,7 +301,6 @@ namespace Monster.Web.Controllers
         {
             return View();
         }
-
 
     }
 }
