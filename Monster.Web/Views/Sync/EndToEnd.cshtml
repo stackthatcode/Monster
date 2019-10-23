@@ -337,27 +337,6 @@
         PollJobStatus: "/PollJobStatus",
     };
 
-    Monster.SyncEnabledModel = function (label, event) {
-        var self = this;
-
-        self.IsEnabled = ko.observable(true);
-
-        self.Clicked = function () {
-            if (event) {
-                Monster.Events.publish(event);
-            }
-            return true;
-        };
-
-        self.Set = function (enabled) {
-            self.IsEnabled(enabled);
-        }
-
-        self.Label = ko.observable(label);
-
-        return self;
-    };
-
     Monster.OrderSyncSettingsPopupModel = function () {
         var self = this;
 
@@ -428,11 +407,33 @@
         Monster.Events.subscribe("/LaunchOrderSyncSettings", self.LaunchEditOrderSyncSettings);
         return self;
     };
+    
+    Monster.SyncEnabledModel = function (label, event) {
+        var self = this;
+
+        self.IsEnabled = ko.observable(true);
+
+        self.Clicked = function () {
+            if (event) {
+                Monster.Events.publish(event);
+            }
+            return true;
+        };
+
+        self.Set = function (enabled) {
+            self.IsEnabled(enabled);
+        }
+
+        self.Label = ko.observable(label);
+
+        return self;
+    };
 
     Monster.SyncSettingsModel = function () {
         var self = this;
 
-        // Sync Enables
+        // Sync Enable models
+        //
         self.SyncInventoryEnabled
             = new Monster.SyncEnabledModel("Inventory Synchronization", eventKeys.UpdateSyncEnables);
         self.SyncOrdersEnabled
@@ -449,24 +450,39 @@
         self.StartOrderCreatedAtUtc = ko.observable();
         self.ShopifyOrderHref = ko.observable();
         self.MaxParallelAcumaticaSyncs = ko.observable();
-
-        // Model populating function
+        
+        // Publishes an event to trigger launch of Order Sync Settings editor pop-up
         //
-        self.Populate = function (settings) {
-
-            self.StartingOrderId(settings.StartingOrderId);
-            self.StartingOrderName(settings.StartingOrderName);
-            self.StartOrderCreatedAtUtc(settings.StartOrderCreatedAtUtc);
-            self.ShopifyOrderHref(settings.ShopifyOrderHref);
-            self.MaxParallelAcumaticaSyncs(settings.MaxParallelAcumaticaSyncs);
-        };
-
-        Monster.Events.subscribe(eventKeys.UpdateSyncEnables, self.UpdateSyncEnables);
-
         self.EditOrderSettingsClick = function () {
             Monster.Events.publish(eventKeys.LaunchOrderSyncSettings);
         };
+        
+        self.RefreshSyncSettings = function (callback) {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
+                },
+                function (model) {
+                    // Sync Enables
+                    //
+                    self.SyncInventoryEnabled.Set(model.SyncInventoryEnabled);
+                    self.SyncOrdersEnabled.Set(model.SyncOrdersEnabled);
+                    self.SyncShipmentsEnabled.Set(model.SyncShipmentsEnabled);
+                    self.SyncRefundsEnabled.Set(model.SyncRefundsEnabled);
 
+                    // Order Sync Settings
+                    //
+                    self.StartingOrderId(settings.StartingOrderId);
+                    self.StartingOrderName(settings.StartingOrderName);
+                    self.StartOrderCreatedAtUtc(settings.StartOrderCreatedAtUtc);
+                    self.ShopifyOrderHref(settings.ShopifyOrderHref);
+                    self.MaxParallelAcumaticaSyncs(settings.MaxParallelAcumaticaSyncs);
+                });
+        };
+
+        // Writes the current state of Sync Enables to HTTP
+        //
         self.UpdateSyncEnables = function () {
             flow.exec(
                 function () {
@@ -484,6 +500,9 @@
                     Monster.Events.publish(eventKeys.RefreshSyncSettings);
                 });
         };
+
+        Monster.Events.subscribe(eventKeys.RefreshSyncSettings, self.RefreshSyncSettings);
+        Monster.Events.subscribe(eventKeys.UpdateSyncEnables, self.UpdateSyncEnables);
 
         return self;
     };
@@ -524,7 +543,7 @@
                     ajax.HttpPost("Sync/StartEndToEnd", {}, this);
                 },
                 function (response) {
-                    self.PollJobStatus();
+                    Monster.Events.publish(eventKeys.PollJobStatus);
                 });
         };
 
@@ -535,9 +554,9 @@
                     ajax.HttpPost("Sync/PauseEndToEnd", {}, this);
                 },
                 function (response) {
+                    // No action is required - PollJobStatus will catch this
                 });
         };
-
 
         return self;
     }
@@ -563,52 +582,25 @@
                 ajax.DisablePopupsAndSpinners();
                 ajax.HttpGet("Sync/EndToEndStatus", this);
             },
-                function (response) {
-                    // End-to-End readiness
-                    //
-                    self.EndToEndStartModel.Populate(response.EndToEndStartModel);
+            function (response) {
+                // End-to-End readiness
+                //
+                self.EndToEndStartModel.Populate(response.EndToEndStartModel);
 
-                    // Job Running status/panel
-                    //
-                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                    self.JobRunningModel.Ingest(response.Logs);
+                // Job Running status/panel
+                //
+                self.AreAnyJobsRunning(response.AreAnyJobsRunning);
+                self.JobRunningModel.Ingest(response.Logs);
 
-                    if (self.AreAnyJobsRunning()) {
-                        setTimeout(self.PollJobStatus, 1000);
-                    } else {
-                        self.SyncSettingsModel.Refresh();
-                    }
-                });
+                if (self.AreAnyJobsRunning()) {
+                    setTimeout(self.PollJobStatus, 1000);
+                } else {
+                    Monster.Events.publish(eventKeys.RefreshSyncSettings);
+                }
+            });
         };
 
-        self.RefreshSyncSettings = function (callback) {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
-                },
-                function (response) {
-                    // Sync Settings for Order translation
-                    //
-                    var settings = response.OrderSyncSettingsModel;
-
-                    // Sync Enables model translation
-                    //
-                    var enables = response.SyncEnablesModel;
-
-                    self.SyncInventoryEnabled.Set(enables.SyncInventoryEnabled);
-                    self.SyncOrdersEnabled.Set(enables.SyncOrdersEnabled);
-                    self.SyncShipmentsEnabled.Set(enables.SyncShipmentsEnabled);
-                    self.SyncRefundsEnabled.Set(enables.SyncRefundsEnabled);
-
-                    if (callback) {
-                        callback();
-                    }
-                });
-            };
-
-        Monster.Events.subscribe(eventKeys.RefreshSyncSettings, self.RefreshSyncSettings);
-
+        Monster.Events.subscribe(eventKeys.PollJobStatus, self.PollJobStatus);
 
         self.Initialize = function () {
             self.PollJobStatus();
