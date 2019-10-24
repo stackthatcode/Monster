@@ -1,6 +1,6 @@
 ﻿namespace Monster.Web.Models.Sync
 {
-    public class EndToEndStartModel
+    public class NonRunningStateModel
     {
         public bool IsConfigReadyForEndToEnd { get; set; }
         public bool IsStartingOrderReadyForEndToEnd { get; set; }

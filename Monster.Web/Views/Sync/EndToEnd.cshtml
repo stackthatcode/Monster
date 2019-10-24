@@ -42,11 +42,11 @@
         <div class="card">
             <div class="card-body center">
                 <div data-bind="if: AreAnyJobsRunning">
-                    <div data-bind="template: { name: 'Running-State' }"></div>
+                    <div data-bind="template: { name: 'Running-State', data: RunningStateModel }"></div>
                 </div>
 
                 <div data-bind="ifnot: AreAnyJobsRunning">
-                    <div data-bind="template: { name: 'Non-Running-State' }"></div>
+                    <div data-bind="template: { name: 'Non-Running-State', data: NonRunningStateModel }"></div>
                 </div>
             </div>
         </div>
@@ -71,16 +71,16 @@
         <div data-bind="template: { name: 'Job-Running-Spinner' }"></div>
     </div>
 
-    <hr />
+    <hr/>
 
-    <div data-bind="if: IsKillEndToEndButtonEnabled">
+    <div data-bind="if: IsEndToEndSyncRunning">
         <a href="#" data-bind="click: PauseEndToEndClick"
            class="btn btn-primary btn-lg">
             Pause Real-Time Sync <i class="fas fa-bolt"></i>
         </a>
     </div>
 
-    <div data-bind="ifnot: IsKillEndToEndButtonEnabled">
+    <div data-bind="ifnot: IsEndToEndSyncRunning">
         <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
             Pause Real-Time Sync <i class="fas fa-bolt"></i>
         </button>
@@ -88,18 +88,18 @@
 
     <div style="height: 15px;"></div>
 
-    <div data-bind="template: { name: 'Execution-Log-Ticker', data: JobRunningModel }"></div>
+    <div data-bind="template: { name: 'Execution-Log-Ticker', data: ExecutionLogModel }"></div>
 </script>
 
 <script type="text/html" id="Non-Running-State">
-    <div data-bind="template: {name: 'End-To-End-Start-Panel', data: EndToEndStartModel }"></div>
+<div data-bind="template: { name: 'End-To-End-Sync-Control-Panel' }"></div>
 
-    <div style="height: 15px;"></div>
+<div style="height: 15px;"></div>
 
-    <div data-bind="template: { name: 'Sync-Settings', data: SyncSettingsModel }"></div>
+<div data-bind="template: { name: 'Sync-Settings', data: SyncSettingsModel }"></div>
 </script>
 
-<script type="text/html" id="End-To-End-Start-Panel">
+<script type="text/html" id="End-To-End-Sync-Control-Panel">
     <div data-bind="ifnot: IsConfigReadyForEndToEnd">
         <div class="alert alert-danger">
             <strong>End-to-End Synchronization - Disabled</strong>
@@ -121,13 +121,13 @@
     <div style="height: 15px;"></div>
 
     <div class="center">
-        <span data-bind="ifnot: IsCompleteSyncButtonEnabled">
+        <span data-bind="ifnot: CanEndToEndSyncBeStarted">
             <button type="button" class="btn btn-secondary btn-lg" disable="disabled">
                 Start End-to-End Sync <i class="fas fa-bolt"></i>
             </button>
         </span>
 
-        <span data-bind="if: IsCompleteSyncButtonEnabled">
+        <span data-bind="if: CanEndToEndSyncBeStarted">
             <a href="#" data-bind="click: StartEndToEndClick" class="btn btn-primary btn-lg">
                 Start End-to-End Sync <i class="fas fa-bolt"></i>
             </a>
@@ -136,88 +136,86 @@
 </script>
 
 <script type="text/html" id="Sync-Settings">
-    <div style="font-size:0.9em; color:#999999; font-weight:500; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
-        Sync Preferences
-    </div>
+<div style="font-size:0.9em; color:#999999; font-weight:500; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
+    Sync Preferences
+</div>
 
-    <table class="table" style="max-width: 550px; margin-left: auto; margin-right: auto;">
-        <tbody>
-            <tr>
-                <td>
-                    <div style="clear: both; vertical-align: middle;"
-                         data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
-                    </div>
-                </td>
-            </tr>
+<table class="table" style="max-width: 600px; margin-left: auto; margin-right: auto;">
+    <tbody>
+    <tr>
+        <td>
+        <div style="clear: both; vertical-align: middle;"
+             data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
+        </div>
+        </td>
+    </tr>
 
-            <tr>
-                <td>
-                    <div style="float: left;">
+    <tr>
+        <td>
+        <div style="float: left;">
 
-                        <!-- Starting Order Number -->
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Starting Order Number</span>
+            <!-- Starting Order Number -->
+            <div style="clear: both; text-align: left;">
+                <span class="sync-label" style="min-width: 200px; text-align: left;">Starting Order Number</span>
 
-                            <!-- Display Link if populated... -->
-                            <span data-bind="if: ShopifyOrderHref">
-                                <a class="sync-link"
-                                   data-bind="attr: { href: ShopifyOrderHref }"
-                                   target="_blank">
-                                    <span data-bind="text: StartingOrderName">
-                                    </span>
-                                </a>
-                            </span>
+                <!-- Display Link if populated... -->
+                <span data-bind="if: ShopifyOrderHref">
+                    <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
+                        <span data-bind="text: StartingOrderName">
+                        </span>
+                    </a>
+                </span>
 
-                            <!-- ... else show alternate text -->
-                            <span data-bind="ifnot: ShopifyOrderHref">
-                                <span class="sync-setting" data-bind="text: StartingOrderName">
-                                </span>
-                            </span>
-                        </div>
+                <!-- ... else show alternate text -->
+                <span data-bind="ifnot: ShopifyOrderHref">
+                    <span class="sync-setting" data-bind="text: StartingOrderName">
+                    </span>
+                </span>
+            </div>
 
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
-                            <span class="sync-setting" data-bind="text: StartOrderCreatedAtUtc">
-                            </span>
-                        </div>
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
-                            <span class="sync-setting" data-bind="text: MaxParallelAcumaticaSyncs"></span>
-                        </div>
+            <div style="clear: both; text-align: left;">
+                <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
+                <span class="sync-setting" data-bind="text: StartOrderCreatedAtUtc">
+                </span>
+            </div>
+            <div style="clear: both; text-align: left;">
+                <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
+                <span class="sync-setting" data-bind="text: MaxParallelAcumaticaSyncs"></span>
+            </div>
 
-                    </div>
+        </div>
 
-                    <div style="float: right; padding-top: 15px;">
-                        <a href="#" class="btn btn-primary btn-sm"
-                           data-bind="click: EditOrderSettingsClick"
-                           style="padding-top: 8px; padding-bottom: 8px;">
-                            EDIT SETTINGS <i class="fa fa-pencil-alt"></i>
-                        </a>
-                    </div>
+        <div style="float: right; padding-top: 15px;">
+            <a href="#" class="btn btn-primary btn-sm"
+               data-bind="click: EditOrderSettingsClick"
+               style="padding-top: 8px; padding-bottom: 8px;">
+                EDIT SETTINGS <i class="fa fa-pencil-alt"></i>
+            </a>
+        </div>
 
-                    <div style="clear: both;" data-bind="if: true">
-                        <div style="height: 20px;"></div>
-                        <div class="alert alert-secondary">
-                            <strong>Starting Order must be set to start End-to-End</strong>
-                        </div>
-                    </div>
-                </td>
-            </tr>
+        <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
+            <div style="height: 20px;"></div>
+            <div class="alert alert-secondary">
+                <strong>Starting Order must be set to start End-to-End</strong>
+            </div>
+        </div>
+        </td>
+    </tr>
 
-            <tr>
-                <td style="vertical-align: middle;"
-                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }"></td>
-            </tr>
-            <tr>
-                <td style="vertical-align: middle;"
-                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
-            </tr>
-            <tr>
-                <td style="vertical-align: middle;"
-                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
-            </tr>
-        </tbody>
-    </table>
+    <tr>
+        <td style="vertical-align: middle;"
+            data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }"></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: middle;"
+            data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: middle;"
+            data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
+    </tr>
+    </tbody>
+</table>
 </script>
 
 <script type="text/html" id="Sync-Enable-Item">
@@ -240,90 +238,90 @@
 </script>
 
 <script id="Order-Sync-Settings-Popup" type="text/html">
-    <div class="modal fade" id="order-sync-settings-modal" tabindex="-1"
-         role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
+<div class="modal fade" id="order-sync-settings-modal" tabindex="-1"
+     role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
 
-        <div class="modal-dialog" role="document" style="max-width:600px;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="order-sync-settings-modalLabel">Enter Order Sync Settings</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+    <div class="modal-dialog" role="document" style="max-width:720px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="order-sync-settings-modalLabel">Enter Order Sync Settings</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body left">
+                <div class="form-group">
+                    <label for="datepicker">Starting Date for Shopify Orders</label>
+
+                    <input id="datepicker"
+                           type="text"
+                           class="form-control"
+                           placeholder="Choose..."
+                           data-bind="value: SelectedStartingDate" />
+
+                    <small id="datepickerHelp" class="form-text text-muted">
+                        @GlobalConfig.AppName will only load Shopify Orders
+                        that are created on or after this date into Acumatica.
+                    </small>
                 </div>
 
-                <div class="modal-body left">
-                    <div class="form-group">
-                        <label for="datepicker">Starting Date for Shopify Orders</label>
+                <div class="form-group">
+                    <label for="orderNumber">
+                        Starting Shopify Order Number
+                        <span style="font-weight:400;">(OPTIONAL)</span>
+                    </label>
 
-                        <input id="datepicker"
-                               type="text"
-                               class="form-control"
-                               placeholder="Choose..."
-                               data-bind="value: SelectedStartingDate" />
+                    <input id="orderNumber"
+                           class="form-control"
+                           placeholder="Enter a Shopify Order Number..."
+                           maxlength="12"
+                           data-bind="value: ShopifyOrderNumberStart,
+                                event: { blur: ShopifyOrderNumberStartBlur }" />
 
-                        <small id="datepickerHelp" class="form-text text-muted">
-                            @GlobalConfig.AppName will only load Shopify Orders
-                            that are created on or after this date into Acumatica.
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="orderNumber">
-                            Starting Shopify Order Number
-                            <span style="font-weight:400;">(OPTIONAL)</span>
-                        </label>
-
-                        <input id="orderNumber"
-                               class="form-control"
-                               placeholder="Enter a Shopify Order Number..."
-                               maxlength="12"
-                               data-bind="value: ShopifyOrderNumberStart,
-                                    event: { blur: ShopifyOrderNumberStartBlur }" />
-
-                        <small id="orderNumberHelp" class="form-text text-muted">
-                            @GlobalConfig.AppName will only load Shopify Orders
-                            with an Order Number equal to or greater than this.
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="orderNumber">
-                            Maximum # of Parallel Syncs to Acumatica
-                        </label>
-                        <select class="form-control" data-bind="value: MaxParallelSyncs">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                        </select>
-
-                        <small id="orderNumberHelp" class="form-text text-muted">
-                            @GlobalConfig.AppName will run up to this many syncs to Acumatica at the same time.
-                            <div style="font-weight:700;">WARNING - be sure confirm that you have enough Acumatica licenses </div>
-                        </small>
-                    </div>
-                </div>
-                <div style="height:45px;"
-                     data-bind="if: ShowValidation() && !StartingDateValid()" class="center error-message">
-                    One or more items are not valid. Please review and correct.
+                    <small id="orderNumberHelp" class="form-text text-muted">
+                        @GlobalConfig.AppName will only load Shopify Orders
+                        with an Order Number equal to or greater than this.
+                    </small>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        Cancel <i class="fas fa-times"></i>
-                    </button>
-                    <button type="button" data-bind="click: SaveSettings" class="btn btn-primary">
-                        Save <i class="fas fa-check"></i>
-                    </button>
+                <div class="form-group">
+                    <label for="orderNumber">
+                        Maximum # of Parallel Syncs to Acumatica
+                    </label>
+                    <select class="form-control" data-bind="value: MaxParallelSyncs">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+
+                    <small id="orderNumberHelp" class="form-text text-muted">
+                        @GlobalConfig.AppName will run up to this many syncs to Acumatica at the same time.
+                        <div style="font-weight:700;">WARNING - be sure confirm that you have enough Acumatica licenses </div>
+                    </small>
                 </div>
+            </div>
+            <div style="height:45px;"
+                 data-bind="if: ShowValidation() && !StartingDateValid()" class="center error-message">
+                One or more items are not valid. Please review and correct.
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Cancel <i class="fas fa-times"></i>
+                </button>
+                <button type="button" data-bind="click: SaveSettings" class="btn btn-primary">
+                    Save <i class="fas fa-check"></i>
+                </button>
             </div>
         </div>
     </div>
+</div>
 </script>
 
 
@@ -450,7 +448,8 @@
         self.StartOrderCreatedAtUtc = ko.observable();
         self.ShopifyOrderHref = ko.observable();
         self.MaxParallelAcumaticaSyncs = ko.observable();
-        
+        self.IsStartingOrderSet = ko.observable();
+
         // Publishes an event to trigger launch of Order Sync Settings editor pop-up
         //
         self.EditOrderSettingsClick = function () {
@@ -473,11 +472,12 @@
 
                     // Order Sync Settings
                     //
-                    self.StartingOrderId(settings.StartingOrderId);
-                    self.StartingOrderName(settings.StartingOrderName);
-                    self.StartOrderCreatedAtUtc(settings.StartOrderCreatedAtUtc);
-                    self.ShopifyOrderHref(settings.ShopifyOrderHref);
-                    self.MaxParallelAcumaticaSyncs(settings.MaxParallelAcumaticaSyncs);
+                    self.StartingOrderId(model.StartingOrderId);
+                    self.StartingOrderName(model.StartingOrderName);
+                    self.StartOrderCreatedAtUtc(model.StartOrderCreatedAtUtc);
+                    self.ShopifyOrderHref(model.ShopifyOrderHref);
+                    self.MaxParallelAcumaticaSyncs(model.MaxParallelAcumaticaSyncs);
+                    self.IsStartingOrderSet(model.IsStartingOrderSet);
                 });
         };
 
@@ -507,7 +507,7 @@
         return self;
     };
 
-    Monster.EndToEndStartModel = function () {
+    Monster.NonRunningStateModel = function () {
         var self = this;
 
         // End-to-End Sync readiness
@@ -516,15 +516,9 @@
         self.IsStartingOrderReadyForEndToEnd = ko.observable(false);
         self.CanEndToEndSyncBeStarted = ko.observable(false);
 
-        // Computed properties
+        // Sync Settings data entry models
         //
-        self.IsCompleteSyncButtonEnabled = ko.computed(function () {
-            return !self.AreAnyJobsRunning() && self.CanEndToEndSyncBeStarted();
-        });
-
-        self.IsKillEndToEndButtonEnabled = ko.computed(function () {
-            return self.IsEndToEndSyncRunning();
-        });
+        self.SyncSettingsModel = new Monster.SyncSettingsModel();
 
         // Model loading function
         //
@@ -547,6 +541,20 @@
                 });
         };
 
+        return self;
+    }
+    
+    Monster.RunningStateModel = function() {
+        var self = this;
+
+        self.IsEndToEndSyncRunning = ko.observable(false);
+        self.ExecutionLogModel = new Monster.ExecutionLogModel();
+        
+        self.Populate = function (model) {
+            self.IsEndToEndSyncRunning(model.IsEndToEndSyncRunning);
+            self.ExecutionLogModel.Ingest(model.Logs);
+        };
+
         self.PauseEndToEndClick = function () {
             flow.exec(
                 function () {
@@ -559,19 +567,19 @@
         };
 
         return self;
-    }
-
+    };
+    
     Monster.ParentInterface = function () {
         var self = this;
 
         // Current Job status
         //
         self.AreAnyJobsRunning = ko.observable(false);
-        self.IsEndToEndSyncRunning = ko.observable(false);
 
-        self.JobRunningModel = new Monster.ExecutionLogModel();
-        self.EndToEndStartModel = new Monster.EndToEndStartModel();
-        self.SyncSettingsModel = new Monster.SyncSettingsModel();
+        // Child Models divide by state
+        //
+        self.RunningStateModel = new Monster.RunningStateModel();
+        self.NonRunningStateModel = new Monster.NonRunningStateModel();
         self.OrderSyncSettingsPopupModel = new Monster.OrderSyncSettingsPopupModel();
 
         // Polling Function
@@ -583,18 +591,16 @@
                 ajax.HttpGet("Sync/EndToEndStatus", this);
             },
             function (response) {
-                // End-to-End readiness
-                //
-                self.EndToEndStartModel.Populate(response.EndToEndStartModel);
-
                 // Job Running status/panel
                 //
                 self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                self.JobRunningModel.Ingest(response.Logs);
 
                 if (self.AreAnyJobsRunning()) {
+                    self.RunningStateModel.Populate(response.RunningStateModel);
                     setTimeout(self.PollJobStatus, 1000);
+
                 } else {
+                    self.NonRunningStateModel.Populate(response.NonRunningStateModel);
                     Monster.Events.publish(eventKeys.RefreshSyncSettings);
                 }
             });

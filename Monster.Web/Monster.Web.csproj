@@ -222,7 +222,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Config\AcumaticaCredentialsModel.cs" />
-    <Compile Include="Models\Sync\EndToEndStartModel.cs" />
+    <Compile Include="Models\Sync\EndToEndStatusModel.cs" />
+    <Compile Include="Models\Sync\NonRunningStateModel.cs" />
+    <Compile Include="Models\Sync\RunningStateModel.cs" />
     <Compile Include="Models\Config\ShopifyLocationModel.cs" />
     <Compile Include="Models\Config\AcumaticaWarehouseModel.cs" />
     <Compile Include="Models\Sync\SyncEnablesUpdateModel.cs" />

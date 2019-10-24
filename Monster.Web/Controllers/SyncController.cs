@@ -87,27 +87,39 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult EndToEndStatus()
         {
-            var isEndToEndSyncRunning = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync);
             var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
+            var output = new EndToEndStatusModel();
+            output.AreAnyJobsRunning = areAnyJobsRunning;
 
-            var status = _endStatusService.GetEndToEndSyncStatus();
-            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-
-            var output = new
+            if (areAnyJobsRunning)
             {
-                AreAnyJobsRunning = areAnyJobsRunning,
-                Logs = logs,
+                var isEndToEndSyncRunning 
+                        = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync);
 
-                EndToEndStartModel = new
+                var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+
+                output.RunningStateModel = new RunningStateModel
                 {
-                    IsEndToEndSyncRunning = isEndToEndSyncRunning,  // Dictates whether to show Disable button
+                    IsEndToEndSyncRunning = isEndToEndSyncRunning,
+                    Logs = logs,
+                };
+
+                return new JsonNetResult(output);
+            }
+            else
+            {
+                var status = _endStatusService.GetEndToEndSyncStatus();
+
+                output.NonRunningStateModel = new NonRunningStateModel
+                {
                     IsStartingOrderReadyForEndToEnd = status.IsStartingOrderReadyForEndToEnd,
                     IsConfigReadyForEndToEnd = status.ConfigStateSummaryModel.IsConfigReadyForEndToEnd,
                     CanEndToEndSyncBeStarted = status.CanEndToEndSyncBeStarted,
-                }
-            };
 
-            return new JsonNetResult(output);
+                };
+
+                return new JsonNetResult(output);
+            }
         }
 
 
