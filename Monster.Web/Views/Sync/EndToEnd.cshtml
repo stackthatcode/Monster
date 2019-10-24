@@ -13,6 +13,12 @@
         color: #999999;
     }
 
+    .popup-sync-label {
+        display: inline-block;
+        min-width: 300px; 
+        text-align: left;
+    }
+
     .sync-setting {
         display: inline-block;
         text-align: left;
@@ -153,7 +159,6 @@
     <tr>
         <td>
         <div style="float: left;">
-
             <!-- Starting Order Number -->
             <div style="clear: both; text-align: left;">
                 <span class="sync-label" style="min-width: 200px; text-align: left;">Starting Order Number</span>
@@ -182,7 +187,6 @@
                 <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
                 <span class="sync-setting" data-bind="text: MaxParallelAcumaticaSyncs"></span>
             </div>
-
         </div>
 
         <div style="float: right; padding-top: 15px;">
@@ -238,79 +242,86 @@
 </script>
 
 <script id="Order-Sync-Settings-Popup" type="text/html">
-<div class="modal fade" id="order-sync-settings-modal" tabindex="-1"
-     role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
+    <div class="modal fade" id="order-sync-settings-modal" tabindex="-1"
+         role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
 
-    <div class="modal-dialog" role="document" style="max-width:720px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="order-sync-settings-modalLabel">Enter Order Sync Settings</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body left">
-                <div class="form-group">
-                    <label for="datepicker">Starting Date for Shopify Orders</label>
-
-                    <input id="datepicker"
-                           type="text"
-                           class="form-control"
-                           placeholder="Choose..."
-                           data-bind="value: SelectedStartingDate" />
-
-                    <small id="datepickerHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will only load Shopify Orders
-                        that are created on or after this date into Acumatica.
-                    </small>
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="order-sync-settings-modalLabel">Enter Order Sync Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
 
-                <div class="form-group">
-                    <label for="orderNumber">
-                        Starting Shopify Order Number
-                        <span style="font-weight:400;">(OPTIONAL)</span>
-                    </label>
+                <div class="modal-body left">
+                    <div data-bind="if: IsStartingOrderSet">
+                        <div class="form-group" style="clear: both; text-align: left;">
+                            <span class="popup-sync-label">Current Starting Shopify Order</span>
+                            <a class="sync-link" data-bind="attr: { href: CurrentStartingOrderHref }" target="_blank">
+                                <span data-bind="text: CurrentStartingOrderName"></span>
+                            </a>
+                            <div style="clear:both;"></div>
+                            <span class="popup-sync-label">Order Created At (UTC)</span>
+                            <span class="sync-setting" data-bind="text: CurrentStartingOrderCreatedAt">
+                            </span>
+                        </div>
+                        <hr />
+                        <div style="height:10px;"></div>
+                    </div>
 
-                    <input id="orderNumber"
-                           class="form-control"
-                           placeholder="Enter a Shopify Order Number..."
-                           maxlength="12"
-                           data-bind="value: ShopifyOrderNumberStart,
-                                event: { blur: ShopifyOrderNumberStartBlur }" />
+                    <div class="form-group">
+                        <label for="orderNumber">Enter Starting Shopify Order Number </label>
+                        
+                        
+                        <div class="input-group">
+                            <input id="orderNumber"
+                                   class="form-control"
+                                   placeholder="Enter a Shopify Order Number..."
+                                   maxlength="20"
+                                   data-bind="value: NewStartingOrderNumber,
+                                event: { blur: NewStartingOrderNumberBlur }" />
+                        
+                            <div class="input-group-append">
+                                <button data-bind="click: VerifyShopifyOrder"
+                                        class="btn btn-primary" type="button">
+                                    Verify <i class="fas fa-bolt"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                    <small id="orderNumberHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will only load Shopify Orders
-                        with an Order Number equal to or greater than this.
-                    </small>
+                        <small id="orderNumberHelp" class="form-text text-muted">
+                            @GlobalConfig.AppName will only load Shopify Orders
+                            with an Order Number equal to or greater than this.
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="orderNumber">
+                            Maximum # of Parallel Syncs to Acumatica
+                        </label>
+                        <select class="form-control" data-bind="value: MaxParallelSyncs">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
+
+                        <small id="orderNumberHelp" class="form-text text-muted">
+                            @GlobalConfig.AppName will run up to this many syncs to Acumatica at the same time.
+                            <div style="font-weight:700;">WARNING - be sure confirm that you have sufficient Acumatica licenses </div>
+                        </small>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="orderNumber">
-                        Maximum # of Parallel Syncs to Acumatica
-                    </label>
-                    <select class="form-control" data-bind="value: MaxParallelSyncs">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
-
-                    <small id="orderNumberHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will run up to this many syncs to Acumatica at the same time.
-                        <div style="font-weight:700;">WARNING - be sure confirm that you have enough Acumatica licenses </div>
-                    </small>
-                </div>
-            </div>
-            <div style="height:45px;"
-                 data-bind="if: ShowValidation() && !StartingDateValid()" class="center error-message">
-                One or more items are not valid. Please review and correct.
-            </div>
-
+            
+                <!--<div style="height:45px;"
+                         data-bind="if: ShowValidation() && !StartingDateValid()" class="center error-message">
+                    One or more items are not valid. Please review and correct.
+                </div>-->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Cancel <i class="fas fa-times"></i>
@@ -338,21 +349,39 @@
     Monster.OrderSyncSettingsPopupModel = function () {
         var self = this;
 
-        self.SelectedStartingDate = ko.observable();
-        self.ShopifyOrderNumberStart = ko.observable();
+        // Existing Starting Order
+        //
+        self.IsStartingOrderSet = ko.observable();
+        self.CurrentStartingOrderName = ko.observable();
+        self.CurrentStartingOrderHref = ko.observable();
+        self.CurrentStartingOrderCreatedAt = ko.observable();
+
+        // New Starting Order - data entry field
+        //
+        self.NewStartingOrderNumber = ko.observable();
+
+        // Max Acumatica Parallel Sync
+        //
         self.MaxParallelSyncs = ko.observable();
 
         self.ShowValidation = ko.observable(false);
 
-        self.StartingDateValid = ko.computed(function () {
-            return Monster.IsDate(self.SelectedStartingDate());
-        });
+        self.VerifyShopifyOrder = function() {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    var data = { orderNumber: self.NewStartingOrderNumber() };
+                    ajax.HttpPost("Sync/VerifyShopifyOrder", data, this);
+                },
+                function (response) {
+                    
+                    //Monster.Events.publish("/RefreshSyncSettings", self.Close);
+                });
+        };
 
         self.SaveSettings = function () {
             self.ShowValidation(true);
-            if (!self.StartingDateValid()) {
-                return;
-            }
+
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
@@ -373,16 +402,16 @@
             $("#order-sync-settings-modal").modal('hide');
         }
 
-        self.ShopifyOrderNumberStartBlur = function () {
-            if (Number.isInteger(parseInt(self.ShopifyOrderNumberStart()))) {
-                self.ShopifyOrderNumberStart(parseInt(self.ShopifyOrderNumberStart()));
+        self.NewStartingOrderNumberBlur = function () {
+            if (Number.isInteger(parseInt(self.NewStartingOrderNumber()))) {
+                self.NewStartingOrderNumber(parseInt(self.NewStartingOrderNumber()));
             } else {
-                self.ShopifyOrderNumberStart(null);
+                self.NewStartingOrderNumber(null);
             }
         };
 
-        self.ShopifyOrderNumberStart.subscribe(function () {
-            self.ShopifyOrderNumberStartBlur();
+        self.NewStartingOrderNumber.subscribe(function () {
+            self.NewStartingOrderNumber();
         });
 
         self.LaunchEditOrderSyncSettings = function () {
@@ -391,11 +420,12 @@
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
                 },
-                function (response) {
-                    var settings = response.OrderSyncSettingsModel;
+                function (settings) {
+                    self.IsStartingOrderSet(settings.IsStartingOrderSet);
+                    self.CurrentStartingOrderName(settings.StartingOrderName);
+                    self.CurrentStartingOrderHref(settings.StartingOrderHref);
+                    self.CurrentStartingOrderCreatedAt(settings.StartOrderCreatedAtUtc);
 
-                    self.ShopifyOrderNumberStart(settings.StartingOrderName);
-                    self.SelectedStartingDate(settings.StartingOrderName);
                     self.MaxParallelSyncs(settings.MaxParallelAcumaticaSyncs);
 
                     $("#order-sync-settings-modal").modal('show');
@@ -475,7 +505,7 @@
                     self.StartingOrderId(model.StartingOrderId);
                     self.StartingOrderName(model.StartingOrderName);
                     self.StartOrderCreatedAtUtc(model.StartOrderCreatedAtUtc);
-                    self.ShopifyOrderHref(model.ShopifyOrderHref);
+                    self.ShopifyOrderHref(model.StartingOrderHref);
                     self.MaxParallelAcumaticaSyncs(model.MaxParallelAcumaticaSyncs);
                     self.IsStartingOrderSet(model.IsStartingOrderSet);
                 });

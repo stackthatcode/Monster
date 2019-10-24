@@ -22,9 +22,11 @@ namespace Monster.Middle.Identity
         private readonly IdentityUserManager _userManager;
         private readonly IdentityRoleManager _roleManager;
         private readonly IdentitySignInManager _signInManager;
-        private readonly InstanceContext _connectionContext;
+
+        private readonly InstanceContext _instanceContext;
         private readonly StateRepository _stateRepository;
-        private readonly ExternalServiceRepository _connectionRepository;
+        private readonly ExternalServiceRepository _externalServiceRepository;
+
         private readonly IPushLogger _logger;
 
         public IdentityService(
@@ -33,9 +35,9 @@ namespace Monster.Middle.Identity
                 IdentityUserManager userManager,
                 IdentityRoleManager roleManager,
                 IdentitySignInManager signInManager,
-                InstanceContext connectionContext,
+                InstanceContext instanceContext,
                 StateRepository stateRepository,
-                ExternalServiceRepository connectionRepository,
+                ExternalServiceRepository externalServiceRepository,
                 IPushLogger logger)
         {
             _systemRepository = systemRepository;
@@ -43,9 +45,9 @@ namespace Monster.Middle.Identity
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
-            _connectionContext = connectionContext;
+            _instanceContext = instanceContext;
             _stateRepository = stateRepository;
-            _connectionRepository = connectionRepository;
+            _externalServiceRepository = externalServiceRepository;
             _logger = logger;
         }
 
@@ -221,7 +223,7 @@ namespace Monster.Middle.Identity
             context.InstanceNickName = instance.Nickname;
 
             // Instance -> State
-            _connectionContext.InitializePersistOnly(instance.Id);
+            _instanceContext.InitializePersistOnly(instance.Id);
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             context.SystemState = state;
 

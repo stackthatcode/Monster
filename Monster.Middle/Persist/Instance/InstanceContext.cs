@@ -56,22 +56,28 @@ namespace Monster.Middle.Persist.Instance
             _processPersistContext.Initialize(instance.ConnectionString);
             _miscPersistContext.Initialize(instance.ConnectionString);
 
-            // Shopify
-            //
+            InitializeShopify(instanceId);
+            InitializeAcumatica(instanceId);
+        }
+
+        public void InitializeShopify(Guid instanceId)
+        {  
             var shopifyCredentials = _connectionRepository.RetrieveShopifyCredentials();
             if (shopifyCredentials != null)
             {
                 _shopifyHttpContext.Initialize(shopifyCredentials);
             }
+        }
 
-            // Acumatica
-            //
+        public void InitializeAcumatica(Guid instanceId)
+        {
             var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
             if (acumaticaCredentials != null)
             {
                 _acumaticaHttpContext.Initialize(acumaticaCredentials);
             }
         }
+
 
         public void InitializePersistOnly(Guid instanceId)
         {

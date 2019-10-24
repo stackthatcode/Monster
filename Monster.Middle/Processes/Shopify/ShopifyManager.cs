@@ -1,6 +1,7 @@
-﻿using Push.Shopify.Api;
+﻿using Monster.Middle.Processes.Shopify.Workers;
+using Push.Shopify.Api;
 
-namespace Monster.Middle.Processes.Shopify.Workers
+namespace Monster.Middle.Processes.Shopify
 {
     public class ShopifyManager
     {

@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
@@ -15,6 +16,8 @@ using Monster.Web.Models;
 using Monster.Web.Models.Sync;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Web.Json;
+using Push.Shopify.Api;
+using Push.Shopify.Api.Order;
 
 
 namespace Monster.Web.Controllers
@@ -27,11 +30,12 @@ namespace Monster.Web.Controllers
         private readonly OneTimeJobScheduler _oneTimeJobService;
         private readonly RecurringJobScheduler _recurringJobService;
         private readonly JobMonitoringService _jobStatusService;
-        private readonly ConfigStatusService _statusService;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
         private readonly EndToEndStatusService _endStatusService;
         private readonly PreferencesRepository _preferencesRepository;
+        private readonly InstanceContext _instanceContext;
+        private readonly OrderApi _shopifyOrderApi;
         private readonly UrlService _urlService;
 
 
@@ -40,22 +44,22 @@ namespace Monster.Web.Controllers
                 OneTimeJobScheduler oneTimeJobService,
                 RecurringJobScheduler recurringJobService,
                 JobMonitoringService jobStatusService,
-                ConfigStatusService statusService,
                 ExecutionLogService logRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 PreferencesRepository preferencesRepository,
                 AcumaticaBatchRepository acumaticaBatchRepository,
                 EndToEndStatusService endStatusService,
-                UrlService urlService)
+                UrlService urlService, OrderApi shopifyOrderApi, InstanceContext instanceContext)
         {
             _stateRepository = stateRepository;
             _oneTimeJobService = oneTimeJobService;
             _recurringJobService = recurringJobService;
             _jobStatusService = jobStatusService;
-            _statusService = statusService;
             _logRepository = logRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _urlService = urlService;
+            _shopifyOrderApi = shopifyOrderApi;
+            _instanceContext = instanceContext;
             _acumaticaBatchRepository = acumaticaBatchRepository;
             _endStatusService = endStatusService;
             _preferencesRepository = preferencesRepository;
@@ -166,7 +170,20 @@ namespace Monster.Web.Controllers
 
             return JsonNetResult.Success();
         }
-        
+
+        [HttpPost]
+        public ActionResult VerifyShopifyOrder(long orderNumber)
+        {
+            var identity = HttpContext.GetIdentity();
+            _instanceContext.InitializeShopify(identity.InstanceId);
+
+            var json = _shopifyOrderApi.RetrieveByNumber(orderNumber);
+            var orders = json.DeserializeToOrderList();
+
+            return JsonNetResult.Success();
+        }
+
+
         [HttpPost]
         public ActionResult OrderSyncSettingsUpdate(OrderSyncSettingsModel model)
         {

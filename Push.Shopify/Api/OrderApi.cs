@@ -1,5 +1,4 @@
-﻿using Push.Foundation.Utilities.Logging;
-using Push.Shopify.Http;
+﻿using Push.Shopify.Http;
 
 
 namespace Push.Shopify.Api
@@ -8,11 +7,9 @@ namespace Push.Shopify.Api
     public class OrderApi
     {
         private readonly ShopifyHttpContext _httpClient;
-        private readonly IPushLogger _logger;
 
-        public OrderApi(IPushLogger logger, ShopifyHttpContext httpClient)
+        public OrderApi(ShopifyHttpContext httpClient)
         {
-            _logger = logger;
             _httpClient = httpClient;
         }
 
@@ -37,9 +34,16 @@ namespace Push.Shopify.Api
             return response.Body;
         }
         
-        public string RetrieveByName(long orderName)
+        public string RetrieveByName(string orderName)
         {
             var path = $"/admin/orders.json?name={orderName}";
+            var response = _httpClient.Get(path);
+            return response.Body;
+        }
+
+        public string RetrieveByNumber(long orderNumber)
+        {
+            var path = $"/admin/orders.json?order_number={orderNumber}";
             var response = _httpClient.Get(path);
             return response.Body;
         }

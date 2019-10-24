@@ -115,6 +115,8 @@ EXEC dbo.DeleteAllShopifyOrderRecords;
 EXEC dbo.DeleteAllShopifyInventoryRecords;
 EXEC dbo.DeleteAllSystemRecords;
 
+SELECT * FROM ExclusiveJobMonitor;
+
 
 
 ALTER DATABASE Monster0001 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
