@@ -65,9 +65,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var customer = BuildCustomer(shopifyCustomer);
             var acumaticaCustomer = _customerClient.WriteCustomer(customer);
-            var log = $"Wrote Customer {acumaticaCustomer.CustomerID.value} to Acumatica";
-            _logService.Log(log);
             
+
             // Create SQL footprint in Monster
             //
             using (var transaction = _syncOrderRepository.BeginTransaction())

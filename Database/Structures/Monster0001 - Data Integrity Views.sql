@@ -209,8 +209,8 @@ SELECT
 	t2.ShopifyPrimaryEmail,
 	t1.LastUpdated AS OrderLastUpdated,
 	t2.LastUpdated AS CustomerLastUpdated
-FROM usrShopifyOrder t1
-	LEFT OUTER JOIN usrShopifyCustomer t2
+FROM ShopifyOrder t1
+	LEFT OUTER JOIN ShopifyCustomer t2
 		ON t2.Id = t1.CustomerMonsterId;
 GO
 
@@ -228,8 +228,8 @@ SELECT
 	t2.ShopifyRefundId,
 	t1.LastUpdated AS OrderLastUpdated,
 	t2.LastUpdated AS RefundLastUpdated
-FROM usrShopifyOrder t1
-	LEFT OUTER JOIN usrShopifyRefund t2
+FROM ShopifyOrder t1
+	LEFT OUTER JOIN ShopifyRefund t2
 		ON t2.OrderMonsterId = t1.Id;
 GO
 
@@ -248,8 +248,8 @@ SELECT
 	t2.ShopifyStatus,
 	t1.LastUpdated AS OrderLastUpdated,
 	t2.LastUpdated AS FulfillmentLastUpdated
-FROM usrShopifyOrder t1
-	LEFT OUTER JOIN usrShopifyFulfillment t2
+FROM ShopifyOrder t1
+	LEFT OUTER JOIN ShopifyFulfillment t2
 		ON t2.OrderMonsterId = t1.Id;
 GO
 
@@ -270,8 +270,8 @@ SELECT
 	t2.ShopifyStatus,
 	t1.LastUpdated AS OrderLastUpdated,
 	t2.LastUpdated AS TransactionLastUpdated
-FROM usrShopifyOrder t1
-	LEFT OUTER JOIN usrShopifyTransaction t2
+FROM ShopifyOrder t1
+	LEFT OUTER JOIN ShopifyTransaction t2
 		ON t2.OrderMonsterId = t1.Id;
 GO
 
@@ -289,8 +289,8 @@ AS
 		t2.AcumaticaCustomerId,
 		t1.LastUpdated AS SalesOrderLastUpdated,
 		t2.LastUpdated AS CustomerLastUpdated
-	FROM usrAcumaticaSalesOrder t1
-		LEFT OUTER JOIN usrAcumaticaCustomer t2
+	FROM AcumaticaSalesOrder t1
+		LEFT OUTER JOIN AcumaticaCustomer t2
 			ON t2.Id = t1.CustomerMonsterId;
 GO
 
@@ -306,8 +306,8 @@ AS
 		t2.AcumaticaInvoiceNbr,
 		t1.LastUpdated AS SalesOrderLastUpdated,
 		t2.LastUpdated AS ShipmentLastUpdated
-	FROM usrAcumaticaSalesOrder t1
-		LEFT OUTER JOIN usrAcumaticaSoShipmentInvoice t2
+	FROM AcumaticaSalesOrder t1
+		LEFT OUTER JOIN AcumaticaSoShipmentInvoice t2
 			ON t2.SalesOrderMonsterId = t1.Id;
 GO
 
@@ -322,8 +322,8 @@ AS
 		t2.AcumaticaOrderNbr,
 		t1.LastUpdated AS ShipmentLastUpdated,
 		t2.LastUpdated AS SalesOrderRefLastUpdated
-	FROM usrAcumaticaShipment t1
-		LEFT OUTER JOIN usrAcumaticaShipmentSalesOrderRef t2
+	FROM AcumaticaShipment t1
+		LEFT OUTER JOIN AcumaticaShipmentSalesOrderRef t2
 			ON t1.Id = t2.ShipmentMonsterId
 GO
 
@@ -344,10 +344,10 @@ SELECT
 	t3.AcumaticaCustomerId,
 	t3.AcumaticaMainContactEmail,
 	t3.LastUpdated AS AcumaticaLastUpdated
-FROM usrShopifyCustomer t1
-	FULL OUTER JOIN usrShopAcuCustomerSync t2
+FROM ShopifyCustomer t1
+	FULL OUTER JOIN ShopAcuCustomerSync t2
 		ON t1.Id = t2.ShopifyCustomerMonsterId
-	FULL OUTER JOIN usrAcumaticaCustomer t3
+	FULL OUTER JOIN AcumaticaCustomer t3
 		ON t2.AcumaticaCustomerMonsterId = t3.Id
 GO
 
@@ -362,19 +362,18 @@ AS
 		t1.ShopifyIsCancelled, 
 		t1.ShopifyFinancialStatus,
 		t1.AreTransactionsUpdated, 
-		t2.IsTaxLoadedToAcumatica,
 		t3.AcumaticaOrderNbr,
 		t3.AcumaticaStatus,
 		t4.AcumaticaInvoiceNbr,
 		t4.AcumaticaShipmentNbr,
 		t1.LastUpdated AS ShopifyLastUpdated,
 		t3.LastUpdated AS AcumaticaLastUpdated
-	FROM usrShopifyOrder t1
-		FULL OUTER JOIN usrShopAcuOrderSync t2
+	FROM ShopifyOrder t1
+		FULL OUTER JOIN ShopAcuOrderSync t2
 			ON t1.Id = t2.ShopifyOrderMonsterId
-		FULL OUTER JOIN usrAcumaticaSalesOrder t3
+		FULL OUTER JOIN AcumaticaSalesOrder t3
 			ON t2.AcumaticaSalesOrderMonsterId = t3.Id
-		FULL OUTER JOIN usrAcumaticaSoShipmentInvoice t4
+		FULL OUTER JOIN AcumaticaSoShipmentInvoice t4
 			ON t3.Id = t4.SalesOrderMonsterId
 GO
 
@@ -392,14 +391,14 @@ SELECT
 	t3.AcumaticaShipmentNbr,
 	t4.AcumaticaStatus AS AcumaticaShipmentStatus,
 	t1.LastUpdated AS FulfillmentLastUpdated
-FROM usrShopifyOrder t0
-	FULL OUTER JOIN usrShopifyFulfillment t1
+FROM ShopifyOrder t0
+	FULL OUTER JOIN ShopifyFulfillment t1
 		ON t0.Id = t1.OrderMonsterId
-	FULL OUTER JOIN usrShopAcuShipmentSync t2
+	FULL OUTER JOIN ShopAcuShipmentSync t2
 		ON t1.Id = t2.ShopifyFulfillmentMonsterId
-	FULL OUTER JOIN usrAcumaticaShipmentSalesOrderRef t3
+	FULL OUTER JOIN AcumaticaShipmentSalesOrderRef t3
 		ON t2.AcumaticaShipDetailMonsterId = t3.Id
-	FULL OUTER JOIN usrAcumaticaShipment t4
+	FULL OUTER JOIN AcumaticaShipment t4
 		ON t3.ShipmentMonsterId = t4.Id
 GO
 
@@ -417,10 +416,10 @@ SELECT
 	t3.AcumaticaCreditMemoInvoiceNbr,
 	t2.LastUpdated AS ShopifyRefundLastUpdated,
 	t3.LastUpdated AS CreditMemoSyncLastUpdated
-FROM usrShopifyOrder t1
-	FULL OUTER JOIN usrShopifyRefund t2
+FROM ShopifyOrder t1
+	FULL OUTER JOIN ShopifyRefund t2
 		ON t1.Id = t2.OrderMonsterId
-	FULL OUTER JOIN usrShopAcuRefundCM t3
+	FULL OUTER JOIN ShopAcuRefundCM t3
 		ON t2.Id = t3.ShopifyRefundMonsterId
 GO
 
@@ -437,27 +436,12 @@ SELECT
 	t3.ShopifyPaymentNbr,
 	t2.LastUpdated AS ShopifyRefundLastUpdated,
 	t3.LastUpdated AS PaymentSyncLastUpdated
-FROM usrShopifyOrder t1
-	FULL OUTER JOIN usrShopifyTransaction t2
+FROM ShopifyOrder t1
+	FULL OUTER JOIN ShopifyTransaction t2
 		ON t1.Id = t2.OrderMonsterId
-	FULL OUTER JOIN usrShopifyAcuPayment t3
+	FULL OUTER JOIN ShopifyAcuPayment t3
 		ON t2.Id = t3.ShopifyTransactionMonsterId
 GO
 
-
-SELECT * FROM vw_ShopifyOrderCustomer;
-SELECT * FROM vw_ShopifyOrderRefunds;
-SELECT * FROM vw_ShopifyOrderFulfillments;
-SELECT * FROM vw_ShopifyOrderTransactions;
-
-SELECT * FROM vw_AcumaticaSalesOrderAndCustomer;
-SELECT * FROM vw_AcumaticaSalesOrderAndShipmentInvoices;
-SELECT * FROM vw_AcumaticaSalesOrderAndShipments;
-
-SELECT * FROM vw_SyncCustomerWithCustomers;
-SELECT * FROM vw_SyncOrdersAndSalesOrders;		-- Identifies unsynced Orders-Sales Orders
-SELECT * FROM vw_SyncFulfillmentsAndShipments;	-- Bi-directional view of Fulfillments and Shipments
-SELECT * FROM vw_SyncRefundAndCreditMemo;		-- Shows Orders with/out Refunds, and with/wout Credit Memo sync
-SELECT * FROM vw_SyncTransactionAndPayment;		-- Shows Transactions with/out Payment syncs
 
 

@@ -423,7 +423,8 @@
                     ajax.HttpPost("Sync/OrderSyncSettingsUpdate", data, this);
                 },
                 function (response) {
-                    Monster.Events.publish(eventKeys.PollJobStatus, self.Close);
+                    self.Close();
+                    Monster.Events.publish(eventKeys.PollJobStatus);
                 });
         };
 
@@ -506,7 +507,7 @@
             Monster.Events.publish(eventKeys.LaunchOrderSyncSettings);
         };
         
-        self.RefreshSyncSettings = function (callback) {
+        self.RefreshSyncSettings = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
@@ -528,10 +529,6 @@
                     self.ShopifyOrderHref(model.StartingOrderHref);
                     self.MaxParallelAcumaticaSyncs(model.MaxParallelAcumaticaSyncs);
                     self.IsStartingOrderSet(model.IsStartingOrderSet);
-
-                    if (callback) {
-                        callback();
-                    }
                 });
         };
 

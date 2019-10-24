@@ -40,7 +40,10 @@ UPDATE Preferences
 SET ShopifyOrderId = NULL,
 ShopifyOrderName = NULL,
 ShopifyOrderCreatedAtUtc = NULL,
-MaxParallelAcumaticaSyncs = 4;
+MaxParallelAcumaticaSyncs = 1;
+
+
+EXEC dbo.ResetStartingShopifyOrder;
 
 
 

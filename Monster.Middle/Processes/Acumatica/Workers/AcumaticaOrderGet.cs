@@ -126,7 +126,18 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
-                return null;
+
+                var newData = new AcumaticaSalesOrder();
+                newData.AcumaticaOrderNbr = orderNbr;
+                newData.DetailsJson = order.SerializeToJson();
+                newData.ShipmentsJson = null;
+                newData.AcumaticaStatus = order.Status.value;
+                newData.CustomerMonsterId = customerMonsterId;
+                newData.DateCreated = DateTime.UtcNow;
+                newData.LastUpdated = DateTime.UtcNow;
+
+                _orderRepository.InsertSalesOrder(newData);
+                return newData;
 
                 // Disabled for now
                 //
