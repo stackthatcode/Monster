@@ -124,7 +124,7 @@
                        type="radio" 
                        name="filterOptions" 
                        id="inlineRadio1" 
-                       value="@FilterSelectedType.ShowAll"
+                       value="@DisplayFilter.ShowAll"
                        data-bind="checked: FilterSelected">
                 <label class="form-check-label" for="inlineRadio1">Show All</label>
             </div>
@@ -133,7 +133,7 @@
                        type="radio" 
                        name="filterOptions" 
                        id="inlineRadio2" 
-                       value="@FilterSelectedType.SelectedOnly"
+                       value="@DisplayFilter.SelectedOnly"
                        data-bind="checked: FilterSelected">
                 <label class="form-check-label" for="inlineRadio2">Selected Only</label>
             </div>
@@ -142,7 +142,7 @@
                        type="radio" 
                        name="filterOptions" 
                        id="inlineRadio3" 
-                       value="@FilterSelectedType.UnselectedOnly"
+                       value="@DisplayFilter.UnselectedOnly"
                        data-bind="checked: FilterSelected">
                 <label class="form-check-label" for="inlineRadio3">Unselected Only</label>
             </div>
@@ -343,7 +343,7 @@
                     </div>
                     <div class="mb-4">
                         To enable/disable synchronization Inventory Counts with Shopify, navigate to
-                        <a href="@GlobalConfig.Url("RealTime/InventorySyncControl")">
+                        <a href="@GlobalConfig.Url("Sync/InventorySyncControl")">
                             Synchronize -> Inventory Sync Control</a>.
                     </div>
 
@@ -503,7 +503,7 @@
                     self.SelectedProducts(data);                    
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/SyncedWarehouses", this);
+                    ajax.HttpGet("Sync/SyncedWarehouses", this);
                 },
                 function (response) {
                     //console.log(response);
@@ -529,7 +529,7 @@
 
                 var ajax = new Monster.Ajax();
                 ajax.DisablePopupsAndSpinners();
-                ajax.HttpPost("RealTime/RunImportIntoAcumatica", model, this);
+                ajax.HttpPost("Sync/RunImportIntoAcumatica", model, this);
             },
             function (response) {
                 $('#confirm-import-modal').modal('hide');
@@ -551,7 +551,7 @@
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    var url = "RealTime/ProductDetail?shopifyProductId=" + shopifyProductId;
+                    var url = "Sync/ProductDetail?shopifyProductId=" + shopifyProductId;
                     ajax.HttpGet(url, this);
 
                 },
@@ -614,7 +614,7 @@
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("RealTime/RunInventoryPull", {}, this);
+                    ajax.HttpPost("Sync/RunInventoryPull", {}, this);
                 },
                 function() {
                     Monster.Events.publish("/InventoryJobLaunched");
@@ -626,7 +626,7 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("RealTime/InventoryPullStatus", this);
+                    ajax.HttpGet("Sync/InventoryPullStatus", this);
                 },
                 function (response) {
                     self.InventoryPullState(response.SystemState);
@@ -658,10 +658,10 @@
         return self;
     };
 
-    FilterSelectedType = {
-        ShowAll: '@FilterSelectedType.ShowAll',
-        SelectedOnly: '@FilterSelectedType.SelectedOnly',
-        UnselectedOnly: '@FilterSelectedType.UnselectedOnly',
+    DisplayFilter = {
+        ShowAll: '@DisplayFilter.ShowAll',
+        SelectedOnly: '@DisplayFilter.SelectedOnly',
+        UnselectedOnly: '@DisplayFilter.UnselectedOnly',
     };
 
     Monster.ImportSearchControl = function() {
@@ -669,7 +669,7 @@
         
         // Search Input
         self.FilterTerms = ko.observable("");
-        self.FilterSelected = ko.observable(FilterSelectedType.ShowAll);
+        self.FilterSelected = ko.observable(DisplayFilter.ShowAll);
         self.FilterSelected.subscribe(function() {
              self.RefreshFilteredView();
         });
@@ -697,16 +697,9 @@
         self.RefreshFilteredView = function() {
             var output = AQ(self.GridData())
                 .where(function (item) {
-                    if (self.FilterSelected() == FilterSelectedType.ShowAll) {
-                        return true;
-                    }
-                    if (self.FilterSelected() == FilterSelectedType.SelectedOnly && item.IsSelected()) {
-                        return true;
-                    }
-                    if (self.FilterSelected() == FilterSelectedType.UnselectedOnly && !item.IsSelected()) {
-                        return true;
-                    }
-                    return false;
+                    return ((self.FilterSelected() == DisplayFilter.ShowAll) ||
+                            (self.FilterSelected() == DisplayFilter.SelectedOnly && item.IsSelected()) ||
+                            (self.FilterSelected() == DisplayFilter.UnselectedOnly && !item.IsSelected()));
                 })
                 .toArray();
             
@@ -763,7 +756,7 @@
         self.FilterInventoryClick = function() {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
-                    var url = "RealTime/FilterInventory?terms=" + self.FilterTerms();
+                    var url = "Sync/FilterInventory?terms=" + self.FilterTerms();
                     ajax.HttpGet(url, this);
                 },
                 function(response) {

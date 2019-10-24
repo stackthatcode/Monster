@@ -1,6 +1,4 @@
-﻿using Push.Shopify.Api.Order;
-
-namespace Monster.Web.Models.Sync
+﻿namespace Monster.Web.Models.Sync
 {
     public class OrderVerification
     {

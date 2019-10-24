@@ -234,7 +234,7 @@
     <Compile Include="Models\ExecutionLogModel.cs" />
     <Compile Include="Models\Config\PreferencesModel.cs" />
     <Compile Include="Models\Sync\ShopifyProductModel.cs" />
-    <Compile Include="Models\Sync\FilterSelectedType.cs" />
+    <Compile Include="Models\Sync\DisplayFilter.cs" />
     <Compile Include="Models\Sync\OrderSyncSummary.cs" />
     <Compile Include="Models\Sync\LocationModel.cs" />
     <Compile Include="Models\ShopifyAuth\ShopifyDomainModel.cs" />

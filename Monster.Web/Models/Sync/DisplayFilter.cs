@@ -1,6 +1,6 @@
 ﻿namespace Monster.Web.Models.Sync
 {
-    public class FilterSelectedType
+    public class DisplayFilter
     {
         public const int ShowAll = 1;
         public const int SelectedOnly = 2;

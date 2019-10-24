@@ -214,11 +214,13 @@ namespace Monster.Web.Controllers
         public ActionResult OrderSyncSettingsUpdate(OrderSyncSettingsModel model)
         {
             var data = _preferencesRepository.RetrievePreferences();
-            if (!data.ShopifyOrderId.HasValue)
+            if (!data.ShopifyOrderId.HasValue && model.ShopifyOrderId.HasValue)
             {
                 data.ShopifyOrderId = model.ShopifyOrderId;
                 data.ShopifyOrderName = model.ShopifyOrderName;
                 data.ShopifyOrderCreatedAtUtc = model.ShopifyOrderCreatedAtUtc;
+
+                _stateRepository.UpdateSystemState(x => x.StartingShopifyOrderState, StateCode.Ok);
             }
 
             data.MaxParallelAcumaticaSyncs = model.MaxParallelAcumaticaSyncs;
