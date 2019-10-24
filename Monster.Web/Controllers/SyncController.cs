@@ -142,15 +142,15 @@ namespace Monster.Web.Controllers
             output.SyncRefundsEnabled = preferences.SyncRefundsEnabled;
             output.SyncShipmentsEnabled = preferences.SyncFulfillmentsEnabled;
 
-            output.StartingOrderId = preferences.StartingShopifyOrderId;
+            output.StartingOrderId = preferences.ShopifyOrderId;
             output.StartingOrderName 
-                    = preferences.StartingShopifyOrderName.IsNullOrEmptyAlt("(not set)");
+                    = preferences.ShopifyOrderName.IsNullOrEmptyAlt("(not set)");
             output.StartOrderCreatedAtUtc
-                = preferences.StartingShopifyOrderCreatedAtUtc?.ToString() ?? "(not set)";
+                = preferences.ShopifyOrderCreatedAtUtc?.ToString() ?? "(not set)";
 
-            if (preferences.StartingShopifyOrderId.HasValue)
+            if (preferences.ShopifyOrderId.HasValue)
             {
-                output.StartingOrderHref = _urlService.ShopifyOrderUrl(preferences.StartingShopifyOrderId.Value);
+                output.StartingOrderHref = _urlService.ShopifyOrderUrl(preferences.ShopifyOrderId.Value);
             }
 
             output.MaxParallelAcumaticaSyncs = preferences.MaxParallelAcumaticaSyncs;
@@ -172,36 +172,60 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult VerifyShopifyOrder(long orderNumber)
+        public ActionResult VerifyShopifyOrder(string orderNameOrId)
         {
             var identity = HttpContext.GetIdentity();
             _instanceContext.InitializeShopify(identity.InstanceId);
 
-            var json = _shopifyOrderApi.RetrieveByNumber(orderNumber);
-            var orders = json.DeserializeToOrderList();
+            var jsonByName = _shopifyOrderApi.RetrieveByName(orderNameOrId);
+            var ordersByName = jsonByName.DeserializeToOrderList().orders;
+            if (ordersByName.Count > 0)
+            {
+                return new JsonNetResult(MakeOrderVerification(ordersByName.First()));
+            }
 
-            return JsonNetResult.Success();
+            if (orderNameOrId.IsLong())
+            {
+                var jsonById = _shopifyOrderApi.Retrieve(orderNameOrId.ToLong());
+                var orderById = jsonById.DeserializeToOrderParent().order;
+                if (orderById != null)
+                {
+                    return new JsonNetResult(orderById);
+                }
+            }
+
+            return new JsonNetResult(OrderVerification.Empty());
+        }
+
+        private OrderVerification MakeOrderVerification(Order order)
+        {
+            var output = new OrderVerification();
+            output.ShopifyOrderId = order.id;
+            output.ShopifyOrderName = order.name;
+            output.ShopifyOrderCreatedAtUtc
+                = order.created_at.ToUniversalTime().DateTime.ToString();
+            output.ShopifyOrderHref = _urlService.ShopifyOrderUrl(order.id);
+
+            return output;
         }
 
 
         [HttpPost]
         public ActionResult OrderSyncSettingsUpdate(OrderSyncSettingsModel model)
         {
-            throw new NotImplementedException();
-
             var data = _preferencesRepository.RetrievePreferences();
-
-            if (data.StartingShopifyOrderId.HasValue
-                && data.StartingShopifyOrderId != model.StartingShopifyOrderId)
+            if (!data.ShopifyOrderId.HasValue)
             {
-                // TODO - are we sure about this...?
-                _acumaticaBatchRepository.Reset();
+                data.ShopifyOrderId = model.ShopifyOrderId;
+                data.ShopifyOrderName = model.ShopifyOrderName;
+                data.ShopifyOrderCreatedAtUtc = model.ShopifyOrderCreatedAtUtc;
             }
 
-            //data.ShopifyOrderDateStart = model.ShopifyOrderDateStart;
-            //data.ShopifyOrderNumberStart = model.ShopifyOrderNumberStart;
             data.MaxParallelAcumaticaSyncs = model.MaxParallelAcumaticaSyncs;
             _preferencesRepository.SaveChanges();
+
+            //// TODO - are we sure about this...?
+            //_acumaticaBatchRepository.Reset();
 
             return JsonNetResult.Success();
         }

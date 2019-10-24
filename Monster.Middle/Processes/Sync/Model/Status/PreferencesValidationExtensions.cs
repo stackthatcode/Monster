@@ -21,11 +21,11 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         public static void AssertStartingOrderIsValid(this Preference preferences)
         {
-            if (preferences.StartingShopifyOrderId == null ||
-                preferences.StartingShopifyOrderCreatedAtUtc == null ||
-                preferences.StartingShopifyOrderName.IsNullOrEmpty())
+            if (preferences.ShopifyOrderId == null ||
+                preferences.ShopifyOrderCreatedAtUtc == null ||
+                preferences.ShopifyOrderName.IsNullOrEmpty())
             {
-                throw new Exception("StartingShopifyOrderCreatedAtUtc has not been set");
+                throw new Exception("ShopifyOrderCreatedAtUtc has not been set");
             }
         }
     }

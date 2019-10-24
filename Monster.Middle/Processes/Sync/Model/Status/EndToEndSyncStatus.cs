@@ -10,8 +10,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         // Starting Shopify Order
         //
-        public int StartingShopifyOrderState { get; set; }
-        public bool IsStartingOrderReadyForEndToEnd => StartingShopifyOrderState == StateCode.Ok;
+        public int ShopifyOrderState { get; set; }
+        public bool IsStartingOrderReadyForEndToEnd => ShopifyOrderState == StateCode.Ok;
 
         public bool CanEndToEndSyncBeStarted 
             => ConfigStateSummaryModel.IsConfigReadyForEndToEnd && IsStartingOrderReadyForEndToEnd;

@@ -255,45 +255,58 @@
                 </div>
 
                 <div class="modal-body left">
-                    <div data-bind="if: IsStartingOrderSet">
+                    <div data-bind="if: IsStartingOrderValid">
                         <div class="form-group" style="clear: both; text-align: left;">
                             <span class="popup-sync-label">Current Starting Shopify Order</span>
-                            <a class="sync-link" data-bind="attr: { href: CurrentStartingOrderHref }" target="_blank">
-                                <span data-bind="text: CurrentStartingOrderName"></span>
+                            <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
+                                <span data-bind="text: ShopifyOrderName"></span>
                             </a>
                             <div style="clear:both;"></div>
                             <span class="popup-sync-label">Order Created At (UTC)</span>
-                            <span class="sync-setting" data-bind="text: CurrentStartingOrderCreatedAt">
+                            <span class="sync-setting" data-bind="text: ShopifyOrderCreatedAtUtc">
                             </span>
                         </div>
                         <hr />
                         <div style="height:10px;"></div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="orderNumber">Enter Starting Shopify Order Number </label>
-                        
-                        
-                        <div class="input-group">
-                            <input id="orderNumber"
-                                   class="form-control"
-                                   placeholder="Enter a Shopify Order Number..."
-                                   maxlength="20"
-                                   data-bind="value: NewStartingOrderNumber,
-                                event: { blur: NewStartingOrderNumberBlur }" />
-                        
-                            <div class="input-group-append">
-                                <button data-bind="click: VerifyShopifyOrder"
-                                        class="btn btn-primary" type="button">
-                                    Verify <i class="fas fa-bolt"></i>
-                                </button>
+                
+                    <div data-bind="ifnot: IsStartingOrderValid">
+                        <div style="height:91px;">
+                            <div class="alert alert-secondary">
+                                <strong>Starting Order must be set to start End-to-End</strong>
                             </div>
                         </div>
+                    </div>
+                    
+                    <div data-bind="ifnot: IsStartingOrderSet">
+                        <div class="form-group">
+                            <label for="orderNumber">Enter Starting Shopify Order Number or ID </label>
+                        
+                            <div class="input-group">
+                                <input id="orderNumber"
+                                       class="form-control"
+                                       placeholder="Enter a Shopify Order Number or ID..."
+                                       maxlength="20"
+                                       data-bind="value: NewStartingOrderNumber,
+                                event: { keyup: InvokeKeyCallback }" />
+                        
+                                <div class="input-group-append">
+                                    <button data-bind="click: VerifyShopifyOrder"
+                                            class="btn btn-primary" type="button">
+                                        Verify <i class="fas fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-                        <small id="orderNumberHelp" class="form-text text-muted">
-                            @GlobalConfig.AppName will only load Shopify Orders
-                            with an Order Number equal to or greater than this.
-                        </small>
+                            <small id="orderNumberHelp" class="form-text text-muted">
+                                @GlobalConfig.AppName will only load Shopify Orders
+                                with an Order Number equal to or greater than this.
+                            </small>
+                            
+                            <div class="error-message">WARNING - this can only be saved once. 
+                                After saving, you'll need to contact tech support to change your Starting Order.</div>
+                            <hr />
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -317,11 +330,12 @@
                         </small>
                     </div>
                 </div>
-            
+        
                 <!--<div style="height:45px;"
                          data-bind="if: ShowValidation() && !StartingDateValid()" class="center error-message">
                     One or more items are not valid. Please review and correct.
                 </div>-->
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Cancel <i class="fas fa-times"></i>
@@ -352,13 +366,19 @@
         // Existing Starting Order
         //
         self.IsStartingOrderSet = ko.observable();
-        self.CurrentStartingOrderName = ko.observable();
-        self.CurrentStartingOrderHref = ko.observable();
-        self.CurrentStartingOrderCreatedAt = ko.observable();
+        self.ShopifyOrderId = ko.observable();
+        self.ShopifyOrderName = ko.observable();
+        self.ShopifyOrderHref = ko.observable();
+        self.ShopifyOrderCreatedAtUtc = ko.observable();
+
+        // Validity state
+        //
+        self.IsStartingOrderValid = ko.observable(false);
 
         // New Starting Order - data entry field
         //
         self.NewStartingOrderNumber = ko.observable();
+
 
         // Max Acumatica Parallel Sync
         //
@@ -366,16 +386,29 @@
 
         self.ShowValidation = ko.observable(false);
 
+        self.InvokeKeyCallback = function (model, event) {
+            if (event.keyCode == 13) {
+                self.VerifyShopifyOrder();
+                return false;
+            } else {
+                return true;
+            }
+        };
+
         self.VerifyShopifyOrder = function() {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    var data = { orderNumber: self.NewStartingOrderNumber() };
+                    var data = { orderNameOrId: self.NewStartingOrderNumber() };
                     ajax.HttpPost("Sync/VerifyShopifyOrder", data, this);
                 },
                 function (response) {
-                    
-                    //Monster.Events.publish("/RefreshSyncSettings", self.Close);
+                    self.ShopifyOrderId(response.ShopifyOrderId);
+                    self.ShopifyOrderName(response.ShopifyOrderName);
+                    self.ShopifyOrderHref(response.ShopifyOrderHref);
+                    self.ShopifyOrderCreatedAtUtc(response.ShopifyOrderCreatedAtUtc);
+
+                    self.IsStartingOrderValid(response.ShopifyOrderId && true);
                 });
         };
 
@@ -386,8 +419,9 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     var data = {
-                        ShopifyOrderDateStart: self.SelectedStartingDate(),
-                        ShopifyOrderNumberStart: self.ShopifyOrderNumberStart(),
+                        ShopifyOrderId: self.ShopifyOrderId(),
+                        ShopifyOrderName: self.ShopifyOrderName(),
+                        ShopifyOrderCreatedAtUtc: self.ShopifyOrderCreatedAtUtc(),
                         MaxParallelAcumaticaSyncs: self.MaxParallelSyncs(),
                     };
 
@@ -402,18 +436,6 @@
             $("#order-sync-settings-modal").modal('hide');
         }
 
-        self.NewStartingOrderNumberBlur = function () {
-            if (Number.isInteger(parseInt(self.NewStartingOrderNumber()))) {
-                self.NewStartingOrderNumber(parseInt(self.NewStartingOrderNumber()));
-            } else {
-                self.NewStartingOrderNumber(null);
-            }
-        };
-
-        self.NewStartingOrderNumber.subscribe(function () {
-            self.NewStartingOrderNumber();
-        });
-
         self.LaunchEditOrderSyncSettings = function () {
             flow.exec(
                 function () {
@@ -422,9 +444,12 @@
                 },
                 function (settings) {
                     self.IsStartingOrderSet(settings.IsStartingOrderSet);
-                    self.CurrentStartingOrderName(settings.StartingOrderName);
-                    self.CurrentStartingOrderHref(settings.StartingOrderHref);
-                    self.CurrentStartingOrderCreatedAt(settings.StartOrderCreatedAtUtc);
+                    self.IsStartingOrderValid(settings.IsStartingOrderSet);
+
+                    self.ShopifyOrderId(settings.StartingOrderId);
+                    self.ShopifyOrderName(settings.StartingOrderName);
+                    self.ShopifyOrderHref(settings.StartingOrderHref);
+                    self.ShopifyOrderCreatedAtUtc(settings.StartOrderCreatedAtUtc);
 
                     self.MaxParallelSyncs(settings.MaxParallelAcumaticaSyncs);
 
@@ -508,6 +533,10 @@
                     self.ShopifyOrderHref(model.StartingOrderHref);
                     self.MaxParallelAcumaticaSyncs(model.MaxParallelAcumaticaSyncs);
                     self.IsStartingOrderSet(model.IsStartingOrderSet);
+
+                    if (callback) {
+                        callback();
+                    }
                 });
         };
 

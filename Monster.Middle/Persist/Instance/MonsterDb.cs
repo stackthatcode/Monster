@@ -1249,9 +1249,9 @@ namespace Monster.Middle.Persist.Instance
         public bool SyncInventoryEnabled { get; set; } // SyncInventoryEnabled
         public bool SyncFulfillmentsEnabled { get; set; } // SyncFulfillmentsEnabled
         public bool SyncRefundsEnabled { get; set; } // SyncRefundsEnabled
-        public long? StartingShopifyOrderId { get; set; } // StartingShopifyOrderId
-        public string StartingShopifyOrderName { get; set; } // StartingShopifyOrderName (length: 50)
-        public System.DateTime? StartingShopifyOrderCreatedAtUtc { get; set; } // StartingShopifyOrderCreatedAtUtc
+        public long? ShopifyOrderId { get; set; } // ShopifyOrderId
+        public string ShopifyOrderName { get; set; } // ShopifyOrderName (length: 50)
+        public System.DateTime? ShopifyOrderCreatedAtUtc { get; set; } // ShopifyOrderCreatedAtUtc
         public int MaxParallelAcumaticaSyncs { get; set; } // MaxParallelAcumaticaSyncs
     }
 
@@ -2576,9 +2576,9 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.SyncInventoryEnabled).HasColumnName(@"SyncInventoryEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncFulfillmentsEnabled).HasColumnName(@"SyncFulfillmentsEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncRefundsEnabled).HasColumnName(@"SyncRefundsEnabled").HasColumnType("bit").IsRequired();
-            Property(x => x.StartingShopifyOrderId).HasColumnName(@"StartingShopifyOrderId").HasColumnType("bigint").IsOptional();
-            Property(x => x.StartingShopifyOrderName).HasColumnName(@"StartingShopifyOrderName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.StartingShopifyOrderCreatedAtUtc).HasColumnName(@"StartingShopifyOrderCreatedAtUtc").HasColumnType("datetime").IsOptional();
+            Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsOptional();
+            Property(x => x.ShopifyOrderName).HasColumnName(@"ShopifyOrderName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.ShopifyOrderCreatedAtUtc).HasColumnName(@"ShopifyOrderCreatedAtUtc").HasColumnType("datetime").IsOptional();
             Property(x => x.MaxParallelAcumaticaSyncs).HasColumnName(@"MaxParallelAcumaticaSyncs").HasColumnType("int").IsRequired();
         }
     }

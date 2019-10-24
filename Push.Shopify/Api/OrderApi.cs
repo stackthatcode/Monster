@@ -1,4 +1,5 @@
-﻿using Push.Shopify.Http;
+﻿using Push.Foundation.Utilities.Http;
+using Push.Shopify.Http;
 
 
 namespace Push.Shopify.Api
@@ -34,19 +35,13 @@ namespace Push.Shopify.Api
             return response.Body;
         }
         
-        public string RetrieveByName(string orderName)
+        public string RetrieveByName(string name)
         {
-            var path = $"/admin/orders.json?name={orderName}";
+            var path = $"/admin/orders.json?name={name.UrlEncode()}&status=any&created_at_min=2001-01-01";
             var response = _httpClient.Get(path);
             return response.Body;
         }
 
-        public string RetrieveByNumber(long orderNumber)
-        {
-            var path = $"/admin/orders.json?order_number={orderNumber}";
-            var response = _httpClient.Get(path);
-            return response.Body;
-        }
 
         public string RetrieveCount()
         {

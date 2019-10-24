@@ -56,7 +56,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
-                var orderStartDateUtc = preferences.StartingShopifyOrderCreatedAtUtc.Value;
+                var orderStartDateUtc = preferences.ShopifyOrderCreatedAtUtc.Value;
 
                 RunWithPaging(orderStartDateUtc);
             }

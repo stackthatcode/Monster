@@ -50,6 +50,11 @@ namespace Push.Foundation.Utilities.Helpers
             return input.IsInteger() ? int.Parse(input) : altValue;
         }
 
+        public static bool IsLong(this string input)
+        {
+            long dummy;
+            return long.TryParse(input, out dummy);
+        }
 
         public static long ToLong(this string input)
         {

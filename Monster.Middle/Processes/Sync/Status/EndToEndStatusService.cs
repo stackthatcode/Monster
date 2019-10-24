@@ -23,7 +23,7 @@ namespace Monster.Middle.Processes.Sync.Status
 
             var output = new EndToEndSyncStatus();
             output.ConfigStateSummaryModel = configStatus;
-            output.StartingShopifyOrderState = state.StartingShopifyOrderState;
+            output.ShopifyOrderState = state.StartingShopifyOrderState;
 
             return output;
         }

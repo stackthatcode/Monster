@@ -16,6 +16,8 @@ namespace Push.Shopify.Api.Order
         public long id { get; set; }
         public int number { get; set; }
         public int order_number { get; set; }
+        public string name { get; set; }
+
         public bool test { get; set; }
 
         public DateTimeOffset? closed_at { get; set; }
@@ -200,7 +202,7 @@ namespace Push.Shopify.Api.Order
         public static OrderParent DeserializeToOrderParent(this string input)
         {
             var output = input.DeserializeFromJson<OrderParent>();
-            output.order.Initialize();
+            output.order?.Initialize();
             return output;
         }
     }

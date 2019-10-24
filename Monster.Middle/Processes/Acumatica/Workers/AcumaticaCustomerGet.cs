@@ -51,7 +51,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
-                RunWithPaging(preferences.StartingShopifyOrderCreatedAtUtc.Value);
+                RunWithPaging(preferences.ShopifyOrderCreatedAtUtc.Value);
             }
         }
 

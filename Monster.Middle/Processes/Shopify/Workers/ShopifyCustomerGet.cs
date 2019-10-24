@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var firstFilter = new SearchFilter();
                 firstFilter.Page = 1;
-                firstFilter.UpdatedAtMinUtc = preferences.StartingShopifyOrderCreatedAtUtc.Value;
+                firstFilter.UpdatedAtMinUtc = preferences.ShopifyOrderCreatedAtUtc.Value;
 
                 Run(firstFilter);
             }
