@@ -23,6 +23,9 @@ namespace Monster.ConsoleApp
         private const string RunShopifyOrderFeederOption = "11";
         private const string RunAcumaticaOrderSyncOption = "12";
         private const string ShopifyOrderTimezoneTest = "13";
+        private const string ShopifyOrderGet = "14";
+        private const string AcumaticaCustomerGet = "15";
+        private const string AcumaticaOrderGet = "16";
 
 
         static void Main(string[] args)
@@ -41,6 +44,9 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
             Console.WriteLine($"{RunAcumaticaOrderSyncOption} - AcumaticaOrderSync -> RunOrder");
             Console.WriteLine($"{ShopifyOrderTimezoneTest} - Shopify Order to Acumatica Timezone Test");
+            Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get");
+            Console.WriteLine($"{AcumaticaCustomerGet} - Acumatica Customer Get");
+            Console.WriteLine($"{AcumaticaOrderGet} - Acumatica Order Get");
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
@@ -63,7 +69,13 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunAcumaticaOrderSync();
             if (input == ShopifyOrderTimezoneTest)
                 MoreTestingStuff.RunShopifyOrderTimezoneTest();
-            
+            if (input == ShopifyOrderGet)
+                MoreTestingStuff.RunShopifyOrderGet();
+            if (input == AcumaticaCustomerGet)
+                MoreTestingStuff.RunAcumaticaCustomerGet();
+            if (input == AcumaticaOrderGet)
+                MoreTestingStuff.RunAcumaticaOrderGet();
+
             Console.WriteLine("FIN");
             Console.ReadKey();
         }
@@ -73,18 +85,13 @@ namespace Monster.ConsoleApp
         {            
             ConfigureHangFire();
 
-            
             var options = new BackgroundJobServerOptions()
                 {
                     SchedulePollingInterval = new TimeSpan(0, 0, 0, 1),
                 };
 
-            var workerCount = 
-                ConfigurationManager
-                    .AppSettings["HangFireWorkerCount"]
-                    .ToIntegerAlt(10);
-
-            options.WorkerCount = workerCount;
+            options.WorkerCount =
+                ConfigurationManager.AppSettings["HangFireWorkerCount"].ToIntegerAlt(10);
 
             using (var server = new BackgroundJobServer(options))
             {

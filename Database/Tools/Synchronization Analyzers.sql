@@ -56,3 +56,4 @@ SELECT * FROM vw_SyncRefundAndCreditMemo;		-- Shows Orders with/out Refunds, and
 SELECT * FROM vw_SyncTransactionAndPayment;		-- Shows Transactions with/out Payment syncs
 
 
+

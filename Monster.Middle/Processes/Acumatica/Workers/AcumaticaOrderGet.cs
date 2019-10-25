@@ -114,6 +114,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var orderNbr = order.OrderNbr.value;
             var existingData = _orderRepository.RetrieveSalesOrder(orderNbr);
 
+            
             if (existingData != null)
             {
                 existingData.DetailsJson = order.SerializeToJson();
@@ -126,22 +127,9 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
-
-                var newData = new AcumaticaSalesOrder();
-                newData.AcumaticaOrderNbr = orderNbr;
-                newData.DetailsJson = order.SerializeToJson();
-                newData.ShipmentsJson = null;
-                newData.AcumaticaStatus = order.Status.value;
-                newData.CustomerMonsterId = customerMonsterId;
-                newData.DateCreated = DateTime.UtcNow;
-                newData.LastUpdated = DateTime.UtcNow;
-
-                _orderRepository.InsertSalesOrder(newData);
-                return newData;
-
-                // Disabled for now
+                // *** TODO Disaster Recovery
                 //
-                //SalesOrderRecovery(order);
+                return null;
             }
         }
 

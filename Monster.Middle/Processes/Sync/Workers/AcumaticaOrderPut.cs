@@ -79,10 +79,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
         
-        public void RunOrder(long shopifyOrderId)
-        {
-            PushOrderWithCustomerAndTaxes(shopifyOrderId);
-        }
         
         public ConcurrentQueue<long> BuildQueue()
         {
@@ -106,10 +102,10 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             return output;
         }
-
-        private void PushOrderWithCustomerAndTaxes(long shopifyOrderId)
+        public void RunOrder(long shopifyOrderId)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+
             RunAcumaticaCustomerSync(orderRecord);
 
             var logContent = LogBuilder.CreateAcumaticaSalesOrder(orderRecord);
@@ -117,7 +113,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             PushOrder(orderRecord);
         }
         
-
 
         // Push Order
         //
@@ -168,7 +163,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var resultSalesOrder = resultJson.DeserializeFromJson<SalesOrder>();
 
             // Record the Sales Order Record to SQL
-
+            //
             var acumaticaRecord = _acumaticaOrderPull.UpsertOrderToPersist(resultSalesOrder);
             _syncOrderRepository.InsertOrderSync(shopifyOrderRecord, acumaticaRecord);
                 
@@ -257,7 +252,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         public void RunAcumaticaCustomerSync(ShopifyOrder shopifyOrder)
         {
             var customer =
-                _syncOrderRepository.RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
+                _syncOrderRepository
+                    .RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
 
             if (!customer.HasMatch())
             {

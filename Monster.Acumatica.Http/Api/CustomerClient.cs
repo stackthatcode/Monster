@@ -19,7 +19,9 @@ namespace Monster.Acumatica.Api
             _config = config;
         }
         
-        public string RetrieveCustomers(DateTime lastModified, int page = 1, int? pageSize = null)
+
+        public string RetrieveCustomers(
+                DateTime lastModified, int page = 1, int? pageSize = null)
         {
             var queryString = "$expand=MainContact";
 

@@ -2,7 +2,7 @@
 using Push.Foundation.Utilities.Logging;
 using BackgroundJob = Hangfire.BackgroundJob;
 
-namespace Monster.ConsoleApp
+namespace Monster.ConsoleApp.Testing
 {
     // *** Testing LifeTime Scope
     //    builder.RegisterType<ScopeTestingRiffRaff>().InstancePerLifetimeScope();

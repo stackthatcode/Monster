@@ -3,6 +3,7 @@ using Autofac;
 using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Testing.Feeder;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Workers;
@@ -29,6 +30,19 @@ namespace Monster.ConsoleApp.Testing
                 });
         }
 
+        public static void RunShopifyOrderGet()
+        {
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
+
+                instanceContext.Initialize(TestInstanceId);
+                shopifyOrderGet.RunAutomatic();
+            });
+        }
+
+
         public static void RunAcumaticaOrderSync()
         {
             Console.WriteLine(
@@ -38,16 +52,10 @@ namespace Monster.ConsoleApp.Testing
             AutofacRunner.RunInLifetimeScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
-
-                var acumaticaOrderPull = scope.Resolve<AcumaticaOrderGet>();
-                var shopifyOrderPull = scope.Resolve<ShopifyOrderGet>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
                 var orderSync = scope.Resolve<AcumaticaOrderPut>();
 
                 instanceContext.Initialize(TestInstanceId);
-
-                //acumaticaContext.SessionRun(() => acumaticaOrderPull.RunAutomatic());
-                //shopifyOrderPull.RunAutomatic();
                 acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
             });
         }
@@ -55,8 +63,7 @@ namespace Monster.ConsoleApp.Testing
         public static void RunShopifyOrderTimezoneTest()
         {
             Console.WriteLine(
-                Environment.NewLine + 
-                "Enter Shopify Order ID (Default ID: 1778846826540)");
+                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1778846826540)");
 
             var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1778846826540").ToLong();
 
@@ -74,6 +81,34 @@ namespace Monster.ConsoleApp.Testing
                 var createdAtUtc = order.created_at.ToUniversalTime();
 
                 var acumaticaTime = acumaticaTimeZone.ToAcumaticaTimeZone(createdAtUtc.DateTime);
+            });
+        }
+
+        public static void RunAcumaticaCustomerGet()
+        {
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+                var acumaticaCustomerGet = scope.Resolve<AcumaticaCustomerGet>();
+
+                instanceContext.Initialize(TestInstanceId);
+                acumaticaContext.SessionRun(() =>
+                {
+                    acumaticaCustomerGet.RunAutomatic();
+                });
+            });
+        }
+
+        public static void RunAcumaticaOrderGet()
+        {
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var acumaticaOrderGet = scope.Resolve<AcumaticaOrderGet>();
+
+                instanceContext.Initialize(TestInstanceId);
+                acumaticaOrderGet.RunAutomatic();
             });
         }
     }

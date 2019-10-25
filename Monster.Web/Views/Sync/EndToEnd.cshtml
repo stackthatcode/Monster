@@ -80,8 +80,7 @@
     <hr/>
 
     <div data-bind="if: IsEndToEndSyncRunning">
-        <a href="#" data-bind="click: PauseEndToEndClick"
-           class="btn btn-primary btn-lg">
+        <a href="#" data-bind="click: PauseEndToEndClick" class="btn btn-primary btn-lg">
             Pause Real-Time Sync <i class="fas fa-bolt"></i>
         </a>
     </div>
@@ -108,7 +107,7 @@
 <script type="text/html" id="End-To-End-Sync-Control-Panel">
     <div data-bind="ifnot: IsConfigReadyForEndToEnd">
         <div class="alert alert-danger">
-            <strong>End-to-End Synchronization - Disabled</strong>
+            <strong>End-to-End Synchronization - Config Diagnostics Failed</strong>
         </div>
 
         <p>
@@ -120,7 +119,7 @@
 
     <div data-bind="if: IsConfigReadyForEndToEnd">
         <div class="alert alert-info">
-            <strong>End-to-End Synchronization - Diagnostics OK</strong>
+            <strong>End-to-End Synchronization - Config Diagnostics OK</strong>
         </div>
     </div>
 
@@ -161,7 +160,7 @@
         <div style="float: left;">
             <!-- Starting Order Number -->
             <div style="clear: both; text-align: left;">
-                <span class="sync-label" style="min-width: 200px; text-align: left;">Starting Order Number</span>
+                <span class="sync-label" style="min-width: 200px; text-align: left;">Beginning Mark Order</span>
 
                 <!-- Display Link if populated... -->
                 <span data-bind="if: ShopifyOrderHref">
@@ -200,7 +199,7 @@
         <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
             <div style="height: 20px;"></div>
             <div class="alert alert-secondary">
-                <strong>Starting Order must be set to start End-to-End</strong>
+                <strong>Beginning Mark Order must be set to start End-to-End</strong>
             </div>
         </div>
         </td>
@@ -242,69 +241,71 @@
 </script>
 
 <script id="Order-Sync-Settings-Popup" type="text/html">
-<div class="modal fade" id="order-sync-settings-modal" tabindex="-1"
-     role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
+    <div class="modal fade" id="order-sync-settings-modal" tabindex="-1"
+         role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
 
-    <div class="modal-dialog" role="document" style="max-width:600px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="order-sync-settings-modalLabel">Enter Order Sync Settings</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body left">
-                <div data-bind="if: IsStartingOrderValid">
-                    <div class="form-group" style="clear: both; text-align: left;">
-                        <span class="popup-sync-label">Current Starting Shopify Order</span>
-                        <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
-                            <span data-bind="text: ShopifyOrderName"></span>
-                        </a>
-                        <div style="clear:both;"></div>
-                        <span class="popup-sync-label">Order Created At (UTC)</span>
-                        <span class="sync-setting" data-bind="text: ShopifyOrderCreatedAtUtc">
-                        </span>
-                    </div>
-                    <hr />
-                    <div style="height:10px;"></div>
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="order-sync-settings-modalLabel">Enter Order Sync Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-            
-                <div data-bind="ifnot: IsStartingOrderValid">
-                    <div style="height:91px;">
-                        <div class="alert alert-secondary">
-                            <strong>Starting Order must be set to start End-to-End</strong>
+
+                <div class="modal-body left">
+                    <div data-bind="if: IsStartingOrderValid">
+                        <div class="form-group" style="clear: both; text-align: left;">
+                            <span class="popup-sync-label">Current Beginning Mark Order</span>
+                            <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
+                                <span data-bind="text: ShopifyOrderName"></span>
+                            </a>
+                            <div style="clear:both;"></div>
+                            <span class="popup-sync-label">Order Created At (UTC)</span>
+                            <span class="sync-setting" data-bind="text: ShopifyOrderCreatedAtUtc">
+                            </span>
                         </div>
+                        <hr />
+                        <div style="height:10px;"></div>
                     </div>
-                </div>
-                
-                <div data-bind="ifnot: IsStartingOrderSet">
-                    <div class="form-group">
-                        <label for="orderNumber">Enter Starting Shopify Order Number or ID </label>
-                    
-                        <div class="input-group">
-                            <input id="orderNumber"
-                                   class="form-control"
-                                   placeholder="Enter a Shopify Order Number or ID..."
-                                   maxlength="20"
-                                   data-bind="value: NewStartingOrderNumber,
-                                            event: { keyup: InvokeKeyCallback }" />
-                            
-                            <div class="input-group-append">
-                                <button data-bind="click: VerifyShopifyOrder"
-                                        class="btn btn-primary" type="button">
-                                    Verify <i class="fas fa-bolt"></i>
-                                </button>
+            
+                    <div data-bind="ifnot: IsStartingOrderValid">
+                        <div style="height:91px;">
+                            <div class="alert alert-secondary">
+                                <strong>Beginning Mark Order must be set to start End-to-End</strong>
                             </div>
                         </div>
+                    </div>
+                
+                    <div data-bind="ifnot: IsStartingOrderSet">
+                        <div class="form-group">
+                            <label for="orderNumber">Enter Beginning Mark Shopify Order Number or ID </label>
+                    
+                            <div class="input-group">
+                                <input id="orderNumber"
+                                       class="form-control"
+                                       placeholder="Enter a Shopify Order Number or ID..."
+                                       maxlength="20"
+                                       data-bind="value: NewStartingOrderNumber,
+                                            event: { keyup: InvokeKeyCallback }" />
+                            
+                                <div class="input-group-append">
+                                    <button data-bind="click: VerifyShopifyOrder"
+                                            class="btn btn-primary" type="button">
+                                        Verify <i class="fas fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-                        <small id="orderNumberHelp" class="form-text text-muted">
-                            @GlobalConfig.AppName will only load Shopify Orders
-                            with an Order Number equal to or greater than this.
-                        </small>
+                            <small id="orderNumberHelp" class="form-text text-muted">
+                                @GlobalConfig.AppName will only load Shopify Orders that are created
+                                <strong>after</strong> the Beginning Mark Order.
+                            </small>
                         
-                        <div class="error-message">WARNING - this can only be saved once. 
-                            After saving, you'll need to contact tech support to change your Starting Order.</div>
+                            <div class="error-message">
+                                WARNING - this can only be saved once. After saving, you'll need to 
+                                contact tech support to change your Beginning Mark Order.
+                            </div>
                         <hr />
                     </div>
                 </div>
