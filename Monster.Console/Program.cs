@@ -20,12 +20,16 @@ namespace Monster.ConsoleApp
         private const string ProvisionNewUserAccountOption = "2";
         private const string HydrateSecurityConfigOption = "3";
 
-        private const string RunShopifyOrderFeederOption = "11";
-        private const string RunAcumaticaOrderSyncOption = "12";
-        private const string ShopifyOrderTimezoneTest = "13";
-        private const string ShopifyOrderGet = "14";
-        private const string AcumaticaCustomerGet = "15";
-        private const string AcumaticaOrderGet = "16";
+        private const string RunShopifyOrderFeederOption = "10";
+        private const string ShopifyOrderTimezoneTest = "11";
+        private const string ShopifyOrderGet = "12";
+        private const string ShopifyOrderGetSingle = "13";
+
+        private const string AcumaticaCustomerGet = "20";
+        private const string AcumaticaOrderGet = "21";
+        private const string AcumaticaOrderSync = "22";
+
+
 
 
         static void Main(string[] args)
@@ -42,11 +46,14 @@ namespace Monster.ConsoleApp
             //
             Console.WriteLine();
             Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
-            Console.WriteLine($"{RunAcumaticaOrderSyncOption} - AcumaticaOrderSync -> RunOrder");
             Console.WriteLine($"{ShopifyOrderTimezoneTest} - Shopify Order to Acumatica Timezone Test");
-            Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get");
+            Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get (Automatic");
+            Console.WriteLine($"{ShopifyOrderGetSingle} - Shopify Order Get (Shopify Order ID)");
+
+            Console.WriteLine();
             Console.WriteLine($"{AcumaticaCustomerGet} - Acumatica Customer Get");
             Console.WriteLine($"{AcumaticaOrderGet} - Acumatica Order Get");
+            Console.WriteLine($"{AcumaticaOrderSync} - Acumatica Order Sync (Order ID)");
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
@@ -65,16 +72,19 @@ namespace Monster.ConsoleApp
             //
             if (input == RunShopifyOrderFeederOption)
                 MoreTestingStuff.RunShopifyOrderFeeder();
-            if (input == RunAcumaticaOrderSyncOption)
+            if (input == AcumaticaOrderSync)
                 MoreTestingStuff.RunAcumaticaOrderSync();
-            if (input == ShopifyOrderTimezoneTest)
-                MoreTestingStuff.RunShopifyOrderTimezoneTest();
-            if (input == ShopifyOrderGet)
-                MoreTestingStuff.RunShopifyOrderGet();
             if (input == AcumaticaCustomerGet)
                 MoreTestingStuff.RunAcumaticaCustomerGet();
             if (input == AcumaticaOrderGet)
                 MoreTestingStuff.RunAcumaticaOrderGet();
+
+            if (input == ShopifyOrderTimezoneTest)
+                MoreTestingStuff.RunShopifyOrderTimezoneTest();
+            if (input == ShopifyOrderGet)
+                MoreTestingStuff.RunShopifyOrderGet();
+            if (input == ShopifyOrderGetSingle)
+                MoreTestingStuff.RunShopifyOrderGetById();
 
             Console.WriteLine("FIN");
             Console.ReadKey();

@@ -70,7 +70,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 if (queue.TryDequeue(out shopifyOrderId))
                 {
-                    PushOrderWithCustomerAndTaxes(shopifyOrderId);
+                    RunOrder(shopifyOrderId);
                 }
                 else
                 {

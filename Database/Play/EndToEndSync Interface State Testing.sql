@@ -34,7 +34,7 @@ DELETE FROM ExclusiveJobMonitor;
 -- Disable the Config and Starting Order State
 --
 UPDATE SystemState SET ShopifyConnState = 1;
-UPDATE SystemState SET ShopifyOrderState = 1;
+UPDATE SystemState SET ShopifyStartingOrderState = 1;
 
 UPDATE Preferences 
 SET ShopifyOrderId = NULL,
