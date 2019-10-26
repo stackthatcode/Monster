@@ -110,6 +110,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 if (order.customer == null)
                 {
                     // TODO - add the Order Analysis service
+                    //
                     continue;
                 }
 
@@ -128,6 +129,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             if (existingOrder == null)
             {
                 var newOrder = new ShopifyOrder();
+
                 newOrder.ShopifyOrderId = order.id;
                 newOrder.ShopifyOrderNumber = order.order_number;
                 newOrder.ShopifyIsCancelled = order.cancelled_at != null;

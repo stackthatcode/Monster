@@ -93,7 +93,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunAcumaticaOrderDetails(string orderId)
         {
             var salesOrder = _salesOrderClient.RetrieveSalesOrderDetails(orderId);
-            UpsertOrderToPersist(salesOrder.DeserializeFromJson<SalesOrder>());
+            UpdateExistingOrderToPersist(salesOrder.DeserializeFromJson<SalesOrder>());
         }
 
         public void UpsertOrdersToPersist(List<SalesOrder> orders)
@@ -105,16 +105,15 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     continue;
                 }
 
-                UpsertOrderToPersist(order);
+                UpdateExistingOrderToPersist(order);
             }
         }
 
-        public AcumaticaSalesOrder UpsertOrderToPersist(SalesOrder order)
+        public void UpdateExistingOrderToPersist(SalesOrder order)
         {
             var orderNbr = order.OrderNbr.value;
             var existingData = _orderRepository.RetrieveSalesOrder(orderNbr);
 
-            
             if (existingData != null)
             {
                 existingData.DetailsJson = order.SerializeToJson();
@@ -123,13 +122,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 _orderRepository.SaveChanges();
 
                 PullAndUpsertShipmentInvoiceRefs(orderNbr);
-                return existingData;
-            }
-            else
-            {
-                // *** TODO Disaster Recovery
-                //
-                return null;
             }
         }
 

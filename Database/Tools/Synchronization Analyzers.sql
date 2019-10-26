@@ -57,3 +57,11 @@ SELECT * FROM vw_SyncTransactionAndPayment;		-- Shows Transactions with/out Paym
 
 
 
+SELECT * FROM ShopifyBatchState;
+SELECT * FROM ShopAcuCustomerSync;
+SELECT * FROM AcumaticaCustomer;
+
+DELETE FROM AcumaticaCustomer;
+
+
+

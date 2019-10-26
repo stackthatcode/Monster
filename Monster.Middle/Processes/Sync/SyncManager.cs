@@ -85,7 +85,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _executionLogService.Log(msg);
 
             ServicePointManager.DefaultConnectionLimit = 100;
-            var queue = _acumaticaOrderSync.BuildQueue();
+            var queue = _acumaticaOrderSync.BuildOrderPutQueue();
 
             // This can be abstracted
             var threads = new List<Thread>();

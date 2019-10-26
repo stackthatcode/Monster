@@ -36,11 +36,11 @@ DELETE FROM ExclusiveJobMonitor;
 UPDATE SystemState SET ShopifyConnState = 1;
 UPDATE SystemState SET ShopifyStartingOrderState = 1;
 
-UPDATE Preferences 
-SET ShopifyOrderId = NULL,
-ShopifyOrderName = NULL,
-ShopifyOrderCreatedAtUtc = NULL,
-MaxParallelAcumaticaSyncs = 1;
+UPDATE Preferences SET 
+	ShopifyOrderId = NULL,
+	ShopifyOrderName = NULL,
+	ShopifyOrderCreatedAtUtc = NULL,
+	MaxParallelAcumaticaSyncs = 1;
 
 
 EXEC dbo.ResetStartingShopifyOrder;

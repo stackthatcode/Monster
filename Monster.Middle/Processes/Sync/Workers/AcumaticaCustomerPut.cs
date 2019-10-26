@@ -126,7 +126,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-
         private static Customer BuildCustomer(Push.Shopify.Api.Customer.Customer shopifyCustomer)
         {
             var name = shopifyCustomer.first_name + " " + shopifyCustomer.last_name;

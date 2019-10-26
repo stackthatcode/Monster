@@ -6,28 +6,28 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
     {
         public static string UpdateShopifyPrice(AcumaticaStockItem item)
         {
-            return $"Update Shopify Price {item.LogDescriptor()}";
+            return $"Updating Shopify Price {item.LogDescriptor()}";
         }
 
         public static string UpdateShopifyInventory(AcumaticaStockItem item)
         {
-            return $"Update Shopify Inventory {item.LogDescriptor()}";
+            return $"Updating Shopify Inventory {item.LogDescriptor()}";
         }
 
         public static string 
                     CreateShopifyFulfillment(AcumaticaShipmentSalesOrderRef shipmentRef)
         {
-            return $"Create Shopify Fulfillment {shipmentRef.LogDescriptor()}";
+            return $"Creating Shopify Fulfillment {shipmentRef.LogDescriptor()}";
         }
 
         public static string CreateStockItem(ShopifyVariant variant)
         {
-            return $"Create Acumatica Stock Item from {variant.LogDescriptor()}";
+            return $"Creating Acumatica Stock Item from {variant.LogDescriptor()}";
         }
 
         public static string CreateInventoryReceipt(long shopifyProductId)
         {
-            return $"Create Acumatica Inventory Receipt for Shopify Product: ({shopifyProductId})";
+            return $"Creating Acumatica Inventory Receipt for Shopify Product: ({shopifyProductId})";
         }
 
         public static string CreateAcumaticaCustomer(ShopifyCustomer customer)
@@ -42,22 +42,26 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
 
         public static string CreateAcumaticaSalesOrder(ShopifyOrder order)
         {
-            return $"Create Acumatica Sales Order from {order.LogDescriptor()}";
+            return $"Creating Acumatica Sales Order from {order.LogDescriptor()}";
+        }
+        public static string UpdatingAcumaticaSalesOrder(ShopifyOrder order)
+        {
+            return $"Updating Acumatica Sales Order from {order.LogDescriptor()}";
         }
 
         public static string UpdateShopifyVariantPrice(string sku, decimal price)
         {
-            return $"Updated Shopify Variant {sku} price to {price}";
+            return $"Updatingd Shopify Variant {sku} price to {price}";
         }
 
         public static string CreateAcumaticaPayment(ShopifyTransaction transaction)
         {
-            return $"Create Acumatica Payment from {transaction.LogDescriptor()}";
+            return $"Creating Acumatica Payment from {transaction.LogDescriptor()}";
         }
 
         public static string CreateAcumaticaCreditMemo(ShopifyRefund refund)
         {
-            return $"Create Acumatica Credit Memo Order from {refund.LogDescriptor()}";
+            return $"Creating Acumatica Credit Memo Order from {refund.LogDescriptor()}";
         }
     }
 }

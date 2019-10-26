@@ -4,7 +4,6 @@ using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Shopify.Api.Transactions;
 
@@ -29,13 +28,10 @@ namespace Monster.Middle.Processes.Sync.Persist
         //
         public List<ShopifyOrder> RetrieveShopifyOrdersNotSynced()
         {
-            var preferences = Entities.Preferences.First();
-            var orderNumberStart = preferences.ShopifyOrderId ?? 0;
-
             return Entities
                 .ShopifyOrders
-                .Where(x => x.ShopifyOrderId >= orderNumberStart
-                            && !x.ShopAcuOrderSyncs.Any())
+                .Where(x => x.ShopAcuOrderSyncs.Any() == false 
+                            || x.IsUpdatedInAcumatica == false)
                 .Include(x => x.ShopifyCustomer)
                 .Include(x => x.ShopifyTransactions)
                 .Include(x => x.ShopifyTransactions.Select(y => y.ShopifyAcuPayment))
