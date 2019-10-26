@@ -136,7 +136,6 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             _acumaticaContext.SessionRun(() =>
             {
-                _acumaticaRefundSync.RunReturns();
                 _acumaticaRefundSync.RunCancels();
                 _acumaticaPaymentSync.RunPaymentsForRefunds();
             });

@@ -15,13 +15,14 @@ FROM Preferences;
 -- Enable End-to-End start
 --
 UPDATE SystemState SET ShopifyConnState = 2;
+
 UPDATE SystemState SET StartingShopifyOrderState = 2;
 
-UPDATE Preferences 
-SET ShopifyOrderId = 1778846826540,
-ShopifyOrderName = 'LOGIC-1039',
-ShopifyOrderCreatedAtUtc = '2019-10-22T23:06:30Z',
-MaxParallelAcumaticaSyncs = 4;
+UPDATE Preferences SET 
+	ShopifyOrderId = 1778846826540,
+	ShopifyOrderName = 'LOGIC-1039',
+	ShopifyOrderCreatedAtUtc = '2019-10-22T23:06:30Z',
+	MaxParallelAcumaticaSyncs = 4;
 
 
 
@@ -34,6 +35,7 @@ DELETE FROM ExclusiveJobMonitor;
 -- Disable the Config and Starting Order State
 --
 UPDATE SystemState SET ShopifyConnState = 1;
+
 UPDATE SystemState SET ShopifyStartingOrderState = 1;
 
 UPDATE Preferences SET 
@@ -44,8 +46,6 @@ UPDATE Preferences SET
 
 
 EXEC dbo.ResetStartingShopifyOrder;
-
-
 
 
 

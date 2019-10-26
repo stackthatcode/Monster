@@ -135,7 +135,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 newOrder.ShopifyJson = order.SerializeToJson();
                 newOrder.ShopifyFinancialStatus = order.financial_status;
-                newOrder.AreTransactionsUpdated = false;
+                newOrder.NeedsTransactionGet = true;
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
@@ -147,7 +147,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existingOrder.ShopifyJson = order.SerializeToJson();
                 existingOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 existingOrder.ShopifyFinancialStatus = order.financial_status;
-                existingOrder.AreTransactionsUpdated = false;
+                existingOrder.NeedsTransactionGet = true;
                 existingOrder.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.SaveChanges();

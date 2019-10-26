@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
+using Monster.Acumatica.Api.Distribution;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
@@ -134,7 +136,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         private void CreateNewOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer acumaticaCustomer)
         {
             var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
-            
+            shopifyOrderRecord.HasMatch();
+
             var salesOrder = BuilderSalesOrder(shopifyOrder, acumaticaCustomer);
             var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
 
@@ -155,11 +158,21 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 _acumaticaOrderRepository.InsertSalesOrder(newRecord);
                 _syncOrderRepository.InsertOrderSync(shopifyOrderRecord, newRecord);
+
+                newRecord.Sync().NeedsAcumaticaPut = false;
+                _syncOrderRepository.SaveChanges();
+
             }
             else
             {
                 orderRecord.DetailsJson = salesOrder.SerializeToJson();
                 orderRecord.LastUpdated = DateTime.Now;
+
+                if (orderRecord.HasMatch())
+                {
+                    orderRecord.Sync().NeedsAcumaticaPut = false;
+                }
+                _syncOrderRepository.SaveChanges();
             }
         }
 
@@ -199,14 +212,15 @@ namespace Monster.Middle.Processes.Sync.Workers
                     _syncInventoryRepository
                         .RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
 
-                var stockItem = variant.MatchedStockItem();
+                var stockItemRecord = variant.MatchedStockItem();
+                var stockItem = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
 
                 var detail = new SalesOrderDetail();
 
-                detail.InventoryID = stockItem.ItemId.ToValue();
+                detail.InventoryID = stockItemRecord.ItemId.ToValue();
                 detail.OrderQty = ((double)lineItem.RefundCancelAdjustedQuantity).ToValue();
                 detail.ExtendedPrice = ((double)lineItem.PriceAfterDiscount).ToValue();
-                detail.TaxCategory = preferences.AcumaticaTaxCategory.ToValue();
+                detail.TaxCategory = stockItem.TaxCategory.value.ToValue();
 
                 output.Add(detail);
             }

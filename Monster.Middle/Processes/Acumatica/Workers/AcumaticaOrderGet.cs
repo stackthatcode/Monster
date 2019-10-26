@@ -170,7 +170,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         }        
         
         public void UpsertShipmentInvoiceStubs(
-                AcumaticaSalesOrder orderRecord, List<SalesOrderShipment> shipments)
+                AcumaticaSalesOrder orderRecord, IList<SalesOrderShipment> shipments)
         {
             var translation = new List<AcumaticaSoShipmentInvoice>();
 

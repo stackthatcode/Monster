@@ -78,8 +78,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
 
         // Transactions
-        public void ImprintTransactions(
-                long orderMonsterId, List<ShopifyTransaction> transactions)
+        public void ImprintTransactions(long orderMonsterId, List<ShopifyTransaction> transactions)
         {
             var existingRecords =
                 Entities
@@ -110,7 +109,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
             }
 
             var order = Entities.ShopifyOrders.First(x => x.Id == orderMonsterId);
-            order.AreTransactionsUpdated = true;
+            order.NeedsTransactionGet = false;
 
             Entities.SaveChanges();
         }
@@ -119,7 +118,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             return Entities
                 .ShopifyOrders
-                .Where(x => x.AreTransactionsUpdated == false)
+                .Where(x => x.NeedsTransactionGet)
                 .ToList();
         }
 

@@ -5,9 +5,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class OrderExtensions
     {
-
-        public static AcumaticaSalesOrder 
-                    MatchingSalesOrder(this ShopifyOrder order)
+        public static AcumaticaSalesOrder MatchingSalesOrder(this ShopifyOrder order)
         {
             if (!order.ShopAcuOrderSyncs.Any())
             {
@@ -15,10 +13,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
             }
             else
             {
-                return order
-                    .ShopAcuOrderSyncs
-                    .First()
-                    .AcumaticaSalesOrder;
+                return order.ShopAcuOrderSyncs.First().AcumaticaSalesOrder;
             }
         }
 
@@ -34,17 +29,29 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         }
 
 
-        public static bool
-                IsFromShopify(this AcumaticaSalesOrder order)
+        public static bool IsFromShopify(this AcumaticaSalesOrder order)
         {
-            // TODO - add intelligence to check for our Monster Stamp
             return order.ShopAcuOrderSyncs.Any();
         }
 
-        public static ShopifyOrder
-                MatchingShopifyOrder(this AcumaticaSalesOrder order)
+        public static ShopifyOrder MatchingShopifyOrder(this AcumaticaSalesOrder order)
         {
             return order.ShopAcuOrderSyncs.FirstOrDefault()?.ShopifyOrder;
+        }
+
+        public static bool HasMatch(this AcumaticaSalesOrder order)
+        {
+            return order.ShopAcuOrderSyncs.Any();
+        }
+
+        public static ShopAcuOrderSync Sync(this AcumaticaSalesOrder order)
+        {
+            return order.ShopAcuOrderSyncs.FirstOrDefault();
+        }
+
+        public static ShopAcuOrderSync Sync(this ShopifyOrder order)
+        {
+            return order.ShopAcuOrderSyncs.FirstOrDefault();
         }
 
     }

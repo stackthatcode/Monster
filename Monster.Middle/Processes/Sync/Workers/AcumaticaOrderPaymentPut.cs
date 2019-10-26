@@ -118,12 +118,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                     continue;
                 }
                 
-                // Return/Restock Refund - Credit Memo Order and Invoice are created
-                //
-                if (refund.ShopAcuRefundCms.Any(x => x.IsComplete))
-                {
-                    WriteRefundPayment(transaction);
-                }
             }
         }
         
@@ -152,28 +146,6 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Amounts
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
-
-            if (refund.ShopAcuRefundCms.Any())
-            {
-                var refundSync = refund.ShopAcuRefundCms.First();
-                
-                var salesInvoice =
-                    _salesOrderClient.RetrieveSalesOrderInvoice(
-                            refundSync.AcumaticaCreditMemoInvoiceNbr, SalesInvoiceType.Credit_Memo)
-                        .DeserializeFromJson<SalesInvoice>();
-
-                payment.DocumentsToApply =
-                    PaymentDocumentsToApply.ForDocument(
-                        refundSync.AcumaticaCreditMemoInvoiceNbr,
-                        SalesInvoiceType.Credit_Memo,
-                        salesInvoice.Amount.value);
-
-                payment.AppliedToDocuments = ((double) salesInvoice.Amount.value).ToValue();
-
-                var paymentNotEqualToInvoice
-                    = (double) transaction.amount != salesInvoice.Amount.value;
-                payment.Hold = paymentNotEqualToInvoice.ToValue();
-            }
 
             // TODO - inject the original Payment Method...?
             // 

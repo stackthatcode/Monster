@@ -30,8 +30,8 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .ShopifyOrders
-                .Where(x => x.ShopAcuOrderSyncs.Any() == false 
-                            || x.IsUpdatedInAcumatica == false)
+                .Where(x => !x.ShopAcuOrderSyncs.Any()
+                            || x.ShopAcuOrderSyncs.Any(y => y.NeedsAcumaticaPut))
                 .Include(x => x.ShopifyCustomer)
                 .Include(x => x.ShopifyTransactions)
                 .Include(x => x.ShopifyTransactions.Select(y => y.ShopifyAcuPayment))
@@ -65,6 +65,7 @@ namespace Monster.Middle.Processes.Sync.Persist
             var sync = new ShopAcuOrderSync();
             sync.ShopifyOrder = shopifyOrder;
             sync.AcumaticaSalesOrder = acumaticaSalesOrder;
+            sync.NeedsAcumaticaPut = false;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
 
@@ -165,8 +166,6 @@ namespace Monster.Middle.Processes.Sync.Persist
             return RefundRecordGraph
                     .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any())
                     .Where(x => x.ShopifyIsCancellation == false)
-                    .Where(x => x.ShopAcuRefundCms.Any() == false ||
-                                x.ShopAcuRefundCms.Any(y => y.IsComplete == false))
                     .ToList();
         }
 
@@ -174,7 +173,6 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .ShopifyRefunds
-                .Include(x => x.ShopAcuRefundCms)
                 .FirstOrDefault(x => x.ShopifyRefundId == shopifyRefundId);
         }
 
@@ -193,11 +191,6 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs)
                 .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder));
         
-        public void InsertRefundSync(ShopAcuRefundCm input)
-        {
-            Entities.ShopAcuRefundCms.Add(input);
-            Entities.SaveChanges();
-        }
 
 
         // Shopify Transactions

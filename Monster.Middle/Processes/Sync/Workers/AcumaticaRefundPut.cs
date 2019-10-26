@@ -80,16 +80,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Update the local cache of Sales Order
             salesOrderRecord.DetailsJson = result;
             salesOrderRecord.LastUpdated = DateTime.UtcNow;
-
-            // Update the Tax Loaded flag
-            refundRecord
-                .ShopifyOrder
-                .ShopAcuOrderSyncs.First();
-
-            _syncOrderRepository.SaveChanges();
-            
-            // Update the Sales Taxes
-            //_acumaticaOrderSync.PushOrderTaxesToAcumatica(refundRecord.ShopifyOrder);
         }
         
         public SalesOrderUpdateHeader BuildUpdateForCancels(ShopifyRefund refundRecord)
@@ -129,65 +119,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             return salesOrderUpdate;
         }
 
-
-
-        // Refunds-Returns
-        //
-        public void RunReturns()
-        {
-            var returns = _syncOrderRepository.RetrieveReturnsNotSynced();
-
-            foreach (var _return in returns)
-            {
-                var status = RefundSyncStatus.Make(_return);
-
-                if (status.IsSyncComplete)
-                {
-                    continue;
-                }
-
-
-                // *** TODO - this should be a Return for Credit
-                //
-                // Write a Credit Memo to Acumatica for restocked items
-                if (status.DoesNotHaveCreditMemoOrder)
-                {
-                    var content = LogBuilder.CreateAcumaticaCreditMemo(_return);
-                    _logService.Log(content);
-                    PushReturnOrder(_return);
-                    continue;
-                }
-            }
-        }
-
-        public void PushReturnOrder(ShopifyRefund refundRecord)
-        {
-            var preferences = _preferencesRepository.RetrievePreferences();
-            var shopifyOrder = refundRecord.ShopifyOrder.ToShopifyObj();
-
-            var creditMemo = BuildReturnForCredit(refundRecord, preferences);
-
-            var result = _salesOrderClient.WriteSalesOrder(creditMemo.SerializeToJson());
-            var resultCmOrder = result.DeserializeFromJson<SalesOrder>();
-
-            var syncRecord = new ShopAcuRefundCm();
-            syncRecord.AcumaticaCreditMemoOrderNbr = resultCmOrder.OrderNbr.value;            
-            syncRecord.IsCmOrderTaxLoaded = false;
-            syncRecord.AcumaticaCreditMemoInvoiceNbr = null;
-            syncRecord.IsCmInvoiceReleased = false;
-            syncRecord.IsComplete = false;
-
-            syncRecord.ShopifyRefund = refundRecord;
-            syncRecord.DateCreated = DateTime.UtcNow;
-            syncRecord.LastUpdated = DateTime.UtcNow;
-            _syncOrderRepository.InsertRefundSync(syncRecord);
-
-            var log =
-                $"Created Credit Memo {resultCmOrder.OrderNbr.value} in Acumatica from " +
-                $"Shopify Order #{shopifyOrder.order_number}";
-
-            _logService.Log(log);
-        }
 
         private ReturnForCreditWrite 
                     BuildReturnForCredit(ShopifyRefund refundRecord, Preference preferences)
