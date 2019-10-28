@@ -12,9 +12,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly OrderApi _orderApi;
         private readonly ShopifyOrderRepository _orderRepository;
         
-        public ShopifyTransactionGet(
-                OrderApi orderApi,
-                ShopifyOrderRepository orderRepository)
+        public ShopifyTransactionGet(OrderApi orderApi, ShopifyOrderRepository orderRepository)
         {
             _orderApi = orderApi;
             _orderRepository = orderRepository;
@@ -48,6 +46,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     record.ShopifyKind = transaction.kind;
                     record.ShopifyJson = transaction.SerializeToJson();
                     record.ShopifyGateway = transaction.gateway;
+                    record.NeedsPaymentPut = true;
                     record.OrderMonsterId = orderRecord.Id;
 
                     transactionRecords.Add(record);

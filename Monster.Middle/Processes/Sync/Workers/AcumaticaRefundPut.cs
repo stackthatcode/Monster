@@ -82,43 +82,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrderRecord.LastUpdated = DateTime.UtcNow;
         }
         
-        public SalesOrderUpdateHeader BuildUpdateForCancels(ShopifyRefund refundRecord)
-        {
-            var shopifyOrderRecord = refundRecord.ShopifyOrder;
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-
-            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
-            var salesOrder = salesOrderRecord.ToAcuObject();
-            var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
-
-            var salesOrderUpdate = new SalesOrderUpdateHeader();
-            salesOrderUpdate.OrderType = salesOrder.OrderType.Copy();
-            salesOrderUpdate.OrderNbr = salesOrder.OrderNbr.Copy();
-            salesOrderUpdate.Hold = false.ToValue();
-
-            foreach (var cancelledItem in refund.CancelledLineItems)
-            {
-                var line_item = shopifyOrder.LineItem(cancelledItem.line_item_id);
-
-                var variant =
-                    _syncRepository.RetrieveVariant(line_item.variant_id.Value, line_item.sku);
-
-                var stockItemId = variant.MatchedStockItem().ItemId;
-                var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);
-
-                var newQuantity = (double)line_item.RefundCancelAdjustedQuantity;
-
-                var detail = new SalesOrderUpdateDetail();
-                detail.id = salesOrderDetail.id;
-                //detail.InventoryID = variant.MatchedStockItem().ItemId.ToValue();
-                detail.Quantity = newQuantity.ToValue();
-
-                salesOrderUpdate.Details.Add(detail);
-            }
-
-            return salesOrderUpdate;
-        }
-
 
         private ReturnForCreditWrite 
                     BuildReturnForCredit(ShopifyRefund refundRecord, Preference preferences)

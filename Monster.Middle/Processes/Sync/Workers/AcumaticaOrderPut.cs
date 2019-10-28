@@ -10,6 +10,7 @@ using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.TaxTransfer;
@@ -55,7 +56,27 @@ namespace Monster.Middle.Processes.Sync.Workers
             _orderStatusService = orderStatusService;
         }
 
-        
+
+        public ConcurrentQueue<long> BuildOrderPutQueue()
+        {
+            var output = new ConcurrentQueue<long>();
+            var orders = _syncOrderRepository.RetrieveShopifyOrdersToPut();
+
+            foreach (var order in orders)
+            {
+                var status = _orderStatusService.ShopifyOrderStatus(order.ShopifyOrderId);
+
+                if (!status.IsReadyToSync().Success)
+                {
+                    continue;
+                }
+
+                output.Enqueue(order.ShopifyOrderId);
+            }
+
+            return output;
+        }
+
         public void RunNonParallel()
         {
             var queue = BuildOrderPutQueue();
@@ -79,106 +100,75 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
         
-        
-        public ConcurrentQueue<long> BuildOrderPutQueue()
-        {
-            var output = new ConcurrentQueue<long>();
-            var orders = _syncOrderRepository.RetrieveShopifyOrdersNotSynced();
-            
-            foreach (var order in orders)
-            {
-                var status = _orderStatusService.ShopifyOrderStatus(order.ShopifyOrderId);
-
-                if (!status.IsReadyToSync().Success)
-                {
-                    continue;
-                }
-
-                output.Enqueue(order.ShopifyOrderId);
-            }
-
-            return output;
-        }
         public void RunOrder(long shopifyOrderId)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
-
             var acumaticaCustomer = PushNonExistentCustomer(orderRecord);
-            PushOrder(orderRecord, acumaticaCustomer);
+
+            if (!orderRecord.HasMatch())
+            {
+                CreateNewOrder(orderRecord, acumaticaCustomer);
+            }
+            else
+            {
+                UpdateExistingOrder(orderRecord);
+            }
         }
         
 
         // Push Order
         //
-        private void PushOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer acumaticaCustomer)
+        private void CreateNewOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer acumaticaCustomer)
         {
-            if (shopifyOrderRecord.HasMatch())
-            {
-                var logContent = LogBuilder.CreateAcumaticaSalesOrder(shopifyOrderRecord);
-                _logService.Log(logContent);
+            var logContent = LogBuilder.CreateAcumaticaSalesOrder(shopifyOrderRecord);
+            _logService.Log(logContent);
 
-                CreateNewOrder(shopifyOrderRecord, acumaticaCustomer);
-            }
-            else
-            {
-                var logContent = LogBuilder.CreateAcumaticaSalesOrder(shopifyOrderRecord);
-                _logService.Log(logContent);
+            // Write the Sales Order to Acumatica
+            //
+            var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
+            var salesOrder = BuilderNewSalesOrder(shopifyOrder, acumaticaCustomer);
+            var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
 
-                UpdateExistingOrder(shopifyOrderRecord);
-            }
+            // Create the local Order Record and Sync
+            //
+            var newOrder = resultJson.DeserializeFromJson<SalesOrder>();
+            var newRecord = new AcumaticaSalesOrder();
+
+            newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
+            newRecord.AcumaticaDetailsJson = resultJson;
+            newRecord.AcumaticaStatus = newOrder.Status.value;
+            newRecord.CustomerMonsterId = acumaticaCustomer.Id;
+            newRecord.DateCreated = DateTime.UtcNow;
+            newRecord.LastUpdated = DateTime.UtcNow;
+
+            _acumaticaOrderRepository.InsertSalesOrder(newRecord);
+            _syncOrderRepository.InsertOrderSync(shopifyOrderRecord, newRecord);
+
+            shopifyOrderRecord.NeedsOrderPut = false;
+            _syncOrderRepository.SaveChanges();
         }
 
         private void UpdateExistingOrder(ShopifyOrder shopifyOrderRecord)
         {
-            throw new NotImplementedException();
-        }
+            var logContent = LogBuilder.UpdatingAcumaticaSalesOrder(shopifyOrderRecord);
+            _logService.Log(logContent);
 
-        private void CreateNewOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer acumaticaCustomer)
-        {
-            var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
-            shopifyOrderRecord.HasMatch();
+            var updateOrderJson = BuildSalesOrderUpdate(shopifyOrderRecord).SerializeToJson();
 
-            var salesOrder = BuilderSalesOrder(shopifyOrder, acumaticaCustomer);
-            var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
+            var resultJson = _salesOrderClient.WriteSalesOrder(updateOrderJson);
 
-            var orderRecord = _acumaticaOrderRepository.RetrieveSalesOrder(salesOrder.OrderNbr.value);
+            var acumaticaRecord = shopifyOrderRecord.MatchingSalesOrder();
+            acumaticaRecord.AcumaticaDetailsJson = resultJson;
+            acumaticaRecord.LastUpdated = DateTime.Now;
+            shopifyOrderRecord.NeedsOrderPut = false;
 
-            if (orderRecord == null)
-            {
-                var newOrder = resultJson.DeserializeFromJson<SalesOrder>();
-                var newRecord = new AcumaticaSalesOrder();
-
-                newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
-                newRecord.DetailsJson = resultJson;
-                newRecord.ShipmentsJson = null;
-                newRecord.AcumaticaStatus = newOrder.Status.value;
-                newRecord.CustomerMonsterId = acumaticaCustomer.Id;
-                newRecord.DateCreated = DateTime.UtcNow;
-                newRecord.LastUpdated = DateTime.UtcNow;
-
-                _acumaticaOrderRepository.InsertSalesOrder(newRecord);
-                _syncOrderRepository.InsertOrderSync(shopifyOrderRecord, newRecord);
-
-                newRecord.Sync().NeedsAcumaticaPut = false;
-                _syncOrderRepository.SaveChanges();
-
-            }
-            else
-            {
-                orderRecord.DetailsJson = salesOrder.SerializeToJson();
-                orderRecord.LastUpdated = DateTime.Now;
-
-                if (orderRecord.HasMatch())
-                {
-                    orderRecord.Sync().NeedsAcumaticaPut = false;
-                }
-                _syncOrderRepository.SaveChanges();
-            }
+            _syncOrderRepository.SaveChanges();
         }
 
 
-
-        private SalesOrder BuilderSalesOrder(Order shopifyOrder, AcumaticaCustomer customer)
+        // Create new Sales Order
+        //
+        private SalesOrder BuilderNewSalesOrder(Order shopifyOrder, AcumaticaCustomer customer)
         {
             // Header
             //
@@ -228,8 +218,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             return output;
         }
 
-        private SalesOrder 
-                BuildNewSalesOrderHeader(Order shopifyOrder, AcumaticaCustomer customer)
+        private SalesOrder BuildNewSalesOrderHeader(Order shopifyOrder, AcumaticaCustomer customer)
         {
             var preferences = _preferencesRepository.RetrievePreferences();
 
@@ -305,13 +294,51 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
+        // Update existing Sales Order
+        //
+        public SalesOrderUpdateHeader BuildSalesOrderUpdate(ShopifyOrder shopifyOrderRecord)
+        {
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+
+            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
+            var salesOrder = salesOrderRecord.ToAcuObject();
+
+            var salesOrderUpdate = new SalesOrderUpdateHeader();
+            salesOrderUpdate.OrderType = salesOrder.OrderType.Copy();
+            salesOrderUpdate.OrderNbr = salesOrder.OrderNbr.Copy();
+            salesOrderUpdate.Hold = false.ToValue();
+
+            foreach (var line_item in shopifyOrder.line_items)
+            {
+                var variant = 
+                    _syncInventoryRepository.RetrieveVariant(line_item.variant_id.Value, line_item.sku);
+
+                var stockItemId = variant.MatchedStockItem().ItemId;
+                var salesOrderDetail = salesOrder.DetailByInventoryId(stockItemId);
+
+                var newQuantity = (double)line_item.RefundCancelAdjustedQuantity;
+
+                var detail = new SalesOrderUpdateDetail();
+                detail.id = salesOrderDetail.id;
+                detail.Quantity = newQuantity.ToValue();
+
+                // Not needed - only the row identifier
+                //
+                //detail.InventoryID = variant.MatchedStockItem().ItemId.ToValue();
+
+                salesOrderUpdate.Details.Add(detail);
+            }
+
+            return salesOrderUpdate;
+        }
+
+
         // Invoke the Acumatica Customer Sync
         //
         public AcumaticaCustomer PushNonExistentCustomer(ShopifyOrder shopifyOrder)
         {
             var customer =
-                _syncOrderRepository
-                    .RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
+                _syncOrderRepository.RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
 
             if (customer.HasMatch())
             {

@@ -26,15 +26,15 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Order Syncing
         //
-        public List<ShopifyOrder> RetrieveShopifyOrdersNotSynced()
+        public List<ShopifyOrder> RetrieveShopifyOrdersToPut()
         {
             return Entities
                 .ShopifyOrders
-                .Where(x => !x.ShopAcuOrderSyncs.Any()
-                            || x.ShopAcuOrderSyncs.Any(y => y.NeedsAcumaticaPut))
+                .Where(x => !x.ShopAcuOrderSyncs.Any() || x.NeedsOrderPut)
                 .Include(x => x.ShopifyCustomer)
+                .Include(x => x.ShopifyFulfillments)
+                .Include(x => x.ShopifyRefunds)
                 .Include(x => x.ShopifyTransactions)
-                .Include(x => x.ShopifyTransactions.Select(y => y.ShopifyAcuPayment))
                 .ToList();
         }
 
@@ -87,22 +87,16 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyCustomerId == shopifyCustomerId);
         }
 
-        public List<ShopifyCustomer> RetrieveUnsyncedShopifyCustomers()
+        public List<ShopifyCustomer> RetrieveShopifyCustomersWithoutSyncs()
         {
-            return Entities
-                .ShopifyCustomers
-                .Where(x => !x.ShopAcuCustomerSyncs.Any())
-                .Where(x => Entities.ShopifyOrders.Any(
-                    y => y.ShopifyCustomer.ShopifyCustomerId == x.ShopifyCustomerId))
-                .ToList();
+            return Entities.ShopifyCustomers.Where(x => !x.ShopAcuCustomerSyncs.Any()).ToList();
         }
 
-        public List<ShopifyCustomer> RetrieveCustomersNeedingUpdate()
+        public List<ShopifyCustomer> RetrieveShopifyCustomersNeedingPut()
         {
             return Entities
                 .ShopifyCustomers
-                .Where(x => x.ShopAcuCustomerSyncs.Any() &&
-                            x.IsUpdatedInAcumatica == false)
+                .Where(x => x.ShopAcuCustomerSyncs.Any() && x.NeedsCustomerPut == true)
                 .ToList();
         }
 

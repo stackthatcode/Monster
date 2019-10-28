@@ -35,7 +35,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            var notLoadedCustomers = _syncOrderRepository.RetrieveUnsyncedShopifyCustomers();
+            var notLoadedCustomers = _syncOrderRepository.RetrieveShopifyCustomersWithoutSyncs();
 
             foreach (var shopifyCustomer in notLoadedCustomers)
             {
@@ -44,7 +44,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 PushCustomer(shopifyCustomer);
             }
 
-            var customersNeedingUpdate = _syncOrderRepository.RetrieveCustomersNeedingUpdate();
+            var customersNeedingUpdate = _syncOrderRepository.RetrieveShopifyCustomersNeedingPut();
 
             foreach (var shopifyCustomer in customersNeedingUpdate)
             {
@@ -80,7 +80,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 // Lastly, flag the Shopify Customer as updated
                 //
-                shopifyCustomerRecord.IsUpdatedInAcumatica = true;
+                shopifyCustomerRecord.NeedsCustomerPut = false;
                 _syncOrderRepository.SaveChanges();
                 transaction.Commit();
 
@@ -89,8 +89,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
-        // *** CRITICAL - this method should only be invoked in the event of intentionally
-        // ... pushing a Shopify Customer to Acumatica
+        // *** CRITICAL - only call this method for Customers that have been intentionally
+        // ... written to Acumatica
         //
         private AcumaticaCustomer UpsertCustomerToPersist(Customer acumaticaCustomer)
         {
@@ -129,15 +129,16 @@ namespace Monster.Middle.Processes.Sync.Workers
         private static Customer BuildCustomer(Push.Shopify.Api.Customer.Customer shopifyCustomer)
         {
             var name = shopifyCustomer.first_name + " " + shopifyCustomer.last_name;
-            var shopifyAddress = shopifyCustomer.default_address;
-
+           
             var customer = new Customer();
             customer.CustomerID = shopifyCustomer.id.ToString().ToValue();
             customer.CustomerName = name.ToValue();
 
             var address = new Address();
-            if (shopifyAddress != null)
+            if (shopifyCustomer.default_address != null)
             {
+                var shopifyAddress = shopifyCustomer.default_address;
+
                 address.AddressLine1 = shopifyAddress.address1.ToValue();
                 address.AddressLine2 = shopifyAddress.address2.ToValue();
                 address.City = shopifyAddress.city.ToValue();

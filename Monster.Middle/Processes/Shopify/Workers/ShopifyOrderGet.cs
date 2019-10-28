@@ -109,8 +109,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 if (order.customer == null)
                 {
-                    // TODO - add the Order Analysis service
-                    //
                     continue;
                 }
 
@@ -136,6 +134,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newOrder.ShopifyJson = order.SerializeToJson();
                 newOrder.ShopifyFinancialStatus = order.financial_status;
                 newOrder.NeedsTransactionGet = true;
+                newOrder.NeedsOrderPut = true;
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
@@ -148,6 +147,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existingOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 existingOrder.ShopifyFinancialStatus = order.financial_status;
                 existingOrder.NeedsTransactionGet = true;
+                existingOrder.NeedsOrderPut = true;
                 existingOrder.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.SaveChanges();
@@ -196,8 +196,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var refundRecord
                     = orderRecord
-                        .ShopifyRefunds
-                        .FirstOrDefault(x => x.ShopifyRefundId == refund.id);
+                        .ShopifyRefunds.FirstOrDefault(x => x.ShopifyRefundId == refund.id);
 
                 if (refundRecord == null)
                 {

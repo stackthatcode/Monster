@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist.Matching;
 
@@ -28,8 +27,7 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Warehouses & Locations
         //
-        public void InsertInventoryReceiptSync(
-                ShopifyInventoryLevel level, AcumaticaInventoryReceipt receipt)
+        public void InsertInventoryReceiptSync(ShopifyInventoryLevel level, AcumaticaInventoryReceipt receipt)
         {
             var sync = new InventoryReceiptSync();
             sync.ShopifyInventoryLevel = level;
@@ -78,8 +76,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
 
-        public void InsertWarehouseSync(
-                ShopifyLocation location, AcumaticaWarehouse warehouse)
+        public void InsertWarehouseSync(ShopifyLocation location, AcumaticaWarehouse warehouse)
         {
             var sync = new ShopAcuWarehouseSync();
             sync.ShopifyLocation = location;
@@ -175,8 +172,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .ShopifyVariants
                 .Include(x => x.ShopAcuItemSyncs)
                 .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
-                .FirstOrDefault(x => x.ShopifyVariantId == shopifyVariantId
-                                     && x.ShopifySku == sku);
+                .FirstOrDefault(x => x.ShopifyVariantId == shopifyVariantId && x.ShopifySku == sku);
         }
 
         public AcumaticaStockItem RetrieveStockItem(string itemId)

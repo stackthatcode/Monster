@@ -18,7 +18,8 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
-
+        // Shopify Location queries
+        //
         public void InsertLocation(ShopifyLocation location)
         {
             Entities.ShopifyLocations.Add(location);
@@ -49,7 +50,6 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 .FirstOrDefault(x => x.ShopifyVariantId == shopifyVariantId);
         }
         
-
         public void InsertProduct(ShopifyProduct product)
         {
             Entities.ShopifyProducts.Add(product);
@@ -78,11 +78,9 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
-
         // Product to Stock Item matching 
         //
-        public List<ShopifyVariant> 
-                        RetrieveVariantsByParent(long parentMonsterId)
+        public List<ShopifyVariant> RetrieveVariantsByParent(long parentMonsterId)
         {
             return Entities.ShopifyVariants
                     .Where(x => x.ParentMonsterId == parentMonsterId)
@@ -93,7 +91,5 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             Entities.SaveChanges();
         }
-
     }
 }
-

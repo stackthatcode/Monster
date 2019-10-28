@@ -116,7 +116,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newCustomer.ShopifyPrimaryEmail = customer.email;
                 newCustomer.DateCreated = DateTime.UtcNow;
                 newCustomer.LastUpdated = DateTime.UtcNow;
-                newCustomer.IsUpdatedInAcumatica = false;
+                newCustomer.NeedsCustomerPut = true;
 
                 _orderRepository.InsertCustomer(newCustomer);
                 return newCustomer;
@@ -125,7 +125,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 existingCustomer.ShopifyJson = customer.SerializeToJson();
                 existingCustomer.ShopifyPrimaryEmail = customer.email;
-                existingCustomer.IsUpdatedInAcumatica = false;
+                existingCustomer.NeedsCustomerPut = true;
                 existingCustomer.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.SaveChanges();

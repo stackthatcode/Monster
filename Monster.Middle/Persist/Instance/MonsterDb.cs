@@ -44,7 +44,6 @@ namespace Monster.Middle.Persist.Instance
         System.Data.Entity.DbSet<AcumaticaRefData> AcumaticaRefDatas { get; set; } // AcumaticaRefData
         System.Data.Entity.DbSet<AcumaticaSalesOrder> AcumaticaSalesOrders { get; set; } // AcumaticaSalesOrder
         System.Data.Entity.DbSet<AcumaticaShipment> AcumaticaShipments { get; set; } // AcumaticaShipment
-        System.Data.Entity.DbSet<AcumaticaShipmentSalesOrderRef> AcumaticaShipmentSalesOrderRefs { get; set; } // AcumaticaShipmentSalesOrderRef
         System.Data.Entity.DbSet<AcumaticaSoShipmentInvoice> AcumaticaSoShipmentInvoices { get; set; } // AcumaticaSoShipmentInvoice
         System.Data.Entity.DbSet<AcumaticaStockItem> AcumaticaStockItems { get; set; } // AcumaticaStockItem
         System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; } // AcumaticaWarehouse
@@ -136,7 +135,6 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<AcumaticaRefData> AcumaticaRefDatas { get; set; } // AcumaticaRefData
         public System.Data.Entity.DbSet<AcumaticaSalesOrder> AcumaticaSalesOrders { get; set; } // AcumaticaSalesOrder
         public System.Data.Entity.DbSet<AcumaticaShipment> AcumaticaShipments { get; set; } // AcumaticaShipment
-        public System.Data.Entity.DbSet<AcumaticaShipmentSalesOrderRef> AcumaticaShipmentSalesOrderRefs { get; set; } // AcumaticaShipmentSalesOrderRef
         public System.Data.Entity.DbSet<AcumaticaSoShipmentInvoice> AcumaticaSoShipmentInvoices { get; set; } // AcumaticaSoShipmentInvoice
         public System.Data.Entity.DbSet<AcumaticaStockItem> AcumaticaStockItems { get; set; } // AcumaticaStockItem
         public System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; } // AcumaticaWarehouse
@@ -232,7 +230,6 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new AcumaticaRefDataConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaSalesOrderConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaShipmentConfiguration());
-            modelBuilder.Configurations.Add(new AcumaticaShipmentSalesOrderRefConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaSoShipmentInvoiceConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaStockItemConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaWarehouseConfiguration());
@@ -283,7 +280,6 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new AcumaticaRefDataConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaSalesOrderConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaShipmentConfiguration(schema));
-            modelBuilder.Configurations.Add(new AcumaticaShipmentSalesOrderRefConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaSoShipmentInvoiceConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaStockItemConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaWarehouseConfiguration(schema));
@@ -417,7 +413,6 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<AcumaticaRefData> AcumaticaRefDatas { get; set; }
         public System.Data.Entity.DbSet<AcumaticaSalesOrder> AcumaticaSalesOrders { get; set; }
         public System.Data.Entity.DbSet<AcumaticaShipment> AcumaticaShipments { get; set; }
-        public System.Data.Entity.DbSet<AcumaticaShipmentSalesOrderRef> AcumaticaShipmentSalesOrderRefs { get; set; }
         public System.Data.Entity.DbSet<AcumaticaSoShipmentInvoice> AcumaticaSoShipmentInvoices { get; set; }
         public System.Data.Entity.DbSet<AcumaticaStockItem> AcumaticaStockItems { get; set; }
         public System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; }
@@ -471,7 +466,6 @@ namespace Monster.Middle.Persist.Instance
             AcumaticaRefDatas = new FakeDbSet<AcumaticaRefData>("Id");
             AcumaticaSalesOrders = new FakeDbSet<AcumaticaSalesOrder>("Id");
             AcumaticaShipments = new FakeDbSet<AcumaticaShipment>("Id");
-            AcumaticaShipmentSalesOrderRefs = new FakeDbSet<AcumaticaShipmentSalesOrderRef>("Id");
             AcumaticaSoShipmentInvoices = new FakeDbSet<AcumaticaSoShipmentInvoice>("Id");
             AcumaticaStockItems = new FakeDbSet<AcumaticaStockItem>("MonsterId");
             AcumaticaWarehouses = new FakeDbSet<AcumaticaWarehouse>("Id");
@@ -977,8 +971,7 @@ namespace Monster.Middle.Persist.Instance
     public class AcumaticaSalesOrder
     {
         public long Id { get; set; } // Id (Primary key)
-        public string DetailsJson { get; set; } // DetailsJson
-        public string ShipmentsJson { get; set; } // ShipmentsJson
+        public string AcumaticaDetailsJson { get; set; } // AcumaticaDetailsJson
         public string AcumaticaOrderNbr { get; set; } // AcumaticaOrderNbr (length: 50)
         public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 25)
         public long CustomerMonsterId { get; set; } // CustomerMonsterId
@@ -1015,7 +1008,7 @@ namespace Monster.Middle.Persist.Instance
     public class AcumaticaShipment
     {
         public long Id { get; set; } // Id (Primary key)
-        public string AcumaticaJson { get; set; } // AcumaticaJson
+        public string AcumaticaDetailsJson { get; set; } // AcumaticaDetailsJson
         public string AcumaticaShipmentNbr { get; set; } // AcumaticaShipmentNbr (length: 50)
         public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 25)
         public string AcumaticaTrackingNbr { get; set; } // AcumaticaTrackingNbr (length: 100)
@@ -1025,45 +1018,13 @@ namespace Monster.Middle.Persist.Instance
         // Reverse navigation
 
         /// <summary>
-        /// Child AcumaticaShipmentSalesOrderRefs where [AcumaticaShipmentSalesOrderRef].[ShipmentMonsterId] point to this entity (FK_usrAcumaticaShipmentSO_usrAcumaticaShipment)
+        /// Child AcumaticaSoShipmentInvoices where [AcumaticaSoShipmentInvoice].[ShipmentMonsterId] point to this entity (FK_AcumaticaSoShipmentInvoice_AcumaticaShipment)
         /// </summary>
-        public virtual System.Collections.Generic.ICollection<AcumaticaShipmentSalesOrderRef> AcumaticaShipmentSalesOrderRefs { get; set; } // AcumaticaShipmentSalesOrderRef.FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
+        public virtual System.Collections.Generic.ICollection<AcumaticaSoShipmentInvoice> AcumaticaSoShipmentInvoices { get; set; } // AcumaticaSoShipmentInvoice.FK_AcumaticaSoShipmentInvoice_AcumaticaShipment
 
         public AcumaticaShipment()
         {
-            AcumaticaShipmentSalesOrderRefs = new System.Collections.Generic.List<AcumaticaShipmentSalesOrderRef>();
-        }
-    }
-
-    // AcumaticaShipmentSalesOrderRef
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class AcumaticaShipmentSalesOrderRef
-    {
-        public long Id { get; set; } // Id (Primary key)
-        public long ShipmentMonsterId { get; set; } // ShipmentMonsterId
-        public string AcumaticaShipmentNbr { get; set; } // AcumaticaShipmentNbr (length: 50)
-        public string AcumaticaOrderNbr { get; set; } // AcumaticaOrderNbr (length: 50)
-        public bool IsMonsterOrder { get; set; } // IsMonsterOrder
-        public System.DateTime? DateCreated { get; set; } // DateCreated
-        public System.DateTime? LastUpdated { get; set; } // LastUpdated
-
-        // Reverse navigation
-
-        /// <summary>
-        /// Child ShopAcuShipmentSyncs where [ShopAcuShipmentSync].[AcumaticaShipDetailMonsterId] point to this entity (FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO)
-        /// </summary>
-        public virtual System.Collections.Generic.ICollection<ShopAcuShipmentSync> ShopAcuShipmentSyncs { get; set; } // ShopAcuShipmentSync.FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
-
-        // Foreign keys
-
-        /// <summary>
-        /// Parent AcumaticaShipment pointed by [AcumaticaShipmentSalesOrderRef].([ShipmentMonsterId]) (FK_usrAcumaticaShipmentSO_usrAcumaticaShipment)
-        /// </summary>
-        public virtual AcumaticaShipment AcumaticaShipment { get; set; } // FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
-
-        public AcumaticaShipmentSalesOrderRef()
-        {
-            ShopAcuShipmentSyncs = new System.Collections.Generic.List<ShopAcuShipmentSync>();
+            AcumaticaSoShipmentInvoices = new System.Collections.Generic.List<AcumaticaSoShipmentInvoice>();
         }
     }
 
@@ -1075,9 +1036,18 @@ namespace Monster.Middle.Persist.Instance
         public long SalesOrderMonsterId { get; set; } // SalesOrderMonsterId
         public string AcumaticaShipmentNbr { get; set; } // AcumaticaShipmentNbr (length: 50)
         public string AcumaticaInvoiceNbr { get; set; } // AcumaticaInvoiceNbr (length: 50)
-        public bool IsLatestPulled { get; set; } // IsLatestPulled
+        public bool AcumaticaStatus { get; set; } // AcumaticaStatus
+        public long? ShipmentMonsterId { get; set; } // ShipmentMonsterId
+        public bool NeedShipmentGet { get; set; } // NeedShipmentGet
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
+
+        // Reverse navigation
+
+        /// <summary>
+        /// Child ShopAcuShipmentSyncs where [ShopAcuShipmentSync].[AcumaticaSoShipmentInvoiceMonsterId] point to this entity (FK_ShopAcuShipmentSync_AcumaticaSoShipmentInvoice)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<ShopAcuShipmentSync> ShopAcuShipmentSyncs { get; set; } // ShopAcuShipmentSync.FK_ShopAcuShipmentSync_AcumaticaSoShipmentInvoice
 
         // Foreign keys
 
@@ -1085,6 +1055,16 @@ namespace Monster.Middle.Persist.Instance
         /// Parent AcumaticaSalesOrder pointed by [AcumaticaSoShipmentInvoice].([SalesOrderMonsterId]) (FK_usrAcumaticaSoShipmentInvoice_usrAcumaticaSalesOrder)
         /// </summary>
         public virtual AcumaticaSalesOrder AcumaticaSalesOrder { get; set; } // FK_usrAcumaticaSoShipmentInvoice_usrAcumaticaSalesOrder
+
+        /// <summary>
+        /// Parent AcumaticaShipment pointed by [AcumaticaSoShipmentInvoice].([ShipmentMonsterId]) (FK_AcumaticaSoShipmentInvoice_AcumaticaShipment)
+        /// </summary>
+        public virtual AcumaticaShipment AcumaticaShipment { get; set; } // FK_AcumaticaSoShipmentInvoice_AcumaticaShipment
+
+        public AcumaticaSoShipmentInvoice()
+        {
+            ShopAcuShipmentSyncs = new System.Collections.Generic.List<ShopAcuShipmentSync>();
+        }
     }
 
     // AcumaticaStockItem
@@ -1320,7 +1300,6 @@ namespace Monster.Middle.Persist.Instance
         public long Id { get; set; } // Id (Primary key)
         public long AcumaticaSalesOrderMonsterId { get; set; } // AcumaticaSalesOrderMonsterId
         public long ShopifyOrderMonsterId { get; set; } // ShopifyOrderMonsterId
-        public bool NeedsAcumaticaPut { get; set; } // NeedsAcumaticaPut
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1342,7 +1321,7 @@ namespace Monster.Middle.Persist.Instance
     public class ShopAcuShipmentSync
     {
         public long Id { get; set; } // Id (Primary key)
-        public long AcumaticaShipDetailMonsterId { get; set; } // AcumaticaShipDetailMonsterId
+        public long AcumaticaSoShipmentInvoiceMonsterId { get; set; } // AcumaticaSoShipmentInvoiceMonsterId
         public long ShopifyFulfillmentMonsterId { get; set; } // ShopifyFulfillmentMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -1350,9 +1329,9 @@ namespace Monster.Middle.Persist.Instance
         // Foreign keys
 
         /// <summary>
-        /// Parent AcumaticaShipmentSalesOrderRef pointed by [ShopAcuShipmentSync].([AcumaticaShipDetailMonsterId]) (FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO)
+        /// Parent AcumaticaSoShipmentInvoice pointed by [ShopAcuShipmentSync].([AcumaticaSoShipmentInvoiceMonsterId]) (FK_ShopAcuShipmentSync_AcumaticaSoShipmentInvoice)
         /// </summary>
-        public virtual AcumaticaShipmentSalesOrderRef AcumaticaShipmentSalesOrderRef { get; set; } // FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
+        public virtual AcumaticaSoShipmentInvoice AcumaticaSoShipmentInvoice { get; set; } // FK_ShopAcuShipmentSync_AcumaticaSoShipmentInvoice
 
         /// <summary>
         /// Parent ShopifyFulfillment pointed by [ShopAcuShipmentSync].([ShopifyFulfillmentMonsterId]) (FK_usrShopAcuShipmentSync_usrShopifyFulfillment)
@@ -1420,7 +1399,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyJson { get; set; } // ShopifyJson
         public long ShopifyCustomerId { get; set; } // ShopifyCustomerId
         public string ShopifyPrimaryEmail { get; set; } // ShopifyPrimaryEmail (length: 100)
-        public bool IsUpdatedInAcumatica { get; set; } // IsUpdatedInAcumatica
+        public bool NeedsCustomerPut { get; set; } // NeedsCustomerPut
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1554,6 +1533,7 @@ namespace Monster.Middle.Persist.Instance
         public bool ShopifyIsCancelled { get; set; } // ShopifyIsCancelled
         public string ShopifyFinancialStatus { get; set; } // ShopifyFinancialStatus (length: 25)
         public bool NeedsTransactionGet { get; set; } // NeedsTransactionGet
+        public bool NeedsOrderPut { get; set; } // NeedsOrderPut
         public long CustomerMonsterId { get; set; } // CustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -1701,6 +1681,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyJson { get; set; } // ShopifyJson
         public string ShopifyGateway { get; set; } // ShopifyGateway (length: 50)
         public long? ShopifyRefundId { get; set; } // ShopifyRefundId
+        public bool NeedsPaymentPut { get; set; } // NeedsPaymentPut
         public long OrderMonsterId { get; set; } // OrderMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -2241,8 +2222,7 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.DetailsJson).HasColumnName(@"DetailsJson").HasColumnType("nvarchar(max)").IsRequired();
-            Property(x => x.ShipmentsJson).HasColumnName(@"ShipmentsJson").HasColumnType("nvarchar(max)").IsOptional();
+            Property(x => x.AcumaticaDetailsJson).HasColumnName(@"AcumaticaDetailsJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.AcumaticaOrderNbr).HasColumnName(@"AcumaticaOrderNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired();
@@ -2269,39 +2249,12 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsOptional();
+            Property(x => x.AcumaticaDetailsJson).HasColumnName(@"AcumaticaDetailsJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.AcumaticaShipmentNbr).HasColumnName(@"AcumaticaShipmentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaTrackingNbr).HasColumnName(@"AcumaticaTrackingNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
-        }
-    }
-
-    // AcumaticaShipmentSalesOrderRef
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class AcumaticaShipmentSalesOrderRefConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<AcumaticaShipmentSalesOrderRef>
-    {
-        public AcumaticaShipmentSalesOrderRefConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public AcumaticaShipmentSalesOrderRefConfiguration(string schema)
-        {
-            ToTable("AcumaticaShipmentSalesOrderRef", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShipmentMonsterId).HasColumnName(@"ShipmentMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.AcumaticaShipmentNbr).HasColumnName(@"AcumaticaShipmentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaOrderNbr).HasColumnName(@"AcumaticaOrderNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.IsMonsterOrder).HasColumnName(@"IsMonsterOrder").HasColumnType("bit").IsRequired();
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsOptional();
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsOptional();
-
-            // Foreign keys
-            HasRequired(a => a.AcumaticaShipment).WithMany(b => b.AcumaticaShipmentSalesOrderRefs).HasForeignKey(c => c.ShipmentMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaShipmentSO_usrAcumaticaShipment
         }
     }
 
@@ -2323,11 +2276,14 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.SalesOrderMonsterId).HasColumnName(@"SalesOrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.AcumaticaShipmentNbr).HasColumnName(@"AcumaticaShipmentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaInvoiceNbr).HasColumnName(@"AcumaticaInvoiceNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.IsLatestPulled).HasColumnName(@"IsLatestPulled").HasColumnType("bit").IsRequired();
+            Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("bit").IsRequired();
+            Property(x => x.ShipmentMonsterId).HasColumnName(@"ShipmentMonsterId").HasColumnType("bigint").IsOptional();
+            Property(x => x.NeedShipmentGet).HasColumnName(@"NeedShipmentGet").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
+            HasOptional(a => a.AcumaticaShipment).WithMany(b => b.AcumaticaSoShipmentInvoices).HasForeignKey(c => c.ShipmentMonsterId).WillCascadeOnDelete(false); // FK_AcumaticaSoShipmentInvoice_AcumaticaShipment
             HasRequired(a => a.AcumaticaSalesOrder).WithMany(b => b.AcumaticaSoShipmentInvoices).HasForeignKey(c => c.SalesOrderMonsterId).WillCascadeOnDelete(false); // FK_usrAcumaticaSoShipmentInvoice_usrAcumaticaSalesOrder
         }
     }
@@ -2630,7 +2586,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaSalesOrderMonsterId).HasColumnName(@"AcumaticaSalesOrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderMonsterId).HasColumnName(@"ShopifyOrderMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.NeedsAcumaticaPut).HasColumnName(@"NeedsAcumaticaPut").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
@@ -2655,13 +2610,13 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.AcumaticaShipDetailMonsterId).HasColumnName(@"AcumaticaShipDetailMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.AcumaticaSoShipmentInvoiceMonsterId).HasColumnName(@"AcumaticaSoShipmentInvoiceMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyFulfillmentMonsterId).HasColumnName(@"ShopifyFulfillmentMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
-            HasRequired(a => a.AcumaticaShipmentSalesOrderRef).WithMany(b => b.ShopAcuShipmentSyncs).HasForeignKey(c => c.AcumaticaShipDetailMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuShipmentSync_usrAcumaticaShipmentSO
+            HasRequired(a => a.AcumaticaSoShipmentInvoice).WithMany(b => b.ShopAcuShipmentSyncs).HasForeignKey(c => c.AcumaticaSoShipmentInvoiceMonsterId).WillCascadeOnDelete(false); // FK_ShopAcuShipmentSync_AcumaticaSoShipmentInvoice
             HasRequired(a => a.ShopifyFulfillment).WithMany(b => b.ShopAcuShipmentSyncs).HasForeignKey(c => c.ShopifyFulfillmentMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuShipmentSync_usrShopifyFulfillment
         }
     }
@@ -2757,7 +2712,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyCustomerId).HasColumnName(@"ShopifyCustomerId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyPrimaryEmail).HasColumnName(@"ShopifyPrimaryEmail").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
-            Property(x => x.IsUpdatedInAcumatica).HasColumnName(@"IsUpdatedInAcumatica").HasColumnType("bit").IsRequired();
+            Property(x => x.NeedsCustomerPut).HasColumnName(@"NeedsCustomerPut").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }
@@ -2865,6 +2820,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyIsCancelled).HasColumnName(@"ShopifyIsCancelled").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyFinancialStatus).HasColumnName(@"ShopifyFinancialStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.NeedsTransactionGet).HasColumnName(@"NeedsTransactionGet").HasColumnType("bit").IsRequired();
+            Property(x => x.NeedsOrderPut).HasColumnName(@"NeedsOrderPut").HasColumnType("bit").IsRequired();
             Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
@@ -3004,6 +2960,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyGateway).HasColumnName(@"ShopifyGateway").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsOptional();
+            Property(x => x.NeedsPaymentPut).HasColumnName(@"NeedsPaymentPut").HasColumnType("bit").IsRequired();
             Property(x => x.OrderMonsterId).HasColumnName(@"OrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
