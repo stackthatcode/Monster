@@ -72,8 +72,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             while (true)
             {
-                var json = _salesOrderClient.RetrieveUpdatedSalesOrderShipments(lastModifiedMin, page, pageSize);
-                var orders = json.DeserializeFromJson<List<SalesOrder>>();
+                var orders = _salesOrderClient.RetrieveUpdatedSalesOrders(lastModifiedMin, page, pageSize);
 
                 if (orders.Count == 0)
                 {
@@ -117,16 +116,16 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             if (existingData != null)
             {
-                existingData.DetailsJson = order.SerializeToJson();
+                existingData.AcumaticaDetailsJson = order.SerializeToJson();
                 existingData.AcumaticaStatus = order.Status.value;
                 existingData.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();
 
-                PullAndUpsertShipmentInvoiceRefs(orderNbr);
+                PullAndUpsertSoShipmentInvoices(orderNbr);
             }
         }
 
-        // *** SAVE - Specifically for instances where the Sales Order in Acumatica was loaded
+        // TODO - PHASE 2 - Specifically for instances where the Sales Order in Acumatica was loaded
         // ... from Monster, but Monster experienced data-loss i.e. this is disaster recovery
         //
         public void SalesOrderRecovery(SalesOrder order)
@@ -154,7 +153,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             //return newData;
         }
 
-        public void PullAndUpsertShipmentInvoiceRefs(string orderNbr)
+
+        public void PullAndUpsertSoShipmentInvoices(string orderNbr)
         {
             var json = _salesOrderClient.RetrieveSalesOrderShipments(orderNbr);
             var orderRecord = _orderRepository.RetrieveSalesOrder(orderNbr);
@@ -171,7 +171,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         }        
         
         public void UpsertShipmentInvoiceStubs(
-                AcumaticaSalesOrder orderRecord, IList<SalesOrderShipment> shipments)
+                    AcumaticaSalesOrder orderRecord, IList<SalesOrderShipment> shipments)
         {
             var translation = new List<AcumaticaSoShipmentInvoice>();
 

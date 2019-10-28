@@ -23,10 +23,12 @@ namespace Monster.Acumatica.Api
             _config = config;
         }
         
-        public string RetrieveUpdatedSalesOrderShipments(
-                    DateTime lastModified, int page = 1, int? pageSize = null)
+        public List<SalesOrder.SalesOrder> 
+                RetrieveUpdatedSalesOrders(
+                        DateTime lastModified, int page = 1, int? pageSize = null,
+                        string expand = "$expand=Shipments,ShippingSettings")
         {
-            var queryString = "$expand=Shipments,ShippingSettings";
+            var queryString = expand;
 
             // Date filtering
             //
@@ -43,7 +45,7 @@ namespace Monster.Acumatica.Api
             queryString += "&$custom=Document.UsrTaxSnapshot";
 
             var response = _httpContext.Get($"SalesOrder?{queryString}");
-            return response.Body;
+            return response.Body.DeserializeFromJson<List<SalesOrder.SalesOrder>>();
         }
         
         public string RetrieveSalesOrderShipments(string salesOrderId)
