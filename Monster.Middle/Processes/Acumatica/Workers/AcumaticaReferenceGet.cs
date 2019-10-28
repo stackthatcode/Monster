@@ -9,16 +9,13 @@ namespace Monster.Middle.Processes.Acumatica.Workers
     {
         private readonly AcumaticaInventoryRepository _dataRepository;
         private readonly ReferenceClient _referenceApi;
-        private readonly IPushLogger _logger;
 
         public AcumaticaReferenceGet(
                 AcumaticaInventoryRepository dataRepository,
-                ReferenceClient referenceApi,
-                IPushLogger logger)
+                ReferenceClient referenceApi)
         {
             _dataRepository = dataRepository;
             _referenceApi = referenceApi;
-            _logger = logger;
         }
 
         public void RunItemClass()

@@ -57,16 +57,14 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue Status { get; set; }
         public DoubleValue TaxTotal { get; set; }
 
-        //public StringValue custom { get; set; }
-        public SalesOrderCustom custom { get; set; }
-
-        public List<object> files { get; set; }
-        
         public ShippingSettings ShippingSettings { get; set; }
 
         public FinancialSettings FinancialSettings { get; set; }
 
         public List<TaxDetails> TaxDetails { get; set; }
+        public List<object> files { get; set; }
+        public SalesOrderCustom custom { get; set; }
+
 
 
         public SalesOrderDetail DetailByInventoryId(string inventoryId)
@@ -97,8 +95,6 @@ namespace Monster.Acumatica.Api.SalesOrder
 
         public CustomDocument Document { get; set; }
     }
-
-
 
     public class SalesOrderDetail
     {

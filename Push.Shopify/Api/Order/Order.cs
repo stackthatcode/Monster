@@ -11,6 +11,11 @@ namespace Push.Shopify.Api.Order
         public Order order { get; set; }
     }
 
+    public class OrderList
+    {
+        public List<Order> orders { get; set; }
+    }
+
     public class Order
     {
         public long id { get; set; }
@@ -100,7 +105,12 @@ namespace Push.Shopify.Api.Order
         public decimal ShippingTotal => shipping_lines.Sum(x => x.price);
 
         [JsonIgnore]
-        public decimal ShippingDiscountedTotal => shipping_lines.Sum(x => x.discounted_price);
+        public decimal ShippingDiscountedTotal 
+                => shipping_lines.Sum(x => x.discounted_price);
+
+        [JsonIgnore]
+        public decimal ShippingDiscountedTotalAfterRefunds
+            => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
 
 
         public List<LineItem> 
@@ -172,11 +182,6 @@ namespace Push.Shopify.Api.Order
             throw new ArgumentException(
                     $"Unrecognized target_type {application.target_type}");
         }
-    }
-
-    public class OrderList
-    {
-        public List<Order> orders { get; set; }
     }
 
     public static class OrderExtensions

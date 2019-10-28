@@ -71,7 +71,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             // First, pull down the latest Order in case the Details record id's have mutated
             var salesOrderRecord = refundRecord.ShopifyOrder.MatchingSalesOrder();
-            _acumaticaOrderPull.RunAcumaticaOrderDetails(salesOrderRecord.AcumaticaOrderNbr);
+            _acumaticaOrderPull.RunOrderDetails(salesOrderRecord.AcumaticaOrderNbr);
 
             // Push an update to the Sales Order
             var updatePayload = BuildUpdateForCancels(refundRecord);

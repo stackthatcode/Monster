@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
-using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -83,6 +81,9 @@ namespace Monster.Middle.Processes.Sync.Workers
             payment.OrdersToApply =
                     PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO);
 
+            // Write Execution Log
+            _logService.Log($"Created {payment.Description.value}");
+
             // Push to Acumatica
             var resultJson = _paymentClient.WritePayment(payment.SerializeToJson());
             var resultPayment = resultJson.DeserializeFromJson<PaymentWrite>();
@@ -95,9 +96,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             paymentRecord.DateCreated = DateTime.UtcNow;
             paymentRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.InsertPayment(paymentRecord);
-
-            // Write Execution Log
-            _logService.Log($"Created {payment.Description.value}");
         }
 
         

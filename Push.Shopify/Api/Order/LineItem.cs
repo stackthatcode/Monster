@@ -43,12 +43,12 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public int CancelledQuantity =>
             Parent.RefundLineItems(this.id)
-                .Where(x => x.restock_type == "cancel").Sum(x => x.quantity);
+                .Where(x => x.restock_type == RestockType.Cancel).Sum(x => x.quantity);
 
         [JsonIgnore]
         public int RestockedQuantity =>
             Parent.RefundLineItems(this.id)
-                .Where(x => x.restock_type == "restock").Sum(x => x.quantity);
+                .Where(x => x.restock_type == RestockType.Restock).Sum(x => x.quantity);
 
 
         [JsonIgnore]
@@ -59,6 +59,9 @@ namespace Push.Shopify.Api.Order
 
         [JsonIgnore]
         public decimal PriceAfterDiscount => PriceBeforeDiscount - Discount;
+
+        [JsonIgnore]
+        public decimal UnitPriceAfterDiscount => PriceAfterDiscount / quantity;
 
         [JsonIgnore]
         public decimal Tax => tax_lines.Sum(x => x.price);

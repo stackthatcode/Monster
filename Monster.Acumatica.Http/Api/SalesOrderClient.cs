@@ -23,12 +23,10 @@ namespace Monster.Acumatica.Api
             _config = config;
         }
         
-
-        public string RetrieveSalesOrders(
-                DateTime lastModified, int page = 1, int? pageSize = null)
+        public string RetrieveUpdatedSalesOrderShipments(
+                    DateTime lastModified, int page = 1, int? pageSize = null)
         {
-            
-            var queryString = "$expand=Details,ShippingSettings";
+            var queryString = "$expand=Shipments,ShippingSettings";
 
             // Date filtering
             //
@@ -75,18 +73,6 @@ namespace Monster.Acumatica.Api
         {
             var response = _httpContext.Put("SalesOrder?$custom=Document.UsrTaxSnapshot", json);
             LogSalesOrderDetailIds(response.Body);
-            return response.Body;
-        }
-
-        public string PrepareSalesInvoice(string json)
-        {
-            var response = _httpContext.Post("SalesOrder/PrepareSalesInvoice", json);
-            return response.Body;
-        }
-        
-        public string ReleaseSalesInvoice(string invoiceType, string json)
-        {
-            var response = _httpContext.Post($"SalesInvoice/ReleaseSalesInvoice", json);
             return response.Body;
         }
 

@@ -72,7 +72,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             while (true)
             {
-                var json = _salesOrderClient.RetrieveSalesOrders(lastModifiedMin, page, pageSize);
+                var json = _salesOrderClient.RetrieveUpdatedSalesOrderShipments(lastModifiedMin, page, pageSize);
                 var orders = json.DeserializeFromJson<List<SalesOrder>>();
 
                 if (orders.Count == 0)
@@ -90,7 +90,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository.UpdateOrdersGetEnd(batchStateEnd);
         }
 
-        public void RunAcumaticaOrderDetails(string orderId)
+
+        public void RunOrderDetails(string orderId)
         {
             var salesOrder = _salesOrderClient.RetrieveSalesOrderDetails(orderId);
             UpdateExistingOrderToPersist(salesOrder.DeserializeFromJson<SalesOrder>());
