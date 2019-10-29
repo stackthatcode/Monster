@@ -1,4 +1,5 @@
 ﻿using System;
+using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
@@ -17,8 +18,9 @@ namespace Monster.Acumatica.Api
         }
 
 
-        public string RetrieveShipments(DateTime minLastModified, 
-                string expand = "Details", int page = 1, int? pageSize = null)
+        public string RetrieveShipments(
+                DateTime minLastModified, string expand = Expand.Details_Packages, 
+                int page = 1, int? pageSize = null)
         {
             var queryString = $"$expand={expand}";
 
@@ -35,10 +37,10 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get($"Shipment?{queryString}");
             return response.Body;
         }
-
-        public string RetrieveShipment(string shipmentNbr)
+        
+        public string RetrieveShipment(string shipmentNbr, string expand = Expand.Details_Packages)
         {
-            var queryString = "$expand=Details,Packages";
+            var queryString = $"$expand={expand}";
             var response = _httpContext.Get($"Shipment/{shipmentNbr}?{queryString}");
             return response.Body;
         }

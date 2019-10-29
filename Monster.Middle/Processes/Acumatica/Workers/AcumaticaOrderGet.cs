@@ -48,7 +48,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void Run(string orderId)
         {
             var json = _salesOrderClient
-                .RetrieveSalesOrder(SalesOrderType.SO, orderId, Expand.ShipmentsAndShippingSettings);
+                .RetrieveSalesOrder(SalesOrderType.SO, orderId, Expand.Shipments_ShippingSettings);
             var salesOrder = json.DeserializeFromJson<SalesOrder>();
             UpsertOrderShippingDetails(new List<SalesOrder>() { salesOrder });
         }
@@ -84,7 +84,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             {
                 var orders = 
                     _salesOrderClient.RetrieveUpdatedSalesOrders(
-                        lastModifiedMin, page, pageSize, expand:Expand.ShipmentsAndShippingSettings);
+                        lastModifiedMin, page, pageSize, expand:Expand.Shipments_ShippingSettings);
 
                 if (orders.Count == 0)
                 {
@@ -144,11 +144,16 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 {
                     continue;
                 }
+                if (shipment.Status.value != SoShipmentStatus.Complete)
+                {
+                    continue;
+                }
 
                 var record = new AcumaticaSoShipment();
                 record.AcumaticaSalesOrder = salesOrderRecord;
                 record.AcumaticaShipmentNbr = shipment.ShipmentNbr.value;
                 record.AcumaticaInvoiceNbr = shipment.InvoiceNbr.value;
+                record.AcumaticaInvoiceType = shipment.InvoiceType.value;
                 record.AcumaticaStatus = shipment.Status.value;
                 record.AcumaticaShipmentJson = null;
                 record.AcumaticaTrackingNbr = null;
@@ -186,12 +191,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     _orderRepository.SaveChanges();
                 }
 
-                // TODO - store the Invoice Type in SOShipment
-                //
                 if (soShipment.AcumaticaInvoiceAmount == null || soShipment.AcumaticaInvoiceTax == null)
                 {
-                    var invoiceJson = _salesOrderClient
-                        .RetrieveSalesOrderInvoiceAndTaxes(soShipment.AcumaticaInvoiceNbr, "INV");
+                    var invoiceJson = 
+                        _salesOrderClient.RetrieveSalesOrderInvoiceAndTaxes(
+                            soShipment.AcumaticaInvoiceNbr, soShipment.AcumaticaInvoiceType);
 
                     var invoice = invoiceJson.DeserializeFromJson<SalesInvoice>();
 

@@ -2,7 +2,9 @@
 {
     public class Expand
     {
-        public const string ShipmentsAndShippingSettings = "Shipments,ShippingSettings";
-        public const string DetailsAndShippingSettings = "DetailsS,ShippingSettings";
+        public const string Shipments_ShippingSettings = "Shipments,ShippingSettings";
+        public const string Details_ShippingSettings = "Details,ShippingSettings";
+        public const string Details_Packages = "Details,Packages";
+        public const string TaxDetails = "TaxDetails";
     }
 }

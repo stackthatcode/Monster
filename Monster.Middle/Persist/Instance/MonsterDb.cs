@@ -1004,6 +1004,7 @@ namespace Monster.Middle.Persist.Instance
         public long Id { get; set; } // Id (Primary key)
         public long SalesOrderMonsterId { get; set; } // SalesOrderMonsterId
         public string AcumaticaShipmentNbr { get; set; } // AcumaticaShipmentNbr (length: 50)
+        public string AcumaticaInvoiceType { get; set; } // AcumaticaInvoiceType (length: 10)
         public string AcumaticaInvoiceNbr { get; set; } // AcumaticaInvoiceNbr (length: 50)
         public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 50)
         public string AcumaticaShipmentJson { get; set; } // AcumaticaShipmentJson
@@ -2219,6 +2220,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.SalesOrderMonsterId).HasColumnName(@"SalesOrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.AcumaticaShipmentNbr).HasColumnName(@"AcumaticaShipmentNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaInvoiceType).HasColumnName(@"AcumaticaInvoiceType").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(10);
             Property(x => x.AcumaticaInvoiceNbr).HasColumnName(@"AcumaticaInvoiceNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaShipmentJson).HasColumnName(@"AcumaticaShipmentJson").HasColumnType("nvarchar(max)").IsOptional();

@@ -29,7 +29,7 @@ namespace Monster.Acumatica.Api
         public List<SalesOrder.SalesOrder> 
                     RetrieveUpdatedSalesOrders(
                             DateTime lastModified, int page = 1, int? pageSize = null,
-                            string expand = Expand.ShipmentsAndShippingSettings)
+                            string expand = Expand.Shipments_ShippingSettings)
         {
             var builder = new QueryStringBuilder().Add("$expand", expand);
 
@@ -54,7 +54,7 @@ namespace Monster.Acumatica.Api
         
         public string RetrieveSalesOrder(
                     string orderNbr, string orderType, 
-                    string expand = Expand.ShipmentsAndShippingSettings)
+                    string expand = Expand.Shipments_ShippingSettings)
         {
             var path = $"SalesOrder/{orderType}/{orderNbr}?$expand={expand}";
             var response = _httpContext.Get(path);
@@ -70,7 +70,7 @@ namespace Monster.Acumatica.Api
 
         public string RetrieveSalesOrderInvoiceAndTaxes(string invoiceRefNbr, string invoiceType)
         {
-            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand=TaxDetails";
+            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand={Expand.TaxDetails}";
             var response = _httpContext.Get(url);
             return response.Body;
         }
@@ -93,6 +93,6 @@ namespace Monster.Acumatica.Api
                     $"{detail.InventoryID.value} - {detail.id}" + $" - OrderQty {detail.OrderQty.value}");
             }
         }
-
     }
 }
+
