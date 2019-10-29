@@ -68,9 +68,9 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string RetrieveSalesOrderInvoice(string invoiceRefNbr, string invoiceType)
+        public string RetrieveSalesOrderInvoiceAndTaxes(string invoiceRefNbr, string invoiceType)
         {
-            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand=Details";
+            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand=TaxDetails";
             var response = _httpContext.Get(url);
             return response.Body;
         }

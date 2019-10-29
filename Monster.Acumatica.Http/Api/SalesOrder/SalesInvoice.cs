@@ -18,6 +18,7 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue ReferenceNbr { get; set; }
         public StringValue Status { get; set; }
         public StringValue Type { get; set; }
+        public IList<TaxDetails> TaxDetails { get; set; }
     }
 
     public class SalesInvoiceDetail

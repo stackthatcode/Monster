@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Acumatica.Api.Shipment;
 using Monster.Acumatica.Config;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Utility;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 
 
@@ -16,6 +19,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
     public class AcumaticaOrderGet
     {
         private readonly SalesOrderClient _salesOrderClient;
+        private readonly ShipmentClient _shipmentClient;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly AcumaticaHttpConfig _acumaticaHttpConfig;
         private readonly AcumaticaOrderRepository _orderRepository;
@@ -28,8 +32,9 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaTimeZoneService timeZoneService,
                 AcumaticaBatchRepository batchStateRepository,
                 AcumaticaHttpConfig acumaticaHttpConfig,
+                PreferencesRepository preferencesRepository,
                 SalesOrderClient salesOrderClient,
-                PreferencesRepository preferencesRepository)
+                ShipmentClient shipmentClient)
         {
             _orderRepository = orderRepository;
             _timeZoneService = timeZoneService;
@@ -37,6 +42,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _acumaticaHttpConfig = acumaticaHttpConfig;
             _salesOrderClient = salesOrderClient;
             _preferencesRepository = preferencesRepository;
+            _shipmentClient = shipmentClient;
         }
 
         public void Run(string orderId)
@@ -119,18 +125,19 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 existingData.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();
 
-                UpsertSoShipmentInvoices(existingData);
+                UpsertSoShipments(existingData);
 
-                // Populate SoShipment data
+                PopulateSoShipments(existingData);
             }
         }
 
-        public void UpsertSoShipmentInvoices(AcumaticaSalesOrder salesOrderRecord)
+
+        public void UpsertSoShipments(AcumaticaSalesOrder salesOrderRecord)
         {
             var salesOrder = salesOrderRecord.ToSalesOrderObj();
             foreach (var shipment in salesOrder.Shipments)
             {
-                var exists = _orderRepository.ExistsSoShipmentInvoice(
+                var exists = _orderRepository.SoShipmentExists(
                         salesOrderRecord.Id, shipment.ShipmentNbr.value, shipment.InvoiceNbr.value);
 
                 if (exists)
@@ -154,6 +161,50 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
         }
 
+        public void PopulateSoShipments(AcumaticaSalesOrder salesOrderRecord)
+        {
+            var soShipments = _orderRepository.RetrieveSoShipments(salesOrderRecord.Id);
+
+            foreach (var soShipment in soShipments)
+            {
+                if (soShipment.NeedShipmentGet == false)
+                {
+                    continue;
+                }
+
+                if (soShipment.AcumaticaShipmentJson.IsNullOrEmpty() ||
+                    soShipment.AcumaticaTrackingNbr.IsNullOrEmpty())
+                {
+                    var shipmentJson = _shipmentClient.RetrieveShipment(soShipment.AcumaticaShipmentNbr);
+                    var shipment = shipmentJson.DeserializeFromJson<Shipment>();
+
+                    var trackingNumber = shipment.Packages.FirstOrDefault()?.TrackingNbr.value;
+
+                    soShipment.AcumaticaShipmentJson = shipmentJson;
+                    soShipment.AcumaticaTrackingNbr = trackingNumber;
+
+                    _orderRepository.SaveChanges();
+                }
+
+                // TODO - store the Invoice Type in SOShipment
+                //
+                if (soShipment.AcumaticaInvoiceAmount == null || soShipment.AcumaticaInvoiceTax == null)
+                {
+                    var invoiceJson = _salesOrderClient
+                        .RetrieveSalesOrderInvoiceAndTaxes(soShipment.AcumaticaInvoiceNbr, "INV");
+
+                    var invoice = invoiceJson.DeserializeFromJson<SalesInvoice>();
+
+                    soShipment.AcumaticaInvoiceAmount = (decimal)invoice.Amount.value;
+                    soShipment.AcumaticaInvoiceTax = (decimal) invoice.TaxDetails.Sum(x => x.TaxAmount.value);
+
+                    _orderRepository.SaveChanges();
+                }
+
+                soShipment.NeedShipmentGet = false;
+                _orderRepository.SaveChanges();
+            }
+        }
 
 
         // TODO - PHASE 2 - Specifically for instances where the Sales Order in Acumatica was loaded

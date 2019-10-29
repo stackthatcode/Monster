@@ -65,14 +65,24 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == acumaticaOrderNbr);
         }
 
-
         public void InsertSalesOrder(AcumaticaSalesOrder order)
         {
             Entities.AcumaticaSalesOrders.Add(order);
             Entities.SaveChanges();
         }
 
-        public bool ExistsSoShipmentInvoice(long monsterSalesOrderId, string shipmentNbr, string invoiceNbr)
+
+        // Sales Order Shipments
+        //
+        public List<AcumaticaSoShipment> RetrieveSoShipments(long monsterSalesOrderId)
+        {
+            return Entities
+                .AcumaticaSoShipments
+                .Where(x => x.AcumaticaSalesOrder.Id == monsterSalesOrderId)
+                .ToList();
+        }
+
+        public bool SoShipmentExists(long monsterSalesOrderId, string shipmentNbr, string invoiceNbr)
         {
             return Entities
                 .AcumaticaSoShipments

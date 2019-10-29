@@ -2,7 +2,6 @@
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
-using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Acumatica.Api
 {
@@ -39,7 +38,7 @@ namespace Monster.Acumatica.Api
 
         public string RetrieveShipment(string shipmentNbr)
         {
-            var queryString = "$expand=Details";
+            var queryString = "$expand=Details,Packages";
             var response = _httpContext.Get($"Shipment/{shipmentNbr}?{queryString}");
             return response.Body;
         }
