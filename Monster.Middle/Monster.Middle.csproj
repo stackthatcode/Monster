@@ -152,6 +152,7 @@
     <Compile Include="Processes\Sync\Model\Status\RefundSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
+    <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
     <Compile Include="Processes\Sync\Status\EndToEndStatusService.cs" />
     <Compile Include="Processes\Sync\Status\FulfillmentStatusService.cs" />
     <Compile Include="Misc\Logging\ExecutionLogService.cs" />
@@ -210,7 +211,6 @@
     <Compile Include="Processes\Sync\Model\Misc\Canonizers.cs" />
     <Compile Include="Processes\Sync\SyncManager.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaOrderPaymentPut.cs" />
-    <Compile Include="Processes\Acumatica\Workers\AcumaticaShipmentGet.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaOrderGet.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaCustomerGet.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaCustomerPut.cs" />

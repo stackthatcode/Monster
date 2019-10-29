@@ -48,28 +48,24 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            var salesOrderRefs = _orderRepository.RetrieveUnsyncedShipmentSalesOrderRefs();
+            var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments();
             
             foreach (var salesOrderRef in salesOrderRefs)
             {
-                var syncReadiness 
-                    = _fulfillmentStatusService.IsReadyToSyncWithShopify(salesOrderRef);
+                var syncReadiness = _fulfillmentStatusService.IsReadyToSyncWithShopify(salesOrderRef);
 
                 if (syncReadiness.IsReady)
                 {
-                    var content = LogBuilder.CreateShopifyFulfillment(salesOrderRef);
-                    _logService.Log(content);
                     PushFulfillmentToShopify(salesOrderRef);
                 }
             }
         }
 
 
-        public void PushFulfillmentToShopify(
-                    AcumaticaShipmentSalesOrderRef shipmentSalesOrderRef)
+        public void PushFulfillmentToShopify(AcumaticaSoShipment salesOrderShipment)
         {
-            var orderRecord =
-                _syncOrderRepository.RetrieveSalesOrder(shipmentSalesOrderRef.AcumaticaOrderNbr);
+            var salesOrderNbr = salesOrderShipment.AcumaticaSalesOrder.AcumaticaOrderNbr;
+            var orderRecord = _syncOrderRepository.RetrieveSalesOrder(salesOrderNbr);
 
             if (!orderRecord.IsFromShopify())
             {
@@ -77,10 +73,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
 
             var shopifyOrderRecord = orderRecord.MatchingShopifyOrder();
-            var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();            
-            var shipmentRecord = shipmentSalesOrderRef.AcumaticaShipment;
-            var shipment 
-                = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();            
+            var shipment = salesOrderShipment.AcumaticaShipmentJson.DeserializeFromJson<Shipment>();
             
             var location = RetrieveMatchingLocation(shipment);
 
@@ -89,13 +83,12 @@ namespace Monster.Middle.Processes.Sync.Workers
             var fulfillment = new Fulfillment();
             fulfillment.line_items = new List<LineItem>();
             fulfillment.location_id = location.id;
-            fulfillment.tracking_number = shipmentRecord.AcumaticaTrackingNbr;
+            fulfillment.tracking_number = salesOrderShipment.AcumaticaTrackingNbr;
 
             // Build the Detail
             foreach (var detail in details)
             {
-                var stockItem 
-                    = _syncInventoryRepository.RetrieveStockItem(detail.InventoryID.value);
+                var stockItem = _syncInventoryRepository.RetrieveStockItem(detail.InventoryID.value);
                 var variant = stockItem.MatchedVariant();
                 
                 var shopifyLineItem = shopifyOrder.LineItem(variant.ShopifySku);
@@ -110,19 +103,22 @@ namespace Monster.Middle.Processes.Sync.Workers
                 fulfillment.line_items.Add(fulfillmentDetail);
             }
 
+            // Write Execution Log entry
+            //
+            var content = LogBuilder.CreateShopifyFulfillment(salesOrderShipment);
+            _logService.Log(content);
+
             // Write the Fulfillment to the Shopify API
             var parent = new FulfillmentParent() { fulfillment = fulfillment };
-            var result = 
-                _fulfillmentApi.Insert(
-                    shopifyOrderRecord.ShopifyOrderId, parent.SerializeToJson());
+            var result = _fulfillmentApi.Insert(shopifyOrderRecord.ShopifyOrderId, parent.SerializeToJson());
             var resultFulfillmentParent = result.DeserializeFromJson<FulfillmentParent>();
             
             // Save the result
             var fulfillmentRecord = new ShopifyFulfillment();
             fulfillmentRecord.OrderMonsterId = shopifyOrderRecord.Id;
             fulfillmentRecord.ShopifyOrderId = shopifyOrder.id;
-            fulfillmentRecord.ShopifyFulfillmentId 
-                    = resultFulfillmentParent.fulfillment.id;
+            fulfillmentRecord.ShopifyFulfillmentId = resultFulfillmentParent.fulfillment.id;
+            fulfillmentRecord.ShopifyTrackingNumber = salesOrderShipment.AcumaticaTrackingNbr;
 
             fulfillmentRecord.ShopifyStatus = resultFulfillmentParent.fulfillment.status;
             fulfillmentRecord.DateCreated = DateTime.UtcNow;
@@ -131,12 +127,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
                 _shopifyOrderRepository.InsertFulfillment(fulfillmentRecord);
-                _syncOrderRepository.InsertShipmentDetailSync(fulfillmentRecord, shipmentSalesOrderRef);
-
-                var log = $"Created Shopify Order #{shopifyOrder.order_number} Fulfillment " +
-                          $"from Acumatica Shipment {shipment.ShipmentNbr.value}";
-
-                _logService.Log(log);
+                _syncOrderRepository.InsertShipmentSync(fulfillmentRecord, salesOrderShipment);
                 transaction.Commit();
             }
         }

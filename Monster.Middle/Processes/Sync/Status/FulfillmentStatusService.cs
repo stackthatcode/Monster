@@ -23,23 +23,22 @@ namespace Monster.Middle.Processes.Sync.Status
         }
 
 
-        public FulfillmentSyncReadiness
-                    IsReadyToSyncWithShopify(AcumaticaShipmentSalesOrderRef salesOrderRef)
+        public FulfillmentSyncReadiness IsReadyToSyncWithShopify(AcumaticaSoShipment soShipment)
         {
             var output = new FulfillmentSyncReadiness();
-            var salesOrder = _syncOrderRepository.RetrieveSalesOrder(salesOrderRef.AcumaticaOrderNbr);
+            var salesOrder = 
+                _syncOrderRepository.RetrieveSalesOrder(soShipment.AcumaticaSalesOrder.AcumaticaOrderNbr);
             var shopifyOrderId = salesOrder.MatchingShopifyOrder().ShopifyOrderId;
 
             // Fulfilled in Shopify - thus corrupted!
-            output.AnyShopifyMadeFulfillments
-                = _syncOrderRepository.AnyUnsyncedFulfillments(shopifyOrderId);
+            //
+            output.AnyShopifyMadeFulfillments = _syncOrderRepository.AnyUnsyncedFulfillments(shopifyOrderId);
 
             // Unmatched Warehouse
-            var shipmentRecord = salesOrderRef.AcumaticaShipment;
-            var shipment = shipmentRecord.AcumaticaJson.DeserializeFromJson<Shipment>();
+            //
+            var shipment = soShipment.AcumaticaShipmentJson.DeserializeFromJson<Shipment>();
 
-            var warehouseRecord =
-                _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
+            var warehouseRecord = _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
 
             var locationRecord = warehouseRecord.MatchedLocation();
             if (locationRecord == null)
@@ -48,6 +47,7 @@ namespace Monster.Middle.Processes.Sync.Status
             }
 
             // Unmatched Stock Item/Inventory
+            //
             foreach (var line in shipment.Details)
             {
                 var stockItem = _syncInventoryRepository.RetrieveStockItem(line.InventoryID.value);

@@ -149,7 +149,6 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaInventoryGet>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaCustomerGet>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderGet>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaShipmentGet>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaReferenceGet>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();

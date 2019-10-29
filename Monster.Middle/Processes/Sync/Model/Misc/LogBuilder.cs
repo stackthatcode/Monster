@@ -14,10 +14,9 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
             return $"Updating Shopify Inventory {item.LogDescriptor()}";
         }
 
-        public static string 
-                    CreateShopifyFulfillment(AcumaticaShipmentSalesOrderRef shipmentRef)
+        public static string CreateShopifyFulfillment(AcumaticaSoShipment shipmentRef)
         {
-            return $"Creating Shopify Fulfillment {shipmentRef.LogDescriptor()}";
+            return $"Creating Shopify Fulfillment for {shipmentRef.LogDescriptor()}";
         }
 
         public static string CreateStockItem(ShopifyVariant variant)

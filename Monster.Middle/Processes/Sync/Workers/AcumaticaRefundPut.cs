@@ -67,21 +67,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             //}
         }
         
-        public void PushCancelsQuantityUpdate(ShopifyRefund refundRecord)
-        {
-            // First, pull down the latest Order in case the Details record id's have mutated
-            var salesOrderRecord = refundRecord.ShopifyOrder.MatchingSalesOrder();
-            _acumaticaOrderPull.RunOrderDetails(salesOrderRecord.AcumaticaOrderNbr);
-
-            // Push an update to the Sales Order
-            var updatePayload = BuildUpdateForCancels(refundRecord);
-            var result = _salesOrderClient.WriteSalesOrder(updatePayload.SerializeToJson());
-
-            // Update the local cache of Sales Order
-            salesOrderRecord.DetailsJson = result;
-            salesOrderRecord.LastUpdated = DateTime.UtcNow;
-        }
-        
 
         private ReturnForCreditWrite 
                     BuildReturnForCredit(ShopifyRefund refundRecord, Preference preferences)
@@ -89,7 +74,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var shopifyOrderRecord = refundRecord.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
             var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
-            var salesOrder = salesOrderRecord.ToAcuObject();
+            var salesOrder = salesOrderRecord.ToSalesOrderObj();
             
             var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
 

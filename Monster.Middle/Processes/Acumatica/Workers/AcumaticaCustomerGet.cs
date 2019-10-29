@@ -90,8 +90,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         private void UpdateCustomerToPersist(Customer acumaticaCustomer)
         {
-            var existingRecord =
-                _orderRepository.RetrieveCustomer(acumaticaCustomer.CustomerID.value);
+            var existingRecord = _orderRepository.RetrieveCustomer(acumaticaCustomer.CustomerID.value);
 
             if (existingRecord != null)
             {

@@ -214,7 +214,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     () => _shopifyManager.PullCustomers(),
                     () => _shopifyManager.PullOrders(),
                     () => _shopifyManager.PullTransactions(),
-                    () => _acumaticaManager.PullOrdersCustomerShipments()
+                    () => _acumaticaManager.PullOrdersAndCustomer()
                 },
                 x => x.OrderCustomersTransPullState,
                 "End-to-End - Customers, Orders, Transactions and Shipments Pull");

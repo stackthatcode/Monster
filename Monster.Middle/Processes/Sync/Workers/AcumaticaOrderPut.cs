@@ -134,8 +134,9 @@ namespace Monster.Middle.Processes.Sync.Workers
             var newOrder = resultJson.DeserializeFromJson<SalesOrder>();
             var newRecord = new AcumaticaSalesOrder();
 
+            // TODO - Tax Order Total + Tax + Freight?
+            //
             newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
-            newRecord.AcumaticaDetailsJson = resultJson;
             newRecord.AcumaticaStatus = newOrder.Status.value;
             newRecord.CustomerMonsterId = acumaticaCustomer.Id;
             newRecord.DateCreated = DateTime.UtcNow;
@@ -157,8 +158,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             var resultJson = _salesOrderClient.WriteSalesOrder(updateOrderJson);
 
+            // TODO - Tax Order Total + Tax + Freight?
+            //
             var acumaticaRecord = shopifyOrderRecord.MatchingSalesOrder();
-            acumaticaRecord.AcumaticaDetailsJson = resultJson;
             acumaticaRecord.LastUpdated = DateTime.Now;
             shopifyOrderRecord.NeedsOrderPut = false;
 
@@ -301,7 +303,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
             var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
-            var salesOrder = salesOrderRecord.ToAcuObject();
+            var salesOrder = salesOrderRecord.ToSalesOrderObj();
 
             var salesOrderUpdate = new SalesOrderUpdateHeader();
             salesOrderUpdate.OrderType = salesOrder.OrderType.Copy();

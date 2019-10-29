@@ -4,8 +4,10 @@ using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Config;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
+
 
 namespace Monster.Acumatica.Api
 {
@@ -23,48 +25,36 @@ namespace Monster.Acumatica.Api
             _config = config;
         }
         
+
         public List<SalesOrder.SalesOrder> 
-                RetrieveUpdatedSalesOrders(
-                        DateTime lastModified, int page = 1, int? pageSize = null,
-                        string expand = "$expand=Shipments,ShippingSettings")
+                    RetrieveUpdatedSalesOrders(
+                            DateTime lastModified, int page = 1, int? pageSize = null,
+                            string expand = Expand.ShipmentsAndShippingSettings)
         {
-            var queryString = expand;
+            var builder = new QueryStringBuilder().Add("$expand", expand);
 
             // Date filtering
             //
             var restDate = lastModified.ToAcumaticaRestDate();
-            queryString += $"&$filter=LastModified gt datetimeoffset'{restDate}'";
+            builder.Add("$filter", $"LastModified gt datetimeoffset'{restDate}'");
 
             // Paging
             //
             pageSize = pageSize ?? _config.PageSize;
-            queryString += "&" + Paging.QueryStringParams(page, pageSize.Value);
-
+            builder.AddPaging(page, pageSize.Value);
+ 
             // Customer Tax Snapshot field
             //
-            queryString += "&$custom=Document.UsrTaxSnapshot";
+            builder.Add("$custom", "Document.UsrTaxSnapshot");
 
+            var queryString = builder.ToString();
             var response = _httpContext.Get($"SalesOrder?{queryString}");
             return response.Body.DeserializeFromJson<List<SalesOrder.SalesOrder>>();
         }
         
-        public string RetrieveSalesOrderShipments(string salesOrderId)
-        {
-            var url = $"SalesOrder/SO/{salesOrderId}?$expand=Shipments";
-            var response = _httpContext.Get(url);
-            return response.Body;
-        }
-
-        public string RetrieveSalesOrderDetails(string salesOrderId)
-        {
-            var url = $"SalesOrder/SO/{salesOrderId}?$expand=Details,ShippingSettings";
-            var response = _httpContext.Get(url);
-            LogSalesOrderDetailIds(response.Body);
-            return response.Body;
-        }
-
         public string RetrieveSalesOrder(
-                    string orderNbr, string orderType, string expand = "Shipments")
+                    string orderNbr, string orderType, 
+                    string expand = Expand.ShipmentsAndShippingSettings)
         {
             var path = $"SalesOrder/{orderType}/{orderNbr}?$expand={expand}";
             var response = _httpContext.Get(path);
@@ -75,6 +65,13 @@ namespace Monster.Acumatica.Api
         {
             var response = _httpContext.Put("SalesOrder?$custom=Document.UsrTaxSnapshot", json);
             LogSalesOrderDetailIds(response.Body);
+            return response.Body;
+        }
+
+        public string RetrieveSalesOrderInvoice(string invoiceRefNbr, string invoiceType)
+        {
+            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand=Details";
+            var response = _httpContext.Get(url);
             return response.Body;
         }
 
@@ -96,12 +93,6 @@ namespace Monster.Acumatica.Api
                     $"{detail.InventoryID.value} - {detail.id}" + $" - OrderQty {detail.OrderQty.value}");
             }
         }
-        
-        public string RetrieveSalesOrderInvoice(string invoiceRefNbr, string invoiceType)
-        {
-            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand=Details";
-            var response = _httpContext.Get(url);
-            return response.Body;
-        }
+
     }
 }

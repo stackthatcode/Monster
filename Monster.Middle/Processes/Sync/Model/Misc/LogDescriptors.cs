@@ -49,11 +49,10 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
             return $"Acumatica Sales Order {salesOrder.AcumaticaOrderNbr}";
         }
 
-        public static string LogDescriptor(
-            this AcumaticaShipmentSalesOrderRef shipmentSalesOrderRef)
+        public static string LogDescriptor(this AcumaticaSoShipment shipmentSalesOrderRef)
         {
-            return $"Acumatica Shipment {shipmentSalesOrderRef.AcumaticaShipmentNbr} " +
-                   $"for Sales Order {shipmentSalesOrderRef.AcumaticaOrderNbr}";
+            return $"Acumatica Shipment {shipmentSalesOrderRef.AcumaticaShipmentNbr}" +
+                   $" - Invoice {shipmentSalesOrderRef.AcumaticaInvoiceNbr}";
         }
     }
 }

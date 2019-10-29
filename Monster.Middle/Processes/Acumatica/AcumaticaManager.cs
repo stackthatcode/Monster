@@ -13,7 +13,6 @@ namespace Monster.Middle.Processes.Acumatica
         private readonly AcumaticaInventoryGet _acumaticaInventoryPull;
         private readonly AcumaticaCustomerGet _acumaticaCustomerPull;
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
-        private readonly AcumaticaShipmentGet _acumaticaShipmentPull;
         private readonly IPushLogger _logger;
 
 
@@ -21,8 +20,7 @@ namespace Monster.Middle.Processes.Acumatica
                 AcumaticaHttpContext acumaticaHttpContext,
                 AcumaticaReferenceGet acumaticaReferencePull,
                 AcumaticaCustomerGet acumaticaCustomerPull, 
-                AcumaticaOrderGet acumaticaOrderPull,                 
-                AcumaticaShipmentGet acumaticaShipmentPull, 
+                AcumaticaOrderGet acumaticaOrderPull, 
                 AcumaticaWarehouseGet acumaticaWarehousePull, 
                 AcumaticaInventoryGet acumaticaInventoryPull,                 
                 IPushLogger logger)
@@ -30,7 +28,6 @@ namespace Monster.Middle.Processes.Acumatica
             _acumaticaHttpContext = acumaticaHttpContext;
             _acumaticaCustomerPull = acumaticaCustomerPull;
             _acumaticaOrderPull = acumaticaOrderPull;
-            _acumaticaShipmentPull = acumaticaShipmentPull;
             _acumaticaWarehousePull = acumaticaWarehousePull;
             _acumaticaInventoryPull = acumaticaInventoryPull;
             _acumaticaReferencePull = acumaticaReferencePull;
@@ -65,14 +62,13 @@ namespace Monster.Middle.Processes.Acumatica
             _acumaticaHttpContext.SessionRun(() => _acumaticaInventoryPull.RunAutomatic());
         }
 
-        public void PullOrdersCustomerShipments()
+        public void PullOrdersAndCustomer()
         {
             _acumaticaHttpContext.
                 SessionRun(() =>
                 {
                     _acumaticaCustomerPull.RunAutomatic();
                     _acumaticaOrderPull.RunAutomatic();
-                    _acumaticaShipmentPull.RunAutomatic();
                 });
         }
 

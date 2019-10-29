@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Persist
@@ -59,13 +57,11 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
         
-        public ShopAcuOrderSync InsertOrderSync(
-                ShopifyOrder shopifyOrder, AcumaticaSalesOrder acumaticaSalesOrder)
+        public ShopAcuOrderSync InsertOrderSync(ShopifyOrder shopifyOrder, AcumaticaSalesOrder acumaticaSalesOrder)
         {
             var sync = new ShopAcuOrderSync();
             sync.ShopifyOrder = shopifyOrder;
             sync.AcumaticaSalesOrder = acumaticaSalesOrder;
-            sync.NeedsAcumaticaPut = false;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
 
@@ -73,7 +69,6 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
             return sync;
         }
-
 
 
         // Customer syncing
@@ -108,61 +103,38 @@ namespace Monster.Middle.Processes.Sync.Persist
 
 
 
-        // Shopify Fulfillments
+        // Shipment syncing
         //
-        public List<ShopifyFulfillment> RetrieveFulfillmentsNotSynced()
+        public bool AnyUnsyncedFulfillments(long shopifyOrderId)
         {
-            return Entities
-                .ShopifyFulfillments
-                .Include(x => x.ShopifyOrder)
-                .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs)
-                .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder))
-                .Where(x => !x.ShopAcuShipmentSyncs.Any())
+            return Entities.ShopifyOrders
+                .Any(x => x.ShopifyOrderId == shopifyOrderId &&
+                          x.ShopifyFulfillments.Any(y => !y.ShopAcuShipmentSyncs.Any()));
+        }
+
+        public List<AcumaticaSoShipment> RetrieveUnsyncedSoShipments()
+        {
+            return Entities.AcumaticaSoShipments
+                .Include(x => x.AcumaticaSalesOrder)
+                .Where(x => x.NeedShipmentGet == false && !x.ShopAcuShipmentSyncs.Any())
                 .ToList();
         }
 
-        public List<ShopifyFulfillment> RetrieveFulfillment(long shopifyOrderId)
-        {
-            return Entities
-                    .ShopifyFulfillments
-                    .Include(x => x.ShopAcuShipmentSyncs)
-                    .Where(x => x.ShopifyOrderId == shopifyOrderId)
-                    .ToList();
-        }
-
-        public bool AnyUnsyncedFulfillments(long shopifyOrderId)
-        {
-            return Entities
-                .ShopifyFulfillments
-                .Any(x => !x.ShopAcuShipmentSyncs.Any());
-        }
-        
-
-        public void InsertShipmentDetailSync(
-                ShopifyFulfillment fulfillment, 
-                AcumaticaShipmentSalesOrderRef detail)
+        public void InsertShipmentSync(
+                ShopifyFulfillment fulfillmentRecord, AcumaticaSoShipment salesOrderShipment)
         {
             var sync = new ShopAcuShipmentSync();
-            sync.ShopifyFulfillment = fulfillment;
-            sync.AcumaticaShipmentSalesOrderRef = detail;
+            sync.ShopifyFulfillment = fulfillmentRecord;
+            sync.AcumaticaSoShipment = salesOrderShipment;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
+
             Entities.ShopAcuShipmentSyncs.Add(sync);
             Entities.SaveChanges();
         }
-        
 
-
-        // Shopify Refunds
+        // Refund Syncing
         //
-        public List<ShopifyRefund> RetrieveReturnsNotSynced()
-        {
-            return RefundRecordGraph
-                    .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any())
-                    .Where(x => x.ShopifyIsCancellation == false)
-                    .ToList();
-        }
-
         public ShopifyRefund RetrieveRefundAndSync(long shopifyRefundId)
         {
             return Entities
@@ -204,7 +176,6 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .ToList();
         }
 
-
         // NOTE - this does not indicate whether the Credit Memo and Credit Memo Invoice
         // ... have yet been created for this Refund - we'll need to pull the Order Refund
         // ... and its sync record for that
@@ -223,66 +194,13 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
         
 
-
+        // Payment Synchronization
+        //
         public void InsertPayment(ShopifyAcuPayment payment)
         {
             Entities.ShopifyAcuPayments.Add(payment);
             Entities.SaveChanges();
         }
-
-
-
-
-        public List<OrderSummaryViewDto> RetrieveOrderSyncView()
-        {
-            var sql = 
-                @"SELECT ShopifyOrderId, ShopifyOrderNumber, AcumaticaOrderNbr, AcumaticaInvoiceNbr, AcumaticaShipmentNbr
-                FROM vw_SyncOrdersAndSalesOrders
-                WHERE ShopifyOrderId IS NOT NULL
-                ORDER BY ShopifyOrderId DESC";
-
-            return Entities
-                    .Database
-                    .SqlQuery<OrderSummaryViewDto>(sql)
-                    .ToList();
-        }
-        
-        public int RetrieveTotalOrders()
-        {
-            var sql = "SELECT COUNT(*) FROM vw_SyncOrdersAndSalesOrders WHERE ShopifyOrderId IS NOT NULL;";
-            return Entities.ScalarQuery<int>(sql);
-        }
-
-        public int RetrieveTotalOrdersSynced()
-        {
-            var sql =
-                @"SELECT COUNT(*) FROM vw_SyncOrdersAndSalesOrders 
-                WHERE ShopifyOrderId IS NOT NULL 
-                AND AcumaticaOrderNbr IS NOT NULL";
-            return Entities.ScalarQuery<int>(sql);
-        }
-
-        public int RetrieveTotalOrdersOnShipments()
-        {
-            var sql =
-                @"SELECT COUNT(*) FROM vw_SyncOrdersAndSalesOrders 
-                WHERE ShopifyOrderId IS NOT NULL 
-                AND AcumaticaOrderNbr IS NOT NULL
-                AND AcumaticaShipmentNbr IS NOT NULL;";
-            return Entities.ScalarQuery<int>(sql);
-        }
-
-        public int RetrieveTotalOrdersInvoiced()
-        {
-            var sql =
-                @"SELECT COUNT(*) FROM vw_SyncOrdersAndSalesOrders 
-                WHERE ShopifyOrderId IS NOT NULL 
-                AND AcumaticaOrderNbr IS NOT NULL
-                AND AcumaticaShipmentNbr IS NOT NULL
-                AND AcumaticaInvoiceNbr IS NOT NULL;";
-            return Entities.ScalarQuery<int>(sql);
-        }
-        
 
 
         public void SaveChanges()
