@@ -38,6 +38,7 @@ namespace Monster.Middle.Misc.State
                     newRecord.AcumaticaConnState = StateCode.None;
                     newRecord.AcumaticaRefDataState = StateCode.None;
                     newRecord.PreferenceState = StateCode.None;
+                    newRecord.PaymentMethodState = StateCode.None;
                     newRecord.WarehouseSyncState = StateCode.None;
                     newRecord.InventoryRefreshState = StateCode.None;
                     

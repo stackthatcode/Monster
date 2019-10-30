@@ -51,6 +51,7 @@ namespace Monster.Middle.Persist.Instance
         System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; } // ExclusiveJobMonitor
         System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; } // ExecutionLog
         System.Data.Entity.DbSet<InventoryReceiptSync> InventoryReceiptSyncs { get; set; } // InventoryReceiptSync
+        System.Data.Entity.DbSet<PaymentMethod> PaymentMethods { get; set; } // PaymentMethods
         System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; } // PayoutPreferences
         System.Data.Entity.DbSet<Preference> Preferences { get; set; } // Preferences
         System.Data.Entity.DbSet<ShopAcuCustomerSync> ShopAcuCustomerSyncs { get; set; } // ShopAcuCustomerSync
@@ -141,6 +142,7 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; } // ExclusiveJobMonitor
         public System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; } // ExecutionLog
         public System.Data.Entity.DbSet<InventoryReceiptSync> InventoryReceiptSyncs { get; set; } // InventoryReceiptSync
+        public System.Data.Entity.DbSet<PaymentMethod> PaymentMethods { get; set; } // PaymentMethods
         public System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; } // PayoutPreferences
         public System.Data.Entity.DbSet<Preference> Preferences { get; set; } // Preferences
         public System.Data.Entity.DbSet<ShopAcuCustomerSync> ShopAcuCustomerSyncs { get; set; } // ShopAcuCustomerSync
@@ -235,6 +237,7 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new ExclusiveJobMonitorConfiguration());
             modelBuilder.Configurations.Add(new ExecutionLogConfiguration());
             modelBuilder.Configurations.Add(new InventoryReceiptSyncConfiguration());
+            modelBuilder.Configurations.Add(new PaymentMethodConfiguration());
             modelBuilder.Configurations.Add(new PayoutPreferenceConfiguration());
             modelBuilder.Configurations.Add(new PreferenceConfiguration());
             modelBuilder.Configurations.Add(new ShopAcuCustomerSyncConfiguration());
@@ -284,6 +287,7 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new ExclusiveJobMonitorConfiguration(schema));
             modelBuilder.Configurations.Add(new ExecutionLogConfiguration(schema));
             modelBuilder.Configurations.Add(new InventoryReceiptSyncConfiguration(schema));
+            modelBuilder.Configurations.Add(new PaymentMethodConfiguration(schema));
             modelBuilder.Configurations.Add(new PayoutPreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new PreferenceConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopAcuCustomerSyncConfiguration(schema));
@@ -416,6 +420,7 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; }
         public System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; }
         public System.Data.Entity.DbSet<InventoryReceiptSync> InventoryReceiptSyncs { get; set; }
+        public System.Data.Entity.DbSet<PaymentMethod> PaymentMethods { get; set; }
         public System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; }
         public System.Data.Entity.DbSet<Preference> Preferences { get; set; }
         public System.Data.Entity.DbSet<ShopAcuCustomerSync> ShopAcuCustomerSyncs { get; set; }
@@ -468,6 +473,7 @@ namespace Monster.Middle.Persist.Instance
             ExclusiveJobMonitors = new FakeDbSet<ExclusiveJobMonitor>("Id");
             ExecutionLogs = new FakeDbSet<ExecutionLog>("Id");
             InventoryReceiptSyncs = new FakeDbSet<InventoryReceiptSync>("Id");
+            PaymentMethods = new FakeDbSet<PaymentMethod>("Id");
             PayoutPreferences = new FakeDbSet<PayoutPreference>("Id");
             Preferences = new FakeDbSet<Preference>("Id");
             ShopAcuCustomerSyncs = new FakeDbSet<ShopAcuCustomerSync>("Id");
@@ -1183,6 +1189,15 @@ namespace Monster.Middle.Persist.Instance
         public virtual ShopifyInventoryLevel ShopifyInventoryLevel { get; set; } // FK_usrInventoryReceiptSync_usrShopifyInventoryLevels
     }
 
+    // PaymentMethods
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class PaymentMethod
+    {
+        public int Id { get; set; } // Id (Primary key)
+        public string ShopifyGatewayId { get; set; } // ShopifyGatewayId (length: 50)
+        public string AcumaticaPaymentMethod { get; set; } // AcumaticaPaymentMethod (length: 10)
+    }
+
     // PayoutPreferences
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class PayoutPreference
@@ -1200,8 +1215,6 @@ namespace Monster.Middle.Persist.Instance
         public double? DefaultCoGsMargin { get; set; } // DefaultCoGSMargin
         public string AcumaticaDefaultItemClass { get; set; } // AcumaticaDefaultItemClass (length: 50)
         public string AcumaticaDefaultPostingClass { get; set; } // AcumaticaDefaultPostingClass (length: 50)
-        public string AcumaticaPaymentMethod { get; set; } // AcumaticaPaymentMethod (length: 50)
-        public string AcumaticaPaymentCashAccount { get; set; } // AcumaticaPaymentCashAccount (length: 50)
         public string AcumaticaTaxZone { get; set; } // AcumaticaTaxZone (length: 50)
         public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
         public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
@@ -1722,6 +1735,7 @@ namespace Monster.Middle.Persist.Instance
         public int AcumaticaConnState { get; set; } // AcumaticaConnState
         public int AcumaticaRefDataState { get; set; } // AcumaticaRefDataState
         public int PreferenceState { get; set; } // PreferenceState
+        public int PaymentMethodState { get; set; } // PaymentMethodState
         public int WarehouseSyncState { get; set; } // WarehouseSyncState
         public int InventoryRefreshState { get; set; } // InventoryRefreshState
         public int StartingShopifyOrderState { get; set; } // StartingShopifyOrderState
@@ -2411,6 +2425,26 @@ namespace Monster.Middle.Persist.Instance
         }
     }
 
+    // PaymentMethods
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class PaymentMethodConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<PaymentMethod>
+    {
+        public PaymentMethodConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public PaymentMethodConfiguration(string schema)
+        {
+            ToTable("PaymentMethods", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyGatewayId).HasColumnName(@"ShopifyGatewayId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaPaymentMethod).HasColumnName(@"AcumaticaPaymentMethod").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10);
+        }
+    }
+
     // PayoutPreferences
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class PayoutPreferenceConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<PayoutPreference>
@@ -2449,8 +2483,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.DefaultCoGsMargin).HasColumnName(@"DefaultCoGSMargin").HasColumnType("float").IsOptional();
             Property(x => x.AcumaticaDefaultItemClass).HasColumnName(@"AcumaticaDefaultItemClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDefaultPostingClass).HasColumnName(@"AcumaticaDefaultPostingClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaPaymentMethod).HasColumnName(@"AcumaticaPaymentMethod").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaPaymentCashAccount).HasColumnName(@"AcumaticaPaymentCashAccount").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxZone).HasColumnName(@"AcumaticaTaxZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxId).HasColumnName(@"AcumaticaTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
@@ -2971,6 +3003,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaConnState).HasColumnName(@"AcumaticaConnState").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaRefDataState).HasColumnName(@"AcumaticaRefDataState").HasColumnType("int").IsRequired();
             Property(x => x.PreferenceState).HasColumnName(@"PreferenceState").HasColumnType("int").IsRequired();
+            Property(x => x.PaymentMethodState).HasColumnName(@"PaymentMethodState").HasColumnType("int").IsRequired();
             Property(x => x.WarehouseSyncState).HasColumnName(@"WarehouseSyncState").HasColumnType("int").IsRequired();
             Property(x => x.InventoryRefreshState).HasColumnName(@"InventoryRefreshState").HasColumnType("int").IsRequired();
             Property(x => x.StartingShopifyOrderState).HasColumnName(@"StartingShopifyOrderState").HasColumnType("int").IsRequired();

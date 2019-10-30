@@ -189,6 +189,11 @@ Monster.InventoryConfigModel = function() {
                         Url: "@GlobalConfig.Url("Config/Preferences")",
                     },
                     {
+                        Name: "Preference Selections",
+                        ConfigState: response.PaymentMethod,
+                        Url: "@GlobalConfig.Url("Config/PaymentMethods")",
+                    },
+                    {
                         Name: "Warehouse Synchronization",
                         ConfigState: response.WarehouseSync,
                         Url: "@GlobalConfig.Url("Config/Warehouses")",
@@ -206,7 +211,6 @@ Monster.InventoryConfigModel = function() {
 
     return self;
 }
-
 
 var model = new Monster.InventoryConfigModel();
 ko.applyBindings(model);

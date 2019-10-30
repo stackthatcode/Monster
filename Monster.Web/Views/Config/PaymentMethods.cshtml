@@ -1,0 +1,254 @@
+﻿@using Monster.Web.Plumbing
+
+<style>
+    .form-group label { font-weight: 700; }
+    #payment-methods .form-group { height: 120px; }
+</style>
+
+<main role="main" class="medium-size">
+    @Html.Partial("_TopBrand")
+
+    <hr />
+    <h1 class="mt-4 center">Configuration - Payment Methods</h1>
+    <p class="lead center">
+        Map your Shopify Payment Gateways to Acumatica Payment Methods.
+    </p>
+
+    <div data-bind="ifnot: IsRandomAccessMode">
+        <p>
+            The next step in configuration is to set your Payment Methods.
+            For each Payment Gateway enabled in your Shopify store, 
+            assign an Acumatica Payment Method to be used therewith.
+        </p>
+    </div>
+
+    <div data-bind="template: { name: 'Payment-Methods-Editor' }"></div>
+</main>
+
+
+<script type="text/html" id="Payment-Methods-Editor">
+    <div data-bind="if: ShowErrorMessage">
+        <div class="std-pad">
+            <div class="alert alert-danger">
+                <strong>Acumatica Reference Data - Broken</strong>
+                <br />
+                There's something wrong with your Acumatica reference data.
+            </div>
+
+            <p>
+                Before configuring Payment Methods, your Acumatica reference data
+                needs to be properly configured. You can address that now by
+                <a href="@GlobalConfig.Url("Config/AcumaticaRefData")">
+                    <strong>clicking here</strong>
+                </a>.
+            </p>
+        </div>
+    </div>
+
+    <div data-bind="if: ShowDataEntry">
+        <div class="card text-center">
+            <div id="payment-methods" class="card-body left">
+                <div class="form-group">
+                    <label for="paymentMethod">Acumatica Payment Method</label>
+
+                    <select class="form-control"
+                            id="paymentMethod"
+                            data-bind="optionsCaption: 'Choose...',
+                                        options: PaymentMethods,
+                                        optionsText: 'PaymentMethod',
+                                        value: SelectedPaymentMethod"></select>
+
+                    <small id="paymentMethodHelp" class="form-text text-muted">
+                        @GlobalConfig.AppName will use this selection
+                        when it creates Payments in Acumatica.
+                    </small>
+
+                    <div class="error-message"
+                         data-bind="if: ShowValidation() && !PaymentMethodValid()">
+                        Please select a Payment Method with a valid Cash Account
+                    </div>
+                </div>
+
+                <!-- Payment Cash Account -->
+                <div class="form-group">
+                    <label for="cashAccountMethod">Acumatica Payment Cash Account</label>
+
+                    <div data-bind="if: CashAccounts().length == 0">
+                        <input type="text"
+                               class="form-control"
+                               disabled="disabled"
+                               value="(Select a Payment Method that has a Cash Account)" />
+                    </div>
+
+                    <div data-bind="if: CashAccounts().length">
+                        <select class="form-control"
+                                id="cashAccountMethod"
+                                data-bind="options: CashAccounts, value: SelectedCashAccount"></select>
+                    </div>
+
+                    <small id="cashAccountMethodHelp" class="form-text text-muted">
+                        @GlobalConfig.AppName will use this selection when it creates Payments in Acumatica.
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-footer text-muted">
+                @GlobalConfig.AppName Preferences Editor
+            </div>
+        </div>
+
+        <div style="height:45px;" data-bind="if: ShowErrorSummary" class="center error-message">
+            One or more items are not valid. Please review and correct.
+        </div>
+    </div>
+
+    <div class="std-pad-b center">
+        <div data-bind="ifnot: IsRandomAccessMode">
+            <a href="@GlobalConfig.Url("Config/Preferences")" class="btn btn-secondary btn-lg">
+                <i class="fas fa-undo"></i> Previous Step
+            </a>
+
+            <a href="#" data-bind="click: GotoNextStepClick" class="btn btn-success btn-lg">
+                Next Step <i class="fas fa-sign-in-alt"></i>
+            </a>
+        </div>
+
+        <div data-bind="if: IsRandomAccessMode">
+            <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
+                Back to Diagnostics <i class="fas fa-undo"></i>
+            </a>
+
+            <a href="#" class="btn btn-primary btn-lg" data-bind="click: SaveChangesClick">
+                Save Changes <i class="fas fa-bolt"></i>
+            </a>
+        </div>
+    </div>
+</script>
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.PaymentMethodsModel = function () {
+        var self = this;
+
+        self.ShowErrorMessage = ko.observable(false);
+        self.ShowDataEntry = ko.observable(false);
+        self.IsRandomAccessMode = ko.observable();
+
+        // Reference data
+        //
+        self.PaymentMethods = ko.observableArray();
+        self.CashAccounts = ko.observableArray(); // Updates when SelectedPaymentMethod changes
+
+        // Selected options
+        //
+        self.SelectedPaymentMethod = ko.observable();
+        
+        self.SelectedPaymentMethod.subscribe(function () {
+            if (self.SelectedPaymentMethod()) {
+                self.CashAccounts(self.SelectedPaymentMethod().CashAccounts);
+                if (!self.CashAccounts().length) {
+                    self.SelectedCashAccount(null);
+                }
+            } else {
+                self.CashAccounts.removeAll();
+            }
+        });
+
+        // Validation
+
+        self.IsValid = function() { return true; };
+
+        self.ShowValidation = ko.observable(false);
+
+        self.ShowErrorSummary = ko.computed(function () {
+            return self.ShowValidation() && !self.IsValid();
+        });
+
+
+        // Initialization stuff
+        self.Initialize = function () {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/PaymentMethodStatus", this);
+                },
+                function (response) {
+                    self.IsRandomAccessMode(response.IsRandomAccessMode);
+
+                    if (response.IsBroken) {
+                        self.ShowErrorMessage(true);
+                        return;
+                    }
+                    
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/PaymentMethodData", this);
+                },
+                function (response) {
+                    //console.log(response);
+
+                    self.PaymentMethods(response.PaymentMethods);
+                    self.CashAccounts([]);
+            
+                    self.ShowDataEntry(true);
+                    self.InitializePaymentMethodsEditor();
+
+                    // Pull selections
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Config/PreferenceSelections", this);
+                },
+                function (response) {
+
+                    var paymentMethod =
+                        Monster.FindByField(
+                            self.PaymentMethods(), 'PaymentMethod', response.AcumaticaPaymentMethod);
+
+                    self.SelectedPaymentMethod(paymentMethod);
+                    self.SelectedCashAccount(response.AcumaticaPaymentCashAccount);
+                });
+        };
+
+        self.SaveChangesClick = function () {
+            self.SaveChanges();
+        }
+
+        self.SaveChanges = function (callback) {
+            flow.exec(function() {
+                self.ShowValidation(true);
+                if (!self.IsValid()) {
+                    return;
+                }
+
+                var model = {};
+                model.AcumaticaPaymentMethod = self.SelectedPaymentMethod().PaymentMethod;
+                model.AcumaticaPaymentCashAccount = self.SelectedCashAccount();
+
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("Config/PaymentMethod", model, this);
+            },
+            function() {
+                if (callback) {
+                    callback();
+                }
+            });
+        }
+
+        self.GotoNextStepClick = function() {
+            self.SaveChanges(
+                function () {
+                    if (!self.IsValid()) {
+                        return;
+                    }
+
+                    window.location.href = '@GlobalConfig.Url("Config/Warehouses")';
+                });
+            };
+
+        return self;
+    };
+
+    var model = new Monster.PaymentMethodsModel();
+    model.Initialize();
+    ko.applyBindings(model);
+</script>
+

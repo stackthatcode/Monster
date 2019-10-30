@@ -9,7 +9,7 @@ namespace Monster.Middle.Processes.Sync.Model.Config
         public string PaymentMethod { get; set; }
         public List<string> CashAccounts { get; set; }
 
-        public PaymentMethodModel(PaymentMethod input)
+        public PaymentMethodModel(AcumaticaPaymentMethod input)
         {
             PaymentMethod = input.PaymentMethodID.value;
 

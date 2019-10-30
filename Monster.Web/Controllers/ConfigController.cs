@@ -206,8 +206,6 @@ namespace Monster.Web.Controllers
             data.AcumaticaTimeZone = model.AcumaticaTimeZone;
             data.AcumaticaDefaultItemClass = model.AcumaticaDefaultItemClass;
             data.AcumaticaDefaultPostingClass = model.AcumaticaDefaultPostingClass;
-            data.AcumaticaPaymentMethod = model.AcumaticaPaymentMethod;
-            data.AcumaticaPaymentCashAccount = model.AcumaticaPaymentCashAccount;
             data.AcumaticaTaxCategory = model.AcumaticaTaxCategory;
             data.AcumaticaTaxId = model.AcumaticaTaxId;
             data.AcumaticaTaxZone = model.AcumaticaTaxZone;
@@ -220,6 +218,20 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
         }
 
+
+        // Payment Methods
+        //
+        [HttpGet]
+        public ActionResult PaymentMethods()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult PaymentMethodData()
+        {
+            return JsonNetResult.Success();
+        }
 
 
         // Warehouse synchronization

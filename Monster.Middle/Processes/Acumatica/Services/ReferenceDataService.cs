@@ -39,7 +39,7 @@ namespace Monster.Middle.Processes.Acumatica.Services
 
             var paymentMethods =
                 reference.PaymentMethod.IsNullOrEmptyAlt("[]")
-                    .DeserializeFromJson<List<PaymentMethod>>()
+                    .DeserializeFromJson<List<AcumaticaPaymentMethod>>()
                     .Select(x => new PaymentMethodModel(x))
                     .ToList();
 
@@ -75,6 +75,8 @@ namespace Monster.Middle.Processes.Acumatica.Services
 
             return output;
         }
+
+
 
         public void FilterPreferencesAgainstRefData(Preference preference)
         {

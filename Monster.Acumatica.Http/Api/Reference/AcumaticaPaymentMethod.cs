@@ -3,7 +3,7 @@ using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.Reference
 {
-    public class PaymentMethod
+    public class AcumaticaPaymentMethod
     {
         public string id { get; set; }
         public int rowNumber { get; set; }

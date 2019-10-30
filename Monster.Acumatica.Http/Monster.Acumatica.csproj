@@ -65,7 +65,7 @@
     <Compile Include="Api\Payment\PaymentWrite.cs" />
     <Compile Include="Api\Reference\AllowedCashAccount.cs" />
     <Compile Include="Api\Reference\ItemClass.cs" />
-    <Compile Include="Api\Reference\PaymentMethod.cs" />
+    <Compile Include="Api\Reference\AcumaticaPaymentMethod.cs" />
     <Compile Include="Api\Reference\Tax.cs" />
     <Compile Include="Api\Reference\TaxCategory.cs" />
     <Compile Include="Api\Reference\TaxZone.cs" />
