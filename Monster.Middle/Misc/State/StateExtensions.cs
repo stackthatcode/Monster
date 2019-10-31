@@ -11,15 +11,6 @@ namespace Monster.Middle.Misc.State
             return input.Database.SqlQuery<T>(sql).FirstOrDefault();
         }
 
-        public static bool IsShopifyUrlFinalized(this SystemState state)
-        {
-            return state.ShopifyConnState != StateCode.None;
-        }
-
-        public static bool IsAcumaticaUrlFinalized(this SystemState state)
-        {
-            return state.AcumaticaConnState != StateCode.None;
-        }
 
         public static bool CanSyncOrdersToAcumatica(this SystemState state)
         {
@@ -27,27 +18,28 @@ namespace Monster.Middle.Misc.State
                    state.AcumaticaRefDataState == StateCode.Ok &&
                    state.WarehouseSyncState == StateCode.Ok &&
                    state.ShopifyConnState == StateCode.Ok &&
-                   state.OrderCustomersTransPullState == StateCode.Ok;
+                   state.ShopifyOrderCustTransGetState == StateCode.Ok;
         }
 
         public static bool CanSyncRefundsToAcumatica(this SystemState state)
         {
-            return state.CanSyncOrdersToAcumatica() &&
-                   state.SyncOrdersState == StateCode.Ok;
+            return state.CanSyncOrdersToAcumatica() 
+                   && state.AcumaticaOrderCustPmtPutState == StateCode.Ok;
         }
 
         public static bool CanSyncFulfillmentsToShopify(this SystemState state)
         {
             return state.ShopifyConnState == StateCode.Ok &&
                    state.InventoryRefreshState == StateCode.Ok &&
-                   state.OrderCustomersTransPullState == StateCode.Ok;
+                   state.ShopifyOrderCustTransGetState == StateCode.Ok;
         }
 
         public static bool CanSyncInventoryCountsToShopify(this SystemState state)
         {
             return state.ShopifyConnState == StateCode.Ok &&
                    state.InventoryRefreshState == StateCode.Ok &&
-                   state.OrderCustomersTransPullState == StateCode.Ok;
+                   state.ShopifyOrderCustTransGetState == StateCode.Ok &&
+                   state.AcumaticaOrderCustShipGetState == StateCode.Ok;
         }
 
     }

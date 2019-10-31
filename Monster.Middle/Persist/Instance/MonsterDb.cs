@@ -1741,11 +1741,12 @@ namespace Monster.Middle.Persist.Instance
         public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
         public int InventoryRefreshState { get; set; } // InventoryRefreshState
         public int StartingShopifyOrderState { get; set; } // StartingShopifyOrderState
-        public int OrderCustomersTransPullState { get; set; } // OrderCustomersTransPullState
-        public int SyncOrdersState { get; set; } // SyncOrdersState
-        public int SyncRefundsState { get; set; } // SyncRefundsState
-        public int SyncFulfillmentsState { get; set; } // SyncFulfillmentsState
-        public int SyncInventoryCountState { get; set; } // SyncInventoryCountState
+        public int ShopifyOrderCustTransGetState { get; set; } // ShopifyOrderCustTransGetState
+        public int AcumaticaOrderCustShipGetState { get; set; } // AcumaticaOrderCustShipGetState
+        public int AcumaticaOrderCustPmtPutState { get; set; } // AcumaticaOrderCustPmtPutState
+        public int AcumaticaRefundPutState { get; set; } // AcumaticaRefundPutState
+        public int ShopifyFulfillmentPutState { get; set; } // ShopifyFulfillmentPutState
+        public int ShopifyInventoryPutState { get; set; } // ShopifyInventoryPutState
     }
 
     // vw_AcumaticaInventory
@@ -3010,11 +3011,12 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
             Property(x => x.InventoryRefreshState).HasColumnName(@"InventoryRefreshState").HasColumnType("int").IsRequired();
             Property(x => x.StartingShopifyOrderState).HasColumnName(@"StartingShopifyOrderState").HasColumnType("int").IsRequired();
-            Property(x => x.OrderCustomersTransPullState).HasColumnName(@"OrderCustomersTransPullState").HasColumnType("int").IsRequired();
-            Property(x => x.SyncOrdersState).HasColumnName(@"SyncOrdersState").HasColumnType("int").IsRequired();
-            Property(x => x.SyncRefundsState).HasColumnName(@"SyncRefundsState").HasColumnType("int").IsRequired();
-            Property(x => x.SyncFulfillmentsState).HasColumnName(@"SyncFulfillmentsState").HasColumnType("int").IsRequired();
-            Property(x => x.SyncInventoryCountState).HasColumnName(@"SyncInventoryCountState").HasColumnType("int").IsRequired();
+            Property(x => x.ShopifyOrderCustTransGetState).HasColumnName(@"ShopifyOrderCustTransGetState").HasColumnType("int").IsRequired();
+            Property(x => x.AcumaticaOrderCustShipGetState).HasColumnName(@"AcumaticaOrderCustShipGetState").HasColumnType("int").IsRequired();
+            Property(x => x.AcumaticaOrderCustPmtPutState).HasColumnName(@"AcumaticaOrderCustPmtPutState").HasColumnType("int").IsRequired();
+            Property(x => x.AcumaticaRefundPutState).HasColumnName(@"AcumaticaRefundPutState").HasColumnType("int").IsRequired();
+            Property(x => x.ShopifyFulfillmentPutState).HasColumnName(@"ShopifyFulfillmentPutState").HasColumnType("int").IsRequired();
+            Property(x => x.ShopifyInventoryPutState).HasColumnName(@"ShopifyInventoryPutState").HasColumnType("int").IsRequired();
         }
     }
 

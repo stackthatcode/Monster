@@ -167,16 +167,14 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _shopifyManager.PullInventory();
                 _acumaticaManager.PullInventory();
                 
-                _stateRepository.UpdateSystemState(
-                    x => x.InventoryRefreshState, StateCode.Ok);
+                _stateRepository.UpdateSystemState(x => x.InventoryRefreshState, StateCode.Ok);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
                 _executionLogService.Log("Inventory Refresh - encountered error");
 
-                _stateRepository.UpdateSystemState(
-                    x => x.InventoryRefreshState, StateCode.SystemFault);
+                _stateRepository.UpdateSystemState(x => x.InventoryRefreshState, StateCode.SystemFault);
             }
         }
         
@@ -209,10 +207,17 @@ namespace Monster.Middle.Processes.Sync.Managers
                     () => _shopifyManager.PullCustomers(),
                     () => _shopifyManager.PullOrders(),
                     () => _shopifyManager.PullTransactions(),
+                },
+                x => x.ShopifyOrderCustTransGetState,
+                "End-to-End - Get Customers, Orders, Transactions from Shopify");
+
+            EndToEndRunner(
+                new Action[]
+                {
                     () => _acumaticaManager.PullOrdersAndCustomer()
                 },
-                x => x.OrderCustomersTransPullState,
-                "End-to-End - Customers, Orders, Transactions and Shipments Pull");
+                x => x.AcumaticaOrderCustShipGetState,
+                "End-to-End - Get Orders, Shipments and Customers from Acumatica");
 
             EndToEndRunner(
                 new Action[]
@@ -221,7 +226,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     () => _acumaticaManager.PullInventory(),
                 },
                 x => x.InventoryRefreshState, 
-                "End-to-End - Refresh Inventory (Pull)");
+                "End-to-End - Refresh Inventory from Shopify and Acumatica");
 
             var settings = _settingsRepository.RetrieveSettings();
 
@@ -235,7 +240,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                         () => _syncManager.SyncOrdersToAcumatica(),
                         () => _syncManager.SyncPaymentsToAcumatica(),
                     },
-                    x => x.SyncOrdersState,
+                    x => x.AcumaticaOrderCustPmtPutState, 
                     "End-to-End - Sync Customers, Orders, Payments to Acumatica");
             }
 
@@ -244,7 +249,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 EndToEndRunner(
                     new Action[] { () => _syncManager.SyncRefundsToAcumatica() },
-                    x => x.SyncRefundsState,
+                    x => x.AcumaticaRefundPutState, 
                     "End-to-End - Sync Refunds to Acumatica");
             }
 
@@ -253,7 +258,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 EndToEndRunner(
                     new Action[] { () => _syncManager.SyncFulfillmentsToShopify() },
-                    x => x.SyncFulfillmentsState,
+                    x => x.ShopifyFulfillmentPutState, 
                     "End-to-End - Sync Fulfillments to Shopify");
             }
 
@@ -262,7 +267,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 EndToEndRunner(
                     new Action[] { () => _syncManager.SyncInventoryCountsToShopify() },
-                    x => x.SyncInventoryCountState,
+                    x => x.ShopifyInventoryPutState, 
                     "End-to-End - Sync Inventory Count to Shopify");
             }
 
@@ -288,6 +293,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 }
                 catch (Exception ex)
                 {
+
                     _stateRepository.UpdateSystemState(stateVariable, StateCode.SystemFault);
                     _executionLogService.Log($"{descriptor} - encountered an error");
                     _logger.Error(ex);

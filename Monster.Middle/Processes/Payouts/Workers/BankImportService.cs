@@ -61,7 +61,7 @@ namespace Monster.Middle.Processes.Payouts
                 //persistedPayout.AcumaticaRefNumber.IsNullOrEmpty())
             {
                 // Get data staged
-                var Settingss = _persistRepository.RetrievePayoutSettingss();
+                var settings = _persistRepository.RetrievePayoutSettingss();
 
                 var payoutObject = persistedPayout.Json.DeserializeFromJson<Payout>();
 
@@ -74,7 +74,7 @@ namespace Monster.Middle.Processes.Payouts
 
                 var commands
                     = new List<Command>()
-                        .AddCommand(schema.CashAccount.CashAccount, Settingss.AcumaticaCashAccount)
+                        .AddCommand(schema.CashAccount.CashAccount, settings.AcumaticaCashAccount)
                         .AddCommand(schema.Actions.Insert)
                         .AddCommand(schema.CashAccount.StartBalanceDate, payoutDate)
                         .AddCommand(schema.CashAccount.EndBalanceDate, payoutDate)

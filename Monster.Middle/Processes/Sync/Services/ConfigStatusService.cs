@@ -138,18 +138,19 @@ namespace Monster.Middle.Processes.Sync.Services
             return model;
         }
 
-        public ConfigStatusSummaryModel GetConfigStatusSummary()
+        public ConfigStatusSummary GetConfigStatusSummary()
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
 
-            var output = new ConfigStatusSummaryModel()
+            var output = new ConfigStatusSummary()
             {
                 ShopifyConnection = state.ShopifyConnState,
                 AcumaticaConnection = state.AcumaticaConnState,
                 AcumaticaReferenceData = state.AcumaticaRefDataState,
                 Settings = state.SettingsState,
                 SettingsTax = state.SettingsTaxesState,
-                WarehouseSync = state.WarehouseSyncState
+                WarehouseSync = state.WarehouseSyncState,
+                StartingShopifyOrder = state.StartingShopifyOrderState,
             };
             return output;
         }

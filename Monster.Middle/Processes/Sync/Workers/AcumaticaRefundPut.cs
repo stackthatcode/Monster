@@ -69,7 +69,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         
 
         private ReturnForCreditWrite 
-                    BuildReturnForCredit(ShopifyRefund refundRecord, Settings Settingss)
+                    BuildReturnForCredit(ShopifyRefund refundRecord, MonsterSetting settings)
         {
             var shopifyOrderRecord = refundRecord.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -84,13 +84,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             creditMemo.Description = $"Shopify Order #{shopifyOrder.order_number} Refund {refund.id}".ToValue();
 
             var taxDetail = new TaxDetails();
-            taxDetail.TaxID = Settingss.AcumaticaTaxId.ToValue();
+            taxDetail.TaxID = settings.AcumaticaTaxId.ToValue();
             creditMemo.TaxDetails = new List<TaxDetails> {taxDetail};
             
             creditMemo.FinancialSettings = new FinancialSettings()
             {
                 OverrideTaxZone = true.ToValue(),
-                CustomerTaxZone = Settingss.AcumaticaTaxZone.ToValue(),
+                CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
             };
 
             foreach (var _return in refund.Returns)

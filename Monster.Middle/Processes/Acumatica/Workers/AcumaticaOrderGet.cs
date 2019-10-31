@@ -56,9 +56,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunAutomatic()
         {
             var batchState = _batchStateRepository.Retrieve();
-            var Settingss = _settingsRepository.RetrieveSettingss();
-            Settingss.AssertStartingOrderIsValid();
-
+            var settings = _settingsRepository.RetrieveSettings();
+            
             if (batchState.AcumaticaOrdersGetEnd.HasValue)
             {
                 var updateMinUtc = batchState.AcumaticaOrdersGetEnd.Value;
@@ -66,7 +65,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
-                var orderStartDateUtc = Settingss.ShopifyOrderCreatedAtUtc.Value;
+                var orderStartDateUtc = settings.ShopifyOrderCreatedAtUtc.Value;
 
                 RunWithPaging(orderStartDateUtc);
             }

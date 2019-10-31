@@ -26,8 +26,6 @@ namespace Monster.Web
             Mapper.Initialize(x =>
             {
                 x.CreateMap<Preference, PreferencesModel>();
-                x.CreateMap<SystemState, ConfigStatusSummaryModel>();
-                x.CreateMap<Preference, OrderSyncSettingsModel>();
             });
         }
     }

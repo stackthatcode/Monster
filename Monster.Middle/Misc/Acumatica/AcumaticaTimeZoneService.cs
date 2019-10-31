@@ -16,9 +16,8 @@ namespace Monster.Middle.Misc.Acumatica
 
         public DateTime ToAcumaticaTimeZone(DateTime dateTimeUTC)
         {
-            var Settingss = _settingsRepository.RetrieveSettingss();
-
-            return dateTimeUTC.ToTimeZone(Settingss.AcumaticaTimeZone);
+            var settings = _settingsRepository.RetrieveSettings();
+            return dateTimeUTC.ToTimeZone(settings.AcumaticaTimeZone);
         }
 
         public List<AcumaticaTimeZone> RetrieveTimeZones()

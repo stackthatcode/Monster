@@ -42,12 +42,9 @@ namespace Monster.Middle.Processes.Payouts.Workers
         // Use this for Routine methods
         public void RunPayoutHeaders()
         {
-            var Settingss = _settingsRepository.RetrieveSettingss();
+            var settings = _settingsRepository.RetrieveSettings();
             var batchState = _shopifyBatchRepository.Retrieve();
-
-            var minDate
-                = batchState.ShopifyPayoutGetEnd 
-                    ?? Settingss.ShopifyOrderCreatedAtUtc.Value;
+            var minDate = batchState.ShopifyPayoutGetEnd ?? settings.ShopifyOrderCreatedAtUtc.Value;
             
             // First stage is to import Payouts based on Date 
             var firstPayouts =

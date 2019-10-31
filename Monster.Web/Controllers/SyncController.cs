@@ -29,8 +29,8 @@ namespace Monster.Web.Controllers
         private readonly RecurringJobScheduler _recurringJobService;
         private readonly JobMonitoringService _jobStatusService;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly EndToEndStatusService _endStatusService;
         private readonly SettingsRepository _settingsRepository;
+        private readonly ConfigStatusService _configStatusService;
         private readonly InstanceContext _instanceContext;
         private readonly OrderApi _shopifyOrderApi;
         private readonly ShopifyUrlService _urlService;
@@ -44,8 +44,8 @@ namespace Monster.Web.Controllers
                 ExecutionLogService logRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 SettingsRepository settingsRepository,
-                EndToEndStatusService endStatusService,
-                ShopifyUrlService urlService, 
+                ShopifyUrlService urlService,
+                ConfigStatusService configStatusService,
                 OrderApi shopifyOrderApi, 
                 InstanceContext instanceContext)
         {
@@ -58,7 +58,7 @@ namespace Monster.Web.Controllers
             _urlService = urlService;
             _shopifyOrderApi = shopifyOrderApi;
             _instanceContext = instanceContext;
-            _endStatusService = endStatusService;
+            _configStatusService = configStatusService;
             _settingsRepository = settingsRepository;
         }
 
@@ -95,7 +95,7 @@ namespace Monster.Web.Controllers
             if (areAnyJobsRunning)
             {
                 var isEndToEndSyncRunning 
-                        = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync);
+                    = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync);
 
                 var logs = _logRepository.RetrieveExecutionLogs().ToModel();
 
@@ -109,14 +109,13 @@ namespace Monster.Web.Controllers
             }
             else
             {
-                var status = _endStatusService.GetEndToEndSyncStatus();
-
+                var status = _configStatusService.GetConfigStatusSummary();
+                    
                 output.NonRunningStateModel = new NonRunningStateModel
                 {
                     IsStartingOrderReadyForEndToEnd = status.IsStartingOrderReadyForEndToEnd,
-                    IsConfigReadyForEndToEnd = status.ConfigStatusSummaryModel.IsConfigReadyForEndToEnd,
+                    IsConfigReadyForEndToEnd = status.IsConfigReadyForEndToEnd,
                     CanEndToEndSyncBeStarted = status.CanEndToEndSyncBeStarted,
-
                 };
 
                 return new JsonNetResult(output);
@@ -133,16 +132,14 @@ namespace Monster.Web.Controllers
             var preferences = _settingsRepository.RetrieveSettings();
 
             var output = new SyncSettingsModel();
-
             output.SyncOrdersEnabled = preferences.SyncOrdersEnabled;
             output.SyncInventoryEnabled = preferences.SyncInventoryEnabled;
             output.SyncRefundsEnabled = preferences.SyncRefundsEnabled;
             output.SyncShipmentsEnabled = preferences.SyncFulfillmentsEnabled;
 
             output.StartingOrderId = preferences.ShopifyOrderId;
-            output.StartingOrderName 
-                    = preferences.ShopifyOrderName.IsNullOrEmptyAlt("(not set)");
-            output.StartOrderCreatedAtUtc
+            output.StartingOrderName = preferences.ShopifyOrderName.IsNullOrEmptyAlt("(not set)");
+            output.StartOrderCreatedAtUtc 
                 = preferences.ShopifyOrderCreatedAtUtc?.ToString() ?? "(not set)";
 
             if (preferences.ShopifyOrderId.HasValue)

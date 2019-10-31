@@ -42,8 +42,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunAutomatic()
         {
             var batchState = _batchStateRepository.Retrieve();
-            var Settingss = _settingsRepository.RetrieveSettingss();
-            Settingss.AssertStartingOrderIsValid();
+            var settings = _settingsRepository.RetrieveSettings();
 
             if (batchState.AcumaticaCustomersGetEnd.HasValue)
             {
@@ -51,7 +50,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
-                RunWithPaging(Settingss.ShopifyOrderCreatedAtUtc.Value);
+                RunWithPaging(settings.ShopifyOrderCreatedAtUtc.Value);
             }
         }
 

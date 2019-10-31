@@ -80,8 +80,8 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void SyncOrdersToAcumatica()
         {
-            var preferenece = _settingsRepository.RetrieveSettingss();
-            var msg = $"Starting Order Sync with {preferenece.MaxParallelAcumaticaSyncs} worker(s)";
+            var settings = _settingsRepository.RetrieveSettings();
+            var msg = $"Starting Order Sync with {settings.MaxParallelAcumaticaSyncs} worker(s)";
             _executionLogService.Log(msg);
 
             ServicePointManager.DefaultConnectionLimit = 100;
@@ -89,7 +89,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
             // This can be abstracted
             var threads = new List<Thread>();
-            for (var i = 0; i < preferenece.MaxParallelAcumaticaSyncs; i++)
+            for (var i = 0; i < settings.MaxParallelAcumaticaSyncs; i++)
             {
                 var t = new Thread(() => OrderSyncInChildScope(queue));
                 t.Start();

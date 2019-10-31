@@ -55,9 +55,9 @@ namespace Monster.Middle.Processes.Sync.Workers
         
         public void WritePaymentForOrders(ShopifyTransaction transactionRecord)
         {
-            var Settingss = _settingsRepository.RetrieveSettingss();
-            var transaction 
-                = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
+            var settings = _settingsRepository.RetrieveSettings();
+            var transaction = transactionRecord.ToShopifyObj();
+            var gateway = _settingsRepository.RetrievePaymentGatewayByShopifyId(transaction.gateway);
 
             // Locate the Acumatica Customer
             var shopifyCustomerId = transactionRecord.CustomerId();
@@ -73,8 +73,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             payment.CustomerID = acumaticaCustId.ToValue();
             payment.Hold = false.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
-            payment.PaymentMethod = Settingss.AcumaticaPaymentMethod.ToValue();
-            payment.CashAccount = Settingss.AcumaticaPaymentCashAccount.ToValue();
+            payment.PaymentMethod = gateway.AcumaticaPaymentMethod.ToValue();
+            payment.CashAccount = gateway.AcumaticaCashAccount.ToValue();
             payment.PaymentRef = $"{order.ShopifyOrderNumber}".ToValue();
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
             payment.Description = $"Payment for Shopify Order #{order.ShopifyOrderNumber}".ToValue();
@@ -121,12 +121,12 @@ namespace Monster.Middle.Processes.Sync.Workers
         
         public void WriteRefundPayment(ShopifyTransaction transactionRecord)
         {
-            var Settingss = _settingsRepository.RetrieveSettingss();
             var transaction = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
             var refund = _syncOrderRepository
                     .RetrieveRefundAndSync(transactionRecord.ShopifyRefundId.Value);
 
-            
+            var paymentGateway = _settingsRepository.RetrievePaymentGatewayByShopifyId(transaction.gateway);
+
             // Locate the Acumatica Customer
             var shopifyCustomerId = transactionRecord.CustomerId();
             var customer = _syncOrderRepository.RetrieveCustomer(shopifyCustomerId);
@@ -147,8 +147,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // TODO - inject the original Payment Method...?
             // 
-            payment.PaymentMethod = Settingss.AcumaticaPaymentMethod.ToValue();
-            payment.CashAccount = Settingss.AcumaticaPaymentCashAccount.ToValue();
+            payment.PaymentMethod = paymentGateway.AcumaticaPaymentMethod.ToValue();
+            payment.CashAccount = paymentGateway.AcumaticaCashAccount.ToValue();
             payment.Description =
                 $"Refund for Order #{order.ShopifyOrderNumber} (TransId #{transaction.id})".ToValue();
 

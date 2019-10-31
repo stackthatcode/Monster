@@ -33,16 +33,15 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public void RunAutomatic()
         {
-            var Settingss = _settingsRepository.RetrieveSettingss();
-            Settingss.AssertStartingOrderIsValid();
-
+            var settings = _settingsRepository.RetrieveSettings();
+            
             var batchState = _batchRepository.Retrieve();
 
             if (batchState.ShopifyCustomersGetEnd == null)
             {
                 var firstFilter = new SearchFilter();
                 firstFilter.Page = 1;
-                firstFilter.UpdatedAtMinUtc = Settingss.ShopifyOrderCreatedAtUtc.Value;
+                firstFilter.UpdatedAtMinUtc = settings.ShopifyOrderCreatedAtUtc.Value;
                     
                 Run(firstFilter);
             }

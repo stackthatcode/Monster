@@ -94,28 +94,22 @@ namespace Monster.Middle.Processes.Sync.Workers
             StockItemPush(context, variant);
         }
 
-        public void StockItemPush(
-                    AcumaticaInventoryImportContext context, ShopifyVariant variant)
+        public void StockItemPush(AcumaticaInventoryImportContext context, ShopifyVariant variant)
         {
-            var Settingss = _settingsRepository.RetrieveSettingss();
-            var defaultItemClass = Settingss.AcumaticaDefaultItemClass;
-            var defaultPostingClass = Settingss.AcumaticaDefaultPostingClass;
-            var defaultTaxCategory = Settingss.AcumaticaTaxCategory;
+            var settings = _settingsRepository.RetrieveSettings();
+            var defaultItemClass = settings.AcumaticaDefaultItemClass;
+            var defaultPostingClass = settings.AcumaticaDefaultPostingClass;
+            var defaultTaxCategory = settings.AcumaticaTaxCategory;
 
             var warehouses = _inventoryRepository.RetrieveWarehouses();
             var defaultWarehouseId = warehouses.First().AcumaticaWarehouseId;
 
             var shopifyVariant = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
-            var shopifyProduct
-                = variant
-                    .ShopifyProduct
-                    .ShopifyJson
-                    .DeserializeFromJson<Product>();
+            var shopifyProduct = variant.ShopifyProduct.ShopifyJson.DeserializeFromJson<Product>();
             
             var newStockItem = new StockItem();
             newStockItem.InventoryID = variant.StandardizedSku().ToValue();
-            newStockItem.Description = 
-                Canonizers.StockItemTitle(shopifyProduct, shopifyVariant).ToValue();
+            newStockItem.Description = Canonizers.StockItemTitle(shopifyProduct, shopifyVariant).ToValue();
 
             newStockItem.DefaultPrice = ((double)shopifyVariant.price).ToValue();
             newStockItem.DefaultWarehouseID = defaultWarehouseId.ToValue();

@@ -149,7 +149,7 @@
     <Compile Include="Processes\Sync\Model\Settings\PaymentGatewayConfig.cs" />
     <Compile Include="Processes\Sync\Misc\LogDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Status\EndToEndSyncStatus.cs" />
+    <Compile Include="Processes\Sync\Model\Status\ConfigStatusSummary.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\PaymentSyncStatus.cs" />
@@ -157,7 +157,6 @@
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
     <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
-    <Compile Include="Processes\Sync\Services\EndToEndStatusService.cs" />
     <Compile Include="Processes\Sync\Services\FulfillmentStatusService.cs" />
     <Compile Include="Misc\Logging\ExecutionLogService.cs" />
     <Compile Include="Persist\Instance\MonsterDb.cs">
@@ -231,7 +230,6 @@
     <Compile Include="Processes\Payouts\Workers\BankImportService.cs" />
     <Compile Include="Processes\Payouts\PayoutProcess.cs" />
     <Compile Include="Processes\Payouts\Workers\ShopifyPayoutPullWorker.cs" />
-    <Compile Include="Processes\Sync\Model\Settings\ConfigStatusSummaryModel.cs" />
     <Compile Include="Misc\Acumatica\AcumaticaUrlService.cs" />
     <Compile Include="Misc\Shopify\ShopifyUrlService.cs" />
     <Compile Include="Processes\ProcessDirector.cs" />

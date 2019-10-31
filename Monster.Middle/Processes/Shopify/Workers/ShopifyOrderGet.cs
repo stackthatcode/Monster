@@ -37,16 +37,14 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public void RunAutomatic()
         {
-            var Settingss = _settingsRepository.RetrieveSettingss();
-            Settingss.AssertStartingOrderIsValid();
-
+            var settings = _settingsRepository.RetrieveSettings();
             var batchState = _batchRepository.Retrieve();
 
             if (batchState.ShopifyOrdersGetEnd.HasValue)
             {
                 var filter = new SearchFilter();
                 filter.OrderByUpdatedAt();
-                filter.SinceId = Settingss.ShopifyOrderId.Value;
+                filter.SinceId = settings.ShopifyOrderId.Value;
                 filter.UpdatedAtMinUtc = batchState.ShopifyOrdersGetEnd.Value;
 
                 Run(filter);
@@ -55,7 +53,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var filter = new SearchFilter();
                 filter.OrderByCreatedAt();
-                filter.SinceId = Settingss.ShopifyOrderId.Value;
+                filter.SinceId = settings.ShopifyOrderId.Value;
 
                 Run(filter);
             }

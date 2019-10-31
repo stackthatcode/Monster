@@ -44,11 +44,7 @@ namespace Monster.Middle.Misc.State
                     newRecord.IsRandomAccessMode = false;
 
                     newRecord.InventoryRefreshState = StateCode.None;
-                    newRecord.OrderCustomersTransPullState = StateCode.None;
-                    newRecord.SyncOrdersState = StateCode.None;
-                    newRecord.SyncRefundsState = StateCode.None;
-                    newRecord.SyncFulfillmentsState = StateCode.None;
-                    newRecord.SyncInventoryCountState = StateCode.None;
+                    newRecord.StartingShopifyOrderState = StateCode.None;
 
                     Entities.SystemStates.Add(newRecord);
                     Entities.SaveChanges();

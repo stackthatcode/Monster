@@ -19,6 +19,7 @@ using Monster.Middle.Processes.Sync.Persist.Matching;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
+using Push.Shopify.Api.Transactions;
 
 
 namespace Monster.Middle.Processes.Sync.Workers
@@ -125,8 +126,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Write the Sales Order to Acumatica
             //
-            var shopifyOrder = shopifyOrderRecord.ShopifyJson.DeserializeToOrder();
-            var salesOrder = BuilderNewSalesOrder(shopifyOrder, acumaticaCustomer);
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+
+            var transactionRecord = shopifyOrderRecord.ActualPaymentTransaction();
+            var payment = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
+
+            var salesOrder = BuilderNewSalesOrder(shopifyOrder, payment, acumaticaCustomer);
             var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
 
             // Create the local Order Record and Sync
@@ -170,11 +175,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         // Create new Sales Order
         //
-        private SalesOrder BuilderNewSalesOrder(Order shopifyOrder, AcumaticaCustomer customer)
+        private SalesOrder BuilderNewSalesOrder(
+                    Order shopifyOrder, Transaction transaction, AcumaticaCustomer customer)
         {
             // Header
             //
-            var salesOrder = BuildNewSalesOrderHeader(shopifyOrder, customer);
+            var salesOrder = BuildNewSalesOrderHeader(shopifyOrder, transaction, customer);
 
             // Detail
             //
@@ -220,9 +226,11 @@ namespace Monster.Middle.Processes.Sync.Workers
             return output;
         }
 
-        private SalesOrder BuildNewSalesOrderHeader(Order shopifyOrder, AcumaticaCustomer customer)
+        private SalesOrder BuildNewSalesOrderHeader(
+                Order shopifyOrder, Transaction payment, AcumaticaCustomer customer)
         {
-            var Settingss = _settingsRepository.RetrieveSettingss();
+            var settings = _settingsRepository.RetrieveSettings();
+            var gateway = _settingsRepository.RetrievePaymentGatewayByShopifyId(payment.gateway);
 
             var salesOrder = new SalesOrder();
             salesOrder.Details = new List<SalesOrderDetail>();
@@ -233,13 +241,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.ExternalRef = $"{shopifyOrder.order_number}".ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
-            salesOrder.PaymentMethod = Settingss.AcumaticaPaymentMethod.ToValue();
-            salesOrder.CashAccount = Settingss.AcumaticaPaymentCashAccount.ToValue();
+            salesOrder.PaymentMethod = gateway.AcumaticaPaymentMethod.ToValue();
+            salesOrder.CashAccount = gateway.AcumaticaCashAccount.ToValue();
             
             salesOrder.FinancialSettings = new FinancialSettings()
             {
                 OverrideTaxZone = true.ToValue(),
-                CustomerTaxZone = Settingss.AcumaticaTaxZone.ToValue(),
+                CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
             };
 
             var taxTransferJson = shopifyOrder.ToTaxTransfer().SerializeToJson();
