@@ -208,7 +208,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     () => _shopifyManager.PullOrders(),
                     () => _shopifyManager.PullTransactions(),
                 },
-                x => x.ShopifyOrderCustTransGetState,
+                x => x.ShopifyOrderEtcGetState,
                 "End-to-End - Get Customers, Orders, Transactions from Shopify");
 
             EndToEndRunner(
@@ -216,7 +216,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 {
                     () => _acumaticaManager.PullOrdersAndCustomer()
                 },
-                x => x.AcumaticaOrderCustShipGetState,
+                x => x.AcumaticaOrderEtcGetState,
                 "End-to-End - Get Orders, Shipments and Customers from Acumatica");
 
             EndToEndRunner(
@@ -240,7 +240,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                         () => _syncManager.SyncOrdersToAcumatica(),
                         () => _syncManager.SyncPaymentsToAcumatica(),
                     },
-                    x => x.AcumaticaOrderCustPmtPutState, 
+                    x => x.AcumaticaOrderEtcPutState, 
                     "End-to-End - Sync Customers, Orders, Payments to Acumatica");
             }
 

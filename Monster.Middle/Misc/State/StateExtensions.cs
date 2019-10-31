@@ -18,29 +18,27 @@ namespace Monster.Middle.Misc.State
                    state.AcumaticaRefDataState == StateCode.Ok &&
                    state.WarehouseSyncState == StateCode.Ok &&
                    state.ShopifyConnState == StateCode.Ok &&
-                   state.ShopifyOrderCustTransGetState == StateCode.Ok;
+                   state.ShopifyOrderEtcGetState == StateCode.Ok;
         }
 
         public static bool CanSyncRefundsToAcumatica(this SystemState state)
         {
             return state.CanSyncOrdersToAcumatica() 
-                   && state.AcumaticaOrderCustPmtPutState == StateCode.Ok;
+                   && state.AcumaticaOrderEtcPutState == StateCode.Ok;
         }
 
         public static bool CanSyncFulfillmentsToShopify(this SystemState state)
         {
             return state.ShopifyConnState == StateCode.Ok &&
                    state.InventoryRefreshState == StateCode.Ok &&
-                   state.ShopifyOrderCustTransGetState == StateCode.Ok;
+                   state.AcumaticaOrderEtcGetState == StateCode.Ok;
         }
 
         public static bool CanSyncInventoryCountsToShopify(this SystemState state)
         {
             return state.ShopifyConnState == StateCode.Ok &&
                    state.InventoryRefreshState == StateCode.Ok &&
-                   state.ShopifyOrderCustTransGetState == StateCode.Ok &&
-                   state.AcumaticaOrderCustShipGetState == StateCode.Ok;
+                   state.AcumaticaOrderEtcGetState == StateCode.Ok;
         }
-
     }
 }

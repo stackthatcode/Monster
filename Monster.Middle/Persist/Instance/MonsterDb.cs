@@ -1731,6 +1731,7 @@ namespace Monster.Middle.Persist.Instance
     public class SystemState
     {
         public long Id { get; set; } // Id (Primary key)
+        public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
         public int ShopifyConnState { get; set; } // ShopifyConnState
         public bool IsShopifyUrlFinalized { get; set; } // IsShopifyUrlFinalized
         public int AcumaticaConnState { get; set; } // AcumaticaConnState
@@ -1738,12 +1739,11 @@ namespace Monster.Middle.Persist.Instance
         public int SettingsState { get; set; } // SettingsState
         public int SettingsTaxesState { get; set; } // SettingsTaxesState
         public int WarehouseSyncState { get; set; } // WarehouseSyncState
-        public bool IsRandomAccessMode { get; set; } // IsRandomAccessMode
         public int InventoryRefreshState { get; set; } // InventoryRefreshState
         public int StartingShopifyOrderState { get; set; } // StartingShopifyOrderState
-        public int ShopifyOrderCustTransGetState { get; set; } // ShopifyOrderCustTransGetState
-        public int AcumaticaOrderCustShipGetState { get; set; } // AcumaticaOrderCustShipGetState
-        public int AcumaticaOrderCustPmtPutState { get; set; } // AcumaticaOrderCustPmtPutState
+        public int ShopifyOrderEtcGetState { get; set; } // ShopifyOrderEtcGetState
+        public int AcumaticaOrderEtcGetState { get; set; } // AcumaticaOrderEtcGetState
+        public int AcumaticaOrderEtcPutState { get; set; } // AcumaticaOrderEtcPutState
         public int AcumaticaRefundPutState { get; set; } // AcumaticaRefundPutState
         public int ShopifyFulfillmentPutState { get; set; } // ShopifyFulfillmentPutState
         public int ShopifyInventoryPutState { get; set; } // ShopifyInventoryPutState
@@ -3001,6 +3001,7 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyConnState).HasColumnName(@"ShopifyConnState").HasColumnType("int").IsRequired();
             Property(x => x.IsShopifyUrlFinalized).HasColumnName(@"IsShopifyUrlFinalized").HasColumnType("bit").IsRequired();
             Property(x => x.AcumaticaConnState).HasColumnName(@"AcumaticaConnState").HasColumnType("int").IsRequired();
@@ -3008,12 +3009,11 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.SettingsState).HasColumnName(@"SettingsState").HasColumnType("int").IsRequired();
             Property(x => x.SettingsTaxesState).HasColumnName(@"SettingsTaxesState").HasColumnType("int").IsRequired();
             Property(x => x.WarehouseSyncState).HasColumnName(@"WarehouseSyncState").HasColumnType("int").IsRequired();
-            Property(x => x.IsRandomAccessMode).HasColumnName(@"IsRandomAccessMode").HasColumnType("bit").IsRequired();
             Property(x => x.InventoryRefreshState).HasColumnName(@"InventoryRefreshState").HasColumnType("int").IsRequired();
             Property(x => x.StartingShopifyOrderState).HasColumnName(@"StartingShopifyOrderState").HasColumnType("int").IsRequired();
-            Property(x => x.ShopifyOrderCustTransGetState).HasColumnName(@"ShopifyOrderCustTransGetState").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaOrderCustShipGetState).HasColumnName(@"AcumaticaOrderCustShipGetState").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaOrderCustPmtPutState).HasColumnName(@"AcumaticaOrderCustPmtPutState").HasColumnType("int").IsRequired();
+            Property(x => x.ShopifyOrderEtcGetState).HasColumnName(@"ShopifyOrderEtcGetState").HasColumnType("int").IsRequired();
+            Property(x => x.AcumaticaOrderEtcGetState).HasColumnName(@"AcumaticaOrderEtcGetState").HasColumnType("int").IsRequired();
+            Property(x => x.AcumaticaOrderEtcPutState).HasColumnName(@"AcumaticaOrderEtcPutState").HasColumnType("int").IsRequired();
             Property(x => x.AcumaticaRefundPutState).HasColumnName(@"AcumaticaRefundPutState").HasColumnType("int").IsRequired();
             Property(x => x.ShopifyFulfillmentPutState).HasColumnName(@"ShopifyFulfillmentPutState").HasColumnType("int").IsRequired();
             Property(x => x.ShopifyInventoryPutState).HasColumnName(@"ShopifyInventoryPutState").HasColumnType("int").IsRequired();

@@ -34,6 +34,10 @@ namespace Monster.Middle.Misc.State
                 {
                     var newRecord = new SystemState();
 
+                    newRecord.IsRandomAccessMode = false;
+
+                    // Configuration
+                    //
                     newRecord.ShopifyConnState = StateCode.None;
                     newRecord.AcumaticaConnState = StateCode.None;
                     newRecord.AcumaticaRefDataState = StateCode.None;
@@ -41,10 +45,19 @@ namespace Monster.Middle.Misc.State
                     newRecord.SettingsTaxesState = StateCode.None;
                     newRecord.WarehouseSyncState = StateCode.None;
                     
-                    newRecord.IsRandomAccessMode = false;
-
+                    // Pre-Synchronization
+                    //
                     newRecord.InventoryRefreshState = StateCode.None;
                     newRecord.StartingShopifyOrderState = StateCode.None;
+
+                    // Synchronization
+                    //
+                    newRecord.ShopifyOrderEtcGetState = StateCode.None;
+                    newRecord.AcumaticaOrderEtcGetState = StateCode.None;
+                    newRecord.AcumaticaOrderEtcPutState = StateCode.None;
+                    newRecord.AcumaticaRefundPutState = StateCode.None;
+                    newRecord.ShopifyFulfillmentPutState = StateCode.None;
+                    newRecord.ShopifyInventoryPutState = StateCode.None;
 
                     Entities.SystemStates.Add(newRecord);
                     Entities.SaveChanges();

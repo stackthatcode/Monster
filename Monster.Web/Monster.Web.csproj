@@ -232,7 +232,7 @@
     <Compile Include="Models\Sync\SyncSettingsModel.cs" />
     <Compile Include="Models\Sync\SyncSettingsUpdateModel.cs" />
     <Compile Include="Models\ExecutionLogModel.cs" />
-    <Compile Include="Models\Config\PreferencesModel.cs" />
+    <Compile Include="Models\Config\SettingsModel.cs" />
     <Compile Include="Models\Sync\ShopifyProductModel.cs" />
     <Compile Include="Models\Sync\DisplayFilter.cs" />
     <Compile Include="Models\Sync\OrderSyncSummary.cs" />

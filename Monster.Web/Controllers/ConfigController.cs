@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using AutoMapper;
 using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
-using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -189,12 +187,12 @@ namespace Monster.Web.Controllers
         public ActionResult PreferenceSelections()
         {
             var preferencesData = _settingsRepository.RetrieveSettings();
-            var output = Mapper.Map<PreferencesModel>(preferencesData);
+            var output = new SettingsModel();
             return new JsonNetResult(output);
         }
 
         [HttpPost]
-        public ActionResult PreferenceSelections(PreferencesModel model)
+        public ActionResult PreferenceSelections(SettingsModel model)
         {
             var data = _settingsRepository.RetrieveSettings();
             

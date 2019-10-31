@@ -15,18 +15,9 @@ namespace Monster.Web
         public void Configuration(IAppBuilder app)
         {            
             var autofacContainer = WebAutofac.Build();
-            AutomapperConfigure();
-
+            
             AuthConfig.ConfigureAuth(app);
             HangFireConfig.Configure(app);
-        }
-
-        public static void AutomapperConfigure()
-        {
-            Mapper.Initialize(x =>
-            {
-                x.CreateMap<Preference, PreferencesModel>();
-            });
         }
     }
 }

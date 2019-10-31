@@ -1,6 +1,6 @@
 ﻿namespace Monster.Web.Models.Config
 {
-    public class PreferencesModel
+    public class SettingsModel
     {
         public string AcumaticaTimeZone { get; set; }
         public string AcumaticaDefaultItemClass { get; set; }

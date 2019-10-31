@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.Shopify;
@@ -33,7 +34,8 @@ namespace Monster.Web.Controllers
         private readonly ConfigStatusService _configStatusService;
         private readonly InstanceContext _instanceContext;
         private readonly OrderApi _shopifyOrderApi;
-        private readonly ShopifyUrlService _urlService;
+        private readonly ShopifyUrlService _shopifyUrlService;
+        private readonly AcumaticaUrlService _acumaticaUrlService;
 
 
         public SyncController(
@@ -44,10 +46,11 @@ namespace Monster.Web.Controllers
                 ExecutionLogService logRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 SettingsRepository settingsRepository,
-                ShopifyUrlService urlService,
+                ShopifyUrlService shopifyUrlService,
                 ConfigStatusService configStatusService,
-                OrderApi shopifyOrderApi, 
-                InstanceContext instanceContext)
+                InstanceContext instanceContext, 
+                AcumaticaUrlService acumaticaUrlService,
+                OrderApi shopifyOrderApi)
         {
             _stateRepository = stateRepository;
             _oneTimeJobService = oneTimeJobService;
@@ -55,9 +58,10 @@ namespace Monster.Web.Controllers
             _jobStatusService = jobStatusService;
             _logRepository = logRepository;
             _syncInventoryRepository = syncInventoryRepository;
-            _urlService = urlService;
+            _shopifyUrlService = shopifyUrlService;
             _shopifyOrderApi = shopifyOrderApi;
             _instanceContext = instanceContext;
+            _acumaticaUrlService = acumaticaUrlService;
             _configStatusService = configStatusService;
             _settingsRepository = settingsRepository;
         }
@@ -144,7 +148,7 @@ namespace Monster.Web.Controllers
 
             if (preferences.ShopifyOrderId.HasValue)
             {
-                output.StartingOrderHref = _urlService.ShopifyOrderUrl(preferences.ShopifyOrderId.Value);
+                output.StartingOrderHref = _shopifyUrlService.ShopifyOrderUrl(preferences.ShopifyOrderId.Value);
             }
 
             output.MaxParallelAcumaticaSyncs = preferences.MaxParallelAcumaticaSyncs;
@@ -196,9 +200,8 @@ namespace Monster.Web.Controllers
             var output = new OrderVerification();
             output.ShopifyOrderId = order.id;
             output.ShopifyOrderName = order.name;
-            output.ShopifyOrderCreatedAtUtc
-                = order.created_at.ToUniversalTime().DateTime.ToString();
-            output.ShopifyOrderHref = _urlService.ShopifyOrderUrl(order.id);
+            output.ShopifyOrderCreatedAtUtc = order.created_at.ToUniversalTime().DateTime.ToString();
+            output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(order.id);
 
             return output;
         }
@@ -270,7 +273,9 @@ namespace Monster.Web.Controllers
             var output = 
                 results.Select(item => 
                     VariantAndStockItemDto.Make(
-                        item, _urlService.ShopifyVariantUrl, _urlService.AcumaticaStockItemUrl))
+                        item, 
+                        _shopifyUrlService.ShopifyVariantUrl, 
+                        _acumaticaUrlService.AcumaticaStockItemUrl))
                     .ToList();
 
             return new JsonNetResult(output);
@@ -308,7 +313,7 @@ namespace Monster.Web.Controllers
             var output
                 = searchResult
                     .Select(x => ShopifyProductModel
-                        .Make(x, _urlService.ShopifyProductUrl)).ToList();
+                        .Make(x, _shopifyUrlService.ShopifyProductUrl)).ToList();
 
             return new JsonNetResult(output);
         }
@@ -336,7 +341,7 @@ namespace Monster.Web.Controllers
         {
             var product = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
             var output = ShopifyProductModel.Make(
-                product, _urlService.ShopifyProductUrl, includeVariantGraph: true);
+                product, _shopifyUrlService.ShopifyProductUrl, includeVariantGraph: true);
             return new JsonNetResult(output);
         }
 

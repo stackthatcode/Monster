@@ -27,6 +27,7 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
                         Func<string, string> stockItemUrlService)
         {
             var output = new VariantAndStockItemDto();
+
             output.MonsterVariantId = input.ShopifyVariant.MonsterId;
             output.ShopifyProductId = input.ShopifyVariant.ShopifyProduct.ShopifyProductId;
             output.ShopifyProductTitle = input.ShopifyVariant.ShopifyProduct.ShopifyTitle;
@@ -38,8 +39,8 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
 
             output.ShopifyVariantUrl 
                 = variantUrlService(
-                    input.ShopifyVariant.ShopifyProduct.ShopifyProductId,
-                    input.ShopifyVariant.ShopifyVariantId);
+                        input.ShopifyVariant.ShopifyProduct.ShopifyProductId,
+                        input.ShopifyVariant.ShopifyVariantId);
 
             output.AcumaticaItemId = input.AcumaticaStockItem.ItemId;
             output.AcumaticaDescription = input.AcumaticaStockItem.AcumaticaDescription;
