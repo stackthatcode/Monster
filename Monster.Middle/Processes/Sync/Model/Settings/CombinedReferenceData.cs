@@ -2,13 +2,15 @@
 using System.Linq;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Shopify;
+using Monster.Middle.Processes.Acumatica.Model;
 using Push.Foundation.Utilities.Helpers;
 
-namespace Monster.Middle.Processes.Acumatica.Model
+namespace Monster.Middle.Processes.Sync.Model.Settings
 {
-    public class ReferenceData
+    public class CombinedReferenceData
     {
         public List<AcumaticaTimeZone> TimeZones { get; set; }
+
         public List<ItemClassModel> ItemClasses { get; set; }
         public List<ShopifyPaymentGateway> PaymentGateways { get; set; }
         public List<PaymentMethodModel> PaymentMethods { get; set; }
@@ -17,7 +19,7 @@ namespace Monster.Middle.Processes.Acumatica.Model
         public List<string> TaxCategories { get; set; }
         public List<string> TaxZones { get; set; }
 
-        public ReferenceData()
+        public CombinedReferenceData()
         {
             TimeZones = new List<AcumaticaTimeZone>();
             ItemClasses = new List<ItemClassModel>();
@@ -50,7 +52,7 @@ namespace Monster.Middle.Processes.Acumatica.Model
                     output.Add("None of the Item Classes contain valid Posting Class");
                 }
 
-                if (PaymentMethods.Count == 0)
+                if (PaymentGateways.Count == 0)
                 {
                     output.Add("Payment Gateways are empty");
                 }

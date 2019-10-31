@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Monster.Middle.Processes.Sync.Model.Config
+namespace Monster.Middle.Processes.Sync.Model.Settings
 {
     public class PaymentGatewayConfig
     {

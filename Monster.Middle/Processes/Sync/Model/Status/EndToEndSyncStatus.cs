@@ -1,5 +1,5 @@
 ﻿using Monster.Middle.Misc.State;
-using Monster.Middle.Processes.Sync.Model.Config;
+using Monster.Middle.Processes.Sync.Model.Settings;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
 {

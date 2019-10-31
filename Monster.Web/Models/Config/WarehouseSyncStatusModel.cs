@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Monster.Middle.Processes.Sync.Model.Config;
 using Monster.Middle.Processes.Sync.Model.Status;
 
 namespace Monster.Web.Models.Config

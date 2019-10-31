@@ -23,7 +23,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ExecutionLogService _executionLogService;
         private readonly AcumaticaHttpContext _acumaticaContext;
 
-        private readonly WarehouseLocationPut _warehouseLocationSync;
+        private readonly WarehouseLocationSync _warehouseLocationSync;
         private readonly ShopifyInventoryPut _shopifyInventorySync;
         private readonly ShopifyFulfillmentPut _shopifyFulfillmentSync;
 
@@ -44,7 +44,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 AcumaticaRefundPut acumaticaRefundSync, 
                 AcumaticaOrderPaymentPut acumaticaPaymentSync,
 
-                WarehouseLocationPut warehouseLocationSync,
+                WarehouseLocationSync warehouseLocationSync,
                 ShopifyInventoryPut shopifyInventorySync,
                 ShopifyFulfillmentPut shopifyFulfillmentSync,
 

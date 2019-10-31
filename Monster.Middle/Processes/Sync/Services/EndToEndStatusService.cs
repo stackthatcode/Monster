@@ -1,7 +1,7 @@
 ﻿using Monster.Middle.Misc.State;
 using Monster.Middle.Processes.Sync.Model.Status;
 
-namespace Monster.Middle.Processes.Sync.Status
+namespace Monster.Middle.Processes.Sync.Services
 {
     public class EndToEndStatusService
     {

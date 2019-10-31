@@ -1,6 +1,6 @@
 ﻿using Monster.Middle.Processes.Acumatica.Model;
 
-namespace Monster.Middle.Processes.Sync.Model.Config
+namespace Monster.Middle.Processes.Sync.Model.Settings
 {
     public class PaymentGatewayMapping
     {

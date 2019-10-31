@@ -6,35 +6,38 @@ using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Model;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Model.Config;
+using Monster.Middle.Processes.Sync.Model.Settings;
+using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Acumatica.Services
 {
-    public class ReferenceDataService
+    public class CombinedRefDataService
     {
         private readonly ShopifyPaymentGatewayService _paymentGatewayService;
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
         private readonly AcumaticaInventoryRepository _inventoryRepository;
+        private readonly SettingsRepository _settingsRepository;
 
-
-        public ReferenceDataService(
+        public CombinedRefDataService(
                 ShopifyPaymentGatewayService paymentGatewayService,
                 AcumaticaTimeZoneService instanceTimeZoneService,
-                AcumaticaInventoryRepository inventoryRepository)
+                AcumaticaInventoryRepository inventoryRepository, 
+                SettingsRepository settingsRepository)
         {
             _paymentGatewayService = paymentGatewayService;
             _instanceTimeZoneService = instanceTimeZoneService;
             _inventoryRepository = inventoryRepository;
+            _settingsRepository = settingsRepository;
         }
 
-
-        public ReferenceData Retrieve()
+        public CombinedReferenceData Retrieve()
         {
-            var reference = _inventoryRepository.RetrieveAcumaticaRefeData();
+            var reference = _inventoryRepository.RetrieveAcumaticaRefData();
 
             var timeZones = _instanceTimeZoneService.RetrieveTimeZones();
+            var gateways = _paymentGatewayService.Retrieve();
 
             var itemClasses =
                 reference.ItemClass.IsNullOrEmptyAlt("[]")
@@ -42,8 +45,6 @@ namespace Monster.Middle.Processes.Acumatica.Services
                     .Where(x => x.DefaultWarehouseID?.value != null)
                     .Select(x => new ItemClassModel(x))
                     .ToList();
-
-            var gateways = _paymentGatewayService.Retrieve();
 
             var paymentMethods =
                 reference.PaymentMethod.IsNullOrEmptyAlt("[]")
@@ -69,7 +70,7 @@ namespace Monster.Middle.Processes.Acumatica.Services
                     .Select(x => x.TaxZoneID.value)
                     .ToList();
 
-            var output = new ReferenceData()
+            var output = new CombinedReferenceData()
             {
                 TimeZones = timeZones,
                 ItemClasses = itemClasses,
@@ -83,21 +84,19 @@ namespace Monster.Middle.Processes.Acumatica.Services
             return output;
         }
 
-
-        public void ReconcileSettingsWithRefData(MonsterSetting settings)
+        public void ReconcileSettingsWithRefData()
         {
             var referenceData = Retrieve();
-
-            if (referenceData
-                    .TimeZones
-                    .All(x => x.TimeZoneId != settings.AcumaticaTimeZone))
+            var settings = _settingsRepository.RetrieveSettings();
+            
+            if (referenceData.TimeZones.All(x => x.TimeZoneId != settings.AcumaticaTimeZone))
             {
                 settings.AcumaticaTimeZone = null;
             }
 
             if (!referenceData
-                    .ItemClasses
-                    .Any(x => x.ItemClass == settings.AcumaticaDefaultItemClass
+                    .ItemClasses.Any(
+                        x => x.ItemClass == settings.AcumaticaDefaultItemClass
                             && x.PostingClass == settings.AcumaticaDefaultPostingClass))
             {
                 settings.AcumaticaDefaultItemClass = null;
@@ -119,41 +118,49 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 settings.AcumaticaTaxZone = null;
             }
 
-
-            if (!referenceData
-                .PaymentMethods
-                .Any(x => x.PaymentMethod == settings.AcumaticaPaymentMethod
-                          && x.CashAccounts.Contains(settings.AcumaticaPaymentCashAccount)))
-            {
-                settings.AcumaticaPaymentMethod = null;
-                settings.AcumaticaPaymentCashAccount = null;
-            }
-
-
+            _settingsRepository.SaveChanges();
         }
 
-        public List<PaymentGateway> 
-                FilterPaymentGatewaysByExistingRefData(List<PaymentGateway> paymentGateways)
+        public void ReconcilePaymentGatewaysWithRefData()
         {
-            var output = new List<PaymentGateway>();
-            var acumaticaPaymentMethods = Retrieve().PaymentMethods;
+            var referenceData = Retrieve();
+            var gatewaySettings = _settingsRepository.RetrievePaymentGateways();
 
-            foreach (var gateway in paymentGateways)
+            var deleteList = new List<PaymentGateway>();
+
+            foreach (var gateway in gatewaySettings)
             {
-                var acumaticaPaymentMethod = acumaticaPaymentMethods
-                        .FirstOrDefault(x => x.PaymentMethod == gateway.AcumaticaPaymentMethod);
+                var selectedShopifyGatewayId = gateway.ShopifyGatewayId;
+                var selectedPaymentMethod = gateway.AcumaticaPaymentMethod;
+                var selectedCashAccount = gateway.AcumaticaCashAccount;
 
-                if (acumaticaPaymentMethod == null)
+                if (!referenceData.PaymentGateways.Any(x => x.Id == selectedShopifyGatewayId))
                 {
+                    deleteList.Add(gateway);
                     continue;
                 }
 
-                var acumaticaCashAccount = 
+                var acumaticaPaymentMethod 
+                    = referenceData.PaymentMethods
+                            .FirstOrDefault(x => x.PaymentMethod == selectedPaymentMethod);
 
-                output.Add(gateway);
+                if (acumaticaPaymentMethod == null)
+                {
+                    deleteList.Add(gateway);
+                    continue;
+                }
+
+                if (!acumaticaPaymentMethod.CashAccounts.Contains(selectedCashAccount))
+                {
+                    deleteList.Add(gateway);
+                }
             }
 
-            return output;
+            foreach (var gateway in deleteList)
+            {
+                _settingsRepository.DeletePaymentGateway(gateway.Id);
+            }
         }
+
     }
 }

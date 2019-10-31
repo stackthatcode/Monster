@@ -16,17 +16,44 @@ namespace Monster.Middle.Processes.Sync.Persist
             _dataContext = dataContext;
         }
 
-        static readonly object PreferencesLock = new object();
+        static readonly object SettingsLock = new object();
+
 
         public List<PaymentGateway> RetrievePaymentGateways()
         {
             return _dataContext.Entities.PaymentGateways.ToList();
         }
 
+        public PaymentGateway RetrievePaymentGateway(long id)
+        {
+            return _dataContext.Entities.PaymentGateways.FirstOrDefault(x => x.Id == id);
+        }
+
+        public PaymentGateway RetrievePaymentGatewayByShopifyId(string shopifyId)
+        {
+            return _dataContext
+                .Entities
+                .PaymentGateways
+                .FirstOrDefault(x => x.ShopifyGatewayId == shopifyId);
+        }
+
+        public void InsertPaymentGateway(PaymentGateway gateway)
+        {
+            _dataContext.Entities.PaymentGateways.Add(gateway);
+            _dataContext.Entities.SaveChanges();
+        }
+
+        public void DeletePaymentGateway(long id)
+        {
+            var gateway = RetrievePaymentGateway(id);
+            _dataContext.Entities.PaymentGateways.Remove(gateway);
+            _dataContext.Entities.SaveChanges();
+        }
+
 
         public MonsterSetting RetrieveSettings()
         {
-            lock (PreferencesLock)
+            lock (SettingsLock)
             {
                 if (!Entities.MonsterSettings.Any())
                 {

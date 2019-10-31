@@ -6,13 +6,10 @@ using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
-using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Services;
-using Monster.Middle.Processes.Sync.Model.Misc;
-using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Status;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Config;
@@ -33,9 +30,8 @@ namespace Monster.Web.Controllers
         private readonly JobMonitoringService _jobStatusService;
 
         private readonly ConfigStatusService _statusService;
-        private readonly ReferenceDataService _referenceDataService;
+        private readonly CombinedRefDataService _combinedRefDataService;
         private readonly SettingsRepository _settingsRepository;
-        private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
 
         public ConfigController(
@@ -47,10 +43,9 @@ namespace Monster.Web.Controllers
                 JobMonitoringService jobStatusService,
 
                 ConfigStatusService statusService, 
-                ReferenceDataService referenceDataService, 
+                CombinedRefDataService combinedRefDataService, 
 
                 SettingsRepository settingsRepository, 
-                AcumaticaBatchRepository acumaticaBatchRepository, 
                 SyncInventoryRepository syncInventoryRepository)
         {
 
@@ -59,10 +54,9 @@ namespace Monster.Web.Controllers
             _oneTimeJobService = oneTimeJobService;
 
             _statusService = statusService;
-            _referenceDataService = referenceDataService;
+            _combinedRefDataService = combinedRefDataService;
             _settingsRepository = settingsRepository;
             _logRepository = logRepository;
-            _acumaticaBatchRepository = acumaticaBatchRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _jobStatusService = jobStatusService;
         }
@@ -187,7 +181,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult AcumaticaReferenceData()
         {
-            var data = _referenceDataService.Retrieve();
+            var data = _combinedRefDataService.Retrieve();
             return new JsonNetResult(data);
         }
 

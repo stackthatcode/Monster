@@ -108,12 +108,14 @@ namespace Monster.Web.Controllers
             }
         }
 
+
         // Shopify OAuth Authentication (Authorization) flow    
         //
         [IdentityProcessor]
         public ActionResult Login(string shop, string returnUrl)
         {
             // Guard against attempts to change finalized Shopify Domain
+            //
             string fullShopDomain;
            
             var identity = HttpContext.GetIdentity();

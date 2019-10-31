@@ -11,7 +11,7 @@ using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Status;
+using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
 
 
@@ -21,7 +21,7 @@ namespace Monster.Middle.Processes.Sync.Managers
     {
         private readonly ExternalServiceRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
-        private readonly ReferenceDataService _referenceDataService;
+        private readonly CombinedRefDataService _combinedRefDataService;
         private readonly AcumaticaManager _acumaticaManager;
         private readonly ShopifyManager _shopifyManager;
         private readonly ConfigStatusService _configStatusService;
@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
                 ExecutionLogService executionLogService,
                 ConfigStatusService configStatusService,
-                ReferenceDataService referenceDataService,
+                CombinedRefDataService combinedRefDataService,
                 SettingsRepository settingsRepository,
                 JobMonitoringService monitoringService,
                 IPushLogger logger)
@@ -57,7 +57,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _executionLogService = executionLogService;
             _configStatusService = configStatusService;
             _settingsRepository = settingsRepository;
-            _referenceDataService = referenceDataService;
+            _combinedRefDataService = combinedRefDataService;
             _logger = logger;
             _monitoringService = monitoringService;
         }
@@ -86,8 +86,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 _executionLogService.Log("Testing Acumatica Connection");
                 _acumaticaManager.TestConnection();
-                _stateRepository.UpdateSystemState(
-                        x => x.AcumaticaConnState, StateCode.Ok);
+                _stateRepository.UpdateSystemState(x => x.AcumaticaConnState, StateCode.Ok);
             }
             catch (Exception ex)
             {
@@ -97,7 +96,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
 
-        public void RefreshAcumaticaRefData()
+        public void RefreshReferenceData()
         {
             try
             {
@@ -106,24 +105,22 @@ namespace Monster.Middle.Processes.Sync.Managers
                 
                 // Update the Reference Data State
                 //
-                _stateRepository.UpdateSystemState(
-                        x => x.AcumaticaRefDataState, StateCode.Ok);
+                _stateRepository.UpdateSystemState(x => x.AcumaticaRefDataState, StateCode.Ok);
 
-                // Update the Settingss State
+                // Reconcile based on any changes
                 //
-                var settings = _settingsRepository.RetrieveSettings();
-                _referenceDataService.ReconcileSettingsWithRefData(settings);
-                _connectionRepository.SaveChanges();
+                _combinedRefDataService.ReconcileSettingsWithRefData();
+                _combinedRefDataService.ReconcilePaymentGatewaysWithRefData();
 
-                var state = settings.AreSettingsValid() ? StateCode.Ok : StateCode.Invalid;
-                _stateRepository.UpdateSystemState(x => x.SettingsState, state);
+                // Retrieve the refreshed Settings
+                //
+                _configStatusService.RefreshSettingsStatus();
+                _configStatusService.RefreshSettingsTaxesStatus();
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
-
-                _stateRepository.UpdateSystemState(
-                        x => x.AcumaticaRefDataState, StateCode.SystemFault);
+                _stateRepository.UpdateSystemState(x => x.AcumaticaRefDataState, StateCode.SystemFault);
             }
         }
 
@@ -146,16 +143,14 @@ namespace Monster.Middle.Processes.Sync.Managers
             catch (Exception ex)
             {
                 _logger.Error(ex);
-
-                _stateRepository.UpdateSystemState(
-                        x => x.WarehouseSyncState, StateCode.SystemFault);
+                _stateRepository.UpdateSystemState(x => x.WarehouseSyncState, StateCode.SystemFault);
             }
         }
 
         public void RunDiagnostics()
         {
             ConnectToShopify();
-            RefreshAcumaticaRefData();
+            RefreshReferenceData();
             SyncWarehouseAndLocation();
         }
 
@@ -228,10 +223,9 @@ namespace Monster.Middle.Processes.Sync.Managers
                 x => x.InventoryRefreshState, 
                 "End-to-End - Refresh Inventory (Pull)");
 
-            var Settingss = _settingsRepository.RetrieveSettingss();
+            var settings = _settingsRepository.RetrieveSettings();
 
-
-            if (Settingss.SyncOrdersEnabled
+            if (settings.SyncOrdersEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncOrdersToAcumatica()))
             {
                 EndToEndRunner(
@@ -245,7 +239,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     "End-to-End - Sync Customers, Orders, Payments to Acumatica");
             }
 
-            if (Settingss.SyncRefundsEnabled
+            if (settings.SyncRefundsEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncRefundsToAcumatica()))
             {
                 EndToEndRunner(
@@ -254,7 +248,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     "End-to-End - Sync Refunds to Acumatica");
             }
 
-            if (Settingss.SyncFulfillmentsEnabled
+            if (settings.SyncFulfillmentsEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
             {
                 EndToEndRunner(
@@ -263,7 +257,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     "End-to-End - Sync Fulfillments to Shopify");
             }
 
-            if (Settingss.SyncInventoryEnabled
+            if (settings.SyncInventoryEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncInventoryCountsToShopify()))
             {
                 EndToEndRunner(
@@ -276,9 +270,8 @@ namespace Monster.Middle.Processes.Sync.Managers
         }
 
 
-
         private void EndToEndRunner(
-                    Action[] actions, Expression<Func<SystemState, int>> stateVariable, string name)
+                Action[] actions, Expression<Func<SystemState, int>> stateVariable, string descriptor)
         {
             foreach (var action in actions)
             {
@@ -287,7 +280,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     var monitor = _monitoringService.RetrieveMonitorByType(BackgroundJobType.EndToEndSync);
                     if (monitor == null || monitor.ReceivedKillSignal)
                     {
-                        _executionLogService.Log($"{name} - execution has been interrupted");
+                        _executionLogService.Log($"{descriptor} - execution has been interrupted");
                         return;
                     }
 
@@ -296,7 +289,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 catch (Exception ex)
                 {
                     _stateRepository.UpdateSystemState(stateVariable, StateCode.SystemFault);
-                    _executionLogService.Log($"{name} - encountered an error");
+                    _executionLogService.Log($"{descriptor} - encountered an error");
                     _logger.Error(ex);
                     return;
                 }

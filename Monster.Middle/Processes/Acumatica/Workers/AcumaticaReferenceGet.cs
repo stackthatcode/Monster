@@ -19,7 +19,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunItemClass()
         {
             var json = _referenceApi.RetrieveItemClass();
-            var reference = _dataRepository.RetrieveAcumaticaRefeData();
+            var reference = _dataRepository.RetrieveAcumaticaRefData();
             reference.ItemClass = json;
             _dataRepository.SaveChanges();
         }
@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunPaymentMethod()
         {
             var json = _referenceApi.RetrievePaymentMethod();
-            var reference = _dataRepository.RetrieveAcumaticaRefeData();
+            var reference = _dataRepository.RetrieveAcumaticaRefData();
             reference.PaymentMethod = json;
             _dataRepository.SaveChanges();
         }
@@ -35,7 +35,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunTaxCategories()
         {
             var json = _referenceApi.RetrieveTaxCategories();
-            var reference = _dataRepository.RetrieveAcumaticaRefeData();
+            var reference = _dataRepository.RetrieveAcumaticaRefData();
             reference.TaxCategory = json;
             _dataRepository.SaveChanges();
         }
@@ -43,7 +43,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunTaxZones()
         {
             var json = _referenceApi.RetrieveTaxZones();
-            var reference = _dataRepository.RetrieveAcumaticaRefeData();
+            var reference = _dataRepository.RetrieveAcumaticaRefData();
             reference.TaxZone = json;
             _dataRepository.SaveChanges();
         }
@@ -51,7 +51,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunTaxIds()
         {
             var json = _referenceApi.RetrieveTaxes();
-            var reference = _dataRepository.RetrieveAcumaticaRefeData();
+            var reference = _dataRepository.RetrieveAcumaticaRefData();
             reference.TaxId = json;
             _dataRepository.SaveChanges();
         }

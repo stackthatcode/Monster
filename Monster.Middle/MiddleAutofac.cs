@@ -24,7 +24,7 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Managers;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Status;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Middle.Processes.Sync.Workers;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
@@ -61,6 +61,7 @@ namespace Monster.Middle
             var connectionString = MonsterConfig.Settings.SystemDatabaseConnection;
 
             // Use this connection string for IdentityDbContext OWIN stuff
+            //
             builder
                 .Register(ctx =>
                 {
@@ -122,6 +123,10 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaUrlService>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();
 
+            // State
+            //
+            builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
+
             // Logging
             //
             builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
@@ -154,6 +159,7 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyCustomerGet>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderGet>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyTransactionGet>().InstancePerLifetimeScope();
+
             builder.RegisterType<ShopifyManager>().InstancePerLifetimeScope();
         }
 
@@ -172,40 +178,36 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaReferenceGet>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();
-
-            builder.RegisterType<ReferenceDataService>().InstancePerLifetimeScope();
         }
 
         private static void RegisterSyncProcess(ContainerBuilder builder)
         {
-            // Inventory 
+            // Persist
             //
             builder.RegisterType<SyncInventoryRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<ShopifyInventoryPut>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaInventoryPut>().InstancePerLifetimeScope();
-            builder.RegisterType<WarehouseLocationPut>().InstancePerLifetimeScope();
-            
-            // Orders
-            //
             builder.RegisterType<SyncOrderRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<SettingsRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<AnalyzerRepository>().InstancePerLifetimeScope();
+
+            // Workers 
+            //
+            builder.RegisterType<ShopifyInventoryPut>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyFulfillmentPut>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaInventoryPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaCustomerPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaRefundPut>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderPaymentPut>().InstancePerLifetimeScope();
-            
+            builder.RegisterType<WarehouseLocationSync>().InstancePerLifetimeScope();
+
             // Services
             //
-            builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<SettingsRepository>().InstancePerLifetimeScope();
-
-            // Status
-            //
+            builder.RegisterType<CombinedRefDataService>().InstancePerLifetimeScope();
             builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<OrderStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<EndToEndStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<FulfillmentStatusService>().InstancePerLifetimeScope();
-            
+
             // Management Objects
             //
             builder.RegisterType<SyncManager>().InstancePerLifetimeScope();

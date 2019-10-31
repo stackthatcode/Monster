@@ -1,6 +1,6 @@
 ﻿using Monster.Middle.Misc.State;
 
-namespace Monster.Middle.Processes.Sync.Model.Config
+namespace Monster.Middle.Processes.Sync.Model.Settings
 {
     public class ConfigStatusSummaryModel
     {

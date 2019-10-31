@@ -20,7 +20,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Reference data
         static object RefDataLock = new object();
-        public AcumaticaRefData RetrieveAcumaticaRefeData()
+        public AcumaticaRefData RetrieveAcumaticaRefData()
         {
             lock (RefDataLock)
             {

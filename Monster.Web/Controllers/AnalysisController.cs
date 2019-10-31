@@ -5,7 +5,7 @@ using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Processes;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Status;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Push.Foundation.Utilities.Logging;

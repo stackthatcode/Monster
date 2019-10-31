@@ -37,7 +37,7 @@ namespace Monster.Middle.Misc.Hangfire
 
         public void RefreshAcumaticaRefData(Guid instanceId, long jobMonitorId)
         {
-            ExecuteJob(instanceId, _processDirector.RefreshAcumaticaRefData, jobMonitorId);
+            ExecuteJob(instanceId, _processDirector.RefreshReferenceData, jobMonitorId);
         }
 
         public void SyncWarehouseAndLocation(Guid instanceId, long jobMonitorId)

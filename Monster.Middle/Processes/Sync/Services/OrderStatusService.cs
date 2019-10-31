@@ -6,7 +6,7 @@ using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Shopify.Api.Order;
 
-namespace Monster.Middle.Processes.Sync.Status
+namespace Monster.Middle.Processes.Sync.Services
 {
     public class OrderStatusService
     {
@@ -24,11 +24,12 @@ namespace Monster.Middle.Processes.Sync.Status
             _settingsRepository = settingsRepository;
         }
 
+
         public OrderSyncStatus ShopifyOrderStatus(long shopifyOrderId)
         {
             var output = new OrderSyncStatus();
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
-            var Settingss = _settingsRepository.RetrieveSettingss();
+            var settings = _settingsRepository.RetrieveSettings();
 
             output.ShopifyOrderId = shopifyOrderId;
             output.ShopifyOrderNumber = orderRecord.ShopifyOrderNumber;
@@ -36,10 +37,9 @@ namespace Monster.Middle.Processes.Sync.Status
             // If the Starting Shopify Order weren't populated, we would not be here i.e.
             // ... the Shopify Order would not have been pulled from API
             //
-            output.SettingssStartingOrderId = Settingss.ShopifyOrderId.Value;
-                
-            output.LineItemsWithAdhocVariants 
-                        = orderRecord.ToShopifyObj().LineItemsWithAdhocVariants;
+            output.SettingsStartingOrderId = settings.ShopifyOrderId.Value;
+            
+            output.LineItemsWithAdhocVariants = orderRecord.ToShopifyObj().LineItemsWithAdhocVariants;
             output.LineItemsWithUnmatchedVariants = LineItemsWithUnmatchedVariants(orderRecord);
 
             output.IsPaid = orderRecord.IsPaid();

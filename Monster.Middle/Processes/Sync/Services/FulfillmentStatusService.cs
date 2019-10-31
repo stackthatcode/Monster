@@ -7,7 +7,7 @@ using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Persist.Matching;
 using Push.Foundation.Utilities.Json;
 
-namespace Monster.Middle.Processes.Sync.Status
+namespace Monster.Middle.Processes.Sync.Services
 {
     public class FulfillmentStatusService
     {
