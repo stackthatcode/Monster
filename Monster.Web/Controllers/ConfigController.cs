@@ -5,6 +5,7 @@ using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Sync.Model.Settings;
 using Monster.Middle.Processes.Sync.Persist;
@@ -152,10 +153,8 @@ namespace Monster.Web.Controllers
         public ActionResult AcumaticaRefDataStatus()
         {
             var status = _statusService.GetAcumaticaReferenceDataStatus();
-
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
-
 
             var model = new
             {
@@ -205,12 +204,27 @@ namespace Monster.Web.Controllers
         {
             var data = _settingsRepository.RetrieveSettings();
             
+            // Save Settings
+            //
             data.AcumaticaTimeZone = selectionsModel.AcumaticaTimeZone;
             data.AcumaticaDefaultItemClass = selectionsModel.AcumaticaDefaultItemClass;
             data.AcumaticaDefaultPostingClass = selectionsModel.AcumaticaDefaultPostingClass;
-            
-            _connectionRepository.SaveChanges();
+            _settingsRepository.SaveChanges();
 
+            // Save Gateways
+            //
+            var gatewayRecords =
+                selectionsModel.PaymentGateways.Select(x => new PaymentGateway()
+                {
+                    ShopifyGatewayId = x.ShopifyGatewayId,
+                    AcumaticaCashAccount = x.AcumaticaCashAcount,
+                    AcumaticaPaymentMethod = x.AcumaticaPaymentMethod,
+                })
+                .ToList();
+            _settingsRepository.ImprintPaymentGateways(gatewayRecords);
+
+            // Refresh the Settings Status
+            //
             _statusService.RefreshSettingsStatus();
 
             return JsonNetResult.Success();

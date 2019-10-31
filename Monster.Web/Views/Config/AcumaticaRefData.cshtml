@@ -80,19 +80,19 @@
                 <span data-bind="ifnot: HasReferenceDataBeenPulled">
                     <a href="#" class="btn btn-primary btn-lg"
                        data-bind="click: ConnectToAcumatica">
-                        Pull Ref Data from Acumatica <i class="fas fa-bolt"></i>
+                        Pull Reference Data <i class="fas fa-bolt"></i>
                     </a>
                 </span>
 
                 <span data-bind="if: HasReferenceDataBeenPulled">
                     <a href="#" class="btn btn-primary btn-lg"
                        data-bind="click: ConnectToAcumatica">
-                       Refresh Ref Data from Acumatica <i class="fas fa-bolt"></i>
+                       Refresh Reference Data <i class="fas fa-bolt"></i>
                     </a>
                 </span>
 
                 <span data-bind="if: IsNextButtonVisible">
-                    <a href="@GlobalConfig.Url("Config/Preferences")"
+                    <a href="@GlobalConfig.Url("Config/Settings")"
                        class="btn btn-success btn-lg">
                         Next Step <i class="fas fa-sign-in-alt"></i>
                     </a>

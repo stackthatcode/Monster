@@ -37,6 +37,29 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyGatewayId == shopifyId);
         }
 
+        public void ImprintPaymentGateways(IList<PaymentGateway> updatedGateways)
+        {
+            var existingGateways = RetrievePaymentGateways();
+
+            foreach (var updatedGateway in updatedGateways)
+            {
+                if (!existingGateways.Any(x => x.ShopifyGatewayId == updatedGateway.ShopifyGatewayId))
+                {
+                    InsertPaymentGateway(updatedGateway);
+                }
+            }
+
+            foreach (var existingGateway in existingGateways)
+            {
+                if (!updatedGateways.Any(x => x.ShopifyGatewayId == existingGateway.ShopifyGatewayId))
+                {
+                    DeletePaymentGateway(existingGateway.Id);
+                }
+            }
+
+            Entities.SaveChanges();
+        }
+
         public void InsertPaymentGateway(PaymentGateway gateway)
         {
             _dataContext.Entities.PaymentGateways.Add(gateway);

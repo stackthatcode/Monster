@@ -117,6 +117,7 @@ namespace Monster.Middle
             //
             builder.RegisterType<ShopifyTimeZoneTranslator>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyUrlService>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyPaymentGatewayService>().InstancePerLifetimeScope();
 
             // Acumatica
             //

@@ -20,8 +20,7 @@
         </p>
     </div>
 
-    <div data-bind="template: { name: 'Preferences-Editor', afterRender: InitializePreferencesEditor }">
-    </div>
+    <div data-bind="template: { name: 'Preferences-Editor' }"></div>
 </main>
 
 
@@ -159,8 +158,7 @@
         </div>
     </div>
 
-
-    <!-- Payment Methods Pop-up -->
+    <!-- Payment Methods Pop-up TODO
     <div id="payment-methods" style="display:none;" class="card-body left">
         <div class="form-group">
             <label for="paymentMethod">Shopify Payment Gateway</label>
@@ -196,7 +194,6 @@
             </div>
         </div>
 
-        <!-- Payment Cash Account -->
         <div class="form-group">
             <label for="cashAccountMethod">Acumatica Payment Cash Account</label>
 
@@ -218,7 +215,7 @@
             </small>
         </div>
     </div>
-
+    -->
 
 </script>
 
@@ -237,7 +234,7 @@
         self.TimeZones = ko.observableArray();
         self.ItemClasses = ko.observableArray();
         self.PaymentMethods = ko.observableArray();
-        self.Gateways = ko.observable();
+        self.PaymentGateways = ko.observable();
 
         // Selected options
         //
@@ -247,11 +244,12 @@
             function () {
                 return self.SelectedItemClass() ? self.SelectedItemClass().PostingClass : null;
             });
+        self.SelectedGateways = ko.observableArray();
 
+        // Add Payment Gateway pop-up
+        //
         self.SelectedGateway = ko.observable();
         self.SelectedPaymentMethod = ko.observable();
-
-        self.SelectedGateways = ko.observableArray();
 
         // Validation
         //
@@ -265,7 +263,6 @@
             return self.TimeZoneValid() && self.ItemClassValid();
         });
 
-
         self.ShowValidation = ko.observable(false);
 
         self.ShowErrorSummary = ko.computed(function () {
@@ -274,12 +271,6 @@
 
 
         // Initialization stuff
-        self.InitializePreferencesEditor = function() {
-            $('#datepicker').datepicker({
-                uiLibrary: 'bootstrap4'
-            });
-        };
-
         self.Initialize = function () {
             flow.exec(
                 function() {
@@ -298,16 +289,12 @@
                     ajax.HttpGet("Config/AcumaticaReferenceData", this);
                 },
                 function (response) {
-                    //console.log(response);
+                    // console.log(response);
 
                     self.TimeZones(response.TimeZones);
                     self.ItemClasses(response.ItemClasses);
-                    self.TaxIds(response.TaxIds);
-                    self.TaxCategories(response.TaxCategories);
-                    self.TaxZones(response.TaxZones);
-
-                    self.ShowDataEntry(true);
-                    self.InitializePreferencesEditor();
+                    self.PaymentMethods(response.PaymentMethods);
+                    self.PaymentGateways(response.PaymentGateways);
 
                     // Pull selections
                     var ajax = new Monster.Ajax();
@@ -315,21 +302,20 @@
                 },
                 function (response) {
 
-                    self.SelectedTaxId(response.AcumaticaTaxId);
-                    self.SelectedTaxCategory(response.AcumaticaTaxCategory);
-                    self.SelectedTaxZone(response.AcumaticaTaxZone);
+                    self.SelectedTimeZone(response.AcumaticaTimeZone);
+                    self.SelectedItemClass(response.AcumaticaDefaultItemClass);
+                    self.SelectedGateways(response.PaymentGateways);
 
                     var itemClass =
-                        Monster.FindByField(
-                            self.ItemClasses(), 'ItemClass', response.AcumaticaDefaultItemClass);
+                        Monster.FindByField(self.ItemClasses(), 'ItemClass', response.AcumaticaDefaultItemClass);
 
                     self.SelectedItemClass(itemClass);
 
-                    var timeZone =
-                        Monster.FindByField(
-                            self.TimeZones(), 'TimeZoneId', response.AcumaticaTimeZone);
+                    var timeZone = Monster.FindByField(self.TimeZones(), 'TimeZoneId', response.AcumaticaTimeZone);
 
                     self.SelectedTimeZone(timeZone);
+
+                    self.ShowDataEntry(true);
                 });
         };
 

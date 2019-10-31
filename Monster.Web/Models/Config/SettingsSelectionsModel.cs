@@ -9,6 +9,11 @@ namespace Monster.Web.Models.Config
         public string AcumaticaDefaultItemClass { get; set; }
         public string AcumaticaDefaultPostingClass { get; set; }
         public List<PaymentGatewaySelectionModel> PaymentGateways { get; set; }
+
+        public SettingsSelectionsModel()
+        {
+            PaymentGateways = new List<PaymentGatewaySelectionModel>();
+        }
     }
 }
 
