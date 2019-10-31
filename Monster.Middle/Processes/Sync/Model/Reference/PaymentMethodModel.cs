@@ -2,7 +2,7 @@
 using System.Linq;
 using Monster.Acumatica.Api.Reference;
 
-namespace Monster.Middle.Processes.Acumatica.Model
+namespace Monster.Middle.Processes.Sync.Model.Reference
 {
     public class PaymentMethodModel
     {

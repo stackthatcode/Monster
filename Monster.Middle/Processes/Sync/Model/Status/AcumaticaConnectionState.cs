@@ -1,4 +1,4 @@
-﻿namespace Monster.Middle.Processes.Sync.Model.Settings
+﻿namespace Monster.Middle.Processes.Sync.Model.Status
 {
     public class AcumaticaConnectionState
     {

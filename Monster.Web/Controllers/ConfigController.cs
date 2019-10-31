@@ -6,6 +6,7 @@ using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Processes.Acumatica.Services;
+using Monster.Middle.Processes.Sync.Model.Settings;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
@@ -168,7 +169,7 @@ namespace Monster.Web.Controllers
         }
         
 
-        // Preference-selection of Reference Data
+        // Settings data entry
         //
         [HttpGet]
         public ActionResult Settings()
@@ -184,25 +185,30 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult PreferenceSelections()
+        public ActionResult SettingsSelections()
         {
-            var preferencesData = _settingsRepository.RetrieveSettings();
-            var output = new SettingsModel();
+            var output = new SettingsSelectionsModel();
+
+            var settings = _settingsRepository.RetrieveSettings();
+            output.AcumaticaTimeZone = settings.AcumaticaTimeZone;
+            output.AcumaticaDefaultItemClass = settings.AcumaticaDefaultItemClass;
+            output.AcumaticaDefaultPostingClass = settings.AcumaticaDefaultPostingClass;
+
+            var gateways = _settingsRepository.RetrievePaymentGateways();
+            output.PaymentGateways = gateways.Select(x => new PaymentGatewaySelectionModel(x)).ToList();
+
             return new JsonNetResult(output);
         }
 
         [HttpPost]
-        public ActionResult PreferenceSelections(SettingsModel model)
+        public ActionResult SettingsSelections(SettingsSelectionsModel selectionsModel)
         {
             var data = _settingsRepository.RetrieveSettings();
             
-            data.AcumaticaTimeZone = model.AcumaticaTimeZone;
-            data.AcumaticaDefaultItemClass = model.AcumaticaDefaultItemClass;
-            data.AcumaticaDefaultPostingClass = model.AcumaticaDefaultPostingClass;
-            data.AcumaticaTaxCategory = model.AcumaticaTaxCategory;
-            data.AcumaticaTaxId = model.AcumaticaTaxId;
-            data.AcumaticaTaxZone = model.AcumaticaTaxZone;
-
+            data.AcumaticaTimeZone = selectionsModel.AcumaticaTimeZone;
+            data.AcumaticaDefaultItemClass = selectionsModel.AcumaticaDefaultItemClass;
+            data.AcumaticaDefaultPostingClass = selectionsModel.AcumaticaDefaultPostingClass;
+            
             _connectionRepository.SaveChanges();
 
             _statusService.RefreshSettingsStatus();
@@ -211,19 +217,20 @@ namespace Monster.Web.Controllers
         }
 
 
-        // Payment Methods
+        // Settings -> Taxes
         //
         [HttpGet]
-        public ActionResult PaymentMethods()
+        public ActionResult SettingsTaxes()
         {
             return View();
         }
 
         [HttpGet]
-        public ActionResult PaymentMethodData()
+        public ActionResult SettingsTaxesData()
         {
             return JsonNetResult.Success();
         }
+
 
 
         // Warehouse synchronization

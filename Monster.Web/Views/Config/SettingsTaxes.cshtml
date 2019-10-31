@@ -9,7 +9,7 @@
     @Html.Partial("_TopBrand")
 
     <hr />
-    <h1 class="mt-4 center">Configuration - Payment Methods</h1>
+    <h1 class="mt-4 center">Configuration - Tax Settings</h1>
     <p class="lead center">
         Map your Shopify Payment Gateways to Acumatica Payment Methods.
     </p>
@@ -30,8 +30,7 @@
     <div data-bind="if: ShowErrorMessage">
         <div class="std-pad">
             <div class="alert alert-danger">
-                <strong>Acumatica Reference Data - Broken</strong>
-                <br />
+                <strong>Acumatica Reference Data - Broken</strong><br />
                 There's something wrong with your Acumatica reference data.
             </div>
 
@@ -47,50 +46,70 @@
 
     <div data-bind="if: ShowDataEntry">
         <div class="card text-center">
-            <div id="payment-methods" class="card-body left">
-                <div class="form-group">
-                    <label for="paymentMethod">Acumatica Payment Method</label>
 
-                    <select class="form-control"
-                            id="paymentMethod"
-                            data-bind="optionsCaption: 'Choose...',
-                                        options: PaymentMethods,
-                                        optionsText: 'PaymentMethod',
-                                        value: SelectedPaymentMethod"></select>
+            <!-- Tax Zone -->
+            <div class="form-group">
+                <label for="taxZone">Acumatica Tax Zone</label>
 
-                    <small id="paymentMethodHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection
-                        when it creates Payments in Acumatica.
-                    </small>
+                <select class="form-control" id="taxZone"
+                        data-bind="optionsCaption: 'Choose...',
+                                        value: SelectedTaxZone,
+                                        options: TaxZones"></select>
 
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !PaymentMethodValid()">
-                        Please select a Payment Method with a valid Cash Account
-                    </div>
-                </div>
+                <small id="taxZoneHelp"
+                       class="form-text text-muted">
+                    @GlobalConfig.AppName uses this selection for sales tax
+                    in Sales Orders and Credit Memos.
+                </small>
 
-                <!-- Payment Cash Account -->
-                <div class="form-group">
-                    <label for="cashAccountMethod">Acumatica Payment Cash Account</label>
-
-                    <div data-bind="if: CashAccounts().length == 0">
-                        <input type="text"
-                               class="form-control"
-                               disabled="disabled"
-                               value="(Select a Payment Method that has a Cash Account)" />
-                    </div>
-
-                    <div data-bind="if: CashAccounts().length">
-                        <select class="form-control"
-                                id="cashAccountMethod"
-                                data-bind="options: CashAccounts, value: SelectedCashAccount"></select>
-                    </div>
-
-                    <small id="cashAccountMethodHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection when it creates Payments in Acumatica.
-                    </small>
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !SelectedTaxZone()">
+                    Please select a Tax Zone
                 </div>
             </div>
+
+            <!-- Tax Category -->
+            <div class="form-group">
+                <label for="taxCategory">Acumatica Tax Category</label>
+
+                <select class="form-control" id="taxCategory"
+                        data-bind="optionsCaption: 'Choose...',
+                                        value: SelectedTaxCategory,
+                                        options: TaxCategories"></select>
+
+                <small id="taxCategoryHelp"
+                       class="form-text text-muted">
+                    @GlobalConfig.AppName uses this selection for sales tax
+                    in Sales Orders and Credit Memos.
+                </small>
+
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !SelectedTaxCategory()">
+                    Please select a Tax Category
+                </div>
+            </div>
+
+            <!-- Tax ID -->
+            <div class="form-group">
+                <label for="taxId">Acumatica Tax ID</label>
+
+                <select class="form-control" id="taxId"
+                        data-bind="optionsCaption: 'Choose...',
+                                        value: SelectedTaxId,
+                                        options: TaxIds"></select>
+
+                <small id="taxIdHelp"
+                       class="form-text text-muted">
+                    @GlobalConfig.AppName uses this selection for sales tax
+                    in Sales Orders and Credit Memos.
+                </small>
+
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !SelectedTaxId()">
+                    Please select a Tax ID
+                </div>
+            </div>
+
 
             <div class="card-footer text-muted">
                 @GlobalConfig.AppName Preferences Editor
@@ -135,8 +154,17 @@
         self.ShowDataEntry = ko.observable(false);
         self.IsRandomAccessMode = ko.observable();
 
-        // Reference data
+        // Reference data - Taxes
         //
+        self.TaxIds = ko.observableArray();
+        self.TaxCategories = ko.observableArray();
+        self.TaxZones = ko.observableArray();
+
+        self.SelectedTaxId = ko.observable();
+        self.SelectedTaxCategory = ko.observable();
+        self.SelectedTaxZone = ko.observable();
+
+
         self.PaymentMethods = ko.observableArray();
         self.CashAccounts = ko.observableArray(); // Updates when SelectedPaymentMethod changes
 
@@ -164,7 +192,6 @@
         self.ShowErrorSummary = ko.computed(function () {
             return self.ShowValidation() && !self.IsValid();
         });
-
 
         // Initialization stuff
         self.Initialize = function () {
@@ -195,7 +222,7 @@
 
                     // Pull selections
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/PreferenceSelections", this);
+                    ajax.HttpGet("Config/SettingsSelections", this);
                 },
                 function (response) {
 

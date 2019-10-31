@@ -184,14 +184,14 @@ Monster.InventoryConfigModel = function() {
                         Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
                     },
                     {
-                        Name: "Preference Selections",
-                        ConfigState: response.PreferenceSelections,
-                        Url: "@GlobalConfig.Url("Config/Preferences")",
+                        Name: "Settings",
+                        ConfigState: response.SettingsSelections,
+                        Url: "@GlobalConfig.Url("Config/Settings")",
                     },
                     {
-                        Name: "Preference Selections",
+                        Name: "Settings -> Taxes",
                         ConfigState: response.PaymentMethod,
-                        Url: "@GlobalConfig.Url("Config/PaymentMethods")",
+                        Url: "@GlobalConfig.Url("Config/SettingsTaxes")",
                     },
                     {
                         Name: "Warehouse Synchronization",

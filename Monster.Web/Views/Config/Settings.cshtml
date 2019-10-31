@@ -9,17 +9,14 @@
     @Html.Partial("_TopBrand")
 
     <hr />
-    <h1 class="mt-4 center">Configuration - Preferences</h1>
+    <h1 class="mt-4 center">Configuration - Settings</h1>
     <p class="lead center">
-        Choose settings to enable @GlobalConfig.AppName to properly synchronize
+        Choose settings to control how @GlobalConfig.AppName synchronizes your data with Acumatica.
     </p>
 
     <div data-bind="ifnot: IsRandomAccessMode">
         <p>
-            The next step in configuration is to set your Preferences.
-            When @GlobalConfig.AppName is running in Real-Time Sync Mode, it
-            will produce a large volume of work. It is critical that you make
-            sure your Preferences match your business objectives.
+            Make selections below to dictate how your data is transferred between systems.
         </p>
     </div>
 
@@ -29,7 +26,7 @@
 
 
 <script type="text/html" id="Preferences-Editor">
-<div data-bind="if: ShowRefDataErrorMessage">
+    <div data-bind="if: ShowRefDataErrorMessage">
         <div class="std-pad">
             <div class="alert alert-danger">
                 <strong>Acumatica Reference Data Pull - Broken</strong>
@@ -39,8 +36,7 @@
 
             <p>
                 Before setting preferences, your Acumatica reference data
-                needs to be properly configured.
-                You can address that now by
+                needs to be properly configured. You can address this now by
                 <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
             </p>
         </div>
@@ -119,106 +115,111 @@
                     </small>
                 </div>
 
-                <!-- Tax Zone -->
+                <!-- TODO - Selected Payment Gateways -->
+                <!-- Posting Class -->
                 <div class="form-group">
-                    <label for="taxZone">Acumatica Tax Zone</label>
+                    <label for="paymentGateways">Payment Gateways</label>
 
-                    <select class="form-control" id="taxZone"
-                            data-bind="optionsCaption: 'Choose...',
-                                        value: SelectedTaxZone,
-                                        options: TaxZones"></select>
-
-                    <small id="taxZoneHelp"
-                           class="form-text text-muted">
-                        @GlobalConfig.AppName uses this selection for sales tax
-                        in Sales Orders and Credit Memos.
+                    <small id="paymentGatewaysHelp" class="form-text text-muted">
+                        Assign Acumatica Payment methods for all of the Payment Gateways you
+                        currently have enabled in your Shopify store.
                     </small>
-
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !SelectedTaxZone()">
-                        Please select a Tax Zone
-                    </div>
-                </div>
-
-                <!-- Tax Category -->
-                <div class="form-group">
-                    <label for="taxCategory">Acumatica Tax Category</label>
-
-                    <select class="form-control" id="taxCategory"
-                            data-bind="optionsCaption: 'Choose...',
-                                        value: SelectedTaxCategory,
-                                        options: TaxCategories"></select>
-
-                    <small id="taxCategoryHelp"
-                           class="form-text text-muted">
-                        @GlobalConfig.AppName uses this selection for sales tax
-                        in Sales Orders and Credit Memos.
-                    </small>
-
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !SelectedTaxCategory()">
-                        Please select a Tax Category
-                    </div>
-                </div>
-
-                <!-- Tax ID -->
-                <div class="form-group">
-                    <label for="taxId">Acumatica Tax ID</label>
-
-                    <select class="form-control" id="taxId"
-                            data-bind="optionsCaption: 'Choose...',
-                                        value: SelectedTaxId,
-                                        options: TaxIds"></select>
-
-                    <small id="taxIdHelp"
-                           class="form-text text-muted">
-                        @GlobalConfig.AppName uses this selection for sales tax
-                        in Sales Orders and Credit Memos.
-                    </small>
-
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !SelectedTaxId()">
-                        Please select a Tax ID
-                    </div>
                 </div>
             </div>
 
             <div class="card-footer text-muted">
-                @GlobalConfig.AppName Preferences Editor
+                @GlobalConfig.AppName Settings Editor
             </div>
         </div>
 
-        <div style="height:45px;"
-             data-bind="if: ShowErrorSummary" class="center error-message">
+        <div style="height:45px;" data-bind="if: ShowErrorSummary" class="center error-message">
             One or more items are not valid. Please review and correct.
         </div>
     </div>
 
     <div class="std-pad-b center">
         <div data-bind="ifnot: IsRandomAccessMode">
-            <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"
-               class="btn btn-secondary btn-lg">
+            <a href="@GlobalConfig.Url("Config/AcumaticaRefData")" class="btn btn-secondary btn-lg">
                 <i class="fas fa-undo"></i> Previous Step
             </a>
 
-            <a href="#" data-bind="click: GotoNextStepClick"
-               class="btn btn-success btn-lg">
+            <a href="#" data-bind="click: GotoNextStepClick" class="btn btn-success btn-lg">
                 Next Step <i class="fas fa-sign-in-alt"></i>
             </a>
         </div>
 
         <div data-bind="if: IsRandomAccessMode">
-            <a href="@GlobalConfig.DiagnosticsHome"
-               class="btn btn-secondary btn-lg">
+            <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
                 Back to Diagnostics <i class="fas fa-undo"></i>
             </a>
 
-            <a href="#" class="btn btn-primary btn-lg"
-               data-bind="click: SaveChangesClick">
+            <a href="#" class="btn btn-primary btn-lg" data-bind="click: SaveChangesClick">
                 Save Changes <i class="fas fa-bolt"></i>
             </a>
         </div>
     </div>
+
+
+    <!-- Payment Methods Pop-up -->
+    <div id="payment-methods" style="display:none;" class="card-body left">
+        <div class="form-group">
+            <label for="paymentMethod">Shopify Payment Gateway</label>
+
+            <select class="form-control"
+                    id="shopifyPaymentGateway"
+                    data-bind="optionsCaption: 'Choose...',
+                                        options: ShopifyGateways,
+                                        optionsText: 'PaymentMethod',
+                                        value: SelectedShopifyGateway"></select>
+
+            <small id="shopifyPaymentGatewayHelp" class="form-text text-muted">
+               Select a Shopify Payment Gateway
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="paymentMethod">Acumatica Payment Method</label>
+
+            <select class="form-control" id="paymentMethod"
+                    data-bind="optionsCaption: 'Choose...',
+                                        options: PaymentMethods,
+                                        optionsText: 'PaymentMethod',
+                                        value: SelectedPaymentMethod"></select>
+
+            <small id="paymentMethodHelp" class="form-text text-muted">
+                Select an Acumatica Payment Method to assign to the selected Gateway
+            </small>
+
+            <div class="error-message"
+                 data-bind="if: ShowValidation() && !PaymentMethodValid()">
+                Please select a Payment Method with a valid Cash Account
+            </div>
+        </div>
+
+        <!-- Payment Cash Account -->
+        <div class="form-group">
+            <label for="cashAccountMethod">Acumatica Payment Cash Account</label>
+
+            <div data-bind="if: CashAccounts().length == 0">
+                <input type="text"
+                       class="form-control"
+                       disabled="disabled"
+                       value="(Select a Payment Method that has a Cash Account)" />
+            </div>
+
+            <div data-bind="if: CashAccounts().length">
+                <select class="form-control"
+                        id="cashAccountMethod"
+                        data-bind="options: CashAccounts, value: SelectedCashAccount"></select>
+            </div>
+
+            <small id="cashAccountMethodHelp" class="form-text text-muted">
+                @GlobalConfig.AppName will use this selection when it creates Payments in Acumatica.
+            </small>
+        </div>
+    </div>
+
+
 </script>
 
 <script>
@@ -232,41 +233,38 @@
         self.IsRandomAccessMode = ko.observable();
 
         // Reference data
+        //
         self.TimeZones = ko.observableArray();
         self.ItemClasses = ko.observableArray();
-        self.TaxIds = ko.observableArray();
-        self.TaxCategories = ko.observableArray();
-        self.TaxZones = ko.observableArray();
+        self.PaymentMethods = ko.observableArray();
+        self.Gateways = ko.observable();
 
         // Selected options
+        //
         self.SelectedTimeZone = ko.observable();
         self.SelectedItemClass = ko.observable();
-        self.SelectedTaxId = ko.observable();
-        self.SelectedTaxCategory = ko.observable();
-        self.SelectedTaxZone = ko.observable();
+        self.SelectedPostingClass = ko.computed(
+            function () {
+                return self.SelectedItemClass() ? self.SelectedItemClass().PostingClass : null;
+            });
 
-        self.SelectedPostingClass = ko.computed(function() {
-            return self.SelectedItemClass()
-                    ? self.SelectedItemClass().PostingClass : null;
-        });
+        self.SelectedGateway = ko.observable();
+        self.SelectedPaymentMethod = ko.observable();
 
-    
+        self.SelectedGateways = ko.observableArray();
+
         // Validation
-        self.TimeZoneValid = ko.computed(function () {
-            return self.SelectedTimeZone();
-        });
+        //
+        self.TimeZoneValid = ko.computed(function () { return self.SelectedTimeZone(); });
 
         self.ItemClassValid = ko.computed(function () {
             return self.SelectedItemClass() && self.SelectedPostingClass();
         });
 
         self.IsValid = ko.computed(function() {
-            return self.TimeZoneValid()
-                && self.ItemClassValid()
-                && self.SelectedTaxId()
-                && self.SelectedTaxCategory()
-                && self.SelectedTaxZone();
+            return self.TimeZoneValid() && self.ItemClassValid();
         });
+
 
         self.ShowValidation = ko.observable(false);
 
@@ -313,7 +311,7 @@
 
                     // Pull selections
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/PreferenceSelections", this);
+                    ajax.HttpGet("Config/SettingsSelections", this);
                 },
                 function (response) {
 
@@ -357,7 +355,7 @@
                 model.AcumaticaTaxCategory = self.SelectedTaxCategory();
 
                 var ajax = new Monster.Ajax();
-                ajax.HttpPost("Config/PreferenceSelections", model, this);
+                ajax.HttpPost("Config/SettingsSelections", model, this);
             },
             function() {
                 if (callback) {

@@ -145,8 +145,6 @@
     <Compile Include="Persist\Instance\MiscPersistContext.cs" />
     <Compile Include="Misc\Logging\LogLevel.cs" />
     <Compile Include="Misc\State\StateExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Settings\PaymentGatewayMapping.cs" />
-    <Compile Include="Processes\Sync\Model\Settings\PaymentGatewayConfig.cs" />
     <Compile Include="Processes\Sync\Misc\LogDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\ConfigStatusSummary.cs" />
@@ -171,9 +169,9 @@
     <Compile Include="Processes\Sync\Misc\LogBuilder.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\AcumaticaInventoryImportContext.cs" />
     <Compile Include="Processes\Sync\Model\Status\SyncEnabledFilter.cs" />
-    <Compile Include="Processes\Acumatica\Model\ItemClassModel.cs" />
-    <Compile Include="Processes\Acumatica\Model\PaymentMethodModel.cs" />
-    <Compile Include="Processes\Sync\Model\Settings\CombinedReferenceData.cs" />
+    <Compile Include="Processes\Sync\Model\Reference\ItemClassModel.cs" />
+    <Compile Include="Processes\Sync\Model\Reference\PaymentMethodModel.cs" />
+    <Compile Include="Processes\Sync\Model\Reference\CombinedReferenceData.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaInventoryRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaOrderRepository.cs" />
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
@@ -195,8 +193,8 @@
     <Compile Include="Processes\Sync\Model\Inventory\LocationExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyOrderRepository.cs" />
     <Compile Include="Processes\Sync\Model\Orders\OrderExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Settings\AcumaticaConnectionState.cs" />
-    <Compile Include="Processes\Sync\Model\Settings\AcumaticaReferenceDataState.cs" />
+    <Compile Include="Processes\Sync\Model\Status\AcumaticaConnectionState.cs" />
+    <Compile Include="Processes\Sync\Model\Status\AcumaticaReferenceDataState.cs" />
     <Compile Include="Processes\Sync\Persist\SyncInventoryRepository.cs" />
     <Compile Include="Processes\Sync\Model\Orders\OrderSummaryViewDto.cs" />
     <Compile Include="Processes\Sync\Persist\SyncOrderRepository.cs" />
@@ -290,9 +288,7 @@
       <LastGenOutput>MonsterDb.cs</LastGenOutput>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utility\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

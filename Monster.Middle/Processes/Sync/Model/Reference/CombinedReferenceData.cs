@@ -2,10 +2,9 @@
 using System.Linq;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Shopify;
-using Monster.Middle.Processes.Acumatica.Model;
 using Push.Foundation.Utilities.Helpers;
 
-namespace Monster.Middle.Processes.Sync.Model.Settings
+namespace Monster.Middle.Processes.Sync.Model.Reference
 {
     public class CombinedReferenceData
     {
