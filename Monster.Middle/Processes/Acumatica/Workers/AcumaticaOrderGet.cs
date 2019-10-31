@@ -5,11 +5,11 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Acumatica.Config;
+using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Utility;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 
@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaHttpConfig _acumaticaHttpConfig;
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaTimeZoneService _timeZoneService;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
 
 
         public AcumaticaOrderGet(
@@ -32,7 +32,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaTimeZoneService timeZoneService,
                 AcumaticaBatchRepository batchStateRepository,
                 AcumaticaHttpConfig acumaticaHttpConfig,
-                PreferencesRepository preferencesRepository,
+                SettingsRepository settingsRepository,
                 SalesOrderClient salesOrderClient,
                 ShipmentClient shipmentClient)
         {
@@ -41,7 +41,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository = batchStateRepository;
             _acumaticaHttpConfig = acumaticaHttpConfig;
             _salesOrderClient = salesOrderClient;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _shipmentClient = shipmentClient;
         }
 
@@ -56,8 +56,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunAutomatic()
         {
             var batchState = _batchStateRepository.Retrieve();
-            var preferences = _preferencesRepository.RetrievePreferences();
-            preferences.AssertStartingOrderIsValid();
+            var Settingss = _settingsRepository.RetrieveSettingss();
+            Settingss.AssertStartingOrderIsValid();
 
             if (batchState.AcumaticaOrdersGetEnd.HasValue)
             {
@@ -66,7 +66,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
             else
             {
-                var orderStartDateUtc = preferences.ShopifyOrderCreatedAtUtc.Value;
+                var orderStartDateUtc = Settingss.ShopifyOrderCreatedAtUtc.Value;
 
                 RunWithPaging(orderStartDateUtc);
             }

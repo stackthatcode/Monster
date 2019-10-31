@@ -17,11 +17,11 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
-        // Preferences
+        // Settingss
         //
-        public PayoutPreference RetrievePayoutPreferences()
+        public PayoutSettings RetrievePayoutSettingss()
         {
-            return Entities.PayoutPreferences.FirstOrDefault();
+            return Entities.PayoutSettingss.FirstOrDefault();
         }
 
 

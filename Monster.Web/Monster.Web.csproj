@@ -328,7 +328,7 @@
     <Content Include="webfonts\fa-solid-900.woff2" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\Preferences.cshtml" />
+    <Content Include="Views\Config\Settings.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\Warehouses.cshtml" />
@@ -399,7 +399,7 @@
     <Content Include="Views\Error\Http401.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Config\PaymentMethods.cshtml" />
+    <Content Include="Views\Config\SettingsTaxes.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

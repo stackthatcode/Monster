@@ -4,26 +4,24 @@ using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
 {
-    public static class PreferencesValidationExtensions
+    public static class SettingssValidationExtensions
     {
         // Seems obvious that we'll provide more detail for the future..
-        public static bool AreAcumaticaPreferencesValid(this Preference preferences)
+        public static bool AreSettingsValid(this MonsterSetting settings)
         {
-            return preferences.AcumaticaTimeZone.HasValue()
-                   && preferences.AcumaticaDefaultItemClass.HasValue()
-                   && preferences.AcumaticaDefaultPostingClass.HasValue()
-                   && preferences.AcumaticaPaymentMethod.HasValue()
-                   && preferences.AcumaticaTaxCategory.HasValue()
-                   && preferences.AcumaticaTaxId.HasValue()
-                   && preferences.AcumaticaTaxZone.HasValue();
+            return settings.AcumaticaTimeZone.HasValue()
+                   && settings.AcumaticaDefaultItemClass.HasValue()
+                   && settings.AcumaticaDefaultPostingClass.HasValue()
+                   && settings.AcumaticaTaxCategory.HasValue()
+                   && settings.AcumaticaTaxId.HasValue()
+                   && settings.AcumaticaTaxZone.HasValue();
         }
 
-
-        public static void AssertStartingOrderIsValid(this Preference preferences)
+        public static void AssertStartingOrderIsValid(this MonsterSetting settings)
         {
-            if (preferences.ShopifyOrderId == null ||
-                preferences.ShopifyOrderCreatedAtUtc == null ||
-                preferences.ShopifyOrderName.IsNullOrEmpty())
+            if (settings.ShopifyOrderId == null ||
+                settings.ShopifyOrderCreatedAtUtc == null ||
+                settings.ShopifyOrderName.IsNullOrEmpty())
             {
                 throw new Exception("ShopifyOrderCreatedAtUtc has not been set");
             }

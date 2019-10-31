@@ -1,13 +1,12 @@
 ﻿using System;
 using Push.Foundation.Utilities.Helpers;
 
-// ReSharper disable once CheckNamespace
-namespace Monster.Middle.Services
+namespace Monster.Middle.Misc.Shopify
 {
-
     public class ShopifyTimeZoneTranslator
     {
         // Returns Date + Midnight of that Date in another Time Zone based on *now* in UTC
+        //
         public DateTime Today(string shopifyTimeZone)
         {
             return FromUtcToTimeZone(DateTime.UtcNow, shopifyTimeZone).DateOnly();
@@ -15,7 +14,6 @@ namespace Monster.Middle.Services
 
         public DateTime FromUtcToTimeZone(DateTime dateTimeUtc, string timeZone)
         {
-            //var timeZoneId = TZConvert.IanaToWindows(timeZone);
             var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
             return TimeZoneInfo.ConvertTimeFromUtc(dateTimeUtc, timeZoneInfo);
         }

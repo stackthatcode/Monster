@@ -12,23 +12,23 @@ namespace Monster.Middle.Processes.Sync.Status
     {
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
 
         public OrderStatusService(
                 SyncInventoryRepository inventoryRepository, 
                 SyncOrderRepository orderRepository, 
-                PreferencesRepository preferencesRepository)
+                SettingsRepository settingsRepository)
         {
             _syncInventoryRepository = inventoryRepository;
             _syncOrderRepository = orderRepository;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
         }
 
         public OrderSyncStatus ShopifyOrderStatus(long shopifyOrderId)
         {
             var output = new OrderSyncStatus();
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
-            var preferences = _preferencesRepository.RetrievePreferences();
+            var Settingss = _settingsRepository.RetrieveSettingss();
 
             output.ShopifyOrderId = shopifyOrderId;
             output.ShopifyOrderNumber = orderRecord.ShopifyOrderNumber;
@@ -36,7 +36,7 @@ namespace Monster.Middle.Processes.Sync.Status
             // If the Starting Shopify Order weren't populated, we would not be here i.e.
             // ... the Shopify Order would not have been pulled from API
             //
-            output.PreferencesStartingOrderId = preferences.ShopifyOrderId.Value;
+            output.SettingssStartingOrderId = Settingss.ShopifyOrderId.Value;
                 
             output.LineItemsWithAdhocVariants 
                         = orderRecord.ToShopifyObj().LineItemsWithAdhocVariants;

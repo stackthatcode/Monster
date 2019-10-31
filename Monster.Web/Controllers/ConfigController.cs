@@ -34,7 +34,7 @@ namespace Monster.Web.Controllers
 
         private readonly ConfigStatusService _statusService;
         private readonly ReferenceDataService _referenceDataService;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
 
@@ -49,7 +49,7 @@ namespace Monster.Web.Controllers
                 ConfigStatusService statusService, 
                 ReferenceDataService referenceDataService, 
 
-                PreferencesRepository preferencesRepository, 
+                SettingsRepository settingsRepository, 
                 AcumaticaBatchRepository acumaticaBatchRepository, 
                 SyncInventoryRepository syncInventoryRepository)
         {
@@ -60,7 +60,7 @@ namespace Monster.Web.Controllers
 
             _statusService = statusService;
             _referenceDataService = referenceDataService;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _logRepository = logRepository;
             _acumaticaBatchRepository = acumaticaBatchRepository;
             _syncInventoryRepository = syncInventoryRepository;
@@ -79,7 +79,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult AcumaticaConnectionStatus()
         {
-            var status = _statusService.AcumaticaConnectionStatus();
+            var status = _statusService.GetAcumaticaConnectionStatus();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
 
@@ -158,7 +158,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult AcumaticaRefDataStatus()
         {
-            var status = _statusService.AcumaticaReferenceDataStatus();
+            var status = _statusService.GetAcumaticaReferenceDataStatus();
 
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
@@ -175,10 +175,11 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(model);
         }
         
+
         // Preference-selection of Reference Data
         //
         [HttpGet]
-        public ActionResult Preferences()
+        public ActionResult Settings()
         {
             return View();
         }
@@ -193,7 +194,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult PreferenceSelections()
         {
-            var preferencesData = _preferencesRepository.RetrievePreferences();
+            var preferencesData = _settingsRepository.RetrieveSettings();
             var output = Mapper.Map<PreferencesModel>(preferencesData);
             return new JsonNetResult(output);
         }
@@ -201,7 +202,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult PreferenceSelections(PreferencesModel model)
         {
-            var data = _preferencesRepository.RetrievePreferences();
+            var data = _settingsRepository.RetrieveSettings();
             
             data.AcumaticaTimeZone = model.AcumaticaTimeZone;
             data.AcumaticaDefaultItemClass = model.AcumaticaDefaultItemClass;
@@ -256,7 +257,7 @@ namespace Monster.Web.Controllers
             var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
 
             var state = _stateRepository.RetrieveSystemStateNoTracking();
-            var details = _statusService.WarehouseSyncStatus();
+            var details = _statusService.GetWarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
             {
@@ -308,7 +309,7 @@ namespace Monster.Web.Controllers
                             item.AcumaticaWarehouseId, item.ShopifyLocationId);
                 }
 
-                _statusService.UpdateWarehouseSyncStatus();
+                _statusService.RefreshWarehouseSyncStatus();
 
                 transaction.Commit();
             }
@@ -351,7 +352,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ConfigDiagnosis()
         {
-            var output = _statusService.GetConfigSummary();
+            var output = _statusService.GetConfigStatusSummary();
             return new JsonNetResult(output);
         }
 

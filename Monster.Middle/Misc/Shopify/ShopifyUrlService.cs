@@ -1,12 +1,12 @@
 ﻿using Monster.Middle.Misc.External;
 
-namespace Monster.Middle.Utility
+namespace Monster.Middle.Misc.Shopify
 {
-    public class UrlService
+    public class ShopifyUrlService
     {
         private readonly ExternalServiceRepository _connectionRepository;
 
-        public UrlService(ExternalServiceRepository connectionRepository)
+        public ShopifyUrlService(ExternalServiceRepository connectionRepository)
         {
             _connectionRepository = connectionRepository;
         }
@@ -30,11 +30,5 @@ namespace Monster.Middle.Utility
                         $"/admin/products/{product_id}/variants/{variant_id}";
         }
 
-
-        public string AcumaticaStockItemUrl(string id)
-        {
-            var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
-            return $"{acumaticaCredentials.InstanceUrl}/Main?ScreenId=IN202500&InventoryCD={id}";
-        }
     }
 }

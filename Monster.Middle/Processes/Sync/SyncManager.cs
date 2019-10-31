@@ -18,7 +18,7 @@ namespace Monster.Middle.Processes.Sync.Managers
     {
         private readonly ILifetimeScope _lifetimeScope;
 
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly InstanceContext _connectionContext;
         private readonly ExecutionLogService _executionLogService;
         private readonly AcumaticaHttpContext _acumaticaContext;
@@ -48,7 +48,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ShopifyInventoryPut shopifyInventorySync,
                 ShopifyFulfillmentPut shopifyFulfillmentSync,
 
-                PreferencesRepository preferencesRepository,
+                SettingsRepository settingsRepository,
                 InstanceContext connectionContext,
                 ExecutionLogService executionLogService,
                 ILifetimeScope lifetimeScope,
@@ -62,7 +62,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _acumaticaOrderSync = acumaticaOrderSync;
             
             _shopifyFulfillmentSync = shopifyFulfillmentSync;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
 
             _connectionContext = connectionContext;
             _executionLogService = executionLogService;
@@ -80,7 +80,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void SyncOrdersToAcumatica()
         {
-            var preferenece = _preferencesRepository.RetrievePreferences();
+            var preferenece = _settingsRepository.RetrieveSettingss();
             var msg = $"Starting Order Sync with {preferenece.MaxParallelAcumaticaSyncs} worker(s)";
             _executionLogService.Log(msg);
 

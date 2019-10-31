@@ -26,7 +26,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncRepository;
         private readonly SalesOrderClient _salesOrderClient;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly AcumaticaOrderPut _acumaticaOrderSync;
         private readonly IPushLogger _logger;
@@ -36,7 +36,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                     SyncOrderRepository syncOrderRepository,
                     SyncInventoryRepository syncRepository,
                     SalesOrderClient salesOrderClient, 
-                    PreferencesRepository preferencesRepository, 
+                    SettingsRepository settingsRepository, 
                     ExecutionLogService logService, 
                     AcumaticaOrderGet acumaticaOrderPull, 
                     AcumaticaOrderPut acumaticaOrderSync,
@@ -44,7 +44,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             _syncOrderRepository = syncOrderRepository;
             _salesOrderClient = salesOrderClient;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _logService = logService;
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaOrderSync = acumaticaOrderSync;
@@ -69,7 +69,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         
 
         private ReturnForCreditWrite 
-                    BuildReturnForCredit(ShopifyRefund refundRecord, Preference preferences)
+                    BuildReturnForCredit(ShopifyRefund refundRecord, Settings Settingss)
         {
             var shopifyOrderRecord = refundRecord.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -84,13 +84,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             creditMemo.Description = $"Shopify Order #{shopifyOrder.order_number} Refund {refund.id}".ToValue();
 
             var taxDetail = new TaxDetails();
-            taxDetail.TaxID = preferences.AcumaticaTaxId.ToValue();
+            taxDetail.TaxID = Settingss.AcumaticaTaxId.ToValue();
             creditMemo.TaxDetails = new List<TaxDetails> {taxDetail};
             
             creditMemo.FinancialSettings = new FinancialSettings()
             {
                 OverrideTaxZone = true.ToValue(),
-                CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
+                CustomerTaxZone = Settingss.AcumaticaTaxZone.ToValue(),
             };
 
             foreach (var _return in refund.Returns)

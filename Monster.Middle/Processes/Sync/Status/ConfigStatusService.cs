@@ -26,7 +26,7 @@ namespace Monster.Middle.Processes.Sync.Status
         }
 
 
-        public WarehouseSyncSummary WarehouseSyncStatus()
+        public WarehouseSyncSummary GetWarehouseSyncStatus()
         {
             var warehouses = _syncInventoryRepository.RetrieveWarehouses();
             var locations = _syncInventoryRepository.RetrieveLocations();
@@ -54,18 +54,14 @@ namespace Monster.Middle.Processes.Sync.Status
             return output;
         }
 
-        public void UpdateWarehouseSyncStatus()
+        public void RefreshWarehouseSyncStatus()
         {
-            var status = WarehouseSyncStatus();
-
-            // TODO - maybe guard against transistions from SystemFault state... maybe
-            //
+            var status = GetWarehouseSyncStatus();
             var systemState = status.IsOk ? StateCode.Ok : StateCode.Invalid;
             _stateRepository.UpdateSystemState(x => x.WarehouseSyncState, systemState);
         }
 
-
-        public AcumaticaConnectionState AcumaticaConnectionStatus()
+        public AcumaticaConnectionState GetAcumaticaConnectionStatus()
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
 
@@ -79,7 +75,7 @@ namespace Monster.Middle.Processes.Sync.Status
             return model;
         }
 
-        public AcumaticaReferenceDataState AcumaticaReferenceDataStatus()
+        public AcumaticaReferenceDataState GetAcumaticaReferenceDataStatus()
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             
@@ -95,18 +91,17 @@ namespace Monster.Middle.Processes.Sync.Status
             return model;
         }
 
-
-        public ConfigStateSummaryModel GetConfigSummary()
+        public ConfigStatusSummaryModel GetConfigStatusSummary()
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
-            var output = new ConfigStateSummaryModel()
+
+            var output = new ConfigStatusSummaryModel()
             {
                 ShopifyConnection = state.ShopifyConnState,
                 AcumaticaConnection = state.AcumaticaConnState,
                 AcumaticaReferenceData = state.AcumaticaRefDataState,
-                PaymentMethod = state.PaymentMethodState,
-                InventoryPull = state.InventoryRefreshState,
-                PreferenceSelections = state.PreferenceState,
+                Settings = state.SettingsState,
+                SettingsTax = state.SettingsTaxesState,
                 WarehouseSync = state.WarehouseSyncState
             };
             return output;

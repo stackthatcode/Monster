@@ -18,11 +18,11 @@ namespace Monster.Middle.Processes.Sync.Status
 
         public EndToEndSyncStatus GetEndToEndSyncStatus()
         {
-            var configStatus = _configStatusService.GetConfigSummary();
+            var configStatus = _configStatusService.GetConfigStatusSummary();
             var state = _stateRepository.RetrieveSystemStateNoTracking();
 
             var output = new EndToEndSyncStatus();
-            output.ConfigStateSummaryModel = configStatus;
+            output.ConfigStatusSummaryModel = configStatus;
             output.ShopifyOrderState = state.StartingShopifyOrderState;
 
             return output;

@@ -16,7 +16,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
     {
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _batchRepository;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly ShopifyCustomerGet _shopifyCustomerPull;
         private readonly OrderApi _orderApi;
 
@@ -24,21 +24,21 @@ namespace Monster.Middle.Processes.Shopify.Workers
         public ShopifyOrderGet(
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository batchRepository,
-                PreferencesRepository preferencesRepository,
+                SettingsRepository settingsRepository,
                 ShopifyCustomerGet shopifyCustomerPull,
                 OrderApi orderApi)
         {
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _shopifyCustomerPull = shopifyCustomerPull;
             _orderApi = orderApi;
         }
 
         public void RunAutomatic()
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
-            preferences.AssertStartingOrderIsValid();
+            var Settingss = _settingsRepository.RetrieveSettingss();
+            Settingss.AssertStartingOrderIsValid();
 
             var batchState = _batchRepository.Retrieve();
 
@@ -46,7 +46,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var filter = new SearchFilter();
                 filter.OrderByUpdatedAt();
-                filter.SinceId = preferences.ShopifyOrderId.Value;
+                filter.SinceId = Settingss.ShopifyOrderId.Value;
                 filter.UpdatedAtMinUtc = batchState.ShopifyOrdersGetEnd.Value;
 
                 Run(filter);
@@ -55,7 +55,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var filter = new SearchFilter();
                 filter.OrderByCreatedAt();
-                filter.SinceId = preferences.ShopifyOrderId.Value;
+                filter.SinceId = Settingss.ShopifyOrderId.Value;
 
                 Run(filter);
             }

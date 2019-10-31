@@ -17,7 +17,7 @@ namespace Monster.Middle.Processes.Payouts.Workers
         private readonly ExternalServiceRepository _connectionRepository;
         private readonly ShopifyBatchRepository _shopifyBatchRepository;
         private readonly ShopifyPayoutRepository _persistRepository;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly PayoutApi _payoutApi;
         private readonly IPushLogger _logger;
 
@@ -27,14 +27,14 @@ namespace Monster.Middle.Processes.Payouts.Workers
                 ExternalServiceRepository connectionRepository,
                 ShopifyBatchRepository shopifyBatchRepository,
                 ShopifyPayoutRepository persistRepository,
-                PreferencesRepository preferencesRepository,
+                SettingsRepository settingsRepository,
                 PayoutApi payoutApi,
                 IPushLogger logger)
         {
             _connectionRepository = connectionRepository;
             _shopifyBatchRepository = shopifyBatchRepository;
             _persistRepository = persistRepository;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _payoutApi = payoutApi;
             _logger = logger;
         }
@@ -42,12 +42,12 @@ namespace Monster.Middle.Processes.Payouts.Workers
         // Use this for Routine methods
         public void RunPayoutHeaders()
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
+            var Settingss = _settingsRepository.RetrieveSettingss();
             var batchState = _shopifyBatchRepository.Retrieve();
 
             var minDate
                 = batchState.ShopifyPayoutGetEnd 
-                    ?? preferences.ShopifyOrderCreatedAtUtc.Value;
+                    ?? Settingss.ShopifyOrderCreatedAtUtc.Value;
             
             // First stage is to import Payouts based on Date 
             var firstPayouts =

@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Status;
-using Monster.Middle.Utility;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Sync;
@@ -31,12 +30,11 @@ namespace Monster.Web.Controllers
         private readonly RecurringJobScheduler _recurringJobService;
         private readonly JobMonitoringService _jobStatusService;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly AcumaticaBatchRepository _acumaticaBatchRepository;
         private readonly EndToEndStatusService _endStatusService;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly InstanceContext _instanceContext;
         private readonly OrderApi _shopifyOrderApi;
-        private readonly UrlService _urlService;
+        private readonly ShopifyUrlService _urlService;
 
 
         public SyncController(
@@ -46,10 +44,11 @@ namespace Monster.Web.Controllers
                 JobMonitoringService jobStatusService,
                 ExecutionLogService logRepository,
                 SyncInventoryRepository syncInventoryRepository,
-                PreferencesRepository preferencesRepository,
-                AcumaticaBatchRepository acumaticaBatchRepository,
+                SettingsRepository settingsRepository,
                 EndToEndStatusService endStatusService,
-                UrlService urlService, OrderApi shopifyOrderApi, InstanceContext instanceContext)
+                ShopifyUrlService urlService, 
+                OrderApi shopifyOrderApi, 
+                InstanceContext instanceContext)
         {
             _stateRepository = stateRepository;
             _oneTimeJobService = oneTimeJobService;
@@ -60,9 +59,8 @@ namespace Monster.Web.Controllers
             _urlService = urlService;
             _shopifyOrderApi = shopifyOrderApi;
             _instanceContext = instanceContext;
-            _acumaticaBatchRepository = acumaticaBatchRepository;
             _endStatusService = endStatusService;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
         }
 
         
@@ -117,7 +115,7 @@ namespace Monster.Web.Controllers
                 output.NonRunningStateModel = new NonRunningStateModel
                 {
                     IsStartingOrderReadyForEndToEnd = status.IsStartingOrderReadyForEndToEnd,
-                    IsConfigReadyForEndToEnd = status.ConfigStateSummaryModel.IsConfigReadyForEndToEnd,
+                    IsConfigReadyForEndToEnd = status.ConfigStatusSummaryModel.IsConfigReadyForEndToEnd,
                     CanEndToEndSyncBeStarted = status.CanEndToEndSyncBeStarted,
 
                 };
@@ -133,7 +131,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult SyncSettingsAndEnables()
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
+            var preferences = _settingsRepository.RetrieveSettings();
 
             var output = new SyncSettingsModel();
 
@@ -161,12 +159,12 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult UpdateSyncEnables(SyncEnablesUpdateModel input)
         {
-            var data = _preferencesRepository.RetrievePreferences();
+            var data = _settingsRepository.RetrieveSettings();
             data.SyncOrdersEnabled = input.SyncOrdersEnabled;
             data.SyncInventoryEnabled = input.SyncInventoryEnabled;
             data.SyncRefundsEnabled = input.SyncRefundsEnabled;
             data.SyncFulfillmentsEnabled = input.SyncShipmentsEnabled;
-            _preferencesRepository.SaveChanges();
+            _settingsRepository.SaveChanges();
 
             return JsonNetResult.Success();
         }
@@ -213,7 +211,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult OrderSyncSettingsUpdate(OrderSyncSettingsModel model)
         {
-            var data = _preferencesRepository.RetrievePreferences();
+            var data = _settingsRepository.RetrieveSettings();
             if (!data.ShopifyOrderId.HasValue && model.ShopifyOrderId.HasValue)
             {
                 data.ShopifyOrderId = model.ShopifyOrderId;
@@ -224,7 +222,7 @@ namespace Monster.Web.Controllers
             }
 
             data.MaxParallelAcumaticaSyncs = model.MaxParallelAcumaticaSyncs;
-            _preferencesRepository.SaveChanges();
+            _settingsRepository.SaveChanges();
 
             //// TODO - are we sure about this...?
             //_acumaticaBatchRepository.Reset();

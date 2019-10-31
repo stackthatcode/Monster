@@ -37,13 +37,13 @@ namespace Monster.Middle.Misc.State
                     newRecord.ShopifyConnState = StateCode.None;
                     newRecord.AcumaticaConnState = StateCode.None;
                     newRecord.AcumaticaRefDataState = StateCode.None;
-                    newRecord.PreferenceState = StateCode.None;
-                    newRecord.PaymentMethodState = StateCode.None;
+                    newRecord.SettingsState = StateCode.None;
+                    newRecord.SettingsTaxesState = StateCode.None;
                     newRecord.WarehouseSyncState = StateCode.None;
-                    newRecord.InventoryRefreshState = StateCode.None;
                     
                     newRecord.IsRandomAccessMode = false;
 
+                    newRecord.InventoryRefreshState = StateCode.None;
                     newRecord.OrderCustomersTransPullState = StateCode.None;
                     newRecord.SyncOrdersState = StateCode.None;
                     newRecord.SyncRefundsState = StateCode.None;

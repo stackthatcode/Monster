@@ -1,41 +1,49 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Persist.Instance;
+
 
 namespace Monster.Middle.Processes.Sync.Persist
 {
-    public class PreferencesRepository
+    public class SettingsRepository
     {
         private readonly ProcessPersistContext _dataContext;
 
         public MonsterDataContext Entities => _dataContext.Entities;
 
-        public PreferencesRepository(ProcessPersistContext dataContext)
+        public SettingsRepository(ProcessPersistContext dataContext)
         {
             _dataContext = dataContext;
         }
 
         static readonly object PreferencesLock = new object();
 
-        public Preference RetrievePreferences()
+        public List<PaymentGateway> RetrievePaymentGateways()
+        {
+            return _dataContext.Entities.PaymentGateways.ToList();
+        }
+
+
+        public MonsterSetting RetrieveSettings()
         {
             lock (PreferencesLock)
             {
-                if (!Entities.Preferences.Any())
+                if (!Entities.MonsterSettings.Any())
                 {
-                    var preferences = new Preference();
+                    var preferences = new MonsterSetting();
+
                     preferences.SyncOrdersEnabled = true;
                     preferences.SyncInventoryEnabled = true;
                     preferences.SyncRefundsEnabled = true;
                     preferences.SyncFulfillmentsEnabled = true;
                     preferences.MaxParallelAcumaticaSyncs = 1;
 
-                    Entities.Preferences.Add(preferences);
+                    Entities.MonsterSettings.Add(preferences);
                     return preferences;
                 }
             }
 
-            return Entities.Preferences.First();
+            return Entities.MonsterSettings.First();
         }
 
         public void SaveChanges()

@@ -27,7 +27,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ConfigStatusService _configStatusService;
         private readonly SyncManager _syncManager;
         private readonly ExecutionLogService _executionLogService;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly JobMonitoringService _monitoringService;
         private readonly IPushLogger _logger;
 
@@ -43,7 +43,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ExecutionLogService executionLogService,
                 ConfigStatusService configStatusService,
                 ReferenceDataService referenceDataService,
-                PreferencesRepository preferencesRepository,
+                SettingsRepository settingsRepository,
                 JobMonitoringService monitoringService,
                 IPushLogger logger)
         {
@@ -56,7 +56,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
             _executionLogService = executionLogService;
             _configStatusService = configStatusService;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _referenceDataService = referenceDataService;
             _logger = logger;
             _monitoringService = monitoringService;
@@ -109,14 +109,14 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _stateRepository.UpdateSystemState(
                         x => x.AcumaticaRefDataState, StateCode.Ok);
 
-                // Update the Preferences State
+                // Update the Settingss State
                 //
-                var preferences = _preferencesRepository.RetrievePreferences();
-                _referenceDataService.FilterPreferencesAgainstRefData(preferences);
+                var settings = _settingsRepository.RetrieveSettings();
+                _referenceDataService.ReconcileSettingsWithRefData(settings);
                 _connectionRepository.SaveChanges();
 
-                var state = preferences.AreAcumaticaPreferencesValid() ? StateCode.Ok : StateCode.Invalid;
-                _stateRepository.UpdateSystemState(x => x.PreferenceState, state);
+                var state = settings.AreSettingsValid() ? StateCode.Ok : StateCode.Invalid;
+                _stateRepository.UpdateSystemState(x => x.SettingsState, state);
             }
             catch (Exception ex)
             {
@@ -141,7 +141,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 _syncManager.SynchronizeWarehouseLocation();
 
                 // Step 3 - Determine resultant System State
-                _configStatusService.UpdateWarehouseSyncStatus();
+                _configStatusService.RefreshWarehouseSyncStatus();
             }
             catch (Exception ex)
             {
@@ -228,10 +228,10 @@ namespace Monster.Middle.Processes.Sync.Managers
                 x => x.InventoryRefreshState, 
                 "End-to-End - Refresh Inventory (Pull)");
 
-            var preferences = _preferencesRepository.RetrievePreferences();
+            var Settingss = _settingsRepository.RetrieveSettingss();
 
 
-            if (preferences.SyncOrdersEnabled
+            if (Settingss.SyncOrdersEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncOrdersToAcumatica()))
             {
                 EndToEndRunner(
@@ -245,7 +245,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     "End-to-End - Sync Customers, Orders, Payments to Acumatica");
             }
 
-            if (preferences.SyncRefundsEnabled
+            if (Settingss.SyncRefundsEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncRefundsToAcumatica()))
             {
                 EndToEndRunner(
@@ -254,7 +254,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     "End-to-End - Sync Refunds to Acumatica");
             }
 
-            if (preferences.SyncFulfillmentsEnabled
+            if (Settingss.SyncFulfillmentsEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
             {
                 EndToEndRunner(
@@ -263,7 +263,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     "End-to-End - Sync Fulfillments to Shopify");
             }
 
-            if (preferences.SyncInventoryEnabled
+            if (Settingss.SyncInventoryEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncInventoryCountsToShopify()))
             {
                 EndToEndRunner(

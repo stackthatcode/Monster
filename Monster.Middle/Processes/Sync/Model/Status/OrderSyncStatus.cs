@@ -10,7 +10,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
     {
         public long ShopifyOrderId { get; set; }
         public long ShopifyOrderNumber { get; set; }        
-        public long PreferencesStartingOrderId { get; set; }
+        public long SettingssStartingOrderId { get; set; }
 
         public List<LineItem> LineItemsWithAdhocVariants { get; set; }
         public List<LineItem> LineItemsWithUnmatchedVariants { get; set; }
@@ -25,7 +25,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public bool UsesAdhocVariants => LineItemsWithAdhocVariants.Count > 0;
         public bool UsesUnmatchedVariants => LineItemsWithUnmatchedVariants.Count > 0;
 
-        public bool OrderNumberValidForSync => ShopifyOrderId >= PreferencesStartingOrderId;
+        public bool OrderNumberValidForSync => ShopifyOrderId >= SettingssStartingOrderId;
         
         public bool HasBeenSynced => AcumaticaSalesOrderId.HasValue();
 
@@ -46,7 +46,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
                     "Shopify Order references Variants not loaded into Acumatica")
 
                 .Add(x => x.OrderNumberValidForSync, 
-                    $"Shopify Order number not greater than or equal to Preferences -> Starting Order Number")
+                    $"Shopify Order number not greater than or equal to Settingss -> Starting Order Number")
 
                 .Add(x => !x.IsCancelledBeforeSync,
                     $"Shopify Order has been canceled before sync with Acumatica")

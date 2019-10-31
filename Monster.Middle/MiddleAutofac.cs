@@ -5,9 +5,11 @@ using Monster.Acumatica;
 using Monster.Acumatica.BankImportApi;
 using Monster.Middle.Config;
 using Monster.Middle.Identity;
+using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
@@ -24,8 +26,6 @@ using Monster.Middle.Processes.Sync.Managers;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Status;
 using Monster.Middle.Processes.Sync.Workers;
-using Monster.Middle.Services;
-using Monster.Middle.Utility;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
 using Push.Foundation.Web;
@@ -46,18 +46,18 @@ namespace Monster.Middle
             ShopifyApiAutofac.Build(builder);
             
             // Logging registrations
-            builder.RegisterType<DefaultFormatter>()
-                .As<ILogFormatter>()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<DefaultFormatter>().As<ILogFormatter>().InstancePerLifetimeScope();
 
             builder.Register(x => new NLogger(LoggerName, x.Resolve<ILogFormatter>()))
                 .As<IPushLogger>()
                 .InstancePerLifetimeScope();
 
             // TODO *** decide if it's necessary to implement this for Batch stuff!!
+            //
             //.InstancePerBackgroundJobIfTrue(containerForHangFire);
             
             // System-level Persistence always uses the MonsterConfig for its Connection String
+            //
             var connectionString = MonsterConfig.Settings.SystemDatabaseConnection;
 
             // Use this connection string for IdentityDbContext OWIN stuff
@@ -73,40 +73,58 @@ namespace Monster.Middle
                 .InstancePerLifetimeScope();
 
             // Persistence - Master-level
+            //
             builder.RegisterType<InstanceRepository>().InstancePerLifetimeScope();
 
-            // Persistence - Instance level parent wrapper
+            // Persistence - Instance-level Contexts
+            //
             builder.RegisterType<InstanceContext>().InstancePerLifetimeScope();
-
-            // Persistence - Instance-level Entity Framework wrappers
             builder.RegisterType<MiscPersistContext>().InstancePerLifetimeScope();
             builder.RegisterType<ProcessPersistContext>().InstancePerLifetimeScope();
 
-            // Instance level 
-            builder.RegisterType<ExternalServiceRepository>().InstancePerLifetimeScope();
-
-
-            // Job Running components
-            builder.RegisterType<OneTimeJobScheduler>().InstancePerLifetimeScope();
-            builder.RegisterType<RecurringJobScheduler>().InstancePerLifetimeScope();
-            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
-            builder.RegisterType<JobMonitoringService>().InstancePerLifetimeScope();
-
             // Process Registrations
+            //
             RegisterIdentityPlumbing(builder);
+            RegisterMiscellaneous(builder);
             RegisterShopifyProcess(builder);            
             RegisterAcumaticaProcess(builder);            
             RegisterSyncProcess(builder);
             RegisterPayoutProcess(builder);
 
-            // Misc
-            builder.RegisterType<ShopifyTimeZoneTranslator>().InstancePerLifetimeScope();
-
             // Crypto faculties
-            builder.Register<ICryptoService>(x => new AesCrypto(
-                MonsterConfig.Settings.EncryptKey, MonsterConfig.Settings.EncryptIv));
+            //
+            builder.Register<ICryptoService>(
+                x => new AesCrypto(MonsterConfig.Settings.EncryptKey, MonsterConfig.Settings.EncryptIv));
 
             return builder;
+        }
+
+        private static void RegisterMiscellaneous(ContainerBuilder builder)
+        {
+            // External Services
+            //
+            builder.RegisterType<ExternalServiceRepository>().InstancePerLifetimeScope();
+
+            // Hangfire 
+            //
+            builder.RegisterType<OneTimeJobScheduler>().InstancePerLifetimeScope();
+            builder.RegisterType<RecurringJobScheduler>().InstancePerLifetimeScope();
+            builder.RegisterType<JobRunner>().InstancePerLifetimeScope();
+            builder.RegisterType<JobMonitoringService>().InstancePerLifetimeScope();
+
+            // Shopify
+            //
+            builder.RegisterType<ShopifyTimeZoneTranslator>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyUrlService>().InstancePerLifetimeScope();
+
+            // Acumatica
+            //
+            builder.RegisterType<AcumaticaUrlService>().InstancePerLifetimeScope();
+            builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();
+
+            // Logging
+            //
+            builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
         }
 
         private static void RegisterIdentityPlumbing(ContainerBuilder builder)
@@ -125,6 +143,7 @@ namespace Monster.Middle
         private static void RegisterShopifyProcess(ContainerBuilder builder)
         {
             // Shopify Pull Process
+            //
             builder.RegisterType<ShopifyBatchRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderRepository>().InstancePerLifetimeScope();
@@ -141,6 +160,7 @@ namespace Monster.Middle
         private static void RegisterAcumaticaProcess(ContainerBuilder builder)
         {
             // Acumatica Pull Process
+            //
             builder.RegisterType<AcumaticaBatchRepository>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaOrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<AcumaticaInventoryRepository>().InstancePerLifetimeScope();
@@ -176,11 +196,8 @@ namespace Monster.Middle
             
             // Services
             //
-            builder.RegisterType<UrlService>().InstancePerLifetimeScope();            
             builder.RegisterType<StateRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<PreferencesRepository>().InstancePerLifetimeScope();
-            builder.RegisterType<ExecutionLogService>().InstancePerLifetimeScope();
-            builder.RegisterType<AcumaticaTimeZoneService>().InstancePerLifetimeScope();
+            builder.RegisterType<SettingsRepository>().InstancePerLifetimeScope();
 
             // Status
             //

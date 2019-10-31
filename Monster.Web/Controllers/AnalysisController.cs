@@ -1,11 +1,11 @@
 ﻿using System.Web.Mvc;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Processes;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Status;
-using Monster.Middle.Utility;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Push.Foundation.Utilities.Logging;
@@ -21,7 +21,7 @@ namespace Monster.Web.Controllers
         private readonly ExecutionLogService _logRepository;
         private readonly JobMonitoringService _jobStatusService;
         private readonly ConfigStatusService _statusService;
-        private readonly UrlService _urlService;
+        private readonly ShopifyUrlService _urlService;
         private readonly IPushLogger _logger;
 
         public AnalysisController(
@@ -33,7 +33,7 @@ namespace Monster.Web.Controllers
                 ExecutionLogService logRepository,
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
-                UrlService urlService,
+                ShopifyUrlService urlService,
                 IPushLogger logger)
         {
             _stateRepository = stateRepository;

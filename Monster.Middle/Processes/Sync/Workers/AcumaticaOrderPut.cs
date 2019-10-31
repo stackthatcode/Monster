@@ -26,7 +26,7 @@ namespace Monster.Middle.Processes.Sync.Workers
     public class AcumaticaOrderPut
     {
         private readonly ExecutionLogService _logService;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
@@ -38,7 +38,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public AcumaticaOrderPut(
                 ExecutionLogService logRepository,
-                PreferencesRepository preferencesRepository,
+                SettingsRepository settingsRepository,
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 SalesOrderClient salesOrderClient,
@@ -47,7 +47,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 OrderStatusService orderStatusService)
         {
             _logService = logRepository;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _salesOrderClient = salesOrderClient;
@@ -222,7 +222,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         private SalesOrder BuildNewSalesOrderHeader(Order shopifyOrder, AcumaticaCustomer customer)
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
+            var Settingss = _settingsRepository.RetrieveSettingss();
 
             var salesOrder = new SalesOrder();
             salesOrder.Details = new List<SalesOrderDetail>();
@@ -233,13 +233,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.ExternalRef = $"{shopifyOrder.order_number}".ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
-            salesOrder.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();
-            salesOrder.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
+            salesOrder.PaymentMethod = Settingss.AcumaticaPaymentMethod.ToValue();
+            salesOrder.CashAccount = Settingss.AcumaticaPaymentCashAccount.ToValue();
             
             salesOrder.FinancialSettings = new FinancialSettings()
             {
                 OverrideTaxZone = true.ToValue(),
-                CustomerTaxZone = preferences.AcumaticaTaxZone.ToValue(),
+                CustomerTaxZone = Settingss.AcumaticaTaxZone.ToValue(),
             };
 
             var taxTransferJson = shopifyOrder.ToTaxTransfer().SerializeToJson();

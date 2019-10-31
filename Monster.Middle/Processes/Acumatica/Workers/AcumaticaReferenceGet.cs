@@ -1,6 +1,5 @@
 ﻿using Monster.Acumatica.Api;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Push.Foundation.Utilities.Logging;
 
 
 namespace Monster.Middle.Processes.Acumatica.Workers
@@ -11,8 +10,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly ReferenceClient _referenceApi;
 
         public AcumaticaReferenceGet(
-                AcumaticaInventoryRepository dataRepository,
-                ReferenceClient referenceApi)
+                AcumaticaInventoryRepository dataRepository, ReferenceClient referenceApi)
         {
             _dataRepository = dataRepository;
             _referenceApi = referenceApi;
@@ -21,16 +19,15 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunItemClass()
         {
             var json = _referenceApi.RetrieveItemClass();
-            var reference = _dataRepository.RetrieveReferenceData();
+            var reference = _dataRepository.RetrieveAcumaticaRefeData();
             reference.ItemClass = json;
             _dataRepository.SaveChanges();
         }
 
-
         public void RunPaymentMethod()
         {
             var json = _referenceApi.RetrievePaymentMethod();
-            var reference = _dataRepository.RetrieveReferenceData();
+            var reference = _dataRepository.RetrieveAcumaticaRefeData();
             reference.PaymentMethod = json;
             _dataRepository.SaveChanges();
         }
@@ -38,7 +35,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunTaxCategories()
         {
             var json = _referenceApi.RetrieveTaxCategories();
-            var reference = _dataRepository.RetrieveReferenceData();
+            var reference = _dataRepository.RetrieveAcumaticaRefeData();
             reference.TaxCategory = json;
             _dataRepository.SaveChanges();
         }
@@ -46,7 +43,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunTaxZones()
         {
             var json = _referenceApi.RetrieveTaxZones();
-            var reference = _dataRepository.RetrieveReferenceData();
+            var reference = _dataRepository.RetrieveAcumaticaRefeData();
             reference.TaxZone = json;
             _dataRepository.SaveChanges();
         }
@@ -54,7 +51,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         public void RunTaxIds()
         {
             var json = _referenceApi.RetrieveTaxes();
-            var reference = _dataRepository.RetrieveReferenceData();
+            var reference = _dataRepository.RetrieveAcumaticaRefeData();
             reference.TaxId = json;
             _dataRepository.SaveChanges();
         }

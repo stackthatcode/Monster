@@ -25,7 +25,6 @@ namespace Monster.Middle.Identity
 
         private readonly InstanceContext _instanceContext;
         private readonly StateRepository _stateRepository;
-        private readonly ExternalServiceRepository _externalServiceRepository;
 
         private readonly IPushLogger _logger;
 
@@ -37,7 +36,6 @@ namespace Monster.Middle.Identity
                 IdentitySignInManager signInManager,
                 InstanceContext instanceContext,
                 StateRepository stateRepository,
-                ExternalServiceRepository externalServiceRepository,
                 IPushLogger logger)
         {
             _systemRepository = systemRepository;
@@ -47,7 +45,6 @@ namespace Monster.Middle.Identity
             _signInManager = signInManager;
             _instanceContext = instanceContext;
             _stateRepository = stateRepository;
-            _externalServiceRepository = externalServiceRepository;
             _logger = logger;
         }
 

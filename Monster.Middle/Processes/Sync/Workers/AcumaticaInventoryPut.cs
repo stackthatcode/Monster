@@ -22,21 +22,21 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly SyncInventoryRepository _syncRepository;
         private readonly DistributionClient _distributionClient;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly ExecutionLogService _logService;
 
         public AcumaticaInventoryPut(
                 AcumaticaInventoryRepository inventoryRepository,
                 SyncInventoryRepository syncRepository,                    
                 DistributionClient distributionClient,
-                PreferencesRepository preferencesRepository,
+                SettingsRepository settingsRepository,
                 ExecutionLogService logService,
                 IPushLogger logger)
         {
             _syncRepository = syncRepository;
             _inventoryRepository = inventoryRepository;
             _distributionClient = distributionClient;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _logService = logService;
         }
 
@@ -97,10 +97,10 @@ namespace Monster.Middle.Processes.Sync.Workers
         public void StockItemPush(
                     AcumaticaInventoryImportContext context, ShopifyVariant variant)
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
-            var defaultItemClass = preferences.AcumaticaDefaultItemClass;
-            var defaultPostingClass = preferences.AcumaticaDefaultPostingClass;
-            var defaultTaxCategory = preferences.AcumaticaTaxCategory;
+            var Settingss = _settingsRepository.RetrieveSettingss();
+            var defaultItemClass = Settingss.AcumaticaDefaultItemClass;
+            var defaultPostingClass = Settingss.AcumaticaDefaultPostingClass;
+            var defaultTaxCategory = Settingss.AcumaticaTaxCategory;
 
             var warehouses = _inventoryRepository.RetrieveWarehouses();
             var defaultWarehouseId = warehouses.First().AcumaticaWarehouseId;

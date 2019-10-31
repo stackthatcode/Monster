@@ -2,7 +2,7 @@
 using System.Linq;
 using Monster.Acumatica.Api.Reference;
 
-namespace Monster.Middle.Processes.Sync.Model.Config
+namespace Monster.Middle.Processes.Acumatica.Model
 {
     public class PaymentMethodModel
     {
@@ -12,12 +12,7 @@ namespace Monster.Middle.Processes.Sync.Model.Config
         public PaymentMethodModel(AcumaticaPaymentMethod input)
         {
             PaymentMethod = input.PaymentMethodID.value;
-
-            CashAccounts 
-                = input
-                    .AllowedCashAccounts
-                    .Select(x => x.CashAccount.value)
-                    .ToList();
+            CashAccounts = input.AllowedCashAccounts.Select(x => x.CashAccount.value).ToList();
         }
     }
 }

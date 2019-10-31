@@ -1,6 +1,6 @@
-﻿namespace Monster.Middle.Utility
+﻿namespace Monster.Middle.Misc.Acumatica
 {
-    public class TimeZone
+    public class AcumaticaTimeZone
     {
         public string TimeZoneId { get; set; }
         public string Name { get; set; }

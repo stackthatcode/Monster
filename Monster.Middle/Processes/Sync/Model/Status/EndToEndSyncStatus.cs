@@ -1,4 +1,5 @@
 ﻿using Monster.Middle.Misc.State;
+using Monster.Middle.Processes.Sync.Model.Config;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
 {
@@ -6,7 +7,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
     {
         // Config State
         //
-        public ConfigStateSummaryModel ConfigStateSummaryModel { get; set; }
+        public ConfigStatusSummaryModel ConfigStatusSummaryModel { get; set; }
 
         // Starting Shopify Order
         //
@@ -14,6 +15,6 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public bool IsStartingOrderReadyForEndToEnd => ShopifyOrderState == StateCode.Ok;
 
         public bool CanEndToEndSyncBeStarted 
-            => ConfigStateSummaryModel.IsConfigReadyForEndToEnd && IsStartingOrderReadyForEndToEnd;
+            => ConfigStatusSummaryModel.IsConfigReadyForEndToEnd && IsStartingOrderReadyForEndToEnd;
     }
 }

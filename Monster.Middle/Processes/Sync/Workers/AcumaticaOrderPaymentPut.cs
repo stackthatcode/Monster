@@ -21,18 +21,18 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
         private readonly SalesOrderClient _salesOrderClient;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
 
         public AcumaticaOrderPaymentPut(
                     SyncOrderRepository syncOrderRepository, 
                     PaymentClient paymentClient, 
-                    PreferencesRepository preferencesRepository, 
+                    SettingsRepository settingsRepository, 
                     ExecutionLogService logService,
                     SalesOrderClient salesOrderClient)
         {
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
             _logService = logService;
             _salesOrderClient = salesOrderClient;
         }
@@ -55,7 +55,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         
         public void WritePaymentForOrders(ShopifyTransaction transactionRecord)
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
+            var Settingss = _settingsRepository.RetrieveSettingss();
             var transaction 
                 = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
 
@@ -73,8 +73,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             payment.CustomerID = acumaticaCustId.ToValue();
             payment.Hold = false.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
-            payment.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();
-            payment.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
+            payment.PaymentMethod = Settingss.AcumaticaPaymentMethod.ToValue();
+            payment.CashAccount = Settingss.AcumaticaPaymentCashAccount.ToValue();
             payment.PaymentRef = $"{order.ShopifyOrderNumber}".ToValue();
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
             payment.Description = $"Payment for Shopify Order #{order.ShopifyOrderNumber}".ToValue();
@@ -121,7 +121,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         
         public void WriteRefundPayment(ShopifyTransaction transactionRecord)
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
+            var Settingss = _settingsRepository.RetrieveSettingss();
             var transaction = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
             var refund = _syncOrderRepository
                     .RetrieveRefundAndSync(transactionRecord.ShopifyRefundId.Value);
@@ -147,8 +147,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // TODO - inject the original Payment Method...?
             // 
-            payment.PaymentMethod = preferences.AcumaticaPaymentMethod.ToValue();
-            payment.CashAccount = preferences.AcumaticaPaymentCashAccount.ToValue();
+            payment.PaymentMethod = Settingss.AcumaticaPaymentMethod.ToValue();
+            payment.CashAccount = Settingss.AcumaticaPaymentCashAccount.ToValue();
             payment.Description =
                 $"Refund for Order #{order.ShopifyOrderNumber} (TransId #{transaction.id})".ToValue();
 

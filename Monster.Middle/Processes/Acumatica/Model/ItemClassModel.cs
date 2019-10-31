@@ -1,6 +1,6 @@
 ﻿using Monster.Acumatica.Api.Reference;
 
-namespace Monster.Middle.Processes.Sync.Model.Config
+namespace Monster.Middle.Processes.Acumatica.Model
 {
     public class ItemClassModel
     {

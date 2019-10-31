@@ -15,26 +15,26 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly CustomerApi _customerApi;
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _batchRepository;
-        private readonly PreferencesRepository _preferencesRepository;
+        private readonly SettingsRepository _settingsRepository;
 
         
         public ShopifyCustomerGet(
                 CustomerApi customerApi,
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository batchRepository,
-                PreferencesRepository preferencesRepository)
+                SettingsRepository settingsRepository)
         {
             _customerApi = customerApi;
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
-            _preferencesRepository = preferencesRepository;
+            _settingsRepository = settingsRepository;
         }
 
 
         public void RunAutomatic()
         {
-            var preferences = _preferencesRepository.RetrievePreferences();
-            preferences.AssertStartingOrderIsValid();
+            var Settingss = _settingsRepository.RetrieveSettingss();
+            Settingss.AssertStartingOrderIsValid();
 
             var batchState = _batchRepository.Retrieve();
 
@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var firstFilter = new SearchFilter();
                 firstFilter.Page = 1;
-                firstFilter.UpdatedAtMinUtc = preferences.ShopifyOrderCreatedAtUtc.Value;
+                firstFilter.UpdatedAtMinUtc = Settingss.ShopifyOrderCreatedAtUtc.Value;
                     
                 Run(firstFilter);
             }
