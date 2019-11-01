@@ -25,138 +25,167 @@
 
 
 <script type="text/html" id="Preferences-Editor">
-    <div data-bind="if: ShowRefDataErrorMessage">
-        <div class="std-pad">
-            <div class="alert alert-danger">
-                <strong>Acumatica Reference Data Pull - Broken</strong>
-                <br />
-                There's something wrong with your Acumatica reference data.
-            </div>
-
-            <p>
-                Before setting preferences, your Acumatica reference data
-                needs to be properly configured. You can address this now by
-                <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
-            </p>
+<div data-bind="if: ShowRefDataErrorMessage">
+    <div class="std-pad">
+        <div class="alert alert-danger">
+            <strong>Acumatica Reference Data Pull - Broken</strong>
+            <br />
+            There's something wrong with your Acumatica reference data.
         </div>
+
+        <p>
+            Before setting preferences, your Acumatica reference data
+            needs to be properly configured. You can address this now by
+            <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
+        </p>
     </div>
+</div>
 
-    <div data-bind="if: ShowDataEntry">
-        <div class="card text-center">
-            <div id="preferences" class="card-body left">
-                <!-- Time Zone -->
-                <div class="form-group">
-                    <label for="timeZone">Acumatica Instance Time Zone</label>
+<div data-bind="if: ShowDataEntry">
+    <div class="card text-center">
+        <div id="preferences" class="card-body left">
+            <!-- Time Zone -->
+            <div class="form-group">
+                <label for="timeZone">Acumatica Instance Time Zone</label>
 
-                    <select id="timeZone" class="form-control"
-                            data-bind="value: SelectedTimeZone,
+                <select id="timeZone" class="form-control"
+                        data-bind="value: SelectedTimeZone,
                                     options: TimeZones,
                                     optionsText: 'Name',
                                     value: SelectedTimeZone,
                                     optionsCaption: 'Choose...'"></select>
 
-                    <small id="timeZoneHelp" class="form-text text-muted">
-                        In order to synchronize properly, @GlobalConfig.AppName
-                        needs to translate between time zones properly
-                    </small>
+                <small id="timeZoneHelp" class="form-text text-muted">
+                    In order to synchronize properly, @GlobalConfig.AppName
+                    needs to translate between time zones properly
+                </small>
 
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !TimeZoneValid()">
-                        Please select the right Time Zone for your Acumatica Instance
-                    </div>
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !TimeZoneValid()">
+                    Please select the right Time Zone for your Acumatica Instance
                 </div>
+            </div>
 
-                <!-- Item Class -->
-                <div class="form-group">
-                    <label for="itemClass">Acumatica Default Item Class</label>
+            <!-- Item Class -->
+            <div class="form-group">
+                <label for="itemClass">Acumatica Default Item Class</label>
 
-                    <select class="form-control"
-                            id="itemClass"
-                            data-bind="optionsCaption: 'Choose...',
+                <select class="form-control"
+                        id="itemClass"
+                        data-bind="optionsCaption: 'Choose...',
                                     value: SelectedItemClass,
                                     options: ItemClasses,
                                     optionsText: 'ItemClass'"></select>
 
-                    <small id="itemClassHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection
-                        when it creates Stock Items from Shopify Products
-                    </small>
+                <small id="itemClassHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection
+                    when it creates Stock Items from Shopify Products
+                </small>
 
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !ItemClassValid()">
-                        Please select an Item Class with a valid Posting Class and Default Warehouse
-                    </div>
-                </div>
-
-                <!-- Posting Class -->
-                <div class="form-group">
-                    <label for="postingClass">Acumatica Default Posting Class</label>
-
-                    <div data-bind="ifnot: SelectedPostingClass">
-                        <input type="text"
-                               id="postingClass"
-                               class="form-control"
-                               disabled="disabled"
-                               value="(Select an Item Class that has a Posting Class)" />
-                    </div>
-
-                    <div data-bind="if: SelectedPostingClass">
-                        <input type="text"
-                               id="postingClass"
-                               class="form-control"
-                               disabled="disabled"
-                               data-bind="value: SelectedPostingClass" />
-                    </div>
-
-                    <small id="postingClassHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection
-                        when it creates Stock Items from Shopify Products
-                    </small>
-                </div>
-
-                <!-- TODO - Selected Payment Gateways -->
-                <!-- Posting Class -->
-                <div class="form-group">
-                    <label for="paymentGateways">Payment Gateways</label>
-
-                    <small id="paymentGatewaysHelp" class="form-text text-muted">
-                        Assign Acumatica Payment methods for all of the Payment Gateways you
-                        currently have enabled in your Shopify store.
-                    </small>
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !ItemClassValid()">
+                    Please select an Item Class with a valid Posting Class and Default Warehouse
                 </div>
             </div>
 
-            <div class="card-footer text-muted">
-                @GlobalConfig.AppName Settings Editor
+            <!-- Posting Class -->
+            <div class="form-group">
+                <label for="postingClass">Acumatica Default Posting Class</label>
+
+                <div data-bind="ifnot: SelectedPostingClass">
+                    <input type="text"
+                           id="postingClass"
+                           class="form-control"
+                           disabled="disabled"
+                           value="(Select an Item Class that has a Posting Class)" />
+                </div>
+
+                <div data-bind="if: SelectedPostingClass">
+                    <input type="text"
+                           id="postingClass"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: SelectedPostingClass" />
+                </div>
+
+                <small id="postingClassHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection
+                    when it creates Stock Items from Shopify Products
+                </small>
+            </div>
+
+            <!-- Payment Gateways -->
+            <div>
+                <label for="paymentGateways">
+                    <strong>Payment Gateways</strong> 
+                   
+                </label>
+                <a href="#" style="float:right;">
+                    <strong><i class="fas fa-plus"></i> Add Gateway</strong></a>
+
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            <span class="bold-light">Shopify Payments</span><br />
+                            Payment Method - ONLINE
+                            Cash Account - 102050
+                        </span>
+                        <span>
+                            <a class="btn btn-sm btn-primary" href="#"><i class="fas fa-times"></i> Remove</a>
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            <span class="bold-light">Shopify Payments</span><br />
+                            Payment Method - ONLINE
+                            Cash Account - 102050
+                        </span>
+                        <span>
+                            <a class="btn btn-sm btn-primary" href="#"><i class="fas fa-times"></i> Remove</a>
+                        </span>
+                    </li>
+                </ul>
+
+                <small id="paymentGatewaysHelp" class="form-text text-muted">
+                    Assign Acumatica Payment methods for all of the Payment Gateways you
+                    currently have enabled in your Shopify store.
+                </small>
             </div>
         </div>
+        
+        <div style="height:30px;"></div>
 
-        <div style="height:45px;" data-bind="if: ShowErrorSummary" class="center error-message">
-            One or more items are not valid. Please review and correct.
+        <div class="card-footer text-muted">
+            @GlobalConfig.AppName Settings Editor
         </div>
     </div>
 
-    <div class="std-pad-b center">
-        <div data-bind="ifnot: IsRandomAccessMode">
-            <a href="@GlobalConfig.Url("Config/AcumaticaRefData")" class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Previous Step
-            </a>
-
-            <a href="#" data-bind="click: GotoNextStepClick" class="btn btn-success btn-lg">
-                Next Step <i class="fas fa-sign-in-alt"></i>
-            </a>
-        </div>
-
-        <div data-bind="if: IsRandomAccessMode">
-            <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
-                Back to Diagnostics <i class="fas fa-undo"></i>
-            </a>
-
-            <a href="#" class="btn btn-primary btn-lg" data-bind="click: SaveChangesClick">
-                Save Changes <i class="fas fa-bolt"></i>
-            </a>
-        </div>
+    <div style="height:45px;" data-bind="if: ShowErrorSummary" class="center error-message">
+        One or more items are not valid. Please review and correct.
     </div>
+</div>
+
+<div class="std-pad-b center">
+    <div data-bind="ifnot: IsRandomAccessMode">
+        <a href="@GlobalConfig.Url("Config/AcumaticaRefData")" class="btn btn-secondary btn-lg">
+            <i class="fas fa-undo"></i> Previous Step
+        </a>
+
+        <a href="#" data-bind="click: GotoNextStepClick" class="btn btn-success btn-lg">
+            Next Step <i class="fas fa-sign-in-alt"></i>
+        </a>
+    </div>
+
+    <div data-bind="if: IsRandomAccessMode">
+        <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
+            Back to Diagnostics <i class="fas fa-undo"></i>
+        </a>
+
+        <a href="#" class="btn btn-primary btn-lg" data-bind="click: SaveChangesClick">
+            Save Changes <i class="fas fa-bolt"></i>
+        </a>
+    </div>
+</div>
 
     <!-- Payment Methods Pop-up TODO
     <div id="payment-methods" style="display:none;" class="card-body left">

@@ -19,13 +19,6 @@
         text-align: left;
     }
 
-    .sync-setting {
-        display: inline-block;
-        text-align: left;
-        font-weight: 700;
-        color: #777777;
-    }
-
     .sync-link {
         display: inline-block;
         text-align: left;
@@ -172,19 +165,19 @@
 
                 <!-- ... else show alternate text -->
                 <span data-bind="ifnot: ShopifyOrderHref">
-                    <span class="sync-setting" data-bind="text: StartingOrderName">
+                    <span class="bold-light" data-bind="text: StartingOrderName">
                     </span>
                 </span>
             </div>
 
             <div style="clear: both; text-align: left;">
                 <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
-                <span class="sync-setting" data-bind="text: StartOrderCreatedAtUtc">
+                <span class="bold-light" data-bind="text: StartOrderCreatedAtUtc">
                 </span>
             </div>
             <div style="clear: both; text-align: left;">
                 <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
-                <span class="sync-setting" data-bind="text: MaxParallelAcumaticaSyncs"></span>
+                <span class="bold-light" data-bind="text: MaxParallelAcumaticaSyncs"></span>
             </div>
         </div>
 

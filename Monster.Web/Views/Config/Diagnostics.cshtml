@@ -185,12 +185,12 @@ Monster.InventoryConfigModel = function() {
                     },
                     {
                         Name: "Settings",
-                        ConfigState: response.SettingsSelections,
+                        ConfigState: response.Settings,
                         Url: "@GlobalConfig.Url("Config/Settings")",
                     },
                     {
                         Name: "Settings -> Taxes",
-                        ConfigState: response.PaymentMethod,
+                        ConfigState: response.SettingsTax,
                         Url: "@GlobalConfig.Url("Config/SettingsTaxes")",
                     },
                     {

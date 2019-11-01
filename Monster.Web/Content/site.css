@@ -137,6 +137,13 @@ p {
     text-align: center;
 }
 
+.bold-light {
+    display: inline-block;
+    text-align: left;
+    font-weight: 700;
+    color: #777777;
+}
+
 
 
 /* AJAX Spinner */
@@ -191,6 +198,7 @@ p {
     color: #a9a9a9;
     font-size: 0.8em;
 }
+
 
 
 /* The switch - the box around the slider */
