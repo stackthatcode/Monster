@@ -250,7 +250,13 @@ namespace Monster.Web.Controllers
         public ActionResult SettingsTaxesSelections()
         {
             var settings = _settingsRepository.RetrieveSettings();
+
             var output = new SettingsTaxesModel();
+            output.AcumaticaTaxZone = settings.AcumaticaTaxZone;
+            output.AcumaticaTaxableCategory = settings.AcumaticaTaxableCategory;
+            output.AcumaticaTaxExemptCategory = settings.AcumaticaTaxExemptCategory;
+            output.AcumaticaLineItemTaxId = settings.AcumaticaLineItemTaxId;
+            output.AcumaticaFreightTaxId = settings.AcumaticaFreightTaxId;
 
             return new JsonNetResult(output);
         }
@@ -258,6 +264,16 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult SettingsTaxesSelections(SettingsTaxesModel model)
         {
+            var settings = _settingsRepository.RetrieveSettings();
+
+            settings.AcumaticaTaxZone = model.AcumaticaTaxZone;
+            settings.AcumaticaTaxableCategory = model.AcumaticaTaxableCategory;
+            settings.AcumaticaTaxExemptCategory = model.AcumaticaTaxExemptCategory;
+            settings.AcumaticaLineItemTaxId = model.AcumaticaLineItemTaxId;
+            settings.AcumaticaFreightTaxId = model.AcumaticaFreightTaxId;
+            _settingsRepository.SaveChanges();
+
+            _statusService.RefreshSettingsTaxesStatus();
             return JsonNetResult.Success();
         }
 

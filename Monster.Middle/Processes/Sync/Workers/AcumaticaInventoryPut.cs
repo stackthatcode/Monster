@@ -99,7 +99,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             var settings = _settingsRepository.RetrieveSettings();
             var defaultItemClass = settings.AcumaticaDefaultItemClass;
             var defaultPostingClass = settings.AcumaticaDefaultPostingClass;
-            var defaultTaxCategory = settings.AcumaticaTaxCategory;
+
+            throw new NotImplementedException("Need to pass the Product -> IsTaxable");
+
+            var defaultTaxCategory = settings.AcumaticaTaxableCategory;
 
             var warehouses = _inventoryRepository.RetrieveWarehouses();
             var defaultWarehouseId = warehouses.First().AcumaticaWarehouseId;

@@ -83,10 +83,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             creditMemo.CustomerID = salesOrder.CustomerID.Copy();
             creditMemo.Description = $"Shopify Order #{shopifyOrder.order_number} Refund {refund.id}".ToValue();
 
-            var taxDetail = new TaxDetails();
-            taxDetail.TaxID = settings.AcumaticaTaxId.ToValue();
-            creditMemo.TaxDetails = new List<TaxDetails> {taxDetail};
-            
             creditMemo.FinancialSettings = new FinancialSettings()
             {
                 OverrideTaxZone = true.ToValue(),

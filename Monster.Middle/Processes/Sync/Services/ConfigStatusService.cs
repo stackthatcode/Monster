@@ -83,10 +83,12 @@ namespace Monster.Middle.Processes.Sync.Services
         public void RefreshSettingsTaxesStatus()
         {
             var settings = _settingsRepository.RetrieveSettings();
-            
-            var valid = settings.AcumaticaTaxCategory.HasValue()
-                   && settings.AcumaticaTaxId.HasValue()
-                   && settings.AcumaticaTaxZone.HasValue();
+
+            var valid = settings.AcumaticaTaxZone.HasValue()
+                        && settings.AcumaticaTaxableCategory.HasValue()
+                        && settings.AcumaticaTaxExemptCategory.HasValue()
+                        && settings.AcumaticaLineItemTaxId.HasValue()
+                        && settings.AcumaticaFreightTaxId.HasValue();
 
             var state = valid ? StateCode.Ok : StateCode.Invalid;
 

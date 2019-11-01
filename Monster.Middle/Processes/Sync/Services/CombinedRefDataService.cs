@@ -102,14 +102,24 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 settings.AcumaticaDefaultPostingClass = null;
             }
             
-            if (referenceData.TaxCategories.All(x => x != settings.AcumaticaTaxCategory))
+            if (referenceData.TaxCategories.All(x => x != settings.AcumaticaTaxableCategory))
             {
-                settings.AcumaticaTaxCategory = null;
+                settings.AcumaticaTaxableCategory = null;
             }
 
-            if (referenceData.TaxIds.All(x => x != settings.AcumaticaTaxId))
+            if (referenceData.TaxCategories.All(x => x != settings.AcumaticaTaxExemptCategory))
             {
-                settings.AcumaticaTaxId = null;
+                settings.AcumaticaTaxExemptCategory = null;
+            }
+
+            if (referenceData.TaxIds.All(x => x != settings.AcumaticaLineItemTaxId))
+            {
+                settings.AcumaticaLineItemTaxId = null;
+            }
+
+            if (referenceData.TaxIds.All(x => x != settings.AcumaticaFreightTaxId))
+            {
+                settings.AcumaticaFreightTaxId = null;
             }
 
             if (referenceData.TaxZones.All(x => x != settings.AcumaticaTaxZone))

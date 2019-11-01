@@ -14,12 +14,6 @@
         Choose settings to control how @GlobalConfig.AppName synchronizes your data with Acumatica.
     </p>
 
-    <div data-bind="ifnot: IsRandomAccessMode">
-        <p>
-            Make selections below to dictate how your data is transferred between systems.
-        </p>
-    </div>
-
     <div data-bind="template: { name: 'Settings-Editor' }"></div>
 </main>
 
@@ -28,14 +22,11 @@
     <div data-bind="if: ShowRefDataErrorMessage">
         <div class="std-pad">
             <div class="alert alert-danger">
-                <strong>Acumatica Reference Data Pull - Broken</strong>
-                <br />
+                <strong>Acumatica Reference Data Pull - Broken</strong><br />
                 There's something wrong with your Acumatica reference data.
             </div>
-
             <p>
-                Before setting preferences, your Acumatica reference data
-                needs to be properly configured. You can address this now by
+                Your Acumatica reference data needs to be properly configured. You can address this now by
                 <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
             </p>
         </div>
@@ -60,8 +51,7 @@
                         needs to translate between time zones properly
                     </small>
 
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !TimeZoneValid()">
+                    <div class="error-message" data-bind="if: ShowValidation() && !TimeZoneValid()">
                         Please select the right Time Zone for your Acumatica Instance
                     </div>
                 </div>
@@ -427,10 +417,8 @@
                 function (response) {
                     self.TimeZones(response.TimeZones);
                     self.ItemClasses(response.ItemClasses);
-
                     self.PaymentGatewayPopupModel.LoadReferenceData(response);
 
-                    // Pull selections
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("Config/SettingsSelections", this);
                 },

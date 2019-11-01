@@ -1198,7 +1198,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaDefaultItemClass { get; set; } // AcumaticaDefaultItemClass (length: 50)
         public string AcumaticaDefaultPostingClass { get; set; } // AcumaticaDefaultPostingClass (length: 50)
         public string AcumaticaTaxZone { get; set; } // AcumaticaTaxZone (length: 50)
-        public string AcumaticaTaxExtemptCategory { get; set; } // AcumaticaTaxExtemptCategory (length: 50)
+        public string AcumaticaTaxExemptCategory { get; set; } // AcumaticaTaxExemptCategory (length: 50)
         public string AcumaticaTaxableCategory { get; set; } // AcumaticaTaxableCategory (length: 50)
         public string AcumaticaLineItemTaxId { get; set; } // AcumaticaLineItemTaxId (length: 50)
         public string AcumaticaFreightTaxId { get; set; } // AcumaticaFreightTaxId (length: 50)
@@ -2447,7 +2447,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaDefaultItemClass).HasColumnName(@"AcumaticaDefaultItemClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDefaultPostingClass).HasColumnName(@"AcumaticaDefaultPostingClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxZone).HasColumnName(@"AcumaticaTaxZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaTaxExtemptCategory).HasColumnName(@"AcumaticaTaxExtemptCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaTaxExemptCategory).HasColumnName(@"AcumaticaTaxExemptCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxableCategory).HasColumnName(@"AcumaticaTaxableCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaLineItemTaxId).HasColumnName(@"AcumaticaLineItemTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaFreightTaxId).HasColumnName(@"AcumaticaFreightTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);

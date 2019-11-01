@@ -11,16 +11,8 @@
     <hr />
     <h1 class="mt-4 center">Configuration - Tax Settings</h1>
     <p class="lead center">
-        Map your Shopify Payment Gateways to Acumatica Payment Methods.
+        Choose settings to control how @GlobalConfig.AppName synchronizes your data with Acumatica.
     </p>
-
-    <div data-bind="ifnot: IsRandomAccessMode">
-        <p>
-            The next step in configuration is to set your Payment Methods.
-            For each Payment Gateway enabled in your Shopify store, 
-            assign an Acumatica Payment Method to be used therewith.
-        </p>
-    </div>
 
     <div data-bind="template: { name: 'Payment-Methods-Editor' }"></div>
 </main>
@@ -33,91 +25,113 @@
                 <strong>Acumatica Reference Data - Broken</strong><br />
                 There's something wrong with your Acumatica reference data.
             </div>
-
             <p>
-                Before configuring Payment Methods, your Acumatica reference data
-                needs to be properly configured. You can address that now by
-                <a href="@GlobalConfig.Url("Config/AcumaticaRefData")">
-                    <strong>clicking here</strong>
-                </a>.
+                Your Acumatica reference data needs to be properly configured. You can address this now by
+                <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
             </p>
         </div>
     </div>
 
     <div data-bind="if: ShowDataEntry">
         <div class="card text-center">
+            <div class="card-body left">
+                <!-- Tax Zone -->
+                <div class="form-group">
+                    <label for="taxZone">Acumatica Tax Zone</label>
 
-            <!-- Tax Zone -->
-            <div class="form-group">
-                <label for="taxZone">Acumatica Tax Zone</label>
+                    <select class="form-control" id="taxZone"
+                            data-bind="optionsCaption: 'Choose...',
+                                            value: SelectedTaxZone,
+                                            options: TaxZones"></select>
 
-                <select class="form-control" id="taxZone"
-                        data-bind="optionsCaption: 'Choose...',
-                                        value: SelectedTaxZone,
-                                        options: TaxZones"></select>
+                    <small id="taxZoneHelp"
+                           class="form-text text-muted">
+                        @GlobalConfig.AppName uses this selection for sales tax
+                        in for Sales Orders, Debit and Credit Memos.
+                    </small>
 
-                <small id="taxZoneHelp"
-                       class="form-text text-muted">
-                    @GlobalConfig.AppName uses this selection for sales tax
-                    in Sales Orders and Credit Memos.
-                </small>
+                    <div class="error-message" data-bind="if: ShowValidation() && !SelectedTaxZone()">
+                        Please select a Tax Zone
+                    </div>
+                </div>
 
-                <div class="error-message"
-                     data-bind="if: ShowValidation() && !SelectedTaxZone()">
-                    Please select a Tax Zone
+                <!-- Taxable Category -->
+                <div class="form-group">
+                    <label for="taxableCategory">Acumatica Taxable Category</label>
+
+                    <select class="form-control" id="taxableCategory"
+                            data-bind="optionsCaption: 'Choose...',
+                                            value: SelectedTaxableCategory,
+                                            options: TaxCategories">
+                    </select>
+
+                    <small id="taxableCategoryHelp" class="form-text text-muted">
+                        Identity the Acumatica Tax Category for taxable order line items.
+                    </small>
+
+                    <div class="error-message" data-bind="if: ShowValidation() && !SelectedTaxableCategory()">
+                        Please select a Tax Category
+                    </div>
+                </div>
+
+                <!-- Tax-Exempt Category -->
+                <div class="form-group">
+                    <label for="taxExemptCategory">Acumatica Tax Exempt Category</label>
+
+                    <select class="form-control" id="taxExemptCategory"
+                            data-bind="optionsCaption: 'Choose...',
+                                            value: SelectedTaxExemptCategory,
+                                            options: TaxCategories"></select>
+
+                    <small id="taxExemptCategoryHelp" class="form-text text-muted">
+                        Identify the Acumatica Tax Category for tax-exempt order line items.
+                    </small>
+
+                    <div class="error-message" data-bind="if: ShowValidation() && !SelectedTaxExemptCategory()">
+                        Please select a Tax Category
+                    </div>
+                </div>
+
+                <!-- Line Item Tax ID -->
+                <div class="form-group">
+                    <label for="lineItemTaxId">Acumatica Line Item Tax ID</label>
+
+                    <select class="form-control" id="lineItemTaxId"
+                            data-bind="optionsCaption: 'Choose...',
+                                            value: SelectedLineItemTaxId,
+                                            options: TaxIds"></select>
+
+                    <small id="lineItemTaxIdHelp" class="form-text text-muted">
+                        Identify the Acumatica Tax ID to for line item taxes.
+                    </small>
+
+                    <div class="error-message" data-bind="if: ShowValidation() && !SelectedTaxId()">
+                        Please select a Tax ID
+                    </div>
+                </div>
+                
+                <!-- Freight Tax ID -->
+                <div class="form-group">
+                    <label for="freightTaxId">Acumatica Freight Tax ID</label>
+                    <select class="form-control" id="freightTaxId"
+                            data-bind="optionsCaption: 'Choose...',
+                                            value: SelectedFreightTaxId,
+                                            options: TaxIds"></select>
+
+                    <small id="freightTaxIdHelp" class="form-text text-muted">
+                        Identify the Acumatica Tax ID to for freight/shipping charge taxes.
+                    </small>
+                    <div class="error-message" data-bind="if: ShowValidation() && !SelectedTaxId()">
+                        Please select a Tax ID
+                    </div>
                 </div>
             </div>
-
-            <!-- Tax Category -->
-            <div class="form-group">
-                <label for="taxCategory">Acumatica Tax Category</label>
-
-                <select class="form-control" id="taxCategory"
-                        data-bind="optionsCaption: 'Choose...',
-                                        value: SelectedTaxCategory,
-                                        options: TaxCategories"></select>
-
-                <small id="taxCategoryHelp"
-                       class="form-text text-muted">
-                    @GlobalConfig.AppName uses this selection for sales tax
-                    in Sales Orders and Credit Memos.
-                </small>
-
-                <div class="error-message"
-                     data-bind="if: ShowValidation() && !SelectedTaxCategory()">
-                    Please select a Tax Category
-                </div>
-            </div>
-
-            <!-- Tax ID -->
-            <div class="form-group">
-                <label for="taxId">Acumatica Tax ID</label>
-
-                <select class="form-control" id="taxId"
-                        data-bind="optionsCaption: 'Choose...',
-                                        value: SelectedTaxId,
-                                        options: TaxIds"></select>
-
-                <small id="taxIdHelp"
-                       class="form-text text-muted">
-                    @GlobalConfig.AppName uses this selection for sales tax
-                    in Sales Orders and Credit Memos.
-                </small>
-
-                <div class="error-message"
-                     data-bind="if: ShowValidation() && !SelectedTaxId()">
-                    Please select a Tax ID
-                </div>
-            </div>
-
-
             <div class="card-footer text-muted">
-                @GlobalConfig.AppName Preferences Editor
+                @GlobalConfig.AppName Tax Settings Editor
             </div>
         </div>
-
-        <div style="height:45px;" data-bind="if: ShowErrorSummary" class="center error-message">
-            One or more items are not valid. Please review and correct.
+        <div style="height:45px;" class="center error-message">
+            <!--One or more items are not valid. Please review and correct.-->
         </div>
     </div>
 
@@ -147,58 +161,41 @@
 <script>
     var Monster = Monster || {};
 
-    Monster.PaymentMethodsModel = function () {
+    Monster.SettingsTaxesModel = function () {
         var self = this;
 
+        // Display state
+        //
+        self.ShowValidation = ko.observable(false);
         self.ShowErrorMessage = ko.observable(false);
         self.ShowDataEntry = ko.observable(false);
         self.IsRandomAccessMode = ko.observable();
 
         // Reference data - Taxes
         //
-        self.TaxIds = ko.observableArray();
-        self.TaxCategories = ko.observableArray();
         self.TaxZones = ko.observableArray();
+        self.TaxCategories = ko.observableArray();
+        self.TaxIds = ko.observableArray();
 
-        self.SelectedTaxId = ko.observable();
-        self.SelectedTaxCategory = ko.observable();
-        self.SelectedTaxZone = ko.observable();
-
-
-        self.PaymentMethods = ko.observableArray();
-        self.CashAccounts = ko.observableArray(); // Updates when SelectedPaymentMethod changes
-
-        // Selected options
+        // User data entry
         //
-        self.SelectedPaymentMethod = ko.observable();
-        
-        self.SelectedPaymentMethod.subscribe(function () {
-            if (self.SelectedPaymentMethod()) {
-                self.CashAccounts(self.SelectedPaymentMethod().CashAccounts);
-                if (!self.CashAccounts().length) {
-                    self.SelectedCashAccount(null);
-                }
-            } else {
-                self.CashAccounts.removeAll();
-            }
-        });
+        self.SelectedTaxZone = ko.observable();
+        self.SelectedTaxableCategory = ko.observable();
+        self.SelectedTaxExemptCategory = ko.observable();
+        self.SelectedLineItemTaxId = ko.observable();
+        self.SelectedFreightTaxId = ko.observable();
 
         // Validation
-
-        self.IsValid = function() { return true; };
-
+        //
         self.ShowValidation = ko.observable(false);
 
-        self.ShowErrorSummary = ko.computed(function () {
-            return self.ShowValidation() && !self.IsValid();
-        });
-
         // Initialization stuff
+        //
         self.Initialize = function () {
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/PaymentMethodStatus", this);
+                    ajax.HttpGet("Config/AcumaticaRefDataStatus", this);
                 },
                 function (response) {
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
@@ -209,29 +206,26 @@
                     }
                     
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/PaymentMethodData", this);
+                    ajax.HttpGet("Config/AcumaticaReferenceData", this);
                 },
                 function (response) {
-                    //console.log(response);
-
-                    self.PaymentMethods(response.PaymentMethods);
-                    self.CashAccounts([]);
-            
+                    self.TaxZones(response.TaxZones);
+                    self.TaxCategories(response.TaxCategories);
+                    self.TaxIds(response.TaxIds);
+                    
                     self.ShowDataEntry(true);
-                    self.InitializePaymentMethodsEditor();
 
-                    // Pull selections
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/SettingsSelections", this);
+                    ajax.HttpGet("Config/SettingsTaxesSelections", this);
                 },
                 function (response) {
+                    console.log(response);
 
-                    var paymentMethod =
-                        Monster.FindByField(
-                            self.PaymentMethods(), 'PaymentMethod', response.AcumaticaPaymentMethod);
-
-                    self.SelectedPaymentMethod(paymentMethod);
-                    self.SelectedCashAccount(response.AcumaticaPaymentCashAccount);
+                    self.SelectedTaxZone(response.AcumaticaTaxZone);
+                    self.SelectedTaxableCategory(response.AcumaticaTaxableCategory);
+                    self.SelectedTaxExemptCategory(response.AcumaticaTaxExemptCategory);
+                    self.SelectedLineItemTaxId(response.AcumaticaLineItemTaxId);
+                    self.SelectedFreightTaxId(response.AcumaticaFreightTaxId);
                 });
         };
 
@@ -240,33 +234,29 @@
         }
 
         self.SaveChanges = function (callback) {
-            flow.exec(function() {
-                self.ShowValidation(true);
-                if (!self.IsValid()) {
-                    return;
-                }
+            flow.exec(
+                function () {
+                    var model = {
+                        AcumaticaTaxZone: self.SelectedTaxZone(),
+                        AcumaticaTaxableCategory: self.SelectedTaxableCategory(),
+                        AcumaticaTaxExemptCategory: self.SelectedTaxExemptCategory(),
+                        AcumaticaLineItemTaxId: self.SelectedLineItemTaxId(),
+                        AcumaticaFreightTaxId: self.SelectedFreightTaxId(),
+                    };
 
-                var model = {};
-                model.AcumaticaPaymentMethod = self.SelectedPaymentMethod().PaymentMethod;
-                model.AcumaticaPaymentCashAccount = self.SelectedCashAccount();
-
-                var ajax = new Monster.Ajax();
-                ajax.HttpPost("Config/PaymentMethod", model, this);
-            },
-            function() {
-                if (callback) {
-                    callback();
-                }
-            });
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("Config/SettingsTaxesSelections", model, this);
+                },
+                function() {
+                    if (callback) {
+                        callback();
+                    }
+                });
         }
 
         self.GotoNextStepClick = function() {
             self.SaveChanges(
-                function () {
-                    if (!self.IsValid()) {
-                        return;
-                    }
-
+                function() {
                     window.location.href = '@GlobalConfig.Url("Config/Warehouses")';
                 });
             };
@@ -274,7 +264,7 @@
         return self;
     };
 
-    var model = new Monster.PaymentMethodsModel();
+    var model = new Monster.SettingsTaxesModel();
     model.Initialize();
     ko.applyBindings(model);
 </script>
