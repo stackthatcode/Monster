@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Services;
@@ -28,25 +29,24 @@ namespace Monster.Web.Controllers
         private readonly ExecutionLogService _logRepository;
         private readonly OneTimeJobScheduler _oneTimeJobService;
         private readonly JobMonitoringService _jobStatusService;
-
+        
         private readonly ConfigStatusService _statusService;
         private readonly CombinedRefDataService _combinedRefDataService;
         private readonly SettingsRepository _settingsRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
+        private readonly ShopifyPaymentGatewayService _gatewayService;
 
         public ConfigController(
                 ExternalServiceRepository connectionRepository,
                 StateRepository stateRepository,
-
                 ExecutionLogService logRepository,
                 OneTimeJobScheduler oneTimeJobService,
                 JobMonitoringService jobStatusService,
-
                 ConfigStatusService statusService, 
-                CombinedRefDataService combinedRefDataService, 
-
+                CombinedRefDataService combinedRefDataService,
                 SettingsRepository settingsRepository, 
-                SyncInventoryRepository syncInventoryRepository)
+                SyncInventoryRepository syncInventoryRepository, 
+                ShopifyPaymentGatewayService gatewayService)
         {
 
             _connectionRepository = connectionRepository;
@@ -58,6 +58,7 @@ namespace Monster.Web.Controllers
             _settingsRepository = settingsRepository;
             _logRepository = logRepository;
             _syncInventoryRepository = syncInventoryRepository;
+            _gatewayService = gatewayService;
             _jobStatusService = jobStatusService;
         }
 
@@ -123,11 +124,7 @@ namespace Monster.Web.Controllers
             {
                 _connectionRepository
                     .UpdateAcumaticaCredentials(
-                        model.InstanceUrl,
-                        model.Company,
-                        model.Branch,
-                        model.UserName,
-                        model.Password);
+                        model.InstanceUrl, model.Company, model.Branch, model.UserName, model.Password);
             }
 
             _oneTimeJobService.ConnectToAcumatica();
@@ -193,8 +190,17 @@ namespace Monster.Web.Controllers
             output.AcumaticaDefaultItemClass = settings.AcumaticaDefaultItemClass;
             output.AcumaticaDefaultPostingClass = settings.AcumaticaDefaultPostingClass;
 
-            var gateways = _settingsRepository.RetrievePaymentGateways();
-            output.PaymentGateways = gateways.Select(x => new PaymentGatewaySelectionModel(x)).ToList();
+            var selectedGateways = _settingsRepository.RetrievePaymentGateways();
+
+            foreach (var selectedGateway in selectedGateways)
+            {
+                var gateway = new PaymentGatewaySelectionModel();
+                gateway.ShopifyGatewayId = selectedGateway.ShopifyGatewayId;
+                gateway.ShopifyGatewayName = _gatewayService.Name(selectedGateway.ShopifyGatewayId);
+                gateway.AcumaticaPaymentMethod = selectedGateway.AcumaticaPaymentMethod;
+                gateway.AcumaticaCashAcount = selectedGateway.AcumaticaCashAccount;
+                output.PaymentGateways.Add(gateway);
+            }
 
             return new JsonNetResult(output);
         }

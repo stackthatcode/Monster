@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Monster.Middle.Misc.Shopify
 {
@@ -24,6 +25,12 @@ namespace Monster.Middle.Misc.Shopify
                     Name = "Amazon",
                 },
             };
+        }
+
+        public string Name(string gatewayId)
+        {
+            var gateway = Retrieve().FirstOrDefault(x => x.Id == gatewayId);
+            return gateway == null ? "(invalid gateway)" : gateway.Name;
         }
     }
 }
