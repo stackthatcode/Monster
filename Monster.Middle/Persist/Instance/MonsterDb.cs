@@ -1195,12 +1195,13 @@ namespace Monster.Middle.Persist.Instance
     {
         public long Id { get; set; } // Id (Primary key)
         public string AcumaticaTimeZone { get; set; } // AcumaticaTimeZone (length: 50)
-        public double? DefaultCoGsMargin { get; set; } // DefaultCoGSMargin
         public string AcumaticaDefaultItemClass { get; set; } // AcumaticaDefaultItemClass (length: 50)
         public string AcumaticaDefaultPostingClass { get; set; } // AcumaticaDefaultPostingClass (length: 50)
         public string AcumaticaTaxZone { get; set; } // AcumaticaTaxZone (length: 50)
-        public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
-        public string AcumaticaTaxId { get; set; } // AcumaticaTaxId (length: 50)
+        public string AcumaticaTaxExtemptCategory { get; set; } // AcumaticaTaxExtemptCategory (length: 50)
+        public string AcumaticaTaxableCategory { get; set; } // AcumaticaTaxableCategory (length: 50)
+        public string AcumaticaLineItemTaxId { get; set; } // AcumaticaLineItemTaxId (length: 50)
+        public string AcumaticaFreightTaxId { get; set; } // AcumaticaFreightTaxId (length: 50)
         public bool SyncOrdersEnabled { get; set; } // SyncOrdersEnabled
         public bool SyncInventoryEnabled { get; set; } // SyncInventoryEnabled
         public bool SyncFulfillmentsEnabled { get; set; } // SyncFulfillmentsEnabled
@@ -2443,12 +2444,13 @@ namespace Monster.Middle.Persist.Instance
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaTimeZone).HasColumnName(@"AcumaticaTimeZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.DefaultCoGsMargin).HasColumnName(@"DefaultCoGSMargin").HasColumnType("float").IsOptional();
             Property(x => x.AcumaticaDefaultItemClass).HasColumnName(@"AcumaticaDefaultItemClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDefaultPostingClass).HasColumnName(@"AcumaticaDefaultPostingClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaTaxZone).HasColumnName(@"AcumaticaTaxZone").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaTaxId).HasColumnName(@"AcumaticaTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaTaxExtemptCategory).HasColumnName(@"AcumaticaTaxExtemptCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaTaxableCategory).HasColumnName(@"AcumaticaTaxableCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaLineItemTaxId).HasColumnName(@"AcumaticaLineItemTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaFreightTaxId).HasColumnName(@"AcumaticaFreightTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.SyncOrdersEnabled).HasColumnName(@"SyncOrdersEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncInventoryEnabled).HasColumnName(@"SyncInventoryEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncFulfillmentsEnabled).HasColumnName(@"SyncFulfillmentsEnabled").HasColumnType("bit").IsRequired();
@@ -2474,7 +2476,7 @@ namespace Monster.Middle.Persist.Instance
             ToTable("PaymentGateways", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyGatewayId).HasColumnName(@"ShopifyGatewayId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaPaymentMethod).HasColumnName(@"AcumaticaPaymentMethod").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaCashAccount).HasColumnName(@"AcumaticaCashAccount").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);

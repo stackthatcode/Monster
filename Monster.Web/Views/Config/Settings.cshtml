@@ -131,16 +131,17 @@
                     </div>
 
                     <div data-bind="ifnot: GatewaysEmpty">
-                        <ul class="list-group">
+                        <ul class="list-group" data-bind="foreach: SelectedGateways">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>
-                                    <span class="bold-light">Shopify Payments</span><br />
-                                    Payment Method - ONLINE
+                                    <span class="bold-light" data-bind="text:ShopifyGatewayName"></span><br />
+                                    Payment Method - <span data-bind="text: AcumaticaPaymentMethod"></span>
                                     <span style="display:inline-block; width:5px;"></span>
-                                    Cash Account - 102050
+                                    Cash Account - <span data-bind="text: AcumaticaCashAcount"></span>
                                 </span>
                                 <span>
-                                    <a class="btn btn-sm btn-primary" href="#"><i class="fas fa-times"></i> Remove</a>
+                                    <a class="btn btn-sm btn-primary" href="#"
+                                       data-bind="click: $parent.RemoveGateway"><i class="fas fa-times"></i> Remove</a>
                                 </span>
                             </li>
                         </ul>
@@ -279,6 +280,10 @@
 <script>
     var Monster = Monster || {};
 
+    var eventKeys = {
+        AddPaymentGateway: "/AddPaymentGateway",
+    }
+    
     Monster.PaymentGatewayPopupModel = function() {
         var self = this;
 
@@ -302,7 +307,7 @@
         };
 
         self.LoadReferenceData = function (data) {
-            console.log(data);
+            //console.log(data);
             self.PaymentMethods(data.PaymentMethods);
             self.PaymentGateways(data.PaymentGateways);
         };
@@ -325,6 +330,7 @@
                 !self.SelectedCashAccount()) {
                 self.ShowValidation(true);
             } else {
+                Monster.Events.publish(eventKeys.AddPaymentGateway, self);
                 $("#payment-gateway-modal").modal('hide');
             }
         };
@@ -383,13 +389,21 @@
             self.PaymentGatewayPopupModel.Launch();
         };
 
-        self.AddPaymentGateway = function () {
-            alert('AddPaymentGateway');
+        self.AddPaymentGateway = function (model) {
+            self.SelectedGateways.push({
+                AcumaticaCashAcount: model.SelectedCashAccount(),
+                AcumaticaPaymentMethod:  model.SelectedPaymentMethod().PaymentMethod,
+                ShopifyGatewayId: model.SelectedShopifyGateway().Id,
+                ShopifyGatewayName: model.SelectedShopifyGateway().Name,
+            });
         };
 
-        self.RemovePaymentGateway = function() {
-            alert('RemovePaymentGateway');
+        self.RemoveGateway = function (item) {
+            self.SelectedGateways.remove(item);
         };
+
+        Monster.Events.subscribe(eventKeys.AddPaymentGateway, self.AddPaymentGateway);
+
 
         // Initialization stuff
         //
@@ -421,12 +435,10 @@
                     ajax.HttpGet("Config/SettingsSelections", this);
                 },
                 function (response) {
+                    console.log(response);
 
                     self.SelectedTimeZone(response.AcumaticaTimeZone);
                     self.SelectedItemClass(response.AcumaticaDefaultItemClass);
-
-                    // TODO - Selected Payment Gateways
-                    //
                     self.SelectedGateways(response.PaymentGateways);
 
                     var itemClass =
@@ -457,8 +469,7 @@
                 model.AcumaticaTimeZone = self.SelectedTimeZone().TimeZoneId;
                 model.AcumaticaDefaultItemClass = self.SelectedItemClass().ItemClass;
                 model.AcumaticaDefaultPostingClass = self.SelectedPostingClass();
-
-                // TODO - Selected Payment Methods
+                model.PaymentGateways = self.SelectedGateways();
 
                 var ajax = new Monster.Ajax();
                 ajax.HttpPost("Config/SettingsSelections", model, this);
@@ -477,7 +488,7 @@
                         return;
                     }
 
-                    window.location.href = '@GlobalConfig.Url("Config/PaymentMethods")';
+                    window.location.href = '@GlobalConfig.Url("Config/SettingsTaxes")';
                 });
             };
 

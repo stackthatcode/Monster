@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Monster.Middle;
 using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
@@ -246,11 +247,19 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult SettingsTaxesData()
+        public ActionResult SettingsTaxesSelections()
+        {
+            var settings = _settingsRepository.RetrieveSettings();
+            var output = new SettingsTaxesModel();
+
+            return new JsonNetResult(output);
+        }
+
+        [HttpPost]
+        public ActionResult SettingsTaxesSelections(SettingsTaxesModel model)
         {
             return JsonNetResult.Success();
         }
-
 
 
         // Warehouse synchronization
