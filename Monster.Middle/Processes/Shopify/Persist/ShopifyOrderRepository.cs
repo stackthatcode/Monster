@@ -86,24 +86,24 @@ namespace Monster.Middle.Processes.Shopify.Persist
                     .Where(x => x.OrderMonsterId == orderMonsterId)
                     .ToList();
             
-            foreach (var latest in transactions)
+            foreach (var transaction in transactions)
             {
-                var existing = existingRecords.Match(latest);
+                var existing = existingRecords.Match(transaction);
                 if (existing == null)
                 {
-                    latest.DateCreated = DateTime.UtcNow;
-                    latest.LastUpdated = DateTime.UtcNow;
+                    transaction.DateCreated = DateTime.UtcNow;
+                    transaction.LastUpdated = DateTime.UtcNow;
 
-                    Entities.ShopifyTransactions.Add(latest);
+                    Entities.ShopifyTransactions.Add(transaction);
                 }
                 else
                 {
-                    existing.ShopifyOrderId = latest.ShopifyOrderId;
-                    existing.ShopifyTransactionId = latest.ShopifyTransactionId;
-                    existing.ShopifyStatus = latest.ShopifyStatus;
-                    existing.ShopifyKind = latest.ShopifyKind;
-                    existing.ShopifyJson = latest.ShopifyJson;
-                    existing.OrderMonsterId = latest.OrderMonsterId;
+                    existing.ShopifyOrderId = transaction.ShopifyOrderId;
+                    existing.ShopifyTransactionId = transaction.ShopifyTransactionId;
+                    existing.ShopifyStatus = transaction.ShopifyStatus;
+                    existing.ShopifyKind = transaction.ShopifyKind;
+                    existing.ShopifyJson = transaction.ShopifyJson;
+                    existing.OrderMonsterId = transaction.OrderMonsterId;
                     existing.LastUpdated = DateTime.UtcNow;
                 }
             }

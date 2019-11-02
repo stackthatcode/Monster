@@ -31,14 +31,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         {
             return new Validation<PaymentSyncStatus>()
                 .Add(x => !x.HasBeenSynced, "Payment has been synced already")
-
-                .Add(x => x.ShopifyStatus == TransactionStatus.Success,
-                    "Transaction not successful")
-
                 .Add(x => x.ShopifyGateway != Gateway.Manual, $"Payment is manual")
-
-                .Add(x => x.ShopifyStatus == TransactionStatus.Success,
-                    $"Transaction Status is {ShopifyStatus}");
+                .Add(x => x.ShopifyStatus == TransactionStatus.Success, $"Transaction Status is {ShopifyStatus}");
         }
 
         public ValidationResult ShouldCreatePayment()
@@ -61,6 +55,5 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
             return validation.Run(this);
         }
-        
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Monster.Acumatica.Api;
 using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Testing.Feeder;
 using Monster.Middle.Misc.Acumatica;
@@ -57,6 +58,24 @@ namespace Monster.ConsoleApp.Testing
 
                 instanceContext.Initialize(TestInstanceId);
                 acumaticaOrderGet.RunAutomatic();
+            });
+        }
+
+        public static void RunAcumaticaPaymentGet()
+        {
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+                var paymentClient = scope.Resolve<PaymentClient>();
+
+                instanceContext.Initialize(TestInstanceId);
+                acumaticaContext.SessionRun(() =>
+                {
+                    var result = paymentClient.RetrievePayment("000014", "PMT", "ApplicationHistory"); 
+                    
+                    // "DocumentsToApply");
+                });
             });
         }
 

@@ -1665,6 +1665,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyJson { get; set; } // ShopifyJson
         public string ShopifyGateway { get; set; } // ShopifyGateway (length: 50)
         public long? ShopifyRefundId { get; set; } // ShopifyRefundId
+        public bool? Ignore { get; set; } // Ignore
         public bool NeedsPaymentPut { get; set; } // NeedsPaymentPut
         public long OrderMonsterId { get; set; } // OrderMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -2946,6 +2947,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyGateway).HasColumnName(@"ShopifyGateway").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsOptional();
+            Property(x => x.Ignore).HasColumnName(@"Ignore").HasColumnType("bit").IsOptional();
             Property(x => x.NeedsPaymentPut).HasColumnName(@"NeedsPaymentPut").HasColumnType("bit").IsRequired();
             Property(x => x.OrderMonsterId).HasColumnName(@"OrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();

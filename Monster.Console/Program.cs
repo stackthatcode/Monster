@@ -28,7 +28,7 @@ namespace Monster.ConsoleApp
         private const string AcumaticaCustomerGet = "20";
         private const string AcumaticaOrderGet = "21";
         private const string AcumaticaOrderSync = "22";
-
+        private const string AcumaticaPaymentGet = "23";
 
 
 
@@ -54,6 +54,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{AcumaticaCustomerGet} - Acumatica Customer Get");
             Console.WriteLine($"{AcumaticaOrderGet} - Acumatica Order Get");
             Console.WriteLine($"{AcumaticaOrderSync} - Acumatica Order Sync (Order ID)");
+            Console.WriteLine($"{AcumaticaPaymentGet} - Acumatica Payment Get");
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
@@ -68,17 +69,22 @@ namespace Monster.ConsoleApp
             if (input == HydrateSecurityConfigOption)
                 HydrateSecurityConfig();
 
-            // Testing functions
+            // Acumatica thangs
             //
-            if (input == RunShopifyOrderFeederOption)
-                MoreTestingStuff.RunShopifyOrderFeeder();
             if (input == AcumaticaOrderSync)
                 MoreTestingStuff.RunAcumaticaOrderSync();
             if (input == AcumaticaCustomerGet)
                 MoreTestingStuff.RunAcumaticaCustomerGet();
             if (input == AcumaticaOrderGet)
                 MoreTestingStuff.RunAcumaticaOrderGet();
+            if (input == AcumaticaPaymentGet)
+                MoreTestingStuff.RunAcumaticaPaymentGet();
 
+
+            // Shopify shit
+            //
+            if (input == RunShopifyOrderFeederOption)
+                MoreTestingStuff.RunShopifyOrderFeeder();
             if (input == ShopifyOrderTimezoneTest)
                 MoreTestingStuff.RunShopifyOrderTimezoneTest();
             if (input == ShopifyOrderGet)

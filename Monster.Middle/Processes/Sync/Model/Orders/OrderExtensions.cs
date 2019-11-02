@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using AutoMapper;
 using Monster.Middle.Persist.Instance;
+using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
 {
@@ -17,7 +19,6 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
             }
         }
 
-
         public static bool HasMatch(this ShopifyOrder order)
         {
             return order.MatchingSalesOrder() != null;
@@ -27,7 +28,6 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         {
             return order.HasMatch() ? order.MatchingSalesOrder().AcumaticaOrderNbr : null;
         }
-
 
         public static bool IsFromShopify(this AcumaticaSalesOrder order)
         {

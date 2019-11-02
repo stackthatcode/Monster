@@ -244,14 +244,14 @@ namespace Monster.Middle.Processes.Sync.Managers
                     "End-to-End - Sync Customers, Orders, Payments to Acumatica");
             }
 
-            if (settings.SyncRefundsEnabled
-                    && _stateRepository.CheckSystemState(x => x.CanSyncRefundsToAcumatica()))
-            {
-                EndToEndRunner(
-                    new Action[] { () => _syncManager.SyncRefundsToAcumatica() },
-                    x => x.AcumaticaRefundPutState, 
-                    "End-to-End - Sync Refunds to Acumatica");
-            }
+            //if (settings.SyncRefundsEnabled
+            //        && _stateRepository.CheckSystemState(x => x.CanSyncRefundsToAcumatica()))
+            //{
+            //    EndToEndRunner(
+            //        new Action[] { () => _syncManager.SyncRefundsToAcumatica() },
+            //        x => x.AcumaticaRefundPutState, 
+            //        "End-to-End - Sync Refunds to Acumatica");
+            //}
 
             if (settings.SyncFulfillmentsEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))

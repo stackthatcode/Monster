@@ -32,6 +32,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
+        private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
         private readonly OrderStatusService _orderStatusService;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
@@ -45,6 +46,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 SalesOrderClient salesOrderClient,
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 AcumaticaCustomerPut acumaticaCustomerSync, 
+                AcumaticaOrderPaymentPut acumaticaOrderPaymentPut,
                 OrderStatusService orderStatusService)
         {
             _logService = logRepository;
@@ -54,6 +56,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _salesOrderClient = salesOrderClient;
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _acumaticaCustomerSync = acumaticaCustomerSync;
+            _acumaticaOrderPaymentPut = acumaticaOrderPaymentPut;
             _orderStatusService = orderStatusService;
         }
 
@@ -104,16 +107,18 @@ namespace Monster.Middle.Processes.Sync.Workers
         public void RunOrder(long shopifyOrderId)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
-            var acumaticaCustomer = PushNonExistentCustomer(orderRecord);
 
             if (!orderRecord.HasMatch())
             {
+                var acumaticaCustomer = PushNonExistentCustomer(orderRecord);
                 CreateNewOrder(orderRecord, acumaticaCustomer);
             }
             else
             {
                 UpdateExistingOrder(orderRecord);
             }
+
+            _acumaticaOrderPaymentPut.RunTransactions(orderRecord.ShopifyTransactions.ToList());
         }
         
 
@@ -128,7 +133,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
-            var transactionRecord = shopifyOrderRecord.ActualPaymentTransaction();
+            var transactionRecord = shopifyOrderRecord.PaymentTransaction();
             var payment = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
 
             var salesOrder = BuilderNewSalesOrder(shopifyOrder, payment, acumaticaCustomer);
@@ -137,8 +142,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Create the local Order Record and Sync
             //
             var newOrder = resultJson.DeserializeFromJson<SalesOrder>();
-            var newRecord = new AcumaticaSalesOrder();
 
+            var newRecord = new AcumaticaSalesOrder();
             // TODO - Tax Order Total + Tax + Freight?
             //
             newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
@@ -347,8 +352,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         //
         public AcumaticaCustomer PushNonExistentCustomer(ShopifyOrder shopifyOrder)
         {
-            var customer =
-                _syncOrderRepository.RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
+            var customer = _syncOrderRepository
+                .RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
 
             if (customer.HasMatch())
             {

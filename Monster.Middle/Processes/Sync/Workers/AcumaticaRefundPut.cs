@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
@@ -9,12 +7,9 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
-using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Persist.Matching;
-using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
 
@@ -53,23 +48,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
-        // Refunds-Cancellations
-        //
-        public void RunCancels()
-        {
-            var cancels = _syncOrderRepository.RetrieveCancelsNotSynced();
-            _logger.Info("Shopify Cancels on hold for now ***");
-
-            //foreach (var cancel in cancels)
-            //{
-            //    PushCancelsQuantityUpdate(cancel);
-            //    PushCancelsTaxesUpdate(cancel);
-            //}
-        }
-        
-
-        private ReturnForCreditWrite 
-                    BuildReturnForCredit(ShopifyRefund refundRecord, MonsterSetting settings)
+        private ReturnForCreditWrite BuildReturnForCredit(ShopifyRefund refundRecord, MonsterSetting settings)
         {
             var shopifyOrderRecord = refundRecord.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -98,8 +77,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             return creditMemo;
         }
 
-        private ReturnForCreditWriteDetail
-            BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
+        private ReturnForCreditWriteDetail BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
         {
             var lineItem = shopifyOrder.LineItem(_return.line_item_id);
             var variant = _syncRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);

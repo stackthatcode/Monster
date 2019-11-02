@@ -161,39 +161,33 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Shopify Transactions
         //
-        public List<ShopifyTransaction> RetrieveUnsyncedPayments()
+        public List<ShopifyTransaction> RetrieveUnsyncedTransactions()
         {
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
                 .Include(x => x.ShopifyOrder.ShopifyCustomer)
-                .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any()
-                            && x.ShopifyGateway != Gateway.Manual
-                            && x.ShopifyStatus == TransactionStatus.Success
-                            && (x.ShopifyKind == TransactionKind.Capture
-                                || x.ShopifyKind == TransactionKind.Sale
-                                || x.ShopifyKind == TransactionKind.Refund)
-                            && x.ShopifyAcuPayment == null)
+                .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any() 
+                            && x.Ignore == false 
+                            && x.NeedsPaymentPut == true)
                 .ToList();
         }
 
         // NOTE - this does not indicate whether the Credit Memo and Credit Memo Invoice
         // ... have yet been created for this Refund - we'll need to pull the Order Refund
         // ... and its sync record for that
+        //
         public List<ShopifyTransaction> RetrieveUnsyncedRefunds()
         {
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
                 .Include(x => x.ShopifyOrder.ShopifyCustomer)
                 .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any()
-                            && x.ShopifyGateway != Gateway.Manual
-                            && x.ShopifyStatus == TransactionStatus.Success
-                            && x.ShopifyKind == TransactionKind.Refund
-                            && x.ShopifyRefundId != null
-                            && x.ShopifyAcuPayment == null)
+                            && x.ShopifyKind != TransactionKind.Refund
+                            && x.Ignore == false
+                            && x.NeedsPaymentPut == true)
                 .ToList();
         }
         
-
         // Payment Synchronization
         //
         public void InsertPayment(ShopifyAcuPayment payment)
@@ -201,7 +195,6 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.ShopifyAcuPayments.Add(payment);
             Entities.SaveChanges();
         }
-
 
         public void SaveChanges()
         {

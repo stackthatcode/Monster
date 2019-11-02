@@ -117,6 +117,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
                     _logger.Debug(
                         $"OrderSyncInChildScope - Acumatica Context: {childAcumaticaContext.ObjectIdentifier}");
+
                     childConnectionContext.Initialize(instanceId);
                     childAcumaticaContext.SessionRun(() => childOrderSync.RunWorker(queue));
                 }
@@ -129,15 +130,9 @@ namespace Monster.Middle.Processes.Sync.Managers
         
         public void SyncPaymentsToAcumatica()
         {
-            _acumaticaContext.SessionRun(() => _acumaticaPaymentSync.RunPaymentsForOrders());
-        }
-
-        public void SyncRefundsToAcumatica()
-        {
             _acumaticaContext.SessionRun(() =>
             {
-                _acumaticaRefundSync.RunCancels();
-                _acumaticaPaymentSync.RunPaymentsForRefunds();
+                _acumaticaPaymentSync.RunUnsyncedPayments();
             });
         }
         

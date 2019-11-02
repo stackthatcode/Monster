@@ -1,18 +1,14 @@
 ﻿using Monster.Acumatica.Http;
-using Push.Foundation.Utilities.Logging;
 
 namespace Monster.Acumatica.Api
 {
     public class PaymentClient
     {
         private readonly AcumaticaHttpContext _httpContext;
-        private readonly IPushLogger _logger;
 
-        public PaymentClient(
-                AcumaticaHttpContext httpContext, IPushLogger logger)
+        public PaymentClient(AcumaticaHttpContext httpContext)
         {
             _httpContext = httpContext;
-            _logger = logger;
         }
 
         public string WritePayment(string json)
@@ -27,8 +23,7 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string RetrievePayment(
-                    string referenceNbr, string paymentType, string expand)
+        public string RetrievePayment(string referenceNbr, string paymentType, string expand)
         {
             var path = $"Payment/{paymentType}/{referenceNbr}?$expand={expand}";
             var response = _httpContext.Get(path);
