@@ -56,7 +56,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                     _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
 
                     var payment = BuildPayment(transaction);
-                    WritePaymentAndCreateSync(transaction, payment);
+                    WritePaymentAndCreateSync(order, transaction, payment);
                     continue;
                 }
 
@@ -65,13 +65,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                     _logService.Log(LogBuilder.CreateAcumaticaCustomerRefund(transaction));
 
                     var payment = BuildCustomerRefund(transaction);
-                    WritePaymentAndCreateSync(transaction, payment);
+                    WritePaymentAndCreateSync(order, transaction, payment);
                     continue;
                 }
             }
         }
 
-        private void WritePaymentAndCreateSync(ShopifyTransaction transactionRecord, PaymentWrite payment)
+        private void WritePaymentAndCreateSync(
+                   ShopifyOrder orderRecord, ShopifyTransaction transactionRecord, PaymentWrite payment)
         {
             // Push to Acumatica
             //
@@ -84,6 +85,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             paymentRecord.ShopifyTransaction = transactionRecord;
             paymentRecord.AcumaticaRefNbr = resultPayment.ReferenceNbr.value;
             paymentRecord.AcumaticaDocType = resultPayment.Type.value;
+            paymentRecord.AcumaticaAmount = (decimal)resultPayment.PaymentAmount.value;
+            paymentRecord.AcumaticaSalesOrder = orderRecord.MatchingSalesOrder();
             paymentRecord.DateCreated = DateTime.UtcNow;
             paymentRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.InsertPayment(paymentRecord);

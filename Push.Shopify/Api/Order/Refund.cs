@@ -44,7 +44,7 @@ namespace Push.Shopify.Api.Order
 
 
         [JsonIgnore]
-        public decimal RefundDiscrepanciesTotal
+        private decimal RefundDiscrepanciesTotal
                 => order_adjustments.Where(x => x.IsRefundDiscrepancy).Sum(x => x.amount);
 
         [JsonIgnore] public decimal CreditMemoTotal 

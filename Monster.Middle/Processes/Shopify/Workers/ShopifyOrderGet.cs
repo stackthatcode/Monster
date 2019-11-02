@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
@@ -201,7 +200,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     var newRecord = new ShopifyRefund();
                     newRecord.ShopifyRefundId = refund.id;
                     newRecord.ShopifyOrderId = order.id;
-                    newRecord.ShopifyIsCancellation = !order.fulfillments.Any();
+                    newRecord.CreditAdjustment = refund.CreditMemoTotal;
+                    newRecord.DebitAdjustment = refund.DebitMemoTotal;
                     newRecord.ShopifyOrder = orderRecord;
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;

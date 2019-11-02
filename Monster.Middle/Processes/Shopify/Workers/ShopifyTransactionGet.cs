@@ -46,6 +46,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     record.ShopifyKind = transaction.kind;
                     record.ShopifyJson = transaction.SerializeToJson();
                     record.ShopifyGateway = transaction.gateway;
+                    record.ShopifyAmount = transaction.amount;
+
+                    record.Ignore = transaction.IgnoreForSync();
                     record.NeedsPaymentPut = true;
                     record.OrderMonsterId = orderRecord.Id;
 

@@ -135,30 +135,6 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
 
-        // Refund Syncing
-        //
-        public ShopifyRefund RetrieveRefundAndSync(long shopifyRefundId)
-        {
-            return Entities
-                .ShopifyRefunds
-                .FirstOrDefault(x => x.ShopifyRefundId == shopifyRefundId);
-        }
-
-        public List<ShopifyRefund> RetrieveCancelsNotSynced()
-        {
-            return RefundRecordGraph
-                .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any())
-                .Where(x => x.ShopifyIsCancellation && !x.IsCancellationSynced)
-                .ToList();
-        }
-        
-        private IQueryable<ShopifyRefund> RefundRecordGraph => 
-            Entities
-                .ShopifyRefunds
-                .Include(x => x.ShopifyOrder)
-                .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs)
-                .Include(x => x.ShopifyOrder.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder));
-        
 
 
         // Shopify Transactions
@@ -174,22 +150,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .ToList();
         }
 
-        // NOTE - this does not indicate whether the Credit Memo and Credit Memo Invoice
-        // ... have yet been created for this Refund - we'll need to pull the Order Refund
-        // ... and its sync record for that
-        //
-        public List<ShopifyTransaction> RetrieveUnsyncedRefunds()
-        {
-            return Entities.ShopifyTransactions
-                .Include(x => x.ShopifyOrder)
-                .Include(x => x.ShopifyOrder.ShopifyCustomer)
-                .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any()
-                            && x.ShopifyKind != TransactionKind.Refund
-                            && x.Ignore == false
-                            && x.NeedsPaymentPut == true)
-                .ToList();
-        }
-        
+
         // Payment Synchronization
         //
         public void InsertPayment(ShopifyAcuPayment payment)

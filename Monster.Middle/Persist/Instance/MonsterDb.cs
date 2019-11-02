@@ -38,7 +38,6 @@ namespace Monster.Middle.Persist.Instance
     public interface IMonsterDataContext : System.IDisposable
     {
         System.Data.Entity.DbSet<AcumaticaBatchState> AcumaticaBatchStates { get; set; } // AcumaticaBatchState
-        System.Data.Entity.DbSet<AcumaticaCreditMemo> AcumaticaCreditMemoes { get; set; } // AcumaticaCreditMemo
         System.Data.Entity.DbSet<AcumaticaCustomer> AcumaticaCustomers { get; set; } // AcumaticaCustomer
         System.Data.Entity.DbSet<AcumaticaInventoryReceipt> AcumaticaInventoryReceipts { get; set; } // AcumaticaInventoryReceipt
         System.Data.Entity.DbSet<AcumaticaRefData> AcumaticaRefDatas { get; set; } // AcumaticaRefData
@@ -129,7 +128,6 @@ namespace Monster.Middle.Persist.Instance
     public class MonsterDataContext : System.Data.Entity.DbContext, IMonsterDataContext
     {
         public System.Data.Entity.DbSet<AcumaticaBatchState> AcumaticaBatchStates { get; set; } // AcumaticaBatchState
-        public System.Data.Entity.DbSet<AcumaticaCreditMemo> AcumaticaCreditMemoes { get; set; } // AcumaticaCreditMemo
         public System.Data.Entity.DbSet<AcumaticaCustomer> AcumaticaCustomers { get; set; } // AcumaticaCustomer
         public System.Data.Entity.DbSet<AcumaticaInventoryReceipt> AcumaticaInventoryReceipts { get; set; } // AcumaticaInventoryReceipt
         public System.Data.Entity.DbSet<AcumaticaRefData> AcumaticaRefDatas { get; set; } // AcumaticaRefData
@@ -224,7 +222,6 @@ namespace Monster.Middle.Persist.Instance
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Configurations.Add(new AcumaticaBatchStateConfiguration());
-            modelBuilder.Configurations.Add(new AcumaticaCreditMemoConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaCustomerConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaInventoryReceiptConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaRefDataConfiguration());
@@ -274,7 +271,6 @@ namespace Monster.Middle.Persist.Instance
         public static System.Data.Entity.DbModelBuilder CreateModel(System.Data.Entity.DbModelBuilder modelBuilder, string schema)
         {
             modelBuilder.Configurations.Add(new AcumaticaBatchStateConfiguration(schema));
-            modelBuilder.Configurations.Add(new AcumaticaCreditMemoConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaCustomerConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaInventoryReceiptConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaRefDataConfiguration(schema));
@@ -407,7 +403,6 @@ namespace Monster.Middle.Persist.Instance
     public class FakeMonsterDataContext : IMonsterDataContext
     {
         public System.Data.Entity.DbSet<AcumaticaBatchState> AcumaticaBatchStates { get; set; }
-        public System.Data.Entity.DbSet<AcumaticaCreditMemo> AcumaticaCreditMemoes { get; set; }
         public System.Data.Entity.DbSet<AcumaticaCustomer> AcumaticaCustomers { get; set; }
         public System.Data.Entity.DbSet<AcumaticaInventoryReceipt> AcumaticaInventoryReceipts { get; set; }
         public System.Data.Entity.DbSet<AcumaticaRefData> AcumaticaRefDatas { get; set; }
@@ -460,7 +455,6 @@ namespace Monster.Middle.Persist.Instance
             _database = null;
 
             AcumaticaBatchStates = new FakeDbSet<AcumaticaBatchState>("Id");
-            AcumaticaCreditMemoes = new FakeDbSet<AcumaticaCreditMemo>("Id");
             AcumaticaCustomers = new FakeDbSet<AcumaticaCustomer>("Id");
             AcumaticaInventoryReceipts = new FakeDbSet<AcumaticaInventoryReceipt>("MonsterId");
             AcumaticaRefDatas = new FakeDbSet<AcumaticaRefData>("Id");
@@ -889,18 +883,6 @@ namespace Monster.Middle.Persist.Instance
         public System.DateTime? AcumaticaShipmentsGetEnd { get; set; } // AcumaticaShipmentsGetEnd
     }
 
-    // AcumaticaCreditMemo
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class AcumaticaCreditMemo
-    {
-        public long Id { get; set; } // Id (Primary key)
-        public long SalesOrderMonsterId { get; set; } // SalesOrderMonsterId
-        public string AcumaticaCreditMemoId { get; set; } // AcumaticaCreditMemoId (length: 50)
-        public string AcumaticaJson { get; set; } // AcumaticaJson (length: 10)
-        public System.DateTime DateCreated { get; set; } // DateCreated
-        public System.DateTime LastUpdated { get; set; } // LastUpdated
-    }
-
     // AcumaticaCustomer
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class AcumaticaCustomer
@@ -988,6 +970,10 @@ namespace Monster.Middle.Persist.Instance
         /// Child ShopAcuOrderSyncs where [ShopAcuOrderSync].[AcumaticaSalesOrderMonsterId] point to this entity (FK_usrShopAcuOrderSync_usrAcumaticaSalesOrder)
         /// </summary>
         public virtual System.Collections.Generic.ICollection<ShopAcuOrderSync> ShopAcuOrderSyncs { get; set; } // ShopAcuOrderSync.FK_usrShopAcuOrderSync_usrAcumaticaSalesOrder
+        /// <summary>
+        /// Child ShopifyAcuPayments where [ShopifyAcuPayment].[AcumaticaSoMonsterId] point to this entity (FK_ShopifyAcuPayment_AcumaticaSalesOrder)
+        /// </summary>
+        public virtual System.Collections.Generic.ICollection<ShopifyAcuPayment> ShopifyAcuPayments { get; set; } // ShopifyAcuPayment.FK_ShopifyAcuPayment_AcumaticaSalesOrder
 
         // Foreign keys
 
@@ -1000,6 +986,7 @@ namespace Monster.Middle.Persist.Instance
         {
             AcumaticaSoShipments = new System.Collections.Generic.List<AcumaticaSoShipment>();
             ShopAcuOrderSyncs = new System.Collections.Generic.List<ShopAcuOrderSync>();
+            ShopifyAcuPayments = new System.Collections.Generic.List<ShopifyAcuPayment>();
         }
     }
 
@@ -1352,10 +1339,17 @@ namespace Monster.Middle.Persist.Instance
         public long ShopifyTransactionMonsterId { get; set; } // ShopifyTransactionMonsterId (Primary key)
         public string AcumaticaRefNbr { get; set; } // AcumaticaRefNbr (length: 50)
         public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
+        public decimal AcumaticaAmount { get; set; } // AcumaticaAmount
+        public long AcumaticaSoMonsterId { get; set; } // AcumaticaSoMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
         // Foreign keys
+
+        /// <summary>
+        /// Parent AcumaticaSalesOrder pointed by [ShopifyAcuPayment].([AcumaticaSoMonsterId]) (FK_ShopifyAcuPayment_AcumaticaSalesOrder)
+        /// </summary>
+        public virtual AcumaticaSalesOrder AcumaticaSalesOrder { get; set; } // FK_ShopifyAcuPayment_AcumaticaSalesOrder
 
         /// <summary>
         /// Parent ShopifyTransaction pointed by [ShopifyAcuPayment].([ShopifyTransactionMonsterId]) (FK_usrShopifyAcuPayment_usrShopifyTransaction)
@@ -1639,9 +1633,9 @@ namespace Monster.Middle.Persist.Instance
         public long Id { get; set; } // Id (Primary key)
         public long ShopifyRefundId { get; set; } // ShopifyRefundId
         public long ShopifyOrderId { get; set; } // ShopifyOrderId
-        public bool ShopifyIsCancellation { get; set; } // ShopifyIsCancellation
         public long OrderMonsterId { get; set; } // OrderMonsterId
-        public bool IsCancellationSynced { get; set; } // IsCancellationSynced
+        public decimal CreditAdjustment { get; set; } // CreditAdjustment
+        public decimal DebitAdjustment { get; set; } // DebitAdjustment
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1664,6 +1658,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyKind { get; set; } // ShopifyKind (length: 25)
         public string ShopifyJson { get; set; } // ShopifyJson
         public string ShopifyGateway { get; set; } // ShopifyGateway (length: 50)
+        public decimal? ShopifyAmount { get; set; } // ShopifyAmount
         public long? ShopifyRefundId { get; set; } // ShopifyRefundId
         public bool Ignore { get; set; } // Ignore
         public bool NeedsPaymentPut { get; set; } // NeedsPaymentPut
@@ -2099,29 +2094,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaCustomersGetEnd).HasColumnName(@"AcumaticaCustomersGetEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaOrdersGetEnd).HasColumnName(@"AcumaticaOrdersGetEnd").HasColumnType("datetime").IsOptional();
             Property(x => x.AcumaticaShipmentsGetEnd).HasColumnName(@"AcumaticaShipmentsGetEnd").HasColumnType("datetime").IsOptional();
-        }
-    }
-
-    // AcumaticaCreditMemo
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class AcumaticaCreditMemoConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<AcumaticaCreditMemo>
-    {
-        public AcumaticaCreditMemoConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public AcumaticaCreditMemoConfiguration(string schema)
-        {
-            ToTable("AcumaticaCreditMemo", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.SalesOrderMonsterId).HasColumnName(@"SalesOrderMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.AcumaticaCreditMemoId).HasColumnName(@"AcumaticaCreditMemoId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nchar").IsRequired().IsFixedLength().HasMaxLength(10);
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
         }
     }
 
@@ -2650,10 +2622,13 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyTransactionMonsterId).HasColumnName(@"ShopifyTransactionMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.AcumaticaAmount).HasColumnName(@"AcumaticaAmount").HasColumnType("money").IsRequired().HasPrecision(19,4);
+            Property(x => x.AcumaticaSoMonsterId).HasColumnName(@"AcumaticaSoMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
             // Foreign keys
+            HasRequired(a => a.AcumaticaSalesOrder).WithMany(b => b.ShopifyAcuPayments).HasForeignKey(c => c.AcumaticaSoMonsterId).WillCascadeOnDelete(false); // FK_ShopifyAcuPayment_AcumaticaSalesOrder
             HasRequired(a => a.ShopifyTransaction).WithOptional(b => b.ShopifyAcuPayment).WillCascadeOnDelete(false); // FK_usrShopifyAcuPayment_usrShopifyTransaction
         }
     }
@@ -2914,9 +2889,9 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
-            Property(x => x.ShopifyIsCancellation).HasColumnName(@"ShopifyIsCancellation").HasColumnType("bit").IsRequired();
             Property(x => x.OrderMonsterId).HasColumnName(@"OrderMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.IsCancellationSynced).HasColumnName(@"IsCancellationSynced").HasColumnType("bit").IsRequired();
+            Property(x => x.CreditAdjustment).HasColumnName(@"CreditAdjustment").HasColumnType("money").IsRequired().HasPrecision(19,4);
+            Property(x => x.DebitAdjustment).HasColumnName(@"DebitAdjustment").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
@@ -2946,6 +2921,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyKind).HasColumnName(@"ShopifyKind").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyGateway).HasColumnName(@"ShopifyGateway").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.ShopifyAmount).HasColumnName(@"ShopifyAmount").HasColumnType("money").IsOptional().HasPrecision(19,4);
             Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsOptional();
             Property(x => x.Ignore).HasColumnName(@"Ignore").HasColumnType("bit").IsRequired();
             Property(x => x.NeedsPaymentPut).HasColumnName(@"NeedsPaymentPut").HasColumnType("bit").IsRequired();
