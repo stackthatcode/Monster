@@ -1,46 +1,43 @@
 ﻿using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Foundation.Utilities.Validation;
+using Push.Shopify.Api.Shop;
 using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
 {
     public class PaymentSyncStatus
     {
-        public long ShopifyTransactionId { get; set; }
-        public long ShopifyOrderNumber { get; set; } 
-        public string ShopifyKind { get; set; }
-        public string ShopifyStatus { get; set; }
-        public string ShopifyGateway { get; set; }
-        public bool HasBeenSynced { get; set; }
+        public ShopifyTransaction ThisTransaction { get; set; }
+
+        public ShopifyTransaction PaymentTransaction { get; set; }
 
 
-        public static PaymentSyncStatus Make(ShopifyTransaction transaction)
+        public static PaymentSyncStatus Make(ShopifyTransaction thisTransaction, ShopifyTransaction paymentTransaction)
         {
-            var output = new PaymentSyncStatus();
-            output.ShopifyTransactionId = transaction.ShopifyTransactionId;
-            output.ShopifyOrderNumber = transaction.ShopifyOrder.ShopifyOrderNumber;
-            output.ShopifyStatus = transaction.ShopifyStatus;
-            output.ShopifyKind = transaction.ShopifyKind;
-            output.ShopifyGateway = transaction.ShopifyGateway;
-            output.HasBeenSynced = transaction.ShopifyAcuPayment != null;
-            return output;
+            return new PaymentSyncStatus
+            {
+                ThisTransaction = thisTransaction,
+                PaymentTransaction = paymentTransaction,
+            };
         }
 
 
         private Validation<PaymentSyncStatus> MakeBaseValidation()
         {
             return new Validation<PaymentSyncStatus>()
-                .Add(x => !x.HasBeenSynced, "Payment has been synced already")
-                .Add(x => x.ShopifyGateway != Gateway.Manual, $"Payment is manual")
-                .Add(x => x.ShopifyStatus == TransactionStatus.Success, $"Transaction Status is {ShopifyStatus}");
+                .Add(x => !ThisTransaction.HasBeenSynced(), "Payment has been synced already")
+                .Add(x => ThisTransaction.ShopifyGateway != Gateway.Manual, $"Payment is manual")
+                .Add(x => ThisTransaction.ShopifyStatus == TransactionStatus.Success, 
+                            $"Transaction Status is {ThisTransaction.ShopifyStatus}");
         }
 
         public ValidationResult ShouldCreatePayment()
         {
             var validation
                 = MakeBaseValidation()
-                    .Add(x => x.ShopifyKind == TransactionKind.Capture
-                              || x.ShopifyKind == TransactionKind.Sale,
+                    .Add(x => ThisTransaction.ShopifyKind == TransactionKind.Capture
+                              || ThisTransaction.ShopifyKind == TransactionKind.Sale,
                         $"Transaction Kind is not a Capture or Sale");
 
             return validation.Run(this);
@@ -50,7 +47,9 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         {
             var validation
                 = MakeBaseValidation()
-                    .Add(x => x.ShopifyKind == TransactionKind.Refund,
+                    .Add(x => PaymentTransaction.HasBeenSynced(), 
+                        $"Original Payment has not been synced yet")
+                    .Add(x => ThisTransaction.ShopifyKind == TransactionKind.Refund,
                         $"Transaction Kind is not a Capture or Sale");
 
             return validation.Run(this);

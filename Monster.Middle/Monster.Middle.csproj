@@ -147,6 +147,7 @@
     <Compile Include="Misc\State\StateExtensions.cs" />
     <Compile Include="Processes\Sync\Misc\LogDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Orders\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\ConfigStatusSummary.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />

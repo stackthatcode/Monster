@@ -43,6 +43,8 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Include(x => x.ShopAcuOrderSyncs)
                 .Include(x => x.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder))
                 .Include(x => x.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder.AcumaticaCustomer))
+                .Include(x => x.ShopifyTransactions)
+                .Include(x => x.ShopifyTransactions.Select(y => y.ShopifyAcuPayment))
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 

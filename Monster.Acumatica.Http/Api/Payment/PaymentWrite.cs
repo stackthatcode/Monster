@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.Payment

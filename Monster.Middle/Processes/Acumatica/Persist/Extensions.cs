@@ -51,5 +51,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         {
             return json.DeserializeFromJson<SalesInvoice>();
         }
+
     }
 }

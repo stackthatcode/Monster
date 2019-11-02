@@ -46,7 +46,10 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             foreach (var transaction in transactions)
             {
-                var status = PaymentSyncStatus.Make(transaction);
+                var order = _syncOrderRepository.RetrieveShopifyOrder(transaction.ShopifyOrderId);
+                var paymentTransaction = order.PaymentTransaction();
+
+                var status = PaymentSyncStatus.Make(transaction, paymentTransaction);
 
                 if (status.ShouldCreatePayment().Success)
                 {
@@ -79,8 +82,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var paymentRecord = new ShopifyAcuPayment();
             paymentRecord.ShopifyTransaction = transactionRecord;
-            paymentRecord.ShopifyPaymentNbr = resultPayment.ReferenceNbr.value;
-            paymentRecord.AcumaticaPaymentType = resultPayment.Type.value;
+            paymentRecord.AcumaticaRefNbr = resultPayment.ReferenceNbr.value;
+            paymentRecord.AcumaticaDocType = resultPayment.Type.value;
             paymentRecord.DateCreated = DateTime.UtcNow;
             paymentRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.InsertPayment(paymentRecord);
@@ -135,21 +138,26 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Create the payload for Acumatica
             //
-            var payment = new PaymentWrite();
-            payment.CustomerID = acumaticaCustId.ToValue();
-            payment.Hold = false.ToValue();
-            payment.Type = PaymentType.CustomerRefund.ToValue();
-            payment.PaymentRef = $"{order.ShopifyOrderNumber}".ToValue();
-            payment.PaymentAmount = ((double)transaction.amount).ToValue();
-            // *** TODO - how to associate Customer Refund with Payment
+            var refundPayment = new PaymentWrite();
+            refundPayment.CustomerID = acumaticaCustId.ToValue();
+            refundPayment.Hold = false.ToValue();
+            refundPayment.Type = PaymentType.CustomerRefund.ToValue();
+            refundPayment.PaymentRef = $"{order.ShopifyOrderNumber}".ToValue();
+            refundPayment.PaymentAmount = ((double)transaction.amount).ToValue();
+
+            // Reference to the original Payment
             //
+            var paymentSync = order.PaymentTransaction().ShopifyAcuPayment;
+            refundPayment.DocumentsToApply 
+                = PaymentDocumentsToApply.ForDocument(
+                        paymentSync.AcumaticaRefNbr, paymentSync.AcumaticaDocType, (double)transaction.amount);
 
             // Amounts
-            payment.PaymentMethod = paymentGateway.AcumaticaPaymentMethod.ToValue();
-            payment.CashAccount = paymentGateway.AcumaticaCashAccount.ToValue();
-            payment.Description = $"Refund for Order #{order.ShopifyOrderNumber} (TransId #{transaction.id})".ToValue();
+            refundPayment.PaymentMethod = paymentGateway.AcumaticaPaymentMethod.ToValue();
+            refundPayment.CashAccount = paymentGateway.AcumaticaCashAccount.ToValue();
+            refundPayment.Description = $"Refund for Order #{order.ShopifyOrderNumber} (TransId #{transaction.id})".ToValue();
 
-            return payment;
+            return refundPayment;
         }
     }
 }
