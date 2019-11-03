@@ -82,13 +82,16 @@
                     </li>
 
                     <li class="nav-item active dropdown">
-                        <a class="nav-link dropdown-toggle" href="#"
-                           id="analyzeSync" data-toggle="dropdown"
-                           aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="analyzeSync"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Analyze
                         </a>
 
                         <div class="dropdown-menu bg-primary" aria-labelledby="analyzeSync">
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("Analysis/OrderSync")">
+                                Order Synchronization
+                            </a>
                             <a class="dropdown-item bg-primary active"
                                href="@GlobalConfig.Url("Analysis/ExecutionLogs")">
                                 Execution Logs

@@ -257,8 +257,10 @@
     <Content Include="Content\DetailGraphic.png" />
     <Content Include="Content\gijgo.min.css" />
     <Content Include="Content\Logic-Automated-logo-horizontal-transparent-white.png" />
+    <Content Include="Content\OrderSyncAnalyzer.html" />
     <Content Include="Content\spinner-new.gif" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\UtilityFunctions.js" />
     <Content Include="Scripts\gijgo.min.js" />
     <Content Include="Content\pdf-icon.png" />
@@ -402,6 +404,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Config\SettingsTaxes.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Analysis\OrderSync.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

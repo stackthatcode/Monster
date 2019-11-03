@@ -28,25 +28,17 @@
 
 <main role="main" class="medium-size">
     @Html.Partial("_TopBrand")
-    <hr />
 
-    <div>
-        <h1 class="mt-4 center">@GlobalConfig.AppName End-to-End Synchronization</h1>
-        <p class="lead center">
-            Synchronization of Orders, Customers, Shipments, Inventory and Refunds
-        </p>
-    </div>
+    <div class="card std-pad-sm-t">
+        <div class="card-title-interface">End-to-End Synchronization</div>
 
-    <div class="std-pad-b">
-        <div class="card">
-            <div class="card-body center">
-                <div data-bind="if: AreAnyJobsRunning">
-                    <div data-bind="template: { name: 'Running-State', data: RunningStateModel }"></div>
-                </div>
+        <div class="card-body center">
+            <div data-bind="if: AreAnyJobsRunning">
+                <div data-bind="template: { name: 'Running-State', data: RunningStateModel }"></div>
+            </div>
 
-                <div data-bind="ifnot: AreAnyJobsRunning">
-                    <div data-bind="template: { name: 'Non-Running-State', data: NonRunningStateModel }"></div>
-                </div>
+            <div data-bind="ifnot: AreAnyJobsRunning">
+                <div data-bind="template: { name: 'Non-Running-State', data: NonRunningStateModel }"></div>
             </div>
         </div>
     </div>

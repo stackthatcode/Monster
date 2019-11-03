@@ -55,11 +55,19 @@ h1 {
     max-width: 1140px;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 75px;
-    padding-right: 75px;
+    padding-left: 30px;
+    padding-right: 30px;
     margin-top: 0;
 }
 
+.extra-large-size {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-top: 0;
+}
 
 
 /* Custom page CSS
@@ -70,11 +78,9 @@ h1 {
     padding: 0 15px;
 }
 
-
 p {
     text-align: justify;
 }
-
 
 .center {
     text-align: center;
@@ -84,6 +90,11 @@ p {
     text-align: left;
 }
 
+
+.no-pad-sides {
+    padding-left: 0px;
+    padding-right: 0px;
+}
 
 .std-pad-sm {
     padding-top:20px;
@@ -96,7 +107,7 @@ p {
     padding-top: 20px;
 }
 
-.std-pad-side {
+.std-pad-sm-side {
     padding-left: 20px;
     padding-right: 20px;
 }

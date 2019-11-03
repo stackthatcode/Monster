@@ -3,8 +3,6 @@ using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Misc.State;
-using Monster.Middle.Processes;
-using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
@@ -17,31 +15,11 @@ namespace Monster.Web.Controllers
     [IdentityProcessor]
     public class AnalysisController : Controller
     {
-        private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _logRepository;
-        private readonly JobMonitoringService _jobStatusService;
-        private readonly ConfigStatusService _statusService;
-        private readonly ShopifyUrlService _urlService;
-        private readonly IPushLogger _logger;
 
-        public AnalysisController(
-                StateRepository stateRepository,
-                OneTimeJobScheduler oneTimeJobService,
-                RecurringJobScheduler recurringJobService,
-                JobMonitoringService jobStatusService,
-                ConfigStatusService statusService,
-                ExecutionLogService logRepository,
-                SyncOrderRepository syncOrderRepository,
-                SyncInventoryRepository syncInventoryRepository,
-                ShopifyUrlService urlService,
-                IPushLogger logger)
+        public AnalysisController(ExecutionLogService logRepository)
         {
-            _stateRepository = stateRepository;
-            _jobStatusService = jobStatusService;
-            _statusService = statusService;
             _logRepository = logRepository;
-            _urlService = urlService;
-            _logger = logger;
         }
 
         
@@ -56,7 +34,13 @@ namespace Monster.Web.Controllers
         {
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
             return new JsonNetResult(logs);
-        }        
+        }
+
+        [HttpGet]
+        public ActionResult OrderSync()
+        {
+            return View();
+        }
     }
 }
 
