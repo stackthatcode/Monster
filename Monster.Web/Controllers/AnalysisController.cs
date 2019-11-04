@@ -46,8 +46,10 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult OrderSyncResults(OrderAnalyzerRequest request)
         {
-            var results = _analysisDataService.GetOrderAnalysis(request);
-            return new JsonNetResult(results);
+            var grid = _analysisDataService.GetOrderAnalysis(request);
+            var count = _analysisDataService.GetOrderAnalysisRecordCount(request);
+
+            return new JsonNetResult(new { Grid = grid, Count = count });
         }
     }
 }

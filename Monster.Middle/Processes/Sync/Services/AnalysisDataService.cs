@@ -28,7 +28,26 @@ namespace Monster.Middle.Processes.Sync.Services
             _acumaticaUrlService = acumaticaUrlService;
         }
 
+
+        public int GetOrderAnalysisRecordCount(OrderAnalyzerRequest request)
+        {
+            return GetOrderAnalysisQueryable(request).Count();
+        }
+
+
         public List<OrderAnalyzerGridRow> GetOrderAnalysis(OrderAnalyzerRequest request)
+        {
+            var queryable = GetOrderAnalysisQueryable(request);   
+            var results = queryable
+                .OrderByDescending(x => x.ShopifyOrderId)
+                .Skip(request.StartRecord)
+                .Take(request.PageSize)
+                .ToList();
+
+            return results.Select(x => Make(x)).ToList();
+        }
+
+        private IQueryable<ShopifyOrder> GetOrderAnalysisQueryable(OrderAnalyzerRequest request)
         {
             var queryable = _persistContext
                 .Entities
@@ -56,14 +75,10 @@ namespace Monster.Middle.Processes.Sync.Services
                 }
             }
 
-            var results = queryable
-                .OrderByDescending(x => x.ShopifyOrderId)
-                .Skip(request.StartRecord)
-                .Take(request.PageSize)
-                .ToList();
-
-            return results.Select(x => Make(x)).ToList();
+            return queryable;
         }
+
+
 
         private OrderAnalyzerGridRow Make(ShopifyOrder order)
         {

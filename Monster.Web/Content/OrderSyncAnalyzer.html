@@ -267,7 +267,8 @@
                     ajax.HttpPost("Analysis/OrderSyncResults", request, this);
                 },
                 function (response) {
-                    self.Grid(response);
+                    self.Grid(response.Grid);
+                    self.PagingWidget.RecordCount(response.Count);
                 });
         };
         
