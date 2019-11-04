@@ -12,5 +12,17 @@
         public string AcumaticaOrderPayment { get; set; }
         public string AcumaticaNetPayment { get; set; }
         public string AcumaticaInvoiceTotal { get; set; }
+
+        public string OutstandingBalance { get; set; }
+
+        public OrderAnalyzerGridRow()
+        {
+            AcumaticaSalesOrderNbr = AnalysisExtensions.MissingField;
+            AcumaticaOrderPayment = AnalysisExtensions.MissingField;
+            AcumaticaNetPayment = AnalysisExtensions.MissingField;
+            AcumaticaInvoiceTotal = AnalysisExtensions.MissingField;
+
+            OutstandingBalance = "0.00";
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Web.Mvc;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Processes.Sync.Model.Analysis;
+using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Push.Foundation.Web.Json;
@@ -11,13 +13,17 @@ namespace Monster.Web.Controllers
     public class AnalysisController : Controller
     {
         private readonly ExecutionLogService _logRepository;
+        private readonly AnalysisDataService _analysisDataService;
 
-        public AnalysisController(ExecutionLogService logRepository)
+        public AnalysisController(
+                ExecutionLogService logRepository, 
+                AnalysisDataService analysisDataService)
         {
             _logRepository = logRepository;
+            _analysisDataService = analysisDataService;
         }
 
-        
+
         [HttpGet]
         public ActionResult ExecutionLogs()
         {
@@ -37,10 +43,11 @@ namespace Monster.Web.Controllers
             return View();
         }
 
-        [HttpGet]
-        public ActionResult OrderSyncResults()
+        [HttpPost]
+        public ActionResult OrderSyncResults(OrderAnalyzerRequest request)
         {
-            return new JsonNetResult(new {});
+            var results = _analysisDataService.GetOrderAnalysis(request);
+            return new JsonNetResult(results);
         }
     }
 }

@@ -90,6 +90,10 @@ p {
     text-align: left;
 }
 
+.right {
+    text-align: right;
+}
+
 
 .no-pad-sides {
     padding-left: 0px;

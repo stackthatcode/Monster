@@ -1,6 +1,12 @@
-﻿
+﻿<style>
+    .monster-paging-widget .btn
+    {
+        font-size:0.9em;
+    }
+</style>
+
 <script type="text/html" id="Monster-Paging-Widget">
-    <div class="btn-group" role="group">
+    <div class="btn-group monster-paging-widget" role="group">
         <button type="button" class="btn btn-light" data-bind="click: First">
             <i class="fa fa-fast-backward"></i>
         </button>
@@ -35,11 +41,11 @@
 <script type="text/javascript">
     var MonsterWidgets = MonsterWidgets || {};
 
-    MonsterWidgets.PagingModel = function () {
+    MonsterWidgets.PagingWidget = function () {
         var self = this;
 
         self.RecordCount = ko.observable(0);
-        self.PageNumber = ko.observable(0);
+        self.PageNumber = ko.observable(1);
         self.PageSize = ko.observable(50);
 
         self.PageSizeChanged = function () {
@@ -58,6 +64,7 @@
         self.PageCount = ko.computed(function () {
             var computedPageCount =
                 Math.floor((Math.floor(self.RecordCount()) + Math.floor(self.PageSize()) - 1) / self.PageSize());
+            computedPageCount = computedPageCount || 1;
 
             return (computedPageCount);
         });
@@ -85,8 +92,9 @@
             self.PageNumber(self.PageCount());
             self.Callback();
         };
-
-        self.Callback = function () { };
+        
+        self.Callback = function() {
+        };
 
         return self;
     };

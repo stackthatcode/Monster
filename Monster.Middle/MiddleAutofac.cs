@@ -207,6 +207,7 @@ namespace Monster.Middle
             builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<OrderStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<FulfillmentStatusService>().InstancePerLifetimeScope();
+            builder.RegisterType<AnalysisDataService>().InstancePerLifetimeScope();
 
             // Management Objects
             //

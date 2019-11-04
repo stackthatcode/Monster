@@ -126,7 +126,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 var newOrder = new ShopifyOrder();
 
                 newOrder.ShopifyOrderId = order.id;
-                newOrder.ShopifyOrderNumber = order.order_number;
+                newOrder.ShopifyOrderNumber = order.name;
                 newOrder.ShopifyIsCancelled = order.cancelled_at != null;
                 newOrder.ShopifyJson = order.SerializeToJson();
                 newOrder.ShopifyFinancialStatus = order.financial_status;

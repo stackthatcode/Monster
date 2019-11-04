@@ -17,6 +17,7 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly ShopifyUrlService _shopifyUrlService;
         private readonly AcumaticaUrlService _acumaticaUrlService;
 
+
         public AnalysisDataService(
                 ProcessPersistContext persistContext, 
                 ShopifyUrlService shopifyUrlService, 
@@ -29,8 +30,6 @@ namespace Monster.Middle.Processes.Sync.Services
 
         public List<OrderAnalyzerGridRow> GetOrderAnalysis(OrderAnalyzerRequest request)
         {
-            var output = new List<OrderAnalyzerGridRow>();
-
             var queryable = _persistContext
                 .Entities
                 .ShopifyOrders
@@ -47,33 +46,28 @@ namespace Monster.Middle.Processes.Sync.Services
                 {
                     queryable = queryable.Where(
                         x => x.ShopifyOrderId == term.ToLong() ||
-                             x.ShopifyOrderNumber == term.ToInteger() ||
                              x.AcumaticaSalesOrder.AcumaticaOrderNbr.Contains(term));
                 }
                 else
                 {
                     queryable = queryable.Where(
-                        x => x.AcumaticaSalesOrder.AcumaticaOrderNbr.Contains(term));
+                        x => x.ShopifyOrderNumber.Contains(term) ||
+                             x.AcumaticaSalesOrder.AcumaticaOrderNbr.Contains(term));
                 }
             }
 
-            queryable = queryable
+            var results = queryable
                 .OrderByDescending(x => x.ShopifyOrderId)
                 .Skip(request.StartRecord)
-                .Take(request.PageSize);
-                
+                .Take(request.PageSize)
+                .ToList();
 
-            return output;
+            return results.Select(x => Make(x)).ToList();
         }
-
-        const string MissingField = "N/A";
-
 
         private OrderAnalyzerGridRow Make(ShopifyOrder order)
         {
-
             var output = new OrderAnalyzerGridRow();
-
             output.ShopifyOrderNbr = order.ShopifyOrderNumber.ToString();
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(order.ShopifyOrderId);
 
@@ -91,8 +85,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 output.AcumaticaSalesOrderNbr = order.AcumaticaSalesOrder.AcumaticaOrderNbr;
                 output.AcumaticaSalesOrderHref =
                     _acumaticaUrlService.AcumaticaSalesOrderUrl(
-                        SalesOrderType.SO, order.AcumaticaSalesOrder.AcumaticaOrderNbr);
-
+                            SalesOrderType.SO, order.AcumaticaSalesOrder.AcumaticaOrderNbr);
 
                 if (order.PaymentTransaction().AcumaticaPayment != null)
                 {
@@ -116,14 +109,6 @@ namespace Monster.Middle.Processes.Sync.Services
                         = order.AcumaticaSalesOrder
                             .AcumaticaSoShipments.Sum(x => x.AcumaticaInvoiceAmount)
                             .AnalysisFormat();
-            }
-            else
-            {
-                output.AcumaticaSalesOrderNbr = MissingField;
-                output.AcumaticaSalesOrderHref = null;
-                output.AcumaticaOrderPayment = 0.00m.AnalysisFormat();
-                output.AcumaticaNetPayment = 0.00m.AnalysisFormat();
-                output.AcumaticaInvoiceTotal = 0.00m.AnalysisFormat();
             }
 
             return output;

@@ -9,7 +9,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
     public class OrderSyncStatus
     {
         public long ShopifyOrderId { get; set; }
-        public long ShopifyOrderNumber { get; set; }        
+        public string ShopifyOrderNumber { get; set; }        
         public long SettingsStartingOrderId { get; set; }
 
         public List<LineItem> LineItemsWithAdhocVariants { get; set; }
