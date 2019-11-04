@@ -41,6 +41,12 @@ namespace Monster.Web.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public ActionResult OrderSyncResults()
+        {
+            return new JsonNetResult();
+        }
     }
 }
 

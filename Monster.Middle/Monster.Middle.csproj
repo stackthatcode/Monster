@@ -146,6 +146,8 @@
     <Compile Include="Misc\Logging\LogLevel.cs" />
     <Compile Include="Misc\State\StateExtensions.cs" />
     <Compile Include="Processes\Sync\Misc\LogDescriptors.cs" />
+    <Compile Include="Processes\Sync\Model\Analysis\OrderAnalyzerGridRow.cs" />
+    <Compile Include="Processes\Sync\Model\Analysis\OrderAnalyzerRequest.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Orders\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\ConfigStatusSummary.cs" />
@@ -156,6 +158,7 @@
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
     <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
+    <Compile Include="Processes\Sync\Services\AnalysisDataService.cs" />
     <Compile Include="Processes\Sync\Services\FulfillmentStatusService.cs" />
     <Compile Include="Misc\Logging\ExecutionLogService.cs" />
     <Compile Include="Persist\Instance\MonsterDb.cs">

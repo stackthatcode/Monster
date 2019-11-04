@@ -1,0 +1,93 @@
+﻿
+<script type="text/html" id="Monster-Paging-Widget">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-light" data-bind="click: First">
+            <i class="fa fa-fast-backward"></i>
+        </button>
+        <button type="button" class="btn btn-light" data-bind="click: Previous">
+            <i class="fa fa-step-backward"></i>
+        </button>
+
+        <div class="btn-group" role="group">
+            <button id="btnGroupDrop1" type="button"
+                    class="btn btn-light" aria-haspopup="true" aria-expanded="false">
+                Page <span data-bind="text: PageNumber"></span> of 
+                <span data-bind="text: PageCount"></span>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a class="dropdown-item" href="#">100 per page</a>
+                <a class="dropdown-item" href="#">250 per page</a>
+                <a class="dropdown-item" href="#">500 per page</a>
+                <a class="dropdown-item" href="#">1000 per page</a>
+                <a class="dropdown-item" href="#">2500 per page</a>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-light" data-bind="click: Next">
+            <i class="fa fa-fast-forward"></i>
+        </button>
+        <button type="button" class="btn btn-light" data-bind="click: Last">
+            <i class="fa fa-step-forward"></i>
+        </button>
+    </div>
+</script>
+
+<script type="text/javascript">
+    var MonsterWidgets = MonsterWidgets || {};
+
+    MonsterWidgets.PagingModel = function () {
+        var self = this;
+
+        self.RecordCount = ko.observable(0);
+        self.PageNumber = ko.observable(0);
+        self.PageSize = ko.observable(50);
+
+        self.PageSizeChanged = function () {
+            if (self.PageNumber() > self.PageCount()) {
+                self.PageNumber(self.PageCount());
+            }
+
+            self.Callback();
+        }
+
+        self.PageSize.subscribe(function() {
+            self.PageSizeChanged();
+        });
+
+
+        self.PageCount = ko.computed(function () {
+            var computedPageCount =
+                Math.floor((Math.floor(self.RecordCount()) + Math.floor(self.PageSize()) - 1) / self.PageSize());
+
+            return (computedPageCount);
+        });
+
+        self.First = function () {
+            self.PageNumber(1);
+            self.Callback();
+        };
+
+        self.Previous = function () {
+            if (self.PageNumber() > 1) {
+                self.PageNumber(self.PageNumber() - 1);
+                self.Callback();
+            }
+        };
+
+        self.Next = function () {
+            if (self.PageNumber() < self.PageCount()) {
+                self.PageNumber(self.PageNumber() + 1);
+                self.Callback();
+            }
+        };
+
+        self.Last = function () {
+            self.PageNumber(self.PageCount());
+            self.Callback();
+        };
+
+        self.Callback = function () { };
+
+        return self;
+    };
+</script>

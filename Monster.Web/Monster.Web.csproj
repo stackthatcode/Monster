@@ -408,6 +408,12 @@
   <ItemGroup>
     <Content Include="Views\Analysis\OrderSync.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_PagingWidget.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\Analysis\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
