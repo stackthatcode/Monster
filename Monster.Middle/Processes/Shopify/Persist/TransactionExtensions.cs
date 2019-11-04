@@ -37,6 +37,15 @@ namespace Monster.Middle.Processes.Shopify.Persist
                         && x.ShopifyStatus == TransactionStatus.Success);
         }
 
+        public static List<ShopifyTransaction> RefundTransactions(this ShopifyOrder order)
+        {
+            return order.ShopifyTransactions
+                    .Where(x => x.ShopifyKind == TransactionKind.Refund &&
+                                x.ShopifyStatus == TransactionStatus.Success)
+                    .ToList();
+        }
+
+
         public static bool DontIgnoreForSync(this Transaction transaction)
         {
             return transaction.gateway != Gateway.Manual

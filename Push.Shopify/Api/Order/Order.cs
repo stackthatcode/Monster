@@ -22,7 +22,6 @@ namespace Push.Shopify.Api.Order
         public int number { get; set; }
         public int order_number { get; set; }
         public string name { get; set; }
-
         public bool test { get; set; }
 
         public DateTimeOffset? closed_at { get; set; }
@@ -77,44 +76,22 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
 
-        [JsonIgnore]
-        public List<RefundLineItem> CancelledLineItems =>
-
-                    refunds.SelectMany(x => x.CancelledLineItems).ToList();
-        
-        [JsonIgnore]
-        public decimal TaxableAmountTotalAfterRefundCancels
-                    => line_items.Sum(x => x.TaxableAmount) 
-                       - CancelledLineItems.Sum(x => x.subtotal);
-
-        [JsonIgnore]
-        public decimal TaxTotalAfterRefundCancels 
-                    => total_tax - CancelledLineItems.Sum(x => x.total_tax);
-
-
-        [JsonIgnore]
-        public decimal LineItemDiscountTotal
-                        => discount_applications
-                            .Where(x => x.target_type == DiscountTargetType.LineItem)
-                            .Sum(x => x.TotalAllocations);
-
-        [JsonIgnore]
-        public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
 
         [JsonIgnore]
         public decimal ShippingTotal => shipping_lines.Sum(x => x.price);
 
         [JsonIgnore]
-        public decimal ShippingDiscountedTotal 
-                => shipping_lines.Sum(x => x.discounted_price);
+        public decimal ShippingDiscountedTotal => shipping_lines.Sum(x => x.discounted_price);
+
+        [JsonIgnore]
+        public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
 
         [JsonIgnore]
         public decimal ShippingDiscountedTotalAfterRefunds
             => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
 
-
-        public List<LineItem> 
-                LineItemsWithAdhocVariants => line_items.Where(x => x.variant_id == null).ToList();
+        public List<LineItem> LineItemsWithManualVariants 
+            => line_items.Where(x => x.variant_id == null).ToList();
 
 
         public LineItem LineItem(string sku)

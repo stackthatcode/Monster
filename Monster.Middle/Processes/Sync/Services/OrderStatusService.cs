@@ -39,7 +39,7 @@ namespace Monster.Middle.Processes.Sync.Services
             //
             output.SettingsStartingOrderId = settings.ShopifyOrderId.Value;
             
-            output.LineItemsWithAdhocVariants = orderRecord.ToShopifyObj().LineItemsWithAdhocVariants;
+            output.LineItemsWithAdhocVariants = orderRecord.ToShopifyObj().LineItemsWithManualVariants;
             output.LineItemsWithUnmatchedVariants = LineItemsWithUnmatchedVariants(orderRecord);
 
             output.IsPaid = orderRecord.IsPaid();

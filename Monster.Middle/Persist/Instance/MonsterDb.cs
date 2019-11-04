@@ -1555,7 +1555,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyKind { get; set; } // ShopifyKind (length: 25)
         public string ShopifyJson { get; set; } // ShopifyJson
         public string ShopifyGateway { get; set; } // ShopifyGateway (length: 50)
-        public decimal? ShopifyAmount { get; set; } // ShopifyAmount
+        public decimal ShopifyAmount { get; set; } // ShopifyAmount
         public long? ShopifyRefundId { get; set; } // ShopifyRefundId
         public bool Ignore { get; set; } // Ignore
         public bool NeedsPaymentPut { get; set; } // NeedsPaymentPut
@@ -2745,7 +2745,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyKind).HasColumnName(@"ShopifyKind").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyGateway).HasColumnName(@"ShopifyGateway").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.ShopifyAmount).HasColumnName(@"ShopifyAmount").HasColumnType("money").IsOptional().HasPrecision(19,4);
+            Property(x => x.ShopifyAmount).HasColumnName(@"ShopifyAmount").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsOptional();
             Property(x => x.Ignore).HasColumnName(@"Ignore").HasColumnType("bit").IsRequired();
             Property(x => x.NeedsPaymentPut).HasColumnName(@"NeedsPaymentPut").HasColumnType("bit").IsRequired();
