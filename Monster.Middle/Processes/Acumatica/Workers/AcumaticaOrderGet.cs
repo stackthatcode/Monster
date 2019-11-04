@@ -137,7 +137,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             foreach (var shipment in salesOrder.Shipments)
             {
                 var exists = _orderRepository.SoShipmentExists(
-                        salesOrderRecord.Id, shipment.ShipmentNbr.value, shipment.InvoiceNbr.value);
+                        salesOrderRecord.ShopifyOrderMonsterId, shipment.ShipmentNbr.value, shipment.InvoiceNbr.value);
 
                 if (exists)
                 {
@@ -167,7 +167,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void PopulateSoShipments(AcumaticaSalesOrder salesOrderRecord)
         {
-            var soShipments = _orderRepository.RetrieveSoShipments(salesOrderRecord.Id);
+            var soShipments = _orderRepository
+                .RetrieveSoShipments(salesOrderRecord.ShopifyOrderMonsterId);
 
             foreach (var soShipment in soShipments)
             {

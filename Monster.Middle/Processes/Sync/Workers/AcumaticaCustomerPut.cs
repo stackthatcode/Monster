@@ -118,11 +118,9 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             if (!shopifyCustomerRecord.HasMatch())
             {
-                var syncRecord = new ShopAcuCustomerSync();
-                syncRecord.ShopifyCustomer = shopifyCustomerRecord;
-                syncRecord.AcumaticaCustomer = acumaticaCustomerRecord;
-                syncRecord.DateCreated = DateTime.UtcNow;
-                _syncOrderRepository.InsertCustomerSync(syncRecord);
+                acumaticaCustomerRecord.ShopifyCustomer = shopifyCustomerRecord;
+                acumaticaCustomerRecord.LastUpdated = DateTime.UtcNow;
+                _syncOrderRepository.SaveChanges();
             }
         }
 

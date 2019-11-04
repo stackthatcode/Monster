@@ -1,12 +1,7 @@
 ﻿using System.Web.Mvc;
-using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
-using Monster.Middle.Misc.Shopify;
-using Monster.Middle.Misc.State;
-using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
-using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Json;
 
 
@@ -45,7 +40,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult OrderSyncResults()
         {
-            return new JsonNetResult();
+            return new JsonNetResult(new {});
         }
     }
 }

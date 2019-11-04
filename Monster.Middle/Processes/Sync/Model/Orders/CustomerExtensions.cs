@@ -21,20 +21,12 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 
         public static AcumaticaCustomer Match(this ShopifyCustomer input)
         {
-            return input
-                .ShopAcuCustomerSyncs
-                .FirstOrDefault()?
-                .AcumaticaCustomer;
+            return input.AcumaticaCustomer;
         }
 
         public static bool HasMatch(this ShopifyCustomer input)
         {
             return input.Match() != null;
-        }
-
-        public static ShopAcuCustomerSync SyncRecord(this ShopifyCustomer input)
-        {
-            return input.ShopAcuCustomerSyncs.FirstOrDefault();
         }
 
 

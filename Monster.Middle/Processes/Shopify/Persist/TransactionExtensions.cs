@@ -28,11 +28,6 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return transactionRecord.ShopifyOrder.ShopifyOrderId;
         }
 
-        public static ShopifyAcuPayment Sync(this ShopifyTransaction transaction)
-        {
-            return transaction.ShopifyAcuPayment;
-        }
-
 
         public static ShopifyTransaction PaymentTransaction(this ShopifyOrder order)
         {

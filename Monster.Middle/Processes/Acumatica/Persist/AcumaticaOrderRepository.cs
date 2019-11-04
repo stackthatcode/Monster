@@ -61,7 +61,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         {
             return Entities
                 .AcumaticaSalesOrders
-                .Include(x => x.ShopAcuOrderSyncs)
+                .Include(x => x.ShopifyOrder)
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == acumaticaOrderNbr);
         }
 
@@ -74,19 +74,19 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Sales Order Shipments
         //
-        public List<AcumaticaSoShipment> RetrieveSoShipments(long monsterSalesOrderId)
+        public List<AcumaticaSoShipment> RetrieveSoShipments(long shopifyOrderMonsterId)
         {
             return Entities
                 .AcumaticaSoShipments
-                .Where(x => x.AcumaticaSalesOrder.Id == monsterSalesOrderId)
+                .Where(x => x.AcumaticaSalesOrder.ShopifyOrderMonsterId == shopifyOrderMonsterId)
                 .ToList();
         }
 
-        public bool SoShipmentExists(long monsterSalesOrderId, string shipmentNbr, string invoiceNbr)
+        public bool SoShipmentExists(long monsterShopifyOrderId, string shipmentNbr, string invoiceNbr)
         {
             return Entities
                 .AcumaticaSoShipments
-                .Any(x => x.AcumaticaSalesOrder.Id == monsterSalesOrderId 
+                .Any(x => x.AcumaticaSalesOrder.ShopifyOrderMonsterId == monsterShopifyOrderId
                          && x.AcumaticaInvoiceNbr == invoiceNbr 
                          && x.AcumaticaShipmentNbr == shipmentNbr);
         }

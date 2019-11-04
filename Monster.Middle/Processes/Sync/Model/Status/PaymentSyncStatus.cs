@@ -26,7 +26,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         private Validation<PaymentSyncStatus> MakeBaseValidation()
         {
             return new Validation<PaymentSyncStatus>()
-                .Add(x => !ThisTransaction.HasBeenSynced(), "Payment has been synced already")
+                .Add(x => !ThisTransaction.IsSynced(), "Payment has been synced already")
                 .Add(x => ThisTransaction.ShopifyGateway != Gateway.Manual, $"Payment is manual")
                 .Add(x => ThisTransaction.ShopifyStatus == TransactionStatus.Success, 
                             $"Transaction Status is {ThisTransaction.ShopifyStatus}");
@@ -47,7 +47,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         {
             var validation
                 = MakeBaseValidation()
-                    .Add(x => PaymentTransaction.HasBeenSynced(), 
+                    .Add(x => PaymentTransaction.IsSynced(), 
                         $"Original Payment has not been synced yet")
                     .Add(x => ThisTransaction.ShopifyKind == TransactionKind.Refund,
                         $"Transaction Kind is not a Capture or Sale");

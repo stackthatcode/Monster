@@ -81,12 +81,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Create Monster Sync Record
             //
-            var paymentRecord = new ShopifyAcuPayment();
+            var paymentRecord = new AcumaticaPayment();
             paymentRecord.ShopifyTransaction = transactionRecord;
             paymentRecord.AcumaticaRefNbr = resultPayment.ReferenceNbr.value;
             paymentRecord.AcumaticaDocType = resultPayment.Type.value;
             paymentRecord.AcumaticaAmount = (decimal)resultPayment.PaymentAmount.value;
-            paymentRecord.AcumaticaSalesOrder = orderRecord.MatchingSalesOrder();
             paymentRecord.DateCreated = DateTime.UtcNow;
             paymentRecord.LastUpdated = DateTime.UtcNow;
             _syncOrderRepository.InsertPayment(paymentRecord);
@@ -150,10 +149,10 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Reference to the original Payment
             //
-            var paymentSync = order.PaymentTransaction().ShopifyAcuPayment;
+            var acumaticaPayment = order.PaymentTransaction().AcumaticaPayment;
             refundPayment.DocumentsToApply 
                 = PaymentDocumentsToApply.ForDocument(
-                        paymentSync.AcumaticaRefNbr, paymentSync.AcumaticaDocType, (double)transaction.amount);
+                        acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double)transaction.amount);
 
             // Amounts
             refundPayment.PaymentMethod = paymentGateway.AcumaticaPaymentMethod.ToValue();

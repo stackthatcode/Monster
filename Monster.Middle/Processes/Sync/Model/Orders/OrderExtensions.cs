@@ -1,7 +1,5 @@
 ﻿using System.Linq;
-using AutoMapper;
 using Monster.Middle.Persist.Instance;
-using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
 {
@@ -9,14 +7,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
     {
         public static AcumaticaSalesOrder MatchingSalesOrder(this ShopifyOrder order)
         {
-            if (!order.ShopAcuOrderSyncs.Any())
-            {
-                return null;
-            }
-            else
-            {
-                return order.ShopAcuOrderSyncs.First().AcumaticaSalesOrder;
-            }
+            return order.AcumaticaSalesOrder;
         }
 
         public static bool HasMatch(this ShopifyOrder order)
@@ -29,29 +20,9 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
             return order.HasMatch() ? order.MatchingSalesOrder().AcumaticaOrderNbr : null;
         }
 
-        public static bool IsFromShopify(this AcumaticaSalesOrder order)
-        {
-            return order.ShopAcuOrderSyncs.Any();
-        }
-
         public static ShopifyOrder MatchingShopifyOrder(this AcumaticaSalesOrder order)
         {
-            return order.ShopAcuOrderSyncs.FirstOrDefault()?.ShopifyOrder;
-        }
-
-        public static bool HasMatch(this AcumaticaSalesOrder order)
-        {
-            return order.ShopAcuOrderSyncs.Any();
-        }
-
-        public static ShopAcuOrderSync Sync(this AcumaticaSalesOrder order)
-        {
-            return order.ShopAcuOrderSyncs.FirstOrDefault();
-        }
-
-        public static ShopAcuOrderSync Sync(this ShopifyOrder order)
-        {
-            return order.ShopAcuOrderSyncs.FirstOrDefault();
+            return order.ShopifyOrder;
         }
 
     }

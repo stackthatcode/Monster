@@ -19,10 +19,10 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var output = new List<OrderAnalyzerGridRow>();
 
-            var queryable = _persistContext
-                .Entities
-                .ShopifyOrders
-                .Include(x => x.ShopAcuOrderSyncs)
+            //var queryable = _persistContext
+            //    .Entities
+            //    .ShopifyOrders
+            //    .Include(x => x.ShopAcuOrderSyncs)
 
 
 

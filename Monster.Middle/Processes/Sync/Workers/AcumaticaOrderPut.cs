@@ -144,16 +144,17 @@ namespace Monster.Middle.Processes.Sync.Workers
             var newOrder = resultJson.DeserializeFromJson<SalesOrder>();
 
             var newRecord = new AcumaticaSalesOrder();
+
+            newRecord.ShopifyOrderMonsterId = shopifyOrderRecord.Id;
             // TODO - Tax Order Total + Tax + Freight?
             //
             newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
             newRecord.AcumaticaStatus = newOrder.Status.value;
-            newRecord.CustomerMonsterId = acumaticaCustomer.Id;
+            newRecord.ShopifyCustomerMonsterId = acumaticaCustomer.ShopifyCustomerMonsterId;
             newRecord.DateCreated = DateTime.UtcNow;
             newRecord.LastUpdated = DateTime.UtcNow;
 
             _acumaticaOrderRepository.InsertSalesOrder(newRecord);
-            _syncOrderRepository.InsertOrderSync(shopifyOrderRecord, newRecord);
 
             shopifyOrderRecord.NeedsOrderPut = false;
             _syncOrderRepository.SaveChanges();

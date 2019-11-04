@@ -28,7 +28,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .ShopifyOrders
-                .Where(x => !x.ShopAcuOrderSyncs.Any() || x.NeedsOrderPut)
+                .Where(x => x.AcumaticaSalesOrder == null || x.NeedsOrderPut)
                 .Include(x => x.ShopifyCustomer)
                 .Include(x => x.ShopifyFulfillments)
                 .Include(x => x.ShopifyRefunds)
@@ -40,11 +40,10 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .ShopifyOrders
-                .Include(x => x.ShopAcuOrderSyncs)
-                .Include(x => x.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder))
-                .Include(x => x.ShopAcuOrderSyncs.Select(y => y.AcumaticaSalesOrder.AcumaticaCustomer))
+                .Include(x => x.AcumaticaSalesOrder)
+                .Include(x => x.AcumaticaSalesOrder.AcumaticaCustomer)
                 .Include(x => x.ShopifyTransactions)
-                .Include(x => x.ShopifyTransactions.Select(y => y.ShopifyAcuPayment))
+                .Include(x => x.ShopifyTransactions.Select(y => y.AcumaticaPayment))
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 
@@ -52,26 +51,12 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .AcumaticaSalesOrders
-                .Include(x => x.ShopAcuOrderSyncs)
                 .Include(x => x.AcumaticaCustomer)
-                .Include(x => x.ShopAcuOrderSyncs.Select(y => y.ShopifyOrder))
-                .Include(x => x.ShopAcuOrderSyncs.Select(y => y.ShopifyOrder.ShopifyCustomer))
+                .Include(x => x.ShopifyOrder)
+                .Include(x => x.ShopifyOrder.ShopifyCustomer)
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
         
-        public ShopAcuOrderSync InsertOrderSync(ShopifyOrder shopifyOrder, AcumaticaSalesOrder acumaticaSalesOrder)
-        {
-            var sync = new ShopAcuOrderSync();
-            sync.ShopifyOrder = shopifyOrder;
-            sync.AcumaticaSalesOrder = acumaticaSalesOrder;
-            sync.DateCreated = DateTime.UtcNow;
-            sync.LastUpdated = DateTime.UtcNow;
-
-            Entities.ShopAcuOrderSyncs.Add(sync);
-            Entities.SaveChanges();
-            return sync;
-        }
-
 
         // Customer syncing
         //
@@ -79,28 +64,21 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .ShopifyCustomers
-                .Include(x => x.ShopAcuCustomerSyncs)
-                .Include(x => x.ShopAcuCustomerSyncs.Select(y => y.AcumaticaCustomer))
+                .Include(x => x.AcumaticaCustomer)
                 .FirstOrDefault(x => x.ShopifyCustomerId == shopifyCustomerId);
         }
 
         public List<ShopifyCustomer> RetrieveShopifyCustomersWithoutSyncs()
         {
-            return Entities.ShopifyCustomers.Where(x => !x.ShopAcuCustomerSyncs.Any()).ToList();
+            return Entities.ShopifyCustomers.Where(x => x.AcumaticaCustomer == null).ToList();
         }
 
         public List<ShopifyCustomer> RetrieveShopifyCustomersNeedingPut()
         {
             return Entities
                 .ShopifyCustomers
-                .Where(x => x.ShopAcuCustomerSyncs.Any() && x.NeedsCustomerPut == true)
+                .Where(x => x.AcumaticaCustomer == null && x.NeedsCustomerPut == true)
                 .ToList();
-        }
-
-        public void InsertCustomerSync(ShopAcuCustomerSync input)
-        {
-            Entities.ShopAcuCustomerSyncs.Add(input);
-            Entities.SaveChanges();
         }
 
 
@@ -111,31 +89,18 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities.ShopifyOrders
                 .Any(x => x.ShopifyOrderId == shopifyOrderId &&
-                          x.ShopifyFulfillments.Any(y => !y.ShopAcuShipmentSyncs.Any()));
+                          x.ShopifyFulfillments.Any(y => !y.AcumaticaSoShipments.Any()));
         }
 
         public List<AcumaticaSoShipment> RetrieveUnsyncedSoShipments()
         {
             return Entities.AcumaticaSoShipments
                 .Include(x => x.AcumaticaSalesOrder)
-                .Where(x => x.NeedShipmentGet == false && !x.ShopAcuShipmentSyncs.Any())
+                .Where(x => x.NeedShipmentGet == false && x.ShopifyFulfillment == null)
                 .ToList();
         }
 
-        public void InsertShipmentSync(
-                ShopifyFulfillment fulfillmentRecord, AcumaticaSoShipment salesOrderShipment)
-        {
-            var sync = new ShopAcuShipmentSync();
-            sync.ShopifyFulfillment = fulfillmentRecord;
-            sync.AcumaticaSoShipment = salesOrderShipment;
-            sync.DateCreated = DateTime.UtcNow;
-            sync.LastUpdated = DateTime.UtcNow;
-
-            Entities.ShopAcuShipmentSyncs.Add(sync);
-            Entities.SaveChanges();
-        }
-
-
+       
 
         // Shopify Transactions
         //
@@ -144,18 +109,17 @@ namespace Monster.Middle.Processes.Sync.Persist
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
                 .Include(x => x.ShopifyOrder.ShopifyCustomer)
-                .Where(x => x.ShopifyOrder.ShopAcuOrderSyncs.Any() 
-                            && x.Ignore == false 
-                            && x.NeedsPaymentPut == true)
+                .Where(x => x.ShopifyOrder.AcumaticaSalesOrder != null
+                            && x.Ignore == false && x.NeedsPaymentPut == true)
                 .ToList();
         }
 
 
         // Payment Synchronization
         //
-        public void InsertPayment(ShopifyAcuPayment payment)
+        public void InsertPayment(AcumaticaPayment payment)
         {
-            Entities.ShopifyAcuPayments.Add(payment);
+            Entities.AcumaticaPayments.Add(payment);
             Entities.SaveChanges();
         }
 
