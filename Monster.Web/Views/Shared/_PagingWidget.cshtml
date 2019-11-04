@@ -51,27 +51,25 @@
         self.PageSize = ko.observable(100);
 
         self.PageSizeChanged = function () {
-            if (self.PageNumber() > self.PageCount()) {
-                self.PageNumber(self.PageCount());
-            }
-
+            self.PageNumber(1);
             self.Callback();
         }
 
-        self.PageSize.subscribe(function() {
+        self.PageSize.subscribe(function () {
             self.PageSizeChanged();
         });
-
 
         self.PageCount = ko.computed(function () {
             var computedPageCount =
                 Math.floor((Math.floor(self.RecordCount()) + Math.floor(self.PageSize()) - 1) / self.PageSize());
+
             computedPageCount = computedPageCount || 1;
 
             //console.log("self.PageCount", self.RecordCount());
 
             return (computedPageCount);
         });
+
 
         self.First = function () {
             self.PageNumber(1);
@@ -97,8 +95,7 @@
             self.Callback();
         };
         
-        self.Callback = function() {
-        };
+        self.Callback = function() { };
 
         return self;
     };

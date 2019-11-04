@@ -1,4 +1,8 @@
-﻿namespace Monster.Middle.Processes.Sync.Model.Analysis
+﻿using System.Linq;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Shopify.Persist;
+
+namespace Monster.Middle.Processes.Sync.Model.Analysis
 {
     public static class AnalysisExtensions
     {
@@ -12,6 +16,34 @@
         public static string AnalysisFormat(this decimal input)
         {
             return AnalysisFormat((decimal?)input);
+        }
+
+        public static decimal ShopifyNetPayment(this ShopifyOrder order)
+        {
+            return order.PaymentTransaction().ShopifyAmount
+                   - order.RefundTransactions().Sum(x => x.ShopifyAmount);
+        }
+
+        public static bool IsPaymentSynced(this ShopifyOrder order)
+        {
+            return order.PaymentTransaction().AcumaticaPayment != null;
+        }
+
+        public static decimal AcumaticaPaymentAmount(this ShopifyOrder order)
+        {
+            return order.IsPaymentSynced() ?
+                order.PaymentTransaction().AcumaticaPayment.AcumaticaAmount : 0m;
+        }
+
+        public static decimal AcumaticaNetPaymentAmount(this ShopifyOrder order)
+        {
+            return order.AcumaticaPaymentAmount() -
+                order.RefundTransactions().Sum(x => x.AcumaticaPayment.AcumaticaAmount);
+        }
+
+        public static decimal AcumaticaInvoiceTotal(this ShopifyOrder order)
+        {
+            return order.AcumaticaSalesOrder.AcumaticaSoShipments.Sum(x => x.AcumaticaInvoiceAmount ?? 0m);
         }
     }
 }

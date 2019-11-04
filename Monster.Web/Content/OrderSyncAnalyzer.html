@@ -26,7 +26,13 @@
     </div>
     
     <div class="card-body std-pad-sm-side">
-        <div data-bind="template: { name: 'Order-Analyzer-Grid' }"></div>
+        <div data-bind="visible: HideDrilldown">
+            <div data-bind="template: { name: 'Order-Analyzer-Grid' }"></div>
+        </div>
+
+        <div data-bind="visible: ShowDrilldown">
+            <div data-bind="template: { name: 'Order-Analyzer-Drilldown' }"></div>
+        </div>
     </div>
 </div>
 
@@ -68,7 +74,7 @@
             </tr>
             </thead>
             <tbody data-bind="foreach: Grid">
-                <tr>
+                <tr data-bind="click: $parent.OrderClick">
                     <td data-bind="text: ShopifyOrderNbr"></td>
                     <td data-bind="text: AcumaticaSalesOrderNbr"></td>
                     <td data-bind="text: ShopifyOrderTotal"></td>
@@ -84,8 +90,10 @@
 </script>
 
 <script type="text/html" id="Order-Analyzer-Drilldown">
-    <div class="center std-pad-side" style="display: none; width: 100%;">
-        <a href="#" class="btn btn-secondary btn-sm">Back to Results <i class="fas fa-undo"></i></a>
+    <div class="center std-pad-side" style="width: 100%;">
+        <a href="#" class="btn btn-secondary btn-sm" data-bind="click: function() { ShowDrilldown(false); }">
+            Back to Results <i class="fas fa-undo"></i>
+        </a>
         <div style="height: 20px;"></div>
         <table class="table order-analyzer">
             <tr>
@@ -239,24 +247,30 @@
     Monster.OrderSyncModel = function() {
         var self = this;
 
-        self.PagingWidget = new MonsterWidgets.PagingWidget();
-        self.PagingWidget.Callback = function() { self.Refresh(); };
-
+        // Grid stuff...
+        //
         self.SearchText = ko.observable();
-
         self.Grid = ko.observableArray([]);
 
-        self.FilterOrdersClick = function() {
-            self.Refresh();
+        self.ScrollToTop = function() {
+            $('html,body').animate({ scrollTop: 0 });
+        };
+        self.PagingWidget = new MonsterWidgets.PagingWidget();
+        self.PagingWidget.Callback = function() {
+            self.RefreshGrid(self.ScrollToTop);
         };
 
-        self.ScrollToTop = function () {
-            if (self.ScrollToTopEnabled()) {
-                $('html,body').animate({ scrollTop: 0 });
-            }
-        }
+        // Order drill down...
+        //
+        self.OrderDrilldown = ko.observable();
+        self.ShowDrilldown = ko.observable(false);
+        self.HideDrilldown = ko.computed(function() { return !self.ShowDrilldown(); });
 
-        self.Refresh = function() {
+        self.FilterOrdersClick = function() {
+            self.RefreshGrid();
+        };
+
+        self.RefreshGrid = function(callback) {
             flow.exec(function() {
                     var ajax = new Monster.Ajax();
                     var request = {
@@ -272,8 +286,10 @@
                 });
         };
         
-        self.Initialize = function() {
-            self.Refresh();
+        self.Initialize = function() { self.RefreshGrid(); };
+
+        self.OrderClick = function() {
+            self.ShowDrilldown(true);
         };
 
         return self;
@@ -283,3 +299,4 @@
     ko.applyBindings(model);
     model.Initialize();
 </script>
+

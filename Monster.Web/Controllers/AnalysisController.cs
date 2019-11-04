@@ -16,8 +16,8 @@ namespace Monster.Web.Controllers
         private readonly AnalysisDataService _analysisDataService;
 
         public AnalysisController(
-                ExecutionLogService logRepository, 
-                AnalysisDataService analysisDataService)
+            ExecutionLogService logRepository,
+            AnalysisDataService analysisDataService)
         {
             _logRepository = logRepository;
             _analysisDataService = analysisDataService;
@@ -46,10 +46,17 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult OrderSyncResults(OrderAnalyzerRequest request)
         {
-            var grid = _analysisDataService.GetOrderAnalysis(request);
+            var grid = _analysisDataService.GetOrderAnalysisResults(request);
             var count = _analysisDataService.GetOrderAnalysisRecordCount(request);
 
-            return new JsonNetResult(new { Grid = grid, Count = count });
+            return new JsonNetResult(new {Grid = grid, Count = count});
+        }
+
+        [HttpPost]
+        public ActionResult OrderSyncDrilldown(long shopifyOrderId)
+        {
+
+            return new JsonNetResult(new {});
         }
     }
 }

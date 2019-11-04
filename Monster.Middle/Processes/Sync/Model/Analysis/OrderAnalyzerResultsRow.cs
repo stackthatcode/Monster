@@ -1,6 +1,6 @@
 ﻿namespace Monster.Middle.Processes.Sync.Model.Analysis
 {
-    public class OrderAnalyzerGridRow
+    public class OrderAnalyzerResultsRow
     {
         public string ShopifyOrderNbr { get; set; }
         public string ShopifyOrderHref { get; set; }
@@ -15,7 +15,7 @@
 
         public string OutstandingBalance { get; set; }
 
-        public OrderAnalyzerGridRow()
+        public OrderAnalyzerResultsRow()
         {
             AcumaticaSalesOrderNbr = AnalysisExtensions.MissingField;
             AcumaticaOrderPayment = AnalysisExtensions.MissingField;

@@ -147,7 +147,8 @@
     <Compile Include="Misc\State\StateExtensions.cs" />
     <Compile Include="Processes\Sync\Misc\LogDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Analysis\Extensions.cs" />
-    <Compile Include="Processes\Sync\Model\Analysis\OrderAnalyzerGridRow.cs" />
+    <Compile Include="Processes\Sync\Model\Analysis\OrderAnalyzerDrilldown.cs" />
+    <Compile Include="Processes\Sync\Model\Analysis\OrderAnalyzerResultsRow.cs" />
     <Compile Include="Processes\Sync\Model\Analysis\OrderAnalyzerRequest.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Orders\TransactionExtensions.cs" />
