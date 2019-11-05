@@ -86,7 +86,7 @@ namespace Push.Shopify.Api.Order
 
         [JsonIgnore]
         public decimal ShippingDiscountedTotalAfterRefunds
-            => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
+                    => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
 
         // Refund Totals
         //

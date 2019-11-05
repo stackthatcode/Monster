@@ -3,14 +3,17 @@ using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.SalesOrder
 {
-    public class SalesOrderUpdateHeader
+    public class SalesOrderUpdate
     {
         public StringValue OrderNbr  { get; set; }
         public StringValue OrderType { get; set; }
-        public List<SalesOrderUpdateDetail> Details { get; set; }
         public BoolValue Hold { get; set; }
 
-        public SalesOrderUpdateHeader()
+        public List<SalesOrderUpdateDetail> Details { get; set; }
+        public SalesOrderTotals Totals { get; set; }
+
+
+        public SalesOrderUpdate()
         {
             Details = new List<SalesOrderUpdateDetail>();
         }

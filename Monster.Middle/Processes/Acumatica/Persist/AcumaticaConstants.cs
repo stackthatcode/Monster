@@ -24,11 +24,16 @@
 
 
 
-    public class Status
+    public class SalesOrderStatus
     {
         public const string Open = "Open";
         public const string BackOrder = "Back Order";
         public const string Completed = "Completed";
+    }
+
+    public class ShippingRules
+    {
+        public const string BackOrderAllowed = "Back Order Allowed";
     }
 
     public class SalesOrderType

@@ -2,7 +2,7 @@
 
 namespace Monster.Acumatica.Api.SalesOrder
 {
-    public class Totals
+    public class SalesOrderTotals
     {
         public DoubleValue DiscountTotal { get; set; }
         public DoubleValue Freight { get; set; }

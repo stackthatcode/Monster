@@ -6,7 +6,7 @@ namespace Monster.Middle.Processes.Sync.Persist.Matching
     {
         public static bool IsReleased(this SalesInvoice input)
         {
-            return input.Status.value == Acumatica.Persist.Status.Open;
+            return input.Status.value == Acumatica.Persist.SalesOrderStatus.Open;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 
         public static bool IsInvoiceReleased(this SalesOrder salesOrder)
         {
-            return salesOrder.Status.value == Acumatica.Persist.Status.Completed;
+            return salesOrder.Status.value == Acumatica.Persist.SalesOrderStatus.Completed;
         }
 
     }

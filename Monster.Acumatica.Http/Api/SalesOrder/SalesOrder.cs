@@ -60,7 +60,7 @@ namespace Monster.Acumatica.Api.SalesOrder
         public IList<TaxDetails> TaxDetails { get; set; }
         public ShippingSettings ShippingSettings { get; set; }
         public FinancialSettings FinancialSettings { get; set; }
-        public Totals Totals { get; set; }
+        public SalesOrderTotals Totals { get; set; }
         public SalesOrderUsrTaxSnapshot UsrTaxSnapshot { get; set; }
 
 
