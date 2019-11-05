@@ -52,11 +52,11 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(new {Grid = grid, Count = count});
         }
 
-        [HttpPost]
-        public ActionResult OrderSyncDrilldown(long shopifyOrderId)
+        [HttpGet]
+        public ActionResult OrderAnalysis(long shopifyOrderId)
         {
-
-            return new JsonNetResult(new {});
+            var analysis = _analysisDataService.GetOrderTotals(shopifyOrderId);
+            return new JsonNetResult(analysis);
         }
     }
 }

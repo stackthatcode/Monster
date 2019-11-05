@@ -1,6 +1,6 @@
 ﻿namespace Monster.Middle.Processes.Sync.Model.Analysis
 {
-    public class OrderAnalyzerDrilldown
+    public class OrderAnalysisTotals
     {
         public string ShopifyOrderNbr { get; set; }
         public string ShopifyOrderHref { get; set; }
@@ -23,22 +23,23 @@
 
 
         public string AcumaticaSalesOrderNbr { get; set; }
+        public string AcumaticaSalesOrderHref { get; set; }
         public string AcumaticaOrderLineTotal { get; set; }
         public string AcumaticaOrderFreight { get; set; }
         public string AcumaticaTaxTotal { get; set; }
         public string AcumaticaOrderTotal { get; set; }
-        public string AcumaticaPaymentTotals { get; set; }
-        public string AcumaticaRefundPaymentTotals { get; set; }
+        public string AcumaticaPaymentTotal { get; set; }
+        public string AcumaticaRefundPaymentTotal { get; set; }
         public string AcumaticaNetPaymentTotal { get; set; }
-        public string AcumaticaCreditTotal { get; set; }
+        public string AcumaticaRefundCreditTotal { get; set; }
         public string AcumaticaRefundDebitTotal { get; set; }
         public string AcumaticaCreditDebitMemoTotal { get; set; }
         public string AcumaticaInvoicePriceTotal { get; set; }
-        public string AcumaticaInvoiceTaxTotal { get; set; }
         public string AcumaticaInvoiceFreightTotal { get; set; }
+        public string AcumaticaInvoiceTaxTotal { get; set; }
         public string AcumaticaInvoiceTotal { get; set; }
 
-        public OrderAnalyzerDrilldown()
+        public OrderAnalysisTotals()
         {
             ShopifyOrderNbr = AnalysisExtensions.MissingField;
             ShopifyOrderHref = AnalysisExtensions.MissingField;
@@ -65,10 +66,10 @@
             AcumaticaTaxTotal = AnalysisExtensions.MissingField;
             AcumaticaOrderTotal = AnalysisExtensions.MissingField;
 
-            AcumaticaPaymentTotals = AnalysisExtensions.MissingField;
-            AcumaticaRefundPaymentTotals = AnalysisExtensions.MissingField;
+            AcumaticaPaymentTotal = AnalysisExtensions.MissingField;
+            AcumaticaRefundPaymentTotal = AnalysisExtensions.MissingField;
             AcumaticaNetPaymentTotal = AnalysisExtensions.MissingField;
-            AcumaticaCreditTotal = AnalysisExtensions.MissingField;
+            AcumaticaRefundCreditTotal = AnalysisExtensions.MissingField;
             AcumaticaRefundDebitTotal = AnalysisExtensions.MissingField;
             AcumaticaCreditDebitMemoTotal = AnalysisExtensions.MissingField;
 

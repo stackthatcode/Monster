@@ -98,14 +98,16 @@
         <table class="table order-analyzer">
             <tr>
                 <td>Shopify Order Name</td>
-                <td><a class="order-link" href="#">LOGIC-1039</a></td>
+                <td><a class="order-link" href="#" 
+                       data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a></td>
                 <td> </td>
                 <td>Acumatica Order ID</td>
-                <td><a class="order-link" href="#">SO0000012</a></td>
+                <td><a class="order-link" href="#" 
+                       data-bind="text: AcumaticaSalesOrderNbr, attr: { href: AcumaticaSalesOrderHref }"></a></td>
             </tr>
             <tr>
                 <td>Shopify Order ID</td>
-                <td><a class="order-link" href="#">1778846826540</a></td>
+                <td><a class="order-link" href="#" data-bind="text: AcumaticaSalesOrderNbr"></a></td>
                 <td> </td>
                 <td></td>
                 <td></td>
@@ -114,98 +116,98 @@
 
             <tr>
                 <td>Shopify Total Line Price</td>
-                <td>459.80</td>
+                <td data-bind="text: ShopifyTotalLinePrice"></td>
                 <td> </td>
                 <td>Acumatica Order Line Total</td>
-                <td>459.80</td>
+                <td data-bind="text: AcumaticaOrderLineTotal"></td>
             </tr>
             <tr>
                 <td>Shopify Shipping Price</td>
-                <td>50.00</td>
+                <td data-bind="text: ShopifyShippingPriceTotal">/td>
                 <td> </td>
                 <td>Acumatica Order Freight</td>
-                <td>50.00</td>
+                <td data-bind="text: AcumaticaOrderFreight"></td>
             </tr>
             <tr>
                 <td>Shopify Total Tax</td>
-                <td>50.98</td>
+                <td data-bind="text: ShopifyTotalTax"></td>
                 <td> </td>
                 <td>Acumatica Order Tax</td>
-                <td>50.00</td>
+                <td data-bind="text: AcumaticaTaxTotal"></td>
             </tr>
             <tr>
                 <td>Shopify Order Total</td>
-                <td>560.78</td>
+                <td data-bind="text: ShopifyOrderTotal"></td>
                 <td> </td>
                 <td>Acumatica Order Total</td>
-                <td>560.78</td>
+                <td data-bind="text: AcumaticaOrderTotal"></td>
             </tr>
             <tr><td colspan="5"></td></tr>
 
             <tr>
                 <td>Shopify Order Payment Total</td>
-                <td>560.78</td>
+                <td data-bind="text: ShopifyOrderPayment"></td>
                 <td> </td>
                 <td>Acumatica Payment Total</td>
-                <td>560.78</td>
+                <td data-bind="text: AcumaticaPaymentTotal"></td>
             </tr>
             <tr>
                 <td>Shopify Refund Payment Total</td>
-                <td>125.00</td>
+                <td data-bind="text: ShopifyRefundPayment"></td>
                 <td> </td>
                 <td>Acumatica Refund Payment Totals</td>
-                <td>125.00</td>
+                <td data-bind="text: AcumaticaRefundPaymentTotal"></td>
             </tr>
             <tr>
                 <td>Shopify Net Payment Total</td>
-                <td>435.78</td>
+                <td data-bind="text: ShopifyNetPayment"></td>
                 <td> </td>
                 <td>Acumatica Net Payment Total</td>
-                <td>435.78</td>
+                <td data-bind="text: AcumaticaNetPaymentTotal"></td>
             </tr>
             <tr><td colspan="5"></td></tr>
 
             <tr>
                 <td>Shopify Refund Item Total</td>
-                <td>100.00</td>
+                <td data-bind="text: ShopifyRefundItemTotal"></td>
                 <td> </td>
                 <td></td>
                 <td></td>
             </tr>
             <tr>
                 <td>Shopify Refund Shipping Total</td>
-                <td>15.00</td>
+                <td data-bind="text: ShopifyRefundShippingTotal"></td>
                 <td> </td>
                 <td></td>
                 <td></td>
             </tr>
             <tr>
                 <td>Shopify Refund Tax Total</td>
-                <td>10.00</td>
+                <td data-bind="text: ShopifyRefundTaxTotal"></td>
                 <td> </td>
                 <td></td>
                 <td></td>
             </tr>
             <tr>
                 <td>Shopify Refund Credit Total</td>
-                <td>0.00</td>
+                <td data-bind="text: ShopifyCreditTotal"></td>
                 <td> </td>
-                <td>Acumatica Credit Total</td>
-                <td>0.00</td>
+                <td>Acumatica Refund Credit Total</td>
+                <td data-bind="text: AcumaticaRefundCreditTotal"></td>
             </tr>
             <tr>
                 <td>Shopify Refund Debit Total</td>
-                <td>0.00</td>
+                <td data-bind="text: ShopifyDebitTotal"></td>
                 <td> </td>
                 <td>Acumatica Refund Debit Total</td>
-                <td>0.00</td>
+                <td data-bind="text: AcumaticaRefundDebitTotal"></td>
             </tr>
             <tr>
                 <td>Shopify Refund Total</td>
-                <td>0.00</td>
+                <td data-bind="text: ShopifyRefundTotal"></td>
                 <td> </td>
                 <td>Acumatica Credit/Debit Total</td>
-                <td>0.00</td>
+                <td data-bind="text: AcumaticaCreditDebitMemoTotal"></td>
             </tr>
             <tr><td colspan="5"></td></tr>
 
@@ -213,29 +215,15 @@
                 <td></td>
                 <td></td>
                 <td> </td>
-                <td>Acumatica Invoice Price Total</td>
-                <td>300.00</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td> </td>
                 <td>Acumatica Invoice Tax Total</td>
-                <td>30.33</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td> </td>
-                <td>Acumatica Invoice Freight Total</td>
-                <td>50.00</td>
+                <td data-bind="text: AcumaticaInvoiceTaxTotal"></td>
             </tr>
             <tr>
                 <td></td>
                 <td></td>
                 <td> </td>
                 <td>Acumatica Invoice Total</td>
-                <td>380.33</td>
+                <td data-bind="text: AcumaticaInvoiceTotal"></td>
             </tr>
         </table>
     </div>
@@ -262,7 +250,7 @@
 
         // Order drill down...
         //
-        self.OrderDrilldown = ko.observable();
+        self.OrderAnalysis = ko.observable();
         self.ShowDrilldown = ko.observable(false);
         self.HideDrilldown = ko.computed(function() { return !self.ShowDrilldown(); });
 
@@ -288,8 +276,15 @@
         
         self.Initialize = function() { self.RefreshGrid(); };
 
-        self.OrderClick = function() {
-            self.ShowDrilldown(true);
+        self.OrderClick = function (item) {
+            flow.exec(function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
+                },
+                function (response) {
+                    self.OrderAnalysis(response);
+                    self.ShowDrilldown(true);
+                });
         };
 
         return self;
