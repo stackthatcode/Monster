@@ -353,8 +353,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         //
         public AcumaticaCustomer PushNonExistentCustomer(ShopifyOrder shopifyOrder)
         {
-            var customer = _syncOrderRepository
-                .RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
+            var customer = 
+                _syncOrderRepository.RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
 
             if (customer.HasMatch())
             {

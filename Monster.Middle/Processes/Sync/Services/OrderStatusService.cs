@@ -31,34 +31,22 @@ namespace Monster.Middle.Processes.Sync.Services
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
             var settings = _settingsRepository.RetrieveSettings();
 
-            output.ShopifyOrderId = shopifyOrderId;
-            output.ShopifyOrderNumber = orderRecord.ShopifyOrderNumber;
-
             // If the Starting Shopify Order weren't populated, we would not be here i.e.
             // ... the Shopify Order would not have been pulled from API
             //
             output.SettingsStartingOrderId = settings.ShopifyOrderId.Value;
+            output.ShopifyOrderRecord = orderRecord;
+            output.ShopifyOrder = orderRecord.ToShopifyObj();
+            output.LineItemsWithUnsyncedVariants = BuildLineItemsWithUnsyncedVariants(output.ShopifyOrder);
             
-            output.LineItemsWithAdhocVariants = orderRecord.ToShopifyObj().LineItemsWithManualVariants;
-            output.LineItemsWithUnmatchedVariants = LineItemsWithUnmatchedVariants(orderRecord);
-
-            output.IsPaid = orderRecord.IsPaid();
-            output.IsCancelled = orderRecord.ShopifyIsCancelled;
-            output.FulfillmentStatus = orderRecord.ToShopifyObj().fulfillment_status;
-
-            output.AcumaticaSalesOrderId
-                = orderRecord.IsSynced()
-                    ? orderRecord.SyncedSalesOrder().AcumaticaOrderNbr : null;
-
             return output;
         }
 
-        private List<LineItem> LineItemsWithUnmatchedVariants(ShopifyOrder orderRecord)
+        private List<LineItem> BuildLineItemsWithUnsyncedVariants(Order shopifyOrder)
         {
-            var order = orderRecord.ToShopifyObj();
             var output = new List<LineItem>();
 
-            foreach (var lineItem in order.line_items)
+            foreach (var lineItem in shopifyOrder.line_items)
             {
                 if (!lineItem.variant_id.HasValue || lineItem.sku == null)
                 {
@@ -78,7 +66,5 @@ namespace Monster.Middle.Processes.Sync.Services
 
             return output;
         }
-
     }
 }
-
