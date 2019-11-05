@@ -52,7 +52,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var shopifyOrderRecord = refundRecord.ShopifyOrder;
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
+            var salesOrderRecord = shopifyOrderRecord.SyncedSalesOrder();
             var salesOrder = salesOrderRecord.ToSalesOrderObj();
             
             var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);

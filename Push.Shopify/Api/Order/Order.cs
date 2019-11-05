@@ -70,13 +70,11 @@ namespace Push.Shopify.Api.Order
         
 
 
-        //
-        // Computed properties
-        //
         [JsonIgnore]
         public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
 
-
+        // Shipping Totals
+        //
         [JsonIgnore]
         public decimal ShippingTotal => shipping_lines.Sum(x => x.price);
 
@@ -90,9 +88,17 @@ namespace Push.Shopify.Api.Order
         public decimal ShippingDiscountedTotalAfterRefunds
             => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
 
-        public List<LineItem> LineItemsWithManualVariants 
-            => line_items.Where(x => x.variant_id == null).ToList();
+        // Refund Totals
+        //
+        public decimal RefundLineItemTotal => refunds.Sum(x => x.LineItemTotal);
+        public decimal RefundShippingTotal => refunds.Sum(x => x.TotalShippingAdjustment);
+        public decimal RefundCreditTotal => refunds.Sum(x => x.CreditMemoTotal);
+        public decimal RefundDebitTotal => refunds.Sum(x => x.DebitMemoTotal);
+        public decimal RefundTotalTax => refunds.Sum(x => x.TotalTax);
+        public decimal RefundTotal => refunds.Sum(x => x.RefundTotal);
 
+
+        public List<LineItem> LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
 
         public LineItem LineItem(string sku)
         {

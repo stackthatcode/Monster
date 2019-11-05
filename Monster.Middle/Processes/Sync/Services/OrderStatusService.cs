@@ -47,8 +47,8 @@ namespace Monster.Middle.Processes.Sync.Services
             output.FulfillmentStatus = orderRecord.ToShopifyObj().fulfillment_status;
 
             output.AcumaticaSalesOrderId
-                = orderRecord.HasMatch()
-                    ? orderRecord.MatchingSalesOrder().AcumaticaOrderNbr : null;
+                = orderRecord.IsSynced()
+                    ? orderRecord.SyncedSalesOrder().AcumaticaOrderNbr : null;
 
             return output;
         }

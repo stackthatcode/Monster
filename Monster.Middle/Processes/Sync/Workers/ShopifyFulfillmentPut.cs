@@ -67,7 +67,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var salesOrderNbr = salesOrderShipment.AcumaticaSalesOrder.AcumaticaOrderNbr;
             var orderRecord = _syncOrderRepository.RetrieveSalesOrder(salesOrderNbr);
 
-            var shopifyOrderRecord = orderRecord.MatchingShopifyOrder();
+            var shopifyOrderRecord = orderRecord.OriginalShopifyOrder();
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();            
             var shipment = salesOrderShipment.AcumaticaShipmentJson.DeserializeFromJson<Shipment>();
             

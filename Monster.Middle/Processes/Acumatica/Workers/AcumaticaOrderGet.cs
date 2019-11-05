@@ -167,8 +167,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void PopulateSoShipments(AcumaticaSalesOrder salesOrderRecord)
         {
-            var soShipments = _orderRepository
-                .RetrieveSoShipments(salesOrderRecord.ShopifyOrderMonsterId);
+            var soShipments = 
+                _orderRepository.RetrieveSoShipments(salesOrderRecord.ShopifyOrderMonsterId);
 
             foreach (var soShipment in soShipments)
             {

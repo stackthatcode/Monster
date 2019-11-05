@@ -89,12 +89,15 @@
     <Compile Include="Api\SalesOrder\SalesOrder.cs" />
     <Compile Include="Api\SalesOrder\SalesInvoice.cs" />
     <Compile Include="Api\SalesOrder\Expand.cs" />
+    <Compile Include="Api\SalesOrder\SalesOrderDetail.cs" />
     <Compile Include="Api\SalesOrder\SalesOrderShipment.cs" />
     <Compile Include="Api\SalesOrder\SalesOrderUpdateHeader.cs" />
     <Compile Include="Api\SalesOrder\SalesOrderTaxUpdate.cs" />
+    <Compile Include="Api\SalesOrder\SalesOrderUsrTaxSnapshot.cs" />
     <Compile Include="Api\SalesOrder\ShippingSettings.cs" />
     <Compile Include="Api\SalesOrder\SoShipmentStatus.cs" />
     <Compile Include="Api\SalesOrder\TaxDetails.cs" />
+    <Compile Include="Api\SalesOrder\Totals.cs" />
     <Compile Include="Api\ShipmentClient.cs" />
     <Compile Include="Api\PaymentClient.cs" />
     <Compile Include="Api\Shipment\Shipment.cs" />

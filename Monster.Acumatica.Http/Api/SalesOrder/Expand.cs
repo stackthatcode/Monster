@@ -6,5 +6,6 @@
         public const string Details_ShippingSettings = "Details,ShippingSettings";
         public const string Details_Packages = "Details,Packages";
         public const string TaxDetails = "TaxDetails";
+        public const string Totals = "Totals";
     }
 }

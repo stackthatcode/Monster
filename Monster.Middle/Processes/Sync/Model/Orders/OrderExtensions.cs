@@ -5,22 +5,22 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class OrderExtensions
     {
-        public static AcumaticaSalesOrder MatchingSalesOrder(this ShopifyOrder order)
+        public static AcumaticaSalesOrder SyncedSalesOrder(this ShopifyOrder order)
         {
             return order.AcumaticaSalesOrder;
         }
 
-        public static bool HasMatch(this ShopifyOrder order)
+        public static bool IsSynced(this ShopifyOrder order)
         {
-            return order.MatchingSalesOrder() != null;
+            return order.SyncedSalesOrder() != null;
         }
 
         public static string AcumaticaSalesOrderId(this ShopifyOrder order)
         {
-            return order.HasMatch() ? order.MatchingSalesOrder().AcumaticaOrderNbr : null;
+            return order.IsSynced() ? order.SyncedSalesOrder().AcumaticaOrderNbr : null;
         }
 
-        public static ShopifyOrder MatchingShopifyOrder(this AcumaticaSalesOrder order)
+        public static ShopifyOrder OriginalShopifyOrder(this AcumaticaSalesOrder order)
         {
             return order.ShopifyOrder;
         }

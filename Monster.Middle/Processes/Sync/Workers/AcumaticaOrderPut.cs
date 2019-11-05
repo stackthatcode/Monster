@@ -108,7 +108,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
 
-            if (!orderRecord.HasMatch())
+            if (!orderRecord.IsSynced())
             {
                 var acumaticaCustomer = PushNonExistentCustomer(orderRecord);
                 CreateNewOrder(orderRecord, acumaticaCustomer);
@@ -171,7 +171,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // TODO - Tax Order Total + Tax + Freight?
             //
-            var acumaticaRecord = shopifyOrderRecord.MatchingSalesOrder();
+            var acumaticaRecord = shopifyOrderRecord.SyncedSalesOrder();
             acumaticaRecord.LastUpdated = DateTime.Now;
             shopifyOrderRecord.NeedsOrderPut = false;
 
@@ -258,11 +258,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             var taxTransferJson = shopifyOrder.ToTaxTransfer().SerializeToJson();
 
-            salesOrder.custom = new SalesOrderCustom()
+            salesOrder.UsrTaxSnapshot = new SalesOrderUsrTaxSnapshot()
             {
-                Document = new SalesOrderCustom.CustomDocument()
+                Document = new SalesOrderUsrTaxSnapshot.CustomDocument()
                 {
-                    UsrTaxSnapshot = new SalesOrderCustom.CustomField
+                    UsrTaxSnapshot = new SalesOrderUsrTaxSnapshot.CustomField
                     {
                         type = "CustomStringField",
                         value = taxTransferJson,
@@ -316,7 +316,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
-            var salesOrderRecord = shopifyOrderRecord.MatchingSalesOrder();
+            var salesOrderRecord = shopifyOrderRecord.SyncedSalesOrder();
             var salesOrder = salesOrderRecord.ToSalesOrderObj();
 
             var salesOrderUpdate = new SalesOrderUpdateHeader();

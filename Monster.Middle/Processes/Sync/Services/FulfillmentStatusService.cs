@@ -28,7 +28,7 @@ namespace Monster.Middle.Processes.Sync.Services
             var output = new FulfillmentSyncReadiness();
             var salesOrder = 
                 _syncOrderRepository.RetrieveSalesOrder(soShipment.AcumaticaSalesOrder.AcumaticaOrderNbr);
-            var shopifyOrderId = salesOrder.MatchingShopifyOrder().ShopifyOrderId;
+            var shopifyOrderId = salesOrder.OriginalShopifyOrder().ShopifyOrderId;
 
             // Fulfilled in Shopify - thus corrupted!
             //

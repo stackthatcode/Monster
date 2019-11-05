@@ -1,12 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using Monster.Acumatica.Api;
+using Monster.Acumatica.Api.SalesOrder;
+using Monster.Acumatica.Http;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Analysis;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Foundation.Utilities.Helpers;
 using Push.Shopify.Api;
 
@@ -17,19 +22,20 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly ProcessPersistContext _persistContext;
         private readonly ShopifyUrlService _shopifyUrlService;
         private readonly AcumaticaUrlService _acumaticaUrlService;
-        private readonly OrderApi _orderApi;
+        private readonly AcumaticaHttpContext _acumaticaHttpContext;
+        private readonly SalesOrderClient _salesOrderClient;
 
 
         public AnalysisDataService(
                 ProcessPersistContext persistContext, 
                 ShopifyUrlService shopifyUrlService, 
                 AcumaticaUrlService acumaticaUrlService, 
-                OrderApi orderApi)
+                AcumaticaHttpContext acumaticaHttpContext)
         {
             _persistContext = persistContext;
             _shopifyUrlService = shopifyUrlService;
             _acumaticaUrlService = acumaticaUrlService;
-            _orderApi = orderApi;
+            _acumaticaHttpContext = acumaticaHttpContext;
         }
 
 
@@ -51,9 +57,8 @@ namespace Monster.Middle.Processes.Sync.Services
             return results.Select(x => Make(x)).ToList();
         }
 
-        private IQueryable<ShopifyOrder> GetOrderAnalysisQueryable(OrderAnalyzerRequest request)
-        {
-            var queryable = _persistContext
+        private IQueryable<ShopifyOrder> ShopifyOrderQueryable =>
+            _persistContext
                 .Entities
                 .ShopifyOrders
                 .Include(x => x.AcumaticaSalesOrder)
@@ -62,6 +67,10 @@ namespace Monster.Middle.Processes.Sync.Services
                 .Include(x => x.ShopifyTransactions.Select(y => y.AcumaticaPayment))
                 .Include(x => x.ShopifyRefunds)
                 .Include(x => x.ShopifyFulfillments);
+
+        private IQueryable<ShopifyOrder> GetOrderAnalysisQueryable(OrderAnalyzerRequest request)
+        {
+            var queryable = ShopifyOrderQueryable;
 
             foreach (var term in ParseSearchTerms(request.SearchText))
             {
@@ -83,15 +92,70 @@ namespace Monster.Middle.Processes.Sync.Services
         }
 
 
-        public OrderAnalyzerDrilldown GetOrderAnalyzerDrilldown(long shopifyOrderId)
+        public OrderAnalyzerDrilldown GetOrderAnalysis(long shopifyOrderId)
         {
-            var shopifyOrder = _orderApi.Retrieve(shopifyOrderId);
-            
-            // Invoke Shopify for Order
+            var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
-            // Invoke Acumatica for Sales Order
+            var output = new OrderAnalyzerDrilldown();
 
+            output.ShopifyOrderNbr = shopifyOrderRecord.ShopifyOrderNumber;
+            output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(shopifyOrderRecord.ShopifyOrderId);
+            output.ShopifyShippingPriceTotal = shopifyOrder.ShippingDiscountedTotal.AnalysisFormat();
+            output.ShopifyTotalTax = shopifyOrder.total_tax.AnalysisFormat();
+            output.ShopifyOrderTotal = shopifyOrder.total_price.AnalysisFormat();
 
+            output.ShopifyOrderPayment 
+                = shopifyOrderRecord.PaymentTransaction().ShopifyAmount.AnalysisFormat();
+            output.ShopifyRefundPayment 
+                = shopifyOrderRecord.RefundTransactions().Sum(x => x.ShopifyAmount).AnalysisFormat();
+            output.ShopifyNetPayment
+                = shopifyOrderRecord.ShopifyNetPayment().AnalysisFormat();
+
+            output.ShopifyRefundItemTotal = shopifyOrder.RefundLineItemTotal.AnalysisFormat();
+            output.ShopifyRefundShippingTotal = shopifyOrder.RefundShippingTotal.AnalysisFormat();
+            output.ShopifyRefundTaxTotal = shopifyOrder.RefundTotalTax.AnalysisFormat();
+            output.ShopifyCreditTotal = shopifyOrder.RefundCreditTotal.AnalysisFormat();
+            output.ShopifyDebitTotal = shopifyOrder.RefundDebitTotal.AnalysisFormat();
+            output.ShopifyRefundTotal = shopifyOrder.RefundTotal.AnalysisFormat();
+
+            if (shopifyOrderRecord.IsSynced())
+            {
+                InjectTotalsFromAcumatica(shopifyOrderRecord, output);
+
+                output.AcumaticaPaymentTotals = shopifyOrderRecord.AcumaticaPaymentAmount().AnalysisFormat();
+                output.AcumaticaRefundPaymentTotals =
+                    shopifyOrderRecord.AcumaticaCustomerRefundTotal().AnalysisFormat();
+                output.AcumaticaNetPaymentTotal = shopifyOrderRecord.AcumaticaNetPaymentAmount().AnalysisFormat();
+
+                //output.AcumaticaCreditTotal
+                //output.AcumaticaRefundDebitTotal
+                //output.AcumaticaCreditDebitMemoTotal
+
+                output.AcumaticaInvoiceTaxTotal = shopifyOrderRecord.AcumaticaInvoiceTaxTotal().AnalysisFormat();
+                output.AcumaticaInvoiceTotal = shopifyOrderRecord.AcumaticaInvoiceTotal().AnalysisFormat();
+            }
+
+            return output;
+        }
+
+        private void InjectTotalsFromAcumatica(ShopifyOrder shopifyOrderRecord, OrderAnalyzerDrilldown output)
+        {
+            SalesOrder acumaticaOrder = null;
+            var acumaticaOrderNbr = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr;
+
+            _acumaticaHttpContext.SessionRun(() =>
+            {
+                var json = _salesOrderClient
+                    .RetrieveSalesOrder(acumaticaOrderNbr, SalesOrderType.SO, Expand.Totals);
+                acumaticaOrder = json.ToSalesOrderObj();
+            });
+
+            output.AcumaticaSalesOrderNbr = acumaticaOrderNbr;
+            output.AcumaticaOrderLineTotal = acumaticaOrder.Totals.LineTotalAmount.value.AnalysisFormat();
+            output.AcumaticaOrderFreight = acumaticaOrder.Totals.Freight.value.AnalysisFormat();
+            output.AcumaticaTaxTotal = acumaticaOrder.Totals.TaxTotal.value.AnalysisFormat();
+            output.AcumaticaOrderTotal = acumaticaOrder.OrderTotal.value.AnalysisFormat();
         }
 
 

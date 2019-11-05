@@ -25,8 +25,13 @@ namespace Push.Shopify.Api.Order
 
         // Computed properties
         //
-        public decimal RefundAmount => transactions.Where(x => x.IsSuccess).Sum(x => x.amount);
+        public decimal RefundTotal => transactions.Where(x => x.IsSuccess).Sum(x => x.amount);
 
+        public decimal LineItemTotal => refund_line_items.Sum(x => x.subtotal);
+
+
+        // Shipping Refunds/Adjustments
+        //
         [JsonIgnore]
         public IEnumerable<OrderAdjustment> ShippingAdjustments 
                 => order_adjustments.Where(x => x.IsShippingAdjustment);
@@ -39,10 +44,11 @@ namespace Push.Shopify.Api.Order
                 => -(ShippingAdjustments.Where(x => x.IsTaxable).Sum(x => x.amount));
 
         [JsonIgnore]
-        public decimal TotalShippingAdjustmentTax
-                => -(ShippingAdjustments.Sum(x => x.tax_amount));
+        public decimal TotalShippingAdjustmentTax => -(ShippingAdjustments.Sum(x => x.tax_amount));
 
 
+        // Refund Discrepancy Adjustments
+        //
         [JsonIgnore]
         private decimal RefundDiscrepanciesTotal
                 => order_adjustments.Where(x => x.IsRefundDiscrepancy).Sum(x => x.amount);
@@ -51,24 +57,25 @@ namespace Push.Shopify.Api.Order
                 => RefundDiscrepanciesTotal < 0 ? -RefundDiscrepanciesTotal : 0m;
 
         [JsonIgnore]
-        public decimal DebitMemoTotal
-                => RefundDiscrepanciesTotal > 0 ? RefundDiscrepanciesTotal : 0m;
+        public decimal DebitMemoTotal => RefundDiscrepanciesTotal > 0 ? RefundDiscrepanciesTotal : 0m;
 
 
+        // Tax 
+        //
         [JsonIgnore]
         public decimal TotalTaxableLineItemAmount
-            => refund_line_items
-                .Where(x => x.IsTaxable)
-                .Sum(x => x.subtotal);
+                => refund_line_items.Where(x => x.IsTaxable).Sum(x => x.subtotal);
 
         [JsonIgnore]
         public decimal TotalLineItemTax => refund_line_items.Sum(x => x.total_tax);
 
-
         [JsonIgnore]
-        public List<RefundLineItem> CancelledLineItems 
-                => refund_line_items.Where(x => x.restock_type == RestockType.Cancel).ToList();
+        public decimal TotalTax => TotalShippingAdjustmentTax + TotalLineItemTax;
 
+
+
+        // Phase 2 - Returns
+        //
         [JsonIgnore]
         public List<RefundLineItem> Returns 
                 => refund_line_items.Where(x => x.restock_type == RestockType.Return).ToList();
