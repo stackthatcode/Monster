@@ -10,12 +10,6 @@ GO
 
 CREATE PROCEDURE dbo.DeleteAllSyncRecords
 AS
-	DELETE FROM ShopAcuRefundCM;
-	DELETE FROM ShopifyAcuPayment;
-	DELETE FROM ShopAcuShipmentSync;
-	DELETE FROM ShopAcuOrderSync;
-	DELETE FROM ShopAcuCustomerSync;
-
 	DELETE FROM InventoryReceiptSync;
 	DELETE FROM ShopAcuItemSync;
 	DELETE FROM ShopAcuWarehouseSync;
@@ -30,11 +24,8 @@ GO
 
 CREATE PROCEDURE dbo.DeleteAllAcumaticaOrderRecords
 AS
-
-	DELETE FROM AcumaticaCreditMemo;
-	DELETE FROM AcumaticaShipmentSalesOrderRef;
-	DELETE FROM AcumaticaShipment;
-	DELETE FROM AcumaticaSoShipmentInvoice;
+	DELETE FROM AcumaticaPayment;
+	DELETE FROM AcumaticaSoShipment;
 	DELETE FROM AcumaticaSalesOrder;
 	DELETE FROM AcumaticaCustomer;
 GO
@@ -98,7 +89,8 @@ AS
 	DELETE FROM ShopifyBatchState;
 
 	DELETE FROM AcumaticaRefData
-	DELETE FROM Preferences;
+	DELETE FROM MonsterSettings;
+	DELETE FROM PaymentGateways;
 
 	DELETE FROM SystemState;
 
@@ -115,7 +107,6 @@ EXEC dbo.DeleteAllShopifyOrderRecords;
 EXEC dbo.DeleteAllShopifyInventoryRecords;
 EXEC dbo.DeleteAllSystemRecords;
 
-SELECT * FROM ExclusiveJobMonitor;
 
 
 

@@ -7,7 +7,6 @@ GO
 
 DROP VIEW IF EXISTS vw_SyncWarehousesAndLocations
 GO
-
 CREATE VIEW vw_SyncWarehousesAndLocations
 AS
 SELECT t1.MonsterId AS ShopifyLocationMonsterId, 
@@ -49,7 +48,6 @@ FROM ShopifyProduct t1
 		ON t3.ParentMonsterId = t2.MonsterId;
 GO
 
-
 DROP VIEW IF EXISTS vw_AcumaticaInventory 
 GO
 CREATE VIEW vw_AcumaticaInventory
@@ -66,7 +64,6 @@ FROM AcumaticaStockItem t1
 	LEFT JOIN AcumaticaWarehouseDetails t2
 		ON t2.ParentMonsterId = t1.MonsterId
 GO
-
 
 DROP VIEW IF EXISTS vw_SyncVariantsAndStockItems
 GO
@@ -88,7 +85,6 @@ FROM ShopifyVariant t1
 		ON t3.MonsterId = t2.AcumaticaItemMonsterId
 GO
 
-
 DROP VIEW IF EXISTS vw_SyncVariantsAndStockItems_Alt
 GO
 CREATE VIEW vw_SyncVariantsAndStockItems_Alt
@@ -104,7 +100,6 @@ AS
 		INNER JOIN AcumaticaStockItem t4
 			ON t3.AcumaticaItemMonsterId = t4.MonsterId;		
 GO
-
 
 DROP VIEW IF EXISTS vw_SyncAcumaticaInventory
 GO
@@ -204,9 +199,11 @@ SELECT
 	t1.ShopifyOrderId, 
 	t1.ShopifyOrderNumber, 
 	t1.ShopifyFinancialStatus, 
-	t1.AreTransactionsUpdated,
+	t1.NeedsTransactionGet,
+	t1.NeedsOrderPut,
 	t2.ShopifyCustomerId,
 	t2.ShopifyPrimaryEmail,
+	t2.NeedsCustomerPut,
 	t1.LastUpdated AS OrderLastUpdated,
 	t2.LastUpdated AS CustomerLastUpdated
 FROM ShopifyOrder t1
@@ -224,7 +221,8 @@ SELECT
 	t1.ShopifyOrderId, 
 	t1.ShopifyOrderNumber, 
 	t1.ShopifyFinancialStatus, 
-	t1.AreTransactionsUpdated,
+	t1.NeedsTransactionGet,
+	t1.NeedsOrderPut,
 	t2.ShopifyRefundId,
 	t1.LastUpdated AS OrderLastUpdated,
 	t2.LastUpdated AS RefundLastUpdated
@@ -243,7 +241,8 @@ SELECT
 	t1.ShopifyOrderId, 
 	t1.ShopifyOrderNumber, 
 	t1.ShopifyFinancialStatus, 
-	t1.AreTransactionsUpdated,
+	t1.NeedsTransactionGet,
+	t1.NeedsOrderPut,
 	t2.ShopifyFulfillmentId,
 	t2.ShopifyStatus,
 	t1.LastUpdated AS OrderLastUpdated,
@@ -264,7 +263,8 @@ SELECT
 	t1.ShopifyOrderId, 
 	t1.ShopifyOrderNumber, 
 	t1.ShopifyFinancialStatus, 
-	t1.AreTransactionsUpdated,
+	t1.NeedsTransactionGet,
+	t1.NeedsOrderPut,
 	t2.ShopifyTransactionId,
 	t2.ShopifyKind,
 	t2.ShopifyStatus,
@@ -283,7 +283,7 @@ DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndCustomer
 GO
 CREATE VIEW vw_AcumaticaSalesOrderAndCustomer
 AS
-	SELECT t1.Id, 
+	SELECT t1.ShopifyOrderMonsterId, 
 		t1.AcumaticaOrderNbr, 
 		t1.AcumaticaStatus,
 		t2.AcumaticaCustomerId,
@@ -291,7 +291,7 @@ AS
 		t2.LastUpdated AS CustomerLastUpdated
 	FROM AcumaticaSalesOrder t1
 		LEFT OUTER JOIN AcumaticaCustomer t2
-			ON t2.Id = t1.CustomerMonsterId;
+			ON t2.ShopifyCustomerMonsterId = t1.ShopifyCustomerMonsterId;
 GO
 
 DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndShipmentInvoices
@@ -299,33 +299,19 @@ GO
 
 CREATE VIEW vw_AcumaticaSalesOrderAndShipmentInvoices
 AS
-	SELECT t1.Id, 
+	SELECT t1.ShopifyOrderMonsterId, 
 		t1.AcumaticaOrderNbr, 
 		t1.AcumaticaStatus,
 		t2.AcumaticaShipmentNbr,
 		t2.AcumaticaInvoiceNbr,
+		t2.AcumaticaTrackingNbr,
 		t1.LastUpdated AS SalesOrderLastUpdated,
 		t2.LastUpdated AS ShipmentLastUpdated
 	FROM AcumaticaSalesOrder t1
-		LEFT OUTER JOIN AcumaticaSoShipmentInvoice t2
-			ON t2.SalesOrderMonsterId = t1.Id;
+		LEFT OUTER JOIN AcumaticaSoShipment t2
+			ON t2.ShopifyOrderMonsterId = t1.ShopifyOrderMonsterId;
 GO
 
-DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndShipments
-GO
-
-CREATE VIEW vw_AcumaticaSalesOrderAndShipments
-AS
-	SELECT t1.Id,
-		t1.AcumaticaShipmentNbr, 
-		t1.AcumaticaStatus,
-		t2.AcumaticaOrderNbr,
-		t1.LastUpdated AS ShipmentLastUpdated,
-		t2.LastUpdated AS SalesOrderRefLastUpdated
-	FROM AcumaticaShipment t1
-		LEFT OUTER JOIN AcumaticaShipmentSalesOrderRef t2
-			ON t1.Id = t2.ShipmentMonsterId
-GO
 
 
 -- Sync Workers checks
@@ -339,16 +325,13 @@ AS
 SELECT  
 	t1.ShopifyCustomerId, 
 	t1.ShopifyPrimaryEmail,
-	t1.IsUpdatedInAcumatica,
+	t1.NeedsCustomerPut,
 	t1.LastUpdated AS ShopifyLastUpdated,
-	t3.AcumaticaCustomerId,
-	t3.AcumaticaMainContactEmail,
-	t3.LastUpdated AS AcumaticaLastUpdated
+	t2.AcumaticaMainContactEmail,
+	t2.LastUpdated AS AcumaticaLastUpdated
 FROM ShopifyCustomer t1
-	FULL OUTER JOIN ShopAcuCustomerSync t2
+	FULL OUTER JOIN AcumaticaCustomer t2
 		ON t1.Id = t2.ShopifyCustomerMonsterId
-	FULL OUTER JOIN AcumaticaCustomer t3
-		ON t2.AcumaticaCustomerMonsterId = t3.Id
 GO
 
 
@@ -361,20 +344,19 @@ AS
 		t1.ShopifyOrderNumber, 
 		t1.ShopifyIsCancelled, 
 		t1.ShopifyFinancialStatus,
-		t1.AreTransactionsUpdated, 
-		t3.AcumaticaOrderNbr,
-		t3.AcumaticaStatus,
-		t4.AcumaticaInvoiceNbr,
-		t4.AcumaticaShipmentNbr,
+		t1.NeedsOrderPut,
+		t1.NeedsTransactionGet,
+		t2.AcumaticaOrderNbr,
+		t2.AcumaticaStatus,
+		t3.AcumaticaInvoiceNbr,
+		t3.AcumaticaShipmentNbr,
 		t1.LastUpdated AS ShopifyLastUpdated,
-		t3.LastUpdated AS AcumaticaLastUpdated
+		t2.LastUpdated AS AcumaticaLastUpdated
 	FROM ShopifyOrder t1
-		FULL OUTER JOIN ShopAcuOrderSync t2
-			ON t1.Id = t2.ShopifyOrderMonsterId
-		FULL OUTER JOIN AcumaticaSalesOrder t3
-			ON t2.AcumaticaSalesOrderMonsterId = t3.Id
-		FULL OUTER JOIN AcumaticaSoShipmentInvoice t4
-			ON t3.Id = t4.SalesOrderMonsterId
+		FULL OUTER JOIN AcumaticaSalesOrder t2
+			ON t2.ShopifyOrderMonsterId = t1.Id
+		FULL OUTER JOIN AcumaticaSoShipment t3
+			ON t2.ShopifyOrderMonsterId = t3.ShopifyOrderMonsterId
 GO
 
 
@@ -387,41 +369,17 @@ SELECT
 	t0.ShopifyOrderNumber,
 	t1.ShopifyFulfillmentId,
 	t1.ShopifyStatus, 
-	t3.AcumaticaOrderNbr,
-	t3.AcumaticaShipmentNbr,
-	t4.AcumaticaStatus AS AcumaticaShipmentStatus,
+	t2.AcumaticaShipmentNbr,
+	t2.AcumaticaInvoiceNbr,
 	t1.LastUpdated AS FulfillmentLastUpdated
 FROM ShopifyOrder t0
 	FULL OUTER JOIN ShopifyFulfillment t1
 		ON t0.Id = t1.OrderMonsterId
-	FULL OUTER JOIN ShopAcuShipmentSync t2
+	FULL OUTER JOIN AcumaticaSoShipment t2
 		ON t1.Id = t2.ShopifyFulfillmentMonsterId
-	FULL OUTER JOIN AcumaticaShipmentSalesOrderRef t3
-		ON t2.AcumaticaShipDetailMonsterId = t3.Id
-	FULL OUTER JOIN AcumaticaShipment t4
-		ON t3.ShipmentMonsterId = t4.Id
 GO
 
 
-
-DROP VIEW IF EXISTS vw_SyncRefundAndCreditMemo
-GO
-CREATE VIEW vw_SyncRefundAndCreditMemo
-AS
-SELECT 
-	t1.ShopifyOrderId,
-	t1.ShopifyOrderNumber,
-	t2.ShopifyRefundId,
-	t3.AcumaticaCreditMemoOrderNbr,
-	t3.AcumaticaCreditMemoInvoiceNbr,
-	t2.LastUpdated AS ShopifyRefundLastUpdated,
-	t3.LastUpdated AS CreditMemoSyncLastUpdated
-FROM ShopifyOrder t1
-	FULL OUTER JOIN ShopifyRefund t2
-		ON t1.Id = t2.OrderMonsterId
-	FULL OUTER JOIN ShopAcuRefundCM t3
-		ON t2.Id = t3.ShopifyRefundMonsterId
-GO
 
 DROP VIEW IF EXISTS vw_SyncTransactionAndPayment
 GO
@@ -433,13 +391,14 @@ SELECT
 	t2.ShopifyTransactionId,
 	t2.ShopifyStatus,
 	t2.ShopifyKind,
-	t3.ShopifyPaymentNbr,
+	t3.AcumaticaRefNbr,
+	t3.AcumaticaDocType,
 	t2.LastUpdated AS ShopifyRefundLastUpdated,
 	t3.LastUpdated AS PaymentSyncLastUpdated
 FROM ShopifyOrder t1
 	FULL OUTER JOIN ShopifyTransaction t2
 		ON t1.Id = t2.OrderMonsterId
-	FULL OUTER JOIN ShopifyAcuPayment t3
+	FULL OUTER JOIN AcumaticaPayment t3
 		ON t2.Id = t3.ShopifyTransactionMonsterId
 GO
 

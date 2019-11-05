@@ -74,8 +74,9 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 if (term.IsLong())
                 {
+                    var shopifyOrderId = term.ToLong();
                     queryable = queryable.Where(
-                        x => x.ShopifyOrderId == term.ToLong() ||
+                        x => x.ShopifyOrderId == shopifyOrderId ||
                              x.AcumaticaSalesOrder.AcumaticaOrderNbr.Contains(term));
                 }
                 else
