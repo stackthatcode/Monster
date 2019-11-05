@@ -98,7 +98,9 @@ namespace Monster.Middle.Processes.Sync.Services
             var output = new OrderAnalysisTotals();
 
             output.ShopifyOrderNbr = shopifyOrderRecord.ShopifyOrderNumber;
+            output.ShopifyOrderId = shopifyOrderRecord.ShopifyOrderId;
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(shopifyOrderRecord.ShopifyOrderId);
+            output.ShopifyTotalLinePrice = shopifyOrder.total_line_items_price.AnalysisFormat();
             output.ShopifyShippingPriceTotal = shopifyOrder.ShippingDiscountedTotal.AnalysisFormat();
             output.ShopifyTotalTax = shopifyOrder.total_tax.AnalysisFormat();
             output.ShopifyOrderTotal = shopifyOrder.total_price.AnalysisFormat();
@@ -164,6 +166,7 @@ namespace Monster.Middle.Processes.Sync.Services
         private OrderAnalyzerResultsRow Make(ShopifyOrder order)
         {
             var output = new OrderAnalyzerResultsRow();
+            output.ShopifyOrderId = order.ShopifyOrderId;
             output.ShopifyOrderNbr = order.ShopifyOrderNumber.ToString();
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(order.ShopifyOrderId);
 

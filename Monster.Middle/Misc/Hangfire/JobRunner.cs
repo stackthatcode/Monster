@@ -81,7 +81,7 @@ namespace Monster.Middle.Misc.Hangfire
 
                 if (!InstanceLock.Acquire(instanceId.ToString()))
                 {
-                    var msg = $"Failed to acquire lock '{InstanceLock.MethodName}' for {instanceId}";
+                    var msg = $"Failed to acquire lock '{InstanceLock.MethodName}'";
                     _executionLogService.Log(msg, LogLevel.Debug);
                     return;
                 }

@@ -47,7 +47,7 @@ namespace Monster.Middle.Misc.Hangfire
             if (monitor != null)
             {
                 _jobMonitoringService.SendKillSignal(monitor.Id);
-                _executionLogService.Log($"End-to-End Sync - kill signal sent to Job {monitor.Id}");
+                _executionLogService.Log($"End-to-End Sync - kill signal received");
             }
         }
     }

@@ -2,6 +2,7 @@
 {
     public class OrderAnalysisTotals
     {
+        public long ShopifyOrderId { get; set; }
         public string ShopifyOrderNbr { get; set; }
         public string ShopifyOrderHref { get; set; }
 
@@ -38,6 +39,7 @@
         public string AcumaticaInvoiceFreightTotal { get; set; }
         public string AcumaticaInvoiceTaxTotal { get; set; }
         public string AcumaticaInvoiceTotal { get; set; }
+
 
         public OrderAnalysisTotals()
         {

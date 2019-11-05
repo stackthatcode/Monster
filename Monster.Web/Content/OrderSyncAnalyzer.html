@@ -31,7 +31,9 @@
         </div>
 
         <div data-bind="visible: ShowDrilldown">
-            <div data-bind="template: { name: 'Order-Analyzer-Drilldown' }"></div>
+            <div data-bind="if: OrderAnalysis">
+                <div data-bind="template: { name: 'Order-Analyzer-Drilldown', data: OrderAnalysis }"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -91,14 +93,14 @@
 
 <script type="text/html" id="Order-Analyzer-Drilldown">
     <div class="center std-pad-side" style="width: 100%;">
-        <a href="#" class="btn btn-secondary btn-sm" data-bind="click: function() { ShowDrilldown(false); }">
+        <a href="#" class="btn btn-secondary btn-sm" data-bind="click: function() { $parent.ShowDrilldown(false); }">
             Back to Results <i class="fas fa-undo"></i>
         </a>
         <div style="height: 20px;"></div>
         <table class="table order-analyzer">
             <tr>
                 <td>Shopify Order Name</td>
-                <td><a class="order-link" href="#" 
+                <td><a class="order-link" href="#" target="_blank"
                        data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a></td>
                 <td> </td>
                 <td>Acumatica Order ID</td>
@@ -107,7 +109,8 @@
             </tr>
             <tr>
                 <td>Shopify Order ID</td>
-                <td><a class="order-link" href="#" data-bind="text: AcumaticaSalesOrderNbr"></a></td>
+                <td><a class="order-link" href="#" target="_blank" 
+                       data-bind="text: ShopifyOrderId, attr: { href: ShopifyOrderHref }"></a></td>
                 <td> </td>
                 <td></td>
                 <td></td>
@@ -277,7 +280,9 @@
         self.Initialize = function() { self.RefreshGrid(); };
 
         self.OrderClick = function (item) {
-            flow.exec(function() {
+            flow.exec(function () {
+                    console.log(item);
+
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
                 },

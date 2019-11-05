@@ -2,6 +2,8 @@
 {
     public class OrderAnalyzerResultsRow
     {
+        public long ShopifyOrderId { get; set; }
+
         public string ShopifyOrderNbr { get; set; }
         public string ShopifyOrderHref { get; set; }
         public string ShopifyOrderTotal { get; set; }
