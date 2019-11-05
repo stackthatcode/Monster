@@ -20,17 +20,21 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly CustomerClient _customerClient;
         private readonly ExecutionLogService _logService;
+        private readonly SettingsRepository _settingsRepository;
+
 
         public AcumaticaCustomerPut(
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 SyncOrderRepository syncOrderRepository, 
                 CustomerClient customerClient, 
-                ExecutionLogService logService)
+                ExecutionLogService logService, 
+                SettingsRepository settingsRepository)
         {
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _syncOrderRepository = syncOrderRepository;
             _customerClient = customerClient;
             _logService = logService;
+            _settingsRepository = settingsRepository;
         }
 
         public void Run()
@@ -72,11 +76,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 // Create the local cache of Acumatica Customer record
                 //
-                var acumaticaCustomerRecord = UpsertCustomerToPersist(acumaticaCustomer);
-
-                // Create the Sync record between Shopify and Acumatica Customer records
-                //
-                UpsertCustomerSync(shopifyCustomerRecord, acumaticaCustomerRecord);
+                var acumaticaCustomerRecord 
+                        = UpsertCustomerToPersist(acumaticaCustomer, shopifyCustomerRecord);
 
                 // Lastly, flag the Shopify Customer as updated
                 //
@@ -92,7 +93,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         // *** CRITICAL - only call this method for Customers that have been intentionally
         // ... written to Acumatica
         //
-        private AcumaticaCustomer UpsertCustomerToPersist(Customer acumaticaCustomer)
+        private AcumaticaCustomer 
+                UpsertCustomerToPersist(Customer acumaticaCustomer, ShopifyCustomer shopifyCustomer)
         {
             var existingRecord =
                 _acumaticaOrderRepository.RetrieveCustomer(acumaticaCustomer.CustomerID.value);
@@ -107,30 +109,29 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
             else
             {
-                var newRecord = acumaticaCustomer.ToMonsterRecord();
+                var newRecord = new AcumaticaCustomer();
+
+                newRecord.AcumaticaCustomerId = acumaticaCustomer.CustomerID.value;
+                newRecord.AcumaticaJson = acumaticaCustomer.SerializeToJson();
+                newRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
+                newRecord.ShopifyCustomer = shopifyCustomer;
+                newRecord.DateCreated = DateTime.UtcNow;
+                newRecord.LastUpdated = DateTime.UtcNow;
+
                 _acumaticaOrderRepository.InsertCustomer(newRecord);
                 return newRecord;
             }
         }
 
-        private void UpsertCustomerSync(
-                ShopifyCustomer shopifyCustomerRecord, AcumaticaCustomer acumaticaCustomerRecord)
-        {
-            if (!shopifyCustomerRecord.HasMatch())
-            {
-                acumaticaCustomerRecord.ShopifyCustomer = shopifyCustomerRecord;
-                acumaticaCustomerRecord.LastUpdated = DateTime.UtcNow;
-                _syncOrderRepository.SaveChanges();
-            }
-        }
-
-        private static Customer BuildCustomer(Push.Shopify.Api.Customer.Customer shopifyCustomer)
+        private Customer BuildCustomer(Push.Shopify.Api.Customer.Customer shopifyCustomer)
         {
             var name = shopifyCustomer.first_name + " " + shopifyCustomer.last_name;
-           
+            var settings = _settingsRepository.RetrieveSettings();
+
             var customer = new Customer();
             customer.CustomerID = shopifyCustomer.id.ToString().ToValue();
             customer.CustomerName = name.ToValue();
+            customer.TaxZone = settings.AcumaticaTaxZone.ToValue();
 
             var address = new Address();
             if (shopifyCustomer.default_address != null)

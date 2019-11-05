@@ -8,17 +8,6 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class CustomerExtensions
     {
-        public static AcumaticaCustomer ToMonsterRecord(this Customer customer)
-        {
-            var output = new AcumaticaCustomer();
-            output.AcumaticaCustomerId = customer.CustomerID.value;
-            output.AcumaticaJson = customer.SerializeToJson();
-            output.AcumaticaMainContactEmail = customer.MainContact.Email.value;
-            output.DateCreated = DateTime.UtcNow;
-            output.LastUpdated = DateTime.UtcNow;
-            return output;
-        }
-
         public static AcumaticaCustomer Match(this ShopifyCustomer input)
         {
             return input.AcumaticaCustomer;

@@ -388,6 +388,7 @@ AS
 SELECT 
 	t1.ShopifyOrderId,
 	t1.ShopifyOrderNumber,
+	t1.NeedsTransactionGet,
 	t2.ShopifyTransactionId,
 	t2.ShopifyStatus,
 	t2.ShopifyKind,

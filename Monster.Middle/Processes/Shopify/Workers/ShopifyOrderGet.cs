@@ -17,6 +17,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly ShopifyBatchRepository _batchRepository;
         private readonly SettingsRepository _settingsRepository;
         private readonly ShopifyCustomerGet _shopifyCustomerPull;
+        private readonly ShopifyTransactionGet _shopifyTransactionGet;
         private readonly OrderApi _orderApi;
 
 
@@ -25,13 +26,15 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 ShopifyBatchRepository batchRepository,
                 SettingsRepository settingsRepository,
                 ShopifyCustomerGet shopifyCustomerPull,
-                OrderApi orderApi)
+                OrderApi orderApi, 
+                ShopifyTransactionGet shopifyTransactionGet)
         {
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
             _settingsRepository = settingsRepository;
             _shopifyCustomerPull = shopifyCustomerPull;
             _orderApi = orderApi;
+            _shopifyTransactionGet = shopifyTransactionGet;
         }
 
         public void RunAutomatic()
@@ -95,7 +98,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         {
             var orderJson = _orderApi.Retrieve(shopifyOrderId);
             var order = orderJson.DeserializeToOrderParent();
-            UpsertOrderAndCustomer(order.order);
+            UpsertOrder(order.order);
             return order;
         }
 
@@ -108,11 +111,20 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 {
                     continue;
                 }
-
-                UpsertOrderAndCustomer(order);
-                UpsertOrderFulfillments(order);
-                UpsertOrderRefunds(order);
+                else
+                {
+                    UpsertOrder(order);
+                }
             }
+        }
+
+        private void UpsertOrder(Order order)
+        {
+            UpsertOrderAndCustomer(order);
+            UpsertOrderFulfillments(order);
+            UpsertOrderRefunds(order);
+
+            _shopifyTransactionGet.RunOptional(order.id);
         }
 
         private void UpsertOrderAndCustomer(Order order)

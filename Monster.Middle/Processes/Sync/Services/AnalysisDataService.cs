@@ -106,8 +106,8 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyTotalTax = shopifyOrder.total_tax.AnalysisFormat();
             output.ShopifyOrderTotal = shopifyOrder.total_price.AnalysisFormat();
 
-            output.ShopifyOrderPayment 
-                = shopifyOrderRecord.PaymentTransaction().ShopifyAmount.AnalysisFormat();
+            output.ShopifyOrderPayment
+                = shopifyOrderRecord.ShopifyPaymentAmount().AnalysisFormat();
             output.ShopifyRefundPayment 
                 = shopifyOrderRecord.RefundTransactions().Sum(x => x.ShopifyAmount).AnalysisFormat();
             output.ShopifyNetPayment

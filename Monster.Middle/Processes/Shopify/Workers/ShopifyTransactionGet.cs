@@ -25,39 +25,56 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             foreach (var orderRecord in orders)
             {
-                var transactionsJson = _orderApi.RetrieveTransactions(orderRecord.ShopifyOrderId);
-                var transactions = transactionsJson.DeserializeFromJson<TransactionList>();
-                var transactionRecords = new List<ShopifyTransaction>();
-                var order = orderRecord.ToShopifyObj();
+                PullTransactionsFromShopify(orderRecord);
+            }
+        }
 
-                foreach (var transaction in transactions.transactions)
+        public void RunOptional(long shopifyOrderId)
+        {
+            var order = _orderRepository.RetrieveOrder(shopifyOrderId);
+            if (order.NeedsTransactionGet)
+            {
+                PullTransactionsFromShopify(order);
+            }
+        }
+
+        private void PullTransactionsFromShopify(ShopifyOrder orderRecord)
+        {
+            var transactionsJson = _orderApi.RetrieveTransactions(orderRecord.ShopifyOrderId);
+            var transactions = transactionsJson.DeserializeFromJson<TransactionList>();
+            var transactionRecords = new List<ShopifyTransaction>();
+            var order = orderRecord.ToShopifyObj();
+
+            foreach (var transaction in transactions.transactions)
+            {
+                var record = new ShopifyTransaction();
+
+                if (transaction.kind == TransactionKind.Refund)
                 {
-                    var record = new ShopifyTransaction();
-
-                    if (transaction.kind == TransactionKind.Refund)
-                    {
-                        var refund = order.RefundByTransaction(transaction.id);
-                        record.ShopifyRefundId = refund.id;
-                    }
-
-                    record.ShopifyOrderId = transaction.order_id;
-                    record.ShopifyTransactionId = transaction.id;
-                    record.ShopifyStatus = transaction.status;
-                    record.ShopifyKind = transaction.kind;
-                    record.ShopifyJson = transaction.SerializeToJson();
-                    record.ShopifyGateway = transaction.gateway;
-                    record.ShopifyAmount = transaction.amount;
-
-                    record.Ignore = transaction.IgnoreForSync();
-                    record.NeedsPaymentPut = true;
-                    record.OrderMonsterId = orderRecord.Id;
-
-                    transactionRecords.Add(record);
+                    var refund = order.RefundByTransaction(transaction.id);
+                    record.ShopifyRefundId = refund.id;
                 }
 
-                _orderRepository.ImprintTransactions(orderRecord.Id, transactionRecords);
+                record.ShopifyOrderId = transaction.order_id;
+                record.ShopifyTransactionId = transaction.id;
+                record.ShopifyStatus = transaction.status;
+                record.ShopifyKind = transaction.kind;
+                record.ShopifyJson = transaction.SerializeToJson();
+                record.ShopifyGateway = transaction.gateway;
+                record.ShopifyAmount = transaction.amount;
+
+                record.Ignore = transaction.IgnoreForSync();
+                record.NeedsPaymentPut = true;
+                record.OrderMonsterId = orderRecord.Id;
+
+                transactionRecords.Add(record);
             }
-        }    
+
+            _orderRepository.ImprintTransactions(orderRecord.Id, transactionRecords);
+
+            orderRecord.NeedsTransactionGet = false;
+            _orderRepository.SaveChanges();
+        }
     }
 }
 
