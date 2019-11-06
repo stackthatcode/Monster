@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Monster.TaxProvider.Utility;
 using Monster.TaxTransfer;
 using Newtonsoft.Json;
 using PX.Data;
@@ -18,8 +20,8 @@ namespace Monster.TaxProvider.Bql
             _graph = graph;
         }
 
-        public PXResultset<ARTaxTran> RetrieveARTaxTransactions(
-                    string orderType, string orderNbr, string taxId)
+        public PXResultset<ARTaxTran> 
+                    RetrieveARTaxTransactions(string orderType, string orderNbr, string taxId)
         {
             var taxTrans =
                 PXSelectJoin<ARTaxTran,
@@ -60,10 +62,19 @@ namespace Monster.TaxProvider.Bql
             var salesOrder = RetrieveSalesOrder(orderType, orderNumber);
             var salesOrderExt = PXCache<SOOrder>.GetExtension<SOOrderTaxSnapshotExt>(salesOrder);
 
-            //var salesOrderExt = salesOrder.GetExtension<SOOrderTaxSnapshotExt>();
-            _logger.Info("Tax Transfer loaded from Acumatica - " + salesOrderExt.UsrTaxSnapshot);
+            if (salesOrderExt.UsrTaxSnapshot == null || salesOrderExt.UsrTaxSnapshot.Trim() == String.Empty)
+            {
+                throw new Exception("Missing Tax Snapshot - unable to compute Taxes");
+            }
 
-            return JsonConvert.DeserializeObject<Transfer>(salesOrderExt.UsrTaxSnapshot);
+            // Unpack Base64-encoded and GZip-compressed tax data
+            //
+            string json = salesOrderExt.UsrTaxSnapshot.Unzip();
+
+            //var salesOrderExt = salesOrder.GetExtension<SOOrderTaxSnapshotExt>();
+            _logger.Info("Tax Transfer loaded from Acumatica - " + json);
+
+            return JsonConvert.DeserializeObject<Transfer>(json);
         }
     }
 }

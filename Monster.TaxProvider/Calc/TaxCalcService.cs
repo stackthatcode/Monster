@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Monster.TaxProvider.Bql;
 using Monster.TaxProvider.Context;
+using Monster.TaxProvider.Utility;
 using Monster.TaxTransfer;
 using Newtonsoft.Json;
 using PX.Data;
-using PX.Objects.AR;
-using PX.Objects.SO;
 using PX.TaxProvider;
+
 
 namespace Monster.TaxProvider.Calc
 {

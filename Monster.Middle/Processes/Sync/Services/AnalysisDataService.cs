@@ -28,12 +28,14 @@ namespace Monster.Middle.Processes.Sync.Services
                 ProcessPersistContext persistContext, 
                 ShopifyUrlService shopifyUrlService, 
                 AcumaticaUrlService acumaticaUrlService, 
-                AcumaticaHttpContext acumaticaHttpContext)
+                AcumaticaHttpContext acumaticaHttpContext, 
+                SalesOrderClient salesOrderClient)
         {
             _persistContext = persistContext;
             _shopifyUrlService = shopifyUrlService;
             _acumaticaUrlService = acumaticaUrlService;
             _acumaticaHttpContext = acumaticaHttpContext;
+            _salesOrderClient = salesOrderClient;
         }
 
 

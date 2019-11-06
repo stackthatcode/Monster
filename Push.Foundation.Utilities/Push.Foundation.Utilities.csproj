@@ -105,6 +105,7 @@
     <Compile Include="Execution\FaultTolerantExecutor.cs" />
     <Compile Include="Execution\Throttler.cs" />
     <Compile Include="General\BoolExtensions.cs" />
+    <Compile Include="General\Compression.cs" />
     <Compile Include="General\DirectoryHelpers.cs" />
     <Compile Include="General\EnumExtensions.cs" />
     <Compile Include="General\ExpressionHelpers.cs" />

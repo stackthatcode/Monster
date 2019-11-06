@@ -6,21 +6,23 @@ namespace Push.Foundation.Utilities.Json
     public static class JsonExtensions
     {
         public static JsonSerializerSettings SerializerSettings = new JsonSerializerSettings();
-        public static Formatting Formatting = Formatting.Indented;
-
         
-        public static string SerializeToJson(this object input)
+        
+        public static string SerializeToJson(
+                this object input,
+                Formatting formatting = Formatting.Indented)
         {
             var stringWriter = new StringWriter();
-            input.SerializeToJson(stringWriter);
+            input.SerializeToJson(stringWriter, formatting);
             return stringWriter.ToString();
         }
 
         public static void SerializeToJson(
                 this object input, 
-                TextWriter textWriter)
+                TextWriter textWriter,
+                Formatting formatting = Formatting.Indented)
         {
-            var writer = new JsonTextWriter(textWriter) { Formatting = Formatting };
+            var writer = new JsonTextWriter(textWriter) { Formatting = formatting };
             var serializer = JsonSerializer.Create(SerializerSettings);
             serializer.Serialize(writer, input);
             writer.Flush();

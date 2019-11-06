@@ -61,7 +61,7 @@ namespace Monster.Acumatica.Api.SalesOrder
         public ShippingSettings ShippingSettings { get; set; }
         public FinancialSettings FinancialSettings { get; set; }
         public SalesOrderTotals Totals { get; set; }
-        public SalesOrderUsrTaxSnapshot UsrTaxSnapshot { get; set; }
+        public SalesOrderUsrTaxSnapshot custom { get; set; }
 
 
         public SalesOrderDetail DetailByInventoryId(string inventoryId)

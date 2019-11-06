@@ -47,7 +47,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine();
             Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
             Console.WriteLine($"{ShopifyOrderTimezoneTest} - Shopify Order to Acumatica Timezone Test");
-            Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get (Automatic");
+            Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get (Automatic)");
             Console.WriteLine($"{ShopifyOrderGetSingle} - Shopify Order Get (Shopify Order ID)");
 
             Console.WriteLine();
@@ -141,8 +141,7 @@ namespace Monster.ConsoleApp
                               "Enter New User's Email Address (which will be used as User ID)");
             var email = Console.ReadLine();
 
-            Console.WriteLine(Environment.NewLine + 
-                              "Enter New User's Shopify Domain");
+            Console.WriteLine(Environment.NewLine + "Enter New User's Shopify Domain");
             var domain = Console.ReadLine();
 
             Console.WriteLine(Environment.NewLine + 
@@ -172,7 +171,6 @@ namespace Monster.ConsoleApp
                 identityService.PopulateRolesAndAdmin();
             });
         }
-
     }
 }
 

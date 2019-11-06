@@ -1,4 +1,6 @@
-﻿using Push.Foundation.Utilities.Http;
+﻿using Push.Foundation.Utilities.General;
+using Push.Foundation.Utilities.Http;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Http;
 
 
@@ -8,10 +10,12 @@ namespace Push.Shopify.Api
     public class OrderApi
     {
         private readonly ShopifyHttpContext _httpClient;
+        private readonly IPushLogger _logger;
 
-        public OrderApi(ShopifyHttpContext httpClient)
+        public OrderApi(ShopifyHttpContext httpClient, IPushLogger logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         

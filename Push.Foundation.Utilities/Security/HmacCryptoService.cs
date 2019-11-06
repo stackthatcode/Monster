@@ -15,7 +15,7 @@ namespace Push.Foundation.Utilities.Security
 
         public string ToBase64EncodedSha256(string input)
         {
-            var encoding = new System.Text.UTF8Encoding();
+            var encoding = new UTF8Encoding();
             byte[] keyByte = encoding.GetBytes(_secret);
             byte[] messageBytes = encoding.GetBytes(input);
 
@@ -29,7 +29,7 @@ namespace Push.Foundation.Utilities.Security
 
         public string ToHexStringSha256(string input)
         {
-            var encoding = new System.Text.UTF8Encoding();
+            var encoding = new UTF8Encoding();
             byte[] keyByte = encoding.GetBytes(_secret);
             byte[] messageBytes = encoding.GetBytes(input);
 

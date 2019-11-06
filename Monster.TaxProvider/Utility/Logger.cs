@@ -1,6 +1,6 @@
 ﻿using PX.Data;
 
-namespace Monster.TaxProvider
+namespace Monster.TaxProvider.Utility
 {
     public class Logger
     {
