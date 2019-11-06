@@ -34,13 +34,16 @@ namespace Monster.Acumatica.Api
 
         public string ReleasePayment(string referenceNbr, string paymentType)
         {
-            var entity = new
+            var payload = new
             {
-                Type = paymentType.ToValue(),
-                ReferenceNbr = referenceNbr.ToValue(),
+                entity = new
+                {
+                    Type = paymentType.ToValue(),
+                    ReferenceNbr = referenceNbr.ToValue(),
+                }
             };
-            var content = entity.SerializeToJson();
 
+            var content = payload.SerializeToJson();
             var response = _httpContext.Post("Payment/ReleasePayment", content);
             return response.Body;
         }

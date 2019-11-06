@@ -48,8 +48,9 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         {
             var validation
                 = BuildBaseValidation()
+                    .Add(x => PaymentTransaction.IsSynced(), $"Payment has not been synced yet")
+                    .Add(x => PaymentTransaction.IsReleased(), $"Payment has not been released yet")
                     .Add(x => !ThisTransaction.IsSynced(), "Refund has been synced already")
-                    .Add(x => PaymentTransaction.IsSynced(), $"Original Payment has not been synced yet")
                     .Add(x => ThisTransaction.ShopifyKind == TransactionKind.Refund,
                             $"Transaction Kind is not a Capture or Sale");
 

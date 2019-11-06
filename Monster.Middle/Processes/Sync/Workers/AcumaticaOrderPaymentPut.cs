@@ -48,6 +48,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         public void RunUnsyncedPayments(long shopifyOrderId)
         {
             RunPaymentTransaction(shopifyOrderId);
+            RunTransactionReleases(shopifyOrderId);
             RunRefundTranscations(shopifyOrderId);
             RunTransactionReleases(shopifyOrderId);
         }
@@ -117,7 +118,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Create Monster Sync Record
             //
             var paymentRecord = new AcumaticaPayment();
-            paymentRecord.ShopifyTransaction = transactionRecord;
+            paymentRecord.ShopifyTransactionMonsterId = transactionRecord.Id;
             paymentRecord.AcumaticaRefNbr = resultPayment.ReferenceNbr.value;
             paymentRecord.AcumaticaDocType = resultPayment.Type.value;
             paymentRecord.AcumaticaAmount = (decimal)resultPayment.PaymentAmount.value;
@@ -202,8 +203,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var acumaticaPayment = transactionRecord.AcumaticaPayment;
             _paymentClient.ReleasePayment(acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType);
-            acumaticaPayment.IsReleased = true;
-            _syncOrderRepository.SaveChanges();
+            _syncOrderRepository.PaymentIsReleased(acumaticaPayment.ShopifyTransactionMonsterId);
         }
     }
 }

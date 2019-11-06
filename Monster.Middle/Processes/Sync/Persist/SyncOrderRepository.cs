@@ -136,6 +136,13 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
 
+        public void PaymentIsReleased(long shopifyTransactionMonsterId)
+        {
+            var payment = Entities.AcumaticaPayments.First(x => x.ShopifyTransactionMonsterId == shopifyTransactionMonsterId);
+            payment.IsReleased = true;
+            Entities.SaveChanges();
+        }
+
         public void SaveChanges()
         {
             Entities.SaveChanges();

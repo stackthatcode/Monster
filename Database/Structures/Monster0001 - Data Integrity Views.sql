@@ -394,6 +394,7 @@ SELECT
 	t2.ShopifyKind,
 	t3.AcumaticaRefNbr,
 	t3.AcumaticaDocType,
+	t3.IsReleased,
 	t2.LastUpdated AS ShopifyRefundLastUpdated,
 	t3.LastUpdated AS PaymentSyncLastUpdated
 FROM ShopifyOrder t1

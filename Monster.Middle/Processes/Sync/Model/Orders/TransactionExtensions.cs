@@ -8,5 +8,10 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         {
             return transaction.AcumaticaPayment != null;
         }
+
+        public static bool IsReleased(this ShopifyTransaction transaction)
+        {
+            return transaction.AcumaticaPayment != null && transaction.AcumaticaPayment.IsReleased;
+        }
     }
 }
