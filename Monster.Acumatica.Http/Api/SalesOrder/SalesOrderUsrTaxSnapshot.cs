@@ -14,5 +14,18 @@
         }
 
         public CustomDocument Document { get; set; }
+
+        public SalesOrderUsrTaxSnapshot(string base64ZippedTaxTransfer)
+        {
+
+            Document = new CustomDocument()
+            {
+                UsrTaxSnapshot = new CustomField
+                {
+                    type = "CustomStringField",
+                    value = base64ZippedTaxTransfer,
+                }
+            };
+        }
     }
 }

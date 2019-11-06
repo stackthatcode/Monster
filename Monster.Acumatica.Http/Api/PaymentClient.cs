@@ -1,4 +1,6 @@
-﻿using Monster.Acumatica.Http;
+﻿using Monster.Acumatica.Api.Common;
+using Monster.Acumatica.Http;
+using Push.Foundation.Utilities.Json;
 
 namespace Monster.Acumatica.Api
 {
@@ -27,6 +29,19 @@ namespace Monster.Acumatica.Api
         {
             var path = $"Payment/{paymentType}/{referenceNbr}?$expand={expand}";
             var response = _httpContext.Get(path);
+            return response.Body;
+        }
+
+        public string ReleasePayment(string referenceNbr, string paymentType)
+        {
+            var entity = new
+            {
+                Type = paymentType.ToValue(),
+                ReferenceNbr = referenceNbr.ToValue(),
+            };
+            var content = entity.SerializeToJson();
+
+            var response = _httpContext.Post("Payment/ReleasePayment", content);
             return response.Body;
         }
     }

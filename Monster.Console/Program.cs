@@ -69,7 +69,7 @@ namespace Monster.ConsoleApp
             if (input == HydrateSecurityConfigOption)
                 HydrateSecurityConfig();
 
-            // Acumatica thangs
+            // Acumatica stuff
             //
             if (input == AcumaticaOrderSync)
                 MoreTestingStuff.RunAcumaticaOrderSync();
@@ -81,7 +81,7 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunAcumaticaPaymentGet();
 
 
-            // Shopify shit
+            // Shopify stuff
             //
             if (input == RunShopifyOrderFeederOption)
                 MoreTestingStuff.RunShopifyOrderFeeder();

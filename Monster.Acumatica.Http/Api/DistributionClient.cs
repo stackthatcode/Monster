@@ -90,11 +90,8 @@ namespace Monster.Acumatica.Api
 
         public string ReleaseInventoryReceipt(string content)
         {
-            var response 
-                = _httpContext.Post(
-                    "InventoryReceipt/ReleaseInventoryReceipt", content);
+            var response = _httpContext.Post("InventoryReceipt/ReleaseInventoryReceipt", content);
             return response.Body;
         }
-
     }
 }

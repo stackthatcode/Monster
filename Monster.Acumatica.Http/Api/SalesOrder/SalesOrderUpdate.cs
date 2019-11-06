@@ -11,6 +11,7 @@ namespace Monster.Acumatica.Api.SalesOrder
 
         public List<SalesOrderUpdateDetail> Details { get; set; }
         public SalesOrderTotals Totals { get; set; }
+        public SalesOrderUsrTaxSnapshot custom;
 
 
         public SalesOrderUpdate()

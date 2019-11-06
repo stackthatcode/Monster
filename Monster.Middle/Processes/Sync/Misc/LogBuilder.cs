@@ -62,6 +62,11 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
         {
             return $"Creating Acumatica Customer Refund from {transaction.LogDescriptor()}";
         }
+
+        public static string ReleasingTransaction(ShopifyTransaction transaction)
+        {
+            return $"Releasing Acumatica record for {transaction.LogDescriptor()}";
+        }
     }
 }
 

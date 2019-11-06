@@ -38,41 +38,76 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void RunUnsyncedPayments()
         {
-            var transactionsRecords = _syncOrderRepository.RetrieveUnsyncedTransactions();
-            RunTransactions(transactionsRecords);
+            var shopifyOrderIds = _syncOrderRepository.RetrieveOrdersWithUnsyncedTransactions();
+            foreach (var shopifyOrderId in shopifyOrderIds)
+            {
+                RunUnsyncedPayments(shopifyOrderId);
+            }
         }
 
-        public void RunTransactions(IList<ShopifyTransaction> transactions)
+        public void RunUnsyncedPayments(long shopifyOrderId)
         {
-            foreach (var transaction in transactions)
+            RunPaymentTransaction(shopifyOrderId);
+            RunRefundTranscations(shopifyOrderId);
+            RunTransactionReleases(shopifyOrderId);
+        }
+
+
+        // Worker methods
+        //
+        private void RunPaymentTransaction(long shopifyOrderId)
+        {
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderForTransactionSync(shopifyOrderId);
+            var transaction = orderRecord.PaymentTransaction();
+            var status = PaymentSyncStatus.Make(orderRecord, transaction);
+
+            if (status.ShouldCreatePayment().Success)
             {
-                var order = _syncOrderRepository.RetrieveShopifyOrder(transaction.ShopifyOrderId);
-                var paymentTransaction = order.PaymentTransaction();
+                _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
 
-                var status = PaymentSyncStatus.Make(transaction, paymentTransaction);
+                var payment = BuildPayment(transaction);
+                WritePaymentAndCreateSync(transaction, payment);
+            }
+        }
 
-                if (status.ShouldCreatePayment().Success)
-                {
-                    _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
+        private void RunRefundTranscations(long shopifyOrderId)
+        {
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderForTransactionSync(shopifyOrderId);
 
-                    var payment = BuildPayment(transaction);
-                    WritePaymentAndCreateSync(order, transaction, payment);
-                    continue;
-                }
+            foreach (var transaction in orderRecord.RefundTransactions())
+            {
+                var status = PaymentSyncStatus.Make(orderRecord, transaction);
+                var shouldCreateRefund = status.ShouldCreateRefundPayment();
 
-                if (status.ShouldCreateRefundPayment().Success)
+                if (shouldCreateRefund.Success)
                 {
                     _logService.Log(LogBuilder.CreateAcumaticaCustomerRefund(transaction));
 
                     var payment = BuildCustomerRefund(transaction);
-                    WritePaymentAndCreateSync(order, transaction, payment);
-                    continue;
+                    WritePaymentAndCreateSync(transaction, payment);
                 }
             }
         }
 
-        private void WritePaymentAndCreateSync(
-                   ShopifyOrder orderRecord, ShopifyTransaction transactionRecord, PaymentWrite payment)
+        private void RunTransactionReleases(long shopifyOrderId)
+        {
+            var order = _syncOrderRepository.RetrieveShopifyOrderForTransactionSync(shopifyOrderId);
+
+            foreach (var transaction in order.ShopifyTransactions)
+            {
+                var status = PaymentSyncStatus.Make(order, transaction);
+                var shouldRelease = status.ShouldRelease();
+
+                if (shouldRelease.Success)
+                {
+                    _logService.Log(LogBuilder.ReleasingTransaction(transaction));
+                    ReleaseAndUpdateSync(transaction);
+                }
+            }
+        }
+
+
+        private void WritePaymentAndCreateSync(ShopifyTransaction transactionRecord, PaymentWrite payment)
         {
             // Push to Acumatica
             //
@@ -160,6 +195,15 @@ namespace Monster.Middle.Processes.Sync.Workers
             refundPayment.Description = $"Refund for Order #{order.ShopifyOrderNumber} (TransId #{transaction.id})".ToValue();
 
             return refundPayment;
+        }
+
+
+        private void ReleaseAndUpdateSync(ShopifyTransaction transactionRecord)
+        {
+            var acumaticaPayment = transactionRecord.AcumaticaPayment;
+            _paymentClient.ReleasePayment(acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType);
+            acumaticaPayment.IsReleased = true;
+            _syncOrderRepository.SaveChanges();
         }
     }
 }

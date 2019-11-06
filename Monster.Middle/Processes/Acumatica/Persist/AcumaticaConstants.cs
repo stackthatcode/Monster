@@ -9,6 +9,7 @@
     {
         public const string TaxDetails = "TaxDetails";
         public const string Shipments = "Shipments";
+        public const string Details = "Details";
     }
 
     public class PaymentExpand

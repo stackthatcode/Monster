@@ -47,6 +47,17 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 
+        public ShopifyOrder RetrieveShopifyOrderForTransactionSync(long shopifyOrderId)
+        {
+            return Entities
+                .ShopifyOrders
+                .AsNoTracking()
+                .Include(x => x.AcumaticaSalesOrder)
+                .Include(x => x.ShopifyTransactions)
+                .Include(x => x.ShopifyTransactions.Select(y => y.AcumaticaPayment))
+                .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
+        }
+
         public AcumaticaSalesOrder RetrieveSalesOrder(string orderNbr)
         {
             return Entities
@@ -104,13 +115,15 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Shopify Transactions
         //
-        public List<ShopifyTransaction> RetrieveUnsyncedTransactions()
+        public List<long> RetrieveOrdersWithUnsyncedTransactions()
         {
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
-                .Include(x => x.ShopifyOrder.ShopifyCustomer)
                 .Where(x => x.ShopifyOrder.AcumaticaSalesOrder != null
-                            && x.Ignore == false && x.NeedsPaymentPut == true)
+                            && (x.Ignore == false && x.NeedsPaymentPut == true ||
+                                x.AcumaticaPayment != null && !x.AcumaticaPayment.IsReleased))
+                .Select(x => x.ShopifyOrder.Id)
+                .Distinct()
                 .ToList();
         }
 
