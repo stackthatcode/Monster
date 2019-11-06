@@ -29,6 +29,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
+        public static bool HasPayment(this ShopifyOrder order)
+        {
+            return order.PaymentTransaction() != null;
+        }
         public static ShopifyTransaction PaymentTransaction(this ShopifyOrder order)
         {
             return order.ShopifyTransactions.FirstOrDefault(

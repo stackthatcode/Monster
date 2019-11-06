@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Monster.Middle.Persist.Instance;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Shopify.Api.Order;
@@ -13,15 +12,19 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SettingsRepository _settingsRepository;
+        private readonly ShopifyPaymentGatewayService _gatewayService;
+
 
         public OrderStatusService(
                 SyncInventoryRepository inventoryRepository, 
                 SyncOrderRepository orderRepository, 
-                SettingsRepository settingsRepository)
+                SettingsRepository settingsRepository, 
+                ShopifyPaymentGatewayService gatewayService)
         {
             _syncInventoryRepository = inventoryRepository;
             _syncOrderRepository = orderRepository;
             _settingsRepository = settingsRepository;
+            _gatewayService = gatewayService;
         }
 
 
@@ -38,7 +41,11 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderRecord = orderRecord;
             output.ShopifyOrder = orderRecord.ToShopifyObj();
             output.LineItemsWithUnsyncedVariants = BuildLineItemsWithUnsyncedVariants(output.ShopifyOrder);
-            
+            if (orderRecord.HasPayment())
+            {
+                output.PaymentGateway
+                    = _gatewayService.Retrieve(orderRecord.PaymentTransaction().ShopifyGateway);
+            }
             return output;
         }
 

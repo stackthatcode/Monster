@@ -72,6 +72,10 @@ namespace Monster.Acumatica.Api.Common
         {
             value = _value;
         }
+        public override string ToString()
+        {
+            return value.ToString();
+        }
     }
 
     public class DateValue
@@ -86,6 +90,11 @@ namespace Monster.Acumatica.Api.Common
         {
             value = _value;
         }
+        public override string ToString()
+        {
+            return value.ToString();
+        }
+
     }
 
     public class IntegerValue
@@ -100,6 +109,10 @@ namespace Monster.Acumatica.Api.Common
         {
             value = _value;
         }
+        public override string ToString()
+        {
+            return value.ToString();
+        }
     }
 
     public class DoubleValue
@@ -113,6 +126,11 @@ namespace Monster.Acumatica.Api.Common
         public DoubleValue(double _value)
         {
             value = _value;
+        }
+
+        public override string ToString()
+        {
+            return value.ToString();
         }
     }
 }

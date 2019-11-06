@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Analysis;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
@@ -14,13 +15,16 @@ namespace Monster.Web.Controllers
     {
         private readonly ExecutionLogService _logRepository;
         private readonly AnalysisDataService _analysisDataService;
+        private readonly InstanceContext _instanceContext;
 
         public AnalysisController(
             ExecutionLogService logRepository,
-            AnalysisDataService analysisDataService)
+            AnalysisDataService analysisDataService, 
+            InstanceContext instanceContext)
         {
             _logRepository = logRepository;
             _analysisDataService = analysisDataService;
+            _instanceContext = instanceContext;
         }
 
 
@@ -55,6 +59,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult OrderAnalysis(long shopifyOrderId)
         {
+            _instanceContext.InitializeAcumatica(HttpContext.GetIdentity().InstanceId);
             var analysis = _analysisDataService.GetOrderTotals(shopifyOrderId);
             return new JsonNetResult(analysis);
         }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
-using Monster.Acumatica.Api.SalesOrder;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Shopify.Persist;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Order;
@@ -14,11 +15,13 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public ShopifyOrder ShopifyOrderRecord { get; set; }
         public Order ShopifyOrder { get; set; }
         public List<LineItem> LineItemsWithUnsyncedVariants { get; set; }
+        public ShopifyPaymentGateway PaymentGateway { get; set;}
 
 
         // Computed
         //
         public bool HasShopifyCustomer => ShopifyOrderRecord.ShopifyCustomer != null;
+        public bool HasValidGateway => PaymentGateway != null;
         public bool HasManualProductVariants => ShopifyOrder.LineItemsWithManualVariants.Count > 0;
         public bool HasUnmatchedVariants => LineItemsWithUnsyncedVariants.Count > 0;
         public bool OrderNumberValidForSync => ShopifyOrder.id >= SettingsStartingOrderId;
@@ -33,7 +36,11 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public ValidationResult IsReadyToSync()
         {
             var validation = new Validation<OrderSyncStatus>()
-                .Add(x => x.HasShopifyCustomer, "Has Shopify Customer")
+                .Add(x => x.HasShopifyCustomer, "Shopify Customer has not been downloaded yet")
+
+                .Add(x => x.ShopifyOrderRecord.HasPayment(), "Shopify Payment has not been downloaded yet")
+
+                .Add(x => HasValidGateway, "Does not have valid/supported Payment Gateway")
 
                 .Add(x => !x.HasManualProductVariants, "Shopify Order references Variants with NULL Variant Id")
 

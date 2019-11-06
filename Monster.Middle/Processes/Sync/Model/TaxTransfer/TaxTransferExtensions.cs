@@ -14,10 +14,8 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
             transfer.ExternalRefNbr = shopifyOrder.id.ToString();
 
             transfer.Freight.Price = shopifyOrder.ShippingDiscountedTotal;
-            transfer.Freight.IsTaxable
-                = shopifyOrder.ShippingTotal > 0 && shopifyOrder.ShippingTax > 0;
-            transfer.Freight.TaxLines
-                = shopifyOrder.shipping_lines[0].tax_lines.ToTransferTaxLines();
+            transfer.Freight.IsTaxable = shopifyOrder.ShippingTotal > 0 && shopifyOrder.ShippingTax > 0;
+            transfer.Freight.TaxLines = shopifyOrder.shipping_lines.ToTransferTaxLines();
             transfer.Freight.TaxAmount = shopifyOrder.ShippingTax;
 
             foreach (var line_item in shopifyOrder.line_items)
@@ -55,5 +53,11 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
             return taxLines.Select(x => new TransferTaxLine(x.title, x.rate)).ToList();
         }
 
+        public static List<TransferTaxLine> ToTransferTaxLines(this IEnumerable<ShippingLine> shippingLines)
+        {
+            return shippingLines.Count() == 0
+                ? new List<TransferTaxLine>()
+                : shippingLines.First().tax_lines.ToTransferTaxLines();
+        }
     }
 }

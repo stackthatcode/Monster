@@ -68,13 +68,6 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var order in orders)
             {
-                var status = _orderStatusService.ShopifyOrderStatus(order.ShopifyOrderId);
-
-                if (!status.IsReadyToSync().Success)
-                {
-                    continue;
-                }
-
                 output.Enqueue(order.ShopifyOrderId);
             }
 
@@ -106,6 +99,14 @@ namespace Monster.Middle.Processes.Sync.Workers
         
         public void RunOrder(long shopifyOrderId)
         {
+            var status = _orderStatusService.ShopifyOrderStatus(shopifyOrderId);
+
+            var readyToSyncValidation = status.IsReadyToSync();
+            if (!readyToSyncValidation.Success)
+            {
+                return;
+            }
+
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
 
             if (!orderRecord.IsSynced())
@@ -281,8 +282,10 @@ namespace Monster.Middle.Processes.Sync.Workers
                 ShippingRule = ShippingRules.BackOrderAllowed.ToValue(),
             };
 
-            salesOrder.Totals.Freight
-                = ((double) shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue();
+            salesOrder.Totals = new SalesOrderTotals()
+            {
+                Freight = ((double) shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue()
+            };
 
             return salesOrder;
         }
