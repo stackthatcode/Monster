@@ -65,14 +65,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bql\AcumaticaBqlRepository.cs" />
-    <Compile Include="ARDigest\ARTaxTranDigest.cs" />
+    <Compile Include="Acumatica\AcumaticaTaxIdentifiers.cs" />
+    <Compile Include="InvoiceTaxes\OtherInvoiceTaxSummary.cs" />
+    <Compile Include="InvoiceTaxes\OtherInvoiceTaxService.cs" />
+    <Compile Include="Acumatica\BqlRepository.cs" />
+    <Compile Include="InvoiceTaxes\ArInvoiceTaxTran.cs" />
     <Compile Include="Calc\ProviderTaxCalcResultItem.cs" />
-    <Compile Include="Context\ProviderContext.cs" />
-    <Compile Include="Context\AcumaticaDocType.cs" />
-    <Compile Include="Context\AcumaticaModule.cs" />
-    <Compile Include="Context\ProviderContextBuilder.cs" />
-    <Compile Include="Context\ProviderContextType.cs" />
+    <Compile Include="Calc\ProviderContext.cs" />
+    <Compile Include="Acumatica\AcumaticaDocType.cs" />
+    <Compile Include="Acumatica\AcumaticaModule.cs" />
+    <Compile Include="Calc\ProviderContextBuilder.cs" />
+    <Compile Include="Calc\ProviderContextType.cs" />
     <Compile Include="Utility\Compression.cs" />
     <Compile Include="Utility\Logger.cs" />
     <Compile Include="StubTaxProvider.cs" />
@@ -88,6 +91,7 @@
       <Name>Monster.TaxTransfer</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

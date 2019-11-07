@@ -1,4 +1,4 @@
-﻿namespace Monster.TaxProvider.Context
+﻿namespace Monster.TaxProvider.Calc
 {
     public enum ProviderContextType
     {

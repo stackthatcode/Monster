@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using PX.TaxProvider;
+﻿using Monster.TaxProvider.Context;
 
-namespace Monster.TaxProvider.Context
+namespace Monster.TaxProvider.Calc
 {
     public class ProviderContext
     {

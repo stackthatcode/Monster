@@ -1,9 +1,10 @@
 ﻿using System.Linq;
+using Monster.TaxProvider.Acumatica;
+using Monster.TaxProvider.Context;
 using Monster.TaxProvider.Utility;
-using Newtonsoft.Json;
 using PX.TaxProvider;
 
-namespace Monster.TaxProvider.Context
+namespace Monster.TaxProvider.Calc
 {
     public class ProviderContextBuilder
     {
@@ -17,10 +18,6 @@ namespace Monster.TaxProvider.Context
         public ProviderContext ExtractFromRequest(GetTaxRequest request)
         {
             var parts = request.DocCode.Split('.').ToList();
-
-            var contextJson = JsonConvert.SerializeObject(context);
-            _logger.Info($"DocContext - {contextJson}");
-
 
             if (parts[0] == AcumaticaDocType.SalesOrder && parts[2] == AcumaticaDocType.Freight)
             {

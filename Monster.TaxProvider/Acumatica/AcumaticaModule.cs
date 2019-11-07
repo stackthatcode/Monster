@@ -1,4 +1,4 @@
-﻿namespace Monster.TaxProvider.Context
+﻿namespace Monster.TaxProvider.Acumatica
 {
     public class AcumaticaModule
     {

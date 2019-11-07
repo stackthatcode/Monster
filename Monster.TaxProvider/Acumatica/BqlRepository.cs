@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Monster.TaxProvider.Utility;
 using Monster.TaxTransfer;
 using Newtonsoft.Json;
@@ -8,33 +6,18 @@ using PX.Data;
 using PX.Objects.AR;
 using PX.Objects.SO;
 
-namespace Monster.TaxProvider.Bql
+namespace Monster.TaxProvider.Acumatica
 {
-    public class AcumaticaBqlRepository
+    public class BqlRepository
     {
         private readonly PXGraph _graph;
         private readonly Logger _logger = new Logger();
 
-        public AcumaticaBqlRepository(PXGraph graph)
+        public BqlRepository(PXGraph graph)
         {
             _graph = graph;
         }
 
-        public PXResultset<ARTaxTran> 
-                    RetrieveARTaxTransactions(string orderType, string orderNbr, string taxId)
-        {
-            var taxTrans =
-                PXSelectJoin<ARTaxTran,
-                        InnerJoin<SOOrderShipment,
-                            On<ARTaxTran.refNbr, Equal<SOOrderShipment.invoiceNbr>,
-                                And<ARTaxTran.tranType, Equal<SOOrderShipment.invoiceType>>>>,
-                        Where<SOOrderShipment.orderType, Equal<Required<SOOrderShipment.orderType>>,
-                            And<SOOrderShipment.orderNbr, Equal<Required<SOOrderShipment.orderNbr>>,
-                            And<ARTaxTran.taxID, Equal<Required<ARTran.taxID>>>>>>
-                    .Select(_graph, orderType, orderNbr, taxId);
-
-            return taxTrans;
-        }
 
         public SOOrder RetrieveSalesOrderByInvoice(string invoiceType, string invoiceNbr)
         {
@@ -45,6 +28,21 @@ namespace Monster.TaxProvider.Bql
                     .Select(_graph, invoiceNbr, invoiceType));
 
             return RetrieveSalesOrder(soShipment.OrderType, soShipment.OrderNbr);
+        }
+
+        public PXResultset<ARTaxTran> RetrieveARTaxTransactions(string orderType, string orderNbr, string taxId)
+        {
+            var taxTrans =
+                PXSelectJoin<ARTaxTran,
+                        InnerJoin<SOOrderShipment,
+                            On<ARTaxTran.refNbr, Equal<SOOrderShipment.invoiceNbr>,
+                                And<ARTaxTran.tranType, Equal<SOOrderShipment.invoiceType>>>>,
+                        Where<SOOrderShipment.orderType, Equal<Required<SOOrderShipment.orderType>>,
+                            And<SOOrderShipment.orderNbr, Equal<Required<SOOrderShipment.orderNbr>>,
+                                And<ARTaxTran.taxID, Equal<Required<ARTran.taxID>>>>>>
+                    .Select(_graph, orderType, orderNbr, taxId);
+
+            return taxTrans;
         }
 
         public SOOrder RetrieveSalesOrder(string orderType, string orderNumber)
@@ -61,6 +59,7 @@ namespace Monster.TaxProvider.Bql
         {
             var salesOrder = RetrieveSalesOrder(orderType, orderNumber);
             var salesOrderExt = PXCache<SOOrder>.GetExtension<SOOrderTaxSnapshotExt>(salesOrder);
+            //var salesOrderExt = salesOrder.GetExtension<SOOrderTaxSnapshotExt>();
 
             if (salesOrderExt.UsrTaxSnapshot == null || salesOrderExt.UsrTaxSnapshot.Trim() == String.Empty)
             {
@@ -70,9 +69,7 @@ namespace Monster.TaxProvider.Bql
             // Unpack Base64-encoded and GZip-compressed tax data
             //
             string json = salesOrderExt.UsrTaxSnapshot.Unzip();
-
-            //var salesOrderExt = salesOrder.GetExtension<SOOrderTaxSnapshotExt>();
-            _logger.Info("Tax Transfer loaded from Acumatica - " + json);
+            _logger.Info($"Tax Transfer loaded from Acumatica {orderType} {orderNumber} - " + json);
 
             return JsonConvert.DeserializeObject<Transfer>(json);
         }

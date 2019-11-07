@@ -60,14 +60,13 @@ namespace Monster.TaxProvider
         public GetTaxResult GetTax(GetTaxRequest request)
         {
             var json = JsonConvert.SerializeObject(request);
-            _logger.Info($"GetTaxRequest - {json}");
+            _logger.Info($"GetTaxRequest (DocCode {request.DocCode}) - {json}");
 
             var context = _providerContextBuilder.ExtractFromRequest(request);
             _logger.Info($"DocContext - {JsonConvert.SerializeObject(context)}");
 
             return _taxCalcService.Calculate(context);
         }
-
 
         public PostTaxResult PostTax(PostTaxRequest request)
         {
