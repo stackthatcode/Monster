@@ -261,7 +261,7 @@
         //
         self.InventoryPullClick = function () {
             var ajax = new Monster.Ajax();
-            ajax.HttpPost("Sync/RunInventoryPull", {}, self.PollStatus);
+            ajax.HttpPost("/Sync/RunInventoryPull", {}, self.PollStatus);
         };
 
         self.PollStatus = function () {
@@ -269,7 +269,7 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("Sync/InventoryPullStatus", this);
+                    ajax.HttpGet("/Sync/InventoryPullStatus", this);
                 },
                 function (response) {
                     self.AreAnyJobsRunning(response.AreAnyJobsRunning);
@@ -325,7 +325,7 @@
                         filterText: self.FilterText(),
                         syncEnabledFilter: self.FilterEnabled(),
                     };
-                    ajax.HttpPost("Sync/VariantAndStockItemMatches", model, this);
+                    ajax.HttpPost("/Sync/VariantAndStockItemMatches", model, this);
                 },
                 function (response) {
                     // console.log(response);
@@ -344,7 +344,7 @@
                         monsterVariantId: item.MonsterVariantId,
                         syncEnabled: item.IsEnabled(),
                     };
-                    ajax.HttpPost("Sync/SyncEnabled", model,this);
+                    ajax.HttpPost("/Sync/SyncEnabled", model,this);
                 },
                 function (response) {
                     // TODO - force update of grid data
@@ -383,7 +383,7 @@
                         syncEnabled: syncEnabled,
                     };
 
-                    ajax.HttpPost("Sync/BulkSyncEnabled", model, this);
+                    ajax.HttpPost("/Sync/BulkSyncEnabled", model, this);
                 },
                 function(response) {
                     self.RefreshGrid();

@@ -503,7 +503,7 @@
                     self.SelectedProducts(data);                    
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("Sync/SyncedWarehouses", this);
+                    ajax.HttpGet("/Sync/SyncedWarehouses", this);
                 },
                 function (response) {
                     //console.log(response);
@@ -529,7 +529,7 @@
 
                 var ajax = new Monster.Ajax();
                 ajax.DisablePopupsAndSpinners();
-                ajax.HttpPost("Sync/RunImportIntoAcumatica", model, this);
+                ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
             },
             function (response) {
                 $('#confirm-import-modal').modal('hide');
@@ -551,7 +551,7 @@
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    var url = "Sync/ProductDetail?shopifyProductId=" + shopifyProductId;
+                    var url = "/Sync/ProductDetail?shopifyProductId=" + shopifyProductId;
                     ajax.HttpGet(url, this);
 
                 },
@@ -614,7 +614,7 @@
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Sync/RunInventoryPull", {}, this);
+                    ajax.HttpPost("/Sync/RunInventoryPull", {}, this);
                 },
                 function() {
                     Monster.Events.publish("/InventoryJobLaunched");
@@ -626,7 +626,7 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("Sync/InventoryPullStatus", this);
+                    ajax.HttpGet("/Sync/InventoryPullStatus", this);
                 },
                 function (response) {
                     self.InventoryPullState(response.SystemState);
@@ -756,7 +756,7 @@
         self.FilterInventoryClick = function() {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
-                    var url = "Sync/FilterInventory?terms=" + self.FilterTerms();
+                    var url = "/Sync/FilterInventory?terms=" + self.FilterTerms();
                     ajax.HttpGet(url, this);
                 },
                 function(response) {

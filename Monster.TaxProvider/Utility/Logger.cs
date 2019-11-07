@@ -10,5 +10,10 @@ namespace Monster.TaxProvider.Utility
         {
             PXTrace.WriteInformation($"{TaxProviderName} - {message}");
         }
+
+        public void Debug(string message)
+        {
+            PXTrace.WriteVerbose($"{TaxProviderName} - {message}"));
+        }
     }
 }

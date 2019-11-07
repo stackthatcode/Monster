@@ -1,6 +1,6 @@
 ﻿namespace Monster.TaxProvider.Context
 {
-    public enum DocContextType
+    public enum ProviderContextType
     {
         Undetermined = 0,
         SalesOrder = 1,

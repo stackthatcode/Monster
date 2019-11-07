@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using PX.Data;
 using PX.Objects.AR;
 
-namespace Monster.TaxProvider.Calc
+namespace Monster.TaxProvider.ARDigest
 {
-    public class ARTaxTranDigest
+    public class ArTaxTranDigest
     {
         public string InvoiceType { get; set; }
         public string InvoiceNbr { get; set; }
@@ -17,9 +16,9 @@ namespace Monster.TaxProvider.Calc
 
     public static class ARTaxTranExtensions
     {
-        public static ARTaxTranDigest ToDigest(this ARTaxTran input)
+        public static ArTaxTranDigest ToDigest(this ARTaxTran input)
         {
-            var output = new ARTaxTranDigest();
+            var output = new ArTaxTranDigest();
             output.TaxID = input.TaxID;
             output.InvoiceType = input.TranType;
             output.InvoiceNbr = input.RefNbr;
@@ -28,13 +27,13 @@ namespace Monster.TaxProvider.Calc
             return output;
         }
 
-        public static IList<ARTaxTranDigest> ToDigests(this PXResultset<ARTaxTran> input)
+        public static IList<ArTaxTranDigest> ToDigests(this PXResultset<ARTaxTran> input)
         {
             return input.Select(x => ((ARTaxTran)x).ToDigest()).ToList();
         }
 
-        public static IList<ARTaxTranDigest> ExcludeInvoice(
-                this IEnumerable<ARTaxTranDigest> input, 
+        public static IList<ArTaxTranDigest> ExcludeInvoice(
+                this IEnumerable<ArTaxTranDigest> input, 
                 string invoiceType, 
                 string invoiceNbr)
         {

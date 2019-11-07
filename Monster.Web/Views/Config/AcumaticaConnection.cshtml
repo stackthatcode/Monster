@@ -337,7 +337,7 @@ Monster.AcumaticaConnectionModel = function() {
                 self.StatusVisible(true);
 
                 var ajax = new Monster.Ajax();
-                ajax.HttpGet("Config/AcumaticaCredentials", this);
+                ajax.HttpGet("/Config/AcumaticaCredentials", this);
             },
             function(response) {
                 self.AcumaticaInstanceUrl(response.InstanceUrl);
@@ -356,19 +356,19 @@ Monster.AcumaticaConnectionModel = function() {
         };
 
         var ajax = new Monster.Ajax();
-        ajax.HttpPost("Config/AcumaticaCredentials", model, self.PollStatus);
+        ajax.HttpPost("/Config/AcumaticaCredentials", model, self.PollStatus);
     };
 
     self.AcumaticaTestConnection = function() {
         var ajax = new Monster.Ajax();
-        ajax.HttpPost("Config/AcumaticaTestConnection", {}, self.PollStatus);
+        ajax.HttpPost("/Config/AcumaticaTestConnection", {}, self.PollStatus);
     };
 
 
     self.PollStatus = function() {
         var ajax = new Monster.Ajax();
         ajax.DisablePopupsAndSpinners();
-        ajax.HttpGet("Config/AcumaticaConnectionStatus", self.ProcessStatus);
+        ajax.HttpGet("/Config/AcumaticaConnectionStatus", self.ProcessStatus);
     };
 
     self.ProcessStatus = function(response) {

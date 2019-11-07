@@ -381,7 +381,7 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     var data = { orderNameOrId: self.NewStartingOrderNumber() };
-                    ajax.HttpPost("Sync/VerifyShopifyOrder", data, this);
+                    ajax.HttpPost("/Sync/VerifyShopifyOrder", data, this);
                 },
                 function (response) {
                     self.ShopifyOrderId(response.ShopifyOrderId);
@@ -406,7 +406,7 @@
                         MaxParallelAcumaticaSyncs: self.MaxParallelSyncs(),
                     };
 
-                    ajax.HttpPost("Sync/OrderSyncSettingsUpdate", data, this);
+                    ajax.HttpPost("/Sync/OrderSyncSettingsUpdate", data, this);
                 },
                 function (response) {
                     self.Close();
@@ -422,7 +422,7 @@
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
+                    ajax.HttpGet("/Sync/SyncSettingsAndEnables", this);
                 },
                 function (settings) {
                     self.IsStartingOrderSet(settings.IsStartingOrderSet);
@@ -497,7 +497,7 @@
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Sync/SyncSettingsAndEnables", this);
+                    ajax.HttpGet("/Sync/SyncSettingsAndEnables", this);
                 },
                 function (model) {
                     // Sync Enables
@@ -531,7 +531,7 @@
                         SyncRefundsEnabled: self.SyncRefundsEnabled.IsEnabled(),
                     };
 
-                    ajax.HttpPost("Sync/UpdateSyncEnables", model, this);
+                    ajax.HttpPost("/Sync/UpdateSyncEnables", model, this);
                 },
                 function () {
                     Monster.Events.publish(eventKeys.RefreshSyncSettings);
@@ -571,7 +571,7 @@
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Sync/StartEndToEnd", {}, this);
+                    ajax.HttpPost("/Sync/StartEndToEnd", {}, this);
                 },
                 function (response) {
                     Monster.Events.publish(eventKeys.PollJobStatus);
@@ -596,7 +596,7 @@
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Sync/PauseEndToEnd", {}, this);
+                    ajax.HttpPost("/Sync/PauseEndToEnd", {}, this);
                 },
                 function (response) {
                     // No action is required - PollJobStatus will catch this
@@ -625,7 +625,7 @@
             flow.exec(function () {
                 var ajax = new Monster.Ajax();
                 ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("Sync/EndToEndStatus", this);
+                ajax.HttpGet("/Sync/EndToEndStatus", this);
             },
             function (response) {
                 // Job Running status/panel

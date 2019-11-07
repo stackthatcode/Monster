@@ -195,7 +195,7 @@
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/AcumaticaRefDataStatus", this);
+                    ajax.HttpGet("/Config/AcumaticaRefDataStatus", this);
                 },
                 function (response) {
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
@@ -206,7 +206,7 @@
                     }
                     
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/AcumaticaReferenceData", this);
+                    ajax.HttpGet("/Config/AcumaticaReferenceData", this);
                 },
                 function (response) {
                     self.TaxZones(response.TaxZones);
@@ -216,7 +216,7 @@
                     self.ShowDataEntry(true);
 
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/SettingsTaxesSelections", this);
+                    ajax.HttpGet("/Config/SettingsTaxesSelections", this);
                 },
                 function (response) {
                     console.log(response);
@@ -245,7 +245,7 @@
                     };
 
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("Config/SettingsTaxesSelections", model, this);
+                    ajax.HttpPost("/Config/SettingsTaxesSelections", model, this);
                 },
                 function() {
                     if (callback) {

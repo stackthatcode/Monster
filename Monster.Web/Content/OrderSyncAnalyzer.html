@@ -269,7 +269,7 @@
                         PageSize: self.PagingWidget.PageSize(),
                         SearchText: self.SearchText(),
                     };
-                    ajax.HttpPost("Analysis/OrderSyncResults", request, this);
+                    ajax.HttpPost("/Analysis/OrderSyncResults", request, this);
                 },
                 function (response) {
                     self.Grid(response.Grid);
@@ -284,7 +284,7 @@
                     console.log(item);
 
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
+                    ajax.HttpGet("/Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
                 },
                 function (response) {
                     self.OrderAnalysis(response);

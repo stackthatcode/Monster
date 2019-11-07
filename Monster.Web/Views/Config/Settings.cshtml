@@ -401,7 +401,7 @@
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/AcumaticaRefDataStatus", this);
+                    ajax.HttpGet("/Config/AcumaticaRefDataStatus", this);
                 },
                 function (response) {
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
@@ -412,7 +412,7 @@
                     }
 
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/AcumaticaReferenceData", this);
+                    ajax.HttpGet("/Config/AcumaticaReferenceData", this);
                 },
                 function (response) {
                     self.TimeZones(response.TimeZones);
@@ -420,7 +420,7 @@
                     self.PaymentGatewayPopupModel.LoadReferenceData(response);
 
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/SettingsSelections", this);
+                    ajax.HttpGet("/Config/SettingsSelections", this);
                 },
                 function (response) {
                     console.log(response);
@@ -460,7 +460,7 @@
                 model.PaymentGateways = self.SelectedGateways();
 
                 var ajax = new Monster.Ajax();
-                ajax.HttpPost("Config/SettingsSelections", model, this);
+                ajax.HttpPost("/Config/SettingsSelections", model, this);
             },
             function() {
                 if (callback) {

@@ -223,7 +223,7 @@
         
         self.SynchronizeClick = function () {
             var ajax = new Monster.Ajax();
-            ajax.HttpPost("Config/SyncWarehouses", {}, self.PollStatus);
+            ajax.HttpPost("/Config/SyncWarehouses", {}, self.PollStatus);
         };
 
         self.PollStatus = function () {
@@ -231,7 +231,7 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("Config/WarehouseSyncStatus", this);
+                    ajax.HttpGet("/Config/WarehouseSyncStatus", this);
                 },
                 function (response) {
                     //console.log(response);
@@ -260,7 +260,7 @@
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpGet("Config/WarehouseSyncData", this);
+                    ajax.HttpGet("/Config/WarehouseSyncData", this);
                 },
                 function (response) {
                     //console.log(response);
@@ -309,7 +309,7 @@
                         };
                     }).toArray();
 
-                    ajax.HttpPost("Config/WarehouseSyncDataUpdate", model, this);
+                    ajax.HttpPost("/Config/WarehouseSyncDataUpdate", model, this);
                 },
                 function(response) {
                     if (callback) {

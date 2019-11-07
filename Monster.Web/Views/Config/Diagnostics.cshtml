@@ -135,7 +135,7 @@ Monster.InventoryConfigModel = function() {
         flow.exec(
             function () {
                 var ajax = new Monster.Ajax();
-                ajax.HttpPost("Config/TriggerConfigDiagnosis", {}, this);
+                ajax.HttpPost("/Config/TriggerConfigDiagnosis", {}, this);
             },
             function (response) {
                 self.PollStatus();
@@ -147,7 +147,7 @@ Monster.InventoryConfigModel = function() {
         flow.exec(function () {
                 var ajax = new Monster.Ajax();
                 ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("Config/ConfigDiagnosisRunStatus", this);
+                ajax.HttpGet("/Config/ConfigDiagnosisRunStatus", this);
             },
             function (response) {
                 self.IsJobRunning(response.IsJobRunning);
@@ -164,7 +164,7 @@ Monster.InventoryConfigModel = function() {
     self.RetrieveDiagnosis = function() {
         flow.exec(function() {
                 var ajax = new Monster.Ajax();
-                ajax.HttpGet("Config/ConfigDiagnosis", this);
+                ajax.HttpGet("/Config/ConfigDiagnosis", this);
             },
             function (response) {
                 var configData = [

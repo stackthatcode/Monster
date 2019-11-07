@@ -22,7 +22,7 @@ namespace Monster.Web.Plumbing
         public static readonly string Organization = "Logic Automated Co.";
         public static readonly string SupportEmail = "info@logicautomated.com";
 
-        public static readonly string DiagnosticsHome = Url("Config/Diagnostics");
+        public static readonly string DiagnosticsHome = Url("/Config/Diagnostics");
 
         public static string FullAppName => $"{AppName} for Shopify-Acumatica";
 
@@ -45,7 +45,7 @@ namespace Monster.Web.Plumbing
             return $"{BaseUrl}{relativepath}";
         }        
 
-        public static string LoginPage => Url("Config/NotYetDetermined");
+        public static string LoginPage => Url("/Config/NotYetDetermined");
 
         public static string DashboardHomePage => Url("RealTime/RealTime");
     }

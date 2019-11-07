@@ -66,11 +66,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bql\AcumaticaBqlRepository.cs" />
-    <Compile Include="Calc\ARTaxTranDigest.cs" />
-    <Compile Include="Context\DocContext.cs" />
+    <Compile Include="ARDigest\ARTaxTranDigest.cs" />
+    <Compile Include="Calc\ProviderTaxCalcResultItem.cs" />
+    <Compile Include="Context\ProviderContext.cs" />
     <Compile Include="Context\AcumaticaDocType.cs" />
     <Compile Include="Context\AcumaticaModule.cs" />
-    <Compile Include="Context\DocContextType.cs" />
+    <Compile Include="Context\ProviderContextBuilder.cs" />
+    <Compile Include="Context\ProviderContextType.cs" />
     <Compile Include="Utility\Compression.cs" />
     <Compile Include="Utility\Logger.cs" />
     <Compile Include="StubTaxProvider.cs" />

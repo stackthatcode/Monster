@@ -193,13 +193,13 @@
         //
         self.ConnectToAcumatica = function () {
             var ajax = new Monster.Ajax();
-            ajax.HttpPost("Config/AcumaticaRefDataPull", {}, self.PollStatus);
+            ajax.HttpPost("/Config/AcumaticaRefDataPull", {}, self.PollStatus);
         };
 
         self.PollStatus = function () {
             var ajax = new Monster.Ajax();
             ajax.DisablePopupsAndSpinners();
-            ajax.HttpGet("Config/AcumaticaRefDataStatus", self.ProcessStatus);
+            ajax.HttpGet("/Config/AcumaticaRefDataStatus", self.ProcessStatus);
         };
 
         self.ProcessStatus = function (response) {

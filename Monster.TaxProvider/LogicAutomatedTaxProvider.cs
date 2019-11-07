@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monster.TaxProvider.Calc;
+using Monster.TaxProvider.Context;
 using Monster.TaxProvider.Utility;
 using Newtonsoft.Json;
 using PX.Data;
@@ -20,7 +21,6 @@ namespace Monster.TaxProvider
         // Settings 
         //
         public const string EXTTAXREPORTER = "EXTTAXREPORTER";
-
         private List<ITaxProviderSetting> _settings;
 
         public ITaxProviderSetting[]
@@ -41,12 +41,15 @@ namespace Monster.TaxProvider
         //
         private TaxCalcService _taxCalcService;
 
-
+        // Tax Provider Context Builder - translates between Acumatica GetTaxRequest et al. and Monster Tax Provider
+        //
+        private ProviderContextBuilder _providerContextBuilder;
 
         public void Initialize(IEnumerable<ITaxProviderSetting> settings)
         {
             _settings = settings.ToList();
             _taxCalcService = new TaxCalcService(_logger);
+            _providerContextBuilder = new ProviderContextBuilder(_logger);
         }
 
         public PingResult Ping()
@@ -58,7 +61,11 @@ namespace Monster.TaxProvider
         {
             var json = JsonConvert.SerializeObject(request);
             _logger.Info($"GetTaxRequest - {json}");
-            return _taxCalcService.Calculate(request);
+
+            var context = _providerContextBuilder.ExtractFromRequest(request);
+            _logger.Info($"DocContext - {JsonConvert.SerializeObject(context)}");
+
+            return _taxCalcService.Calculate(context);
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Monster.TaxProvider.ARDigest;
 using Monster.TaxProvider.Bql;
 using Monster.TaxProvider.Context;
 using Monster.TaxProvider.Utility;
@@ -26,29 +27,23 @@ namespace Monster.TaxProvider.Calc
             _repository = new AcumaticaBqlRepository(new PXGraph());
         }
 
-        public GetTaxResult Calculate(GetTaxRequest request)
+        public GetTaxResult Calculate(ProviderContext context)
         {
-            var context = DocContext.ExtractContext(request);
-            var contextJson = JsonConvert.SerializeObject(context);
 
-            _logger.Info($"DocContext - {contextJson}");
-
-            if (context.DocContextType == DocContextType.SalesOrder)
+            if (context.DocContextType == ProviderContextType.SalesOrder)
             {
                 return ProcessResults(SalesOrderLineAmountsTax(context));
             }
 
-            if (context.DocContextType == DocContextType.SOFreight)
+            if (context.DocContextType == ProviderContextType.SOFreight)
             {
                 return ProcessResults(SalesOrderFreightTax(context));
             }
 
-            if (context.DocContextType == DocContextType.SOShipmentInvoice)
+            if (context.DocContextType == ProviderContextType.SOShipmentInvoice)
             {
-                return ProcessResults(InvoiceTax(request));
+                return ProcessResults(InvoiceTax(context));
             }
-
-            // TODO - where is the Invoice Freight Tax computed...?
 
             return BlankResult();
         }
@@ -80,7 +75,7 @@ namespace Monster.TaxProvider.Calc
         }
 
 
-        private ProviderTaxCalcResult SalesOrderLineAmountsTax(DocContext context)
+        private ProviderTaxCalcResult SalesOrderLineAmountsTax(ProviderContext context)
         {
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
 
@@ -92,7 +87,7 @@ namespace Monster.TaxProvider.Calc
             return result;
         }
 
-        private ProviderTaxCalcResult SalesOrderFreightTax(DocContext context)
+        private ProviderTaxCalcResult SalesOrderFreightTax(ProviderContext context)
         {
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
 
@@ -109,13 +104,14 @@ namespace Monster.TaxProvider.Calc
         //
         private ProviderTaxCalcResult InvoiceTax(GetTaxRequest request)
         {
-            var context = DocContext.ExtractContext(request);
+            var context = ProviderContext.ExtractContext(request);
 
             var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.RefType, context.RefNbr);
 
             if (salesOrder.OpenOrderQty == 0)
             {
                 var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
+
                 var arTrans = BuildTaxTranDigest(context, AcumaticaLineItemsTaxID);
                 var arTransJson = JsonConvert.SerializeObject(arTrans);
 
@@ -137,7 +133,7 @@ namespace Monster.TaxProvider.Calc
 
         private ProviderTaxCalcResult InvoiceFreightTax(GetTaxRequest request)
         {
-            var context = DocContext.ExtractContext(request);
+            var context = ProviderContext.ExtractContext(request);
 
             var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.RefType, context.RefNbr);
 
@@ -164,7 +160,7 @@ namespace Monster.TaxProvider.Calc
         }
 
 
-        private IList<ARTaxTranDigest> BuildTaxTranDigest(DocContext context, string taxId)
+        private IList<ArTaxTranDigest> BuildTaxTranDigest(ProviderContext context, string taxId)
         {
             var salesOrder =
                 _repository.RetrieveSalesOrderByInvoice(context.RefType, context.RefNbr);
@@ -174,6 +170,7 @@ namespace Monster.TaxProvider.Calc
                     .RetrieveARTaxTransactions(salesOrder.OrderType, salesOrder.OrderNbr, taxId)
                     .ToDigests()
                     .ExcludeInvoice(context.RefType, context.RefNbr);
+
             return arTrans;
         }
 
@@ -182,7 +179,7 @@ namespace Monster.TaxProvider.Calc
         //
         private ProviderTaxCalcResult InvoiceSplitShipmentTax(GetTaxRequest request)
         {
-            var context = DocContext.ExtractContext(request);
+            var context = ProviderContext.ExtractContext(request);
 
             // Calculate Taxes using Transfer
             //
@@ -219,7 +216,7 @@ namespace Monster.TaxProvider.Calc
         //
         private ProviderTaxCalcResult InvoiceSplitShipmentFreightTax(GetTaxRequest request)
         {
-            var context = DocContext.ExtractContext(request);
+            var context = ProviderContext.ExtractContext(request);
             var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
 
             var cartItem = request.CartItems.First();

@@ -32,7 +32,7 @@ Monster.RealTimeModel = function() {
     self.Refresh = function() {
         flow.exec(function() {
                 var ajax = new Monster.Ajax();
-                ajax.HttpGet("Analysis/ExecutionLogData", this);
+                ajax.HttpGet("/Analysis/ExecutionLogData", this);
             },
             function (response) {
                 self.ExecutionLogModel.Ingest(response);

@@ -1,30 +1,32 @@
 ﻿using System.Linq;
+using Monster.TaxProvider.Utility;
+using Newtonsoft.Json;
 using PX.TaxProvider;
 
 namespace Monster.TaxProvider.Context
 {
-    public class DocContext
+    public class ProviderContextBuilder
     {
-        public DocContextType DocContextType { get; private set; }
-        public string DocContextTypeName => DocContextType.ToString();
-        public string RefType { get; private set; }
-        public string RefNbr { get; private set; }
+        private readonly Logger _logger;
 
-        public DocContext()
+        public ProviderContextBuilder(Logger logger)
         {
-            DocContextType = DocContextType.Undetermined;
+            _logger = logger;
         }
 
-
-        public static DocContext ExtractContext(GetTaxRequest request)
+        public ProviderContext ExtractFromRequest(GetTaxRequest request)
         {
             var parts = request.DocCode.Split('.').ToList();
 
+            var contextJson = JsonConvert.SerializeObject(context);
+            _logger.Info($"DocContext - {contextJson}");
+
+
             if (parts[0] == AcumaticaDocType.SalesOrder && parts[2] == AcumaticaDocType.Freight)
             {
-                return new DocContext
+                return new ProviderContext
                 {
-                    DocContextType = DocContextType.SOFreight,
+                    DocContextType = ProviderContextType.SOFreight,
                     RefType = parts[0],
                     RefNbr = parts[1]
                 };
@@ -32,9 +34,9 @@ namespace Monster.TaxProvider.Context
 
             if (parts[0] == AcumaticaDocType.SalesOrder && parts[1] == AcumaticaDocType.SalesOrder)
             {
-                return new DocContext
+                return new ProviderContext
                 {
-                    DocContextType = DocContextType.SalesOrder,
+                    DocContextType = ProviderContextType.SalesOrder,
                     RefType = parts[1],
                     RefNbr = parts[2],
                 };
@@ -42,17 +44,17 @@ namespace Monster.TaxProvider.Context
 
             if (parts[0] == AcumaticaModule.AR && parts[1] == AcumaticaDocType.Invoice)
             {
-                return new DocContext
+                return new ProviderContext
                 {
-                    DocContextType = DocContextType.SOShipmentInvoice,
+                    DocContextType = ProviderContextType.SOShipmentInvoice,
                     RefType = parts[1],
                     RefNbr = parts[2],
                 };
             }
 
-            return new DocContext()
+            return new ProviderContext()
             {
-                DocContextType = DocContextType.Undetermined
+                DocContextType = ProviderContextType.Undetermined
             };
         }
     }

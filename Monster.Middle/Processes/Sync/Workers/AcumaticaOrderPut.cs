@@ -280,8 +280,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                 ShippingRule = ShippingRules.BackOrderAllowed.ToValue(),
             };
 
+            // Freight Price and Taxes
+            //
             salesOrder.FreightPrice = ((double)shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue();
             salesOrder.OverrideFreightPrice = true.ToValue();
+            salesOrder.FreightTaxCategory = shopifyOrder.IsShippingTaxable
+                ? settings.AcumaticaTaxableCategory.ToValue()
+                : settings.AcumaticaTaxExemptCategory.ToValue();
+
 
             return salesOrder;
         }
