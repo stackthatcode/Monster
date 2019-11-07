@@ -198,7 +198,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             return refundPayment;
         }
 
-
         private void ReleaseAndUpdateSync(ShopifyTransaction transactionRecord)
         {
             var acumaticaPayment = transactionRecord.AcumaticaPayment;

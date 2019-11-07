@@ -52,6 +52,10 @@ namespace Monster.Acumatica.Api.SalesOrder
         public DoubleValue TaxTotal { get; set; }
         public List<object> files { get; set; }
 
+        // Freight Price
+        public BoolValue OverrideFreightPrice { get; set; }
+        public DoubleValue FreightPrice { get; set; }
+
 
         // Child objects
         //

@@ -53,8 +53,7 @@ namespace Monster.Acumatica.Api
         }
         
         public string RetrieveSalesOrder(
-                    string orderNbr, string orderType, 
-                    string expand = Expand.Shipments_ShippingSettings)
+                    string orderNbr, string orderType, string expand = Expand.Shipments_ShippingSettings)
         {
             var path = $"SalesOrder/{orderType}/{orderNbr}?$expand={expand}";
             var response = _httpContext.Get(path);
@@ -63,7 +62,7 @@ namespace Monster.Acumatica.Api
 
         public string WriteSalesOrder(string json)
         {
-            var response = _httpContext.Put("SalesOrder?$custom=Document.UsrTaxSnapshot", json);
+            var response = _httpContext.Put($"SalesOrder", json);   //?$custom=Document.UsrTaxSnapshot", json);
             LogSalesOrderDetailIds(response.Body);
             return response.Body;
         }

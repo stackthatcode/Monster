@@ -37,7 +37,7 @@ namespace Push.Shopify.Api.Order
                 => order_adjustments.Where(x => x.IsShippingAdjustment);
 
         [JsonIgnore]
-        public decimal TotalShippingAdjustment => ShippingAdjustments.Sum(x => x.amount);
+        public decimal TotalShippingAdjustment => -ShippingAdjustments.Sum(x => x.amount);
 
         [JsonIgnore]
         public decimal TotalTaxableShippingAdjustment

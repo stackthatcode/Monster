@@ -115,13 +115,16 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 var acumaticaCustomer = PushNonExistentCustomer(orderRecord);
                 CreateNewOrder(orderRecord, acumaticaCustomer);
+
+                _acumaticaOrderPaymentPut.RunUnsyncedPayments(orderRecord.ShopifyOrderId);
+
             }
             else
             {
+                _acumaticaOrderPaymentPut.RunUnsyncedPayments(orderRecord.ShopifyOrderId);
+
                 UpdateExistingOrder(orderRecord);
             }
-
-            _acumaticaOrderPaymentPut.RunUnsyncedPayments(orderRecord.ShopifyOrderId);
         }
 
 
@@ -148,10 +151,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             var newRecord = new AcumaticaSalesOrder();
             newRecord.ShopifyOrderMonsterId = shopifyOrderRecord.Id;
-            
+
             // Conspicuously not set - waiting on AcumaticaOrderGet to update this
             //
             //newRecord.AcumaticaShipmentDetailsJson = resultJson;
+            //
 
             newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
             newRecord.AcumaticaStatus = newOrder.Status.value;
@@ -276,10 +280,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 ShippingRule = ShippingRules.BackOrderAllowed.ToValue(),
             };
 
-            salesOrder.Totals = new SalesOrderTotals()
-            {
-                Freight = ((double) shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue()
-            };
+            salesOrder.FreightPrice = ((double)shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue();
+            salesOrder.OverrideFreightPrice = true.ToValue();
 
             return salesOrder;
         }
@@ -330,15 +332,12 @@ namespace Monster.Middle.Processes.Sync.Workers
             var salesOrderUpdate = new SalesOrderUpdate();
             salesOrderUpdate.OrderType = existingSalesOrder.OrderType.Copy();
             salesOrderUpdate.OrderNbr = existingSalesOrder.OrderNbr.Copy();
-
-            //salesOrderUpdate.Hold = false.ToValue();
+            salesOrderUpdate.Hold = false.ToValue();
 
             // Update the Shipping Cost
             //
-            salesOrderUpdate.Totals = new SalesOrderTotals
-            {
-                Freight = ((double) shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue()
-            };
+            salesOrderUpdate.FreightPrice = ((double)shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue();
+            salesOrderUpdate.OverrideFreightPrice = true.ToValue();
 
             foreach (var line_item in shopifyOrder.line_items)
             {
@@ -351,19 +350,20 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var newQuantity = (double)line_item.RefundAdjustedQuantity;
 
                 var detail = new SalesOrderUpdateDetail();
+
                 detail.id = salesOrderDetail.id;
-                detail.Quantity = newQuantity.ToValue();
+                detail.OrderQty = newQuantity.ToValue();
 
                 // Not needed - only the row identifier
                 //
-                //detail.InventoryID = variant.MatchedStockItem().ItemId.ToValue();
+                detail.InventoryID = variant.MatchedStockItem().ItemId.ToValue();
 
                 salesOrderUpdate.Details.Add(detail);
             }
 
             var taxTransfer = shopifyOrder.ToTaxTransfer().SerializeToJson(Formatting.None).ToBase64Zip();
-
             salesOrderUpdate.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
+
             return salesOrderUpdate;
         }
 

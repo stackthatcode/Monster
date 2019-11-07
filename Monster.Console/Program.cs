@@ -29,7 +29,7 @@ namespace Monster.ConsoleApp
         private const string AcumaticaOrderGet = "21";
         private const string AcumaticaOrderSync = "22";
         private const string AcumaticaPaymentGet = "23";
-
+        private const string AcumaticaSalesOrderRetrieve = "24";
 
 
         static void Main(string[] args)
@@ -55,6 +55,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{AcumaticaOrderGet} - Acumatica Order Get");
             Console.WriteLine($"{AcumaticaOrderSync} - Acumatica Order Sync (Order ID)");
             Console.WriteLine($"{AcumaticaPaymentGet} - Acumatica Payment Get");
+            Console.WriteLine($"{AcumaticaSalesOrderRetrieve} - Acumatica Sales Order Retrieve");
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
@@ -79,7 +80,8 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunAcumaticaOrderGet();
             if (input == AcumaticaPaymentGet)
                 MoreTestingStuff.RunAcumaticaPaymentGet();
-
+            if (input == AcumaticaSalesOrderRetrieve)
+                MoreTestingStuff.RunAcumaticaSalesOrderRetrieve();
 
             // Shopify stuff
             //

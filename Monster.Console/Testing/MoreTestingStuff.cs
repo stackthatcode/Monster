@@ -1,10 +1,12 @@
 ﻿using System;
 using Autofac;
 using Monster.Acumatica.Api;
+using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Http;
 using Monster.ConsoleApp.Testing.Feeder;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Workers;
@@ -19,8 +21,8 @@ namespace Monster.ConsoleApp.Testing
         public static void RunAcumaticaOrderSync()
         {
             Console.WriteLine(
-                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1838808563756)");
-            var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1838808563756").ToLong();
+                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1840328409132)");
+            var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1840328409132").ToLong();
 
             AutofacRunner.RunInLifetimeScope(scope =>
             {
@@ -61,6 +63,22 @@ namespace Monster.ConsoleApp.Testing
             });
         }
 
+        public static void RunAcumaticaSalesOrderRetrieve()
+        {
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var salesOrderClient = scope.Resolve<SalesOrderClient>();
+                var acumaticaContext = scope.Resolve <AcumaticaHttpContext>();
+
+                instanceContext.Initialize(TestInstanceId);
+                acumaticaContext.SessionRun(() =>
+                {
+                    var json = salesOrderClient
+                        .RetrieveSalesOrder("000033", SalesOrderType.SO, Expand.Details_Totals);
+                });
+            });
+        }
         public static void RunAcumaticaPaymentGet()
         {
             AutofacRunner.RunInLifetimeScope(scope =>
@@ -134,9 +152,9 @@ namespace Monster.ConsoleApp.Testing
         public static void RunShopifyOrderGetById()
         {
             Console.WriteLine(
-                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1838808563756)");
+                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1840328409132)");
 
-            var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1838808563756	").ToLong();
+            var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1840328409132	").ToLong();
 
             AutofacRunner.RunInLifetimeScope(scope =>
             {
