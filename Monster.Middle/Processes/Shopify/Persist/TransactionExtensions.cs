@@ -72,7 +72,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public static decimal CalcPaymentAppliedToOrder(this ShopifyOrder order)
         {
-            return order.PaymentTransaction()?.ShopifyAmount ?? 0m -
+            return (order.PaymentTransaction()?.ShopifyAmount ?? 0m) -
                     order.RefundTransactions().Sum(x => x.ShopifyAmount);
         }
 

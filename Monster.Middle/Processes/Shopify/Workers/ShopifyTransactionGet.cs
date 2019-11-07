@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Push.Foundation.Utilities.Json;
@@ -42,11 +43,19 @@ namespace Monster.Middle.Processes.Shopify.Workers
         {
             var transactionsJson = _orderApi.RetrieveTransactions(orderRecord.ShopifyOrderId);
             var transactions = transactionsJson.DeserializeFromJson<TransactionList>();
-            var transactionRecords = new List<ShopifyTransaction>();
             var order = orderRecord.ToShopifyObj();
 
             foreach (var transaction in transactions.transactions)
             {
+                var transactionRecord = _orderRepository.RetrieveTransaction(transaction.id);
+
+                if (transactionRecord != null)
+                {
+                    transactionRecord.LastUpdated = DateTime.UtcNow;
+                    _orderRepository.SaveChanges();
+                    continue;
+                }
+
                 var record = new ShopifyTransaction();
 
                 if (transaction.kind == TransactionKind.Refund)
@@ -67,14 +76,22 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 record.NeedsPaymentPut = !transaction.Ignore();
                 record.OrderMonsterId = orderRecord.Id;
 
-                transactionRecords.Add(record);
-            }
+                // IF this is a refund, we will need to update the Payment -> Amount Applied To Orders
+                //
+                if (record.DoNotIgnore() && record.IsRefund())
+                {
+                    orderRecord.PaymentTransaction().NeedsPaymentPut = true;
+                }
 
-            _orderRepository.ImprintTransactions(orderRecord.Id, transactionRecords);
+                record.DateCreated = DateTime.UtcNow;
+                record.LastUpdated = DateTime.UtcNow;
+                _orderRepository.InsertTransaction(record);
+            }
 
             orderRecord.NeedsTransactionGet = false;
             _orderRepository.SaveChanges();
         }
+
     }
 }
 

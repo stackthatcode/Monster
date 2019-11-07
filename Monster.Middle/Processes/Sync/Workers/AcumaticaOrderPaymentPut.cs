@@ -58,7 +58,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         //
         private void RunPaymentTransaction(long shopifyOrderId)
         {
-            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderForTransactionSync(shopifyOrderId);
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var transaction = orderRecord.PaymentTransaction();
             var status = PaymentSyncStatus.Make(orderRecord, transaction);
 
@@ -84,7 +84,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         private void RunRefundTranscations(long shopifyOrderId)
         {
-            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderForTransactionSync(shopifyOrderId);
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
 
             foreach (var transaction in orderRecord.RefundTransactions())
             {
@@ -103,7 +103,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         private void RunTransactionReleases(long shopifyOrderId)
         {
-            var order = _syncOrderRepository.RetrieveShopifyOrderForTransactionSync(shopifyOrderId);
+            var order = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
 
             foreach (var transaction in order.ShopifyTransactions)
             {
@@ -247,6 +247,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 existingRecord.LastUpdated = DateTime.UtcNow;
                 _syncOrderRepository.SaveChanges();
             }
+
+            _syncOrderRepository.UpdateShopifyTransactionNeedsPut(transactionRecord.Id, false);
         }
 
 

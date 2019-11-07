@@ -47,7 +47,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 
-        public ShopifyOrder RetrieveShopifyOrderForTransactionSync(long shopifyOrderId)
+        public ShopifyOrder RetrieveShopifyOrderWithNoTracking(long shopifyOrderId)
         {
             return Entities
                 .ShopifyOrders
@@ -130,6 +130,13 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Select(x => x.ShopifyOrder.Id)
                 .Distinct()
                 .ToList();
+        }
+
+        public void UpdateShopifyTransactionNeedsPut(long monsterId, bool value)
+        {
+            var transaction = Entities.ShopifyTransactions.First(x => x.Id == monsterId);
+            transaction.NeedsPaymentPut = value;
+            Entities.SaveChanges();
         }
 
 

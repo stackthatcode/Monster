@@ -78,42 +78,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
 
         // Transactions
-        public void ImprintTransactions(long orderMonsterId, List<ShopifyTransaction> transactions)
-        {
-            var existingRecords =
-                Entities
-                    .ShopifyTransactions
-                    .Where(x => x.OrderMonsterId == orderMonsterId)
-                    .ToList();
-            
-            foreach (var transaction in transactions)
-            {
-                var existing = existingRecords.Find(transaction);
-                if (existing == null)
-                {
-                    transaction.DateCreated = DateTime.UtcNow;
-                    transaction.LastUpdated = DateTime.UtcNow;
-
-                    Entities.ShopifyTransactions.Add(transaction);
-                }
-                else
-                {
-                    existing.ShopifyOrderId = transaction.ShopifyOrderId;
-                    existing.ShopifyTransactionId = transaction.ShopifyTransactionId;
-                    existing.ShopifyStatus = transaction.ShopifyStatus;
-                    existing.ShopifyKind = transaction.ShopifyKind;
-                    existing.ShopifyJson = transaction.ShopifyJson;
-                    existing.OrderMonsterId = transaction.OrderMonsterId;
-                    existing.LastUpdated = DateTime.UtcNow;
-                }
-            }
-
-            var order = Entities.ShopifyOrders.First(x => x.Id == orderMonsterId);
-            order.NeedsTransactionGet = false;
-
-            Entities.SaveChanges();
-        }
-
+        //
         public List<ShopifyOrder> RetrieveOrdersNeedingTransactionPull()
         {
             return Entities
@@ -121,6 +86,25 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 .Where(x => x.NeedsTransactionGet)
                 .ToList();
         }
+
+        public ShopifyTransaction RetrieveTransaction(long shopifyTransactionId)
+        {
+            return Entities.ShopifyTransactions.FirstOrDefault(x => x.ShopifyTransactionId == shopifyTransactionId);
+        }
+
+        public void InsertTransaction(ShopifyTransaction transaction)
+        {
+            Entities.ShopifyTransactions.Add(transaction);
+            Entities.SaveChanges();
+        }
+
+        public void UpdateNeedsTranasactionGet(long orderMonsterId, bool value)
+        {
+            var order = Entities.ShopifyOrders.First(x => x.Id == orderMonsterId);
+            order.NeedsTransactionGet = false;
+            Entities.SaveChanges();
+        }
+
 
         public void SaveChanges()
         {
