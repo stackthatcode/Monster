@@ -171,32 +171,32 @@ Monster.InventoryConfigModel = function() {
                     {
                         Name: "Shopify Connection",
                         ConfigState: response.ShopifyConnection,
-                        Url: "@GlobalConfig.Url("ShopifyAuth/Domain")",
+                        Url: "@GlobalConfig.Url("/ShopifyAuth/Domain")",
                     },
                     {
                         Name: "Acumatica Connection",
                         ConfigState: response.AcumaticaConnection,
-                        Url: "@GlobalConfig.Url("Config/AcumaticaConnection")",
+                        Url: "@GlobalConfig.Url("/Config/AcumaticaConnection")",
                     },
                     {
                         Name: "Acumatica Reference Data",
                         ConfigState: response.AcumaticaReferenceData,
-                        Url: "@GlobalConfig.Url("Config/AcumaticaRefData")",
+                        Url: "@GlobalConfig.Url("/Config/AcumaticaRefData")",
                     },
                     {
                         Name: "Settings",
                         ConfigState: response.Settings,
-                        Url: "@GlobalConfig.Url("Config/Settings")",
+                        Url: "@GlobalConfig.Url("/Config/Settings")",
                     },
                     {
                         Name: "Settings -> Taxes",
                         ConfigState: response.SettingsTax,
-                        Url: "@GlobalConfig.Url("Config/SettingsTaxes")",
+                        Url: "@GlobalConfig.Url("/Config/SettingsTaxes")",
                     },
                     {
                         Name: "Warehouse Synchronization",
                         ConfigState: response.WarehouseSync,
-                        Url: "@GlobalConfig.Url("Config/Warehouses")",
+                        Url: "@GlobalConfig.Url("/Config/Warehouses")",
                     },
                 ];
 

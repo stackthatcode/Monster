@@ -403,7 +403,7 @@ namespace Monster.Web.Controllers
         public ActionResult Complete()
         {
             _stateRepository.UpdateIsRandomAccessMode(true);
-            return Redirect(GlobalConfig.Url("Config/CompleteScreen"));
+            return Redirect(GlobalConfig.Url("/Config/CompleteScreen"));
         }
 
         [HttpGet]

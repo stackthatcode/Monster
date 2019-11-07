@@ -9,6 +9,7 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
+using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Workers;
 using Push.Foundation.Utilities.Helpers;
 
@@ -163,12 +164,44 @@ namespace Monster.ConsoleApp.Testing
 
                 var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
                 var order = shopifyOrderGet.Run(shopifyOrderId).order;
-                
-                //
-                // *** TODO - emit the computations
-                //
+
+                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+                var orderSync = scope.Resolve<AcumaticaOrderPut>();
+
+                instanceContext.Initialize(TestInstanceId);
+                acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
             });
         }
 
+
+        public static void ShopifyOrderGetToAcumaticaOrderPut()
+        {
+            Console.WriteLine(Environment.NewLine + 
+                "Enter Shopify Order ID (Default ID: Max Shopify Order Id)");
+
+            var input = Console.ReadLine();
+
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                instanceContext.Initialize(TestInstanceId);
+
+                var repository = scope.Resolve<SyncOrderRepository>();
+
+                var shopifyOrderId 
+                    = input.IsNullOrEmptyAlt("").Trim().IsNullOrEmpty() 
+                        ? repository.MaxShopifyOrderId() : input.ToLong();
+
+                Console.WriteLine($"Processing Shopify Order Id: {shopifyOrderId}");
+
+                var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
+                var order = shopifyOrderGet.Run(shopifyOrderId).order;
+
+                var orderSync = scope.Resolve<AcumaticaOrderPut>();
+
+                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+                acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
+            });
+        }
     }
 }

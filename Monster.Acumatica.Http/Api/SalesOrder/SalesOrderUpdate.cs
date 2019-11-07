@@ -12,9 +12,7 @@ namespace Monster.Acumatica.Api.SalesOrder
         public List<SalesOrderUpdateDetail> Details { get; set; }
         public BoolValue OverrideFreightPrice { get; set; }
         public DoubleValue FreightPrice { get; set; }
-
         public SalesOrderUsrTaxSnapshot custom;
-
 
         public SalesOrderUpdate()
         {

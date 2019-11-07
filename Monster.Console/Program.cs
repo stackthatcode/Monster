@@ -31,6 +31,8 @@ namespace Monster.ConsoleApp
         private const string AcumaticaPaymentGet = "23";
         private const string AcumaticaSalesOrderRetrieve = "24";
 
+        private const string ShopifyOrderGetToAcumaticaOrderPut = "30";
+
 
         static void Main(string[] args)
         {
@@ -56,6 +58,10 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{AcumaticaOrderSync} - Acumatica Order Sync (Order ID)");
             Console.WriteLine($"{AcumaticaPaymentGet} - Acumatica Payment Get");
             Console.WriteLine($"{AcumaticaSalesOrderRetrieve} - Acumatica Sales Order Retrieve");
+
+            Console.WriteLine();
+            Console.WriteLine($"{ShopifyOrderGetToAcumaticaOrderPut} - Shopify Order Get to Acumatica Order Put");
+
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
 
@@ -93,6 +99,11 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunShopifyOrderGet();
             if (input == ShopifyOrderGetSingle)
                 MoreTestingStuff.RunShopifyOrderGetById();
+
+            // Shopify Order Get to Acumatica Order Put
+            //
+            if (input == ShopifyOrderGetToAcumaticaOrderPut)
+                MoreTestingStuff.ShopifyOrderGetToAcumaticaOrderPut();
 
             Console.WriteLine("FIN");
             Console.ReadKey();

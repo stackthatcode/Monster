@@ -212,7 +212,7 @@ namespace Monster.Web.Controllers
 
             // Build the Shopify OAuth request 
             var scopes = _shopifyOAuthScopes.ToCommaDelimited();
-            var redirectUrl = GlobalConfig.Url("ShopifyAuth/Return");
+            var redirectUrl = GlobalConfig.Url("/ShopifyAuth/Return");
 
             var urlBase = $"https://{fullShopDomain}/admin/oauth/authorize";
             var queryString =

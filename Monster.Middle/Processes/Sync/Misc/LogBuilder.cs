@@ -58,6 +58,11 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
             return $"Creating Acumatica Payment from {transaction.LogDescriptor()}";
         }
 
+        public static string UpdateAcumaticaPayment(ShopifyTransaction transaction)
+        {
+            return $"Updating Acumatica Payment from {transaction.LogDescriptor()}";
+        }
+
         public static string CreateAcumaticaCustomerRefund(ShopifyTransaction transaction)
         {
             return $"Creating Acumatica Customer Refund from {transaction.LogDescriptor()}";

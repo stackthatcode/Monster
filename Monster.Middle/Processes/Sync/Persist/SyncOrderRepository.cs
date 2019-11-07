@@ -67,7 +67,12 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Include(x => x.ShopifyOrder.ShopifyCustomer)
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
-        
+
+        public long MaxShopifyOrderId()
+        {
+            return Entities.ShopifyOrders.Max(x => x.ShopifyOrderId);
+        }
+
 
         // Customer syncing
         //
@@ -136,9 +141,19 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
 
+        public AcumaticaPayment RetreivePayment(long shopifyTransactionMonsterId)
+        {
+            return Entities
+                .AcumaticaPayments
+                .FirstOrDefault(x => x.ShopifyTransactionMonsterId == shopifyTransactionMonsterId);
+        }
+
         public void PaymentIsReleased(long shopifyTransactionMonsterId)
         {
-            var payment = Entities.AcumaticaPayments.First(x => x.ShopifyTransactionMonsterId == shopifyTransactionMonsterId);
+            var payment = Entities
+                .AcumaticaPayments
+                .First(x => x.ShopifyTransactionMonsterId == shopifyTransactionMonsterId);
+
             payment.IsReleased = true;
             Entities.SaveChanges();
         }

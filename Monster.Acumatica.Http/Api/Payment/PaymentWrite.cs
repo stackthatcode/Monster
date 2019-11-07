@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api.Common;
 
 namespace Monster.Acumatica.Api.Payment
@@ -18,6 +19,9 @@ namespace Monster.Acumatica.Api.Payment
 
         public List<PaymentOrdersRef> OrdersToApply { get; set; }
         public List<PaymentDocumentsToApply> DocumentsToApply { get; set; }
+
+        public double AmountAppliedToOrder =>
+            OrdersToApply == null ? 0d : OrdersToApply.Sum(x => x.AppliedToOrder.value);
     }
 }
 

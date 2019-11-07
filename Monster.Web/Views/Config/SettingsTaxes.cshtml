@@ -27,7 +27,7 @@
             </div>
             <p>
                 Your Acumatica reference data needs to be properly configured. You can address this now by
-                <a href="@GlobalConfig.Url("Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
+                <a href="@GlobalConfig.Url("/Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
             </p>
         </div>
     </div>
@@ -137,7 +137,7 @@
 
     <div class="std-pad-b center">
         <div data-bind="ifnot: IsRandomAccessMode">
-            <a href="@GlobalConfig.Url("Config/Settings")" class="btn btn-secondary btn-lg">
+            <a href="@GlobalConfig.Url("/Config/Settings")" class="btn btn-secondary btn-lg">
                 <i class="fas fa-undo"></i> Previous Step
             </a>
 
@@ -257,7 +257,7 @@
         self.GotoNextStepClick = function() {
             self.SaveChanges(
                 function() {
-                    window.location.href = '@GlobalConfig.Url("Config/Warehouses")';
+                    window.location.href = '@GlobalConfig.Url("/Config/Warehouses")';
                 });
             };
 

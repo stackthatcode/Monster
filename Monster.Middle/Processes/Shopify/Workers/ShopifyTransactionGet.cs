@@ -63,8 +63,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 record.ShopifyGateway = transaction.gateway;
                 record.ShopifyAmount = transaction.amount;
 
-                record.Ignore = transaction.IgnoreForSync();
-                record.NeedsPaymentPut = true;
+                record.Ignore = transaction.Ignore();
+                record.NeedsPaymentPut = !transaction.Ignore();
                 record.OrderMonsterId = orderRecord.Id;
 
                 transactionRecords.Add(record);

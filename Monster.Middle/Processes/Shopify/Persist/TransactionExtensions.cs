@@ -12,7 +12,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return input.ShopifyTransactionId == other.ShopifyTransactionId;
         }
 
-        public static ShopifyTransaction Match(
+        public static ShopifyTransaction Find(
                 this IEnumerable<ShopifyTransaction> input, ShopifyTransaction other)
         {
             return input.FirstOrDefault(x => x.IsMatch(other));
@@ -29,39 +29,77 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
+
+        // Monster Transaction record extensions
+        //
+        public static bool IsPayment(this ShopifyTransaction transaction)
+        {
+            return transaction.ShopifyKind == TransactionKind.Capture
+                   || transaction.ShopifyKind == TransactionKind.Sale;
+        }
+
+        public static bool IsRefund(this ShopifyTransaction transaction)
+        {
+            return transaction.ShopifyKind == TransactionKind.Refund;
+        }
+
+        public static bool DoNotIgnore(this ShopifyTransaction transaction)
+        {
+            return transaction.ShopifyGateway != Gateway.Manual
+                   && transaction.ShopifyStatus == TransactionStatus.Success
+                   && (transaction.IsPayment() || transaction.IsRefund());
+        }
+
+        public static bool Ignore(this ShopifyTransaction transaction)
+        {
+            return !transaction.DoNotIgnore();
+        }
+
+        public static ShopifyTransaction PaymentTransaction(this ShopifyOrder order)
+        {
+            return order.ShopifyTransactions.FirstOrDefault(x => x.DoNotIgnore() && x.IsPayment());
+        }
+
         public static bool HasPayment(this ShopifyOrder order)
         {
             return order.PaymentTransaction() != null;
         }
-        public static ShopifyTransaction PaymentTransaction(this ShopifyOrder order)
-        {
-            return order.ShopifyTransactions.FirstOrDefault(
-                x => (x.ShopifyKind == TransactionKind.Capture 
-                        || x.ShopifyKind == TransactionKind.Sale)
-                        && x.ShopifyStatus == TransactionStatus.Success);
-        }
 
         public static List<ShopifyTransaction> RefundTransactions(this ShopifyOrder order)
         {
-            return order.ShopifyTransactions
-                    .Where(x => x.ShopifyKind == TransactionKind.Refund &&
-                                x.ShopifyStatus == TransactionStatus.Success)
-                    .ToList();
+            return order.ShopifyTransactions.Where(x => x.DoNotIgnore() && x.IsRefund()).ToList();
+        }
+
+        public static decimal CalcPaymentAppliedToOrder(this ShopifyOrder order)
+        {
+            return order.PaymentTransaction()?.ShopifyAmount ?? 0m -
+                    order.RefundTransactions().Sum(x => x.ShopifyAmount);
         }
 
 
-        public static bool DontIgnoreForSync(this Transaction transaction)
+
+        // Shopify Transaction API DTO
+        //
+        public static bool IsPayment(this Transaction transaction)
+        {
+            return transaction.kind == TransactionKind.Capture || transaction.kind == TransactionKind.Sale;
+        }
+
+        public static bool IsRefund(this Transaction transaction)
+        {
+            return transaction.kind == TransactionKind.Refund;
+        }
+
+        public static bool DoNotIgnore(this Transaction transaction)
         {
             return transaction.gateway != Gateway.Manual
                    && transaction.status == TransactionStatus.Success
-                   && (transaction.kind == TransactionKind.Capture
-                       || transaction.kind == TransactionKind.Sale
-                       || transaction.kind == TransactionKind.Refund);
+                   && (transaction.IsPayment() || transaction.IsRefund());
         }
 
-        public static bool IgnoreForSync(this Transaction transaction)
+        public static bool Ignore(this Transaction transaction)
         {
-            return transaction.DontIgnoreForSync();
+            return !transaction.DoNotIgnore();
         }
     }
 }

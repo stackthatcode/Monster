@@ -64,7 +64,7 @@
         </span>
         
         <span data-bind="ifnot: IsRandomAccessMode">
-            <a href="@GlobalConfig.Url("Config/SettingsTaxes")" class="btn btn-secondary btn-lg">
+            <a href="@GlobalConfig.Url("/Config/SettingsTaxes")" class="btn btn-secondary btn-lg">
                 <i class="fas fa-undo"></i> Previous Step
             </a>
         </span>
@@ -294,7 +294,7 @@
         self.NextClick = function() {
             self.Save(
                 function() {
-                    window.location.href = '@GlobalConfig.Url("Config/Complete")';
+                    window.location.href = '@GlobalConfig.Url("/Config/Complete")';
                 });
         };
 

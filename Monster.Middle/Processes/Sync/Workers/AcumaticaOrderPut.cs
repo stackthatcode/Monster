@@ -254,7 +254,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.OrderType = SalesOrderType.SO.ToValue();
             salesOrder.Status = SalesOrderStatus.Open.ToValue();
             salesOrder.Hold = false.ToValue();
-            salesOrder.ExternalRef = $"{shopifyOrder.order_number}".ToValue();
+            salesOrder.ExternalRef = $"{shopifyOrder.id}".ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
             salesOrder.PaymentMethod = gateway.AcumaticaPaymentMethod.ToValue();

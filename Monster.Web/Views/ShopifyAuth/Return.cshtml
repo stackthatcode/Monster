@@ -29,7 +29,7 @@
     </p>
     
     <div class="center std-pad">
-        <a href="@GlobalConfig.Url("ShopifyAuth/Domain")" class="btn btn-secondary btn-lg">
+        <a href="@GlobalConfig.Url("/ShopifyAuth/Domain")" class="btn btn-secondary btn-lg">
             Back to Shopify Domain <i class="fas fa-undo"></i>
         </a>
 
@@ -42,7 +42,7 @@
 
         @if (Model.IsWizardMode && Model.IsConnectionOk)
         {
-            <a href="@GlobalConfig.Url("Config/AcumaticaConnection")" class="btn btn-success btn-lg">
+            <a href="@GlobalConfig.Url("/Config/AcumaticaConnection")" class="btn btn-success btn-lg">
                 To Acumatica Configuration <i class="fas fa-sign-in-alt"></i>
             </a>
         }

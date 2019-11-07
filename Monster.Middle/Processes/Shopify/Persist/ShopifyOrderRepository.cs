@@ -88,7 +88,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
             
             foreach (var transaction in transactions)
             {
-                var existing = existingRecords.Match(transaction);
+                var existing = existingRecords.Find(transaction);
                 if (existing == null)
                 {
                     transaction.DateCreated = DateTime.UtcNow;

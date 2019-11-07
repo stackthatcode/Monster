@@ -7,10 +7,10 @@
     <p class="lead center">Verify that @GlobalConfig.AppName is properly responding to errors</p>
 
     <p class="center">
-        <a class="btn btn-warning btn-sm" href="@GlobalConfig.Url("Error/NowhereToBeFound")">
+        <a class="btn btn-warning btn-sm" href="@GlobalConfig.Url("/Error/NowhereToBeFound")">
             Test Non-Existent URL <i class="fa fa-skull-crossbones"></i>
         </a>
-        <a class="btn btn-warning btn-sm" href="@GlobalConfig.Url("Error/ThrowsErrors")">
+        <a class="btn btn-warning btn-sm" href="@GlobalConfig.Url("/Error/ThrowsErrors")">
             Test Error Throwing URL <i class="fa fa-skull-crossbones"></i>
         </a>
         <a class="btn btn-warning btn-sm" id="ajax-error" href="#">

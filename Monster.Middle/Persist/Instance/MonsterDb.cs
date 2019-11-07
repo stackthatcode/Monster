@@ -928,6 +928,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaRefNbr { get; set; } // AcumaticaRefNbr (length: 50)
         public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
         public decimal AcumaticaAmount { get; set; } // AcumaticaAmount
+        public decimal AcumaticaAppliedToOrder { get; set; } // AcumaticaAppliedToOrder
         public bool IsReleased { get; set; } // IsReleased
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -1922,8 +1923,11 @@ namespace Monster.Middle.Persist.Instance
         public long? ShopifyTransactionId { get; set; } // ShopifyTransactionId
         public string ShopifyStatus { get; set; } // ShopifyStatus (length: 25)
         public string ShopifyKind { get; set; } // ShopifyKind (length: 25)
+        public bool? Ignore { get; set; } // Ignore
+        public bool? NeedsPaymentPut { get; set; } // NeedsPaymentPut
         public string AcumaticaRefNbr { get; set; } // AcumaticaRefNbr (length: 50)
         public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
+        public bool? IsReleased { get; set; } // IsReleased
         public System.DateTime? ShopifyRefundLastUpdated { get; set; } // ShopifyRefundLastUpdated
         public System.DateTime? PaymentSyncLastUpdated { get; set; } // PaymentSyncLastUpdated
     }
@@ -2069,6 +2073,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaAmount).HasColumnName(@"AcumaticaAmount").HasColumnType("money").IsRequired().HasPrecision(19,4);
+            Property(x => x.AcumaticaAppliedToOrder).HasColumnName(@"AcumaticaAppliedToOrder").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.IsReleased).HasColumnName(@"IsReleased").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
