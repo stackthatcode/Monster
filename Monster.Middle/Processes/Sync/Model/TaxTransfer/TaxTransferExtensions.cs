@@ -48,7 +48,8 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
                 transfer.Refunds.Add(xferRefund);
             }
 
-
+            transfer.RefundCreditTotal = shopifyOrder.RefundCreditTotal;
+            transfer.RefundDebitTotal = shopifyOrder.RefundDebitTotal;
             transfer.NetPayment = shopifyOrderRecord.NetPaymentAppliedToOrder();
 
             return transfer;

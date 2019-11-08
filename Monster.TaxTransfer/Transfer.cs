@@ -21,13 +21,13 @@ namespace Monster.TaxTransfer
         public decimal TotalTax => LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
         public decimal TotalPrice => LineItems.Sum(x => x.LineAmount) + Freight.Price + TotalTax;
 
+        public decimal NetTotalFreightTax => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
+
         public decimal NetTotalTaxableAmount
                 => LineItems.Sum(x => x.TaxableAmount)
                    + Freight.TaxableAmount
                    - Refunds.Sum(x => x.TotalTaxableLineAmounts)
                    - Refunds.Sum(x => x.TaxableFreightAmount);
-
-        public decimal NetTotalFreightTax => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
 
         public decimal NetTotalTax 
                 => LineItems.Sum(x => x.TaxAmount) 
@@ -35,8 +35,13 @@ namespace Monster.TaxTransfer
                     - Refunds.Sum(x => x.TotalLineItemsTax)
                     - Refunds.Sum(x => x.FreightTax);
 
-        public decimal NetTotal => NetTotalTaxableAmount + NetTotalTax;
+        public decimal RefundCreditTotal { get; set; }
+        public decimal RefundDebitTotal { get; set; }
         public decimal NetPayment { get; set; }
+
+        public decimal NetTotal => NetTotalTaxableAmount + NetTotalTax;
+
+        public decimal PaymentDiscrepancy => NetTotal - (NetPayment + RefundCreditTotal - RefundDebitTotal); 
 
 
         public bool LineItemExists(string inventoryID)
@@ -58,16 +63,6 @@ namespace Monster.TaxTransfer
             output.Name = $"{lineItem.InventoryID} - qty {quantity}";
             output.TaxableAmount = taxableAmount;
             output.TaxAmount = lineItem.TaxLines.CalculateTaxes(taxableAmount);
-            return output;
-        }
-
-        public TransferTaxCalc SplitShipmentFreightTax(decimal price)
-        {
-            var output = new TransferTaxCalc();
-
-            output.Name = "Shipping Charges";
-            output.TaxableAmount = Freight.TaxableAmount;
-            output.TaxAmount = Freight.TaxLines.CalculateTaxes(Freight.TaxableAmount);
             return output;
         }
     }

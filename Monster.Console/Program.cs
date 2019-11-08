@@ -23,16 +23,15 @@ namespace Monster.ConsoleApp
         private const string RunShopifyOrderFeederOption = "10";
         private const string ShopifyOrderTimezoneTest = "11";
         private const string ShopifyOrderGet = "12";
-        private const string ShopifyOrderGetSingle = "13";
 
         private const string AcumaticaCustomerGet = "20";
         private const string AcumaticaOrderGet = "21";
         private const string AcumaticaOrderSync = "22";
         private const string AcumaticaPaymentGet = "23";
         private const string AcumaticaSalesOrderRetrieve = "24";
-        private const string AcumaticaViewTaxSnapshot = "25";
 
         private const string ShopifyOrderGetToAcumaticaOrderPut = "30";
+        private const string ShopifyOrderAndTaxTransfer = "31";
 
 
         static void Main(string[] args)
@@ -51,7 +50,6 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
             Console.WriteLine($"{ShopifyOrderTimezoneTest} - Shopify Order to Acumatica Timezone Test");
             Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get (Automatic)");
-            Console.WriteLine($"{ShopifyOrderGetSingle} - Shopify Order Get (Shopify Order ID)");
 
             Console.WriteLine();
             Console.WriteLine($"{AcumaticaCustomerGet} - Acumatica Customer Get");
@@ -62,6 +60,7 @@ namespace Monster.ConsoleApp
             
             Console.WriteLine();
             Console.WriteLine($"{ShopifyOrderGetToAcumaticaOrderPut} - Shopify Order Get to Acumatica Order Put");
+            Console.WriteLine($"{ShopifyOrderAndTaxTransfer} - Shopify Order Get + dump Order and Tax Transfer JSON");
 
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
@@ -99,7 +98,7 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunShopifyOrderTimezoneTest();
             if (input == ShopifyOrderGet)
                 MoreTestingStuff.RunShopifyOrderGet();
-            if (input == ShopifyOrderGetSingle)
+            if (input == ShopifyOrderAndTaxTransfer)
                 MoreTestingStuff.RunShopifyOrderGetById();
 
             // Shopify Order Get to Acumatica Order Put

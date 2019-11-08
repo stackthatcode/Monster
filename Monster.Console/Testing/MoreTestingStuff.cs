@@ -8,11 +8,15 @@ using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
+using Monster.Middle.Processes.Sync.Model.TaxTransfer;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Workers;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
+using Push.Foundation.Utilities.Json;
+using Push.Foundation.Utilities.Logging;
 
 namespace Monster.ConsoleApp.Testing
 {
@@ -168,24 +172,24 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyOrderGetById()
         {
-            Console.WriteLine(
-                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1840328409132)");
-
+            Console.WriteLine(Environment.NewLine + "Enter Shopify Order ID (Default ID: 1840328409132)");
             var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1840328409132	").ToLong();
 
             AutofacRunner.RunInLifetimeScope(scope =>
             {
+                var logger = scope.Resolve<IPushLogger>();
                 var instanceContext = scope.Resolve<InstanceContext>();
-                instanceContext.Initialize(TestInstanceId);
-
                 var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
-                var order = shopifyOrderGet.Run(shopifyOrderId).order;
-
-                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
-                var orderSync = scope.Resolve<AcumaticaOrderPut>();
+                var repository = scope.Resolve<ShopifyOrderRepository>();
 
                 instanceContext.Initialize(TestInstanceId);
-                acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
+
+                shopifyOrderGet.Run(shopifyOrderId);
+                var shopifyOrder = repository.RetrieveOrder(shopifyOrderId);
+                logger.Info("Shopify Order JSON" + shopifyOrder.ShopifyJson);
+
+                var taxTransfer = shopifyOrder.ToTaxTransfer();
+                logger.Info("Shopify Tax Transfer" + taxTransfer.SerializeToJson());
             });
         }
 
