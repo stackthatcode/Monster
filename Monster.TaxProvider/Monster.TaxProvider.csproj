@@ -65,13 +65,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Acumatica\AcumaticaTaxIdentifiers.cs" />
+    <Compile Include="Acumatica\AcumaticaTaxId.cs" />
     <Compile Include="InvoiceTaxes\OtherInvoiceTaxContext.cs" />
     <Compile Include="InvoiceTaxes\OtherInvoiceTaxService.cs" />
     <Compile Include="Acumatica\BqlRepository.cs" />
     <Compile Include="InvoiceTaxes\ArInvoiceTaxTran.cs" />
     <Compile Include="Calc\CalcResultTaxLine.cs" />
-    <Compile Include="Calc\CalcRequestType.cs" />
+    <Compile Include="Calc\CalcRequestContext.cs" />
     <Compile Include="Acumatica\AcumaticaDocType.cs" />
     <Compile Include="Acumatica\AcumaticaModule.cs" />
     <Compile Include="Calc\CalcRequestTypeEnum.cs" />

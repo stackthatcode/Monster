@@ -7,6 +7,7 @@ using Monster.TaxProvider.Utility;
 using Monster.TaxTransfer;
 using Newtonsoft.Json;
 using PX.Data;
+using PX.Objects.SO;
 using PX.TaxProvider;
 
 
@@ -27,7 +28,7 @@ namespace Monster.TaxProvider.Calc
 
         public GetTaxResult Calculate(GetTaxRequest request)
         {
-            var calcRequestType = request.ToCalcRequestType();
+            var calcRequestType = request.ToCalcRequestContext();
             _logger.Info($"CalcRequestType - {JsonConvert.SerializeObject(calcRequestType)}");
 
             if (calcRequestType.Type == CalcRequestTypeEnum.SalesOrder)
@@ -37,7 +38,7 @@ namespace Monster.TaxProvider.Calc
 
             if (calcRequestType.Type == CalcRequestTypeEnum.SOShipmentInvoice)
             {
-                return ProcessResults(InvoiceTax(calcRequestType));
+                return ProcessResults(InvoiceTax(request));
             }
 
             return ProcessResults(new CalcResult());
@@ -61,75 +62,79 @@ namespace Monster.TaxProvider.Calc
             }
         }
 
-
-        private CalcResult SalesOrderTax(CalcRequestType context)
+        private CalcResult SalesOrderTax(CalcRequestContext context)
         {
-            var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
-
+            var transfer = _repository.RetrieveTaxTransfer(context.OrderType, context.OrderNbr);
             var result = new CalcResult();
 
             result.Add(new CalcResultTaxLine(
                 "Line Items", 
                 0m, 
-                transfer.TotalTaxableLineAmountsAfterRefund,
-                transfer.TotalLineItemTaxAfterRefunds));
+                transfer.NetTotalTaxableLineAmounts,
+                transfer.NetTotalLineItemTax));
 
             result.Add(new CalcResultTaxLine(
                 "Freight",
                 0m,
-                transfer.TotalTaxableFreightAmountAfterRefund,
-                transfer.TotalFreightTaxAfterRefunds));
+                transfer.NetTotalTaxableFreight,
+                transfer.NetTotalFreightTax));
 
             return result;
         }
 
 
-
         // InvoiceTax and InvoiceFreightTax obliterate the tax rounding issue
         //
-        private CalcResult InvoiceTax(CalcRequestType context)
+        private CalcResult InvoiceTax(GetTaxRequest request)
         {
-            var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.RefType, context.RefNbr);
+            var context = request.ToCalcRequestContext();
+            var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.InvoiceType, context.InvoiceNbr);
 
             if (salesOrder.OpenOrderQty == 0)
             {
-                var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
-
-                var otherInvoiceTaxes = 
-                    _invoiceTaxService.GetOtherTaxes(
-                            context.RefType, context.RefNbr, AcumaticaTaxIdentifiers.LineItemsTaxID);
-
-                var arTransJson = JsonConvert.SerializeObject(otherInvoiceTaxes);
-                _logger.Info($"Other Invoice Taxes - {arTransJson}");
-
-                var taxableAmount =
-                    transfer.TotalTaxableLineAmountsAfterRefund - otherInvoiceTaxes.TotalTaxableAmount;
-
-                var taxAmount = transfer.TotalLineItemTaxAfterRefunds - otherInvoiceTaxes.TotalTaxAmount;
-
-                return CalcResult
-                        .Make(AcumaticaTaxIdentifiers.LineItemsTaxID, taxableAmount, taxAmount, 0m);
+                return InvoiceFinalTax(context, salesOrder);
             }
             else
             {
-                return InvoiceSplitShipmentTax(context);
+                return InvoiceSplitShipmentTax(request, otherInvoiceTaxes);
             }
         }
 
-        private CalcResult InvoiceFreightTax(CalcRequestType context)
+        private CalcResult InvoiceFinalTax(CalcRequestContext context, SOOrder salesOrder)
         {
-            var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.RefType, context.RefNbr);
+            var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
+
+            var otherInvoiceTaxes =
+                _invoiceTaxService
+                    .GetOtherTaxes(context.InvoiceType, context.InvoiceNbr, AcumaticaTaxId.LineItemsTaxID);
+
+            var taxableTotal =
+                    transfer.NetTotalTaxableFreight + 
+                    transfer.NetTotalTaxableLineAmounts -
+                    otherInvoiceTaxes.TotalTaxableAmount;
+
+            var taxTotal =
+                    transfer.NetTotalLineItemTax +
+                    transfer.NetTotalFreightTax -
+                    otherInvoiceTaxes.TotalTaxAmount;
+
+            var result = new CalcResult();
+            result.Add(new CalcResultTaxLine("Final Invoice Tax", 0m, taxableTotal, taxTotal));
+            return result;
+        }
+
+        private CalcResult InvoiceFreightTax(CalcRequestContext context, OtherInvoiceTaxService otherInvoiceTax)
+        {
 
             if (salesOrder.OpenOrderQty == 0)
             {
-                var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
                 var arTrans = BuildTaxTranDigest(context, AcumaticaFreightTaxID);
                 var arTransJson = JsonConvert.SerializeObject(arTrans);
 
                 _logger.Info($"ARTrans Digest - {arTransJson}");
 
                 var taxableAmount = 
-                    transfer.TotalTaxableFreightAmountAfterRefund - arTrans.Sum(x => x.TaxableAmount);
+                    transfer.TotalTaxableFreightAfterRefund - arTrans.Sum(x => x.TaxableAmount);
 
                 var taxAmount = 
                     transfer.TotalFreightTaxAfterRefunds - arTrans.Sum(x => x.TaxAmount);
@@ -145,7 +150,7 @@ namespace Monster.TaxProvider.Calc
 
         // Recreate Tax Calculation using the Tax Transfer
         //
-        private CalcResult InvoiceSplitShipmentTax(CalcRequestType context)
+        private CalcResult InvoiceSplitShipmentTax(CalcRequestContext context)
         {
             // Calculate Taxes using Transfer
             //

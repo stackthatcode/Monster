@@ -9,7 +9,7 @@ namespace Monster.TaxProvider.Calc
         public decimal TaxableAmount { get; private set; }
         public decimal TaxAmount { get; private set; }
 
-        public CalcResultTaxLine(string desc, decimal taxableAmount, decimal taxAmount, decimal rate)
+        public CalcResultTaxLine(string desc, decimal rate, decimal taxableAmount, decimal taxAmount)
         {
             Desc = desc;
             Rate = rate;

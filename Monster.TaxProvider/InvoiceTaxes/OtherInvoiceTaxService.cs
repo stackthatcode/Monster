@@ -13,17 +13,16 @@ namespace Monster.TaxProvider.InvoiceTaxService
             this._bqlRepository = bqlRepository;
         }
 
-        public OtherInvoiceTaxContext 
-                    GetOtherTaxes(string invoiceType, string invoiceRefNbr, string taxId)
+        public OtherInvoiceTaxContext GetOtherTaxes(string invoiceType, string invoiceRefNbr, string taxId)
         {
             var salesOrder = _bqlRepository.RetrieveSalesOrderByInvoice(invoiceType, invoiceRefNbr);
 
             var arTrans =
-                _bqlRepository.RetrieveARTaxTransactions(salesOrder.OrderType, salesOrder.OrderNbr, taxId);
+                _bqlRepository
+                    .RetrieveARTaxTransactions(salesOrder.OrderType, salesOrder.OrderNbr, taxId);
 
             return new OtherInvoiceTaxContext(arTrans, invoiceType, invoiceRefNbr);
         }
-
     }
 }
 

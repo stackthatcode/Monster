@@ -17,16 +17,18 @@ namespace Monster.TaxTransfer
             Refunds = new List<TransferRefund>();
         }
 
-        public decimal TotalTaxableLineAmountsAfterRefund
+        public decimal NetTotalTaxableLineAmounts
             => LineItems.Sum(x => x.TaxableAmount) - Refunds.Sum(x => x.TotalTaxableLineAmounts);
-        public decimal TotalTaxableFreightAmountAfterRefund
+        public decimal NetTotalTaxableFreight
             => Freight.TaxableAmount - Refunds.Sum(x => x.TaxableFreightAmount);
 
+        public decimal NetTotalLineItemTax
+            => LineItems.Sum(x => x.TaxAmount) - Refunds.Sum(x => x.TotalLineItemsTax);
+        public decimal NetTotalFreightTax
+            => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
+
         public decimal TotalTax => LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
-        public decimal TotalLineItemTaxAfterRefunds 
-                    => LineItems.Sum(x => x.TaxAmount) - Refunds.Sum(x => x.TotalLineItemsTax);
-        public decimal TotalFreightTaxAfterRefunds 
-                    => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
+        public decimal NetTotalTax => NetTotalLineItemTax + NetTotalFreightTax;
 
         public decimal TotalPrice => LineItems.Sum(x => x.LineAmount) + Freight.Price + TotalTax;
 

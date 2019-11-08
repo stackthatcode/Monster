@@ -33,7 +33,7 @@ namespace Monster.TaxProvider.Calc
             
             var details = new TaxDetail()
             {
-                TaxName = AcumaticaTaxIdentifiers.LineItemsTaxID,
+                TaxName = AcumaticaTaxId.LineItemsTaxID,
                 Rate = 0.00m,
                 TaxableAmount = TotalTaxableAmount,
                 TaxAmount = TotalTaxAmount,

@@ -16,7 +16,7 @@ namespace Monster.TaxProvider.InvoiceTaxes
             Items.Where(x => x.InvoiceNbr != ExcludedInvoiceType && x.InvoiceType != ExcludedInvoiceNbr)
                 .ToList();
 
-
+        public bool AtLeastOneOtherInvoice => Items.Count > 0;
         public decimal TotalTaxableAmount => Items.Sum(x => x.TaxableAmount);
         public decimal TotalTaxAmount => Items.Sum(x => x.TaxAmount);
 
