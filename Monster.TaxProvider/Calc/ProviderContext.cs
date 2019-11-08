@@ -1,6 +1,4 @@
-﻿using Monster.TaxProvider.Context;
-
-namespace Monster.TaxProvider.Calc
+﻿namespace Monster.TaxProvider.Calc
 {
     public class ProviderContext
     {

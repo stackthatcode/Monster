@@ -4,15 +4,15 @@ namespace Monster.TaxProvider.Calc
 {
     public class ProviderTaxCalcResultItem
     {
-        public string TaxID { get; private set; }
+        public string Description { get; private set; }
         public decimal Rate { get; private set; }
         public decimal TaxableAmount { get; private set; }
         public decimal TaxAmount { get; private set; }
 
         public ProviderTaxCalcResultItem(
-                    string taxId, decimal taxableAmount, decimal taxAmount, decimal rate)
+                    string description, decimal taxableAmount, decimal taxAmount, decimal rate)
         {
-            TaxID = taxId;
+            Description = description;
             Rate = rate;
             TaxableAmount = taxableAmount;
             TaxAmount = taxAmount;
@@ -22,7 +22,6 @@ namespace Monster.TaxProvider.Calc
         {
             var details = new TaxDetail()
             {
-                TaxName = TaxID,
                 Rate = 0.00m,
                 TaxAmount = TaxAmount,
                 TaxableAmount = TaxableAmount,

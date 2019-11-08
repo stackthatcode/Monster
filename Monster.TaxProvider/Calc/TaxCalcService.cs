@@ -14,7 +14,6 @@ namespace Monster.TaxProvider.Calc
 {
     public class TaxCalcService
     {
-
         private readonly Logger _logger;
         private readonly BqlRepository _repository;
         private readonly OtherInvoiceTaxService _invoiceTaxService;
@@ -26,8 +25,10 @@ namespace Monster.TaxProvider.Calc
             _invoiceTaxService = new OtherInvoiceTaxService(_repository);
         }
 
-        public ProviderTaxCalcResult Calculate(ProviderContext context)
+        public GetTaxResult Calculate(GetTaxRequest request)
         {
+            ProviderContext context = 
+
             if (context.DocContextType == ProviderContextType.SalesOrder)
             {
                 return ProcessResults(SalesOrderLineAmountsTax(context));
@@ -46,7 +47,7 @@ namespace Monster.TaxProvider.Calc
             return new ProviderTaxCalcResult();
         }
 
-        private ProviderTaxCalcResult ProcessResults(ProviderTaxCalcResult result)
+        private GetTaxResult ProcessResults(ProviderTaxCalcResult result)
         {
             if (result.Failed)
             {
@@ -58,7 +59,7 @@ namespace Monster.TaxProvider.Calc
             }
             else
             {
-                return result;
+                return result.ToGetTaxResult();
             }
         }
 
@@ -98,20 +99,20 @@ namespace Monster.TaxProvider.Calc
             {
                 var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
 
-                var otherInvoiceTaxes = _invoiceTaxService
-                    .GetOtherTaxesSummary(context.RefType, context.RefNbr, AcumaticaLineItemsTaxID);
+                var otherInvoiceTaxes = 
+                    _invoiceTaxService.GetOtherTaxesSummary(
+                            context.RefType, context.RefNbr, AcumaticaTaxIdentifiers.LineItemsTaxID);
 
                 var arTransJson = JsonConvert.SerializeObject(otherInvoiceTaxes);
+                _logger.Info($"Other Invoice Taxes - {arTransJson}");
 
-                _logger.Info($"Current Invoice Taxes - {arTransJson}");
+                var taxableAmount =
+                    transfer.TotalTaxableLineAmountsAfterRefund - otherInvoiceTaxes.TotalTaxableAmount;
 
-                var taxableAmount = 
-                    transfer.TotalTaxableLineAmountsAfterRefund - otherInvoiceTaxes.Sum(x => x.TaxableAmount);
+                var taxAmount = transfer.TotalLineItemTaxAfterRefunds - otherInvoiceTaxes.TotalTaxAmount;
 
-                var taxAmount = 
-                    transfer.TotalLineItemTaxAfterRefunds - otherInvoiceTaxes.Sum(x => x.TaxAmount);
-
-                return ProviderTaxCalcResult.Make(AcumaticaLineItemsTaxID, taxableAmount, taxAmount, 0m);
+                return ProviderTaxCalcResult
+                        .Make(AcumaticaTaxIdentifiers.LineItemsTaxID, taxableAmount, taxAmount, 0m);
             }
             else
             {

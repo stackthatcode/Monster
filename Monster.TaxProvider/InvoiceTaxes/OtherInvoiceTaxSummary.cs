@@ -12,6 +12,9 @@ namespace Monster.TaxProvider.InvoiceTaxes
     {
         public List<ArInvoiceTaxTran> Items { get; private set; }
 
+        public decimal TotalTaxableAmount => Items.Sum(x => x.TaxableAmount);
+        public decimal TotalTaxAmount => Items.Sum(x => x.TaxAmount);
+
         public OtherInvoiceTaxSummary(
                     PXResultset<ARTaxTran> input, string exclInvoiceType, string exclInvoiceNbr)
         {

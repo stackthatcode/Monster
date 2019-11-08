@@ -65,7 +65,7 @@ namespace Monster.TaxProvider
             var context = _providerContextBuilder.ExtractFromRequest(request);
             _logger.Info($"DocContext - {JsonConvert.SerializeObject(context)}");
 
-            return _taxCalcService.Calculate(context);
+            return _taxCalcService.Calculate(context).ToGetTaxResult();
         }
 
         public PostTaxResult PostTax(PostTaxRequest request)

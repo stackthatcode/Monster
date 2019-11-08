@@ -1,4 +1,4 @@
-﻿using Monster.TaxProvider.Bql;
+﻿using Monster.TaxProvider.Acumatica;
 using Monster.TaxProvider.InvoiceTaxes;
 
 

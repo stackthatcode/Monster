@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.TaxProvider.Acumatica;
 using PX.TaxProvider;
 
 namespace Monster.TaxProvider.Calc
@@ -20,56 +21,41 @@ namespace Monster.TaxProvider.Calc
             Items = new List<ProviderTaxCalcResultItem>();
         }
 
+
         public GetTaxResult ToGetTaxResult()
         {
             var output = new GetTaxResult();
             var taxLines = new List<TaxLine>();
-
             var index = 1;
 
-            foreach (var line in Items)
+            var details = new TaxDetail()
             {
-                var details = new TaxDetail()
-                {
-                    TaxName = line.TaxID,
-                    Rate = 0.00m,
-                    TaxAmount = line.TaxAmount,
-                    TaxableAmount = line.TaxableAmount,
-                    TaxCalculationLevel = TaxCalculationLevel.CalcOnItemAmt,
-                };
+                TaxName = AcumaticaTaxIdentifiers.LineItemsTaxID,
+                Rate = 0.00m,
+                TaxableAmount = TaxableAmount,
+                TaxAmount = TaxAmount,
+                TaxCalculationLevel = TaxCalculationLevel.CalcOnItemAmt,
+            };
 
-                taxLines.Add(new TaxLine()
-                {
-                    Index = index,
-                    Rate = 0.00m,
-                    TaxAmount = line.TaxAmount,
-                    TaxableAmount = line.TaxableAmount,
-                    TaxDetails = new[] { details },
-                });
-
-                index++;
-            }
+            taxLines.Add(new TaxLine()
+            {
+                Index = index,
+                Rate = 0.00m,
+                TaxableAmount = TaxableAmount,
+                TaxAmount = TaxAmount,
+                TaxDetails = new[] { details },
+            });
 
             output.TaxLines = taxLines.ToArray();
             output.TotalAmount = TaxableAmount;
             output.TotalTaxAmount = TaxAmount;
 
-            //output.TaxSummary = new TaxDetail[] { details };
-            output.TaxSummary = new TaxDetail[] {  };
+            output.TaxSummary = new TaxDetail[] { details };
             output.IsSuccess = true;
 
             return output;
         }
 
-        public static ProviderTaxCalcResult Make(
-                string taxId, decimal taxableAmount, decimal taxAmount, decimal rate)
-        {
-            var output = new ProviderTaxCalcResult();
-            output.TaxID = taxId;
-            output.Rate = rate;
-            output.TaxableAmount = taxableAmount;
-            output.TaxAmount = taxAmount;
-            return output;
-        }
     }
 }
+
