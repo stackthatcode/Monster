@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monster.TaxProvider.Acumatica;
+using Monster.TaxProvider.InvoiceTaxes;
 using Monster.TaxProvider.InvoiceTaxService;
 using Monster.TaxProvider.Utility;
 using Monster.TaxTransfer;
@@ -67,17 +68,8 @@ namespace Monster.TaxProvider.Calc
             var transfer = _repository.RetrieveTaxTransfer(context.OrderType, context.OrderNbr);
             var result = new CalcResult();
 
-            result.Add(new CalcResultTaxLine(
-                "Line Items", 
-                0m, 
-                transfer.NetTotalTaxableLineAmounts,
-                transfer.NetTotalLineItemTax));
-
-            result.Add(new CalcResultTaxLine(
-                "Freight",
-                0m,
-                transfer.NetTotalTaxableFreight,
-                transfer.NetTotalFreightTax));
+            result.AddTaxLine("Line Items", 0m, transfer.NetTotalTaxableLineAmounts, transfer.NetTotalLineItemTax);
+            result.AddTaxLine("Freight", 0m, transfer.NetTotalTaxableFreight, transfer.NetTotalFreightTax);
 
             return result;
         }
@@ -90,24 +82,28 @@ namespace Monster.TaxProvider.Calc
             var context = request.ToCalcRequestContext();
             var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.InvoiceType, context.InvoiceNbr);
 
-            if (salesOrder.OpenOrderQty == 0)
-            {
-                return InvoiceFinalTax(context, salesOrder);
-            }
-            else
-            {
-                return InvoiceSplitShipmentTax(request, otherInvoiceTaxes);
-            }
-        }
-
-        private CalcResult InvoiceFinalTax(CalcRequestContext context, SOOrder salesOrder)
-        {
             var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
+
+            _logger.Debug($"Tax Transfer - {JsonConvert.SerializeObject(transfer)}");
 
             var otherInvoiceTaxes =
                 _invoiceTaxService
                     .GetOtherTaxes(context.InvoiceType, context.InvoiceNbr, AcumaticaTaxId.LineItemsTaxID);
 
+            _logger.Debug($"Other Invoice Taxes - {JsonConvert.SerializeObject(otherInvoiceTaxes)}");
+
+            if (salesOrder.OpenOrderQty == 0)
+            {
+                return InvoiceFinalTax(transfer, otherInvoiceTaxes);
+            }
+            else
+            {
+                return InvoiceSplitShipmentTax(request, transfer, otherInvoiceTaxes);
+            }
+        }
+
+        private CalcResult InvoiceFinalTax(Transfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
+        {
             var taxableTotal =
                     transfer.NetTotalTaxableFreight + 
                     transfer.NetTotalTaxableLineAmounts -
@@ -119,64 +115,43 @@ namespace Monster.TaxProvider.Calc
                     otherInvoiceTaxes.TotalTaxAmount;
 
             var result = new CalcResult();
-            result.Add(new CalcResultTaxLine("Final Invoice Tax", 0m, taxableTotal, taxTotal));
+            result.AddTaxLine("Final Invoice Tax", 0m, taxableTotal, taxTotal);
             return result;
-        }
-
-        private CalcResult InvoiceFreightTax(CalcRequestContext context, OtherInvoiceTaxService otherInvoiceTax)
-        {
-
-            if (salesOrder.OpenOrderQty == 0)
-            {
-                var arTrans = BuildTaxTranDigest(context, AcumaticaFreightTaxID);
-                var arTransJson = JsonConvert.SerializeObject(arTrans);
-
-                _logger.Info($"ARTrans Digest - {arTransJson}");
-
-                var taxableAmount = 
-                    transfer.TotalTaxableFreightAfterRefund - arTrans.Sum(x => x.TaxableAmount);
-
-                var taxAmount = 
-                    transfer.TotalFreightTaxAfterRefunds - arTrans.Sum(x => x.TaxAmount);
-
-                return CalcResult.Make(AcumaticaFreightTaxID, taxableAmount, taxAmount, 0m);
-            }
-            else
-            {
-                return InvoiceSplitShipmentTax(request);
-            }
         }
 
 
         // Recreate Tax Calculation using the Tax Transfer
         //
-        private CalcResult InvoiceSplitShipmentTax(CalcRequestContext context)
+        private CalcResult InvoiceSplitShipmentTax(
+                GetTaxRequest request, Transfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
         {
-            // Calculate Taxes using Transfer
-            //
-            var transfer = _repository.RetrieveTaxTransfer(context.RefType, context.RefNbr);
-            var transferTaxes = new List<TransferTaxCalc>();
-            var messages = new List<string>();
+            var isFirstInvoice = otherInvoiceTaxes.AtLeastOneOtherInvoice;
+
+            var result = new CalcResult();
 
             foreach (var lineItem in request.CartItems)
             {
-                if (transfer.LineItemExists(lineItem.ItemCode) == false)
+                // NULL ItemCode signals that this line item is freight
+                //
+                if (lineItem.ItemCode == null)
                 {
-                    messages.Add($"Unable to locate Inventory ID {lineItem.ItemCode} in Tax Transfer");
+                    result.AddTaxLine(lineItem.Description, 0m, lineItem.Amount, transfer.NetTotalFreightTax);
                     continue;
                 }
 
-                var transferTax = transfer.SplitShipmentLineItemTax(lineItem.ItemCode, (int)lineItem.Quantity);
-                transferTaxes.Add(transferTax);
+                if (transfer.LineItemExists(lineItem.ItemCode) == false)
+                {
+                    result.AddError($"Unable to locate Inventory ID {lineItem.ItemCode} in Tax Transfer");
+                    continue;
+                }
+
+                // Compute Line Item Tax using Tax Lines from Transfer
+                //
+                var lineItemTaxCalc = transfer.PlainLineItemTaxCalc(lineItem.ItemCode, (int)lineItem.Quantity);
+
+                result.AddTaxLine(lineItemTaxCalc.Name, 0m, lineItemTaxCalc.TaxableAmount, lineItemTaxCalc.TaxAmount);
             }
 
-            var json = JsonConvert.SerializeObject(transferTaxes);
-            _logger.Info("Transfer - Split Shipment Tax - " + json);
-
-            // Translate from bounded context 
-            //
-            var result = new CalcResult();
-            result.ErrorMessages = messages;
             return result;
         }
 

@@ -21,9 +21,15 @@ namespace Monster.TaxProvider.Calc
             ErrorMessages = new List<string>();
         }
 
-        public void Add(CalcResultTaxLine taxLine)
+        public void AddTaxLine(string desc, decimal rate, decimal taxableAmount, decimal taxAmount)
         {
+            var taxLine = new CalcResultTaxLine(desc, rate, taxableAmount, taxAmount);
             this.TaxLines.Add(taxLine);
+        }
+
+        public void AddError(string message)
+        {
+            this.ErrorMessages.Add(message);
         }
 
         public GetTaxResult ToGetTaxResult()

@@ -20,8 +20,7 @@ namespace Monster.TaxProvider.InvoiceTaxes
         public decimal TotalTaxableAmount => Items.Sum(x => x.TaxableAmount);
         public decimal TotalTaxAmount => Items.Sum(x => x.TaxAmount);
 
-        public OtherInvoiceTaxContext(
-                    PXResultset<ARTaxTran> input, string exclInvoiceType, string exclInvoiceNbr)
+        public OtherInvoiceTaxContext(PXResultset<ARTaxTran> input, string exclInvoiceType, string exclInvoiceNbr)
         {
             ExcludedInvoiceType = exclInvoiceType;
             ExcludedInvoiceNbr = exclInvoiceNbr;

@@ -84,7 +84,7 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
 
-        public bool IsShippingTaxable => ShippingTotal > 0m && ShippingTax == 0m;
+        public bool IsShippingTaxable => ShippingTotal > 0m && ShippingTax > 0m;
 
         [JsonIgnore]
         public decimal ShippingDiscountedTotalAfterRefunds
@@ -100,7 +100,8 @@ namespace Push.Shopify.Api.Order
         public decimal RefundTotal => refunds.Sum(x => x.RefundTotal);
 
 
-        public List<LineItem> LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
+        public List<LineItem> LineItemsWithManualVariants 
+            => line_items.Where(x => x.variant_id == null).ToList();
 
         public LineItem LineItem(string sku)
         {
@@ -112,16 +113,12 @@ namespace Push.Shopify.Api.Order
             return line_items.FirstOrDefault(x => x.id == id);
         }
         
-        public Fulfillment Fulfillment(long id)
-        {
-            return fulfillments.FirstOrDefault(x => x.id == id);
-        }
-
-        public List<RefundLineItem> RefundLineItems(long line_item_id)
+        public List<RefundLineItem> CancelledLineItems(long line_item_id)
         {
             return refunds
                 .SelectMany(x => x.refund_line_items)
                 .Where(x => x.line_item_id == line_item_id)
+                .Where(x => x.restock_type == RestockType.Cancel)
                 .ToList();
         }
 

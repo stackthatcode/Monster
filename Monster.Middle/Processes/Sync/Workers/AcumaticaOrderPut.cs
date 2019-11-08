@@ -227,9 +227,9 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var detail = new SalesOrderDetail();
 
                 detail.InventoryID = stockItemRecord.ItemId.ToValue();
-                detail.OrderQty = ((double)lineItem.RefundAdjustedQuantity).ToValue();
+                detail.OrderQty = ((double)lineItem.CancelAdjustedQuantity).ToValue();
                 detail.UnitPrice = ((double) lineItem.price).ToValue();
-                detail.ExtendedPrice = ((double)lineItem.PriceAfterDiscountAndRefunds).ToValue();
+                detail.ExtendedPrice = ((double)lineItem.NetLineAmount).ToValue();
 
                 detail.TaxCategory 
                     = lineItem.taxable
@@ -353,7 +353,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var stockItemId = variant.MatchedStockItem().ItemId;
                 var salesOrderDetail = existingSalesOrder.DetailByInventoryId(stockItemId);
 
-                var newQuantity = (double)line_item.RefundAdjustedQuantity;
+                var newQuantity = (double)line_item.CancelAdjustedQuantity;
 
                 var detail = new SalesOrderUpdateDetail();
 

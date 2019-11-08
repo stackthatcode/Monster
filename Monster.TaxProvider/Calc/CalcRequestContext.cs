@@ -69,5 +69,3 @@ namespace Monster.TaxProvider.Calc
     }
 }
 
-
-}

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Monster.TaxProvider.Calc;
-using Monster.TaxProvider.Context;
 using Monster.TaxProvider.Utility;
-using Newtonsoft.Json;
-using PX.Data;
-using PX.Objects.TX;
 using PX.TaxProvider;
-using TaxDetail = PX.TaxProvider.TaxDetail;
 
 namespace Monster.TaxProvider
 {
@@ -20,8 +13,7 @@ namespace Monster.TaxProvider
 
         private List<ITaxProviderSetting> _settings;
 
-        public ITaxProviderSetting[]
-            DefaultSettings => new List<ITaxProviderSetting>().ToArray();
+        public ITaxProviderSetting[] DefaultSettings => new List<ITaxProviderSetting>().ToArray();
 
 
         public void Initialize(IEnumerable<ITaxProviderSetting> settings)
