@@ -9,6 +9,8 @@ namespace Monster.TaxProvider.Calc
     {
         public List<CalcResultTaxLine> TaxLines { get; set; }
         public List<string> ErrorMessages { get; set; }
+
+        public bool Empty => TaxLines.Count == 0;
         public bool Failed => ErrorMessages.Count > 0;
 
         public decimal TotalTaxableAmount => TaxLines.Sum(x => x.TaxableAmount);
@@ -36,30 +38,39 @@ namespace Monster.TaxProvider.Calc
         {
             var output = new GetTaxResult();
             var taxLines = new List<TaxLine>();
-            
-            var details = new TaxDetail()
-            {
-                TaxName = taxId,
-                Rate = 0.00m,
-                TaxableAmount = TotalTaxableAmount,
-                TaxAmount = TotalTaxAmount,
-                TaxCalculationLevel = TaxCalculationLevel.CalcOnItemAmt,
-            };
+            TaxDetail details = null;
 
-            taxLines.Add(new TaxLine()
+            if (!Empty)
             {
-                Index = 1,
-                Rate = 0.00m,
-                TaxableAmount = TotalTaxableAmount,
-                TaxAmount = TotalTaxAmount,
-                TaxDetails = new[] {details},
-            });
+                details = new TaxDetail()
+                {
+                    TaxName = taxId,
+                    Rate = 0.00m,
+                    TaxableAmount = TotalTaxableAmount,
+                    TaxAmount = TotalTaxAmount,
+                    TaxCalculationLevel = TaxCalculationLevel.CalcOnItemAmt,
+                };
 
-            output.TaxLines = taxLines.ToArray();
+                taxLines.Add(new TaxLine()
+                {
+                    Index = 1,
+                    Rate = 0.00m,
+                    TaxableAmount = TotalTaxableAmount,
+                    TaxAmount = TotalTaxAmount,
+                    TaxDetails = new[] {details},
+                });
+
+                output.TaxSummary = new TaxDetail[] { details };
+                output.TaxLines = taxLines.ToArray();
+            }
+            else
+            {
+                output.TaxSummary = new TaxDetail[] {};
+                output.TaxLines = new TaxLine[] {};
+            }
+
             output.TotalAmount = TotalTaxableAmount;
             output.TotalTaxAmount = TotalTaxAmount;
-
-            output.TaxSummary = new TaxDetail[] { details };
             output.IsSuccess = true;
 
             return output;

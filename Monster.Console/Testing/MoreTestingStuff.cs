@@ -11,6 +11,7 @@ using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Workers;
+using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.ConsoleApp.Testing
@@ -66,6 +67,14 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunAcumaticaSalesOrderRetrieve()
         {
+            var defaultSalesOrderNbr = "000046";
+
+            Console.WriteLine(Environment.NewLine 
+                    + $"Enter Acumatica Sales Order ID (Default ID: {defaultSalesOrderNbr})");
+
+            var orderNbr = Console.ReadLine().Trim().IsNullOrEmptyAlt(defaultSalesOrderNbr);
+
+
             AutofacRunner.RunInLifetimeScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
@@ -76,10 +85,17 @@ namespace Monster.ConsoleApp.Testing
                 acumaticaContext.SessionRun(() =>
                 {
                     var json = salesOrderClient
-                        .RetrieveSalesOrder("000033", SalesOrderType.SO, Expand.Details_Totals);
+                        .RetrieveSalesOrder(orderNbr, SalesOrderType.SO, Expand.Details_Totals);
+
+                    var salesOrderObj = json.ToSalesOrderObj();
+                    var taxSnapshot = salesOrderObj.custom.Document.UsrTaxSnapshot;
+                    var taxJson = taxSnapshot.value.Unzip();
+
+                    Console.WriteLine(taxJson);
                 });
             });
         }
+
         public static void RunAcumaticaPaymentGet()
         {
             AutofacRunner.RunInLifetimeScope(scope =>
@@ -172,7 +188,6 @@ namespace Monster.ConsoleApp.Testing
                 acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
             });
         }
-
 
         public static void ShopifyOrderGetToAcumaticaOrderPut()
         {

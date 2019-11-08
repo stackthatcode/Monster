@@ -31,7 +31,8 @@ namespace Monster.TaxProvider.Calc
         public GetTaxResult Calculate(GetTaxRequest request)
         {
             var calcRequestType = request.ToCalcRequestContext();
-            _logger.Info($"TaxCalcService -> Calculate (Type) - {JsonConvert.SerializeObject(calcRequestType)}");
+            _logger.Info(
+                $"TaxCalcService -> Calculate (Type) - {JsonConvert.SerializeObject(calcRequestType)}");
 
             if (calcRequestType.Type == CalcRequestTypeEnum.SalesOrder)
             {
@@ -62,6 +63,7 @@ namespace Monster.TaxProvider.Calc
                 var acumaticaTaxId = _settings.Setting(ProviderSettings.SETTING_EXTERNALTAXID).Value;
                 var json = JsonConvert.SerializeObject(result);
                 _logger.Info($"TaxCalcService -> Calculate (Result) - {json}");
+
                 var output = result.ToGetTaxResult(acumaticaTaxId);
                 return output;
             }

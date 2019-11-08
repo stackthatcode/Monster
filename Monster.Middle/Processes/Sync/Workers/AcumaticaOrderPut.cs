@@ -282,7 +282,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Freight Price and Taxes
             //
-            salesOrder.FreightPrice = ((double)shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue();
+            salesOrder.FreightPrice 
+                = ((double)shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue();
+
             salesOrder.OverrideFreightPrice = true.ToValue();
             salesOrder.FreightTaxCategory = shopifyOrder.IsShippingTaxable
                 ? settings.AcumaticaTaxableCategory.ToValue()

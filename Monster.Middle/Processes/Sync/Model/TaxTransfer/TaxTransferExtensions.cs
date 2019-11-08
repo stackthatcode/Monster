@@ -24,7 +24,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
                 xferLineItem.ExternalRefNbr = line_item.id.ToString();
                 xferLineItem.InventoryID = line_item.sku;
                 xferLineItem.Quantity = line_item.quantity;
-                xferLineItem.UnitPrice = line_item.LineAmountAfterDiscount;
+                xferLineItem.UnitPrice = line_item.UnitPriceAfterDiscount;
                 xferLineItem.IsTaxable = line_item.taxable;
                 xferLineItem.TaxAmount = line_item.Tax;
                 xferLineItem.TaxLines = line_item.tax_lines.ToTransferTaxLines();

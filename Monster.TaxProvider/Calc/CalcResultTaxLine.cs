@@ -16,27 +16,5 @@ namespace Monster.TaxProvider.Calc
             TaxableAmount = taxableAmount;
             TaxAmount = taxAmount;
         }
-
-        public TaxLine ToTaxDetail()
-        {
-            var details = new TaxDetail()
-            {
-                Rate = 0.00m,
-                TaxAmount = TaxAmount,
-                TaxableAmount = TaxableAmount,
-                TaxCalculationLevel = TaxCalculationLevel.CalcOnItemAmt,
-            };
-
-            var output = new TaxLine()
-            {
-                Index = 1,
-                Rate = 0.00m,
-                TaxAmount = TaxAmount,
-                TaxableAmount = TaxableAmount,
-                TaxDetails = new[] { details },
-            };
-
-            return output;
-        }
     }
 }

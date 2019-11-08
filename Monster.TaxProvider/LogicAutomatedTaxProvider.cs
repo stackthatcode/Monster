@@ -46,7 +46,10 @@ namespace Monster.TaxProvider
             var json = JsonConvert.SerializeObject(request);
             _logger.Info($"GetTaxRequest ({request.DocCode}) - {json}");
 
-            return _taxCalcService.Calculate(request);
+            var response = _taxCalcService.Calculate(request);
+            _logger.Info($"GetTaxRequest (output) - {JsonConvert.SerializeObject(response)}");
+
+            return response;
         }
 
         public PostTaxResult PostTax(PostTaxRequest request)

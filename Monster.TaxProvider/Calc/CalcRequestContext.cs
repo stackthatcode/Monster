@@ -46,8 +46,8 @@ namespace Monster.TaxProvider.Calc
                 return new CalcRequestContext
                 {
                     Type = CalcRequestTypeEnum.SalesOrder,
-                    OrderType = parts[0],
-                    OrderNbr = parts[1]
+                    OrderType = parts[1],
+                    OrderNbr = parts[2]
                 };
             }
 
