@@ -8,7 +8,7 @@ namespace Monster.TaxProvider
     public class StubTaxProvider : ITaxProvider
     {
         public const string TaxProviderID = "STUBTAX";
-        private readonly Logger _logger = new Logger();
+        private readonly Logger _logger = new Logger(false);
         public IReadOnlyList<string> Attributes => new List<string>().AsReadOnly();
 
         private List<ITaxProviderSetting> _settings;

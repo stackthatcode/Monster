@@ -32,14 +32,14 @@ namespace Monster.TaxProvider.Calc
             this.ErrorMessages.Add(message);
         }
 
-        public GetTaxResult ToGetTaxResult()
+        public GetTaxResult ToGetTaxResult(string taxId)
         {
             var output = new GetTaxResult();
             var taxLines = new List<TaxLine>();
             
             var details = new TaxDetail()
             {
-                TaxName = AcumaticaTaxId.LineItemsTaxID,
+                TaxName = taxId,
                 Rate = 0.00m,
                 TaxableAmount = TotalTaxableAmount,
                 TaxAmount = TotalTaxAmount,

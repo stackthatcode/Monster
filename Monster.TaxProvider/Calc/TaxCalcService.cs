@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Monster.TaxProvider.Acumatica;
 using Monster.TaxProvider.InvoiceTaxes;
 using Monster.TaxProvider.InvoiceTaxService;
@@ -8,7 +7,6 @@ using Monster.TaxProvider.Utility;
 using Monster.TaxTransfer;
 using Newtonsoft.Json;
 using PX.Data;
-using PX.Objects.SO;
 using PX.TaxProvider;
 
 
@@ -18,19 +16,22 @@ namespace Monster.TaxProvider.Calc
     {
         private readonly Logger _logger;
         private readonly BqlRepository _repository;
+        private readonly List<ITaxProviderSetting> _settings;
         private readonly OtherInvoiceTaxService _invoiceTaxService;
 
-        public TaxCalcService(Logger logger)
+        public TaxCalcService(Logger logger, List<ITaxProviderSetting> settings)
         {
             _logger = logger;
-            _repository = new BqlRepository(new PXGraph());
-            _invoiceTaxService = new OtherInvoiceTaxService(_repository);
+            _settings = settings;
+
+            _repository = new BqlRepository(new PXGraph(), _logger);
+            _invoiceTaxService = new OtherInvoiceTaxService(_repository, _logger);
         }
 
         public GetTaxResult Calculate(GetTaxRequest request)
         {
             var calcRequestType = request.ToCalcRequestContext();
-            _logger.Info($"CalcRequestType - {JsonConvert.SerializeObject(calcRequestType)}");
+            _logger.Info($"TaxCalcService -> Calculate (Type) - {JsonConvert.SerializeObject(calcRequestType)}");
 
             if (calcRequestType.Type == CalcRequestTypeEnum.SalesOrder)
             {
@@ -51,15 +52,18 @@ namespace Monster.TaxProvider.Calc
             {
                 var log = "TaxCalcService -> Calculate failed:" + Environment.NewLine;
                 result.ErrorMessages.ForEach(x => log += x + Environment.NewLine);
+
                 _logger.Info(log);
 
                 throw new Exception("TaxCalcService -> Calculate failed");
             }
             else
             {
+                var acumaticaTaxId = _settings.Setting(ProviderSettings.SETTING_EXTERNALTAXID).Value;
                 var json = JsonConvert.SerializeObject(result);
-                _logger.Info($"Calc Result - {json}");
-                return result.ToGetTaxResult();
+                _logger.Info($"TaxCalcService -> Calculate (Result) - {json}");
+                var output = result.ToGetTaxResult(acumaticaTaxId);
+                return output;
             }
         }
 
@@ -74,9 +78,6 @@ namespace Monster.TaxProvider.Calc
             return result;
         }
 
-
-        // InvoiceTax and InvoiceFreightTax obliterate the tax rounding issue
-        //
         private CalcResult InvoiceTax(GetTaxRequest request)
         {
             var context = request.ToCalcRequestContext();
@@ -84,13 +85,8 @@ namespace Monster.TaxProvider.Calc
 
             var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
 
-            _logger.Debug($"Tax Transfer - {JsonConvert.SerializeObject(transfer)}");
-
             var otherInvoiceTaxes =
-                _invoiceTaxService
-                    .GetOtherTaxes(context.InvoiceType, context.InvoiceNbr, AcumaticaTaxId.LineItemsTaxID);
-
-            _logger.Debug($"Other Invoice Taxes - {JsonConvert.SerializeObject(otherInvoiceTaxes)}");
+                    _invoiceTaxService.GetOtherTaxes(context.InvoiceType, context.InvoiceNbr);
 
             if (salesOrder.OpenOrderQty == 0)
             {
@@ -125,6 +121,8 @@ namespace Monster.TaxProvider.Calc
         private CalcResult InvoiceSplitShipmentTax(
                 GetTaxRequest request, Transfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
         {
+            // TODO - do we need to check for this...?
+            //
             var isFirstInvoice = otherInvoiceTaxes.AtLeastOneOtherInvoice;
 
             var result = new CalcResult();

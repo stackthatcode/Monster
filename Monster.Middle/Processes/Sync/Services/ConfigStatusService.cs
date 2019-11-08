@@ -86,9 +86,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
             var valid = settings.AcumaticaTaxZone.HasValue()
                         && settings.AcumaticaTaxableCategory.HasValue()
-                        && settings.AcumaticaTaxExemptCategory.HasValue()
-                        && settings.AcumaticaLineItemTaxId.HasValue()
-                        && settings.AcumaticaFreightTaxId.HasValue();
+                        && settings.AcumaticaTaxExemptCategory.HasValue();
 
             var state = valid ? StateCode.Ok : StateCode.Invalid;
 

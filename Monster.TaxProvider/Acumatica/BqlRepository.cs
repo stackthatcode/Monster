@@ -11,11 +11,12 @@ namespace Monster.TaxProvider.Acumatica
     public class BqlRepository
     {
         private readonly PXGraph _graph;
-        private readonly Logger _logger = new Logger();
-
-        public BqlRepository(PXGraph graph)
+        private readonly Logger _logger;
+            
+        public BqlRepository(PXGraph graph, Logger logger)
         {
             _graph = graph;
+            _logger = logger;
         }
 
 
@@ -30,7 +31,7 @@ namespace Monster.TaxProvider.Acumatica
             return RetrieveSalesOrder(soShipment.OrderType, soShipment.OrderNbr);
         }
 
-        public PXResultset<ARTaxTran> RetrieveARTaxTransactions(string orderType, string orderNbr, string taxId)
+        public PXResultset<ARTaxTran> RetrieveARTaxTransactions(string orderType, string orderNbr)
         {
             var taxTrans =
                 PXSelectJoin<ARTaxTran,
@@ -38,9 +39,8 @@ namespace Monster.TaxProvider.Acumatica
                             On<ARTaxTran.refNbr, Equal<SOOrderShipment.invoiceNbr>,
                                 And<ARTaxTran.tranType, Equal<SOOrderShipment.invoiceType>>>>,
                         Where<SOOrderShipment.orderType, Equal<Required<SOOrderShipment.orderType>>,
-                            And<SOOrderShipment.orderNbr, Equal<Required<SOOrderShipment.orderNbr>>,
-                                And<ARTaxTran.taxID, Equal<Required<ARTran.taxID>>>>>>
-                    .Select(_graph, orderType, orderNbr, taxId);
+                            And<SOOrderShipment.orderNbr, Equal<Required<SOOrderShipment.orderNbr>>>>>
+                    .Select(_graph, orderType, orderNbr);
 
             return taxTrans;
         }
@@ -69,7 +69,8 @@ namespace Monster.TaxProvider.Acumatica
             // Unpack Base64-encoded and GZip-compressed tax data
             //
             string json = salesOrderExt.UsrTaxSnapshot.Unzip();
-            _logger.Info($"Tax Transfer loaded from Acumatica {orderType} {orderNumber} - " + json);
+
+            _logger.Debug($"Tax Transfer Snapshot ({orderType} {orderNumber}) - " + json);
 
             return JsonConvert.DeserializeObject<Transfer>(json);
         }

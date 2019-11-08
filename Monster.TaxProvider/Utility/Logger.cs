@@ -4,7 +4,13 @@ namespace Monster.TaxProvider.Utility
 {
     public class Logger
     {
+        private readonly bool _debugEnabled;
         public const string TaxProviderName = "Logic Automated -> Tax Provider";
+
+        public Logger(bool debugEnabled)
+        {
+            _debugEnabled = debugEnabled;
+        }
 
         public void Info(string message)
         {
@@ -13,7 +19,10 @@ namespace Monster.TaxProvider.Utility
 
         public void Debug(string message)
         {
-            PXTrace.WriteVerbose($"{TaxProviderName} - {message}");
+            if (_debugEnabled)
+            {
+                PXTrace.WriteInformation($"{TaxProviderName} - {message}");
+            }
         }
     }
 }

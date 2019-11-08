@@ -1,8 +1,7 @@
 ﻿using PX.Data;
 using PX.Objects.SO;
 
-
-namespace Monster.TaxProvider
+namespace Monster.TaxProvider.Acumatica
 {
     public class SOOrderTaxSnapshotExt : PXCacheExtension<SOOrder>
     {
@@ -13,4 +12,3 @@ namespace Monster.TaxProvider
     }
 
 }
-
