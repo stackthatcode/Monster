@@ -41,15 +41,11 @@ namespace Monster.TaxProvider
         //
         private TaxCalcService _taxCalcService;
 
-        // Tax Provider Context Builder - translates between Acumatica GetTaxRequest et al. and Monster Tax Provider
-        //
-        private ProviderContextBuilder _providerContextBuilder;
 
         public void Initialize(IEnumerable<ITaxProviderSetting> settings)
         {
             _settings = settings.ToList();
             _taxCalcService = new TaxCalcService(_logger);
-            _providerContextBuilder = new ProviderContextBuilder(_logger);
         }
 
         public PingResult Ping()
@@ -62,10 +58,7 @@ namespace Monster.TaxProvider
             var json = JsonConvert.SerializeObject(request);
             _logger.Info($"GetTaxRequest (DocCode {request.DocCode}) - {json}");
 
-            var context = _providerContextBuilder.ExtractFromRequest(request);
-            _logger.Info($"DocContext - {JsonConvert.SerializeObject(context)}");
-
-            return _taxCalcService.Calculate(context).ToGetTaxResult();
+            return _taxCalcService.Calculate(request);
         }
 
         public PostTaxResult PostTax(PostTaxRequest request)

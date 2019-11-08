@@ -5,57 +5,59 @@ using PX.TaxProvider;
 
 namespace Monster.TaxProvider.Calc
 {
-    public class ProviderTaxCalcResult
+    public class CalcResult
     {
-        public List<ProviderTaxCalcResultItem> Items { get; set; }
+        public List<CalcResultTaxLine> TaxLines { get; set; }
         public List<string> ErrorMessages { get; set; }
         public bool Failed => ErrorMessages.Count > 0;
 
-        public decimal TaxableAmount => Items.Sum(x => x.TaxableAmount);
-        public decimal TaxAmount => Items.Sum(x => x.TaxAmount);
+        public decimal TotalTaxableAmount => TaxLines.Sum(x => x.TaxableAmount);
+        public decimal TotalTaxAmount => TaxLines.Sum(x => x.TaxAmount);
 
 
-        public ProviderTaxCalcResult()
+        public CalcResult()
         {
+            TaxLines = new List<CalcResultTaxLine>();
             ErrorMessages = new List<string>();
-            Items = new List<ProviderTaxCalcResultItem>();
         }
 
+        public void Add(CalcResultTaxLine taxLine)
+        {
+            this.TaxLines.Add(taxLine);
+        }
 
         public GetTaxResult ToGetTaxResult()
         {
             var output = new GetTaxResult();
             var taxLines = new List<TaxLine>();
-            var index = 1;
-
+            
             var details = new TaxDetail()
             {
                 TaxName = AcumaticaTaxIdentifiers.LineItemsTaxID,
                 Rate = 0.00m,
-                TaxableAmount = TaxableAmount,
-                TaxAmount = TaxAmount,
+                TaxableAmount = TotalTaxableAmount,
+                TaxAmount = TotalTaxAmount,
                 TaxCalculationLevel = TaxCalculationLevel.CalcOnItemAmt,
             };
 
             taxLines.Add(new TaxLine()
             {
-                Index = index,
+                Index = 1,
                 Rate = 0.00m,
-                TaxableAmount = TaxableAmount,
-                TaxAmount = TaxAmount,
-                TaxDetails = new[] { details },
+                TaxableAmount = TotalTaxableAmount,
+                TaxAmount = TotalTaxAmount,
+                TaxDetails = new[] {details},
             });
 
             output.TaxLines = taxLines.ToArray();
-            output.TotalAmount = TaxableAmount;
-            output.TotalTaxAmount = TaxAmount;
+            output.TotalAmount = TotalTaxableAmount;
+            output.TotalTaxAmount = TotalTaxAmount;
 
             output.TaxSummary = new TaxDetail[] { details };
             output.IsSuccess = true;
 
             return output;
         }
-
     }
 }
 

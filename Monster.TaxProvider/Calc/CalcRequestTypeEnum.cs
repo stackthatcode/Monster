@@ -1,6 +1,6 @@
 ﻿namespace Monster.TaxProvider.Calc
 {
-    public enum ProviderContextType
+    public enum CalcRequestTypeEnum
     {
         Undetermined = 0,
         SalesOrder = 1,

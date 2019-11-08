@@ -66,23 +66,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acumatica\AcumaticaTaxIdentifiers.cs" />
-    <Compile Include="InvoiceTaxes\OtherInvoiceTaxSummary.cs" />
+    <Compile Include="InvoiceTaxes\OtherInvoiceTaxContext.cs" />
     <Compile Include="InvoiceTaxes\OtherInvoiceTaxService.cs" />
     <Compile Include="Acumatica\BqlRepository.cs" />
     <Compile Include="InvoiceTaxes\ArInvoiceTaxTran.cs" />
-    <Compile Include="Calc\ProviderTaxCalcResultItem.cs" />
-    <Compile Include="Calc\ProviderContext.cs" />
+    <Compile Include="Calc\CalcResultTaxLine.cs" />
+    <Compile Include="Calc\CalcRequestType.cs" />
     <Compile Include="Acumatica\AcumaticaDocType.cs" />
     <Compile Include="Acumatica\AcumaticaModule.cs" />
-    <Compile Include="Calc\ProviderContextBuilder.cs" />
-    <Compile Include="Calc\ProviderContextType.cs" />
+    <Compile Include="Calc\CalcRequestTypeEnum.cs" />
     <Compile Include="Utility\Compression.cs" />
     <Compile Include="Utility\Logger.cs" />
     <Compile Include="StubTaxProvider.cs" />
     <Compile Include="SOOrderTaxSnapshotExt.cs" />
     <Compile Include="LogicAutomatedTaxProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Calc\ProviderTaxCalcResult.cs" />
+    <Compile Include="Calc\CalcResult.cs" />
     <Compile Include="Calc\TaxCalcService.cs" />
   </ItemGroup>
   <ItemGroup>

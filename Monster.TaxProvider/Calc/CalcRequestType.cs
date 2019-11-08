@@ -1,29 +1,38 @@
 ﻿using System.Linq;
 using Monster.TaxProvider.Acumatica;
-using Monster.TaxProvider.Context;
-using Monster.TaxProvider.Utility;
 using PX.TaxProvider;
 
 namespace Monster.TaxProvider.Calc
 {
-    public class ProviderContextBuilder
+    public class CalcRequestType
     {
-        private readonly Logger _logger;
+        public CalcRequestTypeEnum Type { get; set; }
+        public string RefType { get; set; }
+        public string RefNbr { get; set; }
+        public string DocContextTypeName => Type.ToString();
 
-        public ProviderContextBuilder(Logger logger)
+        public override string ToString()
         {
-            _logger = logger;
+            return "";
         }
 
-        public ProviderContext ExtractFromRequest(GetTaxRequest request)
+        public CalcRequestType()
+        {
+            Type = CalcRequestTypeEnum.Undetermined;
+        }
+    }
+
+    public static class ProviderContextExtensions
+    {
+        public static CalcRequestType ToCalcRequestType(this GetTaxRequest request)
         {
             var parts = request.DocCode.Split('.').ToList();
 
             if (parts[0] == AcumaticaDocType.SalesOrder && parts[2] == AcumaticaDocType.Freight)
             {
-                return new ProviderContext
+                return new CalcRequestType
                 {
-                    DocContextType = ProviderContextType.SOFreight,
+                    Type = CalcRequestTypeEnum.SOFreight,
                     RefType = parts[0],
                     RefNbr = parts[1]
                 };
@@ -31,9 +40,9 @@ namespace Monster.TaxProvider.Calc
 
             if (parts[0] == AcumaticaDocType.SalesOrder && parts[1] == AcumaticaDocType.SalesOrder)
             {
-                return new ProviderContext
+                return new CalcRequestType
                 {
-                    DocContextType = ProviderContextType.SalesOrder,
+                    Type = CalcRequestTypeEnum.SalesOrder,
                     RefType = parts[1],
                     RefNbr = parts[2],
                 };
@@ -41,18 +50,21 @@ namespace Monster.TaxProvider.Calc
 
             if (parts[0] == AcumaticaModule.AR && parts[1] == AcumaticaDocType.Invoice)
             {
-                return new ProviderContext
+                return new CalcRequestType
                 {
-                    DocContextType = ProviderContextType.SOShipmentInvoice,
+                    Type = CalcRequestTypeEnum.SOShipmentInvoice,
                     RefType = parts[1],
                     RefNbr = parts[2],
                 };
             }
 
-            return new ProviderContext()
+            return new CalcRequestType()
             {
-                DocContextType = ProviderContextType.Undetermined
+                Type = CalcRequestTypeEnum.Undetermined
             };
         }
     }
+}
+
+
 }

@@ -2,17 +2,16 @@
 
 namespace Monster.TaxProvider.Calc
 {
-    public class ProviderTaxCalcResultItem
+    public class CalcResultTaxLine
     {
-        public string Description { get; private set; }
+        public string Desc { get; private set; }
         public decimal Rate { get; private set; }
         public decimal TaxableAmount { get; private set; }
         public decimal TaxAmount { get; private set; }
 
-        public ProviderTaxCalcResultItem(
-                    string description, decimal taxableAmount, decimal taxAmount, decimal rate)
+        public CalcResultTaxLine(string desc, decimal taxableAmount, decimal taxAmount, decimal rate)
         {
-            Description = description;
+            Desc = desc;
             Rate = rate;
             TaxableAmount = taxableAmount;
             TaxAmount = taxAmount;
