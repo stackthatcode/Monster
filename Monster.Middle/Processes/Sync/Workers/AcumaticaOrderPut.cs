@@ -137,12 +137,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Write the Sales Order to Acumatica
             //
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-
-            var transactionRecord = shopifyOrderRecord.PaymentTransaction();
-            var payment = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
-
-            var salesOrder = BuilderNewSalesOrder(shopifyOrder, payment, acumaticaCustomer);
+            var salesOrder = BuilderNewSalesOrder(shopifyOrderRecord, acumaticaCustomer);
             var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
 
             // Create the local Order Record and Sync
@@ -189,14 +184,15 @@ namespace Monster.Middle.Processes.Sync.Workers
         // Create new Sales Order
         //
         private SalesOrder BuilderNewSalesOrder(
-                    Order shopifyOrder, Transaction transaction, AcumaticaCustomer customer)
+                    ShopifyOrder shopifyOrderRecord, AcumaticaCustomer customer)
         {
             // Header
             //
-            var salesOrder = BuildNewSalesOrderHeader(shopifyOrder, transaction, customer);
+            var salesOrder = BuildNewSalesOrderHeader(shopifyOrderRecord, customer);
 
             // Detail
             //
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
             salesOrder.Details = BuildSalesOrderDetail(shopifyOrder);
 
             // Shipping Contact
@@ -243,8 +239,12 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
         private SalesOrder BuildNewSalesOrderHeader(
-                Order shopifyOrder, Transaction payment, AcumaticaCustomer customer)
+                    ShopifyOrder shopifyOrderRecord, AcumaticaCustomer customer)
         {
+            var transactionRecord = shopifyOrderRecord.PaymentTransaction();
+            var payment = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+
             var settings = _settingsRepository.RetrieveSettings();
             var gateway = _settingsRepository.RetrievePaymentGatewayByShopifyId(payment.gateway);
 
@@ -259,18 +259,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
             salesOrder.PaymentMethod = gateway.AcumaticaPaymentMethod.ToValue();
             salesOrder.CashAccount = gateway.AcumaticaCashAccount.ToValue();
-            
-            salesOrder.FinancialSettings = new FinancialSettings()
-            {
-                OverrideTaxZone = true.ToValue(),
-                CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
-            };
-
-            var taxTransfer
-                = shopifyOrder.ToTaxTransfer()
-                    .SerializeToJson(Formatting.None).ToBase64Zip();
-
-            salesOrder.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
 
             // Shipping Settings
             //
@@ -283,13 +271,28 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Freight Price and Taxes
             //
             salesOrder.FreightPrice 
-                = ((double)shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue();
+                = ((double)shopifyOrder.NetShippingTotal).ToValue();
 
             salesOrder.OverrideFreightPrice = true.ToValue();
             salesOrder.FreightTaxCategory = shopifyOrder.IsShippingTaxable
                 ? settings.AcumaticaTaxableCategory.ToValue()
                 : settings.AcumaticaTaxExemptCategory.ToValue();
 
+            // Taxes
+            //
+            salesOrder.FinancialSettings = new FinancialSettings()
+            {
+                OverrideTaxZone = true.ToValue(),
+                CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
+            };
+
+            var taxTransfer
+                = shopifyOrderRecord
+                    .ToTaxTransfer()
+                    .SerializeToJson(Formatting.None)
+                    .ToBase64Zip();
+
+            salesOrder.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
 
             return salesOrder;
         }
@@ -344,7 +347,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Update the Shipping Cost
             //
-            salesOrderUpdate.FreightPrice = ((double)shopifyOrder.ShippingDiscountedTotalAfterRefunds).ToValue();
+            salesOrderUpdate.FreightPrice = ((double)shopifyOrder.NetShippingTotal).ToValue();
             salesOrderUpdate.OverrideFreightPrice = true.ToValue();
 
             foreach (var line_item in shopifyOrder.line_items)
@@ -369,9 +372,12 @@ namespace Monster.Middle.Processes.Sync.Workers
                 salesOrderUpdate.Details.Add(detail);
             }
 
-            var taxTransfer = shopifyOrder.ToTaxTransfer().SerializeToJson(Formatting.None).ToBase64Zip();
-            salesOrderUpdate.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
+            var taxTransfer = shopifyOrderRecord
+                    .ToTaxTransfer()
+                    .SerializeToJson(Formatting.None)
+                    .ToBase64Zip();
 
+            salesOrderUpdate.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
             return salesOrderUpdate;
         }
 

@@ -1,4 +1,6 @@
-﻿namespace Push.Shopify.Api.Order
+﻿using System;
+
+namespace Push.Shopify.Api.Order
 {
     public class OrderAdjustment
     {
@@ -13,6 +15,6 @@
         public bool IsShippingAdjustment => kind == "shipping_refund";
         public bool IsRefundDiscrepancy => kind == "refund_discrepancy";
 
-        public bool IsTaxable => tax_amount > 0;
+        public bool IsTaxable => Math.Abs(tax_amount) > 0;
     }
 }

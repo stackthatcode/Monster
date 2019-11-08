@@ -17,18 +17,27 @@ namespace Monster.TaxTransfer
             Refunds = new List<TransferRefund>();
         }
 
-        public decimal NetTotalTaxableLineAmounts
-                => LineItems.Sum(x => x.TaxableAmount) - Refunds.Sum(x => x.TotalTaxableLineAmounts);
-        public decimal NetTotalTaxableFreight => Freight.TaxableAmount - Refunds.Sum(x => x.TaxableFreightAmount);
-
-        public decimal NetTotalLineItemTax
-                 => LineItems.Sum(x => x.TaxAmount) - Refunds.Sum(x => x.TotalLineItemsTax);
-        public decimal NetTotalFreightTax => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
 
         public decimal TotalTax => LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
-        public decimal NetTotalTax => NetTotalLineItemTax + NetTotalFreightTax;
-
         public decimal TotalPrice => LineItems.Sum(x => x.LineAmount) + Freight.Price + TotalTax;
+
+        public decimal NetTotalTaxableAmount
+                => LineItems.Sum(x => x.TaxableAmount)
+                   + Freight.TaxableAmount
+                   - Refunds.Sum(x => x.TotalTaxableLineAmounts)
+                   - Refunds.Sum(x => x.TaxableFreightAmount);
+
+        public decimal NetTotalFreightTax => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
+
+        public decimal NetTotalTax 
+                => LineItems.Sum(x => x.TaxAmount) 
+                    + Freight.TaxAmount
+                    - Refunds.Sum(x => x.TotalLineItemsTax)
+                    - Refunds.Sum(x => x.FreightTax);
+
+        public decimal NetTotal => NetTotalTaxableAmount + NetTotalTax;
+        public decimal NetPayment { get; set; }
+
 
         public bool LineItemExists(string inventoryID)
         {

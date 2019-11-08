@@ -87,7 +87,7 @@ namespace Push.Shopify.Api.Order
         public bool IsShippingTaxable => ShippingTotal > 0m && ShippingTax > 0m;
 
         [JsonIgnore]
-        public decimal ShippingDiscountedTotalAfterRefunds
+        public decimal NetShippingTotal
                     => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
 
         // Refund Totals

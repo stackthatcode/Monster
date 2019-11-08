@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Shopify.Persist;
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
 {
@@ -24,6 +25,5 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         {
             return order.ShopifyOrder;
         }
-
     }
 }

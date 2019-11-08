@@ -74,9 +74,7 @@ namespace Monster.TaxProvider.Calc
             var transfer = _repository.RetrieveTaxTransfer(context.OrderType, context.OrderNbr);
             var result = new CalcResult();
 
-            result.AddTaxLine("Line Items", 0m, transfer.NetTotalTaxableLineAmounts, transfer.NetTotalLineItemTax);
-            result.AddTaxLine("Freight", 0m, transfer.NetTotalTaxableFreight, transfer.NetTotalFreightTax);
-
+            result.AddTaxLine("Sales Order Tax", 0m, transfer.NetTotalTaxableAmount, transfer.NetTotalTax);
             return result;
         }
 
@@ -102,15 +100,8 @@ namespace Monster.TaxProvider.Calc
 
         private CalcResult InvoiceFinalTax(Transfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
         {
-            var taxableTotal =
-                    transfer.NetTotalTaxableFreight + 
-                    transfer.NetTotalTaxableLineAmounts -
-                    otherInvoiceTaxes.TotalTaxableAmount;
-
-            var taxTotal =
-                    transfer.NetTotalLineItemTax +
-                    transfer.NetTotalFreightTax -
-                    otherInvoiceTaxes.TotalTaxAmount;
+            var taxableTotal = transfer.NetTotalTaxableAmount + otherInvoiceTaxes.TotalTaxableAmount;
+            var taxTotal = transfer.NetTotalTax - otherInvoiceTaxes.TotalTaxAmount;
 
             var result = new CalcResult();
             result.AddTaxLine("Final Invoice Tax", 0m, taxableTotal, taxTotal);
@@ -154,7 +145,6 @@ namespace Monster.TaxProvider.Calc
 
             return result;
         }
-
     }
 }
 

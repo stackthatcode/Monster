@@ -146,7 +146,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Amount computations
             //
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
-            var appliedToOrder = order.CalcPaymentAppliedToOrder();
+            var appliedToOrder = order.NetPaymentAppliedToOrder();
             payment.OrdersToApply = PaymentOrdersRef.ForOrder(
                 acumaticaOrderRef, SalesOrderType.SO, (double)appliedToOrder);
 
@@ -165,7 +165,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var acumaticaOrderRef = order.AcumaticaSalesOrderId();
 
             // Applied To Order
-            var amountApplied = order.CalcPaymentAppliedToOrder();
+            var amountApplied = order.NetPaymentAppliedToOrder();
 
             // Create the payload for Acumatica
             //

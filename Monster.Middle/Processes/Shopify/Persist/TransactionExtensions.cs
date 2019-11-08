@@ -70,7 +70,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return order.ShopifyTransactions.Where(x => x.DoNotIgnore() && x.IsRefund()).ToList();
         }
 
-        public static decimal CalcPaymentAppliedToOrder(this ShopifyOrder order)
+        public static decimal NetPaymentAppliedToOrder(this ShopifyOrder order)
         {
             return (order.PaymentTransaction()?.ShopifyAmount ?? 0m) -
                     order.RefundTransactions().Sum(x => x.ShopifyAmount);

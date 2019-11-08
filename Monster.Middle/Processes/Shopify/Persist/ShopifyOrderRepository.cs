@@ -83,6 +83,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             return Entities
                 .ShopifyOrders
+                .Include(x => x.ShopifyRefunds)
                 .Where(x => x.NeedsTransactionGet)
                 .ToList();
         }

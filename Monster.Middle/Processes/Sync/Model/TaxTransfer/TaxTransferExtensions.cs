@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.TaxTransfer;
 using Push.Shopify.Api.Order;
 
@@ -7,13 +9,14 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
 {
     public static class TaxTransferExtensions
     {
-
-        public static Transfer ToTaxTransfer(this Order shopifyOrder)
+        public static Transfer ToTaxTransfer(this ShopifyOrder shopifyOrderRecord)
         {
+            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+
             var transfer = new Transfer();
             transfer.ExternalRefNbr = shopifyOrder.id.ToString();
 
-            transfer.Freight.Price = shopifyOrder.ShippingDiscountedTotal;
+            transfer.Freight.Price = shopifyOrder.ShippingTotal;
             transfer.Freight.IsTaxable = shopifyOrder.ShippingTotal > 0 && shopifyOrder.ShippingTax > 0;
             transfer.Freight.TaxLines = shopifyOrder.shipping_lines.ToTransferTaxLines();
             transfer.Freight.TaxAmount = shopifyOrder.ShippingTax;
@@ -45,6 +48,9 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
                 transfer.Refunds.Add(xferRefund);
             }
 
+
+            transfer.NetPayment = shopifyOrderRecord.NetPaymentAppliedToOrder();
+
             return transfer;
         }
 
@@ -59,5 +65,6 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
                 ? new List<TransferTaxLine>()
                 : shippingLines.First().tax_lines.ToTransferTaxLines();
         }
+
     }
 }

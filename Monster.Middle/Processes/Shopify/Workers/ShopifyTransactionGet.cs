@@ -61,7 +61,10 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 if (transaction.kind == TransactionKind.Refund)
                 {
                     var refund = order.RefundByTransaction(transaction.id);
-                    record.ShopifyRefundId = refund.id;
+                    if (refund != null)
+                    {
+                        record.ShopifyRefundId = refund.id;
+                    }
                 }
 
                 record.ShopifyOrderId = transaction.order_id;
