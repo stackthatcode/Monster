@@ -6,24 +6,25 @@ using Push.Foundation.Utilities.Validation;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
 {
-    public class PaymentSyncStatus
+    public class PaymentSyncValidation
     {
         public ShopifyTransaction ThisTransaction { get; set; }
         public ShopifyTransaction PaymentTransaction { get; set; }
 
 
-        public static PaymentSyncStatus Make(ShopifyOrder shopifyOrder, ShopifyTransaction thisTransaction)
+        public static PaymentSyncValidation Make(
+                ShopifyOrder shopifyOrder, ShopifyTransaction thisTransaction)
         {
-            return new PaymentSyncStatus
+            return new PaymentSyncValidation
             {
                 ThisTransaction = thisTransaction,
                 PaymentTransaction = shopifyOrder.PaymentTransaction(),
             };
         }
 
-        private Validation<PaymentSyncStatus> BuildBaseValidation()
+        private Validation<PaymentSyncValidation> BuildBaseValidation()
         {
-            return new Validation<PaymentSyncStatus>()
+            return new Validation<PaymentSyncValidation>()
                 .Add(x => ThisTransaction.DoNotIgnore(), $"Transaction is not valid for sync");
         }
 

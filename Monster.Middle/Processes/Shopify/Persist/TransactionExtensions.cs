@@ -102,23 +102,15 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return !transaction.DoNotIgnore();
         }
 
-        public static bool NeedToCreate(this ShopifyTransaction transaction)
+        public static List<ShopifyRefund> CreditAdustmentRefunds(this ShopifyOrder orderRecord)
         {
-            return transaction.DoNotIgnore() && transaction.AcumaticaPayment == null;
+            return orderRecord.ShopifyRefunds.Where(x => x.CreditAdjustment > 0m).ToList();
         }
 
-        public static bool NeedToUpdate(this ShopifyTransaction transaction)
+        public static List<ShopifyRefund> DebitAdustmentRefunds(this ShopifyOrder orderRecord)
         {
-            return transaction.DoNotIgnore() && 
-                   transaction.AcumaticaPayment != null 
-                   && transaction.NeedsPaymentPut;
-        }
-
-        public static bool NeedToRelease(this ShopifyTransaction transaction)
-        {
-            return transaction.DoNotIgnore() &&
-                   transaction.AcumaticaPayment != null
-                   && transaction.AcumaticaPayment.IsReleased == false;
+            return orderRecord.ShopifyRefunds.Where(x => x.DebitAdjustment > 0m).ToList();
         }
     }
 }
+

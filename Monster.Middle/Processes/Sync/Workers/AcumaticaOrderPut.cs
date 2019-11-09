@@ -101,7 +101,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         
         public void RunOrder(long shopifyOrderId)
         {
-            var status = _orderStatusService.ShopifyOrderStatus(shopifyOrderId);
+            var status = _orderStatusService.OrderSyncValidation(shopifyOrderId);
 
             var readyToSyncValidation = status.IsReadyToSync();
             if (!readyToSyncValidation.Success)
@@ -111,7 +111,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
 
-            if (!orderRecord.IsSynced())
+            if (!orderRecord.ExistsInAcumatica())
             {
                 var acumaticaCustomer = PushNonExistentCustomer(orderRecord);
                 CreateNewOrder(orderRecord, acumaticaCustomer);

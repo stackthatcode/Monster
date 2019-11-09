@@ -60,7 +60,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var transaction = orderRecord.PaymentTransaction();
-            var status = PaymentSyncStatus.Make(orderRecord, transaction);
+            var status = PaymentSyncValidation.Make(orderRecord, transaction);
 
             var createValidation = status.ReadyToCreatePayment();
             if (createValidation.Success)
@@ -88,7 +88,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var transaction in orderRecord.RefundTransactions())
             {
-                var status = PaymentSyncStatus.Make(orderRecord, transaction);
+                var status = PaymentSyncValidation.Make(orderRecord, transaction);
                 var shouldCreateRefund = status.ReadyToCreateRefundPayment();
 
                 if (shouldCreateRefund.Success)
@@ -107,7 +107,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var transaction in order.ShopifyTransactions)
             {
-                var status = PaymentSyncStatus.Make(order, transaction);
+                var status = PaymentSyncValidation.Make(order, transaction);
                 var shouldRelease = status.ReadyToRelease();
 
                 if (shouldRelease.Success)

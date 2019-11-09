@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Push.Shopify.Api.Order
 {
@@ -21,7 +17,7 @@ namespace Push.Shopify.Api.Order
 
     public static class AdjustmentMemoExtensions
     {
-        public static List<AdjustmentMemo> GetAdjustmentMemos(this Order order)
+        public static List<AdjustmentMemo> AdjustmentMemos(this Order order)
         {
             var output = new List<AdjustmentMemo>();
 

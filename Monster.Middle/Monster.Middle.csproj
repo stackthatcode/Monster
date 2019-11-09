@@ -153,9 +153,10 @@
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Orders\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Status\ConfigStatusSummary.cs" />
-    <Compile Include="Processes\Sync\Model\Status\OrderSyncStatus.cs" />
+    <Compile Include="Processes\Sync\Model\Status\OrderPendingActionStatus.cs" />
+    <Compile Include="Processes\Sync\Model\Status\OrderSyncValidation.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
-    <Compile Include="Processes\Sync\Model\Status\PaymentSyncStatus.cs" />
+    <Compile Include="Processes\Sync\Model\Status\PaymentSyncValidation.cs" />
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
     <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
@@ -183,7 +184,6 @@
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\VariantAndStockItemDto.cs" />
     <Compile Include="Processes\Sync\Services\OrderStatusService.cs" />
-    <Compile Include="Processes\Sync\Services\SettingStatusService.cs" />
     <Compile Include="Processes\Sync\Workers\ParallelWorker.cs" />
     <Compile Include="Processes\Sync\Services\CombinedRefDataService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferenceGet.cs" />

@@ -9,7 +9,7 @@ using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
 {
-    public class OrderSyncStatus
+    public class OrderSyncValidation
     {
         public long SettingsStartingOrderId { get; set; }
         public ShopifyOrder ShopifyOrderRecord { get; set; }
@@ -35,7 +35,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         
         public ValidationResult IsReadyToSync()
         {
-            var validation = new Validation<OrderSyncStatus>()
+            var validation = new Validation<OrderSyncValidation>()
 
                 .Add(x => !x.IsFulfilledBeforeSync, 
                     $"Shopify Order has been fulfilled before sync with Acumatica", instantFailure:true)
