@@ -15,15 +15,18 @@ namespace Monster.Web.Controllers
     {
         private readonly ExecutionLogService _logRepository;
         private readonly AnalysisDataService _analysisDataService;
+        private readonly OrderStatusService _orderStatusService;
         private readonly InstanceContext _instanceContext;
 
         public AnalysisController(
             ExecutionLogService logRepository,
             AnalysisDataService analysisDataService, 
+            OrderStatusService orderStatusService,
             InstanceContext instanceContext)
         {
             _logRepository = logRepository;
             _analysisDataService = analysisDataService;
+            _orderStatusService = orderStatusService;
             _instanceContext = instanceContext;
         }
 
@@ -61,13 +64,12 @@ namespace Monster.Web.Controllers
         {
             _instanceContext.InitializeAcumatica(HttpContext.GetIdentity().InstanceId);
             var financialSummary = _analysisDataService.GetOrderFinancialSummary(shopifyOrderId);
-
-            var statusSummary = new object();
+            var pendingActionStatus = _orderStatusService.PendingActionStatus(shopifyOrderId);
 
             return new JsonNetResult(new
             {
                 FinancialSummary = financialSummary,
-                StatusSummary = statusSummary,
+                PendingActionSummary = pendingActionStatus,
             });
         }
     }

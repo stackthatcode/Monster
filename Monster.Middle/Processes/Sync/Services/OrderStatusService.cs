@@ -77,7 +77,6 @@ namespace Monster.Middle.Processes.Sync.Services
             return output;
         }
 
-
         public OrderPendingActionStatus PendingActionStatus(long shopifyOrderId)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
@@ -89,36 +88,74 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderHref = _urlService.ShopifyOrderUrl(shopifyOrderId);
             output.ShopifyOrderName = order.name;
 
-            output.CreateOrderInAcumatica = !orderRecord.ExistsInAcumatica();
             output.OrderSyncValidation = OrderSyncValidation(shopifyOrderId);
-            output.UpdateOrderInAcumatica = orderRecord.ExistsInAcumatica() && orderRecord.NeedsOrderPut;
+
+            if (!orderRecord.ExistsInAcumatica())
+            {
+                output.ShopifyOrderAction = PendingAction.CreateInAcumatica;
+            }
+            if (orderRecord.ExistsInAcumatica() && orderRecord.NeedsOrderPut)
+            {
+                output.ShopifyOrderAction = PendingAction.UpdateInAcumatica;
+            }
 
             output.MissingShopifyPayment = !orderRecord.HasPayment();
-
             if (orderRecord.HasPayment())
             {
                 var payment = orderRecord.PaymentTransaction();
                 output.ShopifyPaymentAmount = payment.ShopifyAmount;
-                output.CreatePaymentInAcumatica = !payment.ExistsInAcumatica();
-                output.UpdatePaymentInAcumatica = payment.ExistsInAcumatica();
-                output.ReleasePaymentInAcumatica 
-                    = payment.ExistsInAcumatica() && !payment.AcumaticaPayment.IsReleased;
+
+                if (!payment.ExistsInAcumatica())
+                {
+                    output.ShopifyPaymentAction = PendingAction.CreateInAcumatica;
+                }
+                if (payment.ExistsInAcumatica() && payment.NeedsPaymentPut)
+                {
+                    output.ShopifyPaymentAction = PendingAction.UpdateInAcumatica;
+                }
+                else if (payment.ExistsInAcumatica() && !payment.AcumaticaPayment.IsReleased)
+                {
+                    output.ShopifyPaymentAction = PendingAction.ReleaseInAcumatica;
+                }
             }
 
-            foreach (var refundTransactions in orderRecord.RefundTransactions())
+            foreach (var refund in orderRecord.RefundTransactions())
             {
+                var refundAction = new RefundPendingAction();
+                refundAction.RefundAmount = refund.ShopifyAmount;
 
+                if (!refund.ExistsInAcumatica())
+                {
+                    refundAction.Action = PendingAction.CreateInAcumatica;
+                }
+                if (refund.ExistsInAcumatica() && !refund.IsReleased())
+                {
+                    refundAction.Action = PendingAction.ReleaseInAcumatica;
+                }
+
+                output.RefundPendingActions.Add(refundAction);
             }
 
             foreach (var creditAdj in orderRecord.CreditAdustmentRefunds())
             {
+                var action = new AdjustmentMemoPendingAction();
+                action.Action = PendingAction.CreateInAcumatica;
+                action.MemoType = AdjustmentMemoType.CreditMemo;
+                action.MemoAmount = creditAdj.CreditAdjustment;
 
+                output.AdjustmentMemoPendingActions.Add(action);
             }
 
-            foreach (var debitAdj in orderRecord.CreditAdustmentRefunds())
+            foreach (var debitAdj in orderRecord.DebitAdustmentRefunds())
             {
+                var action = new AdjustmentMemoPendingAction();
+                action.Action = PendingAction.CreateInAcumatica;
+                action.MemoType = AdjustmentMemoType.DebitMemo;
+                action.MemoAmount = debitAdj.DebitAdjustment;
 
+                output.AdjustmentMemoPendingActions.Add(action);
             }
+
             return output;
         }
     }

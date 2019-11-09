@@ -158,6 +158,7 @@
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\PaymentSyncValidation.cs" />
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
+    <Compile Include="Processes\Sync\Model\Status\PendingAction.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
     <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
     <Compile Include="Processes\Sync\Services\AnalysisDataService.cs" />
