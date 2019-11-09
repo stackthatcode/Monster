@@ -62,7 +62,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var transaction = orderRecord.PaymentTransaction();
             var status = PaymentSyncStatus.Make(orderRecord, transaction);
 
-            var createValidation = status.MustCreatePayment();
+            var createValidation = status.ReadyToCreatePayment();
             if (createValidation.Success)
             {
                 _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
@@ -72,7 +72,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 return;
             }
 
-            var updateValidation = status.MustUpdatePayment();
+            var updateValidation = status.ReadyToUpdatePayment();
             if (updateValidation.Success)
             {
                 _logService.Log(LogBuilder.UpdateAcumaticaPayment(transaction));
@@ -89,7 +89,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             foreach (var transaction in orderRecord.RefundTransactions())
             {
                 var status = PaymentSyncStatus.Make(orderRecord, transaction);
-                var shouldCreateRefund = status.MustCreateRefundPayment();
+                var shouldCreateRefund = status.ReadyToCreateRefundPayment();
 
                 if (shouldCreateRefund.Success)
                 {
@@ -108,7 +108,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             foreach (var transaction in order.ShopifyTransactions)
             {
                 var status = PaymentSyncStatus.Make(order, transaction);
-                var shouldRelease = status.MustRelease();
+                var shouldRelease = status.ReadyToRelease();
 
                 if (shouldRelease.Success)
                 {

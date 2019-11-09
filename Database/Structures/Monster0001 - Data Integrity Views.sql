@@ -360,6 +360,7 @@ AS
 GO
 
 
+
 DROP VIEW IF EXISTS vw_SyncFulfillmentsAndShipments
 GO
 CREATE VIEW vw_SyncFulfillmentsAndShipments
@@ -392,6 +393,8 @@ SELECT
 	t2.ShopifyTransactionId,
 	t2.ShopifyStatus,
 	t2.ShopifyKind,
+	t2.Ignore,
+	t2.NeedsPaymentPut,
 	t3.AcumaticaRefNbr,
 	t3.AcumaticaDocType,
 	t3.IsReleased,

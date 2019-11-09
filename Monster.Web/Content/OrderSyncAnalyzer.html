@@ -31,8 +31,8 @@
         </div>
 
         <div data-bind="visible: ShowDrilldown">
-            <div data-bind="if: OrderAnalysis">
-                <div data-bind="template: { name: 'Order-Analyzer-Drilldown', data: OrderAnalysis }"></div>
+            <div data-bind="if: FinancialSummary">
+                <div data-bind="template: { name: 'Order-Analyzer-Drilldown', data: FinancialSummary }"></div>
             </div>
         </div>
     </div>
@@ -97,7 +97,7 @@
 
 <script type="text/html" id="Order-Analyzer-Drilldown">
     <div class="center std-pad-side" style="width: 100%;">
-        <a href="#" class="btn btn-secondary btn-sm" data-bind="click: function() { $parent.ShowDrilldown(false); }">
+        <a href="#" class="btn btn-secondary btn-sm std-pad-sm-side" data-bind="click: function() { $parent.ShowDrilldown(false); }">
             Back to Results <i class="fas fa-undo"></i>
         </a>
         <div style="height: 20px;"></div>
@@ -271,7 +271,7 @@
 
         // Order drill down...
         //
-        self.OrderAnalysis = ko.observable();
+        self.FinancialSummary = ko.observable();
         self.ShowDrilldown = ko.observable(false);
         self.HideDrilldown = ko.computed(function() { return !self.ShowDrilldown(); });
 
@@ -300,12 +300,11 @@
         self.OrderClick = function (item) {
             flow.exec(function () {
                     // console.log(item);
-
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("/Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
                 },
                 function (response) {
-                    self.OrderAnalysis(response);
+                    self.FinancialSummary(response.FinancialSummary);
                     self.ShowDrilldown(true);
                 });
         };

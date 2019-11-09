@@ -101,5 +101,24 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             return !transaction.DoNotIgnore();
         }
+
+        public static bool NeedToCreate(this ShopifyTransaction transaction)
+        {
+            return transaction.DoNotIgnore() && transaction.AcumaticaPayment == null;
+        }
+
+        public static bool NeedToUpdate(this ShopifyTransaction transaction)
+        {
+            return transaction.DoNotIgnore() && 
+                   transaction.AcumaticaPayment != null 
+                   && transaction.NeedsPaymentPut;
+        }
+
+        public static bool NeedToRelease(this ShopifyTransaction transaction)
+        {
+            return transaction.DoNotIgnore() &&
+                   transaction.AcumaticaPayment != null
+                   && transaction.AcumaticaPayment.IsReleased == false;
+        }
     }
 }

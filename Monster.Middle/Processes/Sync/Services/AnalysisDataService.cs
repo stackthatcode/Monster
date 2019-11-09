@@ -93,7 +93,7 @@ namespace Monster.Middle.Processes.Sync.Services
         }
 
 
-        public OrderAnalysisTotals GetOrderTotals(long shopifyOrderId)
+        public OrderAnalysisTotals GetOrderFinancialSummary(long shopifyOrderId)
         {
             var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();

@@ -60,8 +60,15 @@ namespace Monster.Web.Controllers
         public ActionResult OrderAnalysis(long shopifyOrderId)
         {
             _instanceContext.InitializeAcumatica(HttpContext.GetIdentity().InstanceId);
-            var analysis = _analysisDataService.GetOrderTotals(shopifyOrderId);
-            return new JsonNetResult(analysis);
+            var financialSummary = _analysisDataService.GetOrderFinancialSummary(shopifyOrderId);
+
+            var statusSummary = new object();
+
+            return new JsonNetResult(new
+            {
+                FinancialSummary = financialSummary,
+                StatusSummary = statusSummary,
+            });
         }
     }
 }
