@@ -11,6 +11,10 @@ Monster.FindByField = function(list, fieldName, fieldValue) {
         .firstOrDefault(function (x) { return x[fieldName] == fieldValue; });
 }
 
+Monster.NumberFormat = function(input) {
+    return input == null || isNaN(input) ? "N/A" : input.toFixed(2);
+};
+
 
 // Gratitude to David Walsh - https://davidwalsh.name/pubsub-javascript
 //

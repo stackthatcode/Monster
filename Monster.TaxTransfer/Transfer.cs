@@ -41,7 +41,8 @@ namespace Monster.TaxTransfer
 
         public decimal NetTotal => NetTotalTaxableAmount + NetTotalTax;
 
-        public decimal PaymentDiscrepancy => NetTotal - (NetPayment + RefundCreditTotal - RefundDebitTotal); 
+        public decimal PaymentDiscrepancy 
+                => NetTotal - (NetPayment + RefundCreditTotal - RefundDebitTotal); 
 
 
         public bool LineItemExists(string inventoryID)

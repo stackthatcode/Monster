@@ -103,24 +103,25 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderNbr = shopifyOrderRecord.ShopifyOrderNumber;
             output.ShopifyOrderId = shopifyOrderRecord.ShopifyOrderId;
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(shopifyOrderRecord.ShopifyOrderId);
-            output.ShopifyTotalLinePrice = shopifyOrder.total_line_items_price.AnalysisFormat();
-            output.ShopifyShippingPriceTotal = shopifyOrder.ShippingDiscountedTotal.AnalysisFormat();
-            output.ShopifyTotalTax = shopifyOrder.total_tax.AnalysisFormat();
-            output.ShopifyOrderTotal = shopifyOrder.total_price.AnalysisFormat();
+            output.ShopifyTotalLinePrice = shopifyOrder.total_line_items_price;
+            output.ShopifyShippingPriceTotal = shopifyOrder.ShippingDiscountedTotal;
+            output.ShopifyTotalTax = shopifyOrder.total_tax;
+            output.ShopifyOrderTotal = shopifyOrder.total_price;
 
             output.ShopifyOrderPayment
-                = shopifyOrderRecord.ShopifyPaymentAmount().AnalysisFormat();
+                = shopifyOrderRecord.ShopifyPaymentAmount();
             output.ShopifyRefundPayment 
-                = shopifyOrderRecord.RefundTransactions().Sum(x => x.ShopifyAmount).AnalysisFormat();
+                = shopifyOrderRecord.RefundTransactions().Sum(x => x.ShopifyAmount);
             output.ShopifyNetPayment
-                = shopifyOrderRecord.ShopifyNetPayment().AnalysisFormat();
+                = shopifyOrderRecord.ShopifyNetPayment();
 
-            output.ShopifyRefundItemTotal = shopifyOrder.RefundLineItemTotal.AnalysisFormat();
-            output.ShopifyRefundShippingTotal = shopifyOrder.RefundShippingTotal.AnalysisFormat();
-            output.ShopifyRefundTaxTotal = shopifyOrder.RefundTotalTax.AnalysisFormat();
-            output.ShopifyCreditTotal = shopifyOrder.RefundCreditTotal.AnalysisFormat();
-            output.ShopifyDebitTotal = shopifyOrder.RefundDebitTotal.AnalysisFormat();
-            output.ShopifyRefundTotal = shopifyOrder.RefundTotal.AnalysisFormat();
+            output.ShopifyRefundItemTotal = shopifyOrder.RefundLineItemTotal;
+            output.ShopifyRefundShippingTotal = shopifyOrder.RefundShippingTotal;
+            output.ShopifyRefundTaxTotal = shopifyOrder.RefundTotalTax;
+            output.ShopifyCreditTotal = shopifyOrder.RefundCreditTotal;
+            output.ShopifyDebitTotal = shopifyOrder.RefundDebitTotal;
+            output.ShopifyRefundTotal = shopifyOrder.RefundTotal;
+            output.ShopifyRefundDiscrepancyTotal = shopifyOrder.RefundDiscrepancyTotal;
 
             if (shopifyOrderRecord.IsSynced())
             {
@@ -131,17 +132,16 @@ namespace Monster.Middle.Processes.Sync.Services
 
                 InjectTotalsFromAcumatica(shopifyOrderRecord, output);
 
-                output.AcumaticaPaymentTotal = shopifyOrderRecord.AcumaticaPaymentAmount().AnalysisFormat();
-                output.AcumaticaRefundPaymentTotal =
-                    shopifyOrderRecord.AcumaticaCustomerRefundTotal().AnalysisFormat();
-                output.AcumaticaNetPaymentTotal = shopifyOrderRecord.AcumaticaNetPaymentAmount().AnalysisFormat();
+                output.AcumaticaPaymentTotal = shopifyOrderRecord.AcumaticaPaymentAmount();
+                output.AcumaticaRefundPaymentTotal = shopifyOrderRecord.AcumaticaCustomerRefundTotal();
+                output.AcumaticaNetPaymentTotal = shopifyOrderRecord.AcumaticaNetPaymentAmount();
 
                 //output.AcumaticaCreditTotal
                 //output.AcumaticaRefundDebitTotal
                 //output.AcumaticaCreditDebitMemoTotal
 
-                output.AcumaticaInvoiceTaxTotal = shopifyOrderRecord.AcumaticaInvoiceTaxTotal().AnalysisFormat();
-                output.AcumaticaInvoiceTotal = shopifyOrderRecord.AcumaticaInvoiceTotal().AnalysisFormat();
+                output.AcumaticaInvoiceTaxTotal = shopifyOrderRecord.AcumaticaInvoiceTaxTotal();
+                output.AcumaticaInvoiceTotal = shopifyOrderRecord.AcumaticaInvoiceTotal();
             }
 
             return output;
@@ -159,10 +159,10 @@ namespace Monster.Middle.Processes.Sync.Services
                 acumaticaOrder = json.ToSalesOrderObj();
             });
 
-            output.AcumaticaOrderLineTotal = acumaticaOrder.Totals.LineTotalAmount.value.AnalysisFormat();
-            output.AcumaticaOrderFreight = acumaticaOrder.Totals.Freight.value.AnalysisFormat();
-            output.AcumaticaTaxTotal = acumaticaOrder.Totals.TaxTotal.value.AnalysisFormat();
-            output.AcumaticaOrderTotal = acumaticaOrder.OrderTotal.value.AnalysisFormat();
+            output.AcumaticaOrderLineTotal = (decimal)acumaticaOrder.Totals.LineTotalAmount.value;
+            output.AcumaticaOrderFreight = (decimal)acumaticaOrder.Totals.Freight.value;
+            output.AcumaticaTaxTotal = (decimal)acumaticaOrder.Totals.TaxTotal.value;
+            output.AcumaticaOrderTotal = (decimal)acumaticaOrder.OrderTotal.value;
         }
 
 
@@ -174,9 +174,9 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(order.ShopifyOrderId);
 
             var shopifyOrder = order.ToShopifyObj();
-            output.ShopifyOrderTotal = shopifyOrder.total_price.AnalysisFormat();
+            output.ShopifyOrderTotal = shopifyOrder.total_price;
 
-            output.ShopifyNetPayment = order.ShopifyNetPayment().AnalysisFormat();
+            output.ShopifyNetPayment = order.ShopifyNetPayment();
 
             if (order.AcumaticaSalesOrder != null)
             {
@@ -187,16 +187,16 @@ namespace Monster.Middle.Processes.Sync.Services
 
                 if (order.IsPaymentSynced())
                 {
-                    output.AcumaticaOrderPayment = order.AcumaticaPaymentAmount().AnalysisFormat();
-                    output.AcumaticaNetPayment = order.AcumaticaNetPaymentAmount().AnalysisFormat();
+                    output.AcumaticaOrderPayment = order.AcumaticaPaymentAmount();
+                    output.AcumaticaNetPayment = order.AcumaticaNetPaymentAmount();
                 }
                 else
                 {
-                    output.AcumaticaOrderPayment = 0.00m.AnalysisFormat();
-                    output.AcumaticaNetPayment = 0.00m.AnalysisFormat();
+                    output.AcumaticaOrderPayment = 0.00m;
+                    output.AcumaticaNetPayment = 0.00m;
                 }
 
-                output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal().AnalysisFormat();
+                output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal();
             }
 
             return output;

@@ -6,79 +6,80 @@
         public string ShopifyOrderNbr { get; set; }
         public string ShopifyOrderHref { get; set; }
 
-        public string ShopifyTotalLinePrice { get; set; }
-        public string ShopifyShippingPriceTotal { get; set; }
-        public string ShopifyTotalTax { get; set; }
-        public string ShopifyOrderTotal { get; set; }
+        public decimal ShopifyTotalLinePrice { get; set; }
+        public decimal ShopifyShippingPriceTotal { get; set; }
+        public decimal ShopifyTotalTax { get; set; }
+        public decimal ShopifyOrderTotal { get; set; }
 
-        public string ShopifyOrderPayment { get; set; }
-        public string ShopifyRefundPayment { get; set; }
-        public string ShopifyNetPayment { get; set; }
+        public decimal ShopifyOrderPayment { get; set; }
+        public decimal ShopifyRefundPayment { get; set; }
+        public decimal ShopifyNetPayment { get; set; }
 
-        public string ShopifyRefundItemTotal { get; set; }
-        public string ShopifyRefundShippingTotal { get; set; }
-        public string ShopifyRefundTaxTotal { get; set; }
-        public string ShopifyCreditTotal { get; set; }
-        public string ShopifyDebitTotal { get; set; }
-        public string ShopifyRefundTotal { get; set; }
-
+        public decimal ShopifyRefundItemTotal { get; set; }
+        public decimal ShopifyRefundShippingTotal { get; set; }
+        public decimal ShopifyRefundTaxTotal { get; set; }
+        public decimal ShopifyCreditTotal { get; set; }
+        public decimal ShopifyDebitTotal { get; set; }
+        public decimal ShopifyRefundTotal { get; set; }
+        public decimal ShopifyRefundDiscrepancyTotal { get; set; }
 
         public string AcumaticaSalesOrderNbr { get; set; }
         public string AcumaticaSalesOrderHref { get; set; }
-        public string AcumaticaOrderLineTotal { get; set; }
-        public string AcumaticaOrderFreight { get; set; }
-        public string AcumaticaTaxTotal { get; set; }
-        public string AcumaticaOrderTotal { get; set; }
-        public string AcumaticaPaymentTotal { get; set; }
-        public string AcumaticaRefundPaymentTotal { get; set; }
-        public string AcumaticaNetPaymentTotal { get; set; }
-        public string AcumaticaRefundCreditTotal { get; set; }
-        public string AcumaticaRefundDebitTotal { get; set; }
-        public string AcumaticaCreditDebitMemoTotal { get; set; }
-        public string AcumaticaInvoicePriceTotal { get; set; }
-        public string AcumaticaInvoiceFreightTotal { get; set; }
-        public string AcumaticaInvoiceTaxTotal { get; set; }
-        public string AcumaticaInvoiceTotal { get; set; }
+        public decimal AcumaticaOrderLineTotal { get; set; }
+        public decimal AcumaticaOrderFreight { get; set; }
+        public decimal AcumaticaTaxTotal { get; set; }
+        public decimal AcumaticaOrderTotal { get; set; }
+        public decimal AcumaticaPaymentTotal { get; set; }
+        public decimal AcumaticaRefundPaymentTotal { get; set; }
+        public decimal AcumaticaNetPaymentTotal { get; set; }
+        public decimal AcumaticaRefundCreditTotal { get; set; }
+        public decimal AcumaticaRefundDebitTotal { get; set; }
+        public decimal AcumaticaCreditDebitMemoTotal { get; set; }
+        public decimal AcumaticaInvoicePriceTotal { get; set; }
+        public decimal AcumaticaInvoiceFreightTotal { get; set; }
+        public decimal AcumaticaInvoiceTaxTotal { get; set; }
+        public decimal AcumaticaInvoiceTotal { get; set; }
 
 
         public OrderAnalysisTotals()
         {
             ShopifyOrderNbr = AnalysisExtensions.MissingField;
-            ShopifyOrderHref = AnalysisExtensions.MissingField;
+            ShopifyOrderHref = null;
 
-            ShopifyTotalLinePrice = AnalysisExtensions.MissingField;
-            ShopifyShippingPriceTotal = AnalysisExtensions.MissingField;
-            ShopifyTotalTax = AnalysisExtensions.MissingField;
-            ShopifyOrderTotal = AnalysisExtensions.MissingField;
+            ShopifyTotalLinePrice = 0m;
+            ShopifyShippingPriceTotal = 0m;
+            ShopifyTotalTax = 0m;
+            ShopifyOrderTotal = 0m;
 
-            ShopifyOrderPayment = AnalysisExtensions.MissingField;
-            ShopifyRefundPayment = AnalysisExtensions.MissingField;
-            ShopifyNetPayment = AnalysisExtensions.MissingField;
+            ShopifyOrderPayment = 0m;
+            ShopifyRefundPayment = 0m;
+            ShopifyNetPayment = 0m;
 
-            ShopifyRefundItemTotal = AnalysisExtensions.MissingField;
-            ShopifyRefundShippingTotal = AnalysisExtensions.MissingField;
-            ShopifyRefundTaxTotal = AnalysisExtensions.MissingField;
-            ShopifyCreditTotal = AnalysisExtensions.MissingField;
-            ShopifyDebitTotal = AnalysisExtensions.MissingField;
-            ShopifyRefundTotal = AnalysisExtensions.MissingField;
+            ShopifyRefundItemTotal = 0m;
+            ShopifyRefundShippingTotal = 0m;
+            ShopifyRefundTaxTotal = 0m;
+            ShopifyCreditTotal = 0m;
+            ShopifyDebitTotal = 0m;
+            ShopifyRefundTotal = 0m;
 
             AcumaticaSalesOrderNbr = AnalysisExtensions.MissingField;
-            AcumaticaOrderLineTotal = AnalysisExtensions.MissingField;
-            AcumaticaOrderFreight = AnalysisExtensions.MissingField;
-            AcumaticaTaxTotal = AnalysisExtensions.MissingField;
-            AcumaticaOrderTotal = AnalysisExtensions.MissingField;
+            AcumaticaSalesOrderHref = null;
+            AcumaticaOrderLineTotal = 0m;
+            AcumaticaOrderFreight = 0m;
+            AcumaticaTaxTotal = 0m;
+            AcumaticaOrderTotal = 0m;
 
-            AcumaticaPaymentTotal = AnalysisExtensions.MissingField;
-            AcumaticaRefundPaymentTotal = AnalysisExtensions.MissingField;
-            AcumaticaNetPaymentTotal = AnalysisExtensions.MissingField;
-            AcumaticaRefundCreditTotal = AnalysisExtensions.MissingField;
-            AcumaticaRefundDebitTotal = AnalysisExtensions.MissingField;
-            AcumaticaCreditDebitMemoTotal = AnalysisExtensions.MissingField;
+            AcumaticaPaymentTotal = 0m;
+            AcumaticaRefundPaymentTotal = 0m;
+            AcumaticaNetPaymentTotal = 0m;
+            AcumaticaRefundCreditTotal = 0m;
+            AcumaticaRefundDebitTotal = 0m;
+            AcumaticaCreditDebitMemoTotal = 0m;
 
-            AcumaticaInvoicePriceTotal = AnalysisExtensions.MissingField;
-            AcumaticaInvoiceTaxTotal = AnalysisExtensions.MissingField;
-            AcumaticaInvoiceFreightTotal = AnalysisExtensions.MissingField;
-            AcumaticaInvoiceTotal = AnalysisExtensions.MissingField;
+            AcumaticaInvoicePriceTotal = 0m;
+            AcumaticaInvoiceTaxTotal = 0m;
+            AcumaticaInvoiceFreightTotal = 0m;
+            AcumaticaInvoiceTotal = 0m;
         }
     }
 }

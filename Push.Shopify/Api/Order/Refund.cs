@@ -25,7 +25,7 @@ namespace Push.Shopify.Api.Order
 
         // Computed properties
         //
-        public decimal RefundTotal => transactions.Where(x => x.IsSuccess).Sum(x => x.amount);
+        public decimal PaymentTotal => transactions.Where(x => x.IsSuccess).Sum(x => x.amount);
 
         public decimal LineItemTotal => refund_line_items.Sum(x => x.subtotal);
 

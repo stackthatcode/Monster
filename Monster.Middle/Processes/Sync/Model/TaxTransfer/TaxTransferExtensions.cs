@@ -39,7 +39,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
             {
                 var xferRefund = new TransferRefund();
                 xferRefund.ExternalRefNbr = refund.id.ToString();
-                xferRefund.RefundAmount = refund.RefundTotal;
+                xferRefund.RefundAmount = refund.LineItemTotal;
                 xferRefund.FreightTax = refund.TotalShippingAdjustmentTax;
                 xferRefund.TaxableFreightAmount = refund.TotalTaxableShippingAdjustment;
                 xferRefund.TotalLineItemsTax = refund.TotalLineItemTax;
