@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutofacRunner.cs" />
+    <Compile Include="SystemUtilities.cs" />
     <Compile Include="Testing\Feeder\OrderPayload.cs" />
     <Compile Include="Testing\Feeder\ShopifyDataFeeder.cs" />
     <Compile Include="Testing\Feeder\TestCustomerDto.cs" />

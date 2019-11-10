@@ -75,9 +75,7 @@ namespace Monster.ConsoleApp.Testing
 
             Console.WriteLine(Environment.NewLine 
                     + $"Enter Acumatica Sales Order ID (Default ID: {defaultSalesOrderNbr})");
-
             var orderNbr = Console.ReadLine().Trim().IsNullOrEmptyAlt(defaultSalesOrderNbr);
-
 
             AutofacRunner.RunInLifetimeScope(scope =>
             {
@@ -117,8 +115,6 @@ namespace Monster.ConsoleApp.Testing
                 });
             });
         }
-
-
 
         public static void RunShopifyOrderFeeder()
         {
@@ -167,59 +163,6 @@ namespace Monster.ConsoleApp.Testing
                 var createdAtUtc = order.created_at.ToUniversalTime();
 
                 var acumaticaTime = acumaticaTimeZone.ToAcumaticaTimeZone(createdAtUtc.DateTime);
-            });
-        }
-
-        public static void RunShopifyOrderGetById()
-        {
-            Console.WriteLine(Environment.NewLine + "Enter Shopify Order ID (Default ID: 1840328409132)");
-            var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1840328409132	").ToLong();
-
-            AutofacRunner.RunInLifetimeScope(scope =>
-            {
-                var logger = scope.Resolve<IPushLogger>();
-                var instanceContext = scope.Resolve<InstanceContext>();
-                var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
-                var repository = scope.Resolve<ShopifyOrderRepository>();
-
-                instanceContext.Initialize(TestInstanceId);
-
-                shopifyOrderGet.Run(shopifyOrderId);
-                var shopifyOrder = repository.RetrieveOrder(shopifyOrderId);
-                logger.Info("Shopify Order JSON" + shopifyOrder.ShopifyJson);
-
-                var taxTransfer = shopifyOrder.ToTaxTransfer();
-                logger.Info("Shopify Tax Transfer" + taxTransfer.SerializeToJson());
-            });
-        }
-
-        public static void ShopifyOrderGetToAcumaticaOrderPut()
-        {
-            Console.WriteLine(Environment.NewLine + 
-                "Enter Shopify Order ID (Default ID: Max Shopify Order Id)");
-
-            var input = Console.ReadLine();
-
-            AutofacRunner.RunInLifetimeScope(scope =>
-            {
-                var instanceContext = scope.Resolve<InstanceContext>();
-                instanceContext.Initialize(TestInstanceId);
-
-                var repository = scope.Resolve<SyncOrderRepository>();
-
-                var shopifyOrderId 
-                    = input.IsNullOrEmptyAlt("").Trim().IsNullOrEmpty() 
-                        ? repository.MaxShopifyOrderId() : input.ToLong();
-
-                Console.WriteLine($"Processing Shopify Order Id: {shopifyOrderId}");
-
-                var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
-                var order = shopifyOrderGet.Run(shopifyOrderId).order;
-
-                var orderSync = scope.Resolve<AcumaticaOrderPut>();
-
-                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
-                acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
             });
         }
     }

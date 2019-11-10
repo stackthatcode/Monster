@@ -51,7 +51,7 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
 
         public static decimal AcumaticaCustomerRefundTotal(this ShopifyOrder order)
         {
-            return order.RefundTransactions().Sum(x => x.AcumaticaPayment.AcumaticaAmount);
+            return order.RefundTransactions().Sum(x => x.AcumaticaPayment?.AcumaticaAmount ?? 0m);
         }
         public static decimal AcumaticaNetPaymentAmount(this ShopifyOrder order)
         {
