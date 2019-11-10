@@ -18,6 +18,8 @@
     .order-analyzer td:nth-child(5) { width: 20%; text-align: right; font-weight: 400; }
 
     .filter-control .btn, .filter-control input { font-size: 0.9em;}
+
+    .pending-action-view .alert { text-align: left; font-size: 0.9em; }
 </style>
 
 <div class="card std-pad-sm">
@@ -94,12 +96,12 @@
 <script type="text/html" id="Order-Analyzer-Drilldown">
     <div class="center std-pad-side" style="width: 100%;">
         <a href="#" class="btn btn-secondary btn-sm std-pad-side"
-           data-bind="click: function() { $parent.ShowDrilldown(false); }">
+           data-bind="click: function() { ShowDrilldown(false); }">
             Back to Results <i class="fas fa-undo"></i>
         </a>
         <div style="height: 20px;"></div>
 
-        <ul class="nav nav-tabs nav-fill">
+        <ul class="nav nav-tabs nav-fill" style="font-size: 0.9em;">
             <!-- ko if: IsFinancialSummaryActive -->
             <li class="nav-item">
                 <a class="nav-link active" href="#">Financial Summary</a>
@@ -136,15 +138,27 @@
 </script>
 
 <script type="text/html" id="Order-Analyzer-Pending-Action">
-    <div style="min-height: 400px;">
-        <div class="alert alert-info">
-            <strong>Shopify Order</strong> - <span data-bind="text: ShopifyOrderActionDesc"></span>
+    <div style="min-height: 400px;" class="pending-action-view">
+        <div class="alert" data-bind="css: {
+                 'alert-info': OrderSyncValidation.Success,
+                 'alert-danger': !OrderSyncValidation.Success }">
+            <strong>
+                <a target="_blank" data-bind="attr: { href: ShopifyOrderHref }">
+                    Shopify Order <span data-bind="text: ShopifyOrderName"></span>
+                </a>
+            </strong>
+
+            <span>-</span> <span data-bind="text: ShopifyOrderActionDesc"></span>
+            
+            <div data-bind="foreach: OrderSyncValidation.FailureMessages">
+                <div data-bind="text: $data" style="font-style: italic"></div>
+            </div>
         </div>
         
         <div class="alert alert-info">
-            <strong>Shopify Payment</strong>
+            <strong>Shopify Payment (<span data-bind="text: ShopifyPaymentGateway"></span>)</strong>
             <span>-</span>
-            <span data-bind="text:  Monster.NumberFormat(ShopifyPaymentAmount)"></span>
+            <span data-bind="text: Monster.NumberFormat(ShopifyPaymentAmount)"></span>
             <span>-</span>
             <span data-bind="text: ShopifyPaymentActionDesc"></span>
         </div>
@@ -172,237 +186,238 @@
 </script>
 
 <script type="text/html" id="Order-Analyzer-Financial-Summary">
-        <table class="table order-analyzer">
-            <tr>
-                <td>Shopify Order Name</td>
-                <td>
-                    <a class="order-link" href="#" target="_blank"
-                       data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a>
-                </td>
-                <td> </td>
-                <td>Acumatica Order ID</td>
-                <td>
-                    <a class="order-link" href="#"
-                       data-bind="text: AcumaticaSalesOrderNbr, attr: { href: AcumaticaSalesOrderHref }"></a>
-                </td>
-            </tr>
-            <tr>
-                <td>Shopify Order ID</td>
-                <td>
-                    <a class="order-link" href="#" target="_blank"
-                       data-bind="text: ShopifyOrderId, attr: { href: ShopifyOrderHref }"></a>
-                </td>
-                <td> </td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr><td colspan="5"></td></tr>
+    <table class="table order-analyzer">
+        <tr>
+            <td>Shopify Order Name</td>
+            <td>
+                <a class="order-link" href="#" target="_blank"
+                   data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a>
+            </td>
+            <td> </td>
+            <td>Acumatica Order ID</td>
+            <td>
+                <a class="order-link" href="#"
+                   data-bind="text: AcumaticaSalesOrderNbr, attr: { href: AcumaticaSalesOrderHref }"></a>
+            </td>
+        </tr>
+        <tr>
+            <td>Shopify Order ID</td>
+            <td>
+                <a class="order-link" href="#" target="_blank"
+                   data-bind="text: ShopifyOrderId, attr: { href: ShopifyOrderHref }"></a>
+            </td>
+            <td> </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr><td colspan="5"></td></tr>
 
-            <tr>
-                <td>Shopify Total Line Price</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyTotalLinePrice)"></td>
-                <td> </td>
-                <td>Acumatica Order Line Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaOrderLineTotal)"></td>
-            </tr>
-            <tr>
-                <td>Shopify Shipping Price</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyShippingPriceTotal)">/td>
-                <td> </td>
-                <td>Acumatica Order Freight</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaOrderFreight)"></td>
-            </tr>
-            <tr>
-                <td>Shopify Total Tax</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyTotalTax)"></td>
-                <td> </td>
-                <td>Acumatica Order Tax</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaTaxTotal)"></td>
-            </tr>
-            <tr>
-                <td>Shopify Order Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
-                <td> </td>
-                <td>Acumatica Order Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaOrderTotal)"></td>
-            </tr>
-            <tr><td colspan="5"></td></tr>
+        <tr>
+            <td>Shopify Total Line Price</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyTotalLinePrice)"></td>
+            <td> </td>
+            <td>Acumatica Order Line Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaOrderLineTotal)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Shipping Price</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyShippingPriceTotal)">/td>
+            <td> </td>
+            <td>Acumatica Order Freight</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaOrderFreight)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Total Tax</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyTotalTax)"></td>
+            <td> </td>
+            <td>Acumatica Order Tax</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaTaxTotal)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Order Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
+            <td> </td>
+            <td>Acumatica Order Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaOrderTotal)"></td>
+        </tr>
+        <tr><td colspan="5"></td></tr>
 
-            <tr>
-                <td>Shopify Order Payment Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyOrderPayment)"></td>
-                <td> </td>
-                <td>Acumatica Payment Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaPaymentTotal)"></td>
-            </tr>
-            <tr>
-                <td>Shopify Refund Payment Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyRefundPayment)"></td>
-                <td> </td>
-                <td>Acumatica Refund Payment Totals</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaRefundPaymentTotal)"></td>
-            </tr>
-            <tr>
-                <td>Shopify Net Payment Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyNetPayment)"></td>
-                <td> </td>
-                <td>Acumatica Net Payment Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaNetPaymentTotal)"></td>
-            </tr>
-            <tr><td colspan="5"></td></tr>
+        <tr>
+            <td>Shopify Order Payment Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyOrderPayment)"></td>
+            <td> </td>
+            <td>Acumatica Payment Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaPaymentTotal)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Refund Payment Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyRefundPayment)"></td>
+            <td> </td>
+            <td>Acumatica Refund Payment Totals</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaRefundPaymentTotal)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Net Payment Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyNetPayment)"></td>
+            <td> </td>
+            <td>Acumatica Net Payment Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaNetPaymentTotal)"></td>
+        </tr>
+        <tr><td colspan="5"></td></tr>
 
-            <tr>
-                <td>Shopify Refund Item Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyRefundItemTotal)"></td>
-                <td> </td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Shopify Refund Shipping Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyRefundShippingTotal)"></td>
-                <td> </td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Shopify Refund Tax Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyRefundTaxTotal)"></td>
-                <td> </td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Shopify Refund Credit Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyCreditTotal)"></td>
-                <td> </td>
-                <td>Acumatica Refund Credit Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaRefundCreditTotal)"></td>
-            </tr>
-            <tr>
-                <td>Shopify Refund Debit Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyDebitTotal)"></td>
-                <td> </td>
-                <td>Acumatica Refund Debit Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaRefundDebitTotal)"></td>
-            </tr>
-            <tr>
-                <td>Shopify Refund Total</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyRefundTotal)"></td>
-                <td> </td>
-                <td>Acumatica Credit/Debit Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaCreditDebitMemoTotal)"></td>
-            </tr>
-            <tr>
-                <td>Shopify Refund Discrepancy</td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyRefundDiscrepancyTotal)"></td>
-                <td> </td>
-                <td></td>
-                <td></td>
-            </tr>
+        <tr>
+            <td>Shopify Refund Item Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyRefundItemTotal)"></td>
+            <td> </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Shopify Refund Shipping Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyRefundShippingTotal)"></td>
+            <td> </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Shopify Refund Tax Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyRefundTaxTotal)"></td>
+            <td> </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Shopify Refund Credit Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyCreditTotal)"></td>
+            <td> </td>
+            <td>Acumatica Refund Credit Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaRefundCreditTotal)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Refund Debit Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyDebitTotal)"></td>
+            <td> </td>
+            <td>Acumatica Refund Debit Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaRefundDebitTotal)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Refund Total</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyRefundTotal)"></td>
+            <td> </td>
+            <td>Acumatica Credit/Debit Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaCreditDebitMemoTotal)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Refund Discrepancy</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyRefundDiscrepancyTotal)"></td>
+            <td> </td>
+            <td></td>
+            <td></td>
+        </tr>
 
-            <tr><td colspan="5"></td></tr>
+        <tr><td colspan="5"></td></tr>
 
-            <tr>
-                <td></td>
-                <td></td>
-                <td> </td>
-                <td>Acumatica Invoice Tax Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTaxTotal)"></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td> </td>
-                <td>Acumatica Invoice Total</td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
-            </tr>
-        </table>
-
-    </script>
-
-
-    <script>
-        var Monster = Monster || {};
-
-        Monster.OrderSyncModel = function () {
-            var self = this;
-
-            // Grid stuff...
-            //
-            self.SearchText = ko.observable();
-            self.Grid = ko.observableArray([]);
-
-            self.ScrollToTop = function () {
-                $('html,body').animate({ scrollTop: 0 });
-            };
-            self.PagingWidget = new MonsterWidgets.PagingWidget();
-            self.PagingWidget.Callback = function () {
-                self.RefreshGrid(self.ScrollToTop);
-            };
-
-            self.FilterOrdersClick = function () {
-                self.RefreshGrid();
-            };
-
-            self.RefreshGrid = function (callback) {
-                flow.exec(function () {
-                    var ajax = new Monster.Ajax();
-                    var request = {
-                        PageNumber: self.PagingWidget.PageNumber(),
-                        PageSize: self.PagingWidget.PageSize(),
-                        SearchText: self.SearchText(),
-                    };
-                    ajax.HttpPost("/Analysis/OrderSyncResults", request, this);
-                },
-                    function (response) {
-                        self.Grid(response.Grid);
-                        self.PagingWidget.RecordCount(response.Count);
-                    });
-            };
+        <tr>
+            <td></td>
+            <td></td>
+            <td> </td>
+            <td>Acumatica Invoice Tax Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTaxTotal)"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td> </td>
+            <td>Acumatica Invoice Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
+        </tr>
+    </table>
+</script>
 
 
-            // Order drill down...
-            //
-            self.FinancialSummary = ko.observable();
-            self.PendingActionSummary = ko.observable();
+<script>
+    var Monster = Monster || {};
 
-            self.IsFinancialSummaryActive = ko.observable(true);
-            self.IsPendingActionSummaryActive = ko.observable(false);
+    Monster.OrderSyncModel = function () {
+        var self = this;
 
-            self.FinancialSummaryClick = function () {
-                self.IsFinancialSummaryActive(true);
-                self.IsPendingActionSummaryActive(false);
-            };
-            self.PendingActionSummaryClick = function () {
-                self.IsFinancialSummaryActive(false);
-                self.IsPendingActionSummaryActive(true);
-            };
+        // Grid stuff...
+        //
+        self.SearchText = ko.observable();
+        self.Grid = ko.observableArray([]);
 
-
-            self.ShowDrilldown = ko.observable(false);
-            self.HideDrilldown = ko.computed(function () { return !self.ShowDrilldown(); });
-
-            self.Initialize = function () { self.RefreshGrid(); };
-
-            self.OrderClick = function (item) {
-                flow.exec(function () {
-                    // console.log(item);
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpGet("/Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
-                },
-                    function (response) {
-                        self.FinancialSummary(response.FinancialSummary);
-                        self.PendingActionSummary(response.PendingActionSummary);
-                        self.ShowDrilldown(true);
-                    });
-            };
-
-            return self;
+        self.ScrollToTop = function () {
+            $('html,body').animate({ scrollTop: 0 });
+        };
+        self.PagingWidget = new MonsterWidgets.PagingWidget();
+        self.PagingWidget.Callback = function () {
+            self.RefreshGrid(self.ScrollToTop);
         };
 
+        self.FilterOrdersClick = function () {
+            self.RefreshGrid();
+        };
+
+        self.RefreshGrid = function (callback) {
+            flow.exec(function () {
+                var ajax = new Monster.Ajax();
+                var request = {
+                    PageNumber: self.PagingWidget.PageNumber(),
+                    PageSize: self.PagingWidget.PageSize(),
+                    SearchText: self.SearchText(),
+                };
+                ajax.HttpPost("/Analysis/OrderSyncResults", request, this);
+            },
+                function (response) {
+                    self.Grid(response.Grid);
+                    self.PagingWidget.RecordCount(response.Count);
+                });
+        };
+
+
+        // Order drill down...
+        //
+        self.FinancialSummary = ko.observable();
+        self.PendingActionSummary = ko.observable();
+
+        self.IsFinancialSummaryActive = ko.observable(true);
+        self.IsPendingActionSummaryActive = ko.observable(false);
+
+        self.FinancialSummaryClick = function () {
+            self.IsFinancialSummaryActive(true);
+            self.IsPendingActionSummaryActive(false);
+        };
+        self.PendingActionSummaryClick = function () {
+            self.IsFinancialSummaryActive(false);
+            self.IsPendingActionSummaryActive(true);
+        };
+
+
+        self.ShowDrilldown = ko.observable(false);
+        self.HideDrilldown = ko.computed(function () { return !self.ShowDrilldown(); });
+
+        self.Initialize = function () { self.RefreshGrid(); };
+
+        self.OrderClick = function (item) {
+            flow.exec(function () {
+                // console.log(item);
+                var ajax = new Monster.Ajax();
+                ajax.HttpGet("/Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
+            },
+                function (response) {
+                    self.FinancialSummary(response.FinancialSummary);
+                    self.PendingActionSummary(response.PendingActionSummary);
+                    self.ShowDrilldown(true);
+                });
+        };
+
+        return self;
+    };
+
+    $(document).ready(function() {
         var model = new Monster.OrderSyncModel();
         ko.applyBindings(model);
         model.Initialize();
-    </script>
+    });
+</script>
 

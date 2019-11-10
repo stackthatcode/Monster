@@ -18,6 +18,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public decimal ShopifyPaymentAmount { get; set; }
         public PendingAction ShopifyPaymentAction { get; set; }
         public string ShopifyPaymentActionDesc => ShopifyPaymentAction.Description();
+        public string ShopifyPaymentGateway { get; set; }
 
         public List<RefundPendingAction> RefundPendingActions { get; set; }
 

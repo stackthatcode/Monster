@@ -93,7 +93,8 @@ namespace Monster.Middle.Processes.Sync.Services
         }
 
 
-        public OrderAnalysisTotals GetOrderFinancialSummary(long shopifyOrderId)
+        public OrderAnalysisTotals GetOrderFinancialSummary(
+                long shopifyOrderId, bool includeAcumaticaTotals = false)
         {
             var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -130,7 +131,10 @@ namespace Monster.Middle.Processes.Sync.Services
                     = _acumaticaUrlService.AcumaticaSalesOrderUrl(
                             SalesOrderType.SO, shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr);
 
-                InjectTotalsFromAcumatica(shopifyOrderRecord, output);
+                if (includeAcumaticaTotals)
+                {
+                    InjectTotalsFromAcumatica(shopifyOrderRecord, output);
+                }
 
                 output.AcumaticaPaymentTotal = shopifyOrderRecord.AcumaticaPaymentAmount();
                 output.AcumaticaRefundPaymentTotal = shopifyOrderRecord.AcumaticaCustomerRefundTotal();

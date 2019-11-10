@@ -39,7 +39,12 @@ namespace Monster.Middle.Misc.Shopify
         {
             return _data.FirstOrDefault(x => x.Id == gatewayId);
         }
-        
+
+        public bool Exists(string gatewayId)
+        {
+            return Retrieve(gatewayId) != null;
+        }
+
 
         public string Name(string gatewayId)
         {

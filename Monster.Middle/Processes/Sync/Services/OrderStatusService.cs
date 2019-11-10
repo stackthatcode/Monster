@@ -44,11 +44,13 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderRecord = orderRecord;
             output.ShopifyOrder = orderRecord.ToShopifyObj();
             output.LineItemsWithUnsyncedVariants = BuildLineItemsWithUnsyncedVariants(output.ShopifyOrder);
+
             if (orderRecord.HasPayment())
             {
-                output.PaymentGateway
-                    = _gatewayService.Retrieve(orderRecord.PaymentTransaction().ShopifyGateway);
+                output.ShopifyPaymentGatewayId = orderRecord.PaymentTransaction().ShopifyGateway;
+                output.HasValidGateway = _gatewayService.Exists(output.ShopifyPaymentGatewayId);
             }
+
             return output;
         }
 
@@ -104,6 +106,7 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 var payment = orderRecord.PaymentTransaction();
                 output.ShopifyPaymentAmount = payment.ShopifyAmount;
+                output.ShopifyPaymentGateway = payment.ShopifyGateway;
 
                 if (!payment.ExistsInAcumatica())
                 {

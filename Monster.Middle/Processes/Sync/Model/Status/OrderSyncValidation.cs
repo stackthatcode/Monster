@@ -15,13 +15,13 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public ShopifyOrder ShopifyOrderRecord { get; set; }
         public Order ShopifyOrder { get; set; }
         public List<LineItem> LineItemsWithUnsyncedVariants { get; set; }
-        public ShopifyPaymentGateway PaymentGateway { get; set;}
+        public string ShopifyPaymentGatewayId { get; set;}
+        public bool HasValidGateway { get; set; }
 
 
         // Computed
         //
         public bool HasShopifyCustomer => ShopifyOrderRecord.ShopifyCustomer != null;
-        public bool HasValidGateway => PaymentGateway != null;
         public bool HasManualProductVariants => ShopifyOrder.LineItemsWithManualVariants.Count > 0;
         public bool HasUnmatchedVariants => LineItemsWithUnsyncedVariants.Count > 0;
         public bool OrderNumberValidForSync => ShopifyOrder.id >= SettingsStartingOrderId;
@@ -46,7 +46,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
                 .Add(x => x.ShopifyOrderRecord.HasPayment(), "Shopify Payment has not been downloaded yet")
 
-                .Add(x => HasValidGateway, "Does not have valid/supported Payment Gateway")
+                .Add(x => HasValidGateway, $"Does not have a valid payment gateway; please check configuration")
 
                 .Add(x => !x.HasManualProductVariants, "Shopify Order references manually created Variants")
 
