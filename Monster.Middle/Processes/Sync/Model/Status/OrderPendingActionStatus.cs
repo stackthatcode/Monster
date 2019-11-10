@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
@@ -11,7 +12,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         public PendingAction ShopifyOrderAction { get; set; }
         public string ShopifyOrderActionDesc => ShopifyOrderAction.Description();
-        public OrderSyncValidation OrderSyncValidation { get; set; }
+        public ValidationResult OrderSyncValidation { get; set; }
 
         public bool MissingShopifyPayment { get; set; }
         public decimal ShopifyPaymentAmount { get; set; }

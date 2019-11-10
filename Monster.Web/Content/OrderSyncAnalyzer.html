@@ -32,15 +32,11 @@
 
         <div data-bind="visible: ShowDrilldown">
             <div data-bind="if: FinancialSummary">
-                <div data-bind="template: { name: 'Order-Analyzer-Drilldown', data: FinancialSummary }"></div>
+                <div data-bind="template: { name: 'Order-Analyzer-Drilldown' }"></div>
             </div>
         </div>
     </div>
 </div>
-
-<script type="text/html" id="Number-Formatter">
-    <span></span>
-</script>
 
 <script type="text/html" id="Order-Analyzer-Grid">
     <div id="order-grid">
@@ -97,10 +93,54 @@
 
 <script type="text/html" id="Order-Analyzer-Drilldown">
     <div class="center std-pad-side" style="width: 100%;">
-        <a href="#" class="btn btn-secondary btn-sm std-pad-sm-side" data-bind="click: function() { $parent.ShowDrilldown(false); }">
+        <a href="#" class="btn btn-secondary btn-sm std-pad-side"
+           data-bind="click: function() { $parent.ShowDrilldown(false); }">
             Back to Results <i class="fas fa-undo"></i>
         </a>
         <div style="height: 20px;"></div>
+
+        <ul class="nav nav-pills nav-fill">
+            <!-- ko if: IsFinancialSummaryActive -->
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Financial Summary</a>
+            </li>
+            <!-- /ko -->
+            <!-- ko ifnot: IsFinancialSummaryActive -->
+            <li class="nav-item" data-bind="click: FinancialSummaryClick">
+                <a class="nav-link" href="#">Financial Summary</a>
+            </li>
+            <!-- /ko -->
+            <!-- ko if: IsPendingActionSummaryActive -->
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Order Status</a>
+            </li>
+            <!-- /ko -->
+            <!-- ko ifnot: IsPendingActionSummaryActive -->
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bind="click: PendingActionSummaryClick">Order Status</a>
+            </li>
+            <!-- /ko -->
+        </ul>
+
+        <div style="height: 40px;"></div>
+
+        <div data-bind="if: IsFinancialSummaryActive">
+            <div data-bind="template: { name: 'Order-Analyzer-Financial-Summary', data: FinancialSummary }">
+            </div>
+        </div>
+        <div data-bind="if: IsPendingActionSummaryActive">
+            <div data-bind="template: { name: 'Order-Analyzer-Pending-Action', data: PendingActionSummary }">
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="Order-Analyzer-Pending-Action">
+    
+
+</script>
+
+<script type="text/html" id="Order-Analyzer-Financial-Summary">
         <table class="table order-analyzer">
             <tr>
                 <td>Shopify Order Name</td>
@@ -247,40 +287,35 @@
                 <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
             </tr>
         </table>
-    </div>
-</script>
 
-<script>
-    var Monster = Monster || {};
+    </script>
 
-    Monster.OrderSyncModel = function() {
-        var self = this;
 
-        // Grid stuff...
-        //
-        self.SearchText = ko.observable();
-        self.Grid = ko.observableArray([]);
+    <script>
+        var Monster = Monster || {};
 
-        self.ScrollToTop = function() {
-            $('html,body').animate({ scrollTop: 0 });
-        };
-        self.PagingWidget = new MonsterWidgets.PagingWidget();
-        self.PagingWidget.Callback = function() {
-            self.RefreshGrid(self.ScrollToTop);
-        };
+        Monster.OrderSyncModel = function () {
+            var self = this;
 
-        // Order drill down...
-        //
-        self.FinancialSummary = ko.observable();
-        self.ShowDrilldown = ko.observable(false);
-        self.HideDrilldown = ko.computed(function() { return !self.ShowDrilldown(); });
+            // Grid stuff...
+            //
+            self.SearchText = ko.observable();
+            self.Grid = ko.observableArray([]);
 
-        self.FilterOrdersClick = function() {
-            self.RefreshGrid();
-        };
+            self.ScrollToTop = function () {
+                $('html,body').animate({ scrollTop: 0 });
+            };
+            self.PagingWidget = new MonsterWidgets.PagingWidget();
+            self.PagingWidget.Callback = function () {
+                self.RefreshGrid(self.ScrollToTop);
+            };
 
-        self.RefreshGrid = function(callback) {
-            flow.exec(function() {
+            self.FilterOrdersClick = function () {
+                self.RefreshGrid();
+            };
+
+            self.RefreshGrid = function (callback) {
+                flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var request = {
                         PageNumber: self.PagingWidget.PageNumber(),
@@ -289,31 +324,54 @@
                     };
                     ajax.HttpPost("/Analysis/OrderSyncResults", request, this);
                 },
-                function (response) {
-                    self.Grid(response.Grid);
-                    self.PagingWidget.RecordCount(response.Count);
-                });
-        };
-        
-        self.Initialize = function() { self.RefreshGrid(); };
+                    function (response) {
+                        self.Grid(response.Grid);
+                        self.PagingWidget.RecordCount(response.Count);
+                    });
+            };
 
-        self.OrderClick = function (item) {
-            flow.exec(function () {
+
+            // Order drill down...
+            //
+            self.FinancialSummary = ko.observable();
+            self.PendingActionSummary = ko.observable();
+
+            self.IsFinancialSummaryActive = ko.observable(true);
+            self.IsPendingActionSummaryActive = ko.observable(false);
+
+            self.FinancialSummaryClick = function () {
+                self.IsFinancialSummaryActive(true);
+                self.IsPendingActionSummaryActive(false);
+            };
+            self.PendingActionSummaryClick = function () {
+                self.IsFinancialSummaryActive(false);
+                self.IsPendingActionSummaryActive(true);
+            };
+
+
+            self.ShowDrilldown = ko.observable(false);
+            self.HideDrilldown = ko.computed(function () { return !self.ShowDrilldown(); });
+
+            self.Initialize = function () { self.RefreshGrid(); };
+
+            self.OrderClick = function (item) {
+                flow.exec(function () {
                     // console.log(item);
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("/Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
                 },
-                function (response) {
-                    self.FinancialSummary(response.FinancialSummary);
-                    self.ShowDrilldown(true);
-                });
+                    function (response) {
+                        self.FinancialSummary(response.FinancialSummary);
+                        self.PendingActionSummary(response.PendingActionSummary);
+                        self.ShowDrilldown(true);
+                    });
+            };
+
+            return self;
         };
 
-        return self;
-    };
-
-    var model = new Monster.OrderSyncModel();
-    ko.applyBindings(model);
-    model.Initialize();
-</script>
+        var model = new Monster.OrderSyncModel();
+        ko.applyBindings(model);
+        model.Initialize();
+    </script>
 

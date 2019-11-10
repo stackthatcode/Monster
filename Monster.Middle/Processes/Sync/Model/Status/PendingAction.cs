@@ -16,10 +16,11 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         private static readonly
             Dictionary<PendingAction, string> Lookup = new Dictionary<PendingAction, string>()
             {
-                {PendingAction.CreateInAcumatica, "Create in Acumatica"},
-                {PendingAction.ReleaseInAcumatica, "Release in Acumatica"},
-                {PendingAction.UpdateInAcumatica, "Update in Acumatica"},
-                {PendingAction.CreateInShopify, "Create in Shopify"}
+                {PendingAction.None, "No actions pending"},
+                {PendingAction.CreateInAcumatica, "Pending creation in Acumatica"},
+                {PendingAction.ReleaseInAcumatica, "Pending release in Acumatica"},
+                {PendingAction.UpdateInAcumatica, "Pending update in Acumatica"},
+                {PendingAction.CreateInShopify, "Pending creation in Shopify"}
             };
 
         public static string Description(this PendingAction action)

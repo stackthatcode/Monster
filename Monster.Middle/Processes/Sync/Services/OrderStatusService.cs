@@ -88,7 +88,7 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderHref = _urlService.ShopifyOrderUrl(shopifyOrderId);
             output.ShopifyOrderName = order.name;
 
-            output.OrderSyncValidation = OrderSyncValidation(shopifyOrderId);
+            output.OrderSyncValidation = OrderSyncValidation(shopifyOrderId).IsReadyToSync();
 
             if (!orderRecord.ExistsInAcumatica())
             {
