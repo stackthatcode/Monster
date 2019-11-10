@@ -149,30 +149,48 @@
             </strong>
 
             <span>-</span> <span data-bind="text: ShopifyOrderActionDesc"></span>
-            
+
             <div data-bind="foreach: OrderSyncValidation.FailureMessages">
                 <div data-bind="text: $data" style="font-style: italic"></div>
             </div>
         </div>
-        
-        <div class="alert alert-info">
-            <strong>Shopify Payment (<span data-bind="text: ShopifyPaymentGateway"></span>)</strong>
-            <span>-</span>
-            <span data-bind="text: Monster.NumberFormat(ShopifyPaymentAmount)"></span>
-            <span>-</span>
-            <span data-bind="text: ShopifyPaymentActionDesc"></span>
-        </div>
-        
-        <div data-bind="foreach: RefundPendingActions">
-            <div class="alert alert-info">
-                <strong>Shopify Refund</strong>
+
+        <div data-bind="with: PaymentPendingAction">
+            <div class="alert" data-bind="css: {
+                     'alert-info': ActionValidation.Success,
+                     'alert-danger': !ActionValidation.Success }">
+                <strong>
+                    <span data-bind="text: TransDesc"></span>
+                    (<span data-bind="text: PaymentGateway"></span>)
+                </strong>
                 <span>-</span>
-                <span data-bind="text:  Monster.NumberFormat(RefundAmount)"></span>
+                <span data-bind="text: Monster.NumberFormat(Amount)"></span>
                 <span>-</span>
                 <span data-bind="text: ActionDesc"></span>
+                <div data-bind="foreach: ActionValidation.FailureMessages">
+                    <div style="font-style: italic" data-bind="text: $data"></div>
+                </div>
             </div>
         </div>
-        
+
+        <div data-bind="foreach: RefundPendingActions">
+            <div class="alert" data-bind="css: {
+                     'alert-info': ActionValidation.Success,
+                     'alert-danger': !ActionValidation.Success }">
+                <strong>
+                    <span data-bind="text: TransDesc"></span>
+                    (<span data-bind="text: PaymentGateway"></span>)
+                </strong>
+                <span>-</span>
+                <span data-bind="text: Monster.NumberFormat(Amount)"></span>
+                <span>-</span>
+                <span data-bind="text: ActionDesc"></span>
+                <div data-bind="foreach: ActionValidation.FailureMessages">
+                    <div style="font-style: italic" data-bind="text: $data"></div>
+                </div>
+            </div>
+        </div>
+
         <div data-bind="foreach: AdjustmentMemoPendingActions">
             <div class="alert alert-secondary">
                 <strong>Shopify <span data-bind="text: MemoTypeDesc"></span></strong>
@@ -184,6 +202,7 @@
         </div>
     </div>
 </script>
+
 
 <script type="text/html" id="Order-Analyzer-Financial-Summary">
     <table class="table order-analyzer">

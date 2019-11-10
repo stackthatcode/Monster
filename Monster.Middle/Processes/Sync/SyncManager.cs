@@ -132,7 +132,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             _acumaticaContext.SessionRun(() =>
             {
-                _acumaticaPaymentSync.RunUnsyncedPayments();
+                _acumaticaPaymentSync.RunAutomatic();
             });
         }
         

@@ -73,7 +73,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public static List<ShopifyTransaction> UnreleasedTransaction(this ShopifyOrder order)
         {
-            return order.ShopifyTransactions.Where(x => x.DoNotIgnore() && !x.IsReleased()).ToList();
+            return order.ShopifyTransactions.Where(
+                    x => x.DoNotIgnore() 
+                         && x.ExistsInAcumatica()
+                         && !x.IsReleased()).ToList();
         }
 
         public static bool HasUnreleasedTransactions(this ShopifyOrder order)

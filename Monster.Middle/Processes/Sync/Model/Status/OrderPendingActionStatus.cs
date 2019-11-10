@@ -19,7 +19,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         public List<TransactionPendingAction> RefundPendingActions { get; set; }
 
-        public List<AdjustmentMemoPendingAction> AdjustmentMemoPendingActions { get; set; }
+        public List<AdjustmentPendingAction> AdjustmentMemoPendingActions { get; set; }
 
         public OrderPendingActionStatus()
         {
@@ -30,35 +30,37 @@ namespace Monster.Middle.Processes.Sync.Model.Status
             PaymentPendingAction = null;
 
             RefundPendingActions = new List<TransactionPendingAction>();
-            AdjustmentMemoPendingActions = new List<AdjustmentMemoPendingAction>();
+            AdjustmentMemoPendingActions = new List<AdjustmentPendingAction>();
         }
     }
 
     public class TransactionPendingAction
     {
+        public long ShopifyTransactionId { get; set; }
         public string TransDesc { get; set; }
         public decimal Amount { get; set; }
         public string PaymentGateway { get; set; }
         public PendingAction Action { get; set; }
+        public ValidationResult ActionValidation { get; set; }
         public string ActionDesc => Action.Description();
 
         public TransactionPendingAction()
         {
+            ActionValidation = new ValidationResult();
             Action = PendingAction.None;
         }
     }
 
-    public class AdjustmentMemoPendingAction
+    public class AdjustmentPendingAction
     {
         public AdjustmentMemoType MemoType { get; set; }
         public string MemoTypeDesc => MemoType.ToString();
 
-        
         public decimal MemoAmount { get; set; }
         public PendingAction Action { get; set; }
         public string ActionDesc => Action.Description();
 
-        public AdjustmentMemoPendingAction()
+        public AdjustmentPendingAction()
         {
             Action = PendingAction.None;
         }

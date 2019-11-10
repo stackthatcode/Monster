@@ -58,6 +58,16 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 
+        public ShopifyTransaction RetrieveShopifyTransactionWithNoTracking(long shopifyTransactionId)
+        {
+            return Entities
+                .ShopifyTransactions
+                .AsNoTracking()
+                .Include(x => x.ShopifyOrder)
+                .FirstOrDefault(x => x.ShopifyTransactionId == shopifyTransactionId);
+        }
+
+
         public AcumaticaSalesOrder RetrieveSalesOrder(string orderNbr)
         {
             return Entities

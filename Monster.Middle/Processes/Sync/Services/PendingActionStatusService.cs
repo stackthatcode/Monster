@@ -1,35 +1,34 @@
-﻿using System.Collections.Generic;
-using Monster.Middle.Misc.Shopify;
+﻿using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
-using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Order;
+
 
 namespace Monster.Middle.Processes.Sync.Services
 {
     public class PendingActionStatusService
     {
         private readonly SyncOrderRepository _syncOrderRepository;
-        private readonly OrderSyncValidationService _syncValidationService;
+        private readonly OrderSyncValidationService _validationService;
         private readonly ShopifyUrlService _urlService;
 
         public PendingActionStatusService(
                 SyncOrderRepository orderRepository, 
-                OrderSyncValidationService syncValidationService,
+                OrderSyncValidationService validationService,
                 ShopifyUrlService urlService)
         {
             _syncOrderRepository = orderRepository;
-            _syncValidationService = syncValidationService;
+            _validationService = validationService;
             _urlService = urlService;
         }
 
 
-        public OrderPendingActionStatus GetPendingActionStatus(long shopifyOrderId)
+        public OrderPendingActionStatus Create(long shopifyOrderId)
         {
-            var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var output = new OrderPendingActionStatus();
             BuildOrderPendingAction(orderRecord, output);
             BuildTransactionPendingActions(orderRecord, output);
@@ -50,7 +49,7 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 output.ShopifyOrderAction = PendingAction.CreateInAcumatica;
                 output.OrderSyncValidation =
-                    _syncValidationService.GetOrderSyncValidator(orderRecord.ShopifyOrderId).Result();
+                    _validationService.GetOrderSyncValidator(orderRecord.ShopifyOrderId).Result();
             }
 
             if (orderRecord.ExistsInAcumatica() && orderRecord.NeedsOrderPut)
@@ -59,7 +58,7 @@ namespace Monster.Middle.Processes.Sync.Services
             }
         }
 
-        private static void BuildTransactionPendingActions(ShopifyOrder orderRecord, OrderPendingActionStatus output)
+        private void BuildTransactionPendingActions(ShopifyOrder orderRecord, OrderPendingActionStatus output)
         {
             output.MissingShopifyPayment = !orderRecord.HasPayment();
 
@@ -68,41 +67,49 @@ namespace Monster.Middle.Processes.Sync.Services
                 var payment = orderRecord.PaymentTransaction();
                 var paymentAction = new TransactionPendingAction();
 
+                paymentAction.ShopifyTransactionId = payment.ShopifyTransactionId;
                 paymentAction.TransDesc = $"Shopify Payment ({payment.ShopifyTransactionId})";
                 paymentAction.PaymentGateway = payment.ShopifyGateway;
                 paymentAction.Amount = payment.ShopifyAmount;
                 paymentAction.Action = PendingAction.None;
 
+                var validator = _validationService.GetTransSyncValidator(orderRecord, payment);
+
                 if (!payment.ExistsInAcumatica())
                 {
                     paymentAction.Action = PendingAction.CreateInAcumatica;
+                    paymentAction.ActionValidation = validator.ReadyToCreatePayment();
                 }
                 if (payment.ExistsInAcumatica() && payment.NeedsPaymentPut)
                 {
                     paymentAction.Action = PendingAction.UpdateInAcumatica;
+                    paymentAction.ActionValidation = validator.ReadyToUpdatePayment();
                 }
                 else if (payment.ExistsInAcumatica() && !payment.AcumaticaPayment.IsReleased)
                 {
                     paymentAction.Action = PendingAction.ReleaseInAcumatica;
+                    paymentAction.ActionValidation = validator.ReadyToRelease();
                 }
 
                 output.PaymentPendingAction = paymentAction;
             }
 
-
             foreach (var refund in orderRecord.RefundTransactions())
             {
                 var refundAction = new TransactionPendingAction();
 
+                refundAction.ShopifyTransactionId = refund.ShopifyTransactionId;
                 refundAction.TransDesc = $"Shopify Refund ({refund.ShopifyTransactionId})";
                 refundAction.PaymentGateway = refund.ShopifyGateway;
                 refundAction.Amount = refund.ShopifyAmount;
                 refundAction.Action = PendingAction.None;
 
+                var validator = _validationService.GetTransSyncValidator(orderRecord, refund);
 
                 if (!refund.ExistsInAcumatica())
                 {
                     refundAction.Action = PendingAction.CreateInAcumatica;
+                    refundAction.ActionValidation = validator.ReadyToCreateRefundPayment();
                 }
 
                 if (refund.ExistsInAcumatica() && !refund.IsReleased())
@@ -114,11 +121,11 @@ namespace Monster.Middle.Processes.Sync.Services
             }
         }
 
-        private static void BuildRefundAdjPendingActions(ShopifyOrder orderRecord, OrderPendingActionStatus output)
+        private void BuildRefundAdjPendingActions(ShopifyOrder orderRecord, OrderPendingActionStatus output)
         {
             foreach (var creditAdj in orderRecord.CreditAdustmentRefunds())
             {
-                var action = new AdjustmentMemoPendingAction();
+                var action = new AdjustmentPendingAction();
                 action.Action = PendingAction.CreateInAcumatica;
                 action.MemoType = AdjustmentMemoType.CreditMemo;
                 action.MemoAmount = creditAdj.CreditAdjustment;
@@ -128,7 +135,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
             foreach (var debitAdj in orderRecord.DebitAdustmentRefunds())
             {
-                var action = new AdjustmentMemoPendingAction();
+                var action = new AdjustmentPendingAction();
                 action.Action = PendingAction.CreateInAcumatica;
                 action.MemoType = AdjustmentMemoType.DebitMemo;
                 action.MemoAmount = debitAdj.DebitAdjustment;

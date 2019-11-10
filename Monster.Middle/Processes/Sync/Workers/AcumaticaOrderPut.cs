@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
-using Monster.Acumatica.Api.Distribution;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
@@ -116,12 +114,12 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var acumaticaCustomer = PushNonExistentCustomer(orderRecord);
                 CreateNewOrder(orderRecord, acumaticaCustomer);
 
-                _acumaticaOrderPaymentPut.RunUnsyncedPayments(orderRecord.ShopifyOrderId);
+                _acumaticaOrderPaymentPut.ProcessOrder(orderRecord.ShopifyOrderId);
 
             }
             else
             {
-                _acumaticaOrderPaymentPut.RunUnsyncedPayments(orderRecord.ShopifyOrderId);
+                _acumaticaOrderPaymentPut.ProcessOrder(orderRecord.ShopifyOrderId);
 
                 UpdateExistingOrder(orderRecord);
             }
