@@ -99,7 +99,7 @@
         </a>
         <div style="height: 20px;"></div>
 
-        <ul class="nav nav-pills nav-fill">
+        <ul class="nav nav-tabs nav-fill">
             <!-- ko if: IsFinancialSummaryActive -->
             <li class="nav-item">
                 <a class="nav-link active" href="#">Financial Summary</a>
@@ -136,8 +136,39 @@
 </script>
 
 <script type="text/html" id="Order-Analyzer-Pending-Action">
-    
-
+    <div style="min-height: 400px;">
+        <div class="alert alert-info">
+            <strong>Shopify Order</strong> - <span data-bind="text: ShopifyOrderActionDesc"></span>
+        </div>
+        
+        <div class="alert alert-info">
+            <strong>Shopify Payment</strong>
+            <span>-</span>
+            <span data-bind="text:  Monster.NumberFormat(ShopifyPaymentAmount)"></span>
+            <span>-</span>
+            <span data-bind="text: ShopifyPaymentActionDesc"></span>
+        </div>
+        
+        <div data-bind="foreach: RefundPendingActions">
+            <div class="alert alert-info">
+                <strong>Shopify Refund</strong>
+                <span>-</span>
+                <span data-bind="text:  Monster.NumberFormat(RefundAmount)"></span>
+                <span>-</span>
+                <span data-bind="text: ActionDesc"></span>
+            </div>
+        </div>
+        
+        <div data-bind="foreach: AdjustmentMemoPendingActions">
+            <div class="alert alert-secondary">
+                <strong>Shopify <span data-bind="text: MemoTypeDesc"></span></strong>
+                <span>-</span>
+                <span data-bind="text:  Monster.NumberFormat(MemoAmount)"></span>
+                <span>-</span>
+                <span data-bind="text: ActionDesc"></span>
+            </div>
+        </div>
+    </div>
 </script>
 
 <script type="text/html" id="Order-Analyzer-Financial-Summary">

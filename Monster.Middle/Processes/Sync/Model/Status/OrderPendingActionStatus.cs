@@ -36,6 +36,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
     {
         public decimal RefundAmount { get; set; }
         public PendingAction Action { get; set; }
+        public string ActionDesc => Action.Description();
 
         public RefundPendingAction()
         {
@@ -46,8 +47,12 @@ namespace Monster.Middle.Processes.Sync.Model.Status
     public class AdjustmentMemoPendingAction
     {
         public AdjustmentMemoType MemoType { get; set; }
+        public string MemoTypeDesc => MemoType.ToString();
+
+        
         public decimal MemoAmount { get; set; }
         public PendingAction Action { get; set; }
+        public string ActionDesc => Action.Description();
 
         public AdjustmentMemoPendingAction()
         {
