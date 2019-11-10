@@ -6,25 +6,16 @@ using Push.Foundation.Utilities.Validation;
 
 namespace Monster.Middle.Processes.Sync.Model.Status
 {
-    public class PaymentSyncValidation
+    public class TransactionSyncValidator
     {
         public ShopifyTransaction ThisTransaction { get; set; }
-        public ShopifyTransaction PaymentTransaction { get; set; }
+        public bool ValidPaymentGateway { get; set; }
+        public ShopifyOrder ShopifyOrder { get; set; }
+        public ShopifyTransaction PaymentTransaction => ShopifyOrder.PaymentTransaction();
 
-
-        public static PaymentSyncValidation Make(
-                ShopifyOrder shopifyOrder, ShopifyTransaction thisTransaction)
+        private Validation<TransactionSyncValidator> BuildBaseValidation()
         {
-            return new PaymentSyncValidation
-            {
-                ThisTransaction = thisTransaction,
-                PaymentTransaction = shopifyOrder.PaymentTransaction(),
-            };
-        }
-
-        private Validation<PaymentSyncValidation> BuildBaseValidation()
-        {
-            return new Validation<PaymentSyncValidation>()
+            return new Validation<TransactionSyncValidator>()
                 .Add(x => ThisTransaction.DoNotIgnore(), $"Transaction is not valid for sync");
         }
 
@@ -55,7 +46,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
                 = BuildBaseValidation()
                     .Add(x => !x.ThisTransaction.ExistsInAcumatica(), "Refund has been synced already")
                     .Add(x => x.PaymentTransaction.ExistsInAcumatica(), $"Payment has not been synced yet")
-                    .Add(x => x.PaymentTransaction.IsReleased(), $"Payment has not been released yet")
+                    .Add(x => !x.ShopifyOrder.HasUnreleasedTransactions(), "There are unreleased Payments/Refunds")
                     .Add(x => x.ThisTransaction.IsRefund(), $"Transaction Kind is not a refund");
 
             return validation.Run(this);

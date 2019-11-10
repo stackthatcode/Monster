@@ -156,7 +156,7 @@
     <Compile Include="Processes\Sync\Model\Status\OrderPendingActionStatus.cs" />
     <Compile Include="Processes\Sync\Model\Status\OrderSyncValidation.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
-    <Compile Include="Processes\Sync\Model\Status\PaymentSyncValidation.cs" />
+    <Compile Include="Processes\Sync\Model\Status\TransactionSyncValidator.cs" />
     <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
     <Compile Include="Processes\Sync\Model\Status\PendingAction.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
@@ -184,7 +184,8 @@
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\VariantAndStockItemDto.cs" />
-    <Compile Include="Processes\Sync\Services\OrderStatusService.cs" />
+    <Compile Include="Processes\Sync\Services\PendingActionStatusService.cs" />
+    <Compile Include="Processes\Sync\Services\OrderSyncValidationService.cs" />
     <Compile Include="Processes\Sync\Workers\ParallelWorker.cs" />
     <Compile Include="Processes\Sync\Services\CombinedRefDataService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaReferenceGet.cs" />

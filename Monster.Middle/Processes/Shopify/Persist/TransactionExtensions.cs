@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Shopify.Persist
@@ -68,6 +69,16 @@ namespace Monster.Middle.Processes.Shopify.Persist
         public static List<ShopifyTransaction> RefundTransactions(this ShopifyOrder order)
         {
             return order.ShopifyTransactions.Where(x => x.DoNotIgnore() && x.IsRefund()).ToList();
+        }
+
+        public static List<ShopifyTransaction> UnreleasedTransaction(this ShopifyOrder order)
+        {
+            return order.ShopifyTransactions.Where(x => x.DoNotIgnore() && !x.IsReleased()).ToList();
+        }
+
+        public static bool HasUnreleasedTransactions(this ShopifyOrder order)
+        {
+            return order.UnreleasedTransaction().Any();
         }
 
         public static decimal NetPaymentAppliedToOrder(this ShopifyOrder order)

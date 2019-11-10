@@ -35,7 +35,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
-        private readonly OrderStatusService _orderStatusService;
+        private readonly PendingActionStatusService _orderStatusService;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
 
@@ -49,7 +49,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 AcumaticaCustomerPut acumaticaCustomerSync, 
                 AcumaticaOrderPaymentPut acumaticaOrderPaymentPut,
-                OrderStatusService orderStatusService)
+                PendingActionStatusService orderStatusService)
         {
             _logService = logRepository;
             _settingsRepository = settingsRepository;

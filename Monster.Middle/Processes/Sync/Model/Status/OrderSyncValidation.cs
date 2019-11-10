@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Push.Foundation.Utilities.Helpers;
@@ -33,7 +32,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
                    ShopifyOrder.fulfillment_status != FulfillmentStatus.NoFulfillment;
 
         
-        public ValidationResult IsReadyToSync()
+        public ValidationResult Result()
         {
             var validation = new Validation<OrderSyncValidation>()
 

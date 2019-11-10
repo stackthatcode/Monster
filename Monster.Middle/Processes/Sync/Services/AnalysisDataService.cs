@@ -92,7 +92,6 @@ namespace Monster.Middle.Processes.Sync.Services
             return queryable;
         }
 
-
         public OrderAnalysisTotals GetOrderFinancialSummary(
                 long shopifyOrderId, bool includeAcumaticaTotals = false)
         {

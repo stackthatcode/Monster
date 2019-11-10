@@ -15,31 +15,34 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public ValidationResult OrderSyncValidation { get; set; }
 
         public bool MissingShopifyPayment { get; set; }
-        public decimal ShopifyPaymentAmount { get; set; }
-        public PendingAction ShopifyPaymentAction { get; set; }
-        public string ShopifyPaymentActionDesc => ShopifyPaymentAction.Description();
-        public string ShopifyPaymentGateway { get; set; }
+        public TransactionPendingAction PaymentPendingAction { get; set; }
 
-        public List<RefundPendingAction> RefundPendingActions { get; set; }
+        public List<TransactionPendingAction> RefundPendingActions { get; set; }
 
         public List<AdjustmentMemoPendingAction> AdjustmentMemoPendingActions { get; set; }
 
         public OrderPendingActionStatus()
         {
             ShopifyOrderAction = PendingAction.None;
-            ShopifyPaymentAction = PendingAction.None;
-            RefundPendingActions = new List<RefundPendingAction>();
+            OrderSyncValidation = new ValidationResult();
+
+            MissingShopifyPayment = true;
+            PaymentPendingAction = null;
+
+            RefundPendingActions = new List<TransactionPendingAction>();
             AdjustmentMemoPendingActions = new List<AdjustmentMemoPendingAction>();
         }
     }
 
-    public class RefundPendingAction
+    public class TransactionPendingAction
     {
-        public decimal RefundAmount { get; set; }
+        public string TransDesc { get; set; }
+        public decimal Amount { get; set; }
+        public string PaymentGateway { get; set; }
         public PendingAction Action { get; set; }
         public string ActionDesc => Action.Description();
 
-        public RefundPendingAction()
+        public TransactionPendingAction()
         {
             Action = PendingAction.None;
         }
