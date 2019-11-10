@@ -125,10 +125,31 @@ namespace Monster.Middle.Processes.Sync.Persist
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
                 .Where(x => x.ShopifyOrder.AcumaticaSalesOrder != null
-                            && (x.Ignore == false && x.NeedsPaymentPut == true ||
-                                x.AcumaticaPayment != null && !x.AcumaticaPayment.IsReleased))
+                            && x.Ignore == false 
+                            && (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
                 .Select(x => x.ShopifyOrder.Id)
                 .Distinct()
+                .ToList();
+        }
+
+        public List<long> RetrieveOrdersWithUnreleasedTransactions()
+        {
+            return Entities.ShopifyTransactions
+                .Include(x => x.ShopifyOrder)
+                .Where(x => x.ShopifyOrder.AcumaticaSalesOrder != null
+                            && x.AcumaticaPayment != null
+                            && x.AcumaticaPayment.IsReleased == false)
+                .Select(x => x.ShopifyOrder.Id)
+                .Distinct()
+                .ToList();
+        }
+
+
+        public List<ShopifyTransaction> RetrieveUnsyncedTransactions(long shopifyOrderId)
+        {
+            return Entities.ShopifyTransactions
+                .Where(x => x.ShopifyOrderId == shopifyOrderId)
+                .Where(x => x.Ignore && x.AcumaticaPayment == null)
                 .ToList();
         }
 

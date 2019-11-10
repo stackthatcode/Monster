@@ -35,7 +35,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
-        private readonly PendingActionStatusService _orderStatusService;
+        private readonly OrderSyncValidationService _orderStatusService;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
 
@@ -49,7 +49,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 AcumaticaCustomerPut acumaticaCustomerSync, 
                 AcumaticaOrderPaymentPut acumaticaOrderPaymentPut,
-                PendingActionStatusService orderStatusService)
+                OrderSyncValidationService orderStatusService)
         {
             _logService = logRepository;
             _settingsRepository = settingsRepository;
@@ -101,9 +101,9 @@ namespace Monster.Middle.Processes.Sync.Workers
         
         public void RunOrder(long shopifyOrderId)
         {
-            var status = _orderStatusService.OrderSyncValidation(shopifyOrderId);
+            var status = _orderStatusService.GetOrderSyncValidator(shopifyOrderId);
 
-            var readyToSyncValidation = status.IsReadyToSync();
+            var readyToSyncValidation = status.Result();
             if (!readyToSyncValidation.Success)
             {
                 return;
