@@ -178,7 +178,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
         
-        public void ImportInventoryToAcumatica(AcumaticaInventoryImportContext context)
+        public void ImportInventoryToAcumatica(AcumaticaStockItemImportContext context)
         {
             RefreshInventory();
 

@@ -10,7 +10,7 @@
     </p>
 </script>
 
-<!-- Uses Monster.ExecutionLogModel -->
+<!-- Uses Monster.JobStatusModel -->
 <script type="text/html" id="Execution-Log-Ticker">
     <div style="font-size:0.9em; color:#555555; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
         Execution Logs
@@ -68,9 +68,10 @@
 
 <script>
     var Monster = Monster || {};
-    Monster.ExecutionLogModel = function () {
+    Monster.JobStatusModel = function () {
         var self = this;
 
+        self.AreAnyJobsRunning = ko.observable();
         self.Logs = ko.observableArray([]);
 
         self.HasLogs = ko.computed(function() {
@@ -79,11 +80,13 @@
 
         self.Ingest = function (logs) {
             self.Logs(logs);
-            // ** TODO - strategically insert and truncate
+            self.
         };
+
         return self;
     };
 </script>
+
 
 <script type="text/html" id="Inventory-Not-Pulled-Message">
     <p>

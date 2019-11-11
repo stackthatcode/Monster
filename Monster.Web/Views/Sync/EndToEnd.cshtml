@@ -585,7 +585,7 @@
         var self = this;
 
         self.IsEndToEndSyncRunning = ko.observable(false);
-        self.ExecutionLogModel = new Monster.ExecutionLogModel();
+        self.ExecutionLogModel = new Monster.JobStatusModel();
         
         self.Populate = function (model) {
             self.IsEndToEndSyncRunning(model.IsEndToEndSyncRunning);

@@ -250,7 +250,7 @@ Monster.AcumaticaConnectionModel = function() {
     self.BackgroundJobRunning = ko.observable();
     self.StatusVisible = ko.observable();
 
-    self.JobRunningModel = new Monster.ExecutionLogModel();
+    self.JobRunningModel = new Monster.JobStatusModel();
 
     self.ClearVisibility = function() {
         self.DataEntryVisible(false);

@@ -125,7 +125,7 @@ Monster.InventoryConfigModel = function() {
 
     // Job Status 
     self.IsJobRunning = ko.observable(false);
-    self.JobRunningModel = new Monster.ExecutionLogModel();
+    self.JobRunningModel = new Monster.JobStatusModel();
     
     // Diagnosis
     self.IsConfigReadyForEndToEnd = ko.observable(false);

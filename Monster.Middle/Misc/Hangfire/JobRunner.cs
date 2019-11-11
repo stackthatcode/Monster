@@ -56,7 +56,7 @@ namespace Monster.Middle.Misc.Hangfire
         }
         
         public void ImportIntoAcumatica(
-                Guid instanceId, AcumaticaInventoryImportContext context, long jobMonitorId)
+                Guid instanceId, AcumaticaStockItemImportContext context, long jobMonitorId)
         {
             ExecuteJob(
                 instanceId, () => _processDirector.ImportInventoryToAcumatica(context), jobMonitorId);

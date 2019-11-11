@@ -17,7 +17,7 @@ using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
-    public class AcumaticaInventoryPut
+    public class AcumaticaStockItemPut
     {
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly SyncInventoryRepository _syncRepository;
@@ -25,7 +25,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SettingsRepository _settingsRepository;
         private readonly ExecutionLogService _logService;
 
-        public AcumaticaInventoryPut(
+        public AcumaticaStockItemPut(
                 AcumaticaInventoryRepository inventoryRepository,
                 SyncInventoryRepository syncRepository,                    
                 DistributionClient distributionClient,
@@ -40,7 +40,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _logService = logService;
         }
 
-        public void RunImportToAcumatica(AcumaticaInventoryImportContext context)
+        public void RunImportToAcumatica(AcumaticaStockItemImportContext context)
         {
             foreach (var shopifyProductId in context.ShopifyProductIds)
             {
@@ -58,7 +58,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        private void RunStockItemImport(AcumaticaInventoryImportContext context, ShopifyVariant variant)
+        private void RunStockItemImport(AcumaticaStockItemImportContext context, ShopifyVariant variant)
         {            
             var matchingShopifySkus =
                 _syncRepository
@@ -67,8 +67,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (matchingShopifySkus.Count > 1)
             {
-                _logService.Log(
-                    $"Shopify Variant SKU {variant.ShopifySku} has duplicates in Shopify");
+                _logService.Log($"Shopify Variant SKU {variant.ShopifySku} has duplicates in Shopify");
                 return;
             }
 
@@ -94,7 +93,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             StockItemPush(context, variant);
         }
 
-        public void StockItemPush(AcumaticaInventoryImportContext context, ShopifyVariant variant)
+        public void StockItemPush(AcumaticaStockItemImportContext context, ShopifyVariant variant)
         {
             var settings = _settingsRepository.RetrieveSettings();
             var defaultItemClass = settings.AcumaticaDefaultItemClass;

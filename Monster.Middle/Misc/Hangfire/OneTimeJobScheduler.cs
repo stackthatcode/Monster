@@ -72,7 +72,7 @@ namespace Monster.Middle.Misc.Hangfire
         public void ImportIntoAcumatica(
                 List<long> spids, bool createInventoryReceipts, bool automaticEnable)
         {
-            var context = new AcumaticaInventoryImportContext
+            var context = new AcumaticaStockItemImportContext
             {
                 ShopifyProductIds = spids,
                 CreateInventoryReceipts = createInventoryReceipts,

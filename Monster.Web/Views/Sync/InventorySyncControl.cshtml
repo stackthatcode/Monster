@@ -225,7 +225,7 @@
         var self = this;
         
         self.AreAnyJobsRunning = ko.observable();
-        self.JobRunningModel = new Monster.ExecutionLogModel();
+        self.JobRunningModel = new Monster.JobStatusModel();
 
         self.InventoryPullState = ko.observable();
         self.InventorySyncGrid = new Monster.InventorySyncGrid();
@@ -261,7 +261,7 @@
         //
         self.InventoryPullClick = function () {
             var ajax = new Monster.Ajax();
-            ajax.HttpPost("/Sync/RunInventoryPull", {}, self.PollStatus);
+            ajax.HttpPost("/Sync/RunInventoryRefresh", {}, self.PollStatus);
         };
 
         self.PollStatus = function () {
@@ -269,7 +269,7 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("/Sync/InventoryPullStatus", this);
+                    ajax.HttpGet("/Sync/InventoryRefreshStatus", this);
                 },
                 function (response) {
                     self.AreAnyJobsRunning(response.AreAnyJobsRunning);

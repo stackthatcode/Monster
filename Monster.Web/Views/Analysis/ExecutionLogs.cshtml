@@ -27,7 +27,7 @@ var Monster = Monster || {};
 Monster.RealTimeModel = function() {
     var self = this;
 
-    self.ExecutionLogModel = new Monster.ExecutionLogModel();
+    self.ExecutionLogModel = new Monster.JobStatusModel();
     
     self.Refresh = function() {
         flow.exec(function() {

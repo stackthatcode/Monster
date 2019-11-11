@@ -29,7 +29,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPut _acumaticaOrderSync;
-        private readonly AcumaticaInventoryPut _acumaticaInventorySync;
+        private readonly AcumaticaStockItemPut _acumaticaInventorySync;
         private readonly AcumaticaOrderPaymentPut _acumaticaPaymentSync;
         private readonly AcumaticaRefundPut _acumaticaRefundSync;
         
@@ -40,7 +40,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 AcumaticaHttpContext acumaticaContext,
                 AcumaticaCustomerPut acumaticaCustomerSync,
                 AcumaticaOrderPut acumaticaOrderSync,
-                AcumaticaInventoryPut acumaticaInventorySync,
+                AcumaticaStockItemPut acumaticaInventorySync,
                 AcumaticaRefundPut acumaticaRefundSync, 
                 AcumaticaOrderPaymentPut acumaticaPaymentSync,
 
@@ -147,7 +147,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _warehouseLocationSync.Run();
         }
 
-        public void ImportIntoAcumatica(AcumaticaInventoryImportContext context)
+        public void ImportIntoAcumatica(AcumaticaStockItemImportContext context)
         {
             _acumaticaContext.SessionRun(() =>
             {

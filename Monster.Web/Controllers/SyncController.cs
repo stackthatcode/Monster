@@ -234,7 +234,7 @@ namespace Monster.Web.Controllers
         // Inventory Sync Control
         //
         [HttpGet]
-        public ActionResult InventoryPullStatus()
+        public ActionResult InventoryRefreshStatus()
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             var logs = _logRepository.RetrieveExecutionLogs().ToModel();
@@ -257,7 +257,7 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult RunInventoryPull()
+        public ActionResult RunInventoryRefresh()
         {
             _oneTimeJobService.RefreshInventory();
             return JsonNetResult.Success();
@@ -293,7 +293,6 @@ namespace Monster.Web.Controllers
         {
             _syncInventoryRepository.UpdateVariantSync(monsterVariantIds, syncEnabled);
             return JsonNetResult.Success();
-
         }
 
         

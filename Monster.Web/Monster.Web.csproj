@@ -257,6 +257,7 @@
     <Content Include="Content\DetailGraphic.png" />
     <Content Include="Content\gijgo.min.css" />
     <Content Include="Content\Logic-Automated-logo-horizontal-transparent-white.png" />
+    <Content Include="Content\ImportIntoShopify.html" />
     <Content Include="Content\OrderSyncAnalyzer.html" />
     <Content Include="Content\spinner-new.gif" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -413,6 +414,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\Analysis\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Sync\ImportIntoShopify.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

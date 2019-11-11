@@ -174,7 +174,7 @@
     <Compile Include="Misc\State\StateCode.cs" />
     <Compile Include="Processes\Shopify\Persist\BatchStateExtensions.cs" />
     <Compile Include="Processes\Sync\Misc\LogBuilder.cs" />
-    <Compile Include="Processes\Sync\Model\Inventory\AcumaticaInventoryImportContext.cs" />
+    <Compile Include="Processes\Sync\Model\Inventory\AcumaticaStockItemImportContext.cs" />
     <Compile Include="Processes\Sync\Model\Status\SyncEnabledFilter.cs" />
     <Compile Include="Processes\Sync\Model\Reference\ItemClassModel.cs" />
     <Compile Include="Processes\Sync\Model\Reference\PaymentMethodModel.cs" />
@@ -215,7 +215,7 @@
     <Compile Include="Processes\Shopify\Workers\ShopifyInventoryGet.cs" />
     <Compile Include="Processes\Shopify\Persist\InventoryExtensions.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyLocationGet.cs" />
-    <Compile Include="Processes\Sync\Workers\AcumaticaInventoryPut.cs" />
+    <Compile Include="Processes\Sync\Workers\AcumaticaStockItemPut.cs" />
     <Compile Include="Processes\Sync\Misc\Canonizers.cs" />
     <Compile Include="Processes\Sync\SyncManager.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaOrderPaymentPut.cs" />
