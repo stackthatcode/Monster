@@ -45,7 +45,7 @@
     </div>
 
     <!-- Render Dialog Boxes Separately -->
-    <div data-bind="template: { name: 'Import-Confirmation', data: ImportConfirmModel }"></div>
+    <div data-bind="template: { name: 'Import-Create-New-Product', data: ImportConfirmModel }"></div>
     <div data-bind="template: { name: 'Import-Selected-Stock-Items', data: ImportSelectStockItemModel }"></div>
     <div data-bind="template: { name: 'Import-Completion' }"></div>
 </div>
@@ -128,7 +128,7 @@
                             class="btn btn-sm btn-primary">
                         Create new Product <i class="fas fa-bolt"></i>
                     </button>
-                    
+
                     <div style="display:inline-block; width:10px;"></div>
 
                     <button type="button"
@@ -162,40 +162,40 @@
 
     <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
         <table class="table sync-grid" style="border-bottom: 1px #999 dashed;">
-        <tbody data-bind="foreach: GridData">
-            <tr>
-            <td style="padding-left:0;">
-                <div>
-                    <a data-bind="attr: { href: AcumaticaUrl }, text: ItemId"></a>
-                </div>
-            </td>
-            <td>
-                <div>
-                    <span data-bind="text: Description"></span>
-                </div>
-            </td>
-            <td>
-                <span data-bind="text: QuantityOnHand"></span>
-            </td>
+            <tbody data-bind="foreach: GridData">
+                <tr>
+                    <td style="padding-left:0;">
+                        <div>
+                            <a data-bind="attr: { href: AcumaticaUrl }, text: ItemId"></a>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <span data-bind="text: Description"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <span data-bind="text: QuantityOnHand"></span>
+                    </td>
 
-            <td style="text-align:right; padding-right:0; font-size:14px;">
-                <div data-bind="if: IsSelected">
-                    <a href="#" data-bind="click: UnselectClick"
-                       class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
-                </div>
-                <div data-bind="ifnot: IsSelected">
-                    <a href="#" data-bind="click: SelectClick"
-                       class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
-                </div>
-            </td>
-        </tr>
-    </tbody>
-    </table>
+                    <td style="text-align:right; padding-right:0; font-size:14px;">
+                        <div data-bind="if: IsSelected">
+                            <a href="#" data-bind="click: UnselectClick"
+                               class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
+                        </div>
+                        <div data-bind="ifnot: IsSelected">
+                            <a href="#" data-bind="click: SelectClick"
+                               class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </script>
 
 <script id="Import-Selected-Stock-Items" type="text/html">
-    <div class="modal fade" 
+    <div class="modal fade"
          id="import-selected-stockitems-modal" tabindex="-1" role="dialog"
          aria-labelledby="import-selected-stockitems-modal-label" aria-hidden="true">
 
@@ -245,7 +245,7 @@
     </div>
 </script>
 
-<script id="Import-Confirmation" type="text/html">
+<script id="Import-Create-New-Product" type="text/html">
     <div class="modal fade" id="confirm-import-modal"
          tabindex="-1" role="dialog" aria-labelledby="confirm-import-modalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document" style="max-width:600px;">
@@ -321,6 +321,82 @@
     </div>
 </script>
 
+<script id="Import-Assign-To-Existing-Product" type="text/html">
+    <div class="modal fade" id="assign-to-existing-import-modal"
+         tabindex="-1" role="dialog" aria-labelledby="assign-to-existing-import-modal" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assign-to-existing-import-modal-label">Confirm Stock Item Import into Acumatica</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <div class="mb-2">
+                            <label>
+                                Ready to proceed with importing into Acumatica:
+                            </label>
+                        </div>
+
+                        <span class="modal-heavy-text">
+                            <span data-bind="text: ProductCount"></span> Shopify Product(s) with
+                            <span data-bind="text: UnsyncedVariantCount"></span> Unsynced Shopify Variant(s)
+                        </span>
+                    </div>
+
+                    <div data-bind="if: ShowInventoryReceiptOptions">
+                        <div class="mb-4">
+                            <label>Create Inventory Receipts for new Stock Items</label>
+
+                            <select class="form-control"
+                                    data-bind="options: InventoryReceiptOptions,
+                                                value: InventoryReceiptChoice,
+                                                optionsText: 'Text',
+                                                optionsValue: 'Value'"></select>
+                        </div>
+                    </div>
+
+                    <div data-bind="ifnot: ShowInventoryReceiptOptions">
+                        <div class="alert alert-warning" style="text-align: left">
+                            NOTE: Your configuration contains Locations that are mapped to multiple Warehouses.
+                            Thus, it will not be possible to automatically create Warehouse Receipts on Product Import.
+                        </div>
+                    </div>
+
+                    <div data-bind="if: ShowInventorySyncOptions">
+                        <div class="mb-4">
+                            <label>Inventory Synchronization</label>
+                            <select class="form-control"
+                                    data-bind="options: InventorySyncOptions,
+                                            value: InventorySyncChoice,
+                                            optionsText: 'Text',
+                                            optionsValue: 'Value'"></select>
+                        </div>
+                    </div>
+
+                    <div data-bind="ifnot: ShowInventorySyncOptions">
+                        <div class="alert alert-warning" style="text-align: left">
+                            NOTE: As Warehouse Receipts are being created, you will need to
+                            enable synchronization through the Inventory Sync Control.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" data-bind="click: RunImportIntoAcumatica" class="btn btn-primary">
+                        Proceed with Loading <i class="fas fa-bolt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
 
 <script>
     var Monster = Monster || {};
@@ -523,11 +599,11 @@
 
                 ajax.HttpGet(url, this);
             },
-            function (response) {
-                AQ(response.searchResult).each(function (x) { self.DecorateGridRow(x); });
-                self.GridData(response.searchResult);
-                self.PagingWidget.RecordCount(response.searchCount);
-            });
+                function (response) {
+                    AQ(response.searchResult).each(function (x) { self.DecorateGridRow(x); });
+                    self.GridData(response.searchResult);
+                    self.PagingWidget.RecordCount(response.searchCount);
+                });
         };
 
         // Action methods
