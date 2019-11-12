@@ -1,0 +1,609 @@
+﻿<style>
+    #confirm-import-modal label {
+        font-size: 0.9em;
+    }
+
+    #complete-import-modal label {
+        font-size: 0.9em;
+    }
+
+    #import-product-detail-modal label {
+        font-size: 0.9em;
+    }
+
+    .modal-heavy-text {
+        color: #666666;
+        font-weight: 700;
+    }
+</style>
+
+<div id="Root-View" class="medium-size">
+    <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
+        <div data-bind="if: ShowWelcomePanel">
+            <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
+        </div>
+
+        <div data-bind="if: ShowImportPanel">
+            <div data-bind="template: { name: 'Inventory-Import-Panel' }"></div>
+        </div>
+    </div>
+
+    <div data-bind="if: JobRunningModel.AreAnyJobsRunning">
+        <div class="card std-pad-sm">
+            <div class="card-title-interface">Import from Shopify into Acumatica</div>
+
+            <div class="card-body center">
+                <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Render Dialog Boxes Separately -->
+    <div data-bind="template: { name: 'Shopify-Product-Detail', data: ShopifyProductDetail }"></div>
+
+    <div data-bind="template: { name: 'Import-Confirmation', data: ImportConfirmModel }"></div>
+
+    <div data-bind="template: { name: 'Import-Completion' }"></div>
+</div>
+
+<script id="Inventory-Welcome-Panel" type="text/html">
+    <hr />
+    <h1 class="mt-4 center">Import from Shopify into Acumatica</h1>
+    <p class="lead center">Transfer Product and Variants to Stock Items</p>
+
+    <div class="card">
+        <div class="card-body std-pad">
+            <div data-bind="template: { name: 'Inventory-Not-Pulled-Message' }"></div>
+            
+            <div class="center">
+                <a href="#" class="btn btn-primary btn-lg" data-bind="click: RefreshInventoryClick">
+                    Synchronize Now <i class="fas fa-bolt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="Inventory-Import-Panel" type="text/html">
+    <div class="card std-pad-sm">
+        <div class="card-title-interface">
+            Import from Shopify into Acumatica
+        </div>
+        
+        <div data-bind="template: { name: 'Inventory-Refresh-Control', data: InventoryRefreshControlModel }"></div>
+
+        <div data-bind="template: { name: 'Import-Search-Control', data: InventoryImportModel }"></div>
+    </div>
+</script>
+
+<script id="Import-Search-Control" type="text/html">
+    <!-- Filtering -->
+    <div class="card-body">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control"
+                   data-bind="value: FilterTerms, event: { keyup: SearchTermsKeyCallback }"
+                   placeholder="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
+                   aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
+                   maxlength="50" />
+
+            <div class="input-group-append">
+                <button class="btn btn-secondary"
+                        type="button"
+                        data-bind="click: RefreshResults">
+                    Filter Inventory
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="center" style="font-size:0.8em;">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input"
+                       type="radio"
+                       name="filterOptions"
+                       id="inlineRadio1"
+                       data-bind="checked: FilterSelected, value: Monster.DisplayFilter.ShowAll">
+                <label class="form-check-label" for="inlineRadio1">Show All</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input"
+                       type="radio"
+                       name="filterOptions"
+                       id="inlineRadio2"
+                       data-bind="checked: FilterSelected, value: Monster.DisplayFilter.SelectedOnly">
+                <label class="form-check-label" for="inlineRadio2">Selected Only</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input"
+                       type="radio"
+                       name="filterOptions"
+                       id="inlineRadio3"
+                       data-bind="checked: FilterSelected, value: Monster.DisplayFilter.UnselectedOnly">
+                <label class="form-check-label" for="inlineRadio3">Unselected Only</label>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- Results -->
+    <div style="padding-left:30px;padding-right:30px;">
+        <div>
+            <div class="btn-group"
+                 style="float:right;"
+                 role="group" aria-label="Basic example">
+                <button type="button"
+                        data-bind="click: SelectAllClick"
+                        class="btn btn-sm btn-secondary">
+                    Select All <i class="fas fa-check-square"></i>
+                </button>
+                <button type="button"
+                        data-bind="click: UnselectAllClick"
+                        class="btn btn-sm btn-secondary">
+                    Unselect All <i class="fas fa-minus-square"></i>
+                </button>
+            </div>
+
+            <div role="group" aria-label="Basic example">
+
+                <button type="button"
+                        data-bind="click: ImportSelectedClick, enable: ImportButtonEnabled"
+                        class="btn btn-sm btn-primary">
+                    Import selected into Acumatica <i class="fas fa-bolt"></i>
+                </button>
+            </div>
+        </div>
+
+        <div style="clear:both; height:15px;"></div>
+
+        <div data-bind="template: { name: 'Import-Selection-Grid' }"></div>
+    </div>
+</script>
+
+<script id="Import-Selection-Grid" type="text/html">
+    <style>
+        .sync-grid td {
+            vertical-align: middle;
+            font-size: 0.84em;
+            background-color: white;
+        }
+    </style>
+
+    <div style="min-height:500px; display:none; padding-top:160px;" class="empty-grid"
+         data-bind="visible: EmptyResults">
+        <h1>No Products match your criteria</h1>
+        <p class="lead center">Only Products with Variants that are not loaded in Acumatica will appear</p>
+    </div>
+
+    <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
+        <table class="table sync-grid">
+            <tbody data-bind="foreach: FilteredView">
+                <tr>
+                    <td style="padding-left:0;">
+                        <div data-bind="text: ProductTitle"></div>
+                        <div data-bind="text: Vendor"></div>
+                        <div style="color:#a9a9a9; font-size:0.8em;">
+                            PId: <span data-bind="text: ShopifyProductId"></span>
+                        </div>
+                        <div>
+                            <a href="#" target="_blank" data-bind="attr: { href: ShopifyUrl }">
+                                (Click here to view in Shopify)
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <span data-bind="text: VariantCount"></span>
+                            Shopify Variants
+                        </div>
+                        <div>
+                            <span data-bind="text: SyncedVariantCount"></span>
+                            synced with Acumatica
+                        </div>
+                        <div>
+                            <a href="#" data-bind="click: ProductDetailClick">
+                                (Click here to view Variants)
+                            </a>
+                        </div>
+                    </td>
+
+                    <td style="text-align:right; padding-right:0; font-size:14px;">
+                        <div data-bind="if: IsSelected">
+                            <a href="#" data-bind="click: SelectClick"
+                               class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
+                        </div>
+                        <div data-bind="ifnot: IsSelected">
+                            <a href="#" data-bind="click: SelectClick"
+                               class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script id="Import-Confirmation" type="text/html">
+    <div class="modal fade" id="confirm-import-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-import-modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirm-import-modalLabel">Confirm Stock Item Import into Acumatica</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <div class="mb-2">
+                            <label>
+                                Ready to proceed with importing into Acumatica:
+                            </label>
+                        </div>
+
+                        <span class="modal-heavy-text">
+                            <span data-bind="text: ProductCount"></span> Shopify Product(s) with
+                            <span data-bind="text: UnsyncedVariantCount"></span> Unsynced Shopify Variant(s)
+                        </span>
+                    </div>
+
+                    <div data-bind="if: ShowInventoryReceiptOptions">
+                        <div class="mb-4">
+                            <label>Create Inventory Receipts for new Stock Items</label>
+
+                            <select class="form-control"
+                                    data-bind="options: InventoryReceiptOptions,
+                                                value: InventoryReceiptChoice,
+                                                optionsText: 'Text',
+                                                optionsValue: 'Value'"></select>
+                        </div>
+                    </div>
+
+                    <div data-bind="ifnot: ShowInventoryReceiptOptions">
+                        <div class="alert alert-warning" style="text-align: left">
+                            NOTE: Your configuration contains Locations that are mapped to multiple Warehouses.
+                            Thus, it will not be possible to automatically create Warehouse Receipts on Product Import.
+                        </div>
+                    </div>
+
+                    <div data-bind="if: ShowInventorySyncOptions">
+                        <div class="mb-4">
+                            <label>Inventory Synchronization</label>
+                            <select class="form-control"
+                                    data-bind="options: InventorySyncOptions,
+                                            value: InventorySyncChoice,
+                                            optionsText: 'Text',
+                                            optionsValue: 'Value'"></select>
+                        </div>
+                    </div>
+
+                    <div data-bind="ifnot: ShowInventorySyncOptions">
+                        <div class="alert alert-warning" style="text-align: left">
+                            NOTE: As Warehouse Receipts are being created, you will need to
+                            enable synchronization through the Inventory Sync Control.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" data-bind="click: RunImportIntoAcumatica" class="btn btn-primary">
+                        Proceed with Loading <i class="fas fa-bolt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="Import-Completion" type="text/html">
+    <div class="modal fade" id="complete-import-modal" tabindex="-1" role="dialog" aria-labelledby="complete-import-modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="complete-import-modalLabel">Import into Acumatica Complete</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        The process of loading Shopify Products into Acumatica is now complete.
+                    </div>
+                    <div class="mb-4">
+                        To enable/disable synchronization Inventory Counts with Shopify, navigate to
+                        <a href="@GlobalConfig.Url("/Sync/InventorySyncControl")">
+                        Synchronize -> Inventory Sync Control</a>.
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="alert alert-warning" style="text-align:left;">
+                            <strong>Important:</strong> Before enabling Inventory synchronization,
+                            be sure to confirm your Acumatica Stock Item has correct Inventory Counts.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">
+                        Ok, Done <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.DisplayFilter = {
+        ShowAll: 'ShowAll',
+        SelectedOnly: 'SelectedOnly',
+        UnselectedOnly: 'UnselectedOnly',
+    };
+
+    Monster.ImportConfirmModel = function () {
+        var self = this;
+
+        self.SelectedProducts = ko.observableArray([]);
+
+        self.InventoryReceiptOptions = ko.observableArray([
+            { Text: 'Do not create Inventory Receipts', Value: 0 },
+            { Text: 'Create Inventory Receipts', Value: 1 },
+        ]);
+
+        self.InventorySyncOptions = ko.observableArray([
+            { Text: 'Automatically Disable Sync', Value: 0 },
+            { Text: 'Automatically Enable Sync', Value: 1 },
+        ]);
+
+
+        // State
+        //
+        self.InventoryReceiptChoice = ko.observable(0);
+        self.InventorySyncChoice = ko.observable(0);
+        self.AnyMultipleWarehouseMapping = ko.observable();
+
+        // Computed State
+        //
+        self.ShowInventoryReceiptOptions = ko.computed(function () {
+            return self.AnyMultipleWarehouseMapping() == false;
+        });
+
+        // If there are Multiple Warehouse mappings, do not allow creation of Inventory Receipt
+        //
+        self.AnyMultipleWarehouseMapping.subscribe(function () {
+            if (self.AnyMultipleWarehouseMapping()) {
+                self.InventorySyncChoice(false);
+            }
+        });
+
+        // If the user chooses not to create Warehouse Receipts, they can Enable Sync
+        self.ShowInventorySyncOptions = ko.computed(function () {
+            return self.InventoryReceiptChoice() == false;
+        });
+
+        self.ProductCount = ko.computed(function () { return self.SelectedProducts().length; });
+
+        self.UnsyncedVariantCount = ko.computed(function () {
+            return AQ(self.SelectedProducts())
+                .sum(function (x) { return x.UnsyncedVariantCount });
+        });
+
+        // AJAX Methods
+
+        // Parameter data should match C# DTO ShopifyProductModel
+        self.Launch = function (data) {
+            flow.exec(function () {
+                    self.SelectedProducts(data);
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("/Sync/SyncedWarehouses", this);
+                },
+                function (response) {
+                    //console.log(response);
+                    self.AnyMultipleWarehouseMapping(response.AnyMultipleWarehouseMapping);
+                    $('#confirm-import-modal').modal('show');
+                });
+        };
+
+        Monster.Events.subscribe("/LaunchImportConfirm", self.Launch);
+
+        self.RunImportIntoAcumatica = function () {
+            flow.exec(function () {
+                    var selectedSPIds
+                        = AQ(self.SelectedProducts()).select(function (x) {
+                            return x.ShopifyProductId;
+                        }).toArray();
+
+                    var model = {
+                        createInventoryReceipt: self.InventoryReceiptChoice(),
+                        enableInventorySync: self.InventorySyncChoice(),
+                        selectedSPIds: selectedSPIds,
+                    };
+
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
+                },
+                function (response) {
+                    $('#confirm-import-modal').modal('hide');
+
+                    Monster.Events.publish("/InventoryJobLaunched");
+                    Monster.Events.publish("/ImportJobTriggered");
+                });
+        }
+
+        return self;
+    };
+
+    Monster.InventoryImportModel = function () {
+        var self = this;
+
+        // Search Input
+        self.FilterTerms = ko.observable("");
+        self.FilterSelected = ko.observable(Monster.DisplayFilter.ShowAll);
+        self.FilterSelected.subscribe(function () {
+            self.RefreshFilteredView();
+        });
+
+        // Grid storage
+        //
+        self.GridData = ko.observableArray([]);
+        self.FilteredView = ko.observableArray([]);
+
+        // Computed
+        //
+        self.EmptyResults = ko.computed(function () { return self.FilteredView().length == 0; });
+
+        self.SelectedProducts = ko.computed(function () {
+            return AQ(self.FilteredView())
+                .where(function (x) { return x.IsSelected(); })
+                .toArray();
+        });
+
+        self.ImportButtonEnabled = ko.computed(function () {
+            return self.SelectedProducts().length > 0;
+        });
+
+        self.RefreshFilteredView = function () {
+            var output = AQ(self.GridData())
+                .where(function (item) {
+                    return ((self.FilterSelected() == Monster.DisplayFilter.ShowAll) ||
+                        (self.FilterSelected() == Monster.DisplayFilter.SelectedOnly && item.IsSelected()) ||
+                        (self.FilterSelected() == Monster.DisplayFilter.UnselectedOnly && !item.IsSelected()));
+                })
+                .toArray();
+
+            self.FilteredView(output);
+        };
+
+        // Grid interaction methods
+        //
+        self.SearchTermsKeyCallback = function (model, event) {
+            if (event.keyCode == 13) {
+                self.RefreshResults();
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        self.SelectAllClick = function () {
+            AQ(self.GridData()).each(function (x) {
+                x.IsSelected(true);
+            });
+            self.RefreshFilteredView();
+        };
+
+        self.UnselectAllClick = function () {
+            AQ(self.GridData()).each(function (x) {
+                x.IsSelected(false);
+            });
+            self.RefreshFilteredView();
+        };
+
+        self.ImportSelectedClick = function () {
+            Monster.Events.publish("/LaunchImportConfirm", self.SelectedProducts());
+        };
+
+        self.ImportJobTriggered = ko.observable(false);
+
+        // Sets a flag to show the completion modal pop-ups
+        Monster.Events.subscribe("/ImportJobTriggered", function () { self.ImportJobTriggered(true); });
+
+        // Helper populate functions for grid row
+        self.DecorateGridRow = function (row) {
+            row.IsSelected = ko.observable(false);
+
+            row.SelectClick = function () {
+                row.IsSelected(!row.IsSelected());
+                self.RefreshFilteredView();
+            };
+
+            row.ProductDetailClick = function () {
+                Monster.Events.publish("/ImportProductDetail", row.ShopifyProductId);
+            };
+        };
+
+        self.RefreshResults = function () {
+            flow.exec(function () {
+                    var ajax = new Monster.Ajax();
+                    var url = "/Sync/FilterInventory?terms=" + self.FilterTerms();
+                    ajax.HttpGet(url, this);
+                },
+                function (response) {
+                    //console.log(response);
+
+                    AQ(response).each(function (x) { self.DecorateGridRow(x); });
+                    self.GridData(response);
+                    self.RefreshFilteredView();
+
+                    // Show the completion dialog if the flag was set
+                    if (self.ImportJobTriggered()) {
+                        $("#complete-import-modal").modal('show');
+
+                        // Clear the flag
+                        self.ImportJobTriggered(false);
+                    }
+                });
+        };
+
+        return self;
+    };
+
+    Monster.RootModel = function () {
+        var self = this;
+
+        // Child models
+        //
+        self.InventoryImportModel = new Monster.InventoryImportModel();
+        self.ImportConfirmModel = new Monster.ImportConfirmModel();
+
+        // Our lil frenz from Shared Models + Views...
+        //
+        self.JobRunningModel = new Monster.JobStatusModel();
+        self.InventoryRefreshControlModel = new Monster.InventoryRefreshControlModel();
+        self.ShopifyProductDetail = new Monster.ShopifyProductDetail();
+
+        // Interface logic reduction
+        //
+        self.ShowWelcomePanel = ko.computed(function () {
+            return !self.InventoryRefreshControlModel.HasRun();
+        });
+
+        self.ShowImportPanel = ko.computed(function () {
+            return self.InventoryRefreshControlModel.HasRun();
+        });
+
+        // Methods/Actions
+        //
+        self.ProcessStatus = function () {
+            if (self.ShowImportPanel()) {
+                self.InventoryImportModel.RefreshResults();
+            }
+        };
+
+        self.RefreshInventoryClick = function() {
+            Monster.Events.publish(Monster.StartInventoryRefresh);
+        };
+
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
+
+        self.Initialize = function () {
+            self.JobRunningModel.StartPolling();
+        };
+
+        return self;
+    };
+
+    $(document).ready(function() {
+        var model = new Monster.RootModel();
+        ko.applyBindings(model);
+        model.Initialize();
+    });
+</script>
+

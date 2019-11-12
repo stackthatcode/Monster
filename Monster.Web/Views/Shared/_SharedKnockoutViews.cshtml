@@ -1,5 +1,6 @@
 ﻿@using Monster.Web.Plumbing
 
+
 <!-- Job Running Status & Execution Log - View + Models -->
 <script type="text/html" id="Job-Running-Spinner">
     <img style="width: 100px;" src="@GlobalConfig.Url("/Content/throbber_12.gif")" />
@@ -82,8 +83,10 @@
                 });
         };
 
-        self.StartPolling = function () {
-            if (!self.IsPollingStarted(true)) {
+        self.StartPolling = function (isRunning) {
+            self.AreAnyJobsRunning(isRunning);
+
+            if (!self.IsPollingStarted()) {
                 self.Poll();
                 self.IsPollingStarted(true);
             }
@@ -98,6 +101,7 @@
         return self;
     };
 </script>
+
 
 <!-- Inventory Refresh Control -->
 <script id="Inventory-Refresh-Control" type="text/html">
@@ -119,6 +123,7 @@
 </script>
 <script>
     var Monster = Monster || {};
+
     Monster.StartInventoryRefresh = "/StartInventoryRefresh";
 
     Monster.InventoryRefreshControlModel = function () {
@@ -166,6 +171,7 @@
 </script>
 
 
+<!-- Shopify Product Detail pop-up -->
 <script id="Shopify-Product-Detail" type="text/html">
     <style>
         .product-detail td { vertical-align: middle; }
@@ -281,14 +287,8 @@
 
 <!-- Welcome Panel for the End-to-End Sync and Inventory Import screens -->
 <script type="text/html" id="Inventory-Not-Pulled-Message">
-    <p>
-        @GlobalConfig.AppName will now pull your complete catalog of Products and Variants from Shopify,
-        and will pull all of your Stock Items from your Acumatica Instance.
-    </p>
-
     <div class="alert alert-warning">
-        <strong>Important:</strong> End-to-End Sync will perform this step as well.
-        But, you will still need to load Stock Items into Shopify
-        and select which to enable for Inventory Synchronization.
+        <strong>Important:</strong> Before importing Inventory between Shopify and Acumatica,
+        @GlobalConfig.AppName will need to perform an Inventory Refresh to take stock of everything.
     </div>
 </script>

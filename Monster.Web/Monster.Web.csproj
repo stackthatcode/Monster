@@ -257,9 +257,10 @@
     <Content Include="Content\Bridge-logo-2.jpg" />
     <Content Include="Content\DetailGraphic.png" />
     <Content Include="Content\gijgo.min.css" />
+    <Content Include="Content\KO\ImportIntoAcumatica.html" />
     <Content Include="Content\Logic-Automated-logo-horizontal-transparent-white.png" />
-    <Content Include="Content\ImportIntoShopify.html" />
-    <Content Include="Content\OrderSyncAnalyzer.html" />
+    <Content Include="Content\KO\ImportIntoShopify.html" />
+    <Content Include="Content\KO\OrderSyncAnalyzer.html" />
     <Content Include="Content\spinner-new.gif" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\popper.min.js" />
