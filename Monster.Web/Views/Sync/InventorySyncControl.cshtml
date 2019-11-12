@@ -10,8 +10,8 @@
     }
 </style>
 
-<div>
-    <div data-bind="ifnot: AreAnyJobsRunning">
+<div class="medium-size" >
+    <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
         <div data-bind="if: ShowWelcomePanel">
             <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
         </div>
@@ -21,11 +21,12 @@
         </div>
     </div>
 
-    <div class="medium-size" data-bind="if: AreAnyJobsRunning">
-        <div class="card std-pad-sm">
+    <div data-bind="if: JobRunningModel.AreAnyJobsRunning">
+        <div class="card center std-pad-sm">
             <div class="card-title-interface">Inventory Sync Control</div>
-
-            <div data-bind="template: { name: 'Job-Running-Panel-Borderless', data: JobRunningModel }"></div>
+            <div class="card-body std-pad-b">
+                <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -224,7 +225,6 @@
     Monster.InventoryConfigModel = function () {
         var self = this;
         
-        self.AreAnyJobsRunning = ko.observable();
         self.JobRunningModel = new Monster.JobStatusModel();
 
         self.InventoryPullState = ko.observable();
@@ -264,29 +264,20 @@
             ajax.HttpPost("/Sync/RunInventoryRefresh", {}, self.PollStatus);
         };
 
-        self.PollStatus = function () {
+        self.ProcessStatus = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("/Sync/InventoryRefreshStatus", this);
+                    ajax.HttpGet("/Job/InventoryRefreshStatus", this);
                 },
                 function (response) {
-                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                    self.JobRunningModel.Ingest(response.Logs);
-
-                    self.InventoryPullState(response.SystemState);
-
-                    if (self.AreAnyJobsRunning()) {
-                        setTimeout(self.PollStatus, 1000);
-                    } else {
-                        self.InventorySyncGrid.RefreshGrid();
-                    }
+                    self.InventoryPullState(response.InventoryRefreshState);
+                    self.InventorySyncGrid.RefreshGrid();
                 });
         };
 
-        self.Initialize = function () {
-            self.PollStatus();
+        self.Initialize = function () { 
+            self.JobRunningModel.StartPolling(true); 
         };
 
         return self;
@@ -417,9 +408,10 @@
         return self;
     };
 
-
-    var model = new Monster.InventoryConfigModel();
-    model.Initialize();
-    ko.applyBindings(model);
+    $(document).ready(function() {
+        var model = new Monster.InventoryConfigModel();
+        model.Initialize();
+        ko.applyBindings(model);
+    });
 </script>
 

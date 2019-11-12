@@ -33,11 +33,11 @@
         <div class="card-title-interface">End-to-End Synchronization</div>
 
         <div class="card-body center">
-            <div data-bind="if: AreAnyJobsRunning">
-                <div data-bind="template: { name: 'Running-State', data: RunningStateModel }"></div>
+            <div data-bind="if: JobRunningModel.AreAnyJobsRunning">
+                <div data-bind="template: { name: 'Running-State', data: JobRunningModel }"></div>
             </div>
 
-            <div data-bind="ifnot: AreAnyJobsRunning">
+            <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
                 <div data-bind="template: { name: 'Non-Running-State', data: NonRunningStateModel }"></div>
             </div>
         </div>
@@ -58,14 +58,8 @@
         </div>
     </div>
 
-    <div style="text-align: center;" class="std-pad-sm">
-        <div data-bind="template: { name: 'Job-Running-Spinner' }"></div>
-    </div>
-
-    <hr/>
-
     <div data-bind="if: IsEndToEndSyncRunning">
-        <a href="#" data-bind="click: PauseEndToEndClick" class="btn btn-primary btn-lg">
+        <a href="#" data-bind="click: $root.PauseEndToEndClick" class="btn btn-primary btn-lg">
             Pause Real-Time Sync <i class="fas fa-bolt"></i>
         </a>
     </div>
@@ -76,9 +70,13 @@
         </button>
     </div>
 
-    <div style="height: 15px;"></div>
+    <hr />
 
-    <div data-bind="template: { name: 'Execution-Log-Ticker', data: ExecutionLogModel }"></div>
+    <div style="text-align: center;" class="std-pad-sm">
+        <div data-bind="template: { name: 'Job-Running-Panel' }"></div>
+    </div>
+
+    <div style="height: 15px;"></div>
 </script>
 
 <script type="text/html" id="Non-Running-State">
@@ -574,23 +572,19 @@
                     ajax.HttpPost("/Sync/StartEndToEnd", {}, this);
                 },
                 function (response) {
-                    Monster.Events.publish(eventKeys.PollJobStatus);
+                    Monster.Events.publish(Monster.JobStatusStartPolling);
                 });
         };
 
         return self;
     }
-    
-    Monster.RunningStateModel = function() {
+
+    Monster.ParentInterface = function () {
         var self = this;
 
-        self.IsEndToEndSyncRunning = ko.observable(false);
-        self.ExecutionLogModel = new Monster.JobStatusModel();
-        
-        self.Populate = function (model) {
-            self.IsEndToEndSyncRunning(model.IsEndToEndSyncRunning);
-            self.ExecutionLogModel.Ingest(model.Logs);
-        };
+        // Current Job status
+        //
+        self.JobRunningModel = new Monster.JobStatusModel();
 
         self.PauseEndToEndClick = function () {
             flow.exec(
@@ -603,56 +597,34 @@
                 });
         };
 
-        return self;
-    };
-    
-    Monster.ParentInterface = function () {
-        var self = this;
-
-        // Current Job status
-        //
-        self.AreAnyJobsRunning = ko.observable(false);
-
         // Child Models divide by state
         //
-        self.RunningStateModel = new Monster.RunningStateModel();
         self.NonRunningStateModel = new Monster.NonRunningStateModel();
         self.OrderSyncSettingsPopupModel = new Monster.OrderSyncSettingsPopupModel();
 
-        // Polling Function
-        //
-        self.PollJobStatus = function () {
+        self.ProcessStatus = function () {
             flow.exec(function () {
                 var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
                 ajax.HttpGet("/Sync/EndToEndStatus", this);
             },
             function (response) {
-                // Job Running status/panel
-                //
-                self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-
-                if (self.AreAnyJobsRunning()) {
-                    self.RunningStateModel.Populate(response.RunningStateModel);
-                    setTimeout(self.PollJobStatus, 1000);
-
-                } else {
-                    self.NonRunningStateModel.Populate(response.NonRunningStateModel);
-                    Monster.Events.publish(eventKeys.RefreshSyncSettings);
-                }
+                self.NonRunningStateModel.Populate(response);
+                Monster.Events.publish(eventKeys.RefreshSyncSettings);
             });
         };
 
-        Monster.Events.subscribe(eventKeys.PollJobStatus, self.PollJobStatus);
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
 
         self.Initialize = function () {
-            self.PollJobStatus();
+            self.JobRunningModel.StartPolling(true); 
         };
 
         return self;
     };
 
-    var model = new Monster.ParentInterface();
-    ko.applyBindings(model);
-    model.Initialize();
+    $(document).ready(function() {
+        var model = new Monster.ParentInterface();
+        ko.applyBindings(model);
+        model.Initialize();
+    });
 </script>

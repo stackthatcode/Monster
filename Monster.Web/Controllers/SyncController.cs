@@ -93,36 +93,15 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult EndToEndStatus()
         {
-            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
-            var output = new EndToEndStatusModel();
-            output.AreAnyJobsRunning = areAnyJobsRunning;
-
-            if (areAnyJobsRunning)
+            var status = _configStatusService.GetConfigStatusSummary();
+            var output = new 
             {
-                var isEndToEndSyncRunning = _jobStatusService.AreAnyJobsRunning();
-                var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+                status.IsStartingOrderReadyForEndToEnd,
+                status.IsConfigReadyForEndToEnd,
+                status.CanEndToEndSyncBeStarted,
+            };
 
-                output.RunningStateModel = new RunningStateModel
-                {
-                    IsEndToEndSyncRunning = isEndToEndSyncRunning,
-                    Logs = logs,
-                };
-
-                return new JsonNetResult(output);
-            }
-            else
-            {
-                var status = _configStatusService.GetConfigStatusSummary();
-                    
-                output.NonRunningStateModel = new NonRunningStateModel
-                {
-                    IsStartingOrderReadyForEndToEnd = status.IsStartingOrderReadyForEndToEnd,
-                    IsConfigReadyForEndToEnd = status.IsConfigReadyForEndToEnd,
-                    CanEndToEndSyncBeStarted = status.CanEndToEndSyncBeStarted,
-                };
-
-                return new JsonNetResult(output);
-            }
+            return new JsonNetResult(output);
         }
 
 

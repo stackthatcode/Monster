@@ -40,7 +40,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ExecutionLogData()
         {
-            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
+            var logs = _logRepository.RetrieveExecutionLogs(1000);
             return new JsonNetResult(logs);
         }
 

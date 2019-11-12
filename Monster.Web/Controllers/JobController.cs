@@ -33,6 +33,7 @@ namespace Monster.Web.Controllers
         {
             var output = new
             {
+                IsEndToEndSyncRunning = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync),
                 AreAnyJobsRunning = _jobStatusService.AreAnyJobsRunning(),
                 Logs = _logRepository.RetrieveExecutionLogs(100),
             };

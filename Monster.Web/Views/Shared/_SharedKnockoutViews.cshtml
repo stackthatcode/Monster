@@ -23,22 +23,26 @@
 
     <div data-bind="if: HasLogs">
         <div style="overflow-y: scroll; height: 400px; text-align: left;">
-            <table class="table table-striped">
-                <tbody data-bind="foreach: Logs">
-                    <tr>
-                        <td>
-                            <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
-                                <span data-bind="text: DateCreated"></span> (UTC)
-                            </div>
-
-                            <div data-bind="text: LogContent"></div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div data-bind="template: { name: 'Execution-Log-Table', data: Logs }"></div>
         </div>
     </div>
 </script>
+<script id="Execution-Log-Table" type="text/html">
+    <table class="table table-striped">
+        <tbody data-bind="foreach: $data">
+        <tr>
+            <td>
+                <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
+                    <span data-bind="text: DateCreated"></span> (UTC)
+                </div>
+
+                <div data-bind="text: LogContent"></div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</script>
+
 <script id="Job-Running-Panel" type="text/html">
     <div>
         <div data-bind="template: { name: 'Job-Running-Spinner' }"></div>
@@ -57,6 +61,7 @@
         var self = this;
 
         self.IsPollingStarted = ko.observable(false);
+        self.IsEndToEndSyncRunning = ko.observable(false);
         self.AreAnyJobsRunning = ko.observable(false);
         self.Logs = ko.observableArray([]);
 
@@ -73,6 +78,7 @@
                 function (response) {
                     var oldAreAnyJobsRunning = self.AreAnyJobsRunning();
 
+                    self.IsEndToEndSyncRunning(response.IsEndToEndSyncRunning);
                     self.AreAnyJobsRunning(response.AreAnyJobsRunning);
                     self.Logs(response.Logs);
                     setTimeout(self.Poll, 1000);
@@ -94,10 +100,7 @@
 
         // Pub-Sub subscription
         //
-        Monster.Events.subscribe(Monster.JobStatusStartPolling,
-            function(areAnyJobsRunning) {
-                 self.StartPolling(areAnyJobsRunning);
-            });
+        Monster.Events.subscribe(Monster.JobStatusStartPolling, function() { self.StartPolling(true); });
 
         return self;
     };

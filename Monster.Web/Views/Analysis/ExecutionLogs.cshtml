@@ -1,7 +1,7 @@
 ﻿@using Monster.Web.Plumbing
 
 
-<main role="main" class="medium-size">
+<main role="main" class="large-size">
     @Html.Partial("_TopBrand")
     <hr />
 
@@ -14,8 +14,8 @@
 
     <div class="std-pad-b">
         <div class="card">
-            <div class="card-body center">
-                <div data-bind="template: { name: 'Execution-Log-Ticker', data: ExecutionLogModel }"></div>
+            <div class="card-body left">
+                <div data-bind="template: { name: 'Execution-Log-Table', data: Logs }"></div>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@ var Monster = Monster || {};
 Monster.RealTimeModel = function() {
     var self = this;
 
-    self.ExecutionLogModel = new Monster.JobStatusModel();
+    self.Logs = ko.observableArray([]);
     
     self.Refresh = function() {
         flow.exec(function() {
@@ -35,7 +35,8 @@ Monster.RealTimeModel = function() {
                 ajax.HttpGet("/Analysis/ExecutionLogData", this);
             },
             function (response) {
-                self.ExecutionLogModel.Ingest(response);
+                console.log(response);
+                self.Logs(response);
             });
     };
     
@@ -46,7 +47,9 @@ Monster.RealTimeModel = function() {
     return self;
 };
 
-var model = new Monster.RealTimeModel();
-ko.applyBindings(model);
-model.Initialize();
+$(document).ready(function() {
+    var model = new Monster.RealTimeModel();
+    ko.applyBindings(model);
+    model.Initialize();
+});
 </script>
