@@ -23,7 +23,7 @@
     }
 </style>
 
-<div id="Root-View" class="medium-size">
+<div id="Root-View" class="large-size">
     <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
         <div data-bind="if: ShowWelcomePanel">
             <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
@@ -78,20 +78,30 @@
 <script id="Import-Search-Control" type="text/html">
     <!-- Filtering -->
     <div class="card-body std-pad-side">
-        <div class="input-group mb-3">
-            <input type="text" class="form-control"
-                   data-bind="value: FilterTerms, event: { keyup: SearchTermsKeyCallback }"
-                   placeholder="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
-                   aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
-                   maxlength="50" />
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control"
+                           style="font-size:0.9em;"
+                           data-bind="value: FilterTerms, event: { keyup: SearchTermsKeyCallback }"
+                           placeholder="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
+                           aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
+                           maxlength="50" />
 
-            <div class="input-group-append">
-                <button class="btn btn-secondary" type="button"
-                        data-bind="click: RefreshGrid">
-                    Filter Inventory <i class="fas fa-search"></i>
-                </button>
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button" 
+                                style="font-size:0.9em;"
+                                data-bind="click: RefreshGrid">
+                            Filter Inventory <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4" style="text-align:right;">
+                <div data-bind="template: { name: 'Monster-Paging-Widget', data: PagingWidget }"></div>
             </div>
         </div>
+
         <hr />
 
         <!-- Results -->
@@ -121,7 +131,7 @@
                     </button>
                 </div>
 
-                <div style="clear:both; text-align:left; font-weight:700; font-size:0.9em; padding-top:8px;">
+                <div style="clear:both; float:left; font-weight:700; font-size:0.9em; padding-top:8px;">
                     <a href="#" data-bind="click: SelectAllClick">
                         (<span data-bind="text: SelectedProducts().length"></span> Products Selected)
                     </a>
@@ -418,6 +428,7 @@
         //
         self.GridData = ko.observableArray([]);
         self.SelectedProducts = ko.observableArray([]);
+        self.PagingWidget = new MonsterWidgets.PagingWidget();
 
         // Computed
         //
@@ -439,8 +450,6 @@
         // Helper populate functions for grid row
         self.DecorateGridRow = function (row) {
             row.IsSelected = ko.computed(function () {
-                console.log(row, self.SelectedProducts())
-
                 return AQ(self.SelectedProducts())
                     .any(function(x) { return x.ShopifyProductId == row.ShopifyProductId; });
             });
@@ -473,17 +482,26 @@
             }
         };
 
+        self.PagingWidget.Callback = function () {
+            self.RefreshGrid();
+        };
+
         self.RefreshGrid = function () {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
-                    var url = "/Sync/FilterInventory?terms=" + self.FilterTerms();
+                    var url = "/Sync/FilterInventory?terms=" + self.FilterTerms() +
+                        "&pageNumber=" + self.PagingWidget.PageNumber() + 
+                        "&pageSize=" + self.PagingWidget.PageSize();
+                    
                     ajax.HttpGet(url, this);
                 },
                 function (response) {
-                    AQ(response).each(function (x) { self.DecorateGridRow(x); });
-                    self.GridData(response);
+                    AQ(response.searchResult).each(function (x) { self.DecorateGridRow(x); });
+                    self.GridData(response.searchResult);
+                    self.PagingWidget.RecordCount(response.searchCount);
                 });
         };
+
 
         self.ImportIntoAcumaticaClick = function () {
             Monster.Events.publish(event.LaunchImportConfirm, self.SelectedProducts());

@@ -368,6 +368,7 @@
         self.ScrollToTop = function () {
             $('html,body').animate({ scrollTop: 0 });
         };
+
         self.PagingWidget = new MonsterWidgets.PagingWidget();
         self.PagingWidget.Callback = function () {
             self.RefreshGrid(self.ScrollToTop);

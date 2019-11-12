@@ -335,9 +335,10 @@ namespace Monster.Middle.Processes.Sync.Persist
                     .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
 
-        public List<ShopifyProduct> ProductSearch(string terms)
+
+        private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms)
         {
-            var termList 
+            var termList
                 = terms.Split(' ')
                     .Where(x => x.Trim() != "")
                     .ToList();
@@ -348,7 +349,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                     .Include(x => x.ShopifyVariants)
                     .Include(x => x.ShopifyVariants.Select(y => y.ShopAcuItemSyncs))
                     .Where(x => x.ShopifyVariants.Any(y => !y.ShopAcuItemSyncs.Any()));
-            
+
             foreach (var term in termList)
             {
                 dataSet = dataSet.Where(
@@ -359,8 +360,24 @@ namespace Monster.Middle.Processes.Sync.Persist
                          x.ShopifyVariants.Any(y => y.ShopifyTitle.Contains(term)));
             }
 
-            return dataSet.ToList();
+            return dataSet;
         }
+
+        public List<ShopifyProduct> ProductSearchRecords(string terms, int startingRecord, int pageSize)
+        {
+            return ProductSearchQueryable(terms)
+                .OrderBy(x => x.ShopifyTitle)
+                .Skip(startingRecord)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        public int ProductSearchCount(string terms)
+        {
+            return ProductSearchQueryable(terms).Count();
+        }
+
+
 
         public void UpdateVariantSync(long monsterVariantId, bool syncEnabled)
         {

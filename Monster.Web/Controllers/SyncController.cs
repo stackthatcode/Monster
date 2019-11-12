@@ -13,6 +13,7 @@ using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Sync;
+using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Web.Json;
 using Push.Shopify.Api;
@@ -304,14 +305,16 @@ namespace Monster.Web.Controllers
             return View();
         }
 
-        public ActionResult FilterInventory(string terms = "")
+        public ActionResult FilterInventory(int pageNumber = 1, int pageSize = 10, string terms = "")
         {
-            var searchResult = _syncInventoryRepository.ProductSearch(terms);
-            var output
-                = searchResult
-                    .Select(x => ShopifyProductModel
-                        .Make(x, _shopifyUrlService.ShopifyProductUrl)).ToList();
+            var startingRecord = PagingHelper.StartingRecord(pageNumber, pageSize);
+            var searchRecords = _syncInventoryRepository.ProductSearchRecords(terms, startingRecord, pageSize);
+            var searchResult = searchRecords
+                .Select(x => ShopifyProductModel.Make(x, _shopifyUrlService.ShopifyProductUrl)).ToList();
 
+            var searchCount = _syncInventoryRepository.ProductSearchCount(terms);
+
+            var output = new { searchResult, searchCount, };
             return new JsonNetResult(output);
         }
 

@@ -113,6 +113,7 @@
     <Compile Include="General\LinqExtensions.cs" />
     <Compile Include="General\MethodName.cs" />
     <Compile Include="General\ObjectIntrospection.cs" />
+    <Compile Include="General\PagingHelper.cs" />
     <Compile Include="General\PropertyReflection.cs" />
     <Compile Include="General\StringExtensions.cs" />
     <Compile Include="Helpers\DateTimeExtensions.cs" />
