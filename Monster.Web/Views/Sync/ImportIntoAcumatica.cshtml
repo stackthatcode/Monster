@@ -79,12 +79,12 @@
                 <button type="button" class="btn btn-primary btn-sm" data-bind="click: RefreshInventoryClick">
                     Refresh Inventory <i class="fas fa-bolt"></i>
                 
-                    <span data-bind="if: LastInventoryRunHadErrors">
+                    <span data-bind="if: LastRunBroken">
                         <span class="badge badge-dark">FAILED</span>
                     </span>
                 </button>
 
-                <span data-bind="if: LastInventoryRunHadErrors">
+                <span data-bind="if: LastRunBroken">
                     <a href="@GlobalConfig.Url("/Config/Diagnostics")" class="btn btn-dark btn-sm">
                         View Diagnostics
                         <i class="fas fa-user-md"></i>
@@ -110,7 +110,7 @@
             <div class="input-group-append">
                 <button class="btn btn-secondary" 
                         type="button"
-                        data-bind="click: FilterInventoryClick">
+                        data-bind="click: RefreshResults">
                     Filter Inventory
                     <i class="fas fa-search"></i>
                 </button>
@@ -586,11 +586,11 @@
 
         // Abstract logic reduction
         //
-        self.HasInventoryRefreshRun = ko.computed(function() {
+        self.HasRun = ko.computed(function() {
             return self.InventoryRefreshState() != StateCode.None;
         });
 
-        self.LastInventoryRunHadErrors = ko.computed(function() {
+        self.LastRunBroken = ko.computed(function() {
             return self.InventoryRefreshState() == StateCode.Invalid ||
                 self.InventoryRefreshState() == StateCode.SystemFault;
         });
@@ -599,11 +599,11 @@
         // Interface logic reduction
         //
         self.ShowWelcomePanel = ko.computed(function() {
-            return !self.HasInventoryRefreshRun();
+            return !self.HasRun();
         });
         
         self.ShowSearchPanel = ko.computed(function () {
-            return self.HasInventoryRefreshRun();
+            return self.HasRun();
         });
 
 
@@ -643,7 +643,7 @@
         
         self.ProcessStatus = function () {
             if (self.ShowSearchPanel()) {
-                self.ImportSearchControl.FilterInventoryClick();
+                self.ImportSearchControl.RefreshResults();
             }
         };
 
@@ -708,7 +708,7 @@
         // Grid interaction methods
         self.SearchTermsKeyCallback = function (model, event) {
             if (event.keyCode == 13) {
-                self.FilterInventoryClick();
+                self.RefreshResults();
                 return false;
             } else {
                 return true;
@@ -752,7 +752,7 @@
             };
         };
 
-        self.FilterInventoryClick = function() {
+        self.RefreshResults = function() {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var url = "/Sync/FilterInventory?terms=" + self.FilterTerms();

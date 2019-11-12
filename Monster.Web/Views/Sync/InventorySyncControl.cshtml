@@ -59,12 +59,12 @@
                 <button type="button" class="btn btn-primary btn-sm" data-bind="click: InventoryPullClick">
                     Refresh Inventory <i class="fas fa-bolt"></i>
                 
-                    <span data-bind="if: LastInventoryRunHadErrors">
+                    <span data-bind="if: LastRunBroken">
                         <span class="badge badge-dark">FAILED</span>
                     </span>
                 </button>
 
-                <span data-bind="if: LastInventoryRunHadErrors">
+                <span data-bind="if: LastRunBroken">
                     <a href="@GlobalConfig.Url("/Config/Diagnostics")" class="btn btn-dark btn-sm">
                         View Diagnostics <i class="fas fa-user-md"></i>
                     </a>
@@ -236,7 +236,7 @@
             return self.InventoryPullState() != StateCode.None;
         });
 
-        self.LastInventoryRunHadErrors = ko.computed(function() {
+        self.LastRunBroken = ko.computed(function() {
             return self.InventoryPullState() == StateCode.Invalid ||
                 self.InventoryPullState() == StateCode.SystemFault;
         });

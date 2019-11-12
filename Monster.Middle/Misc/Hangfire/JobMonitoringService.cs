@@ -75,7 +75,9 @@ namespace Monster.Middle.Misc.Hangfire
         {
             Cleanup();
 
-            return Entities.ExclusiveJobMonitors.AsNoTracking().Any();
+            return Entities.ExclusiveJobMonitors
+                .AsNoTracking()
+                .Any();
         }
 
 

@@ -98,9 +98,7 @@ namespace Monster.Web.Controllers
 
             if (areAnyJobsRunning)
             {
-                var isEndToEndSyncRunning 
-                    = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync);
-
+                var isEndToEndSyncRunning = _jobStatusService.AreAnyJobsRunning();
                 var logs = _logRepository.RetrieveExecutionLogs().ToModel();
 
                 output.RunningStateModel = new RunningStateModel

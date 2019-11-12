@@ -30,17 +30,17 @@
 
     <div data-bind="if: AreAnyJobsRunning">
         <div class="card std-pad-sm">
-            <div class="card-title-interface">
-                Import from Shopify into Acumatica
-            </div>
+            <div class="card-title-interface">Import from Shopify into Acumatica</div>
 
             <div class="card-body center">
-                <div data-bind="template: { name: 'Job-Running-Panel-Borderless', data: JobRunningModel }"></div>
+                <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
             </div>
         </div>
     </div>
 
     <!-- Render Dialog Boxes Separately -->
+    <div data-bind="template: { name: 'Shopify-Product-Detail', data: ShopifyProductDetail }"></div>
+
     <div data-bind="template: { name: 'Import-Confirmation', data: ImportConfirmModel }"></div>
 
     <div data-bind="template: { name: 'Import-Completion' }"></div>
@@ -48,8 +48,8 @@
 
 <script id="Inventory-Welcome-Panel" type="text/html">
     <hr />
-    <h1 class="mt-4 center">Import from Acumatica into Shopify</h1>
-    <p class="lead center">Transfer Stock Items to  Product and Variants</p>
+    <h1 class="mt-4 center">Import from Shopify into Acumatica</h1>
+    <p class="lead center">Transfer Product and Variants to Stock Items</p>
 
     <div class="card">
         <div class="card-body std-pad">
@@ -69,22 +69,8 @@
         <div class="card-title-interface">
             Import from Shopify into Acumatica
         </div>
-
-        <div class="center std-pad-sm-t">
-            <button type="button" class="btn btn-primary btn-sm" data-bind="click: RefreshInventoryClick">
-                Refresh Inventory <i class="fas fa-bolt"></i>
-
-                <span data-bind="if: LastInventoryRunHadErrors">
-                    <span class="badge badge-dark">FAILED</span>
-                </span>
-            </button>
-
-            <span data-bind="if: LastInventoryRunHadErrors">
-                <a href="@GlobalConfig.Url("/Config/Diagnostics")" class="btn btn-dark btn-sm">
-                View Diagnostics <i class="fas fa-user-md"></i>
-                </a>
-            </span>
-        </div>
+        
+        <div data-bind="template: { name: 'Inventory-Refresh-Control', data: InventoryRefreshControlModel }"></div>
 
         <div data-bind="template: { name: 'Import-Search-Control', data: InventoryImportModel }"></div>
     </div>
@@ -103,7 +89,7 @@
             <div class="input-group-append">
                 <button class="btn btn-secondary"
                         type="button"
-                        data-bind="click: FilterInventoryClick">
+                        data-bind="click: RefreshResults">
                     Filter Inventory
                     <i class="fas fa-search"></i>
                 </button>
@@ -174,8 +160,6 @@
         <div style="clear:both; height:15px;"></div>
 
         <div data-bind="template: { name: 'Import-Selection-Grid' }"></div>
-
-        <div data-bind="template: { name: 'Import-Product-Detail', data: ImportProductDetail }"></div>
     </div>
 </script>
 
@@ -194,9 +178,7 @@
         <p class="lead center">Only Products with Variants that are not loaded in Acumatica will appear</p>
     </div>
 
-    <div style="min-height:500px;"
-         data-bind="visible: !EmptyResults()"
-         class="grid-bg">
+    <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
         <table class="table sync-grid">
             <tbody data-bind="foreach: FilteredView">
                 <tr>
@@ -241,88 +223,6 @@
                 </tr>
             </tbody>
         </table>
-    </div>
-</script>
-
-<script id="Import-Product-Detail" type="text/html">
-    <style>
-        .product-detail td {
-            vertical-align: middle;
-        }
-    </style>
-
-    <div class="modal fade" id="import-product-detail-modal" tabindex="-1" role="dialog"
-         aria-labelledby="import-product-detail-label" aria-hidden="true">
-        <div class="modal-dialog" role="document" style="max-width: 700px;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="import-product-detail-label">Shopify Product Details</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body" data-bind="with: Data">
-                    <div class="mb-4">
-                        <div class="modal-heavy-text"
-                             data-bind="text: ProductTitle"></div>
-                        <div data-bind="text: Vendor"></div>
-                        <div class="shopify-id">
-                            SPId: <span data-bind="text: ShopifyProductId"></span>
-                        </div>
-                        <div>
-                            <a href="#" target="_blank" data-bind="attr: { href: ShopifyUrl }">
-                                (Click here to view in Shopify)
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <div>
-                            <span data-bind="text: VariantCount"></span> Shopify Variants
-                            / <span data-bind="text: SyncedVariantCount"></span> synced with Acumatica
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <table class="table product-detail">
-                            <tbody data-bind="foreach: Variants">
-                                <tr>
-                                    <td>
-                                        <div class="modal-heavy-text">
-                                            <span data-bind="text: Sku"></span>
-                                            - <span data-bind="text: VariantTitle"></span>
-                                        </div>
-                                        <div class="shopify-id">
-                                            SVId: <span data-bind="text: ShopifyVariantId"></span>
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <div><span data-bind="text: FormattedPrice"></span></div>
-                                        <div><span data-bind="text: AvailableQuantity"></span> available</div>
-                                    </td>
-
-                                    <td style="text-align: right; min-width:100px;">
-                                        <div data-bind="if: IsLoadedInAcumatica">
-                                            <h3 class="badge badge-success">
-                                                Synced In Acumatica
-                                            </h3>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">
-                        Done <i class="fas fa-check"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 </script>
 
@@ -448,13 +348,6 @@
         UnselectedOnly: 'UnselectedOnly',
     };
 
-    var eventKeys = {
-        UpdateSyncEnables: "/UpdateSyncEnables",
-        LaunchOrderSyncSettings: "/LaunchOrderSyncSettings",
-        RefreshSyncSettings: "/RefreshSyncSettings",
-        PollJobStatus: "/PollJobStatus",
-    };
-
     Monster.ImportConfirmModel = function () {
         var self = this;
 
@@ -508,11 +401,11 @@
         // Parameter data should match C# DTO ShopifyProductModel
         self.Launch = function (data) {
             flow.exec(function () {
-                self.SelectedProducts(data);
-                var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("/Sync/SyncedWarehouses", this);
-            },
+                    self.SelectedProducts(data);
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("/Sync/SyncedWarehouses", this);
+                },
                 function (response) {
                     //console.log(response);
                     self.AnyMultipleWarehouseMapping(response.AnyMultipleWarehouseMapping);
@@ -524,21 +417,21 @@
 
         self.RunImportIntoAcumatica = function () {
             flow.exec(function () {
-                var selectedSPIds
-                    = AQ(self.SelectedProducts()).select(function (x) {
-                        return x.ShopifyProductId;
-                    }).toArray();
+                    var selectedSPIds
+                        = AQ(self.SelectedProducts()).select(function (x) {
+                            return x.ShopifyProductId;
+                        }).toArray();
 
-                var model = {
-                    createInventoryReceipt: self.InventoryReceiptChoice(),
-                    enableInventorySync: self.InventorySyncChoice(),
-                    selectedSPIds: selectedSPIds,
-                };
+                    var model = {
+                        createInventoryReceipt: self.InventoryReceiptChoice(),
+                        enableInventorySync: self.InventorySyncChoice(),
+                        selectedSPIds: selectedSPIds,
+                    };
 
-                var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
-                ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
-            },
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
+                },
                 function (response) {
                     $('#confirm-import-modal').modal('hide');
 
@@ -546,57 +439,6 @@
                     Monster.Events.publish("/ImportJobTriggered");
                 });
         }
-
-        return self;
-    };
-
-    Monster.ImportProductDetail = function () {
-        var self = this;
-
-        self.Data = ko.observable();
-
-        self.Launch = function (shopifyProductId) {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    var url = "/Sync/ProductDetail?shopifyProductId=" + shopifyProductId;
-                    ajax.HttpGet(url, this);
-
-                },
-                function (response) {
-                    //console.log(response);
-                    self.Data(response);
-                });
-
-            $("#import-product-detail-modal").modal('show');
-        };
-
-        Monster.Events.subscribe("/ImportProductDetail", function (shopifyProductId) {
-            self.Launch(shopifyProductId);
-        });
-
-        return self;
-    }
-
-    Monster.InventoryRefreshModel = function() {
-        var self = this;
-
-        self.InventoryRefreshState = ko.observable(StateCode.None);
-
-        // Abstract logic reduction
-        //
-        self.HasInventoryRefreshRun = ko.computed(function () {
-            return self.InventoryRefreshState() != StateCode.None;
-        });
-
-        self.LastInventoryRunHadErrors = ko.computed(function () {
-            return self.InventoryRefreshState() == StateCode.Invalid ||
-                self.InventoryRefreshState() == StateCode.SystemFault;
-        });
-
-        self.GetInventoryRefreshState = function() {
-            // TODO *** Invoke AJAX method to get Inventory Refresh State
-        };
 
         return self;
     };
@@ -611,14 +453,13 @@
             self.RefreshFilteredView();
         });
 
-        // Child Product Detail
-        self.ImportProductDetail = new Monster.ImportProductDetail();
-
         // Grid storage
+        //
         self.GridData = ko.observableArray([]);
         self.FilteredView = ko.observableArray([]);
 
         // Computed
+        //
         self.EmptyResults = ko.computed(function () { return self.FilteredView().length == 0; });
 
         self.SelectedProducts = ko.computed(function () {
@@ -644,17 +485,14 @@
         };
 
         // Grid interaction methods
+        //
         self.SearchTermsKeyCallback = function (model, event) {
             if (event.keyCode == 13) {
-                self.FilterInventoryClick();
+                self.RefreshResults();
                 return false;
             } else {
                 return true;
             }
-        };
-
-        self.ImportSelectedClick = function () {
-            Monster.Events.publish("/LaunchImportConfirm", self.SelectedProducts());
         };
 
         self.SelectAllClick = function () {
@@ -669,6 +507,10 @@
                 x.IsSelected(false);
             });
             self.RefreshFilteredView();
+        };
+
+        self.ImportSelectedClick = function () {
+            Monster.Events.publish("/LaunchImportConfirm", self.SelectedProducts());
         };
 
         self.ImportJobTriggered = ko.observable(false);
@@ -690,12 +532,12 @@
             };
         };
 
-        self.FilterInventoryClick = function () {
+        self.RefreshResults = function () {
             flow.exec(function () {
-                var ajax = new Monster.Ajax();
-                var url = "/Sync/FilterInventory?terms=" + self.FilterTerms();
-                ajax.HttpGet(url, this);
-            },
+                    var ajax = new Monster.Ajax();
+                    var url = "/Sync/FilterInventory?terms=" + self.FilterTerms();
+                    ajax.HttpGet(url, this);
+                },
                 function (response) {
                     //console.log(response);
 
@@ -719,68 +561,39 @@
     Monster.RootModel = function () {
         var self = this;
 
-        // Job status
-        //
-        self.JobRunningModel = new Monster.JobStatusModel();
-
-        // Child interfaces
+        // Child models
         //
         self.InventoryImportModel = new Monster.InventoryImportModel();
         self.ImportConfirmModel = new Monster.ImportConfirmModel();
 
+        // Our lil frenz from Shared Models + Views...
+        //
+        self.JobRunningModel = new Monster.JobStatusModel();
+        self.InventoryRefreshControlModel = new Monster.InventoryRefreshControlModel();
+        self.ShopifyProductDetail = new Monster.ShopifyProductDetail();
+
         // Interface logic reduction
         //
         self.ShowWelcomePanel = ko.computed(function () {
-            return !self.HasInventoryRefreshRun();
+            return !self.InventoryRefreshControlModel.HasRun();
         });
 
         self.ShowImportPanel = ko.computed(function () {
-            return self.HasInventoryRefreshRun();
+            return self.InventoryRefreshControlModel.HasRun();
         });
 
         // Methods/Actions
         //
-        self.RefreshInventoryClick = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("/Sync/RunInventoryRefresh", {}, this);
-                },
-                function () {
-                    Monster.Events.publish("/InventoryJobLaunched");
-                });
-        };
-
-        self.PollStatus = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("/Sync/InventoryRefreshStatus", this);
-                },
-                function (response) {
-                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                    self.JobRunningModel.Ingest(response.Logs);
-
-                    if (self.AreAnyJobsRunning()) {
-                        setTimeout(self.PollStatus, 1000);
-                    } else {
-                        self.ProcessStatus();
-                    }
-                });
-        };
-
         self.ProcessStatus = function () {
             if (self.ShowImportPanel()) {
-                self.InventoryImportModel.FilterInventoryClick();
+                self.InventoryImportModel.RefreshResults();
             }
         };
 
-        // Pub-Sub subscription
-        Monster.Events.subscribe("/InventoryJobLaunched", function () { self.PollStatus(); });
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
 
         self.Initialize = function () {
-            self.PollStatus();
+            self.JobRunningModel.StartPolling();
         };
 
         return self;

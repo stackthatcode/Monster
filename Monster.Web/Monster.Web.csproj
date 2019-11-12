@@ -215,6 +215,7 @@
     <Compile Include="Controllers\AnalysisController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\PublicController.cs" />
+    <Compile Include="Controllers\JobController.cs" />
     <Compile Include="Controllers\SyncController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\ShopifyAuthController.cs" />

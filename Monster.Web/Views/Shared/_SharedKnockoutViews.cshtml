@@ -1,5 +1,6 @@
 ﻿@using Monster.Web.Plumbing
 
+<!-- Job Running Status & Execution Log - View + Models -->
 <script type="text/html" id="Job-Running-Spinner">
     <img style="width: 100px;" src="@GlobalConfig.Url("/Content/throbber_12.gif")" />
 
@@ -9,8 +10,6 @@
         There is currently a background job running
     </p>
 </script>
-
-<!-- Uses Monster.JobStatusModel -->
 <script type="text/html" id="Execution-Log-Ticker">
     <div style="font-size:0.9em; color:#555555; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
         Execution Logs
@@ -26,61 +25,140 @@
         <div style="overflow-y: scroll; height: 400px; text-align: left;">
             <table class="table table-striped">
                 <tbody data-bind="foreach: Logs">
-                <tr>
-                    <td>
-                        <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
-                            <span data-bind="text: LogTime"></span> (UTC)
-                        </div>
+                    <tr>
+                        <td>
+                            <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
+                                <span data-bind="text: LogTime"></span> (UTC)
+                            </div>
 
-                        <div data-bind="text: Content"></div>
-                    </td>
-                </tr>
+                            <div data-bind="text: Content"></div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </script>
-
 <script id="Job-Running-Panel" type="text/html">
-    <div class="card">
-        <div class="card-body center std-pad">
-            <div data-bind="template: { name: 'Job-Running-Spinner' }"></div>
-            <hr />
-            <div data-bind="template: { name: 'Execution-Log-Ticker' }"></div>
-        </div>
-    </div>
-</script>
-
-<script id="Job-Running-Panel-Borderless" type="text/html">
-    <div class="std-pad std-pad-sm-side center">
+    <div>
         <div data-bind="template: { name: 'Job-Running-Spinner' }"></div>
-        <hr/>
+        <hr />
         <div data-bind="template: { name: 'Execution-Log-Ticker' }"></div>
     </div>
 </script>
-
-<script id="Real-Time-Sync-Is-Enabled" type="text/html">
-    <div style="margin-left: -15px; margin-right: -15px; color: #999; font-size: 0.9em; font-weight: 700; text-align: center; padding-top: 8px; padding-bottom: 8px; background-color: #F9F9F9;">
-        <img style="width: 16px;" src="@GlobalConfig.Url("/Content/throbber_12.gif")"/>
-        There is 1 background job running - for details <a href="#">click here</a>.
-    </div>
-</script>
-
 <script>
     var Monster = Monster || {};
+
+    Monster.JobStatusRunningComplete = '/JobStatus/RunningComplete';
+    Monster.JobStatusStartPolling = '/JobStatus/StartPolling';
+    Monster.JobStatusIsRunning = '/JobStatus/IsRunning';
+
     Monster.JobStatusModel = function () {
         var self = this;
 
-        self.AreAnyJobsRunning = ko.observable();
+        self.IsPollingStarted = ko.observable(false);
+        self.AreAnyJobsRunning = ko.observable(false);
         self.Logs = ko.observableArray([]);
 
-        self.HasLogs = ko.computed(function() {
+        self.HasLogs = ko.computed(function () {
             return self.Logs().length > 0;
         });
 
-        self.Ingest = function (logs) {
-            self.Logs(logs);
-            self.
+        self.Poll = function () {
+            flow.exec(function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("/Job/Status", this);
+                },
+                function (response) {
+                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
+                    setTimeout(self.Poll, 1000);
+
+                    if (self.AreAnyJobsRunning()) {
+                        self.Logs(response.Logs);
+                    } else {
+                        Monster.Events.publish(Monster.JobRunningCompleteEvent);
+                    }
+                });
+        };
+
+        self.StartPolling = function () {
+            if (!self.IsPollingStarted(true)) {
+                self.Poll();
+                self.IsPollingStarted(true);
+            }
+        };
+
+        // Pub-Sub subscription
+        //
+        Monster.Events.subscribe(Monster.JobStatusStartPolling, function () { self.StartPolling(); });
+
+        Monster.Events.subscribe(Monster.JobStatusIsRunning, function () { self.AreAnyJobsRunning(true); });
+
+        return self;
+    };
+</script>
+
+<!-- Inventory Refresh Control -->
+<script id="Inventory-Refresh-Control" type="text/html">
+    <div class="center std-pad-sm-t">
+        <button type="button" class="btn btn-primary btn-sm" data-bind="click: RefreshInventoryClick">
+            Refresh Inventory <i class="fas fa-bolt"></i>
+
+            <span data-bind="if: LastRunBroken">
+                <span class="badge badge-dark">FAILED</span>
+            </span>
+        </button>
+
+        <span data-bind="if: LastRunBroken">
+            <a href='@GlobalConfig.Url("/Config/Diagnostics")' class="btn btn-dark btn-sm">
+                View Diagnostics <i class="fas fa-user-md"></i>
+            </a>
+        </span>
+    </div>
+</script>
+<script>
+    var Monster = Monster || {};
+    Monster.StartInventoryRefresh = "/StartInventoryRefresh";
+
+    Monster.InventoryRefreshControlModel = function () {
+        var self = this;
+
+        self.InventoryRefreshState = ko.observable(StateCode.None);
+
+        self.HasRun = ko.computed(function () {
+            return self.InventoryRefreshState() != StateCode.None;
+        });
+
+        self.LastRunBroken = ko.computed(function () {
+            return self.InventoryRefreshState() == StateCode.Invalid ||
+                self.InventoryRefreshState() == StateCode.SystemFault;
+        });
+
+        self.RefreshStatus = function (callback) {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("/Job/InventoryRefreshStatus", this);
+                },
+                function (response) {
+                    self.InventoryRefreshState(response.InventoryRefreshState);
+                    callback();
+                });
+        };
+
+        self.RefreshInventoryClick = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("/Sync/RunInventoryRefresh", {}, this);
+                },
+                function () {
+                    // We can override these defaults, later...
+                    //
+                    Monster.Events.publish(Monster.JobStatusStartPolling);
+                    Monster.Events.publish(Monster.JobStatusIsRunning);
+                });
         };
 
         return self;
@@ -88,6 +166,120 @@
 </script>
 
 
+<script id="Shopify-Product-Detail" type="text/html">
+    <style>
+        .product-detail td { vertical-align: middle; }
+    </style>
+
+    <div class="modal fade" id="import-product-detail-modal" tabindex="-1" role="dialog"
+         aria-labelledby="import-product-detail-label" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 700px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="import-product-detail-label">Shopify Product Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" data-bind="with: Data">
+                    <div class="mb-4">
+                        <div class="modal-heavy-text"
+                             data-bind="text: ProductTitle"></div>
+                        <div data-bind="text: Vendor"></div>
+                        <div class="shopify-id">
+                            SPId: <span data-bind="text: ShopifyProductId"></span>
+                        </div>
+                        <div>
+                            <a href="#" target="_blank" data-bind="attr: { href: ShopifyUrl }">
+                                (Click here to view in Shopify)
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div>
+                            <span data-bind="text: VariantCount"></span> Shopify Variants
+                            / <span data-bind="text: SyncedVariantCount"></span> synced with Acumatica
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <table class="table product-detail">
+                            <tbody data-bind="foreach: Variants">
+                            <tr>
+                                <td>
+                                    <div class="modal-heavy-text">
+                                        <span data-bind="text: Sku"></span>
+                                        - <span data-bind="text: VariantTitle"></span>
+                                    </div>
+                                    <div class="shopify-id">
+                                        SVId: <span data-bind="text: ShopifyVariantId"></span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div><span data-bind="text: FormattedPrice"></span></div>
+                                    <div><span data-bind="text: AvailableQuantity"></span> available</div>
+                                </td>
+
+                                <td style="text-align: right; min-width:100px;">
+                                    <div data-bind="if: IsLoadedInAcumatica">
+                                        <h3 class="badge badge-success">
+                                            Synced In Acumatica
+                                        </h3>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">
+                        Done <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script>
+    Monster.LaunchShopifyProductDetail = "/LaunchShopifyProductDetail ";
+
+    Monster.ShopifyProductDetail = function () {
+        var self = this;
+
+        self.Data = ko.observable();
+
+        self.Launch = function (shopifyProductId) {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    var url = "/Sync/ProductDetail?shopifyProductId=" + shopifyProductId;
+                    ajax.HttpGet(url, this);
+
+                },
+                function (response) {
+                    //console.log(response);
+                    self.Data(response);
+                });
+
+            $("#import-product-detail-modal").modal('show');
+        };
+
+        Monster.Events.subscribe(Monster.LaunchShopifyProductDetail, function (shopifyProductId) {
+            self.Launch(shopifyProductId);
+        });
+
+        return self;
+    }
+</script>
+
+
+
+<!-- Welcome Panel for the End-to-End Sync and Inventory Import screens -->
 <script type="text/html" id="Inventory-Not-Pulled-Message">
     <p>
         @GlobalConfig.AppName will now pull your complete catalog of Products and Variants from Shopify,
@@ -95,9 +287,8 @@
     </p>
 
     <div class="alert alert-warning">
-        <strong>Important:</strong> Real-Time Sync will perform this step as well.
+        <strong>Important:</strong> End-to-End Sync will perform this step as well.
         But, you will still need to load Stock Items into Shopify
         and select which to enable for Inventory Synchronization.
     </div>
 </script>
-
