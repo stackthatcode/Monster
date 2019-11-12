@@ -92,33 +92,6 @@
                 </button>
             </div>
         </div>
-
-        <div class="center" style="font-size:0.8em;">
-            <div class="form-check form-check-inline">
-                <input class="form-check-input"
-                       type="radio"
-                       name="filterOptions"
-                       id="inlineRadio1"
-                       data-bind="checked: FilterSelected, value: Monster.DisplayFilter.ShowAll">
-                <label class="form-check-label" for="inlineRadio1">Show All</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input"
-                       type="radio"
-                       name="filterOptions"
-                       id="inlineRadio2"
-                       data-bind="checked: FilterSelected, value: Monster.DisplayFilter.SelectedOnly">
-                <label class="form-check-label" for="inlineRadio2">Selected Only</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input"
-                       type="radio"
-                       name="filterOptions"
-                       id="inlineRadio3"
-                       data-bind="checked: FilterSelected, value: Monster.DisplayFilter.UnselectedOnly">
-                <label class="form-check-label" for="inlineRadio3">Unselected Only</label>
-            </div>
-        </div>
         <hr />
 
         <!-- Results -->
@@ -144,8 +117,14 @@
                     <button type="button"
                             data-bind="click: ImportSelectedClick, enable: ImportButtonEnabled"
                             class="btn btn-sm btn-primary">
-                        Import selected into Acumatica <i class="fas fa-bolt"></i>
+                        Import into Acumatica <i class="fas fa-bolt"></i>
                     </button>
+                </div>
+
+                <div style="clear:both; text-align:left; font-weight:700; font-size:0.9em; padding-top:8px;">
+                    <a href="#" data-bind="click: SelectAllClick">
+                        (<span data-bind="text: SelectedProducts().length"></span> Products Selected)
+                    </a>
                 </div>
             </div>
 
@@ -165,7 +144,7 @@
 
     <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
         <table class="table sync-grid">
-            <tbody data-bind="foreach: FilteredView">
+            <tbody data-bind="foreach: GridData">
             <tr>
                 <td style="padding-left:0;">
                     <div>
@@ -337,7 +316,7 @@
         var self = this;
 
         self.SelectedProducts = ko.observableArray([]);
-
+        
         self.InventoryReceiptOptions = ko.observableArray([
             { Text: 'Do not create Inventory Receipts', Value: 0 },
             { Text: 'Create Inventory Receipts', Value: 1 },
@@ -434,22 +413,17 @@
 
         // Search Input
         self.FilterTerms = ko.observable("");
-        self.FilterSelected = ko.observable(Monster.DisplayFilter.ShowAll);
-        self.FilterSelected.subscribe(function () {
-            self.RefreshFilteredView();
-        });
 
         // Grid storage
         //
         self.GridData = ko.observableArray([]);
-        self.FilteredView = ko.observableArray([]);
 
         // Computed
         //
-        self.EmptyResults = ko.computed(function () { return self.FilteredView().length == 0; });
+        self.EmptyResults = ko.computed(function () { return self.GridData().length == 0; });
 
         self.SelectedProducts = ko.computed(function () {
-            return AQ(self.FilteredView())
+            return AQ(self.GridData())
                 .where(function (x) { return x.IsSelected(); })
                 .toArray();
         });
@@ -457,18 +431,7 @@
         self.ImportButtonEnabled = ko.computed(function () {
             return self.SelectedProducts().length > 0;
         });
-        
-        self.RefreshFilteredView = function () {
-            var output = AQ(self.GridData())
-                .where(function (item) {
-                    return ((self.FilterSelected() == Monster.DisplayFilter.ShowAll) ||
-                        (self.FilterSelected() == Monster.DisplayFilter.SelectedOnly && item.IsSelected()) ||
-                        (self.FilterSelected() == Monster.DisplayFilter.UnselectedOnly && !item.IsSelected()));
-                })
-                .toArray();
 
-            self.FilteredView(output);
-        };
 
         // Grid interaction methods
         //
@@ -485,14 +448,12 @@
             AQ(self.GridData()).each(function (x) {
                 x.IsSelected(true);
             });
-            self.RefreshFilteredView();
         };
 
         self.UnselectAllClick = function () {
             AQ(self.GridData()).each(function (x) {
                 x.IsSelected(false);
             });
-            self.RefreshFilteredView();
         };
 
         self.ImportSelectedClick = function () {
@@ -505,7 +466,6 @@
 
             row.SelectClick = function () {
                 row.IsSelected(!row.IsSelected());
-                self.RefreshFilteredView();
             };
 
             row.ProductDetailClick = function () {
@@ -520,11 +480,8 @@
                     ajax.HttpGet(url, this);
                 },
                 function (response) {
-                    //console.log(response);
-
                     AQ(response).each(function (x) { self.DecorateGridRow(x); });
                     self.GridData(response);
-                    self.RefreshFilteredView();
                 });
         };
 
