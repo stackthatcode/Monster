@@ -273,10 +273,10 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
         }
 
-        
 
 
-        // Inventory loading tools
+
+        // Import Into Acumatica methods
         //
         [HttpGet]
         public ActionResult ImportIntoAcumatica()
@@ -284,7 +284,8 @@ namespace Monster.Web.Controllers
             return View();
         }
 
-        public ActionResult FilterInventory(int pageNumber = 1, int pageSize = 10, string terms = "")
+        [HttpGet]
+        public ActionResult FilterShopifyProducts(int pageNumber = 1, int pageSize = 10, string terms = "")
         {
             var startingRecord = PagingHelper.StartingRecord(pageNumber, pageSize);
             var searchRecords = _syncInventoryRepository.ProductSearchRecords(terms, startingRecord, pageSize);
@@ -297,6 +298,16 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
+        [HttpGet]
+        public ActionResult ProductDetail(long shopifyProductId)
+        {
+            var product = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
+            var output = ShopifyProductModel.Make(
+                product, _shopifyUrlService.ShopifyProductUrl, includeVariantGraph: true);
+            return new JsonNetResult(output);
+        }
+
+        [HttpGet]
         public ActionResult SyncedWarehouses()
         {
             var locations = _syncInventoryRepository.RetrieveLocations();
@@ -308,31 +319,35 @@ namespace Monster.Web.Controllers
         public ActionResult RunImportIntoAcumatica(
                 bool createInventoryReceipt, bool enableInventorySync, List<long> selectedSPIds)
         {
-            _oneTimeJobService
-                .ImportIntoAcumatica(
-                    selectedSPIds, createInventoryReceipt, enableInventorySync);
-
+            _oneTimeJobService.ImportIntoAcumatica(selectedSPIds, createInventoryReceipt, enableInventorySync);
             return JsonNetResult.Success();
         }
         
-        [HttpGet]
-        public ActionResult ProductDetail(long shopifyProductId)
-        {
-            var product = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
-            var output = ShopifyProductModel.Make(
-                product, _shopifyUrlService.ShopifyProductUrl, includeVariantGraph: true);
-            return new JsonNetResult(output);
-        }
-
         
 
-        // Import into Shopify functions...
+        // Import into Shopify methods
         //
         [HttpGet]
         public ActionResult ImportIntoShopify()
         {
             return View();
         }
+
+        [HttpGet]
+        public ActionResult FilterAcumaticaStockItems(int pageNumber = 1,  int pageSize = 10,  string terms = "")
+        {
+            var startingRecord = PagingHelper.StartingRecord(pageNumber, pageSize);
+            var searchRecords = _syncInventoryRepository.StockItemSearchRecords(terms, startingRecord, pageSize);
+            var searchResult = searchRecords
+                .Select(x => AcumaticaStockItemModel.Make(x, _acumaticaUrlService.AcumaticaStockItemUrl))
+                .ToList();
+
+            var searchCount = _syncInventoryRepository.StockItemSearchCount(terms);
+
+            var output = new {searchResult, searchCount,};
+            return new JsonNetResult(output);
+        }
+
 
     }
 }

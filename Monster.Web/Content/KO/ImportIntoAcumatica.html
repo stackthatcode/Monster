@@ -368,9 +368,8 @@
 
     var events = {
         ImportProductDetail: "/ImportProductDetail",
-        ImportJobTriggered: "/ImportJobTriggered",
         LaunchImportConfirm: "/LaunchImportConfirm",
-        LaunchImportSelectedProduct: "/LaunchImportSelectedProduct",
+        LaunchViewSelectedProduct: "/LaunchViewSelectedProduct",
     };
 
     Monster.DisplayFilter = {
@@ -392,7 +391,7 @@
             $('#import-selected-products-modal').modal('show');
         };
 
-        Monster.Events.subscribe(events.LaunchImportSelectedProduct, self.Launch);
+        Monster.Events.subscribe(events.LaunchViewSelectedProduct, self.Launch);
         
         return self;
     };
@@ -563,7 +562,7 @@
         self.RefreshGrid = function () {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
-                    var url = "/Sync/FilterInventory?terms=" + self.FilterTerms() +
+                    var url = "/Sync/FilterShopifyProducts?terms=" + self.FilterTerms() +
                         "&pageNumber=" + self.PagingWidget.PageNumber() + 
                         "&pageSize=" + self.PagingWidget.PageSize();
                     
@@ -584,7 +583,7 @@
 
         self.ViewSelectedClick = function () {
             // Important - pass by ref
-            Monster.Events.publish(events.LaunchImportSelectedProduct, self.SelectedProducts());
+            Monster.Events.publish(events.LaunchViewSelectedProduct, self.SelectedProducts());
         };
 
         return self;

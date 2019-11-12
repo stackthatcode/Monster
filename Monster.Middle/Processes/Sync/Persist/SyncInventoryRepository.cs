@@ -378,6 +378,43 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
 
+        private IQueryable<AcumaticaStockItem> StockItemSearchQueryable(string terms)
+        {
+            var termList
+                = terms.Split(' ')
+                    .Where(x => x.Trim() != "")
+                    .ToList();
+
+            var dataSet
+                = Entities
+                    .AcumaticaStockItems
+                    .Include(x => x.AcumaticaWarehouseDetails)
+                    .Where(x => !x.ShopAcuItemSyncs.Any());
+
+            foreach (var term in termList)
+            {
+                dataSet = dataSet.Where(
+                    x => x.AcumaticaDescription.Contains(term) ||
+                         x.ItemId.Contains(term));
+            }
+
+            return dataSet;
+        }
+
+        public List<AcumaticaStockItem> StockItemSearchRecords(string terms, int startingRecord, int pageSize)
+        {
+            return StockItemSearchQueryable(terms)
+                .OrderBy(x => x.ItemId)
+                .Skip(startingRecord)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        public int StockItemSearchCount(string terms)
+        {
+            return ProductSearchQueryable(terms).Count();
+        }
+
 
         public void UpdateVariantSync(long monsterVariantId, bool syncEnabled)
         {
