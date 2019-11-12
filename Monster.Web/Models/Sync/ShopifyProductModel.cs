@@ -21,9 +21,7 @@ namespace Monster.Web.Models.Sync
         
 
         public static ShopifyProductModel Make(
-                ShopifyProduct input, 
-                Func<long, string> productUrlBuilder,
-                bool includeVariantGraph = false)
+                ShopifyProduct input, Func<long, string> productUrlBuilder, bool includeVariantGraph = false)
         {
             var output = new ShopifyProductModel();
 

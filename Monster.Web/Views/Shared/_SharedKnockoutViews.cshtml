@@ -1,6 +1,5 @@
 ﻿@using Monster.Web.Plumbing
 
-
 <!-- Job Running Status & Execution Log - View + Models -->
 <script type="text/html" id="Job-Running-Spinner">
     <img style="width: 100px;" src="@GlobalConfig.Url("/Content/throbber_12.gif")" />
@@ -29,10 +28,10 @@
                     <tr>
                         <td>
                             <div style="font-size: 14px; letter-spacing: 1px; color: #777;">
-                                <span data-bind="text: LogTime"></span> (UTC)
+                                <span data-bind="text: DateCreated"></span> (UTC)
                             </div>
 
-                            <div data-bind="text: Content"></div>
+                            <div data-bind="text: LogContent"></div>
                         </td>
                     </tr>
                 </tbody>
@@ -72,6 +71,7 @@
                     ajax.HttpGet("/Job/Status", this);
                 },
                 function (response) {
+                    console.log(response);
                     if (self.AreAnyJobsRunning() && !response.AreAnyJobsRunning) {
                         Monster.Events.publish(Monster.JobStatusRunningComplete);
                     }
@@ -102,11 +102,10 @@
     };
 </script>
 
-
 <!-- Inventory Refresh Control -->
 <script id="Inventory-Refresh-Control" type="text/html">
-    <div class="center std-pad-sm-t">
-        <button type="button" class="btn btn-primary btn-sm std-pad-side" data-bind="click: RefreshInventoryClick">
+    <div style="display:inline-block">
+        <button type="button" class="btn btn-primary btn-sm" data-bind="click: RefreshInventoryClick">
             Refresh Inventory <i class="fas fa-bolt"></i>
 
             <span data-bind="if: LastRunBroken">
@@ -168,7 +167,6 @@
         return self;
     };
 </script>
-
 
 <!-- Shopify Product Detail pop-up -->
 <script id="Shopify-Product-Detail" type="text/html">
@@ -280,8 +278,6 @@
         return self;
     }
 </script>
-
-
 
 <!-- Welcome Panel for the End-to-End Sync and Inventory Import screens -->
 <script type="text/html" id="Inventory-Not-Pulled-Message">

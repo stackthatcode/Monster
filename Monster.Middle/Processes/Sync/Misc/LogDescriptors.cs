@@ -23,7 +23,7 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
         public static string LogDescriptor(this ShopifyOrder shopifyOrder)
         {
             return $"Shopify Order {shopifyOrder.ShopifyOrderNumber} " +
-                   "({shopifyOrder.ShopifyOrderId})";
+                   $"({shopifyOrder.ShopifyOrderId})";
         }
 
         public static string LogDescriptor(this ShopifyTransaction transaction)

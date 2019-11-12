@@ -34,7 +34,7 @@ namespace Monster.Web.Controllers
             var output = new
             {
                 AreAnyJobsRunning = _jobStatusService.AreAnyJobsRunning(),
-                Logs = _logRepository.RetrieveExecutionLogs(),
+                Logs = _logRepository.RetrieveExecutionLogs(100),
             };
             return new JsonNetResult(output);
         }

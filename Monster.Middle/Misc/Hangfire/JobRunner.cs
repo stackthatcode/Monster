@@ -88,7 +88,7 @@ namespace Monster.Middle.Misc.Hangfire
 
                 if (_jobMonitoringService.IsCorrupted(jobMonitorId))
                 {
-                    var msg = $"Job Monitor {jobMonitorId} is missing or corrupted";
+                    var msg = $"Job is missing or corrupted";
                     _executionLogService.Log(msg);
                     _jobMonitoringService.CleanupPostExecution(jobMonitorId);
                     InstanceLock.Free(instanceId.ToString());
@@ -97,7 +97,7 @@ namespace Monster.Middle.Misc.Hangfire
 
                 if (_jobMonitoringService.IsMissingOrReceivedKillSignal(jobMonitorId))
                 {
-                    var msg = $"Job Monitor {jobMonitorId} has received kill signal";
+                    var msg = $"Job has received kill signal";
                     _executionLogService.Log(msg);
                     _jobMonitoringService.CleanupPostExecution(jobMonitorId);
                     InstanceLock.Free(instanceId.ToString());

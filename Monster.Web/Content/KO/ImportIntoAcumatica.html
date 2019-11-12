@@ -47,7 +47,7 @@
     <!-- Render Dialog Boxes Separately -->
     <div data-bind="template: { name: 'Shopify-Product-Detail', data: ShopifyProductDetail }"></div>
     <div data-bind="template: { name: 'Import-Confirmation', data: ImportConfirmModel }"></div>
-    <div data-bind="template: { name: 'Shopify-Product-Detail', data: ShopifyProductDetail }"></div>
+    <div data-bind="template: { name: 'Import-Selected-Products', data: ImportSelectedProductModel }"></div>
     <div data-bind="template: { name: 'Import-Completion' }"></div>
 </div>
 
@@ -69,7 +69,8 @@
             Import from Shopify into Acumatica
         </div>
         
-        <div data-bind="template: { name: 'Inventory-Refresh-Control', data: InventoryRefreshControlModel }"></div>
+        <div class="center" style="padding-top:10px;"
+             data-bind="template: { name: 'Inventory-Refresh-Control', data: InventoryRefreshControlModel }"></div>
 
         <div data-bind="template: { name: 'Import-Search-Control', data: InventoryImportModel }"></div>
     </div>
@@ -132,7 +133,7 @@
                 </div>
 
                 <div style="clear:both; float:left; font-weight:700; font-size:0.9em; padding-top:8px;">
-                    <a href="#" data-bind="click: SelectAllClick">
+                    <a href="#" data-bind="click: ViewSelectedClick">
                         (<span data-bind="text: SelectedProducts().length"></span> Products Selected)
                     </a>
                 </div>
@@ -153,7 +154,7 @@
     </div>
 
     <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
-        <table class="table sync-grid">
+        <table class="table sync-grid" style="border-bottom: 1px #999 dashed;">
             <tbody data-bind="foreach: GridData">
             <tr>
                 <td style="padding-left:0;">
@@ -191,6 +192,60 @@
             </tr>
             </tbody>
         </table>
+    </div>
+</script>
+
+<script id="Import-Selected-Products" type="text/html">
+    <div class="modal fade" 
+         id="import-selected-products-modal" tabindex="-1" role="dialog" 
+         aria-labelledby="import-selected-products-modal-label" aria-hidden="true">
+
+        <div class="modal-dialog" role="document" style="max-width:900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="import-selected-products-modal-label">
+                        Shopify Products selected for Import into Acumatica
+                    </h5>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <table class="table table-striped" style="font-size: 0.9em;">
+                        <tbody data-bind="foreach: SelectedProducts">
+                        <tr>
+                            <td>
+                                <a data-bind="text: ProductTitle, attr: { href: ShopifyUrl }">
+                                </a>
+                            </td>
+                            <td data-bind="text: Vendor">
+                            </td>
+                            <td>
+                                <span data-bind="text: UnsyncedVariantCount"></span> unsynced variants
+                            </td>
+                            <td style="text-align:right;">
+                                <span data-bind="if: IsSelected">
+                                    <a href="#" data-bind="click: UnselectClick"
+                                       class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
+                                </span>
+                                <span data-bind="ifnot: IsSelected">
+                                    <a href="#" data-bind="click: SelectClick"
+                                       class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
+                                </span>
+                            </td>
+                    </tr>
+                    </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">
+                        Done <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </script>
 
@@ -315,12 +370,31 @@
         ImportProductDetail: "/ImportProductDetail",
         ImportJobTriggered: "/ImportJobTriggered",
         LaunchImportConfirm: "/LaunchImportConfirm",
+        LaunchImportSelectedProduct: "/LaunchImportSelectedProduct",
     };
 
     Monster.DisplayFilter = {
         ShowAll: 'ShowAll',
         SelectedOnly: 'SelectedOnly',
         UnselectedOnly: 'UnselectedOnly',
+    };
+
+    Monster.ImportSelectedProductModel = function() {
+        var self = this;
+
+        self.SelectedProducts = ko.observableArray([]);
+
+        self.Launch = function (data) {
+            if (data.length == 0) {
+                return;
+            }
+            self.SelectedProducts(data);
+            $('#import-selected-products-modal').modal('show');
+        };
+
+        Monster.Events.subscribe(events.LaunchImportSelectedProduct, self.Launch);
+        
+        return self;
     };
 
     Monster.ImportConfirmModel = function () {
@@ -502,9 +576,15 @@
                 });
         };
 
-
+        // Action methods
+        //
         self.ImportIntoAcumaticaClick = function () {
-            Monster.Events.publish(event.LaunchImportConfirm, self.SelectedProducts());
+            Monster.Events.publish(events.LaunchImportConfirm, self.SelectedProducts());
+        };
+
+        self.ViewSelectedClick = function () {
+            // Important - pass by ref
+            Monster.Events.publish(events.LaunchImportSelectedProduct, self.SelectedProducts());
         };
 
         return self;
@@ -523,6 +603,7 @@
         //
         self.InventoryImportModel = new Monster.InventoryImportModel();
         self.ImportConfirmModel = new Monster.ImportConfirmModel();
+        self.ImportSelectedProductModel = new Monster.ImportSelectedProductModel();
 
         // Interface logic reduction
         //
@@ -546,7 +627,7 @@
                         self.InventoryImportModel.RefreshGrid();
                     }
                 });
-            };
+        };
 
         Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
 
@@ -573,4 +654,3 @@
     //    self.ImportJobTriggered(false);
     //}
 </script>
-
