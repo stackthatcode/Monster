@@ -9,24 +9,132 @@
 </style>
 
 <main role="main" class="medium-size">
-@Html.Partial("_TopBrand")
-
-<hr />
-
-<h1 class="mt-4 center">Configuration - Acumatica</h1>
-<p class="lead center">
-    Manage credentials and connect to your Acumatica instance
-</p>
-
-<div data-bind="ifnot: IsRandomAccessMode">
-    <p>
-        Now, we will connect @GlobalConfig.AppName to your Acumatica instance.
-        In preparation, make sure you have selected the correct Acumatica instance
-        and have the appropriate security credentials for access.
+    @Html.Partial("_TopBrand")
+    <hr />
+    <h1 class="mt-4 center">Configuration - Acumatica</h1>
+    <p class="lead center">
+        Manage credentials and connect to your Acumatica instance
     </p>
-</div>
 
-<div data-bind="if: DataEntryVisible">
+    <div data-bind="if: JobRunningModel.AreAnyJobsRunning">
+        <div class="card">
+            <div class="card-body center">
+                <div class="std-pad-b">
+                    <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
+        <div data-bind="ifnot: IsRandomAccessMode">
+            <p>
+                Now, we will connect @GlobalConfig.AppName to your Acumatica instance.
+                In preparation, make sure you have selected the correct Acumatica instance
+                and have the appropriate security credentials for access.
+            </p>
+        </div>
+        <div data-bind="if: DataEntryVisible">
+            <div data-bind="template: { name: 'Data-Entry-View' }"></div>
+        </div>
+        <div data-bind="if: StatusVisible">
+            <div data-bind="template: { name: 'Status-View' }"></div>
+        </div>
+    </div>
+</main>
+
+<script id="Status-View" type="text/html">
+    <div class="std-pad-b">
+        <div data-bind="if: IsConnectionOk">
+            <div class="alert alert-primary">
+                <strong>Connection - OK</strong>
+                - @GlobalConfig.AppName now has access to your Acumatica instance and can begin reading data.
+            </div>
+        </div>
+
+        <div data-bind="if: IsConnectionBroken">
+            <div class="alert alert-danger">
+                <strong>Connection - Broken</strong>
+                - Something is wrong with your Acumatica Connection. Try re-connecting or possibly changing your credentials.
+            </div>
+        </div>
+
+        <div class="card text-center">
+            <div class="card-body" style="text-align: left;">
+                <div class="form-group">
+                    <label for="instanceUrl">Acumatica Instance URL</label>
+
+                    <input type="url"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: AcumaticaInstanceUrl" />
+                </div>
+
+                <div class="form-group">
+                    <label for="branch">Acumatica Company</label>
+
+                    <input type="url"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: AcumaticaCompany" />
+                </div>
+
+                <div class="form-group">
+                    <label for="branch">Acumatica Branch</label>
+
+                    <input type="url"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: AcumaticaBranch" />
+                </div>
+
+                <div data-bind="if: HasConnectionBeenSet"
+                     style="text-align: center; width: 100%; margin-bottom: 15px;">
+                    <a href="#" class="btn btn-light btn-sm"
+                       data-bind="click: ChangeSettingsClick">
+                        Change your Acumatica Credentials  <i class="fas fa-pencil-alt"></i>
+                    </a>
+                    <hr />
+                </div>
+
+                <div class="center std-pad-t">
+                    <span data-bind="if: IsPrevButtonVisible">
+                        <a href="@GlobalConfig.Url("/ShopifyAuth/Domain")"
+                           class="btn btn-secondary btn-lg">
+                            Previous Step <i class="fas fa-undo"></i>
+                        </a>
+                    </span>
+
+                    <span data-bind="if: IsReturnButtonVisible">
+                        <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
+                            Back to Diagnostics <i class="fas fa-undo"></i>
+                        </a>
+                    </span>
+
+                    <span data-bind="if: HasConnectionBeenSet">
+                        <a href="#" class="btn btn-primary btn-lg" data-bind="click: AcumaticaTestConnection">
+                            Re-connect to Acumatica <i class="fas fa-bolt"></i>
+                        </a>
+                    </span>
+
+                    <span data-bind="ifnot: HasConnectionBeenSet">
+                        <a href="#" class="btn btn-primary btn-lg" data-bind="click: ChangeSettingsClick">
+                            Enter Credentials <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    </span>
+
+                    <span data-bind="if: IsNextButtonVisible">
+                        <a href="@GlobalConfig.Url("/Config/AcumaticaRefData")" class="btn btn-success btn-lg">
+                            Next Step <i class="fas fa-sign-in-alt"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="Data-Entry-View" type="text/html">
     <div class="std-pad-b">
         <div class="card text-center">
             <div class="card-body" style="text-align: left;">
@@ -133,188 +241,81 @@
             </div>
         </div>
     </div>
-</div>
-
-<div data-bind="if: BackgroundJobRunning">
-    <div class="std-pad-b">
-        <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
-    </div>
-</div>
-
-<div data-bind="if: StatusVisible">
-    <div class="std-pad-b">
-        <div data-bind="if: IsConnectionOk">
-            <div class="alert alert-primary">
-                <strong>Acumatica Connection - Successful</strong>
-                - @GlobalConfig.AppName now has access to your Acumatica instance
-                and can begin reading data.
-            </div>
-        </div>
-
-        <div data-bind="if: IsConnectionBroken">
-            <div class="alert alert-danger">
-                <strong>Acumatica Connection - Broken</strong>
-                - Something is wrong with your Acumatica Connection.
-                Try re-connecting or possibly changing your credentials.
-            </div>
-        </div>
-
-        <div class="card text-center">
-            <div class="card-body" style="text-align: left;">
-                <div class="form-group">
-                    <label for="instanceUrl">Acumatica Instance URL</label>
-
-                    <input type="url"
-                           class="form-control"
-                           disabled="disabled"
-                           data-bind="value: AcumaticaInstanceUrl" />
-                </div>
-
-                <div class="form-group">
-                    <label for="branch">Acumatica Company</label>
-
-                    <input type="url"
-                           class="form-control"
-                           disabled="disabled"
-                           data-bind="value: AcumaticaCompany" />
-                </div>
-
-                <div class="form-group">
-                    <label for="branch">Acumatica Branch</label>
-
-                    <input type="url"
-                           class="form-control"
-                           disabled="disabled"
-                           data-bind="value: AcumaticaBranch" />
-                </div>
-
-                <div data-bind="if: HasConnectionBeenSet"
-                     style="text-align: center; width: 100%; margin-bottom: 15px;">
-                    <a href="#" class="btn btn-light btn-sm"
-                       data-bind="click: ChangeSettingsClick">
-                        Change your Acumatica Credentials  <i class="fas fa-pencil-alt"></i>
-                    </a>
-                    <hr />
-                </div>
-
-                <div class="center std-pad-t">
-                    <span data-bind="if: IsPrevButtonVisible">
-                        <a href="@GlobalConfig.Url("/ShopifyAuth/Domain")"
-                           class="btn btn-secondary btn-lg">
-                            Previous Step <i class="fas fa-undo"></i>
-                        </a>
-                    </span>
-
-                    <span data-bind="if: IsReturnButtonVisible">
-                        <a href="@GlobalConfig.DiagnosticsHome"
-                           class="btn btn-secondary btn-lg">
-                            Back to Diagnostics <i class="fas fa-undo"></i>
-                        </a>
-                    </span>
-
-                    <span data-bind="if: HasConnectionBeenSet">
-                        <a href="#" class="btn btn-primary btn-lg"
-                           data-bind="click: AcumaticaTestConnection">
-                            Re-connect to Acumatica <i class="fas fa-bolt"></i>
-                        </a>
-                    </span>
-
-                    <span data-bind="ifnot: HasConnectionBeenSet">
-                        <a href="#" class="btn btn-primary btn-lg"
-                           data-bind="click: ChangeSettingsClick">
-                            Enter Credentials <i class="fas fa-pencil-alt"></i>
-                        </a>
-                    </span>
-
-                    <span data-bind="if: IsNextButtonVisible">
-                        <a href="@GlobalConfig.Url("/Config/AcumaticaRefData")"
-                           class="btn btn-success btn-lg">
-                            Next Step <i class="fas fa-sign-in-alt"></i>
-                        </a>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</main>
+</script>
 
 <script>
-var Monster = Monster || {};
+    var Monster = Monster || {};
 
-Monster.AcumaticaConnectionModel = function() {
-    var self = this;
+    Monster.AcumaticaConnectionModel = function() {
+        var self = this;
 
-    // View visibility
-    self.DataEntryVisible = ko.observable();
-    self.BackgroundJobRunning = ko.observable();
-    self.StatusVisible = ko.observable();
+        self.JobRunningModel = new Monster.JobStatusModel();
 
-    self.JobRunningModel = new Monster.JobStatusModel();
+        // View visibility
+        self.DataEntryVisible = ko.observable();
+        self.StatusVisible = ko.observable();
 
-    self.ClearVisibility = function() {
-        self.DataEntryVisible(false);
-        self.BackgroundJobRunning(false);
-        self.StatusVisible(false);
-    };
-    
-    // System State
-    self.ConnectionState = ko.observable();
-    self.IsUrlFinalized = ko.observable();
-    self.IsRandomAccessMode = ko.observable();
+        self.ClearVisibility = function() {
+            self.StatusVisible(false);
+        };
+
+        // System State
+        self.ConnectionState = ko.observable();
+        self.IsUrlFinalized = ko.observable();
+        self.IsRandomAccessMode = ko.observable();
 
 
-    self.HasConnectionBeenSet = ko.computed(function() {
-        return self.ConnectionState() != StateCode.None;
-    });
+        self.HasConnectionBeenSet = ko.computed(function() {
+            return self.ConnectionState() != StateCode.None;
+        });
 
-    self.IsConnectionOk = ko.computed(function() {
-        return self.ConnectionState() == StateCode.Ok;
-    });
+        self.IsConnectionOk = ko.computed(function() {
+            return self.ConnectionState() == StateCode.Ok;
+        });
 
-    self.IsConnectionBroken = ko.computed(function() {
-        return self.ConnectionState() == StateCode.SystemFault
-            || self.ConnectionState() == StateCode.Invalid;
-    });
+        self.IsConnectionBroken = ko.computed(function() {
+            return self.ConnectionState() == StateCode.SystemFault
+                || self.ConnectionState() == StateCode.Invalid;
+        });
 
 
-    // Control-visibility
-    self.IsNextButtonVisible = ko.computed(function() {
-        return !self.IsRandomAccessMode() && self.IsConnectionOk();
-    });
+        // Control-visibility
+        self.IsNextButtonVisible = ko.computed(function() {
+            return !self.IsRandomAccessMode() && self.IsConnectionOk();
+        });
 
-    self.IsPrevButtonVisible = ko.computed(function() {
-        return !self.IsRandomAccessMode();
-    });
+        self.IsPrevButtonVisible = ko.computed(function() {
+            return !self.IsRandomAccessMode();
+        });
 
-    self.IsBackToDashboardButtonVisible = ko.computed(function() {
-        return self.IsRandomAccessMode();
-    });
+        self.IsBackToDashboardButtonVisible = ko.computed(function() {
+            return self.IsRandomAccessMode();
+        });
 
-    self.IsReturnButtonVisible = ko.computed(function() {
-        return self.IsRandomAccessMode();
-    });
+        self.IsReturnButtonVisible = ko.computed(function() {
+            return self.IsRandomAccessMode();
+        });
 
-    self.IsCancelButtonVisible = ko.computed(function() {
-        return self.HasConnectionBeenSet();
-    });
+        self.IsCancelButtonVisible = ko.computed(function() {
+            return self.HasConnectionBeenSet();
+        });
 
 
 
 
-    // Data-entry State
-    self.AcumaticaInstanceUrl = ko.observable();
-    self.AcumaticaCompany = ko.observable();
-    self.AcumaticaBranch = ko.observable();
-    self.AcumaticaUserName = ko.observable();
-    self.AcumaticaPassword = ko.observable();
+        // Data-entry State
+        //
+        self.AcumaticaInstanceUrl = ko.observable();
+        self.AcumaticaCompany = ko.observable();
+        self.AcumaticaBranch = ko.observable();
+        self.AcumaticaUserName = ko.observable();
+        self.AcumaticaPassword = ko.observable();
 
 
-    // Actions
-    self.ChangeSettingsClick = function () {
-
-        self.ClearVisibility();
-        @{
+        // Actions
+        self.ChangeSettingsClick = function () {
+            self.ClearVisibility();
+            @{
             // Debugging stuff - fast and easy - my way!
             if (GlobalConfig.DebugMode)
             {
@@ -327,87 +328,79 @@ Monster.AcumaticaConnectionModel = function() {
                 </text>
             }
         }
-        self.DataEntryVisible(true);
-    };
-
-    self.ShowStatusPanel = function() {
-        flow.exec(
-            function() {
-                self.ClearVisibility();
-                self.StatusVisible(true);
-
-                var ajax = new Monster.Ajax();
-                ajax.HttpGet("/Config/AcumaticaCredentials", this);
-            },
-            function(response) {
-                self.AcumaticaInstanceUrl(response.InstanceUrl);
-                self.AcumaticaCompany(response.Company);
-                self.AcumaticaBranch(response.Branch);
-            });
-    }
-
-    self.PushCredentials = function() {
-        var model = {
-            InstanceUrl: self.AcumaticaInstanceUrl(),
-            Company: self.AcumaticaCompany(),
-            Branch: self.AcumaticaBranch(),
-            UserName: self.AcumaticaUserName(),
-            Password: self.AcumaticaPassword()
+            self.DataEntryVisible(true);
         };
 
-        var ajax = new Monster.Ajax();
-        ajax.HttpPost("/Config/AcumaticaCredentials", model, self.PollStatus);
-    };
+        self.ShowStatusPanel = function() {
+            flow.exec(
+                function() {
+                    self.ClearVisibility();
+                    self.StatusVisible(true);
 
-    self.AcumaticaTestConnection = function() {
-        var ajax = new Monster.Ajax();
-        ajax.HttpPost("/Config/AcumaticaTestConnection", {}, self.PollStatus);
-    };
-
-
-    self.PollStatus = function() {
-        var ajax = new Monster.Ajax();
-        ajax.DisablePopupsAndSpinners();
-        ajax.HttpGet("/Config/AcumaticaConnectionStatus", self.ProcessStatus);
-    };
-
-    self.ProcessStatus = function(response) {
-        self.ClearVisibility();
-
-        // Status model
-        self.ConnectionState(response.Status.ConnectionState);
-        self.IsUrlFinalized(response.Status.IsUrlFinalized);
-        self.IsRandomAccessMode(response.Status.IsRandomAccessMode);
-
-        // Background Job stuff
-        self.BackgroundJobRunning(response.IsJobRunning);
-        self.JobRunningModel.Ingest(response.ExecutionLogs);
-
-        console.log(response);
-
-        // If still running, then show AJAX...
-        if (self.BackgroundJobRunning()) {            
-            setTimeout(self.PollStatus, 1000);
-            return;
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("/Config/AcumaticaCredentials", this);
+                },
+                function(response) {
+                    self.AcumaticaInstanceUrl(response.InstanceUrl);
+                    self.AcumaticaCompany(response.Company);
+                    self.AcumaticaBranch(response.Branch);
+                });
         }
 
-        if (self.ConnectionState() == StateCode.None) {
-            self.ChangeSettingsClick();
-        } else {
-            self.ShowStatusPanel();
-        }
-    };
-    
-    self.Initialize = function() {
-        self.ClearVisibility();
-        self.PollStatus();
+        self.PushCredentials = function() {
+            var model = {
+                InstanceUrl: self.AcumaticaInstanceUrl(),
+                Company: self.AcumaticaCompany(),
+                Branch: self.AcumaticaBranch(),
+                UserName: self.AcumaticaUserName(),
+                Password: self.AcumaticaPassword()
+            };
+
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("/Config/AcumaticaCredentials", model, self.PollStatus);
+        };
+
+        self.AcumaticaTestConnection = function() {
+            var ajax = new Monster.Ajax();
+            ajax.HttpPost("/Config/AcumaticaTestConnection", {}, self.PollStatus);
+        };
+
+        self.ProcessStatus = function() {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("/Config/AcumaticaConnectionStatus", this);
+                },
+                function(response) {
+                    // Status model
+                    //
+                    self.ConnectionState(response.ConnectionState);
+                    self.IsUrlFinalized(response.IsUrlFinalized);
+                    self.IsRandomAccessMode(response.IsRandomAccessMode);
+
+                    if (self.ConnectionState() == StateCode.None) {
+                        self.ChangeSettingsClick();
+                    } else {
+                        self.ShowStatusPanel();
+                    }
+                }
+            );
+
+            self.ClearVisibility();
+        };
+
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
+
+        self.Initialize = function() {
+            self.ClearVisibility();
+            self.JobRunningModel.StartPolling(true);
+        };
+
+        return self;
     };
 
-    return self;
-};
-
-var model = new Monster.AcumaticaConnectionModel();
-model.Initialize();
-ko.applyBindings(model);
-</script>
+    var model = new Monster.AcumaticaConnectionModel();
+    model.Initialize();
+    ko.applyBindings(model);
+    </script>
 

@@ -11,13 +11,12 @@
     @Html.Partial("_TopBrand")
 
     <hr />
-
     <h1 class="mt-4 center">Configuration - Acumatica</h1>
     <p class="lead center">
         Configuration of Acumatica reference data for @GlobalConfig.AppName
     </p>
 
-    <div data-bind="ifnot: IsJobRunning">
+    <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
         <div data-bind="if: ReferenceDataState() == StateCode.None">
             <p>
                 This next step will require you to configure Acumatica so that
@@ -32,7 +31,7 @@
         <div data-bind="if: ReferenceDataState() == StateCode.Ok">
             <div class="alert alert-primary">
                 <strong>Acumatica Reference Data Pull - Successful</strong>
-                <br />
+                <br/>
                 Your Acumatica reference data was properly configured and has been loaded.
             </div>
 
@@ -41,7 +40,7 @@
 
         <div data-bind="if: ReferenceDataState() == StateCode.SystemFault">
             <div class="alert alert-danger">
-                <strong>Acumatica Reference Data Pull - System Fault</strong><br />
+                <strong>Acumatica Reference Data Pull - System Fault</strong><br/>
                 Something is wrong with your Acumatica Connection.
             </div>
 
@@ -55,7 +54,7 @@
 
         <div data-bind="if: ReferenceDataState() == StateCode.Invalid">
             <div class="alert alert-danger">
-                <strong>Acumatica Reference Data Pull - Invalid Data</strong><br />
+                <strong>Acumatica Reference Data Pull - Invalid Data</strong><br/>
                 Your Acumatica instance data is not properly configured.
             </div>
             <div data-bind="template: { name: 'Pdf-Download' }"></div>
@@ -87,7 +86,7 @@
                 <span data-bind="if: HasReferenceDataBeenPulled">
                     <a href="#" class="btn btn-primary btn-lg"
                        data-bind="click: ConnectToAcumatica">
-                       Refresh Reference Data <i class="fas fa-bolt"></i>
+                        Refresh Reference Data <i class="fas fa-bolt"></i>
                     </a>
                 </span>
 
@@ -101,45 +100,47 @@
         </div>
     </div>
 
-    <script type="text/html" id="Pdf-Download">
-        <div style="height:30px;"></div>
+    <div data-bind="if: JobRunningModel.AreAnyJobsRunning">
         <div class="card">
             <div class="card-body center">
-                <div data-bind="if: ReferenceDataState() != StateCode.Ok">
-                    <p>
-                        Download the following PDF document and execute all of the steps
-                        to prepare your Acumatica instance for synchronization with Shopify.
-                    </p>
+                <div class="std-pad-b">
+                    <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
                 </div>
-
-                <div data-bind="if: ReferenceDataState() == StateCode.Ok">
-                    <p>
-                        You can download the following PDF document as a reference
-                        in case you want to change the way your Acumatica instance
-                        is configured.
-                    </p>
-                </div>
-
-                <a target="_blank"
-                   href="@GlobalConfig.Url("/Content/Configuring Acumatica for Synchronization.pdf")">
-                    <img style="width: 100px;" src="@GlobalConfig.Url("/Content/pdf-icon.png")" />
-
-                    <p class="center" style="font-weight: 700; margin-top: 20px;">
-                        Download - Configuring Acumatica for Bridge Synchronization
-                    </p>
-                </a>
-            </div>
-        </div>
-    </script>
-
-    <div data-bind="if: IsJobRunning">
-        <div class="std-pad-b">
-            <div class="card">
-                <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
             </div>
         </div>
     </div>
 </main>
+
+<script type="text/html" id="Pdf-Download">
+    <div style="height:30px;"></div>
+    <div class="card">
+        <div class="card-body center">
+            <div data-bind="if: ReferenceDataState() != StateCode.Ok">
+                <p>
+                    Download the following PDF document and execute all of the steps
+                    to prepare your Acumatica instance for synchronization with Shopify.
+                </p>
+            </div>
+
+            <div data-bind="if: ReferenceDataState() == StateCode.Ok">
+                <p>
+                    You can download the following PDF document as a reference
+                    in case you want to change the way your Acumatica instance
+                    is configured.
+                </p>
+            </div>
+
+            <a target="_blank"
+               href="@GlobalConfig.Url("/Content/Configuring Acumatica for Synchronization.pdf")">
+                <img style="width: 100px;" src="@GlobalConfig.Url("/Content/pdf-icon.png")" />
+
+                <p class="center" style="font-weight: 700; margin-top: 20px;">
+                    Download - Configuring Acumatica for Bridge Synchronization
+                </p>
+            </a>
+        </div>
+    </div>
+</script>
 
 <script>
     var Monster = Monster || {};
@@ -147,9 +148,6 @@
     Monster.AcumaticaRefDataModel = function () {
         var self = this;
 
-        // View visibility
-        //
-        self.IsJobRunning = ko.observable();
         self.JobRunningModel = new Monster.JobStatusModel();
 
         // System State
@@ -188,48 +186,39 @@
         });
 
 
-
         // Actions
         //
         self.ConnectToAcumatica = function () {
             var ajax = new Monster.Ajax();
-            ajax.HttpPost("/Config/AcumaticaRefDataPull", {}, self.PollStatus);
+            ajax.HttpPost("/Config/AcumaticaRefDataPull", {});
         };
 
-        self.PollStatus = function () {
-            var ajax = new Monster.Ajax();
-            ajax.DisablePopupsAndSpinners();
-            ajax.HttpGet("/Config/AcumaticaRefDataStatus", self.ProcessStatus);
+        self.ProcessStatus = function () {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("/Config/AcumaticaRefDataStatus", this);
+                },
+                function (response) {
+                    //console.log(response);
+                    self.ReferenceDataState(response.ReferenceDataState);
+                    self.IsRandomAccessMode(response.IsRandomAccessMode);
+                    self.Validations(response.Validations);
+                });
         };
 
-        self.ProcessStatus = function (response) {
-            //console.log(response);
-
-            self.IsJobRunning(response.IsJobRunning);
-            self.JobRunningModel.Ingest(response.ExecutionLogs);
-            
-            // If still running, then show AJAX...
-            if (self.IsJobRunning()) {
-                setTimeout(self.PollStatus, 1000);
-                return;
-            }
-
-            // Else process System State info
-            self.ReferenceDataState(response.Status.ReferenceDataState);
-            self.IsRandomAccessMode(response.Status.IsRandomAccessMode);
-            self.Validations(response.Status.Validations);
-        };
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, self.ProcessStatus);
 
         self.Initialize = function () {
-            self.IsJobRunning(false);
-            self.PollStatus();
+            self.JobRunningModel.StartPolling(true); 
         };
 
         return self;
     };
 
-    var model = new Monster.AcumaticaRefDataModel();
-    model.Initialize();
-    ko.applyBindings(model);
+    $(document).ready(function() {
+        var model = new Monster.AcumaticaRefDataModel();
+        model.Initialize();
+        ko.applyBindings(model);    
+    });
 </script>
-

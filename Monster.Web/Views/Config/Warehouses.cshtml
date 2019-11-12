@@ -3,7 +3,7 @@
 <main role="main" class="medium-size">
     @Html.Partial("_TopBrand")
     
-    <div data-bind="ifnot: IsJobRunning">
+    <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
         <div data-bind="if: WarehouseSyncState() == StateCode.None">
             <div data-bind="template: { name: 'Title-Section' }"></div>
 
@@ -48,14 +48,16 @@
         </div>
     </div>
 
-    <div data-bind="if: IsJobRunning">
-        <div class="std-pad-b">
-            <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
+    <div data-bind="if: JobRunningModel.AreAnyJobsRunning">
+        <div class="card">
+            <div class="card-body center std-pad-b">
+                <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
+            </div>
         </div>
     </div>
     
     <!-- Bottom Controls -->
-    <div data-bind="ifnot: IsJobRunning">
+    <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
         <div id="bottom-controls" class="center std-pad-t">
         <span data-bind="if: IsRandomAccessMode">
             <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
@@ -196,7 +198,6 @@
         var self = this;
 
         // Job Status
-        self.IsJobRunning = ko.observable();
         self.JobRunningModel = new Monster.JobStatusModel();
 
         // Sync Status
@@ -226,27 +227,15 @@
             ajax.HttpPost("/Config/SyncWarehouses", {}, self.PollStatus);
         };
 
-        self.PollStatus = function () {
+        self.ProcessStatus = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
                     ajax.HttpGet("/Config/WarehouseSyncStatus", this);
                 },
                 function (response) {
-                    //console.log(response);
-
-                    self.IsJobRunning(response.IsJobRunning);
-                    self.JobRunningModel.Ingest(response.ExecutionLogs);
-
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
                     self.WarehouseSyncState(response.WarehouseSyncState);
-
-                    if (self.IsJobRunning()) {
-                        setTimeout(self.PollStatus, 1000);
-                        return;
-                    } 
-
                     self.RefreshWarehouseData();
                 });
         };
@@ -263,7 +252,7 @@
                     ajax.HttpGet("/Config/WarehouseSyncData", this);
                 },
                 function (response) {
-                    //console.log(response);
+                    console.log(response);
 
                     AQ(response.ActivatedLocations).each(function(item) { self.DecorateLocation(item); });
                     AQ(response.Warehouses).each(function (item) { self.DecorateWarehouse(item); });
@@ -289,7 +278,7 @@
                 });
         };
 
-        self.SaveClick = function () { self.Save(self.PollStatus); };
+        self.SaveClick = function () { self.Save(); };
 
         self.NextClick = function() {
             self.Save(
@@ -312,14 +301,14 @@
                     ajax.HttpPost("/Config/WarehouseSyncDataUpdate", model, this);
                 },
                 function(response) {
-                    if (callback) {
-                        callback();
-                    }
+                    self.ProcessStatus();
                 }
             );
         };
 
-        self.Initialize = function () { self.PollStatus(); };
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
+
+        self.Initialize = function () { self.JobRunningModel.StartPolling(true); };
 
         return self;
     };

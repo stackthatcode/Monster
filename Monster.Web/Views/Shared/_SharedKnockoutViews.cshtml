@@ -71,14 +71,15 @@
                     ajax.HttpGet("/Job/Status", this);
                 },
                 function (response) {
-                    console.log(response);
-                    if (self.AreAnyJobsRunning() && !response.AreAnyJobsRunning) {
-                        Monster.Events.publish(Monster.JobStatusRunningComplete);
-                    }
+                    var oldAreAnyJobsRunning = self.AreAnyJobsRunning();
 
                     self.AreAnyJobsRunning(response.AreAnyJobsRunning);
                     self.Logs(response.Logs);
                     setTimeout(self.Poll, 1000);
+
+                    if (oldAreAnyJobsRunning && !response.AreAnyJobsRunning) {
+                        Monster.Events.publish(Monster.JobStatusRunningComplete);
+                    }
                 });
         };
 

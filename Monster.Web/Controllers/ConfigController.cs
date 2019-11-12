@@ -76,17 +76,7 @@ namespace Monster.Web.Controllers
         public ActionResult AcumaticaConnectionStatus()
         {
             var status = _statusService.GetAcumaticaConnectionStatus();
-            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
-
-            var model = new
-            {
-                Status = status,
-                IsJobRunning = areAnyJobsRunning,
-                ExecutionLogs = logs,
-            };
-            
-            return new JsonNetResult(model);
+            return new JsonNetResult(status);
         }
 
         [HttpGet]
@@ -132,7 +122,8 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
         }
         
-        // Acumatica Settings Pull
+
+        // Acumatica Reference Data Pull
         //
         [HttpGet]
         public ActionResult AcumaticaRefData()
@@ -151,18 +142,7 @@ namespace Monster.Web.Controllers
         public ActionResult AcumaticaRefDataStatus()
         {
             var status = _statusService.GetAcumaticaReferenceDataStatus();
-            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
-
-            var model = new
-            {
-                Status = status,
-                IsJobRunning = areAnyJobsRunning,
-                ExecutionLogs = logs,
-                IsRandomAccessMode = status.IsRandomAccessMode,
-            };
-            
-            return new JsonNetResult(model);
+            return new JsonNetResult(status);
         }
         
 
@@ -296,17 +276,11 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult WarehouseSyncStatus()
         {
-            var logs = _logRepository.RetrieveExecutionLogs().ToModel();
-            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
-
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             var details = _statusService.GetWarehouseSyncStatus();
 
             var output = new WarehouseSyncStatusModel()
             {
-                IsJobRunning = areAnyJobsRunning,
-                ExecutionLogs = logs,
-
                 WarehouseSyncState = state.WarehouseSyncState,
                 IsRandomAccessMode = state.IsRandomAccessMode,
                 Details = details,
