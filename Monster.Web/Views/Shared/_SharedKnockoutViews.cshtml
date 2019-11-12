@@ -82,8 +82,8 @@
                 });
         };
 
-        self.StartPolling = function (isRunning) {
-            self.AreAnyJobsRunning(isRunning);
+        self.StartPolling = function (areAnyJobsRunning) {
+            self.AreAnyJobsRunning(areAnyJobsRunning);
 
             if (!self.IsPollingStarted()) {
                 self.Poll();
@@ -93,9 +93,10 @@
 
         // Pub-Sub subscription
         //
-        Monster.Events.subscribe(Monster.JobStatusStartPolling, function () { self.StartPolling(); });
-
-        Monster.Events.subscribe(Monster.JobStatusIsRunning, function () { self.AreAnyJobsRunning(true); });
+        Monster.Events.subscribe(Monster.JobStatusStartPolling,
+            function(areAnyJobsRunning) {
+                 self.StartPolling(areAnyJobsRunning);
+            });
 
         return self;
     };
@@ -160,7 +161,6 @@
                 function () {
                     // We can override these defaults, later...
                     //
-                    Monster.Events.publish(Monster.JobStatusStartPolling);
                     Monster.Events.publish(Monster.JobStatusIsRunning);
                 });
         };

@@ -87,7 +87,7 @@
 
             <div class="input-group-append">
                 <button class="btn btn-secondary" type="button"
-                        data-bind="click: RefreshResults">
+                        data-bind="click: RefreshGrid">
                     Filter Inventory <i class="fas fa-search"></i>
                 </button>
             </div>
@@ -115,7 +115,7 @@
                 <div role="group" aria-label="Basic example">
 
                     <button type="button"
-                            data-bind="click: ImportSelectedClick, enable: ImportButtonEnabled"
+                            data-bind="click: ImportIntoAcumaticaClick, enable: ImportButtonEnabled"
                             class="btn btn-sm btn-primary">
                         Import into Acumatica <i class="fas fa-bolt"></i>
                     </button>
@@ -170,7 +170,7 @@
 
                 <td style="text-align:right; padding-right:0; font-size:14px;">
                     <div data-bind="if: IsSelected">
-                        <a href="#" data-bind="click: SelectClick"
+                        <a href="#" data-bind="click: UnselectClick"
                            class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
                     </div>
                     <div data-bind="ifnot: IsSelected">
@@ -185,7 +185,8 @@
 </script>
 
 <script id="Import-Confirmation" type="text/html">
-    <div class="modal fade" id="confirm-import-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-import-modalLabel" aria-hidden="true">
+    <div class="modal fade" id="confirm-import-modal" 
+         tabindex="-1" role="dialog" aria-labelledby="confirm-import-modalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document" style="max-width:600px;">
             <div class="modal-content">
                 <div class="modal-header">
@@ -400,8 +401,7 @@
                 function (response) {
                     $('#confirm-import-modal').modal('hide');
 
-                    Monster.Events.publish("/InventoryJobLaunched");
-                    Monster.Events.publish("/ImportJobTriggered");
+                    Monster.Events.publish(Monster.JobStatusIsRunning);
                 });
         }
 
@@ -417,55 +417,44 @@
         // Grid storage
         //
         self.GridData = ko.observableArray([]);
+        self.SelectedProducts = ko.observableArray([]);
 
         // Computed
         //
         self.EmptyResults = ko.computed(function () { return self.GridData().length == 0; });
 
-        self.SelectedProducts = ko.computed(function () {
-            return AQ(self.GridData())
-                .where(function (x) { return x.IsSelected(); })
-                .toArray();
-        });
-
-        self.ImportButtonEnabled = ko.computed(function () {
-            return self.SelectedProducts().length > 0;
-        });
+        self.ImportButtonEnabled = ko.computed(function() { return self.SelectedProducts().length > 0; });
 
 
         // Grid interaction methods
         //
-        self.SearchTermsKeyCallback = function (model, event) {
-            if (event.keyCode == 13) {
-                self.RefreshResults();
-                return false;
-            } else {
-                return true;
-            }
-        };
-
         self.SelectAllClick = function () {
-            AQ(self.GridData()).each(function (x) {
-                x.IsSelected(true);
-            });
+            AQ(self.GridData()).each(function (x) { x.SelectClick(); });
         };
 
         self.UnselectAllClick = function () {
-            AQ(self.GridData()).each(function (x) {
-                x.IsSelected(false);
-            });
-        };
-
-        self.ImportSelectedClick = function () {
-            Monster.Events.publish(event.LaunchImportConfirm, self.SelectedProducts());
+            self.SelectedProducts.removeAll();
         };
 
         // Helper populate functions for grid row
         self.DecorateGridRow = function (row) {
-            row.IsSelected = ko.observable(false);
+            row.IsSelected = ko.computed(function () {
+                console.log(row, self.SelectedProducts())
+
+                return AQ(self.SelectedProducts())
+                    .any(function(x) { return x.ShopifyProductId == row.ShopifyProductId; });
+            });
 
             row.SelectClick = function () {
-                row.IsSelected(!row.IsSelected());
+                if (!row.IsSelected()) {
+                    self.SelectedProducts.push(row);
+                }
+            };
+
+            row.UnselectClick = function() {
+                if (row.IsSelected()) {
+                    self.SelectedProducts.remove(row);
+                }
             };
 
             row.ProductDetailClick = function () {
@@ -473,7 +462,18 @@
             };
         };
 
-        self.RefreshResults = function () {
+        // Filter functions
+        //
+        self.SearchTermsKeyCallback = function (model, event) {
+            if (event.keyCode == 13) {
+                self.RefreshGrid();
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        self.RefreshGrid = function () {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var url = "/Sync/FilterInventory?terms=" + self.FilterTerms();
@@ -483,6 +483,10 @@
                     AQ(response).each(function (x) { self.DecorateGridRow(x); });
                     self.GridData(response);
                 });
+        };
+
+        self.ImportIntoAcumaticaClick = function () {
+            Monster.Events.publish(event.LaunchImportConfirm, self.SelectedProducts());
         };
 
         return self;
@@ -521,7 +525,7 @@
                 },
                 function() {
                     if (self.ShowImportPanel()) {
-                        self.InventoryImportModel.RefreshResults();
+                        self.InventoryImportModel.RefreshGrid();
                     }
                 });
             };
