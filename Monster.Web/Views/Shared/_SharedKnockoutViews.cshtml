@@ -72,14 +72,13 @@
                     ajax.HttpGet("/Job/Status", this);
                 },
                 function (response) {
-                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
-                    setTimeout(self.Poll, 1000);
-
-                    if (self.AreAnyJobsRunning()) {
-                        self.Logs(response.Logs);
-                    } else {
-                        Monster.Events.publish(Monster.JobRunningCompleteEvent);
+                    if (self.AreAnyJobsRunning() && !response.AreAnyJobsRunning) {
+                        Monster.Events.publish(Monster.JobStatusRunningComplete);
                     }
+
+                    self.AreAnyJobsRunning(response.AreAnyJobsRunning);
+                    self.Logs(response.Logs);
+                    setTimeout(self.Poll, 1000);
                 });
         };
 
@@ -106,7 +105,7 @@
 <!-- Inventory Refresh Control -->
 <script id="Inventory-Refresh-Control" type="text/html">
     <div class="center std-pad-sm-t">
-        <button type="button" class="btn btn-primary btn-sm" data-bind="click: RefreshInventoryClick">
+        <button type="button" class="btn btn-primary btn-sm std-pad-side" data-bind="click: RefreshInventoryClick">
             Refresh Inventory <i class="fas fa-bolt"></i>
 
             <span data-bind="if: LastRunBroken">
@@ -193,8 +192,8 @@
                         <div class="modal-heavy-text"
                              data-bind="text: ProductTitle"></div>
                         <div data-bind="text: Vendor"></div>
-                        <div class="shopify-id">
-                            SPId: <span data-bind="text: ShopifyProductId"></span>
+                        <div class="text-muted">
+                            Product Id: <span data-bind="text: ShopifyProductId"></span>
                         </div>
                         <div>
                             <a href="#" target="_blank" data-bind="attr: { href: ShopifyUrl }">
@@ -219,8 +218,8 @@
                                         <span data-bind="text: Sku"></span>
                                         - <span data-bind="text: VariantTitle"></span>
                                     </div>
-                                    <div class="shopify-id">
-                                        SVId: <span data-bind="text: ShopifyVariantId"></span>
+                                    <div class="text-muted">
+                                       Variant Id: <span data-bind="text: ShopifyVariantId"></span>
                                     </div>
                                 </td>
 
@@ -239,7 +238,6 @@
                             </tr>
                             </tbody>
                         </table>
-
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -288,7 +286,15 @@
 <!-- Welcome Panel for the End-to-End Sync and Inventory Import screens -->
 <script type="text/html" id="Inventory-Not-Pulled-Message">
     <div class="alert alert-warning">
-        <strong>Important:</strong> Before importing Inventory between Shopify and Acumatica,
-        @GlobalConfig.AppName will need to perform an Inventory Refresh to take stock of everything.
+        <strong>Important:</strong> Before transferring Products and Stock Items between Shopify and Acumatica,
+        @GlobalConfig.AppName will need to download a copy of the inventory from both systems.
+    </div>
+    <div style="height:40px;"></div>
+    
+    <div class="center">
+        <a href="#" class="btn btn-primary btn-lg" 
+           data-bind="click: function() { Monster.Events.publish(Monster.StartInventoryRefresh); }">
+            Download Now <i class="fas fa-bolt"></i>
+        </a>
     </div>
 </script>
