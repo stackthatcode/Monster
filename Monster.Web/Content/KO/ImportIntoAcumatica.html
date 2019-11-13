@@ -155,7 +155,7 @@
 
     <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
         <table class="table sync-grid" style="border-bottom: 1px #999 dashed;">
-            <tbody data-bind="foreach: GridData">
+            <tbody data-bind="foreach: VisibleData">
             <tr>
                 <td style="padding-left:0;">
                     <div>
@@ -501,10 +501,8 @@
         //
         self.GridData = ko.observableArray([]);
         self.VisibleData = ko.observableArray([]);
-
         self.SelectedProducts = ko.observableArray([]);
         self.PagingWidget = new MonsterWidgets.PagingWidget();
-
         self.MaximumRecords = 1000;
 
         // Computed
@@ -532,7 +530,9 @@
             });
 
             row.SelectClick = function () {
-                if (self.SelectedProducts().length < self.MaximumRecords)
+                if (self.SelectedProducts().length >= self.MaximumRecords) {
+                    return;
+                }
                 if (!row.IsSelected()) {
                     self.SelectedProducts.push(row);
                 }

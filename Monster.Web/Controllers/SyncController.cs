@@ -285,14 +285,15 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult FilterShopifyProducts(string terms = "", int maxRecords = 1000)
+        public ActionResult FilterShopifyProducts(
+                string terms = "", bool includeSynced = false, int maxRecords = 1000)
         {
             var searchRecords = _syncInventoryRepository
-                .ProductSearchRecords(terms, 1, maxRecords);
+                .ProductSearchRecords(terms, includeSynced, 0, maxRecords);
             var searchResult = searchRecords
                 .Select(x => ShopifyProductModel.Make(x, _shopifyUrlService.ShopifyProductUrl)).ToList();
 
-            var searchCount = _syncInventoryRepository.ProductSearchCount(terms);
+            var searchCount = _syncInventoryRepository.ProductSearchCount(terms, includeSynced);
 
             var output = new { searchResult, searchCount, };
             return new JsonNetResult(output);
@@ -334,10 +335,9 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult FilterAcumaticaStockItems(int pageNumber = 1,  int pageSize = 10,  string terms = "")
+        public ActionResult FilterAcumaticaStockItems(string terms = "", int maxRecords = 1000)
         {
-            var startingRecord = PagingHelper.StartingRecord(pageNumber, pageSize);
-            var searchRecords = _syncInventoryRepository.StockItemSearchRecords(terms, startingRecord, pageSize);
+            var searchRecords = _syncInventoryRepository.StockItemSearchRecords(terms, 0, maxRecords);
             var searchResult = searchRecords
                 .Select(x => AcumaticaStockItemModel.Make(x, _acumaticaUrlService.AcumaticaStockItemUrl))
                 .ToList();

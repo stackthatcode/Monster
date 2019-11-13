@@ -162,7 +162,7 @@
 
 <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
     <table class="table sync-grid" style="border-bottom: 1px #999 dashed;">
-        <tbody data-bind="foreach: GridData">
+        <tbody data-bind="foreach: VisibleData">
             <tr>
                 <td style="padding-left:0;">
                     <div>
@@ -247,16 +247,18 @@
 </script>
 
 <script id="Import-Create-New-Product" type="text/html">
-    <div class="modal fade" id="confirm-import-modal"
-         tabindex="-1" role="dialog" aria-labelledby="confirm-import-modalLabel" aria-hidden="true">
+    <div class="modal fade" id="create-new-product-modal" tabindex="-1" role="dialog" aria-labelledby="create-new-product-modal-label" aria-hidden="true">
         <div class="modal-dialog" role="document" style="max-width:600px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirm-import-modalLabel">Confirm Stock Item Import into Acumatica</h5>
+                    <h5 class="modal-title" id="create-new-product-modal-label">
+                        Create new Shopify Product from Selected Stock Items
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+
                 <div class="modal-body">
                     <div class="mb-4">
                         <div class="mb-2">
@@ -270,42 +272,20 @@
                             <span data-bind="text: UnsyncedVariantCount"></span> Unsynced Shopify Variant(s)
                         </span>
                     </div>
-
-                    <div data-bind="if: ShowInventoryReceiptOptions">
-                        <div class="mb-4">
-                            <label>Create Inventory Receipts for new Stock Items</label>
-
-                            <select class="form-control"
-                                    data-bind="options: InventoryReceiptOptions,
-                                                value: InventoryReceiptChoice,
-                                                optionsText: 'Text',
-                                                optionsValue: 'Value'"></select>
-                        </div>
+                    
+                    <!-- Add data entry fields -->
+                    <div class="alert alert-warning" style="text-align: left">
+                        NOTE: Your configuration contains Locations that are mapped to multiple Warehouses.
+                        Thus, it will not be possible to automatically create Warehouse Receipts on Product Import.
                     </div>
 
-                    <div data-bind="ifnot: ShowInventoryReceiptOptions">
-                        <div class="alert alert-warning" style="text-align: left">
-                            NOTE: Your configuration contains Locations that are mapped to multiple Warehouses.
-                            Thus, it will not be possible to automatically create Warehouse Receipts on Product Import.
-                        </div>
-                    </div>
-
-                    <div data-bind="if: ShowInventorySyncOptions">
-                        <div class="mb-4">
-                            <label>Inventory Synchronization</label>
-                            <select class="form-control"
-                                    data-bind="options: InventorySyncOptions,
-                                            value: InventorySyncChoice,
-                                            optionsText: 'Text',
-                                            optionsValue: 'Value'"></select>
-                        </div>
-                    </div>
-
-                    <div data-bind="ifnot: ShowInventorySyncOptions">
-                        <div class="alert alert-warning" style="text-align: left">
-                            NOTE: As Warehouse Receipts are being created, you will need to
-                            enable synchronization through the Inventory Sync Control.
-                        </div>
+                    <div class="mb-4">
+                        <label>Inventory Synchronization</label>
+                        <select class="form-control"
+                                data-bind="options: InventorySyncOptions,
+                                        value: InventorySyncChoice,
+                                        optionsText: 'Text',
+                                        optionsValue: 'Value'"></select>
                     </div>
                 </div>
 
@@ -323,12 +303,12 @@
 </script>
 
 <script id="Import-Assign-To-Existing-Product" type="text/html">
-    <div class="modal fade" id="assign-to-existing-import-modal"
-         tabindex="-1" role="dialog" aria-labelledby="assign-to-existing-import-modal" aria-hidden="true">
+    <div class="modal fade" id="assign-to-existing-import-modal" tabindex="-1" role="dialog" aria-labelledby="assign-to-existing-import-modal" aria-hidden="true">
         <div class="modal-dialog" role="document" style="max-width:600px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="assign-to-existing-import-modal-label">Confirm Stock Item Import into Acumatica</h5>
+                    <h5 class="modal-title" id="assign-to-existing-import-modal-label">
+                        Assign new Variants to Shopify Product</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -337,9 +317,7 @@
                 <div class="modal-body">
                     <div class="mb-4">
                         <div class="mb-2">
-                            <label>
-                                Ready to proceed with importing into Acumatica:
-                            </label>
+                            <label>Ready to proceed with importing into Acumatica:</label>
                         </div>
 
                         <span class="modal-heavy-text">
@@ -348,41 +326,9 @@
                         </span>
                     </div>
 
-                    <div data-bind="if: ShowInventoryReceiptOptions">
-                        <div class="mb-4">
-                            <label>Create Inventory Receipts for new Stock Items</label>
-
-                            <select class="form-control"
-                                    data-bind="options: InventoryReceiptOptions,
-                                                value: InventoryReceiptChoice,
-                                                optionsText: 'Text',
-                                                optionsValue: 'Value'"></select>
-                        </div>
-                    </div>
-
-                    <div data-bind="ifnot: ShowInventoryReceiptOptions">
-                        <div class="alert alert-warning" style="text-align: left">
-                            NOTE: Your configuration contains Locations that are mapped to multiple Warehouses.
-                            Thus, it will not be possible to automatically create Warehouse Receipts on Product Import.
-                        </div>
-                    </div>
-
-                    <div data-bind="if: ShowInventorySyncOptions">
-                        <div class="mb-4">
-                            <label>Inventory Synchronization</label>
-                            <select class="form-control"
-                                    data-bind="options: InventorySyncOptions,
-                                            value: InventorySyncChoice,
-                                            optionsText: 'Text',
-                                            optionsValue: 'Value'"></select>
-                        </div>
-                    </div>
-
-                    <div data-bind="ifnot: ShowInventorySyncOptions">
-                        <div class="alert alert-warning" style="text-align: left">
-                            NOTE: As Warehouse Receipts are being created, you will need to
-                            enable synchronization through the Inventory Sync Control.
-                        </div>
+                    <div class="alert alert-warning" style="text-align: left">
+                        NOTE: As Warehouse Receipts are being created, you will need to
+                        enable synchronization through the Inventory Sync Control.
                     </div>
                 </div>
 
@@ -536,8 +482,10 @@
         // Grid storage
         //
         self.GridData = ko.observableArray([]);
+        self.VisibleData = ko.observableArray([]);
         self.SelectedStockItems = ko.observableArray([]);
         self.PagingWidget = new MonsterWidgets.PagingWidget();
+        self.MaximumRecords = 1000;
 
         // Computed
         //
@@ -563,6 +511,9 @@
             });
 
             row.SelectClick = function () {
+                if (self.SelectedStockItems().length >= self.MaximumRecords) {
+                    return;
+                }
                 if (!row.IsSelected()) {
                     self.SelectedStockItems.push(row);
                 }
@@ -586,16 +537,11 @@
             }
         };
 
-        self.PagingWidget.Callback = function () {
-            self.RefreshGrid();
-        };
-
         self.RefreshGrid = function () {
             flow.exec(function () {
                 var ajax = new Monster.Ajax();
-                var url = "/Sync/FilterAcumaticaStockItems?terms=" + self.FilterTerms() +
-                    "&pageNumber=" + self.PagingWidget.PageNumber() +
-                    "&pageSize=" + self.PagingWidget.PageSize();
+                var url = "/Sync/FilterAcumaticaStockItems?terms=" + self.FilterTerms()
+                    + "&maxRecords=" + self.MaximumRecords;
 
                 ajax.HttpGet(url, this);
             },
@@ -603,7 +549,20 @@
                     AQ(response.searchResult).each(function (x) { self.DecorateGridRow(x); });
                     self.GridData(response.searchResult);
                     self.PagingWidget.RecordCount(response.searchCount);
+                    self.RefreshVisibleGrid();
                 });
+        };
+        
+        self.RefreshVisibleGrid = function () {
+            self.VisibleData(
+                AQ(self.GridData())
+                .skip(self.PagingWidget.StartingRecord())
+                .take(self.PagingWidget.PageSize())
+                .toArray());
+        };
+
+        self.PagingWidget.Callback = function () {
+            self.RefreshVisibleGrid();
         };
 
         // Action methods
@@ -613,11 +572,15 @@
         };
 
         self.AddToExistingProductClick = function () {
-            Monster.Events.publish(Monster.LaunchShopifyProductFinder); // TODO - add callback
+            Monster.Events.publish(Monster.LaunchShopifyProductFinder, self.LaunchAddToExistingPopup);
+        };
+
+        self.LaunchAddToExistingPopup = function (product) {
+            alert("ok");
+            console.log(product);
         };
 
         self.ViewSelectedClick = function () {
-            // Important - pass by ref
             Monster.Events.publish(events.ViewSelectedStockItem, self.SelectedStockItems());
         };
 

@@ -292,12 +292,11 @@
         }
     </style>
 
-    <div class="modal fade" id="shopify-product-finder-modal" tabindex="-1" role="dialog"
-         aria-labelledby="shopify-product-finder-label" aria-hidden="true">
-        <div class="modal-dialog" role="document" style="max-width: 700px;">
+    <div class="modal fade" id="shopify-product-finder-modal" tabindex="-1" role="dialog" aria-labelledby="shopify-product-finder-label" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 800px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="shopify-product-finder-label">Shopify Product Finder</h5>
+                    <h5 class="modal-title" id="shopify-product-finder-label">Find and select a Shopify Product</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -306,12 +305,10 @@
                 <!-- # of results -->
                 <div class="modal-body">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control"
-                               style="font-size:0.9em;"
+                        <input type="text" class="form-control" style="font-size:0.9em;" maxlength="50" 
                                data-bind="value: FilterTerms, event: { keyup: SearchTermsKeyCallback }"
                                placeholder="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
-                               aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
-                               maxlength="50" />
+                               aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU" />
 
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" 
@@ -322,7 +319,7 @@
                         </div>
                     </div>
 
-                    <table class="table table-striped">
+                    <table class="table" style="font-size:0.9em;">
                         <tbody data-bind="foreach: GridData">
                         <tr>
                             <td style="padding-left:0;">
@@ -333,19 +330,18 @@
                             </td>
                             <td>
                                 <div>
-                                    <a href="#" data-bind="click: ProductDetailClick">
-                                        <span data-bind="text: VariantCount"></span>
-                                        Shopify Variants
-                                    </a>
+                                    <span data-bind="text: VariantCount"></span>
+                                    Shopify Variants
                                 </div>
                                 <div>
                                     <span data-bind="text: SyncedVariantCount"></span>
                                     synced with Acumatica
                                 </div>
                             </td>
-                            <td>
-                                <a href="#" class="btn btn-primary" data-bind="click: $parent.SelectProduct">Select 
-                                <i class="fa fa-check"></i>
+                            <td style="text-align:right;">
+                                <a href="#" class="btn btn-primary" style="font-size:0.9em;" 
+                                   data-bind="click: $parent.SelectProduct">
+                                    Select <i class="fa fa-check"></i>
                                 </a>
                             </td>
                         </tr>
@@ -354,8 +350,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">
-                        Done <i class="fas fa-times"></i>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Close <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
@@ -363,13 +359,13 @@
     </div>
 </script>
 <script>
-    Monster.LaunchShopifyProductFinder = "/LaunchShopifyProductFinder ";
+    Monster.LaunchShopifyProductFinder = "/LaunchShopifyProductFinder";
 
     Monster.ShopifyProductFinder = function () {
         var self = this;
 
         self.GridData = ko.observableArray([]);
-        self.FilterTerms = ko.observable();
+        self.FilterTerms = ko.observable("");
 
         self.SearchTermsKeyCallback = function (model, event) {
             if (event.keyCode == 13) {
@@ -380,31 +376,46 @@
             }
         };
 
+        self.MaxRecords = 100;
+
         self.RefreshGrid = function () {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var url = "/Sync/FilterShopifyProducts" +
-                        "?terms=" + self.FilterTerms() + "&pageNumber=1&pageSize=50";
+                        "?terms=" + self.FilterTerms() +
+                        "&maxRecords=" + self.MaxRecords +
+                        "&includeUnsynced=true";
+
                     ajax.HttpGet(url, this);
                 },
                 function (response) {
-                    //AQ(response.searchResult).each(function (x) { self.DecorateGridRow(x); });
                     self.GridData(response.searchResult);
                 });
             };
-		
-        self.Launch = function () {
+
+        self.Callback = function(product) {};
+        
+        self.Launch = function (callback) {
+            self.FilterTerms("");
+            self.Callback = callback;
+
+            self.RefreshGrid();
+
             $("#shopify-product-finder-modal").modal('show');
         };
 
-        self.SelectProduct = function(item) {
-            alert(item);
+        self.SelectProduct = function (item) {
+            $("#shopify-product-finder-modal").modal('hide');
+
+            $('#shopify-product-finder-modal').unbind('hidden.bs.modal');
+            $('#shopify-product-finder-modal').on('hidden.bs.modal',
+                function(e) {
+                    self.Callback(item);
+                });
         };
 
-        Monster.Events.subscribe(Monster.LaunchShopifyProductDetail, function (shopifyProductId) {
-            self.Launch(shopifyProductId);
-        });
-
+        Monster.Events.subscribe(Monster.LaunchShopifyProductFinder, self.Launch);
+        
         return self;
     }
 </script>

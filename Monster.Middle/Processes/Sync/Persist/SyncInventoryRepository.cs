@@ -336,7 +336,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
 
-        private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms)
+        private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms, bool includeSynced = false)
         {
             var termList
                 = terms.Split(' ')
@@ -347,8 +347,13 @@ namespace Monster.Middle.Processes.Sync.Persist
                 = Entities
                     .ShopifyProducts
                     .Include(x => x.ShopifyVariants)
-                    .Include(x => x.ShopifyVariants.Select(y => y.ShopAcuItemSyncs))
-                    .Where(x => x.ShopifyVariants.Any(y => !y.ShopAcuItemSyncs.Any()));
+                    .Include(x => x.ShopifyVariants.Select(y => y.ShopAcuItemSyncs));
+
+            if (!includeSynced)
+            {
+                dataSet = dataSet.Where(x => x.ShopifyVariants.Any(y => !y.ShopAcuItemSyncs.Any()));
+            }
+
 
             foreach (var term in termList)
             {
@@ -363,7 +368,8 @@ namespace Monster.Middle.Processes.Sync.Persist
             return dataSet;
         }
 
-        public List<ShopifyProduct> ProductSearchRecords(string terms, int startingRecord, int pageSize)
+        public List<ShopifyProduct> ProductSearchRecords(
+                string terms, bool includeSynced, int startingRecord, int pageSize)
         {
             return ProductSearchQueryable(terms)
                 .OrderBy(x => x.ShopifyTitle)
@@ -372,7 +378,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .ToList();
         }
 
-        public int ProductSearchCount(string terms)
+        public int ProductSearchCount(string terms, bool includeSynced = false)
         {
             return ProductSearchQueryable(terms).Count();
         }
@@ -412,7 +418,7 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         public int StockItemSearchCount(string terms)
         {
-            return ProductSearchQueryable(terms).Count();
+            return StockItemSearchQueryable(terms).Count();
         }
 
 
