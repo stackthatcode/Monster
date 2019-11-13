@@ -48,6 +48,7 @@
     <div data-bind="template: { name: 'Import-Selected-Stock-Items', data: ViewSelectedStockItemsModel }"></div>
     <div data-bind="template: { name: 'Shopify-Product-Finder', data: ShopifyProductFinder }"></div>
     <div data-bind="template: { name: 'Import-Assign-To-Existing-Product', data: AddToExistingProductModel }"></div>
+    <div data-bind="template: { name: 'Import-Create-New-Product', data: CreateNewProductModel }"></div>
 </div>
 
 <script id="Inventory-Welcome-Panel" type="text/html">
@@ -252,7 +253,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="create-new-product-modal-label">
-                        Create new Shopify Product from Selected Stock Items
+                        Create new Shopify Product from Acumatica Stock Items
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -260,32 +261,48 @@
                 </div>
 
                 <div class="modal-body">
-                    <div class="mb-4">
-                        <div class="mb-2">
-                            <label>
-                                Ready to proceed with importing into Acumatica:
-                            </label>
+                    <div class="mb-2">
+                        <label>
+                            Ready to proceed with importing into Shopify:
+                        </label>
+                    </div>
+                    <div class="mb-2">
+                        <strong>
+                            <span data-bind="text: StockItemCount"></span> Stock Item(s) from Acumatica
+                        </strong>
+                    </div>
+                    <div style="height:20px;"></div>
+
+                    <div class="form-group">
+                        <label>Shopify Product Title</label>
+                        <input type="text" class="form-control"
+                               placeholder="Enter the Shopify Product Title"
+                               data-bind="value: ProductTitle">
+                    </div>
+                    <div class="form-group">
+                        <label>Shopify Product Type</label>
+                        <input type="text" class="form-control"
+                               placeholder="Enter the Shopify Product Type"
+                               data-bind="value: ProductType">
+                    </div>
+                    <div class="form-group">
+                        <label>Shopify Product Vendor</label>
+                        <input type="text" class="form-control"
+                               placeholder="Enter the Shopify Product Vendor"
+                               data-bind="value: ProductVendor">
+                    </div>
+
+                    <div data-bind="ifnot: IsDataEntryValid" style="height:20px; margin-top:20px;">
+                        <div class="error-message" style="text-align: left; font-weight:700;">
+                            Please enter all of the required fields
                         </div>
-
-                        <span class="modal-heavy-text">
-                            <span data-bind="text: ProductCount"></span> Shopify Product(s) with
-                            <span data-bind="text: UnsyncedVariantCount"></span> Unsynced Shopify Variant(s)
-                        </span>
-                    </div>
-                    
-                    <!-- Add data entry fields -->
-                    <div class="alert alert-warning" style="text-align: left">
-                        NOTE: Your configuration contains Locations that are mapped to multiple Warehouses.
-                        Thus, it will not be possible to automatically create Warehouse Receipts on Product Import.
                     </div>
 
-                    <div class="mb-4">
-                        <label>Inventory Synchronization</label>
-                        <select class="form-control"
-                                data-bind="options: InventorySyncOptions,
-                                        value: InventorySyncChoice,
-                                        optionsText: 'Text',
-                                        optionsValue: 'Value'"></select>
+                    <div data-bind="ifnot: IsValid">
+                        <div class="alert alert-danger" style="text-align: left; font-weight:700; margin-top:20px;">
+                            Error - the maximum number of Shopify Variants is
+                            <span data-bind="text: MaximumShopifyVariants"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -293,9 +310,12 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Cancel <i class="fas fa-times"></i>
                     </button>
-                    <button type="button" data-bind="click: RunImportIntoAcumatica" class="btn btn-primary">
-                        Proceed with Loading <i class="fas fa-bolt"></i>
-                    </button>
+
+                    <span data-bind="if: IsValid">
+                        <button type="button" data-bind="click: RunCreateNewShopifyProduct" class="btn btn-primary">
+                            Proceed with Loading <i class="fas fa-bolt"></i>
+                        </button>
+                    </span>
                 </div>
             </div>
         </div>
@@ -383,12 +403,75 @@
     var events = {
         ViewSelectedStockItems: "/ViewSelectedStockItems",
         LaunchAddToExistingProduct: "/LaunchAddToExistingProduct",
+        UnselectAllStockItems: "/UnselectAllStockItems",
     };
 
     Monster.DisplayFilter = {
         ShowAll: 'ShowAll',
         SelectedOnly: 'SelectedOnly',
         UnselectedOnly: 'UnselectedOnly',
+    };
+
+    Monster.CreateNewProductModel = function() {
+        var self = this;
+        
+        self.SelectedProduct = ko.observable();
+        self.SelectedStockItems = ko.observableArray([]);
+
+        self.ProductTitle = ko.observable();
+        self.ProductType = ko.observable();
+        self.ProductVendor = ko.observable();
+
+        self.MaximumShopifyVariants = 100;
+
+        self.StockItemCount = ko.computed(function() {
+            return self.SelectedStockItems().length;
+        });
+
+        self.IsValid = ko.computed(function () {
+            return self.StockItemCount() <= self.MaximumShopifyVariants;
+        });
+
+        self.IsDataEntryValid = ko.computed(function () {
+            return self.ProductTitle() && self.ProductType() && self.ProductVendor();
+        });
+
+        self.Launch = function (payload) {
+            self.SelectedStockItems(payload.AcumaticaStockItems);
+
+            $('#create-new-product-modal').modal('show');
+        };
+
+        Monster.Events.subscribe(events.CreateNewProduct, self.Launch);
+
+        self.RunCreateNewShopifyProduct = function () {
+            flow.exec(function () {
+                if (!self.IsDataEntryValid) {
+                    return;
+                }
+
+                var itemIds = AQ(self.SelectedStockItems())
+                    .select(function(x) { return x.ItemId; })
+                    .toArray();
+                
+                var model = {
+                    acumaticaItemIds: itemIds,
+                    title: self.ProductTitle(),
+                    productType: self.ProductType(),
+                    vendor: self.ProductVendor(),
+                };
+
+                console.log("RunCreateNewShopifyProduct", model);
+                
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("/Sync/RunImportToCreateNewProduct", model, this);
+            },
+            function (response) {
+                $('#create-new-product-modal').modal('hide');
+                Monster.Events.publish(Monster.JobStatusIsRunning);
+                Monster.Events.publish(events.UnselectAllStockItems);
+            });
+        }
     };
 
     Monster.AddToExistingProductModel = function () {
@@ -401,14 +484,14 @@
              return self.SelectedStockItems().length;
         });
 
-        self.ShopfiyVariantCount = ko.computed(function() {
+        self.ShopifyVariantCount = ko.computed(function() {
             return self.SelectedProduct() ? self.SelectedProduct().UnsyncedVariantCount : 0;
         });
 
         self.MaximumShopifyVariants = 100;
 
         self.IsValid = ko.computed(function () {
-            return self.ShopfiyVariantCount() + self.StockItemCount() <= self.MaximumShopifyVariants;
+            return self.ShopifyVariantCount() + self.StockItemCount() <= self.MaximumShopifyVariants;
         });
 
         self.Launch = function (payload) {
@@ -432,7 +515,7 @@
                     shopifyProductId: self.SelectedProduct().ShopifyProductId,
                 };
 
-                console.log(model);
+                console.log("RunAddToShopifyProduct", model);
 
                 var ajax = new Monster.Ajax();
                 ajax.HttpPost("/Sync/RunImportIntoExistingProduct", model, this);
@@ -440,6 +523,7 @@
             function (response) {
                 $('#assign-to-existing-import-modal').modal('hide');
                 Monster.Events.publish(Monster.JobStatusIsRunning);
+                Monster.Events.publish(events.UnselectAllStockItems);
             });
         }
 
@@ -591,6 +675,8 @@
             self.SelectedStockItems.removeAll();
         };
 
+        Monster.Events.subscribe(events.UnselectAllStockItems, self.UnselectAllClick);
+
         // Helper populate functions for grid row
         self.DecorateGridRow = function (row) {
             row.IsSelected = ko.computed(function () {
@@ -655,12 +741,16 @@
 
         // Action methods
         //
-        self.CreateNewProductClick = function () {
-            //Monster.Events.publish(events.LaunchAddToExistingProduct, self.SelectedStockItems());
-        };
-
         self.AddToExistingProductClick = function () {
             Monster.Events.publish(Monster.LaunchShopifyProductFinder, self.LaunchAddToExistingPopup);
+        };
+
+        self.CreateNewProductClick = function () {
+            var payload = {
+                AcumaticaStockItems: self.SelectedStockItems(),
+            };
+
+            Monster.Events.publish(events.CreateNewProduct, payload);
         };
 
         self.LaunchAddToExistingPopup = function (product) {
@@ -694,6 +784,7 @@
         self.InventoryImportModel = new Monster.InventoryImportModel();
         self.ViewSelectedStockItemsModel = new Monster.ViewSelectedStockItemsModel();
         self.AddToExistingProductModel = new Monster.AddToExistingProductModel();
+        self.CreateNewProductModel = new Monster.CreateNewProductModel();
 
         // Interface logic reduction
         //

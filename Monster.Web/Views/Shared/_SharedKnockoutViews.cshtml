@@ -305,13 +305,13 @@
                 <!-- # of results -->
                 <div class="modal-body">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" style="font-size:0.9em;" maxlength="50" 
+                        <input type="text" class="form-control" style="font-size:0.9em;" maxlength="50"
                                data-bind="value: FilterTerms, event: { keyup: SearchTermsKeyCallback }"
                                placeholder="Enter Product Title, Vendor, Product Type, Variant Title, SKU"
                                aria-label="Enter Product Title, Vendor, Product Type, Variant Title, SKU" />
 
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button" 
+                            <button class="btn btn-secondary" type="button"
                                     style="font-size:0.9em;"
                                     data-bind="click: RefreshGrid">
                                 Filter Inventory <i class="fas fa-search"></i>
@@ -319,32 +319,39 @@
                         </div>
                     </div>
 
+                    <div class="text-muted" style="font-weight: 600;" data-bind="if: MaxRecordsDisplayed">
+                        (More than <span data-bind="text: RecordCount"></span> records returned from search)
+                    </div>
+                    <div class="text-muted" style="font-weight: 600;" data-bind="ifnot: MaxRecordsDisplayed">
+                        (<span data-bind="text: RecordCount"></span> records returned from search)
+                    </div>
+                    <div style="padding-top:20px;"></div>
                     <table class="table" style="font-size:0.9em;">
                         <tbody data-bind="foreach: GridData">
-                        <tr>
-                            <td style="padding-left:0;">
-                                <div>
-                                    <a data-bind="attr: { href: ShopifyUrl }, text: ProductTitle"></a>
-                                </div>
-                                <div data-bind="text: Vendor"></div>
-                            </td>
-                            <td>
-                                <div>
-                                    <span data-bind="text: VariantCount"></span>
-                                    Shopify Variants
-                                </div>
-                                <div>
-                                    <span data-bind="text: SyncedVariantCount"></span>
-                                    synced with Acumatica
-                                </div>
-                            </td>
-                            <td style="text-align:right;">
-                                <a href="#" class="btn btn-primary" style="font-size:0.9em;" 
-                                   data-bind="click: $parent.SelectProduct">
-                                    Select <i class="fa fa-check"></i>
-                                </a>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td style="padding-left:0;">
+                                    <div>
+                                        <a data-bind="attr: { href: ShopifyUrl }, text: ProductTitle"></a>
+                                    </div>
+                                    <div data-bind="text: Vendor"></div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span data-bind="text: VariantCount"></span>
+                                        Shopify Variants
+                                    </div>
+                                    <div>
+                                        <span data-bind="text: SyncedVariantCount"></span>
+                                        synced with Acumatica
+                                    </div>
+                                </td>
+                                <td style="text-align:right;">
+                                    <a href="#" class="btn btn-primary" style="font-size:0.9em;"
+                                       data-bind="click: $parent.SelectProduct">
+                                        Select <i class="fa fa-check"></i>
+                                    </a>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -375,8 +382,14 @@
                 return true;
             }
         };
-
+        
         self.MaxRecords = 100;
+
+        self.RecordCount = ko.computed(function() { return self.GridData().length; });
+
+        self.MaxRecordsDisplayed = ko.computed(function() {
+            return self.RecordCount() == self.MaxRecords;
+        });
 
         self.RefreshGrid = function () {
             flow.exec(function () {

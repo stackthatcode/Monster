@@ -360,7 +360,8 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult RunImportToCreateNewProduct(List<string> acumaticaItemIds)
+        public ActionResult RunImportToCreateNewProduct(
+                List<string> acumaticaItemIds, string title, string productType, string vendor)
         {
             // You KNOW you got this, Jones!!!
             //
