@@ -13,7 +13,6 @@ using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Sync;
-using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Web.Json;
 using Push.Shopify.Api;
@@ -68,7 +67,7 @@ namespace Monster.Web.Controllers
         }
 
         
-        // Status inquiries
+        // End-to-End Sync Control + Status
         // 
         [HttpGet]
         public ActionResult EndToEnd()
@@ -275,18 +274,12 @@ namespace Monster.Web.Controllers
 
 
 
-
-        // Import Into Acumatica methods
+        // Shopify Product Search method
         //
-        [HttpGet]
-        public ActionResult ImportIntoAcumatica()
-        {
-            return View();
-        }
 
         [HttpGet]
         public ActionResult FilterShopifyProducts(
-                string terms = "", bool includeSynced = false, int maxRecords = 1000)
+            string terms = "", bool includeSynced = false, int maxRecords = 1000)
         {
             var searchRecords = _syncInventoryRepository
                 .ProductSearchRecords(terms, includeSynced, 0, maxRecords);
@@ -297,6 +290,16 @@ namespace Monster.Web.Controllers
 
             var output = new { searchResult, searchCount, };
             return new JsonNetResult(output);
+        }
+
+
+
+        // Import Into Acumatica
+        //
+        [HttpGet]
+        public ActionResult ImportIntoAcumatica()
+        {
+            return View();
         }
 
         [HttpGet]
@@ -333,7 +336,7 @@ namespace Monster.Web.Controllers
         {
             return View();
         }
-
+        
         [HttpGet]
         public ActionResult FilterAcumaticaStockItems(string terms = "", int maxRecords = 1000)
         {
@@ -348,7 +351,21 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(output);
         }
 
+        [HttpPost]
+        public ActionResult RunImportIntoExistingProduct(long shopifyProductId, List<string> acumaticaItemIds)
+        {
+            // You got this, Jones!!!
+            //
+            return JsonNetResult.Success();
+        }
 
+        [HttpPost]
+        public ActionResult RunImportToCreateNewProduct(List<string> acumaticaItemIds)
+        {
+            // You KNOW you got this, Jones!!!
+            //
+            return JsonNetResult.Success();
+        }
     }
 }
 

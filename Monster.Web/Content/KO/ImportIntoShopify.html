@@ -45,9 +45,9 @@
     </div>
 
     <!-- Render Dialog Boxes Separately -->
-    <div data-bind="template: { name: 'Import-Selected-Stock-Items', data: ViewSelectedStockItemModel }"></div>
+    <div data-bind="template: { name: 'Import-Selected-Stock-Items', data: ViewSelectedStockItemsModel }"></div>
     <div data-bind="template: { name: 'Shopify-Product-Finder', data: ShopifyProductFinder }"></div>
-    <div data-bind="template: { name: 'Import-Create-New-Product', data: ImportConfirmModel }"></div>
+    <div data-bind="template: { name: 'Import-Assign-To-Existing-Product', data: AddToExistingProductModel }"></div>
 </div>
 
 <script id="Inventory-Welcome-Panel" type="text/html">
@@ -308,27 +308,38 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="assign-to-existing-import-modal-label">
-                        Assign new Variants to Shopify Product</h5>
+                        Adding new Variants to existing Shopify Product
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
 
                 <div class="modal-body">
-                    <div class="mb-4">
-                        <div class="mb-2">
-                            <label>Ready to proceed with importing into Acumatica:</label>
-                        </div>
-
-                        <span class="modal-heavy-text">
-                            <span data-bind="text: ProductCount"></span> Shopify Product(s) with
-                            <span data-bind="text: UnsyncedVariantCount"></span> Unsynced Shopify Variant(s)
-                        </span>
+                    <div class="mb-2">
+                        <label>
+                            Ready to proceed with importing into Shopify:
+                        </label>
+                    </div>
+                    <div class="mb-2">
+                        <strong>
+                            <span data-bind="text: StockItemCount"></span> Stock Item(s) from Acumatica
+                        </strong>
+                    </div>
+                    <div class="mb-2">
+                        <label>
+                            Variants will be added to the following Shopify Product:
+                        </label>
+                    </div>
+                    <div class="mb-2"
+                         data-bind="template: { name: 'Shopify-Product-Brief', data: SelectedProduct }">
                     </div>
 
-                    <div class="alert alert-warning" style="text-align: left">
-                        NOTE: As Warehouse Receipts are being created, you will need to
-                        enable synchronization through the Inventory Sync Control.
+                    <div data-bind="ifnot: IsValid">
+                        <div class="alert alert-danger" style="text-align: left; font-weight:700; margin-top:20px;">
+                            Error - the maximum number of Shopify Variants is 
+                            <span data-bind="text: MaximumShopifyVariants"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -336,12 +347,33 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Cancel <i class="fas fa-times"></i>
                     </button>
-                    <button type="button" data-bind="click: RunImportIntoAcumatica" class="btn btn-primary">
-                        Proceed with Loading <i class="fas fa-bolt"></i>
-                    </button>
+                    
+                    <span data-bind="if: IsValid">
+                        <button type="button" data-bind="click: RunAddToShopifyProduct" class="btn btn-primary">
+                            Proceed with Loading <i class="fas fa-bolt"></i>
+                        </button>
+                    </span>
                 </div>
             </div>
         </div>
+    </div>
+</script>
+
+<script id="Shopify-Product-Brief" type="text/html">
+    <div data-bind="if: $data">
+        <div>
+            <strong>
+                <a href="#" target="_blank" data-bind="attr: { href: ShopifyUrl }">
+                    <span data-bind="text: ProductTitle"></span>
+                </a>
+            </strong>
+        </div>
+        <div data-bind="text: Vendor"></div>
+        <div><span data-bind="text: VariantCount"></span> Shopify Variants</div>
+        <div class="text-muted">
+            Product Id: <span data-bind="text: ShopifyProductId"></span>
+        </div>
+
     </div>
 </script>
 
@@ -349,14 +381,69 @@
     var Monster = Monster || {};
 
     var events = {
-        LaunchImportConfirm: "/LaunchImportConfirm",
-        ViewSelectedStockItem: "/ViewSelectedStockItem",
+        ViewSelectedStockItems: "/ViewSelectedStockItems",
+        LaunchAddToExistingProduct: "/LaunchAddToExistingProduct",
     };
 
     Monster.DisplayFilter = {
         ShowAll: 'ShowAll',
         SelectedOnly: 'SelectedOnly',
         UnselectedOnly: 'UnselectedOnly',
+    };
+
+    Monster.AddToExistingProductModel = function () {
+        var self = this;
+        
+        self.SelectedProduct = ko.observable();
+        self.SelectedStockItems = ko.observableArray([]);
+        
+        self.StockItemCount = ko.computed(function() {
+             return self.SelectedStockItems().length;
+        });
+
+        self.ShopfiyVariantCount = ko.computed(function() {
+            return self.SelectedProduct() ? self.SelectedProduct().UnsyncedVariantCount : 0;
+        });
+
+        self.MaximumShopifyVariants = 100;
+
+        self.IsValid = ko.computed(function () {
+            return self.ShopfiyVariantCount() + self.StockItemCount() <= self.MaximumShopifyVariants;
+        });
+
+        self.Launch = function (payload) {
+            self.SelectedProduct(payload.ShopifyProduct);
+            self.SelectedStockItems(payload.AcumaticaStockItems);
+
+            //console.log(payload.ShopifyProduct);
+            $('#assign-to-existing-import-modal').modal('show');
+        };
+
+        Monster.Events.subscribe(events.LaunchAddToExistingProduct, self.Launch);
+
+        self.RunAddToShopifyProduct = function () {
+            flow.exec(function () {
+                var itemIds = AQ(self.SelectedStockItems())
+                    .select(function(x) { return x.ItemId; })
+                    .toArray();
+
+                var model = {
+                    acumaticaItemIds: itemIds,
+                    shopifyProductId: self.SelectedProduct().ShopifyProductId,
+                };
+
+                console.log(model);
+
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("/Sync/RunImportIntoExistingProduct", model, this);
+            },
+            function (response) {
+                $('#assign-to-existing-import-modal').modal('hide');
+                Monster.Events.publish(Monster.JobStatusIsRunning);
+            });
+        }
+
+        return self;
     };
 
     Monster.ImportConfirmModel = function () {
@@ -413,11 +500,11 @@
         //
         self.Launch = function (data) {
             flow.exec(function () {
-                self.SelectedStockItems(data);
-                var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("/Sync/SyncedWarehouses", this);
-            },
+                    self.SelectedStockItems(data);
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("/Sync/SyncedWarehouses", this);
+                },
                 function (response) {
                     //console.log(response);
                     self.AnyMultipleWarehouseMapping(response.AnyMultipleWarehouseMapping);
@@ -425,25 +512,25 @@
                 });
         };
 
-        Monster.Events.subscribe(events.LaunchImportConfirm, self.Launch);
+        Monster.Events.subscribe(events.LaunchAddToExistingProduct, self.Launch);
 
         self.RunImportIntoAcumatica = function () {
             flow.exec(function () {
-                var selectedSPIds
-                    = AQ(self.SelectedStockItems()).select(function (x) {
-                        return x.ShopifyProductId;
-                    }).toArray();
+                    var selectedSPIds
+                        = AQ(self.SelectedStockItems()).select(function (x) {
+                            return x.ShopifyProductId;
+                        }).toArray();
 
-                var model = {
-                    createInventoryReceipt: self.InventoryReceiptChoice(),
-                    enableInventorySync: self.InventorySyncChoice(),
-                    selectedSPIds: selectedSPIds,
-                };
+                    var model = {
+                        createInventoryReceipt: self.InventoryReceiptChoice(),
+                        enableInventorySync: self.InventorySyncChoice(),
+                        selectedSPIds: selectedSPIds,
+                    };
 
-                var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
-                ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
-            },
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
+                },
                 function (response) {
                     $('#confirm-import-modal').modal('hide');
 
@@ -454,7 +541,7 @@
         return self;
     };
 
-    Monster.ViewSelectedStockItemModel = function () {
+    Monster.ViewSelectedStockItemsModel = function () {
         var self = this;
 
         self.SelectedStockItems = ko.observableArray([]);
@@ -463,11 +550,12 @@
             if (data.length == 0) {
                 return;
             }
+
             self.SelectedStockItems(data);
             $('#import-selected-stockitems-modal').modal('show');
         };
 
-        Monster.Events.subscribe(events.ViewSelectedStockItem, self.Launch);
+        Monster.Events.subscribe(events.ViewSelectedStockItems, self.Launch);
 
         return self;
     };
@@ -539,12 +627,12 @@
 
         self.RefreshGrid = function () {
             flow.exec(function () {
-                var ajax = new Monster.Ajax();
-                var url = "/Sync/FilterAcumaticaStockItems?terms=" + self.FilterTerms()
-                    + "&maxRecords=" + self.MaximumRecords;
+                    var ajax = new Monster.Ajax();
+                    var url = "/Sync/FilterAcumaticaStockItems?terms=" + self.FilterTerms()
+                        + "&maxRecords=" + self.MaximumRecords;
 
-                ajax.HttpGet(url, this);
-            },
+                    ajax.HttpGet(url, this);
+                },
                 function (response) {
                     AQ(response.searchResult).each(function (x) { self.DecorateGridRow(x); });
                     self.GridData(response.searchResult);
@@ -568,7 +656,7 @@
         // Action methods
         //
         self.CreateNewProductClick = function () {
-            Monster.Events.publish(events.LaunchImportConfirm, self.SelectedStockItems());
+            //Monster.Events.publish(events.LaunchAddToExistingProduct, self.SelectedStockItems());
         };
 
         self.AddToExistingProductClick = function () {
@@ -576,12 +664,16 @@
         };
 
         self.LaunchAddToExistingPopup = function (product) {
-            alert("ok");
-            console.log(product);
+            var payload = {
+                AcumaticaStockItems: self.SelectedStockItems(),
+                ShopifyProduct: product
+            };
+
+            Monster.Events.publish(events.LaunchAddToExistingProduct, payload);
         };
 
         self.ViewSelectedClick = function () {
-            Monster.Events.publish(events.ViewSelectedStockItem, self.SelectedStockItems());
+            Monster.Events.publish(events.ViewSelectedStockItems, self.SelectedStockItems());
         };
 
         return self;
@@ -600,8 +692,8 @@
         // Child models
         //
         self.InventoryImportModel = new Monster.InventoryImportModel();
-        self.ImportConfirmModel = new Monster.ImportConfirmModel();
-        self.ViewSelectedStockItemModel = new Monster.ViewSelectedStockItemModel();
+        self.ViewSelectedStockItemsModel = new Monster.ViewSelectedStockItemsModel();
+        self.AddToExistingProductModel = new Monster.AddToExistingProductModel();
 
         // Interface logic reduction
         //
