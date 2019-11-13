@@ -45,9 +45,9 @@
     </div>
 
     <!-- Render Dialog Boxes Separately -->
+    <div data-bind="template: { name: 'Import-Selected-Stock-Items', data: ViewSelectedStockItemModel }"></div>
+    <div data-bind="template: { name: 'Shopify-Product-Finder', data: ShopifyProductFinder }"></div>
     <div data-bind="template: { name: 'Import-Create-New-Product', data: ImportConfirmModel }"></div>
-    <div data-bind="template: { name: 'Import-Selected-Stock-Items', data: ImportSelectStockItemModel }"></div>
-    <div data-bind="template: { name: 'Import-Completion' }"></div>
 </div>
 
 <script id="Inventory-Welcome-Panel" type="text/html">
@@ -132,7 +132,7 @@
                     <div style="display:inline-block; width:10px;"></div>
 
                     <button type="button"
-                            data-bind="click: CreateNewProductClick, enable: ImportButtonEnabled"
+                            data-bind="click: AddToExistingProductClick, enable: ImportButtonEnabled"
                             class="btn btn-sm btn-primary">
                         Add to Existing Product <i class="fas fa-bolt"></i>
                     </button>
@@ -154,44 +154,45 @@
 </script>
 
 <script id="Import-Selection-Grid" type="text/html">
-    <div style="min-height:500px; display:none; padding-top:160px;" class="empty-grid"
-         data-bind="visible: EmptyResults">
-        <h1>No Stock match your criteria</h1>
-        <p class="lead center">Only Stock Items that are not synchronized with Shopify will appear</p>
-    </div>
+<div style="min-height:500px; display:none; padding-top:160px;" 
+        class="empty-grid" data-bind="visible: EmptyResults">
+    <h1>No Stock Items match your criteria</h1>
+    <p class="lead center">Only Stock Items that are not synchronized with Shopify will appear</p>
+</div>
 
-    <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
-        <table class="table sync-grid" style="border-bottom: 1px #999 dashed;">
-            <tbody data-bind="foreach: GridData">
-                <tr>
-                    <td style="padding-left:0;">
-                        <div>
-                            <a data-bind="attr: { href: AcumaticaUrl }, text: ItemId"></a>
-                        </div>
-                    </td>
-                    <td>
-                        <div>
-                            <span data-bind="text: Description"></span>
-                        </div>
-                    </td>
-                    <td>
-                        <span data-bind="text: QuantityOnHand"></span>
-                    </td>
+<div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
+    <table class="table sync-grid" style="border-bottom: 1px #999 dashed;">
+        <tbody data-bind="foreach: GridData">
+            <tr>
+                <td style="padding-left:0;">
+                    <div>
+                        <a target="_blank" data-bind="attr: { href: AcumaticaUrl }, text: ItemId"></a>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <span data-bind="text: Description"></span>
+                    </div>
+                </td>
+                <td>
+                    <span data-bind="text: QuantityOnHand"></span> in-stock
+                </td>
 
-                    <td style="text-align:right; padding-right:0; font-size:14px;">
-                        <div data-bind="if: IsSelected">
-                            <a href="#" data-bind="click: UnselectClick"
-                               class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
-                        </div>
-                        <div data-bind="ifnot: IsSelected">
-                            <a href="#" data-bind="click: SelectClick"
-                               class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+                <td style="text-align:right; padding-right:0; font-size:14px;">
+                    <div data-bind="if: IsSelected">
+                        <a href="#" data-bind="click: UnselectClick"
+                           class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
+                    </div>
+
+                    <div data-bind="ifnot: IsSelected">
+                        <a href="#" data-bind="click: SelectClick"
+                           class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 </script>
 
 <script id="Import-Selected-Stock-Items" type="text/html">
@@ -403,31 +404,13 @@
 
     var events = {
         LaunchImportConfirm: "/LaunchImportConfirm",
-        LaunchImportSelectedStockItem: "/LaunchImportSelectedStockItem",
+        ViewSelectedStockItem: "/ViewSelectedStockItem",
     };
 
     Monster.DisplayFilter = {
         ShowAll: 'ShowAll',
         SelectedOnly: 'SelectedOnly',
         UnselectedOnly: 'UnselectedOnly',
-    };
-
-    Monster.ImportSelectStockItemModel = function () {
-        var self = this;
-
-        self.SelectedStockItems = ko.observableArray([]);
-
-        self.Launch = function (data) {
-            if (data.length == 0) {
-                return;
-            }
-            self.SelectedStockItems(data);
-            $('#import-selected-stockitems-modal').modal('show');
-        };
-
-        Monster.Events.subscribe(events.LaunchImportSelectedStockItem, self.Launch);
-
-        return self;
     };
 
     Monster.ImportConfirmModel = function () {
@@ -525,11 +508,29 @@
         return self;
     };
 
+    Monster.ViewSelectedStockItemModel = function () {
+        var self = this;
+
+        self.SelectedStockItems = ko.observableArray([]);
+
+        self.Launch = function (data) {
+            if (data.length == 0) {
+                return;
+            }
+            self.SelectedStockItems(data);
+            $('#import-selected-stockitems-modal').modal('show');
+        };
+
+        Monster.Events.subscribe(events.ViewSelectedStockItem, self.Launch);
+
+        return self;
+    };
 
     Monster.InventoryImportModel = function () {
         var self = this;
 
         // Search Input
+        //
         self.FilterTerms = ko.observable("");
 
         // Grid storage
@@ -543,7 +544,6 @@
         self.EmptyResults = ko.computed(function () { return self.GridData().length == 0; });
 
         self.ImportButtonEnabled = ko.computed(function () { return self.SelectedStockItems().length > 0; });
-
 
         // Grid interaction methods
         //
@@ -559,7 +559,7 @@
         self.DecorateGridRow = function (row) {
             row.IsSelected = ko.computed(function () {
                 return AQ(self.SelectedStockItems())
-                    .any(function (x) { return x.ShopifyProductId == row.ShopifyProductId; });
+                    .any(function (x) { return x.ItemId == row.ItemId; });
             });
 
             row.SelectClick = function () {
@@ -613,13 +613,12 @@
         };
 
         self.AddToExistingProductClick = function () {
-            Monster.Events.publish(events.LaunchImportConfirm, self.SelectedStockItems());
+            Monster.Events.publish(Monster.LaunchShopifyProductFinder); // TODO - add callback
         };
-
 
         self.ViewSelectedClick = function () {
             // Important - pass by ref
-            Monster.Events.publish(events.LaunchImportSelectedStockItem, self.SelectedStockItems());
+            Monster.Events.publish(events.ViewSelectedStockItem, self.SelectedStockItems());
         };
 
         return self;
@@ -633,12 +632,13 @@
         self.InventoryRefreshControlModel = new Monster.InventoryRefreshControlModel();
         self.JobRunningModel = new Monster.JobStatusModel();
         self.ShopifyProductDetail = new Monster.ShopifyProductDetail();
+        self.ShopifyProductFinder = new Monster.ShopifyProductFinder();
 
         // Child models
         //
         self.InventoryImportModel = new Monster.InventoryImportModel();
         self.ImportConfirmModel = new Monster.ImportConfirmModel();
-        self.ImportSelectStockItemModel = new Monster.ImportSelectStockItemModel();
+        self.ViewSelectedStockItemModel = new Monster.ViewSelectedStockItemModel();
 
         // Interface logic reduction
         //

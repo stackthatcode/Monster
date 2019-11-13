@@ -159,7 +159,7 @@
             <tr>
                 <td style="padding-left:0;">
                     <div>
-                        <a data-bind="attr: { href: ShopifyUrl }, text: ProductTitle"></a>
+                        <a target="_blank" data-bind="attr: { href: ShopifyUrl }, text: ProductTitle"></a>
                     </div>
                     <div data-bind="text: Vendor"></div>
                     <div class="text-muted">
@@ -500,8 +500,12 @@
         // Grid storage
         //
         self.GridData = ko.observableArray([]);
+        self.VisibleData = ko.observableArray([]);
+
         self.SelectedProducts = ko.observableArray([]);
         self.PagingWidget = new MonsterWidgets.PagingWidget();
+
+        self.MaximumRecords = 1000;
 
         // Computed
         //
@@ -528,6 +532,7 @@
             });
 
             row.SelectClick = function () {
+                if (self.SelectedProducts().length < self.MaximumRecords)
                 if (!row.IsSelected()) {
                     self.SelectedProducts.push(row);
                 }
@@ -555,25 +560,33 @@
             }
         };
 
-        self.PagingWidget.Callback = function () {
-            self.RefreshGrid();
-        };
-
         self.RefreshGrid = function () {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
-                    var url = "/Sync/FilterShopifyProducts?terms=" + self.FilterTerms() +
-                        "&pageNumber=" + self.PagingWidget.PageNumber() + 
-                        "&pageSize=" + self.PagingWidget.PageSize();
-                    
+                    var url = "/Sync/FilterShopifyProducts?terms=" + self.FilterTerms()
+                            + "&maxRecords=" + self.MaximumRecords;
                     ajax.HttpGet(url, this);
                 },
                 function (response) {
                     AQ(response.searchResult).each(function (x) { self.DecorateGridRow(x); });
                     self.GridData(response.searchResult);
                     self.PagingWidget.RecordCount(response.searchCount);
+                    self.RefreshVisibleGrid();
                 });
         };
+
+        self.RefreshVisibleGrid = function () {
+            self.VisibleData(
+                AQ(self.GridData())
+                    .skip(self.PagingWidget.StartingRecord())
+                    .take(self.PagingWidget.PageSize())
+                    .toArray());
+        };
+
+        self.PagingWidget.Callback = function () {
+            self.RefreshVisibleGrid();
+        };
+
 
         // Action methods
         //

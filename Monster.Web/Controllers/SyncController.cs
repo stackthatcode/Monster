@@ -94,6 +94,7 @@ namespace Monster.Web.Controllers
         public ActionResult EndToEndStatus()
         {
             var status = _configStatusService.GetConfigStatusSummary();
+
             var output = new 
             {
                 status.IsStartingOrderReadyForEndToEnd,
@@ -183,7 +184,6 @@ namespace Monster.Web.Controllers
 
             return output;
         }
-
 
         [HttpPost]
         public ActionResult OrderSyncSettingsUpdate(OrderSyncSettingsModel model)
@@ -285,10 +285,10 @@ namespace Monster.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult FilterShopifyProducts(int pageNumber = 1, int pageSize = 10, string terms = "")
+        public ActionResult FilterShopifyProducts(string terms = "", int maxRecords = 1000)
         {
-            var startingRecord = PagingHelper.StartingRecord(pageNumber, pageSize);
-            var searchRecords = _syncInventoryRepository.ProductSearchRecords(terms, startingRecord, pageSize);
+            var searchRecords = _syncInventoryRepository
+                .ProductSearchRecords(terms, 1, maxRecords);
             var searchResult = searchRecords
                 .Select(x => ShopifyProductModel.Make(x, _shopifyUrlService.ShopifyProductUrl)).ToList();
 
