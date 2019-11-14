@@ -211,6 +211,7 @@
     <Compile Include="Processes\Sync\Model\Status\WarehouseSyncSummary.cs" />
     <Compile Include="Processes\Sync\Services\ConfigStatusService.cs" />
     <Compile Include="Processes\Acumatica\Workers\AcumaticaInventoryGet.cs" />
+    <Compile Include="Processes\Sync\Workers\ShopifyProductVariantPut.cs" />
     <Compile Include="Processes\Sync\Workers\ShopifyInventoryPut.cs" />
     <Compile Include="Processes\Sync\Workers\WarehouseLocationSync.cs" />
     <Compile Include="Processes\Shopify\ShopifyManager.cs" />

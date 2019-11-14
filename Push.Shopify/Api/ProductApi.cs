@@ -52,6 +52,14 @@ namespace Push.Shopify.Api
             return clientResponse.Body;
         }
 
+        public virtual string Create(string json)
+        {
+            var path = $"/admin/products.json";
+            var clientResponse = _httpClient.Post(path, json);
+            return clientResponse.Body;
+        }
+
+
         public virtual string RetrieveByCollection(long id)
         {
             var path = $"/admin/products.json?collection_id={id}";

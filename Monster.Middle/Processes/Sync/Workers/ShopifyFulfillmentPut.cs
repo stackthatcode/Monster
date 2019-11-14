@@ -5,8 +5,8 @@ using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -74,6 +74,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var location = RetrieveMatchingLocation(shipment);
 
             // Line Items
+            //
             var details = shipment.DetailByOrder(orderRecord.AcumaticaOrderNbr);
             var fulfillment = new Fulfillment();
             fulfillment.line_items = new List<LineItem>();
@@ -81,6 +82,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             fulfillment.tracking_number = salesOrderShipment.AcumaticaTrackingNbr;
 
             // Build the Detail
+            //
             foreach (var detail in details)
             {
                 var stockItem = _syncInventoryRepository.RetrieveStockItem(detail.InventoryID.value);
@@ -104,11 +106,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             _logService.Log(content);
 
             // Write the Fulfillment to the Shopify API
+            //
             var parent = new FulfillmentParent() { fulfillment = fulfillment };
             var result = _fulfillmentApi.Insert(shopifyOrderRecord.ShopifyOrderId, parent.SerializeToJson());
             var resultFulfillmentParent = result.DeserializeFromJson<FulfillmentParent>();
             
             // Save the result
+            //
             var fulfillmentRecord = new ShopifyFulfillment();
             fulfillmentRecord.OrderMonsterId = shopifyOrderRecord.Id;
             fulfillmentRecord.ShopifyOrderId = shopifyOrder.id;

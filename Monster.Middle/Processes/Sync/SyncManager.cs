@@ -26,6 +26,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly WarehouseLocationSync _warehouseLocationSync;
         private readonly ShopifyInventoryPut _shopifyInventorySync;
         private readonly ShopifyFulfillmentPut _shopifyFulfillmentSync;
+        private readonly ShopifyProductVariantPut _shopifyProductVariantPut;
 
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPut _acumaticaOrderSync;
@@ -47,6 +48,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 WarehouseLocationSync warehouseLocationSync,
                 ShopifyInventoryPut shopifyInventorySync,
                 ShopifyFulfillmentPut shopifyFulfillmentSync,
+                ShopifyProductVariantPut shopifyProductVariantPut,
 
                 SettingsRepository settingsRepository,
                 InstanceContext connectionContext,
@@ -54,22 +56,24 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ILifetimeScope lifetimeScope,
                 IPushLogger logger)
         {
-            _acumaticaContext = acumaticaContext;
+            _warehouseLocationSync = warehouseLocationSync;
+
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaInventorySync = acumaticaInventorySync;
             _acumaticaRefundSync = acumaticaRefundSync;
             _acumaticaPaymentSync = acumaticaPaymentSync;
             _acumaticaOrderSync = acumaticaOrderSync;
-            
-            _shopifyFulfillmentSync = shopifyFulfillmentSync;
-            _settingsRepository = settingsRepository;
 
+            _shopifyInventorySync = shopifyInventorySync;
+            _shopifyFulfillmentSync = shopifyFulfillmentSync;
+            _shopifyProductVariantPut = shopifyProductVariantPut;
+
+            _acumaticaContext = acumaticaContext;
+            _settingsRepository = settingsRepository;
             _connectionContext = connectionContext;
             _executionLogService = executionLogService;
             _lifetimeScope = lifetimeScope;
             _logger = logger;
-            _warehouseLocationSync = warehouseLocationSync;
-            _shopifyInventorySync = shopifyInventorySync;
         }
 
 
@@ -169,12 +173,12 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
         {
-            throw new NotImplementedException();
+            _shopifyProductVariantPut.Run(context);
         }
 
         public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
         {
-            throw new NotImplementedException();
+            _shopifyProductVariantPut.Run(context);
         }
     }
 }

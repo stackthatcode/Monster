@@ -1,6 +1,6 @@
 ﻿using Monster.Middle.Persist.Instance;
 
-namespace Monster.Middle.Processes.Sync.Model.Misc
+namespace Monster.Middle.Processes.Sync.Misc
 {
     public static class LogBuilder
     {
@@ -17,6 +17,16 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
         public static string CreateShopifyFulfillment(AcumaticaSoShipment shipmentRef)
         {
             return $"Creating Shopify Fulfillment for {shipmentRef.LogDescriptor()}";
+        }
+
+        public static string CreateShopifyVariant(AcumaticaStockItem item)
+        {
+            return $"Creating Shopify Variant for {item.LogDescriptor()}";
+        }
+
+        public static string CreatedShopifyProduct(ShopifyProduct product)
+        {
+            return $"Created {product.LogDescriptor()}";
         }
 
         public static string CreateStockItem(ShopifyVariant variant)

@@ -9,7 +9,6 @@ using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Web.Attributes;
 using Monster.Web.Models.ShopifyAuth;
 using Monster.Web.Plumbing;

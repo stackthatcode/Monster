@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Xml.Schema;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Status;
@@ -396,6 +397,10 @@ namespace Monster.Middle.Processes.Sync.Persist
                     .AcumaticaStockItems
                     .Include(x => x.AcumaticaWarehouseDetails)
                     .Where(x => !x.ShopAcuItemSyncs.Any());
+
+            var settings = Entities.MonsterSettings.First();
+            dataSet = dataSet.Where(x => x.AcumaticaTaxCategory == settings.AcumaticaTaxableCategory ||
+                                         x.AcumaticaTaxCategory == settings.AcumaticaTaxableCategory);
 
             foreach (var term in termList)
             {

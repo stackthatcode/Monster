@@ -10,7 +10,6 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;

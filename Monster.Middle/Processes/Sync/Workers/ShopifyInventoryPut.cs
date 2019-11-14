@@ -4,8 +4,8 @@ using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
-using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
@@ -69,11 +69,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void PriceUpdate(AcumaticaStockItem stockItem)
         {
-            var stockItemRecord
-                = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
-
-            var stockItemObj
-                = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
+            var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
+            var stockItemObj = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
 
             if (!stockItemRecord.HasMatch())
             {
@@ -81,12 +78,14 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
 
             // Build the Shopify DTO
+            //
             var variantShopifyId = stockItemRecord.MatchedVariant().ShopifyVariantId;
             var variantSku = stockItemRecord.MatchedVariant().ShopifySku;
             var price = stockItemObj.DefaultPrice.value;
             var dto = VariantPriceUpdateParent.Make(variantShopifyId, price);
 
             // Push the price update to Shopify API
+            //
             _productApi.UpdateVariantPrice(variantShopifyId, dto.SerializeToJson());
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
@@ -104,8 +103,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void RunInventoryUpdate()
         {
-            var stockItems = 
-                _syncInventoryRepository.RetrieveStockItemInventoryNotSynced();
+            var stockItems = _syncInventoryRepository.RetrieveStockItemInventoryNotSynced();
 
             foreach (var stockItem in stockItems)
             {
@@ -125,8 +123,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         public void InventoryUpdate(AcumaticaStockItem stockItem)
         {
             var variant
-                = _inventoryRepository
-                    .RetrieveVariant(stockItem.MatchedVariant().ShopifyVariantId);
+                = _inventoryRepository.RetrieveVariant(stockItem.MatchedVariant().ShopifyVariantId);
 
             if (variant.IsMissing)
             {
@@ -179,9 +176,11 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _executionLogService.Log(log);
 
                 // Flag Acumatica Warehouse Detail as synchronized
+                //
                 details.ForEach(x => x.IsInventorySynced = true);
                 
                 // Update Shopify Inventory Level records
+                //
                 level.ShopifyAvailableQuantity = totalQtyOnHand;
                 level.LastUpdated = DateTime.UtcNow;
 

@@ -6,7 +6,7 @@ using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;

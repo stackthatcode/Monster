@@ -1,6 +1,6 @@
 ﻿using Monster.Middle.Persist.Instance;
 
-namespace Monster.Middle.Processes.Sync.Model.Misc
+namespace Monster.Middle.Processes.Sync.Misc
 {
     public static class LogDescriptors
     {

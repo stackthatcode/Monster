@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Misc;
@@ -27,6 +28,21 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
             {
                 return input.ShopifySku.StandardizedSku() == input.MatchedStockItem().ItemId.StandardizedSku();
             }
+        }
+
+        public static bool IsTaxable(this AcumaticaStockItem input, MonsterSetting settings)
+        {
+            if (input.AcumaticaTaxCategory == settings.AcumaticaTaxableCategory)
+            {
+                return true;
+            }
+
+            if (input.AcumaticaTaxCategory == settings.AcumaticaTaxExemptCategory)
+            {
+                return false;
+            }
+
+            throw new ArgumentException($"{input.AcumaticaTaxCategory} invalid Tax Category");
         }
 
         public static bool AreTaxesMatched(this ShopifyVariant input, MonsterSetting settings)
