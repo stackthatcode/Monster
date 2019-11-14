@@ -1,5 +1,6 @@
 ﻿using Monster.Middle;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist.Matching;
 
 namespace Monster.Web.Models.Config

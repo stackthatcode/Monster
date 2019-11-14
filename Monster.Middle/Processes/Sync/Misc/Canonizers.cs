@@ -2,11 +2,11 @@
 using Monster.Middle.Persist.Instance;
 using Push.Shopify.Api.Product;
 
-namespace Monster.Middle.Processes.Sync.Model.Misc
+namespace Monster.Middle.Processes.Sync.Misc
 {
-    public class Canonizers
+    public static class Canonizers
     {
-        public static string StockItemTitle(Product product, Variant variant)
+        public static string StandardizedStockItemTitle(Product product, Variant variant)
         {
             var output = product.title + " - ";
             output += 
@@ -17,12 +17,12 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
             return output;
         }
 
-        public static string Sku(string sku)
+        public static string StandardizedSku(this string sku)
         {
             return sku.ToUpper();
         }
 
-        public static string LocationName(string name)
+        public static string StandardizeLocationName(this string name)
         {
             var output = name.ToUpper();
             var rgx = new Regex("[^a-zA-Z0-9]");
@@ -35,12 +35,12 @@ namespace Monster.Middle.Processes.Sync.Model.Misc
     {
         public static string StandardizedSku(this ShopifyVariant input)
         {
-            return Canonizers.Sku(input.ShopifySku);
+            return Canonizers.StandardizedSku(input.ShopifySku);
         }
 
         public static string StandardizedName(this ShopifyLocation input)
         {
-            return Canonizers.LocationName(input.ShopifyLocationName);
+            return Canonizers.StandardizeLocationName(input.ShopifyLocationName);
         }
     }
 }

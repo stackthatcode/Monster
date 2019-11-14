@@ -226,6 +226,7 @@
     <Compile Include="Models\Config\PaymentGatewaySelectionModel.cs" />
     <Compile Include="Models\Config\SettingsTaxesModel.cs" />
     <Compile Include="Models\Sync\EndToEndStatusModel.cs" />
+    <Compile Include="Models\Sync\ImportIntoShopifyModel.cs" />
     <Compile Include="Models\Sync\NonRunningStateModel.cs" />
     <Compile Include="Models\Sync\OrderVerification.cs" />
     <Compile Include="Models\Sync\RunningStateModel.cs" />

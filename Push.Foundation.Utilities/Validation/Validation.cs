@@ -18,10 +18,15 @@ namespace Push.Foundation.Utilities.Validation
             return this;
         }
 
-        public Validation<T> Add(
-                Func<T, bool> test, string validationMessage, bool instantFailure = false)
+        public Validation<T> Add(Func<T, bool> test, string validationMessage, bool instantFailure = false)
         {
             Rules.Add(new Rule<T>(test, validationMessage, instantFailure));
+            return this;
+        }
+
+        public Validation<T> Add(Func<T, bool> test, Func<T, string> messageBuilder, bool instantFailure = false)
+        {
+            Rules.Add(new Rule<T>(test, messageBuilder, instantFailure));
             return this;
         }
 
@@ -35,7 +40,7 @@ namespace Push.Foundation.Utilities.Validation
                 {
                     continue;
                 }
-                output.FailureMessages.Add(rule.ValidationMessage);
+                output.FailureMessages.Add(rule.ValidationMessage(input));
 
                 if (rule.InstantFailure)
                 {

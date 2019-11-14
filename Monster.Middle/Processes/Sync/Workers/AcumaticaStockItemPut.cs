@@ -8,6 +8,7 @@ using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Misc;
 using Monster.Middle.Processes.Sync.Persist;
@@ -76,13 +77,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (stockItem != null && !stockItem.IsMatchedToShopify())
             {
-                _logService
-                    .Log(
-                        $"Auto-matched Stock Item {stockItem.ItemId} " +
-                        $"to Shopify Variant {variant.ShopifyVariantId}");
+                _logService.Log(
+                    $"Auto-matched Stock Item {stockItem.ItemId} " +
+                    $"to Shopify Variant {variant.ShopifyVariantId}");
 
                 _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
-
                 return;
             }
 
@@ -99,9 +98,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             var defaultItemClass = settings.AcumaticaDefaultItemClass;
             var defaultPostingClass = settings.AcumaticaDefaultPostingClass;
 
-            throw new NotImplementedException("Need to pass the Product -> IsTaxable");
-
-            var defaultTaxCategory = settings.AcumaticaTaxableCategory;
+            var defaultTaxCategory =
+                variant.ShopifyIsTaxable
+                    ? settings.AcumaticaTaxableCategory
+                    : settings.AcumaticaTaxExemptCategory;
 
             var warehouses = _inventoryRepository.RetrieveWarehouses();
             var defaultWarehouseId = warehouses.First().AcumaticaWarehouseId;
@@ -111,7 +111,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             
             var newStockItem = new StockItem();
             newStockItem.InventoryID = variant.StandardizedSku().ToValue();
-            newStockItem.Description = Canonizers.StockItemTitle(shopifyProduct, shopifyVariant).ToValue();
+            newStockItem.Description = Canonizers.StandardizedStockItemTitle(shopifyProduct, shopifyVariant).ToValue();
 
             newStockItem.DefaultPrice = ((double)shopifyVariant.price).ToValue();
             newStockItem.DefaultWarehouseID = defaultWarehouseId.ToValue();
@@ -123,10 +123,12 @@ namespace Monster.Middle.Processes.Sync.Workers
             var newStockItemJson = newStockItem.SerializeToJson();
 
             // Push to Acumatica API
+            //
             var result = _distributionClient.AddNewStockItem(newStockItemJson);
             var item = result.DeserializeFromJson<StockItem>();
 
             // Create Monster record
+            //
             var newStockItemRecord = new AcumaticaStockItem()
             {
                 ItemId = item.InventoryID.value,

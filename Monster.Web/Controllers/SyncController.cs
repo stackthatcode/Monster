@@ -13,6 +13,7 @@ using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Sync;
+using Monster.Web.Plumbing;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Web.Json;
 using Push.Shopify.Api;
@@ -334,13 +335,26 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult ImportIntoShopify()
         {
-            return View();
+            var settings = _settingsRepository.RetrieveSettings();
+
+            if (settings.AcumaticaTaxableCategory.IsNullOrEmpty() ||
+                settings.AcumaticaTaxExemptCategory.IsNullOrEmpty())
+            {
+                return Redirect(GlobalConfig.Url("/Config/SettingsTaxes"));
+            }
+
+            var model = new Monster.Web.Models.Sync.ImportIntoShopifyModel
+            {
+                TaxableCategory = settings.AcumaticaTaxableCategory,
+                ExemptCategory = settings.AcumaticaTaxExemptCategory,
+            };
+            return View(model);
         }
         
         [HttpGet]
         public ActionResult FilterAcumaticaStockItems(string terms = "", int maxRecords = 1000)
         {
-            var searchRecords = _syncInventoryRepository.StockItemSearchRecords(terms, 0, maxRecords);
+            var searchRecords = _syncInventoryRepository.StockItemSearchRecords(terms,0, maxRecords);
             var searchResult = searchRecords
                 .Select(x => AcumaticaStockItemModel.Make(x, _acumaticaUrlService.AcumaticaStockItemUrl))
                 .ToList();

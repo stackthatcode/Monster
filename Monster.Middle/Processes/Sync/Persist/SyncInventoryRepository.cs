@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Status;
-using Monster.Middle.Processes.Sync.Persist.Matching;
 
 
 namespace Monster.Middle.Processes.Sync.Persist
@@ -407,7 +407,8 @@ namespace Monster.Middle.Processes.Sync.Persist
             return dataSet;
         }
 
-        public List<AcumaticaStockItem> StockItemSearchRecords(string terms, int startingRecord, int pageSize)
+        public List<AcumaticaStockItem> 
+                    StockItemSearchRecords(string terms, int startingRecord, int pageSize)
         {
             return StockItemSearchQueryable(terms)
                 .OrderBy(x => x.ItemId)

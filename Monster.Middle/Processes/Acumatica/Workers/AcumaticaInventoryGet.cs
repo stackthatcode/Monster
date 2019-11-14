@@ -8,6 +8,7 @@ using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Acumatica.Workers
@@ -20,6 +21,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
         private readonly AcumaticaHttpConfig _config;
         private readonly ExecutionLogService _executionLogService;
+        private readonly SettingsRepository _settingsRepository;
 
         public AcumaticaInventoryGet(
                     DistributionClient inventoryClient, 
@@ -27,12 +29,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     AcumaticaBatchRepository batchStateRepository,
                     AcumaticaTimeZoneService instanceTimeZoneService,
                     AcumaticaHttpConfig config,
-                    ExecutionLogService executionLogService)
+                    ExecutionLogService executionLogService, 
+                    SettingsRepository settingsRepository)
         {
             _inventoryClient = inventoryClient;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
             _executionLogService = executionLogService;
+            _settingsRepository = settingsRepository;
             _instanceTimeZoneService = instanceTimeZoneService;
             _config = config;
         }
@@ -88,6 +92,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void UpsertStockItemToPersist(List<StockItem> items)
         {
+            var settings = _settingsRepository.RetrieveSettings();
+
             foreach (var item in items)
             {
                 var existingData = _inventoryRepository.RetreiveStockItem(item.InventoryID.value);
@@ -98,6 +104,9 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     newData.ItemId = item.InventoryID.value;
                     newData.AcumaticaJson = item.SerializeToJson();
                     newData.AcumaticaDescription = item.Description.value;
+                    newData.AcumaticaTaxCategory = item.TaxCategory.value;
+
+                    newData.IsTaxable = ComputeIsTaxable(settings, item.TaxCategory.value);
                     newData.IsPriceSynced = false;
                     newData.DateCreated = DateTime.UtcNow;
                     newData.LastUpdated = DateTime.UtcNow;
@@ -107,7 +116,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 else
                 {
                     existingData.AcumaticaJson = item.SerializeToJson();
+                    existingData.AcumaticaTaxCategory = item.TaxCategory.value;
                     existingData.AcumaticaDescription = item.Description.value;
+
+                    existingData.IsTaxable = ComputeIsTaxable(settings, item.TaxCategory.value);
                     existingData.LastUpdated = DateTime.UtcNow;
                     existingData.IsPriceSynced = false;
 
@@ -116,6 +128,21 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
                 UpsertWarehouseDetails(item);
             }
+        }
+
+        public bool? ComputeIsTaxable(MonsterSetting settings, string taxCategory)
+        {
+            if (taxCategory == settings.AcumaticaTaxableCategory)
+            {
+                return true;
+            }
+
+            if (taxCategory == settings.AcumaticaTaxExemptCategory)
+            {
+                return false;
+            }
+
+            return null;
         }
 
         public void UpsertWarehouseDetails(StockItem stockItem)

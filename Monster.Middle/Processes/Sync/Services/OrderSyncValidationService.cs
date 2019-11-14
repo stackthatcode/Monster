@@ -2,6 +2,7 @@
 using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Shopify.Api.Order;
@@ -53,7 +54,8 @@ namespace Monster.Middle.Processes.Sync.Services
             output.SettingsStartingOrderId = settings.ShopifyOrderId.Value;
             output.ShopifyOrderRecord = orderRecord;
             output.ShopifyOrder = orderRecord.ToShopifyObj();
-            output.LineItemsWithUnsyncedVariants = BuildLineItemsWithUnsyncedVariants(output.ShopifyOrder);
+
+            BuildLineItemValidations(output, settings);
 
             if (orderRecord.HasPayment())
             {
@@ -64,30 +66,38 @@ namespace Monster.Middle.Processes.Sync.Services
             return output;
         }
 
-        private List<LineItem> BuildLineItemsWithUnsyncedVariants(Order shopifyOrder)
+        private void BuildLineItemValidations(OrderSyncValidation validation, MonsterSetting settings)
         {
-            var output = new List<LineItem>();
-
-            foreach (var lineItem in shopifyOrder.line_items)
+            foreach (var lineItem in validation.ShopifyOrder.line_items)
             {
                 if (!lineItem.variant_id.HasValue || lineItem.sku == null)
                 {
-                    output.Add(lineItem);
                     continue;
                 }
 
-                var variant =
-                    _syncInventoryRepository
-                        .RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
+                var variant = _syncInventoryRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
 
-                if (variant == null || variant.IsNotMatched())
+                if (variant == null)
                 {
-                    output.Add(lineItem);
+                    validation.LineItemIdsWithUnrecognizedVariants.Add(lineItem.id);
                     continue;
+                }
+
+                if (variant.IsNotMatched())
+                {
+                    validation.SkusNotSyncedInAcumatica.Add(variant.ShopifySku);
+                }
+
+                if (!variant.AreSkuAndItemIdMatched())
+                {
+                    validation.SkusWithMismatchedStockItemId.Add(variant.ShopifySku);
+                }
+
+                if (!variant.AreTaxesMatched(settings))
+                {
+                    validation.SkusWithMismatchedTaxes.Add(variant.ShopifySku);
                 }
             }
-
-            return output;
         }
     }
 }

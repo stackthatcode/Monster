@@ -1,19 +1,58 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Sync.Misc;
 
-namespace Monster.Middle.Processes.Sync.Persist.Matching
+namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class ItemExtensions
     {
-        public static AcumaticaStockItem 
-                    MatchedStockItem(this ShopifyVariant input)
+        public static AcumaticaStockItem MatchedStockItem(this ShopifyVariant input)
         {
             return input.ShopAcuItemSyncs?.First().AcumaticaStockItem;
         }
 
-        public static List<AcumaticaWarehouseDetail> 
-                    WarehouseDetails(this AcumaticaStockItem input, string warehouseId)
+        public static bool IsSynced(this ShopifyVariant input)
+        {
+            return input.MatchedStockItem() != null;
+        }
+
+        public static bool AreSkuAndItemIdMatched(this ShopifyVariant input)
+        {
+            if (!input.IsSynced())
+            {
+                return false;
+            }
+            else
+            {
+                return input.ShopifySku.StandardizedSku() == input.MatchedStockItem().ItemId.StandardizedSku();
+            }
+        }
+
+        public static bool AreTaxesMatched(this ShopifyVariant input, MonsterSetting settings)
+        {
+            if (!input.IsSynced())
+            {
+                return false;
+            }
+
+            if (input.ShopifyIsTaxable 
+                && input.MatchedStockItem().AcumaticaTaxCategory == settings.AcumaticaTaxableCategory)
+            {
+                return true;
+            }
+
+            if (!input.ShopifyIsTaxable 
+                && input.MatchedStockItem().AcumaticaTaxCategory == settings.AcumaticaTaxExemptCategory)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
+        public static List<AcumaticaWarehouseDetail> WarehouseDetails(this AcumaticaStockItem input, string warehouseId)
         {
             return input.AcumaticaWarehouseDetails
                         .Where(x => x.AcumaticaWarehouseId == warehouseId)

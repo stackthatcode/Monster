@@ -4,6 +4,7 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist.Matching;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;

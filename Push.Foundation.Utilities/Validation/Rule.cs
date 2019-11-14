@@ -6,12 +6,27 @@ namespace Push.Foundation.Utilities.Validation
     {
         public Func<T, bool> Test { get; set; }
         public bool InstantFailure { get; set; }
-        public string ValidationMessage { get; set; }
 
-        public Rule(Func<T, bool> test, string validationMessage, bool instantFailure = false)
+        public Func<T, string> MessageBuilder { get; set; }
+        public string ValidationMessageText { get; set; }
+
+        public string ValidationMessage(T context)
+        {
+            return MessageBuilder != null  ? MessageBuilder(context) : ValidationMessageText;
+        }
+
+
+        public Rule(Func<T, bool> test, string validationMessageText, bool instantFailure = false)
         {
             Test = test;
-            ValidationMessage = validationMessage;
+            ValidationMessageText = validationMessageText;
+            InstantFailure = instantFailure;
+        }
+
+        public Rule(Func<T, bool> test,  Func<T, string> messageBuilder, bool instantFailure = false)
+        {
+            Test = test;
+            MessageBuilder = messageBuilder;
             InstantFailure = instantFailure;
         }
     }

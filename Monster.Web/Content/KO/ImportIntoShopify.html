@@ -530,101 +530,6 @@
         return self;
     };
 
-    Monster.ImportConfirmModel = function () {
-        var self = this;
-
-        self.SelectedStockItems = ko.observableArray([]);
-
-        self.InventoryReceiptOptions = ko.observableArray([
-            { Text: 'Do not create Inventory Receipts', Value: 0 },
-            { Text: 'Create Inventory Receipts', Value: 1 },
-        ]);
-
-        self.InventorySyncOptions = ko.observableArray([
-            { Text: 'Automatically Disable Sync', Value: 0 },
-            { Text: 'Automatically Enable Sync', Value: 1 },
-        ]);
-
-
-        // State
-        //
-        self.InventoryReceiptChoice = ko.observable(0);
-        self.InventorySyncChoice = ko.observable(0);
-        self.AnyMultipleWarehouseMapping = ko.observable();
-
-        // Computed State
-        //
-        self.ShowInventoryReceiptOptions = ko.computed(function () {
-            return self.AnyMultipleWarehouseMapping() == false;
-        });
-
-        // If there are Multiple Warehouse mappings, do not allow creation of Inventory Receipt
-        //
-        self.AnyMultipleWarehouseMapping.subscribe(function () {
-            if (self.AnyMultipleWarehouseMapping()) {
-                self.InventorySyncChoice(false);
-            }
-        });
-
-        // If the user chooses not to create Warehouse Receipts, they can Enable Sync
-        self.ShowInventorySyncOptions = ko.computed(function () {
-            return self.InventoryReceiptChoice() == false;
-        });
-
-        self.ProductCount = ko.computed(function () { return self.SelectedStockItems().length; });
-
-        self.UnsyncedVariantCount = ko.computed(function () {
-            return AQ(self.SelectedStockItems())
-                .sum(function (x) { return x.UnsyncedVariantCount });
-        });
-
-        // AJAX Methods
-
-        // Parameter data should match C# DTO ShopifyProductModel
-        //
-        self.Launch = function (data) {
-            flow.exec(function () {
-                    self.SelectedStockItems(data);
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("/Sync/SyncedWarehouses", this);
-                },
-                function (response) {
-                    //console.log(response);
-                    self.AnyMultipleWarehouseMapping(response.AnyMultipleWarehouseMapping);
-                    $('#confirm-import-modal').modal('show');
-                });
-        };
-
-        Monster.Events.subscribe(events.LaunchAddToExistingProduct, self.Launch);
-
-        self.RunImportIntoAcumatica = function () {
-            flow.exec(function () {
-                    var selectedSPIds
-                        = AQ(self.SelectedStockItems()).select(function (x) {
-                            return x.ShopifyProductId;
-                        }).toArray();
-
-                    var model = {
-                        createInventoryReceipt: self.InventoryReceiptChoice(),
-                        enableInventorySync: self.InventorySyncChoice(),
-                        selectedSPIds: selectedSPIds,
-                    };
-
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
-                },
-                function (response) {
-                    $('#confirm-import-modal').modal('hide');
-
-                    Monster.Events.publish(Monster.JobStatusIsRunning);
-                });
-        }
-
-        return self;
-    };
-
     Monster.ViewSelectedStockItemsModel = function () {
         var self = this;
 
@@ -650,6 +555,13 @@
         // Search Input
         //
         self.FilterTerms = ko.observable("");
+
+        self.TaxCategories = ko.observableArray([
+            Monster.TaxableCategory,
+            Monster.ExemptCategory,
+        ]);
+        self.SelectedTaxCategory = ko.observable(Monster.TaxableCategory);
+
 
         // Grid storage
         //
@@ -715,8 +627,9 @@
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var url = "/Sync/FilterAcumaticaStockItems?terms=" + self.FilterTerms()
-                        + "&maxRecords=" + self.MaximumRecords;
-
+                        + "&maxRecords=" + self.MaximumRecords.toString() 
+                        + "&taxCategory=" + self.SelectedTaxCategory();
+                    
                     ajax.HttpGet(url, this);
                 },
                 function (response) {
@@ -726,7 +639,12 @@
                     self.RefreshVisibleGrid();
                 });
         };
-        
+
+        self.SelectedTaxCategory.subscribe(function() {
+            self.UnselectAllClick();
+            self.RefreshGrid();
+        });
+
         self.RefreshVisibleGrid = function () {
             self.VisibleData(
                 AQ(self.GridData())

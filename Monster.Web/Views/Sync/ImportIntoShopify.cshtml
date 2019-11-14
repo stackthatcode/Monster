@@ -1,4 +1,12 @@
-﻿@Html.Partial("_PagingWidget")
+﻿@model Monster.Web.Models.Sync.ImportIntoShopifyModel
+@Html.Partial("_PagingWidget")
+
+<script>
+    Monster = Monster || {};
+
+    Monster.TaxableCategory = '@Model.TaxableCategory';
+    Monster.ExemptCategory = '@Model.ExemptCategory';
+</script>
 
 <main role="main" class="large-size">
     @Html.Partial("_TopBrand")

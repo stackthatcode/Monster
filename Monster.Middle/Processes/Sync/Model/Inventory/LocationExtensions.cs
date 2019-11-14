@@ -2,10 +2,10 @@
 using System.Linq;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Sync.Model.Misc;
+using Monster.Middle.Processes.Sync.Misc;
 using Push.Shopify.Api.Inventory;
 
-namespace Monster.Middle.Processes.Sync.Persist.Matching
+namespace Monster.Middle.Processes.Sync.Model.Inventory
 {
     public static class LocationExtensions
     {
