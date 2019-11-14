@@ -293,14 +293,14 @@ namespace Monster.Web.Controllers
 
         [HttpGet]
         public ActionResult FilterShopifyProducts(
-            string terms = "", bool includeSynced = false, int maxRecords = 1000)
+            string terms = "", bool excludeSynced = false, int maxRecords = 1000)
         {
             var searchRecords = _syncInventoryRepository
-                .ProductSearchRecords(terms, includeSynced, 0, maxRecords);
+                .ProductSearchRecords(terms, excludeSynced, 0, maxRecords);
             var searchResult = searchRecords
                 .Select(x => ShopifyProductModel.Make(x, _shopifyUrlService.ShopifyProductUrl)).ToList();
 
-            var searchCount = _syncInventoryRepository.ProductSearchCount(terms, includeSynced);
+            var searchCount = _syncInventoryRepository.ProductSearchCount(terms, excludeSynced);
 
             var output = new { searchResult, searchCount, };
             return new JsonNetResult(output);

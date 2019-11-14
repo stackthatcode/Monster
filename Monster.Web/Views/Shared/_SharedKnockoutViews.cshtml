@@ -396,8 +396,7 @@
                     var ajax = new Monster.Ajax();
                     var url = "/Sync/FilterShopifyProducts" +
                         "?terms=" + self.FilterTerms() +
-                        "&maxRecords=" + self.MaxRecords +
-                        "&includeUnsynced=true";
+                        "&maxRecords=" + self.MaxRecords;
 
                     ajax.HttpGet(url, this);
                 },

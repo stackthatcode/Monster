@@ -5,6 +5,7 @@ using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Status;
+using Z.EntityFramework.Plus;
 
 
 namespace Monster.Middle.Processes.Sync.Persist
@@ -350,7 +351,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                     .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
 
-        private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms, bool includeSynced = false)
+        private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms, bool excludeSynced)
         {
             var termList
                 = terms.Split(' ')
@@ -360,12 +361,12 @@ namespace Monster.Middle.Processes.Sync.Persist
             var dataSet
                 = Entities
                     .ShopifyProducts
-                    .Include(x => x.ShopifyVariants)
+                    .IncludeFilter(x => x.ShopifyVariants.Where(y => y.IsMissing == false))
                     .Include(x => x.ShopifyVariants.Select(y => y.ShopAcuItemSyncs));
 
-            if (!includeSynced)
+            if (excludeSynced)
             {
-                dataSet = dataSet.Where(x => x.ShopifyVariants.Any(y => !y.ShopAcuItemSyncs.Any()));
+                dataSet = dataSet.Where(x => !x.ShopifyVariants.Any(y => y.ShopAcuItemSyncs.Any()));
             }
 
 
@@ -383,18 +384,18 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
         public List<ShopifyProduct> ProductSearchRecords(
-                string terms, bool includeSynced, int startingRecord, int pageSize)
+                string terms, bool excludeSynced, int startingRecord, int pageSize)
         {
-            return ProductSearchQueryable(terms)
+            return ProductSearchQueryable(terms, excludeSynced)
                 .OrderBy(x => x.ShopifyTitle)
                 .Skip(startingRecord)
                 .Take(pageSize)
                 .ToList();
         }
 
-        public int ProductSearchCount(string terms, bool includeSynced = false)
+        public int ProductSearchCount(string terms, bool excludeSynced)
         {
-            return ProductSearchQueryable(terms).Count();
+            return ProductSearchQueryable(terms, excludeSynced).Count();
         }
 
 

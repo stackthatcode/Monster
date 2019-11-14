@@ -564,7 +564,9 @@
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var url = "/Sync/FilterShopifyProducts?terms=" + self.FilterTerms()
-                            + "&maxRecords=" + self.MaximumRecords;
+                        + "&maxRecords=" + self.MaximumRecords
+                        + "&excludeSynced=true";
+
                     ajax.HttpGet(url, this);
                 },
                 function (response) {
@@ -637,11 +639,14 @@
                 function() {
                     if (self.ShowImportPanel()) {
                         self.InventoryImportModel.RefreshGrid();
+                        self.InventoryImportModel.UnselectAllClick();
                     }
                 });
         };
 
-        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function() {
+             self.ProcessStatus();
+        });
 
         self.Initialize = function () { self.JobRunningModel.StartPolling(true); };
 
