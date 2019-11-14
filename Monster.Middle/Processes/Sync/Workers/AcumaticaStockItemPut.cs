@@ -128,19 +128,19 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Create Monster record
             //
-            var newStockItemRecord = new AcumaticaStockItem()
-            {
-                ItemId = item.InventoryID.value,
-                AcumaticaJson = item.SerializeToJson(),
-                AcumaticaDescription = item.Description.value,
-                DateCreated = DateTime.UtcNow,
-                LastUpdated = DateTime.UtcNow,
-            };
+            var newRecord = new AcumaticaStockItem();
+
+            newRecord.ItemId = item.InventoryID.value;
+            newRecord.AcumaticaJson = item.SerializeToJson();
+            newRecord.AcumaticaDescription = item.Description.value;
+            newRecord.AcumaticaTaxCategory = item.TaxCategory.value;
+            newRecord.DateCreated = DateTime.UtcNow;
+            newRecord.LastUpdated = DateTime.UtcNow;
 
             using (var transaction = _syncRepository.BeginTransaction())
             {
-                _inventoryRepository.InsertStockItems(newStockItemRecord);
-                _syncRepository.InsertItemSync(variant, newStockItemRecord, context.IsSyncEnabled);
+                _inventoryRepository.InsertStockItems(newRecord);
+                _syncRepository.InsertItemSync(variant, newRecord, context.IsSyncEnabled);
 
                 var log = $"Created Stock Item {item.InventoryID.value} in Acumatica";
                 _logService.Log(log);

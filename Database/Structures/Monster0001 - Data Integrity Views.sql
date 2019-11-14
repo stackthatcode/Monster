@@ -125,7 +125,8 @@ CREATE VIEW vw_SyncShopifyInventory
 AS
 SELECT	t1.MonsterId AS MonsterVariantId,
 		t1.ShopifySku, 
-		t1.ShopifyVariantId, 
+		t1.ShopifyVariantId,
+		t1.IsMissing,
 		t2.ShopifyAvailableQuantity, 
 		t2.ShopifyLocationId,
 		t5.ShopifyLocationName,
@@ -138,7 +139,7 @@ FROM ShopifyVariant t1
 		ON t2.LocationMonsterId = t3.ShopifyLocationMonsterId
 	FULL OUTER JOIN ShopAcuItemSync t4
 		ON t1.MonsterId = t4.ShopifyVariantMonsterId 
-	FULL OUTER JOIN ShopifyLocation t5
+	INNER JOIN ShopifyLocation t5
 		ON t2.LocationMonsterId = t5.MonsterId;
 GO
 
@@ -149,6 +150,7 @@ AS
 SELECT t1.ShopifySku, 
 	t2.AcumaticaItemId,
 	t1.ShopifyVariantId,
+	t1.IsMissing,
 	t1.ShopifyLocationId,
 	t1.ShopifyLocationName,
 	t2.AcumaticaWarehouseId,

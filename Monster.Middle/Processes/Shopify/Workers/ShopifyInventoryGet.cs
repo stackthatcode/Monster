@@ -182,6 +182,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 data.ShopifyInventoryItemId = variant.inventory_item_id;
                 data.ShopifyVariantJson = variant.SerializeToJson();
                 data.ShopifyIsTaxable = variant.taxable;
+                data.ShopifyPrice = (decimal)variant.price;
                 data.ShopifyIsTracked = variant.IsTracked;
                 data.IsMissing = false;
                 data.DateCreated = DateTime.UtcNow;
@@ -196,6 +197,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existing.ShopifyVariantJson = variant.SerializeToJson();
                 existing.ShopifyIsTaxable = variant.taxable;
                 existing.ShopifyIsTracked = variant.IsTracked;
+                existing.ShopifyPrice = (decimal)variant.price;
+
                 existing.LastUpdated = DateTime.UtcNow;
 
                 _inventoryRepository.SaveChanges();

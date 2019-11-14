@@ -50,6 +50,11 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 .FirstOrDefault(x => x.ShopifyLocationId == locationId);
         }
 
+        public static List<ShopifyVariant> NonMissingVariants(this ShopifyProduct product)
+        {
+            return product.ShopifyVariants.Where(x => !x.IsMissing).ToList();
+        }
+
         public static List<ShopifyInventoryLevel>
                     WithMatchedVariants(this IEnumerable<ShopifyInventoryLevel> input)
         {

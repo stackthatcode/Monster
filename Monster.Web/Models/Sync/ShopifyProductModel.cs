@@ -29,18 +29,17 @@ namespace Monster.Web.Models.Sync
             output.ProductType = input.ShopifyProductType;
             output.Vendor = input.ShopifyVendor;
             output.ShopifyProductId = input.ShopifyProductId;
-            output.VariantCount = input.ShopifyVariants.Count();
+            output.VariantCount = input.NonMissingVariants().Count();
             output.ShopifyUrl = productUrlBuilder(input.ShopifyProductId);
 
             output.SyncedVariantCount
                 = input.ShopifyVariants
-                    .Count(x => x.ShopAcuItemSyncs != null 
-                                && x.ShopAcuItemSyncs.Count > 0);
+                    .Count(x => x.ShopAcuItemSyncs != null && x.ShopAcuItemSyncs.Count > 0);
 
             if (includeVariantGraph)
             {
                 output.Variants
-                    = input.ShopifyVariants
+                    = input.NonMissingVariants()
                         .Select(x => ShopifyVariantModel.Make(x))
                         .ToList();
             }

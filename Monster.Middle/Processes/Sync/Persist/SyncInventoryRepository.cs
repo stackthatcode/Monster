@@ -193,6 +193,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                     .Include(x => x.ShopifyProduct)
                     .Include(x => x.ShopAcuItemSyncs)
                     .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
+                    .Where(x => x.IsMissing == false)
                     .Where(x => x.ShopifyProduct.ShopifyProductId == shopifyProductId)
                     .Where(x => !x.ShopAcuItemSyncs.Any());
 

@@ -248,7 +248,7 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var queryable = GetProductStockItemQueryable(request);
             var results = queryable
-                .OrderByDescending(x => x.ShopifySku)
+                .OrderBy(x => x.ShopifySku)
                 .Skip(request.StartRecord)
                 .Take(request.PageSize)
                 .ToList();

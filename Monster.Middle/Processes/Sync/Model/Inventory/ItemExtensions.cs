@@ -15,7 +15,7 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
 
         public static bool IsSynced(this ShopifyVariant input)
         {
-            return input.MatchedStockItem() != null;
+            return input.ShopAcuItemSyncs.Any();
         }
 
         public static bool AreSkuAndItemIdMatched(this ShopifyVariant input)
