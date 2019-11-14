@@ -39,9 +39,20 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run(ShopifyAddVariantImportContext context)
         {
-            var items = GetStockItems(context.AcumaticaItemIds);
+            var product = new ProductVariantUpdate();
+            product.id = context.ShopifyProductId;
+            var parent = new ProductVariantUpdateParent(product);
 
-            throw new NotImplementedException();
+            var stockItemRecords = BuildShopifyVariants(context.AcumaticaItemIds, product.variants);
+
+            var result = _productApi.Update(context.ShopifyProductId, parent.SerializeToJson());
+            var resultProduct = result.DeserializeFromJson<ProductParent>();
+            var shopifyProductId = resultProduct.product.id;
+
+            _shopifyInventoryGet.Run(shopifyProductId);
+            var productRecord = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
+
+            WriteSyncRecords(stockItemRecords, productRecord);
         }
 
         public void Run(ShopifyNewProductImportContext context)
@@ -53,7 +64,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             product.variants = new List<Variant>();
             var parent = new ProductParent { product = product };
 
-            var stockItemRecords = BuildShopifyVariants(context, product);
+            var stockItemRecords = BuildShopifyVariants(context.AcumaticaItemIds, product.variants);
 
             var result = _productApi.Create(parent.SerializeToJson());
             var resultProduct = result.DeserializeFromJson<ProductParent>();
@@ -75,10 +86,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        private List<AcumaticaStockItem> BuildShopifyVariants(ShopifyNewProductImportContext context, Product product)
+        private List<AcumaticaStockItem> BuildShopifyVariants(List<string> itemIds, List<Variant> variants)
         {
             var settings = _settingsRepository.RetrieveSettings();
-            var stockItemRecords = GetStockItems(context.AcumaticaItemIds);
+            var stockItemRecords = GetStockItems(itemIds);
 
             foreach (var stockItemRecord in stockItemRecords)
             {
@@ -92,7 +103,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 variant.price = price;
 
                 _logService.Log(LogBuilder.CreateShopifyVariant(stockItemRecord));
-                product.variants.Add(variant);
+                variants.Add(variant);
             }
 
             return stockItemRecords;
