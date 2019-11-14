@@ -2,6 +2,7 @@
 using System.Data.Entity;
 using System.Linq;
 using Monster.Acumatica.Api;
+using Monster.Acumatica.Api.Distribution;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Http;
 using Monster.Middle.Misc.Acumatica;
@@ -10,8 +11,11 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Analysis;
+using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
+using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Helpers;
+using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Sync.Services
 {
@@ -22,30 +26,25 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly AcumaticaUrlService _acumaticaUrlService;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
         private readonly SalesOrderClient _salesOrderClient;
-
+        private readonly SettingsRepository _settingsRepository;
 
         public AnalysisDataService(
                 ProcessPersistContext persistContext, 
                 ShopifyUrlService shopifyUrlService, 
                 AcumaticaUrlService acumaticaUrlService, 
                 AcumaticaHttpContext acumaticaHttpContext, 
-                SalesOrderClient salesOrderClient)
+                SalesOrderClient salesOrderClient, 
+                SettingsRepository settingsRepository)
         {
             _persistContext = persistContext;
             _shopifyUrlService = shopifyUrlService;
             _acumaticaUrlService = acumaticaUrlService;
             _acumaticaHttpContext = acumaticaHttpContext;
             _salesOrderClient = salesOrderClient;
+            _settingsRepository = settingsRepository;
         }
 
-
-        public int GetOrderAnalysisRecordCount(OrderAnalyzerRequest request)
-        {
-            return GetOrderAnalysisQueryable(request).Count();
-        }
-
-
-        public List<OrderAnalyzerResultsRow> GetOrderAnalysisResults(OrderAnalyzerRequest request)
+        public List<OrderAnalyzerResultsRow> GetOrderAnalysisResults(AnalyzerRequest request)
         {
             var queryable = GetOrderAnalysisQueryable(request);   
             var results = queryable
@@ -54,7 +53,12 @@ namespace Monster.Middle.Processes.Sync.Services
                 .Take(request.PageSize)
                 .ToList();
 
-            return results.Select(x => Make(x)).ToList();
+            return results.Select(x => MakeOrderAnalyzerResults(x)).ToList();
+        }
+
+        public int GetOrderAnalysisRecordCount(AnalyzerRequest request)
+        {
+            return GetOrderAnalysisQueryable(request).Count();
         }
 
         private IQueryable<ShopifyOrder> ShopifyOrderQueryable =>
@@ -68,7 +72,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 .Include(x => x.ShopifyRefunds)
                 .Include(x => x.ShopifyFulfillments);
 
-        private IQueryable<ShopifyOrder> GetOrderAnalysisQueryable(OrderAnalyzerRequest request)
+        private IQueryable<ShopifyOrder> GetOrderAnalysisQueryable(AnalyzerRequest request)
         {
             var queryable = ShopifyOrderQueryable;
 
@@ -168,8 +172,7 @@ namespace Monster.Middle.Processes.Sync.Services
             output.AcumaticaOrderTotal = (decimal)acumaticaOrder.OrderTotal.value;
         }
 
-
-        private OrderAnalyzerResultsRow Make(ShopifyOrder order)
+        private OrderAnalyzerResultsRow MakeOrderAnalyzerResults(ShopifyOrder order)
         {
             var output = new OrderAnalyzerResultsRow();
             output.ShopifyOrderId = order.ShopifyOrderId;
@@ -204,6 +207,101 @@ namespace Monster.Middle.Processes.Sync.Services
 
             return output;
         }
+
+
+        private IQueryable<ShopifyVariant> ProductStockItemQueryable =>
+            _persistContext
+                .Entities
+                .ShopifyVariants
+                .Include(x => x.ShopifyInventoryLevels)
+                .Include(x => x.ShopifyProduct)
+                .Include(x => x.ShopAcuItemSyncs)
+                .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
+                .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem.AcumaticaWarehouseDetails));
+
+        private IQueryable<ShopifyVariant> GetProductStockItemQueryable(AnalyzerRequest request)
+        {
+            var queryable = ProductStockItemQueryable;
+
+            foreach (var term in ParseSearchTerms(request.SearchText))
+            {
+                if (term.IsLong())
+                {
+                    var id = term.ToLong();
+                    queryable = queryable.Where(
+                        x => x.ShopifyProduct.ShopifyProductId == id || x.ShopifyVariantId == id);
+                }
+                else
+                {
+                    queryable = queryable.Where(
+                        x => x.ShopifySku.Contains(term) ||
+                             x.ShopifyTitle.Contains(term) ||
+                             x.ShopifyProduct.ShopifyTitle.Contains(term) ||
+                             x.ShopAcuItemSyncs.Any(y => y.AcumaticaStockItem.ItemId.Contains(term)));
+                }
+            }
+
+            return queryable;
+        }
+
+        public List<ProductStockItemResultsRow> GetProductStockItemResults(AnalyzerRequest request)
+        {
+            var queryable = GetProductStockItemQueryable(request);
+            var results = queryable
+                .OrderByDescending(x => x.ShopifySku)
+                .Skip(request.StartRecord)
+                .Take(request.PageSize)
+                .ToList();
+
+            var settings = _settingsRepository.RetrieveSettings();
+            return results.Select(x => MakeProductStockItemResults(x, settings)).ToList();
+        }
+
+        public int GetProductStockItemCount(AnalyzerRequest request)
+        {
+            return GetProductStockItemQueryable(request).Count();
+        }
+
+        public ProductStockItemResultsRow 
+                    MakeProductStockItemResults(ShopifyVariant variant, MonsterSetting settings)
+        {
+            var output = new ProductStockItemResultsRow();
+
+            output.ShopifyProductId = variant.ShopifyProduct.ShopifyProductId;
+            output.ShopifyProductTitle = variant.ShopifyProduct.ShopifyTitle;
+            output.ShopifyProductUrl 
+                = _shopifyUrlService.ShopifyProductUrl(variant.ShopifyProduct.ShopifyProductId);
+            output.ShopifyVariantId = variant.ShopifyVariantId;
+            output.ShopifyVariantTitle = variant.ShopifyTitle;
+            output.ShopifyVariantSku = variant.ShopifySku;
+            output.ShopifyVariantUrl 
+                = _shopifyUrlService.ShopifyVariantUrl(
+                        variant.ShopifyProduct.ShopifyProductId, variant.ShopifyVariantId);
+            output.ShopifyVariantTax = variant.ShopifyIsTaxable ? "YES" : "NO";
+            output.ShopifyVariantPrice = variant.ShopifyPrice;
+            output.ShopifyVariantAvailQty 
+                = variant.ShopifyInventoryLevels.Sum(x => x.ShopifyAvailableQuantity);
+
+            output.IsShopifyProductDeleted = variant.ShopifyProduct.IsDeleted;
+            output.IsShopifyVariantMissing = variant.IsMissing;
+
+            if (variant.IsMatched())
+            {
+                var stockItemRecord = variant.MatchedStockItem();
+                var stockItem = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
+
+                output.AcumaticaItemId = stockItemRecord.ItemId;
+                output.AcumaticaItemDesc = stockItemRecord.AcumaticaDescription;
+                output.AcumaticaItemUrl = _acumaticaUrlService.AcumaticaStockItemUrl(stockItemRecord.ItemId);
+                output.AcumaticaItemTax = stockItemRecord.IsTaxable(settings).YesNoNAPlainEnglish();
+                output.AcumaticaItemPrice = (decimal)stockItem.DefaultPrice.value;
+                output.AcumaticaItemAvailQty 
+                    = stockItemRecord.AcumaticaWarehouseDetails.Sum(x => (int)x.AcumaticaQtyOnHand);
+            }
+
+            return output;
+        }
+
 
         private List<string> ParseSearchTerms(string rawInput)
         {

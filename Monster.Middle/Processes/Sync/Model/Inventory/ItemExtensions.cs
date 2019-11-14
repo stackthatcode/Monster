@@ -4,7 +4,7 @@ using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Misc;
 
-namespace Monster.Middle.Processes.Sync.Model.Orders
+namespace Monster.Middle.Processes.Sync.Model.Inventory
 {
     public static class ItemExtensions
     {
@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
             }
         }
 
-        public static bool IsTaxable(this AcumaticaStockItem input, MonsterSetting settings)
+        public static bool? IsTaxable(this AcumaticaStockItem input, MonsterSetting settings)
         {
             if (input.AcumaticaTaxCategory == settings.AcumaticaTaxableCategory)
             {
@@ -42,7 +42,19 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
                 return false;
             }
 
-            throw new ArgumentException($"{input.AcumaticaTaxCategory} invalid Tax Category");
+            return null;
+        }
+
+        public static string YesNoNAPlainEnglish(this bool? input)
+        {
+            if (input.HasValue)
+            {
+                return input.Value ? "YES" : "NO";
+            }
+            else
+            {
+                return "N/A";
+            }
         }
 
         public static bool AreTaxesMatched(this ShopifyVariant input, MonsterSetting settings)

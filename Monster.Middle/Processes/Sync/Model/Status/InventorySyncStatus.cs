@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Misc;
-using Monster.Middle.Processes.Sync.Model.Orders;
+using Monster.Middle.Processes.Sync.Model.Inventory;
 using Push.Foundation.Utilities.Validation;
 
 namespace Monster.Middle.Processes.Sync.Model.Status

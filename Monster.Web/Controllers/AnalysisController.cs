@@ -18,10 +18,10 @@ namespace Monster.Web.Controllers
         private readonly InstanceContext _instanceContext;
 
         public AnalysisController(
-            ExecutionLogService logRepository,
-            AnalysisDataService analysisDataService, 
-            PendingActionStatusService orderStatusService,
-            InstanceContext instanceContext)
+                ExecutionLogService logRepository,
+                AnalysisDataService analysisDataService, 
+                PendingActionStatusService orderStatusService,
+                InstanceContext instanceContext)
         {
             _logRepository = logRepository;
             _analysisDataService = analysisDataService;
@@ -43,6 +43,7 @@ namespace Monster.Web.Controllers
             return new JsonNetResult(logs);
         }
 
+
         [HttpGet]
         public ActionResult OrderSync()
         {
@@ -50,7 +51,7 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult OrderSyncResults(OrderAnalyzerRequest request)
+        public ActionResult OrderSyncResults(AnalyzerRequest request)
         {
             var grid = _analysisDataService.GetOrderAnalysisResults(request);
             var count = _analysisDataService.GetOrderAnalysisRecordCount(request);
@@ -70,6 +71,22 @@ namespace Monster.Web.Controllers
                 FinancialSummary = financialSummary,
                 PendingActionSummary = pendingActionStatus,
             });
+        }
+
+
+        [HttpGet]
+        public ActionResult ProductStockItem()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult ProductStockItemResults(AnalyzerRequest request)
+        {
+            var grid = _analysisDataService.GetProductStockItemResults(request);
+            var count = _analysisDataService.GetProductStockItemCount(request);
+
+            return new JsonNetResult(new { Grid = grid, Count = count });
         }
     }
 }

@@ -1,0 +1,166 @@
+﻿
+<style>
+    .product-grid { font-size: 0.8em; }
+
+    .product-grid td:nth-child(1), .product-grid th:nth-child(1) { text-align: left; vertical-align: top; }
+    .product-grid td:nth-child(2), .product-grid th:nth-child(2) { text-align: center;}
+    .product-grid td:nth-child(3), .product-grid th:nth-child(3) { text-align: right;}
+    .product-grid td:nth-child(4), .product-grid th:nth-child(4) { text-align: right;}
+    .product-grid td:nth-child(5), .product-grid th:nth-child(5) { text-align: left; vertical-align: top;}
+    .product-grid td:nth-child(6), .product-grid th:nth-child(6) { text-align: center; }
+    .product-grid td:nth-child(7), .product-grid th:nth-child(7) { text-align: right;}
+    .product-grid td:nth-child(8), .product-grid th:nth-child(8) { text-align: right;}
+
+    .order-link { font-weight: 700; }
+    
+    .filter-control .btn, .filter-control input { font-size: 0.9em;}
+</style>
+
+<div class="card std-pad-sm">
+    <div class="card-title-interface">
+        Shopify Product-Acumatica Stock Item Analyzer
+    </div>
+    
+    <div class="card-body std-pad-sm-side">
+        <div data-bind="template: { name: 'Product-Analyzer-Grid' }"></div>
+    </div>
+</div>
+
+<script type="text/html" id="Product-Analyzer-Grid">
+    <div id="product-grid grid-bg" style="min-height:400px;">
+        <!-- Filtering -->
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="input-group mb-3 filter-control">
+                    <input type="text" class="form-control" 
+                           data-bind="value: SearchText, event: { keyup: SearchTermsKeyCallback }"
+                           placeholder="Search by Shopify Product ID, Variant ID, SKU, or Acumatica Item ID"
+                           aria-label="Search by Shopify Product ID, Variant ID, SKU, or Acumatica Item ID"
+                           maxlength="25" />
+
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button" data-bind="click: FilterClick">
+                            Filter <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4 right">
+                <div data-bind="template: { name: 'Monster-Paging-Widget', data: PagingWidget }"></div>
+            </div>
+        </div>
+
+        <table class="table table-striped table-hover product-grid">
+            <thead>
+            <tr style="color: #777;">
+                <th scope="col">Shopify Product / Shopify Variant</th>
+                <th scope="col">Shopify<br />Tax</th>
+                <th scope="col">Shopify<br />Price</th>
+                <th scope="col">Shopify<br />Avail Qty</th>
+
+                <th scope="col">Acumatica Stock Item</th>
+                <th scope="col">Acumatica<br />Tax</th>
+                <th scope="col">Acumatica<br />Price</th>
+                <th scope="col">Acumatica<br />Avail Qty</th>
+            </tr>
+            </thead>
+            <tbody data-bind="foreach: Grid">
+            <tr>
+                <td>
+                    <div>
+                        <a target="_blank" data-bind="text: ShopifyProductTitle, attr: { href: ShopifyProductUrl }"></a>
+                        <span data-bind="if: IsShopifyProductDeleted" class="text-muted">(Deleted)</span>
+                    </div>
+                   
+                    <div>
+                        <a target="_blank" data-bind="attr: { href: ShopifyVariantUrl }">
+                            <span data-bind="text: ShopifyVariantTitle"></span>
+                            <span>-</span>
+                            <span data-bind="text: ShopifyVariantSku"></span>
+                        </a>
+                        <span data-bind="if: IsShopifyVariantMissing" class="text-muted">(Missing)</span>
+                    </div>
+                </td>
+                <td data-bind="text: ShopifyVariantTax"></td>
+                <td data-bind="text: Monster.NumberFormat(ShopifyVariantPrice)"></td>
+                <td data-bind="text: Monster.NumberFormat(ShopifyVariantAvailQty)"></td>
+                
+                <td><a data-bind="attr: { href: AcumaticaItemUrl }">
+                    <span data-bind="text: AcumaticaItemId"></span>
+                    <span data-bind="text: AcumaticaItemDesc"></span>
+                    </a>
+                </td>
+                <td data-bind="text: AcumaticaItemTax"></td>
+                <td data-bind="text: Monster.NumberFormat(AcumaticaItemPrice)"></td>
+                <td data-bind="text: Monster.NumberFormat(AcumaticaItemAvailQty)"></td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</script>
+
+
+<script>
+    var Monster = Monster || {};
+
+    Monster.ProductStockItemModel = function () {
+        var self = this;
+
+        // Grid stuff...
+        //
+        self.SearchText = ko.observable();
+        self.Grid = ko.observableArray([]);
+
+        self.ScrollToTop = function () {
+            $('html,body').animate({ scrollTop: 0 });
+        };
+
+        self.PagingWidget = new MonsterWidgets.PagingWidget();
+        self.PagingWidget.Callback = function () {
+            self.RefreshGrid(self.ScrollToTop);
+        };
+
+        self.FilterClick = function () {
+            self.RefreshGrid();
+        };
+
+        self.SearchTermsKeyCallback = function (model, event) {
+            if (event.keyCode == 13) {
+                self.RefreshGrid();
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        self.RefreshGrid = function (callback) {
+            flow.exec(function () {
+                var ajax = new Monster.Ajax();
+                var request = {
+                    PageNumber: self.PagingWidget.PageNumber(),
+                    PageSize: self.PagingWidget.PageSize(),
+                    SearchText: self.SearchText(),
+                };
+                ajax.HttpPost("/Analysis/ProductStockItemResults", request, this);
+            },
+            function (response) {
+                self.Grid(response.Grid);
+                self.PagingWidget.RecordCount(response.Count);
+            });
+        };
+
+        self.Initialize = function () { self.RefreshGrid(); };
+
+
+        return self;
+    };
+
+    $(document).ready(function() {
+        var model = new Monster.ProductStockItemModel();
+        ko.applyBindings(model);
+        model.Initialize();
+    });
+</script>
+

@@ -2,7 +2,7 @@
 
 namespace Monster.Middle.Processes.Sync.Model.Analysis
 {
-    public class OrderAnalyzerRequest
+    public class AnalyzerRequest
     {
         public int PageNumber { get; set; }
         public int PageSize { get; set; }

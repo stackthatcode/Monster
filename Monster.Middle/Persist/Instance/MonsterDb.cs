@@ -1031,7 +1031,6 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaJson { get; set; } // AcumaticaJson
         public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
         public string AcumaticaDescription { get; set; } // AcumaticaDescription (length: 200)
-        public bool? IsTaxable { get; set; } // IsTaxable
         public bool IsPriceSynced { get; set; } // IsPriceSynced
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -1593,8 +1592,9 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyVariantJson { get; set; } // ShopifyVariantJson
         public string ShopifySku { get; set; } // ShopifySku (length: 100)
         public string ShopifyTitle { get; set; } // ShopifyTitle (length: 200)
-        public decimal ShopifyCost { get; set; } // ShopifyCost
         public bool ShopifyIsTracked { get; set; } // ShopifyIsTracked
+        public decimal ShopifyPrice { get; set; } // ShopifyPrice
+        public decimal ShopifyCost { get; set; } // ShopifyCost
         public bool ShopifyIsTaxable { get; set; } // ShopifyIsTaxable
         public bool IsMissing { get; set; } // IsMissing
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -2191,7 +2191,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaJson).HasColumnName(@"AcumaticaJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDescription).HasColumnName(@"AcumaticaDescription").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(200);
-            Property(x => x.IsTaxable).HasColumnName(@"IsTaxable").HasColumnType("bit").IsOptional();
             Property(x => x.IsPriceSynced).HasColumnName(@"IsPriceSynced").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
@@ -2798,8 +2797,9 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyVariantJson).HasColumnName(@"ShopifyVariantJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifySku).HasColumnName(@"ShopifySku").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100);
             Property(x => x.ShopifyTitle).HasColumnName(@"ShopifyTitle").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(200);
-            Property(x => x.ShopifyCost).HasColumnName(@"ShopifyCost").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.ShopifyIsTracked).HasColumnName(@"ShopifyIsTracked").HasColumnType("bit").IsRequired();
+            Property(x => x.ShopifyPrice).HasColumnName(@"ShopifyPrice").HasColumnType("money").IsRequired().HasPrecision(19,4);
+            Property(x => x.ShopifyCost).HasColumnName(@"ShopifyCost").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.ShopifyIsTaxable).HasColumnName(@"ShopifyIsTaxable").HasColumnType("bit").IsRequired();
             Property(x => x.IsMissing).HasColumnName(@"IsMissing").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();

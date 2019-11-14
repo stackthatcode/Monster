@@ -41,12 +41,13 @@
 </div>
 
 <script type="text/html" id="Order-Analyzer-Grid">
-    <div id="order-grid" style="min-height:400px;">
+    <div id="order-grid grid-bg" style="min-height:400px;">
         <!-- Filtering -->
         <div class="row">
             <div class="col-sm-8">
                 <div class="input-group mb-3 filter-control">
-                    <input type="text" class="form-control" data-bind="value: SearchText"
+                    <input type="text" class="form-control" 
+                           data-bind="value: SearchText, event: { keyup: SearchTermsKeyCallback }"
                            placeholder="Search by Shopify Order Number or ID, Acumatica Sales Order ID"
                            aria-label="Search by Shopify Order Number or ID, Acumatica Sales Order ID"
                            maxlength="25" />
@@ -376,6 +377,15 @@
 
         self.FilterOrdersClick = function () {
             self.RefreshGrid();
+        };
+
+        self.SearchTermsKeyCallback = function (model, event) {
+            if (event.keyCode == 13) {
+                self.RefreshGrid();
+                return false;
+            } else {
+                return true;
+            }
         };
 
         self.RefreshGrid = function (callback) {

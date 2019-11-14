@@ -149,7 +149,8 @@
     <Compile Include="Processes\Sync\Model\Analysis\Extensions.cs" />
     <Compile Include="Processes\Sync\Model\Analysis\OrderAnalysisTotals.cs" />
     <Compile Include="Processes\Sync\Model\Analysis\OrderAnalyzerResultsRow.cs" />
-    <Compile Include="Processes\Sync\Model\Analysis\OrderAnalyzerRequest.cs" />
+    <Compile Include="Processes\Sync\Model\Analysis\AnalyzerRequest.cs" />
+    <Compile Include="Processes\Sync\Model\Analysis\ProductStockItemResultsRow.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\ShopifyNewProductImportContext.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\ShopifyAddVariantImportContext.cs" />
     <Compile Include="Processes\Sync\Model\Orders\InvoiceExtensions.cs" />
@@ -194,7 +195,7 @@
     <Compile Include="Processes\Shopify\Persist\OrderExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\TransactionExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Orders\CustomerExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\Orders\ItemExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\Inventory\ItemExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Orders\ShipmentExtensions.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\WarehouseExtensions.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyBatchRepository.cs" />

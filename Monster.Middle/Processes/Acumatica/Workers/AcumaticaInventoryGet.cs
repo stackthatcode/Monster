@@ -106,7 +106,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     newData.AcumaticaDescription = item.Description.value;
                     newData.AcumaticaTaxCategory = item.TaxCategory.value;
 
-                    newData.IsTaxable = ComputeIsTaxable(settings, item.TaxCategory.value);
                     newData.IsPriceSynced = false;
                     newData.DateCreated = DateTime.UtcNow;
                     newData.LastUpdated = DateTime.UtcNow;
@@ -119,7 +118,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     existingData.AcumaticaTaxCategory = item.TaxCategory.value;
                     existingData.AcumaticaDescription = item.Description.value;
 
-                    existingData.IsTaxable = ComputeIsTaxable(settings, item.TaxCategory.value);
                     existingData.LastUpdated = DateTime.UtcNow;
                     existingData.IsPriceSynced = false;
 

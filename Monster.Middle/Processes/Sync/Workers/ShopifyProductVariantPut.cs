@@ -99,7 +99,15 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var variant = new Variant();
                 variant.sku = stockItemRecord.ItemId;
                 variant.title = stockItemRecord.AcumaticaDescription;
-                variant.taxable = stockItemRecord.IsTaxable(settings);
+
+                var isTaxable = stockItemRecord.IsTaxable(settings);
+                if (isTaxable == null)
+                {
+                    throw new Exception(
+                        $"{stockItem.TaxCategory} invalid Tax Category for {stockItemRecord.ItemId}");
+                }
+
+                variant.taxable = isTaxable.Value;
                 variant.price = price;
 
                 _logService.Log(LogBuilder.CreateShopifyVariant(stockItemRecord));
