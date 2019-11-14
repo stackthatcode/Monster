@@ -138,7 +138,6 @@ namespace Monster.Middle.Processes.Sync.Managers
         
         public void SyncFulfillmentsToShopify()
         {
-            // Sync Shipments to Shopify Fulfillments
             _shopifyFulfillmentSync.Run();
         }
         
@@ -147,7 +146,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _warehouseLocationSync.Run();
         }
 
-        public void ImportIntoAcumatica(AcumaticaStockItemImportContext context)
+        public void ImportAcumaticaStockItems(AcumaticaStockItemImportContext context)
         {
             _acumaticaContext.SessionRun(() =>
             {
@@ -166,6 +165,16 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 _acumaticaOrderSync.RunOrder(shopifyOrderId);
             });
+        }
+
+        public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -324,7 +324,7 @@ namespace Monster.Web.Controllers
         public ActionResult RunImportIntoAcumatica(
                 bool createInventoryReceipt, bool enableInventorySync, List<long> selectedSPIds)
         {
-            _oneTimeJobService.ImportIntoAcumatica(selectedSPIds, createInventoryReceipt, enableInventorySync);
+            _oneTimeJobService.ImportAcumaticaStockItems(selectedSPIds, createInventoryReceipt, enableInventorySync);
             return JsonNetResult.Success();
         }
         
@@ -366,19 +366,28 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult RunImportIntoExistingProduct(long shopifyProductId, List<string> acumaticaItemIds)
-        {
-            // You got this, Jones!!!
-            //
-            return JsonNetResult.Success();
-        }
-
-        [HttpPost]
         public ActionResult RunImportToCreateNewProduct(
                 List<string> acumaticaItemIds, string title, string productType, string vendor)
         {
-            // You KNOW you got this, Jones!!!
-            //
+            var context = new ShopifyNewProductImportContext();
+            context.ProductTitle = title;
+            context.ProductVendor = vendor;
+            context.ProductType = productType;
+            context.AcumaticaItemIds = acumaticaItemIds;
+            _oneTimeJobService.ImportNewShopifyProduct(context);
+
+            return JsonNetResult.Success();
+        }
+
+
+        [HttpPost]
+        public ActionResult RunImportIntoExistingProduct(long shopifyProductId, List<string> acumaticaItemIds)
+        {
+            var context = new ShopifyAddVariantImportContext();
+            context.ShopifyProductId = shopifyProductId;
+            context.AcumaticaItemIds = acumaticaItemIds;
+            _oneTimeJobService.ImportAddShopifyVariantsToProduct(context);
+
             return JsonNetResult.Success();
         }
     }

@@ -9,8 +9,10 @@ namespace Monster.Middle.Misc.Hangfire
         public const int SyncWarehouseAndLocation = 3;
         public const int Diagnostics = 4;
         public const int RefreshInventory = 5;
-        public const int ImportIntoAcumatica = 6;
-        public const int EndToEndSync = 7;
+        public const int ImportAcumaticaStockItems = 6;
+        public const int ImportNewShopifyProduct = 7;
+        public const int ImportAddShopifyVariantsToProduct = 8;
+        public const int EndToEndSync = 9;
 
 
         public static bool IsRecurring(this int jobType)
@@ -29,8 +31,10 @@ namespace Monster.Middle.Misc.Hangfire
             { RefreshAcumaticaRefData, "Refresh Acumatica Reference Data" },
             { SyncWarehouseAndLocation, "Sync Warehouse and Location" },
             { Diagnostics, "Diagnostics" },
-            { RefreshInventory, "RefreshInventory" },
-            { ImportIntoAcumatica, "Import into Acumatica" },
+            { RefreshInventory, "Refresh Inventory Cache" },
+            { ImportAcumaticaStockItems, "Import Stock Items into Acumatica" },
+            { ImportNewShopifyProduct, "Import New Shopify Product" },
+            { ImportAddShopifyVariantsToProduct, "Import Add Shopify Variants to Existing Product" },
             { EndToEndSync, "End To End Sync" },
         };
     }

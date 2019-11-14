@@ -6,8 +6,7 @@ namespace Monster.Middle.Misc.Hangfire
     public class NamedLock
     {
         private static readonly
-                ConcurrentDictionary<string, string>
-                    _processing = new ConcurrentDictionary<string, string>();
+            ConcurrentDictionary<string, string> _processing = new ConcurrentDictionary<string, string>();
 
         private static readonly object _lock = new object();
 

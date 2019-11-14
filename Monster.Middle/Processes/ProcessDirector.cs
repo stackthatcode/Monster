@@ -9,7 +9,6 @@ using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Shopify;
 using Monster.Middle.Processes.Sync.Model.Inventory;
-using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Logging;
@@ -19,7 +18,6 @@ namespace Monster.Middle.Processes.Sync.Managers
 {
     public class ProcessDirector
     {
-        private readonly ExternalServiceRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
         private readonly CombinedRefDataService _combinedRefDataService;
         private readonly AcumaticaManager _acumaticaManager;
@@ -33,7 +31,6 @@ namespace Monster.Middle.Processes.Sync.Managers
 
 
         public ProcessDirector(
-                ExternalServiceRepository connectionRepository,
                 StateRepository stateRepository,
 
                 AcumaticaManager acumaticaManager, 
@@ -47,7 +44,6 @@ namespace Monster.Middle.Processes.Sync.Managers
                 JobMonitoringService monitoringService,
                 IPushLogger logger)
         {
-            _connectionRepository = connectionRepository;
             _stateRepository = stateRepository;
 
             _acumaticaManager = acumaticaManager;
@@ -178,21 +174,45 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
         
-        public void ImportInventoryToAcumatica(AcumaticaStockItemImportContext context)
+        public void ImportAcumaticaStockItems(AcumaticaStockItemImportContext context)
         {
             RefreshInventory();
-
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             if (state.InventoryRefreshState != StateCode.Ok)
             {
-                var msg = "Inventory Refresh is broken; aborting Inventory Import";
-                _executionLogService.Log(msg);
+                _executionLogService.Log("Inventory Refresh is broken; aborting ImportAcumaticaStockItems");
                 return;
             }
 
-            _syncManager.ImportIntoAcumatica(context);
+            _syncManager.ImportAcumaticaStockItems(context);
         }
 
+        public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
+        {
+            RefreshInventory();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
+            if (state.InventoryRefreshState != StateCode.Ok)
+            {
+                _executionLogService.Log("Inventory Refresh is broken; aborting ImportNewShopifyProduct");
+                return;
+            }
+
+            _syncManager.ImportNewShopifyProduct(context);
+        }
+
+        public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
+        {
+            RefreshInventory();
+            var state = _stateRepository.RetrieveSystemStateNoTracking();
+            if (state.InventoryRefreshState != StateCode.Ok)
+            {
+                _executionLogService.Log(
+                    "Inventory Refresh is broken; aborting ImportAddShopifyVariantsToProduct");
+                return;
+            }
+
+            _syncManager.ImportAddShopifyVariantsToProduct(context);
+        }
 
 
         // Synchronization

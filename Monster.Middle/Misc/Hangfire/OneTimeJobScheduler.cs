@@ -13,7 +13,8 @@ namespace Monster.Middle.Misc.Hangfire
 
 
         public OneTimeJobScheduler(
-                InstanceContext tenantContext, JobMonitoringService jobMonitoringService)
+                InstanceContext tenantContext, 
+                JobMonitoringService jobMonitoringService)
         {
             _tenantContext = tenantContext;
             _jobMonitoringService = jobMonitoringService;
@@ -69,25 +70,42 @@ namespace Monster.Middle.Misc.Hangfire
             _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
         
-        public void ImportIntoAcumatica(
-                List<long> spids, bool createInventoryReceipts, bool automaticEnable)
+        public void ImportAcumaticaStockItems(List<long> spids, bool createReceipts, bool automaticEnable)
         {
             var context = new AcumaticaStockItemImportContext
             {
                 ShopifyProductIds = spids,
-                CreateInventoryReceipts = createInventoryReceipts,
+                CreateInventoryReceipts = createReceipts,
                 IsSyncEnabled = automaticEnable,
             };
 
-            var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.ImportIntoAcumatica);
+            var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.ImportAcumaticaStockItems);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
-                x => x.ImportIntoAcumatica(_tenantContext.InstanceId, context, monitor.Id));
+                    x => x.ImportAcumaticaStockItems(_tenantContext.InstanceId, context, monitor.Id));
 
             _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
+        public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
+        {
+            var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.ImportNewShopifyProduct);
 
+            var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
+                    x => x.ImportNewShopifyProduct(_tenantContext.InstanceId, context, monitor.Id));
+
+            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+        }
+
+        public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
+        {
+            var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.ImportNewShopifyProduct);
+
+            var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
+                    x => x.ImportAddShopifyVariantsToProduct(_tenantContext.InstanceId, context, monitor.Id));
+
+            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+        }
     }
 }
 
