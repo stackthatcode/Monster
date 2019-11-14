@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Xml.Schema;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Status;
@@ -280,8 +279,25 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Product/Variant-Stock Item Sync Control
         //
-        public List<ShopAcuItemSync> 
-                    SearchVariantAndStockItems(string filterText, int syncEnabledFilter)
+        public List<ShopAcuItemSync> SearchVariantAndStockItemResults(
+                string filterText, int syncEnabledFilter, int startRecord, int pageSize)
+        {
+            var dataSet = SearchVariantAndStockItems(filterText, syncEnabledFilter);
+
+            dataSet = dataSet
+                .OrderBy(x => x.ShopifyVariant.ShopifySku)
+                .Skip(startRecord)
+                .Take(pageSize);
+
+            return dataSet.ToList();
+        }
+
+        public int SearchVariantAndStockItemCount(string filterText, int syncEnabledFilter)
+        {
+            return SearchVariantAndStockItems(filterText, syncEnabledFilter).Count();
+        }
+
+        private IQueryable<ShopAcuItemSync> SearchVariantAndStockItems(string filterText, int syncEnabledFilter)
         {
             var termList = filterText.Split(' ').Where(x => x.Trim() != "").ToList();
 
@@ -311,19 +327,10 @@ namespace Monster.Middle.Processes.Sync.Persist
             {
                 dataSet = dataSet.Where(x => x.IsSyncEnabled == false);
             }
-            
-            return dataSet.ToList();
+
+            return dataSet;
         }
 
-        public int RetrieveVariantAndStockItemMatchCount()
-        {
-            var sql = "SELECT COUNT(*) FROM vw_SyncVariantAndStockItem";
-
-            return Entities
-                .Database
-                .SqlQuery<int>(sql)
-                .First();
-        }
 
 
         public ShopifyProduct RetrieveProduct(long shopifyProductId)
@@ -335,7 +342,6 @@ namespace Monster.Middle.Processes.Sync.Persist
                     .Include(x => x.ShopifyVariants.Select(y => y.ShopifyInventoryLevels))
                     .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
-
 
         private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms, bool includeSynced = false)
         {

@@ -14,6 +14,7 @@ using Monster.Web.Attributes;
 using Monster.Web.Models;
 using Monster.Web.Models.Sync;
 using Monster.Web.Plumbing;
+using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Web.Json;
 using Push.Shopify.Api;
@@ -242,19 +243,31 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult VariantAndStockItemMatches(string filterText, int syncEnabledFilter)
+        public ActionResult VariantAndStockItemMatches(
+                string filterText, int syncEnabledFilter, int pageNumber, int pageSize)
         {
+            var startingRecord = PagingHelper.StartingRecord(pageNumber, pageSize);
+
             var results = 
                 _syncInventoryRepository
-                    .SearchVariantAndStockItems(filterText, syncEnabledFilter);
+                    .SearchVariantAndStockItemResults(filterText, syncEnabledFilter, startingRecord, pageSize);
 
-            var output = 
+            var resultsDtos = 
                 results.Select(item => 
                     VariantAndStockItemDto.Make(
                         item, 
                         _shopifyUrlService.ShopifyVariantUrl, 
                         _acumaticaUrlService.AcumaticaStockItemUrl))
                     .ToList();
+
+            var count = _syncInventoryRepository
+                .SearchVariantAndStockItemCount(filterText, syncEnabledFilter);
+
+            var output = new
+            {
+                results = resultsDtos,
+                count = count,
+            };
 
             return new JsonNetResult(output);
         }

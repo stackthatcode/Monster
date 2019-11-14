@@ -1,16 +1,18 @@
 ﻿@using Monster.Middle.Processes.Sync.Model.Status
 @using Monster.Web.Plumbing
+
+@Html.Partial("_PagingWidget")
 @Html.Partial("_TopBrand")
 
 <style>
     .sync-grid td {
         vertical-align: middle;
-        font-size:0.84em;
+        font-size: 0.84em;
         background-color: #FFFFFF;
     }
 </style>
 
-<div class="medium-size" >
+<div class="large-size">
     <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
         <div data-bind="if: ShowWelcomePanel">
             <div data-bind="template: { name: 'Inventory-Welcome-Panel' }"></div>
@@ -33,7 +35,7 @@
 
 <script id="Inventory-Welcome-Panel" type="text/html">
     <div class="medium-size">
-        <hr/>
+        <hr />
         <h1 class="mt-4 center">Inventory Sync Control</h1>
         <p class="lead center">Pull from Shopify and Acumatica to prepare for loading</p>
 
@@ -59,7 +61,7 @@
             <div class="center std-pad-sm-t">
                 <button type="button" class="btn btn-primary btn-sm" data-bind="click: InventoryPullClick">
                     Refresh Inventory <i class="fas fa-bolt"></i>
-                
+
                     <span data-bind="if: LastRunBroken">
                         <span class="badge badge-dark">FAILED</span>
                     </span>
@@ -71,7 +73,7 @@
                     </a>
                 </span>
             </div>
-            
+
             <!-- Results -->
             <div class="std-pad-sm-side">
                 <div data-bind="template: { name: 'Inventory-Sync-Grid', data: InventorySyncGrid }"></div>
@@ -83,51 +85,59 @@
 <script id="Inventory-Sync-Grid" type="text/html">
     <div class="card-body no-pad-sides">
         <!-- Filtering -->
-        <div class="input-group mb-3">                   
-            <input type="text" class="form-control" data-bind="value: FilterText"
-                   placeholder="Enter Product Title, Variant Title, Item Id, Description, Vendor, Product Type" 
-                   aria-label="Enter Product Title, Variant Title, Item Id, Description, Vendor, Product Type"
-                   maxlength="50" />
-            
-            <div class="input-group-append">
-                <button class="btn btn-secondary" data-bind="click: FilterInventoryClick" type="button">
-                    Filter Inventory <i class="fas fa-search"></i>
-                </button>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control"
+                           data-bind="value: FilterText, event: { keyup: SearchTermsKeyCallback }"
+                           placeholder="Enter Product Title, Variant Title, Item Id, Description, Vendor, Product Type"
+                           aria-label="Enter Product Title, Variant Title, Item Id, Description, Vendor, Product Type"
+                           maxlength="50" />
+
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" data-bind="click: FilterInventoryClick" type="button">
+                            Filter Inventory <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4" style="text-align:right;">
+                <div data-bind="template: { name: 'Monster-Paging-Widget', data: PagingWidget }"></div>
             </div>
         </div>
 
         <div class="center" style="font-size:0.8em;">
             <div class="form-check form-check-inline">
-                <input class="form-check-input" 
-                       type="radio" 
-                       name="filterOptions" 
-                       id="inlineRadio1" 
+                <input class="form-check-input"
+                       type="radio"
+                       name="filterOptions"
+                       id="inlineRadio1"
                        value="@SyncEnabledFilter.ShowAll"
                        data-bind="checked: FilterEnabled">
                 <label class="form-check-label" for="inlineRadio1">Show All</label>
             </div>
 
             <div class="form-check form-check-inline">
-                <input class="form-check-input" 
-                       type="radio" 
-                       name="filterOptions" 
-                       id="inlineRadio2" 
+                <input class="form-check-input"
+                       type="radio"
+                       name="filterOptions"
+                       id="inlineRadio2"
                        value="@SyncEnabledFilter.EnabledOnly"
                        data-bind="checked: FilterEnabled">
                 <label class="form-check-label" for="inlineRadio2">Enabled Only</label>
             </div>
 
             <div class="form-check form-check-inline">
-                <input class="form-check-input" 
-                       type="radio" 
-                       name="filterOptions" 
-                       id="inlineRadio3" 
+                <input class="form-check-input"
+                       type="radio"
+                       name="filterOptions"
+                       id="inlineRadio3"
                        value="@SyncEnabledFilter.DisabledOnly"
                        data-bind="checked: FilterEnabled">
                 <label class="form-check-label" for="inlineRadio3">Disabled Only</label>
             </div>
         </div>
-    
+
         <hr />
 
         <div>
@@ -150,68 +160,73 @@
         </div>
 
         <div style="clear:both; height:15px;"></div>
-        
+
         <!-- Grid -->
         <div data-bind="visible: !HasData()" style="min-height:600px;  display:none; padding-top:200px;" class="empty-grid">
             <h1>No Products match your criteria</h1>
             <p class="lead center">Only Shopify Product-Variants matched with Acumatica Stock Items will appear</p>
         </div>
-    
-        <div data-bind="visible: HasData()"  style="min-height:600px;" class="grid-bg">
+
+        <div data-bind="visible: HasData()" style="min-height:600px;" class="grid-bg">
             <table class="table sync-grid">
                 <tbody data-bind="foreach: GridData">
-                <tr>
-                    <td style="padding-left:0;">
-                        <!-- Rounded switch -->
-                        <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
-                            <label class="switch">
-                                <input type="checkbox" 
-                                       data-bind="checked: IsEnabled, click: EnableClick">
-                                <span class="slider round"></span>
-                            </label>
-                        
-                            <div data-bind="if: IsEnabled">
-                                <span style="font-size:0.8em; font-weight:700; color:#007bff">ENABLED</span>
+                    <tr>
+                        <td style="padding-left:0;">
+                            <!-- Rounded switch -->
+                            <div style="text-align:center; margin-right:auto; margin-left:0; width:60px;">
+                                <label class="switch">
+                                    <input type="checkbox"
+                                           data-bind="checked: IsEnabled, click: EnableClick">
+                                    <span class="slider round"></span>
+                                </label>
+
+                                <div data-bind="if: IsEnabled">
+                                    <span style="font-size:0.8em; font-weight:700; color:#007bff">ENABLED</span>
+                                </div>
+                                <div data-bind="ifnot: IsEnabled">
+                                    <span style="font-size:0.8em; font-weight:700; color:#a9a9a9">DISABLED</span>
+                                </div>
                             </div>
-                            <div data-bind="ifnot: IsEnabled">
-                                <span style="font-size:0.8em; font-weight:700; color:#a9a9a9">DISABLED</span>
+                        </td>
+                        <td>
+                            <div>
+                                <span data-bind="text: ShopifySku"></span> <span>-</span>
+                                <span data-bind="text: ShopifyVariantTitle"></span>
                             </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div>
-                            <span data-bind="text: ShopifySku"></span> <span>-</span>
-                            <span data-bind="text: ShopifyVariantTitle"></span>
-                        </div>
-                        <div>
-                            <span data-bind="text: ShopifyProductTitle"></span>
-                        </div>
+                            <div>
+                                <span data-bind="text: ShopifyProductTitle"></span>
+                            </div>
 
-                        <div style="color:#a9a9a9; font-size:0.8em;">
-                            VId:  <span data-bind="text: ShopifyVariantId"></span> 
-                            PId: <span data-bind="text: ShopifyProductId"></span> </div>
-                        <div><a href="#" target="_blank"
-                                data-bind="attr: { href: ShopifyVariantUrl }">(Click here to view in Shopify)</a></div>
-                    </td>
+                            <div style="color:#a9a9a9; font-size:0.8em;">
+                                VId:  <span data-bind="text: ShopifyVariantId"></span>
+                                PId: <span data-bind="text: ShopifyProductId"></span>
+                            </div>
+                            <div>
+                                <a href="#" target="_blank"
+                                   data-bind="attr: { href: ShopifyVariantUrl }">(Click here to view in Shopify)</a>
+                            </div>
+                        </td>
 
-                    <td>
-                        <div><span data-bind="text: AcumaticaItemId"></span></div>
-                        <div><span data-bind="text: AcumaticaDescription"></span></div>
-                        <div><a href="#" target="_blank"
-                                data-bind="attr: { href: AcumaticaStockItemUrl }">(Click here to view in Acumatica)</a></div>
-                    </td>
+                        <td>
+                            <div><span data-bind="text: AcumaticaItemId"></span></div>
+                            <div><span data-bind="text: AcumaticaDescription"></span></div>
+                            <div>
+                                <a href="#" target="_blank"
+                                   data-bind="attr: { href: AcumaticaStockItemUrl }">(Click here to view in Acumatica)</a>
+                            </div>
+                        </td>
 
-                    <td style="text-align:right; padding-right:0; font-size:14px;">
-                        <div data-bind="if: IsSelected">
-                            <a href="#" data-bind="click: SelectClick"
-                               class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
-                        </div>
-                        <div data-bind="ifnot: IsSelected">
-                            <a href="#" data-bind="click: SelectClick"
-                               class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
-                        </div>
-                    </td>
-                </tr>
+                        <td style="text-align:right; padding-right:0; font-size:14px;">
+                            <div data-bind="if: IsSelected">
+                                <a href="#" data-bind="click: SelectClick"
+                                   class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
+                            </div>
+                            <div data-bind="ifnot: IsSelected">
+                                <a href="#" data-bind="click: SelectClick"
+                                   class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -224,7 +239,7 @@
 
     Monster.InventoryConfigModel = function () {
         var self = this;
-        
+
         self.JobRunningModel = new Monster.JobStatusModel();
 
         self.InventoryPullState = ko.observable();
@@ -255,7 +270,7 @@
         self.ShowSearchPanel = ko.computed(function () {
             return self.HasInventoryPullRun();
         });
-        
+
 
         // Methods/Actions
         //
@@ -276,8 +291,8 @@
                 });
         };
 
-        self.Initialize = function () { 
-            self.JobRunningModel.StartPolling(true); 
+        self.Initialize = function () {
+            self.JobRunningModel.StartPolling(true);
         };
 
         return self;
@@ -297,12 +312,27 @@
         self.FilterEnabled.subscribe(function() {
             self.RefreshGrid();
         });
-        
+
         self.GridData = ko.observableArray([]);
 
         self.HasData = ko.computed(function() {
             return self.GridData().length > 0;
         });
+
+        self.SearchTermsKeyCallback = function (model, event) {
+            if (event.keyCode == 13) {
+                self.RefreshGrid();
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        self.PagingWidget = new MonsterWidgets.PagingWidget();
+
+        self.PagingWidget.Callback = function () {
+            self.RefreshGrid();
+        };
 
         self.FilterInventoryClick = function() {
             self.RefreshGrid();
@@ -315,13 +345,17 @@
                     var model = {
                         filterText: self.FilterText(),
                         syncEnabledFilter: self.FilterEnabled(),
+                        pageNumber: self.PagingWidget.PageNumber(),
+                        pageSize: self.PagingWidget.PageSize(),
                     };
                     ajax.HttpPost("/Sync/VariantAndStockItemMatches", model, this);
                 },
                 function (response) {
                     // console.log(response);
                     self.DecorateGridData(response);
-                    self.GridData(response);
+
+                    self.PagingWidget.RecordCount(response.count);
+                    self.GridData(response.results);
                 });
         };
 
@@ -365,7 +399,11 @@
             self.BulkSyncEnable(false);
         };
 
-        self.BulkSyncEnable = function(syncEnabled) {
+        self.BulkSyncEnable = function (syncEnabled) {
+            if (self.SelectedVariantIds().length == 0) {
+                return;
+            }
+
             flow.exec(
                 function() {
                     var ajax = new Monster.Ajax();
@@ -395,7 +433,7 @@
             row.SelectClick = function() {
                 row.IsSelected(!row.IsSelected());
             };
-            
+
             row.EnableClick = function() {
                 self.UpdateEnabledState(row);
                 return true;
@@ -404,7 +442,7 @@
             // Load from the data set
             row.IsEnabled(row.IsSyncEnabled);
         };
-        
+
         return self;
     };
 
