@@ -105,7 +105,8 @@ DROP VIEW IF EXISTS vw_SyncAcumaticaInventory
 GO
 CREATE VIEW vw_SyncAcumaticaInventory
 AS
-SELECT t1.ItemId AS AcumaticaItemId, 
+SELECT t1.MonsterId,
+	t1.ItemId AS AcumaticaItemId, 
 	t3.AcumaticaWarehouseId, 
 	t3.AcumaticaQtyOnHand, 
 	t4.Id AS WarehouseSyncId,
@@ -155,11 +156,11 @@ SELECT t1.ShopifySku,
 	t1.ShopifyLocationName,
 	t2.AcumaticaWarehouseId,
 	t1.ShopifyAvailableQuantity,
-	t2.AcumaticaQtyOnHand
+	t2.AcumaticaQtyOnHand,
+	t1.VariantSyncId AS SyncRecordId
 FROM vw_SyncShopifyInventory t1
 	FULL OUTER JOIN vw_SyncAcumaticaInventory t2
-		ON t1.LocationSyncId = t2.WarehouseSyncId
-		AND t1.VariantSyncId = t2.ItemSyncId
+		ON t1.VariantSyncId = t2.ItemSyncId
 GO
 
 DROP VIEW IF EXISTS vw_SyncInventoryLevelAndReceipts

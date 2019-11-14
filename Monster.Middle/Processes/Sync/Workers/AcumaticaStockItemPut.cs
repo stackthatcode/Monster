@@ -53,72 +53,71 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 if (context.CreateInventoryReceipts)
                 {
-                    RunInventoryReceiptImport(shopifyProductId);
+                    RunInventoryReceiptImport(shopifyProductId, context.VariantsForInventoryReceipt);
                 }
             }
         }
 
         private void RunStockItemImport(AcumaticaStockItemImportContext context, ShopifyVariant variant)
-        {            
-            var matchingShopifySkus =
-                _syncRepository
-                    .RetrieveVariantsWithStockItems(variant.StandardizedSku())
-                    .ExcludeMissing();
-
+        {
+            var matchingShopifySkus = _syncRepository.RetrieveNonMissingVariants(variant.StandardizedSku());
             if (matchingShopifySkus.Count > 1)
             {
-                _logService.Log($"Shopify Variant SKU {variant.ShopifySku} has duplicates in Shopify");
+                _logService.Log(
+                    $"Stock Item Import: {variant.LogDescriptor()} has duplicates in Shopify - aborting");
                 return;
             }
 
             // Attempt to Auto-match
+            //
+            if (variant.IsMatched())
+            {
+                _logService.Log($"Stock Item Import: {variant.LogDescriptor()} already matched - aborting");
+                return;
+            }
+
             var stockItem = _syncRepository.RetrieveStockItem(variant.StandardizedSku());
 
-            if (stockItem != null && !stockItem.IsMatchedToShopify())
+            if (stockItem != null)
             {
-                _logService.Log(
-                    $"Auto-matched Stock Item {stockItem.ItemId} " +
-                    $"to Shopify Variant {variant.ShopifyVariantId}");
+                if (stockItem.HasMatch() && stockItem.MatchedVariant().IsMissing)
+                {
+                    var msg = $"Stock Item Import: removing sync from {stockItem.LogDescriptor()} "
+                                + "to Variant flagged missing";
+                    _logService.Log(msg);
 
-                _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
-                return;
+                    _syncRepository.DeleteItemSyncs(stockItem);
+                }
+
+                if (!stockItem.HasMatch())
+                {
+                    var msg = $"Stock Item Import: auto-matched {stockItem.LogDescriptor()} "
+                                + $"to {variant.LogDescriptor()}";
+                    _logService.Log(msg);
+
+                    _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
+                    return;
+                }
+                else
+                {
+                    var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
+                    _logService.Log(msg);
+                    return;
+                }
             }
 
             // With neither duplicates or Auto-matching having succeeded,
             // ... we'll create a new Stock Item in Acumatica
             //
-            _logService.Log(LogBuilder.CreateStockItem(variant));
             StockItemPush(context, variant);
+            context.VariantsForInventoryReceipt.Add(variant);
         }
 
         public void StockItemPush(AcumaticaStockItemImportContext context, ShopifyVariant variant)
         {
-            var settings = _settingsRepository.RetrieveSettings();
-            var defaultItemClass = settings.AcumaticaDefaultItemClass;
-            var defaultPostingClass = settings.AcumaticaDefaultPostingClass;
+            _logService.Log(LogBuilder.CreateStockItem(variant));
 
-            var defaultTaxCategory =
-                variant.ShopifyIsTaxable
-                    ? settings.AcumaticaTaxableCategory
-                    : settings.AcumaticaTaxExemptCategory;
-
-            var warehouses = _inventoryRepository.RetrieveWarehouses();
-            var defaultWarehouseId = warehouses.First().AcumaticaWarehouseId;
-
-            var shopifyVariant = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
-            var shopifyProduct = variant.ShopifyProduct.ShopifyJson.DeserializeFromJson<Product>();
-            
-            var newStockItem = new StockItem();
-            newStockItem.InventoryID = variant.StandardizedSku().ToValue();
-            newStockItem.Description = Canonizers.StandardizedStockItemTitle(shopifyProduct, shopifyVariant).ToValue();
-
-            newStockItem.DefaultPrice = ((double)shopifyVariant.price).ToValue();
-            newStockItem.DefaultWarehouseID = defaultWarehouseId.ToValue();
-
-            newStockItem.ItemClass = defaultItemClass.ToValue();
-            newStockItem.PostingClass = defaultPostingClass.ToValue();
-            newStockItem.TaxCategory = defaultTaxCategory.ToValue();
-
+            var newStockItem = BuildNewStockItem(variant);
             var newStockItemJson = newStockItem.SerializeToJson();
 
             // Push to Acumatica API
@@ -148,26 +147,32 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        public void RunInventoryReceiptImport(long shopifyProductId)
+        public void RunInventoryReceiptImport(long shopifyProductId, List<ShopifyVariant> variants)
         {
-            LogBuilder.CreateInventoryReceipt(shopifyProductId);
-            InventoryReceiptPush(shopifyProductId);
-        }
-
-        public void InventoryReceiptPush(long shopifyProductId)
-        {
-            var inventory = _syncRepository.RetrieveInventoryLevels(shopifyProductId);
-            var inventoryForSyncing = inventory.WithMatchedVariants();
+            var inventoryForSyncing = variants.SelectMany(x => x.ShopifyInventoryLevels).ToList();
 
             // Push Inventory Receipt to Acumatica API
+            //
             var receipt = BuildReceipt(inventoryForSyncing);
+            if (receipt.ControlQty.value == 0)
+            {
+                // Empty Receipt
+                return;
+            }
+
+            // Execution logging...
+            //
+            var shopifyProduct = _syncRepository.RetrieveProduct(shopifyProductId);
+            var msg = $"Creating Inventory Receipt for {shopifyProduct.LogDescriptor()} ({variants.Count} variants)";
+            _logService.Log(msg);
 
             // Create Inventory Receipt in Acumatica
+            //
             var resultJson = _distributionClient.AddInventoryReceipt(receipt.SerializeToJson());
             var resultObject = resultJson.DeserializeFromJson<InventoryReceipt>();
 
-
             // Create Monster Record
+            //
             var monsterReceipt = new AcumaticaInventoryReceipt();
             monsterReceipt.AcumaticaRefNumber = resultObject.ReferenceNbr.value;
             monsterReceipt.AcumaticaJson = resultJson;
@@ -176,15 +181,41 @@ namespace Monster.Middle.Processes.Sync.Workers
             monsterReceipt.LastUpdate = DateTime.UtcNow;
 
             // No transaction - keep writing until you can't write no mo'!
+            //
             _inventoryRepository.InsertInventoryReceipt(monsterReceipt);
-
-            var log = $"Created Inventory Receipt {monsterReceipt.AcumaticaRefNumber} in Acumatica";
-            _logService.Log(log);
 
             foreach (var level in inventoryForSyncing)
             {
                 _syncRepository.InsertInventoryReceiptSync(level, monsterReceipt);
             }
+        }
+
+
+        private StockItem BuildNewStockItem(ShopifyVariant variant)
+        {
+            var settings = _settingsRepository.RetrieveSettings();
+            var defaultItemClass = settings.AcumaticaDefaultItemClass;
+            var defaultPostingClass = settings.AcumaticaDefaultPostingClass;
+
+            var defaultTaxCategory = variant.ShopifyIsTaxable.TaxCategory(settings);
+
+            var warehouses = _inventoryRepository.RetrieveWarehouses();
+            var defaultWarehouseId = warehouses.First().AcumaticaWarehouseId;
+
+            var shopifyVariant = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
+            var shopifyProduct = variant.ShopifyProduct.ShopifyJson.DeserializeFromJson<Product>();
+
+            var newStockItem = new StockItem();
+            newStockItem.InventoryID = variant.StandardizedSku().ToValue();
+            newStockItem.Description = Canonizers.StandardizedStockItemTitle(shopifyProduct, shopifyVariant).ToValue();
+
+            newStockItem.DefaultPrice = ((double) shopifyVariant.price).ToValue();
+            newStockItem.DefaultWarehouseID = defaultWarehouseId.ToValue();
+
+            newStockItem.ItemClass = defaultItemClass.ToValue();
+            newStockItem.PostingClass = defaultPostingClass.ToValue();
+            newStockItem.TaxCategory = defaultTaxCategory.ToValue();
+            return newStockItem;
         }
 
         private InventoryReceipt BuildReceipt(List<ShopifyInventoryLevel> inventory)
@@ -222,22 +253,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
 
             return receipt;
-        }
-
-        public void RunInventoryReceiptsRelease()
-        {
-            var receipts = _inventoryRepository.RetrieveUnreleasedInventoryReceipts();
-
-            foreach (var receipt in receipts)
-            {
-                var releaseEntity = ReleaseInventoryReceipt.Build(receipt.AcumaticaRefNumber);
-
-                // Finally, Release the Inventory Receipt
-                _distributionClient.ReleaseInventoryReceipt(releaseEntity.SerializeToJson());
-
-                receipt.IsReleased = true;
-                _inventoryRepository.SaveChanges();
-            }
         }
     }
 }

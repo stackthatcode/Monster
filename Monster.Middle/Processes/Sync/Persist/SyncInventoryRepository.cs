@@ -193,6 +193,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                     .Include(x => x.ShopifyProduct)
                     .Include(x => x.ShopAcuItemSyncs)
                     .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
+                    .Include(x => x.ShopifyInventoryLevels)
                     .Where(x => x.IsMissing == false)
                     .Where(x => x.ShopifyProduct.ShopifyProductId == shopifyProductId)
                     .Where(x => !x.ShopAcuItemSyncs.Any());
@@ -200,19 +201,18 @@ namespace Monster.Middle.Processes.Sync.Persist
             return output.ToList();
         }
 
-        public List<ShopifyVariant> RetrieveVariantsWithStockItems(string sku)
+        public List<ShopifyVariant> RetrieveNonMissingVariants(string sku)
         {
             return Entities
                 .ShopifyVariants
                     .Include(x => x.ShopifyProduct)
                     .Include(x => x.ShopAcuItemSyncs)
                     .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
-                    .Where(x => x.ShopifySku == sku)
+                    .Where(x => x.ShopifySku == sku && x.IsMissing == false)
                     .ToList();
         }
 
-        public void InsertItemSync(
-                ShopifyVariant variant, AcumaticaStockItem stockItem, bool isSyncEnabled)
+        public void InsertItemSync(ShopifyVariant variant, AcumaticaStockItem stockItem, bool isSyncEnabled)
         {
             var sync = new ShopAcuItemSync();
             sync.ShopifyVariant = variant;
@@ -222,6 +222,12 @@ namespace Monster.Middle.Processes.Sync.Persist
             sync.LastUpdated = DateTime.UtcNow;
 
             Entities.ShopAcuItemSyncs.Add(sync);
+            Entities.SaveChanges();
+        }
+
+        public void DeleteItemSyncs(AcumaticaStockItem stockItem)
+        {
+            Entities.ShopAcuItemSyncs.RemoveRange(stockItem.ShopAcuItemSyncs);
             Entities.SaveChanges();
         }
 

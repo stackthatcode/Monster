@@ -33,7 +33,7 @@ namespace Monster.Web.Models.Sync
             output.ShopifyUrl = productUrlBuilder(input.ShopifyProductId);
 
             output.SyncedVariantCount
-                = input.ShopifyVariants
+                = input.NonMissingVariants()
                     .Count(x => x.ShopAcuItemSyncs != null && x.ShopAcuItemSyncs.Count > 0);
 
             if (includeVariantGraph)

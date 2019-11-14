@@ -86,12 +86,12 @@ namespace Monster.Middle.Processes.Sync.Services
                     validation.SkusNotSyncedInAcumatica.Add(variant.ShopifySku);
                 }
 
-                if (!variant.AreSkuAndItemIdMatched())
+                if (variant.AreSkuAndItemIdMismatched())
                 {
                     validation.SkusWithMismatchedStockItemId.Add(variant.ShopifySku);
                 }
 
-                if (!variant.AreTaxesMatched(settings))
+                if (!variant.AreTaxesMismatched(settings))
                 {
                     validation.SkusWithMismatchedTaxes.Add(variant.ShopifySku);
                 }

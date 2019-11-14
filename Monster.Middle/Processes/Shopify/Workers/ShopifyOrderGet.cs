@@ -26,15 +26,15 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 ShopifyBatchRepository batchRepository,
                 SettingsRepository settingsRepository,
                 ShopifyCustomerGet shopifyCustomerPull,
-                OrderApi orderApi, 
-                ShopifyTransactionGet shopifyTransactionGet)
+                ShopifyTransactionGet shopifyTransactionGet,
+                OrderApi orderApi)
         {
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
             _settingsRepository = settingsRepository;
             _shopifyCustomerPull = shopifyCustomerPull;
-            _orderApi = orderApi;
             _shopifyTransactionGet = shopifyTransactionGet;
+            _orderApi = orderApi;
         }
 
         public void RunAutomatic()

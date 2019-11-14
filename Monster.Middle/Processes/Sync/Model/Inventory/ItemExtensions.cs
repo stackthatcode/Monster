@@ -13,12 +13,23 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
             return input.ShopAcuItemSyncs?.First().AcumaticaStockItem;
         }
 
+        public static bool HasMatch(this AcumaticaStockItem input)
+        {
+            return input.ShopAcuItemSyncs.Any();
+        }
+
+        public static ShopifyVariant MatchedVariant(this AcumaticaStockItem stockItem)
+        {
+            return stockItem.ShopAcuItemSyncs?.First().ShopifyVariant;
+        }
+
+
         public static bool IsSynced(this ShopifyVariant input)
         {
             return input.ShopAcuItemSyncs.Any();
         }
 
-        public static bool AreSkuAndItemIdMatched(this ShopifyVariant input)
+        public static bool AreSkuAndItemIdMismatched(this ShopifyVariant input)
         {
             if (!input.IsSynced())
             {
@@ -26,7 +37,7 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
             }
             else
             {
-                return input.ShopifySku.StandardizedSku() == input.MatchedStockItem().ItemId.StandardizedSku();
+                return input.ShopifySku.StandardizedSku() != input.MatchedStockItem().ItemId.StandardizedSku();
             }
         }
 
@@ -45,6 +56,12 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
             return null;
         }
 
+        public static string TaxCategory(this bool isTaxable, MonsterSetting settings)
+        {
+            return isTaxable ? settings.AcumaticaTaxableCategory : settings.AcumaticaTaxExemptCategory;
+        }
+
+
         public static string YesNoNAPlainEnglish(this bool? input)
         {
             if (input.HasValue)
@@ -57,7 +74,7 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
             }
         }
 
-        public static bool AreTaxesMatched(this ShopifyVariant input, MonsterSetting settings)
+        public static bool AreTaxesMismatched(this ShopifyVariant input, MonsterSetting settings)
         {
             if (!input.IsSynced())
             {
@@ -67,16 +84,16 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
             if (input.ShopifyIsTaxable 
                 && input.MatchedStockItem().AcumaticaTaxCategory == settings.AcumaticaTaxableCategory)
             {
-                return true;
+                return false;
             }
 
             if (!input.ShopifyIsTaxable 
                 && input.MatchedStockItem().AcumaticaTaxCategory == settings.AcumaticaTaxExemptCategory)
             {
-                return true;
+                return false;
             }
 
-            return false;
+            return true;
         }
 
 
@@ -87,23 +104,12 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
                         .ToList();
         }
 
-        public static List<AcumaticaWarehouseDetail>
-                    WarehouseDetails(this AcumaticaStockItem input, List<string> warehouseIds)
+        public static List<AcumaticaWarehouseDetail> WarehouseDetails(this AcumaticaStockItem input, List<string> warehouseIds)
         {
             return input.AcumaticaWarehouseDetails
                 .Where(x => warehouseIds.Contains(x.AcumaticaWarehouseId))
                 .ToList();
         }
 
-        public static ShopifyVariant MatchedVariant(this AcumaticaStockItem input)
-        {
-            return input
-                .ShopAcuItemSyncs?.First().ShopifyVariant;
-        }
-
-        public static bool HasMatch(this AcumaticaStockItem input)
-        {
-            return input.ShopAcuItemSyncs.Any();
-        }
     }
 }
