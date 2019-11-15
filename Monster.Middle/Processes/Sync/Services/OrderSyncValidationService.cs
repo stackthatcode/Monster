@@ -91,7 +91,7 @@ namespace Monster.Middle.Processes.Sync.Services
                     validation.SkusWithMismatchedStockItemId.Add(variant.ShopifySku);
                 }
 
-                if (!variant.AreTaxesMismatched(settings))
+                if (variant.AreTaxesMismatched(settings))
                 {
                     validation.SkusWithMismatchedTaxes.Add(variant.ShopifySku);
                 }

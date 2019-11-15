@@ -35,13 +35,12 @@ namespace Monster.Web.Models.Sync
             output.SyncedVariantCount
                 = input.NonMissingVariants()
                     .Count(x => x.ShopAcuItemSyncs != null && x.ShopAcuItemSyncs.Count > 0);
-
+            
             if (includeVariantGraph)
             {
                 output.Variants
                     = input.NonMissingVariants()
-                        .Select(x => ShopifyVariantModel.Make(x))
-                        .ToList();
+                        .Select(x => ShopifyVariantModel.Make(x)).ToList();
             }
 
             return output;
@@ -57,6 +56,8 @@ namespace Monster.Web.Models.Sync
         public string VariantTitle { get; set; }
         public int AvailableQuantity { get; set; }
         public bool IsLoadedInAcumatica { get; set; }
+        public bool IsMissing { get; set; }
+
 
         public static ShopifyVariantModel Make(ShopifyVariant input)
         {
@@ -67,6 +68,7 @@ namespace Monster.Web.Models.Sync
             output.Price = (decimal)input.ToVariantObj().price;
             output.AvailableQuantity 
                 = input.ShopifyInventoryLevels.Sum(x => x.ShopifyAvailableQuantity);
+            output.IsMissing = input.IsMissing;
 
             output.IsLoadedInAcumatica = input.IsMatched();
 

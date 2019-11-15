@@ -99,7 +99,7 @@ namespace Monster.Middle.Misc.Hangfire
 
         public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
         {
-            var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.ImportNewShopifyProduct);
+            var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.ImportAddShopifyVariantsToProduct);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.ImportAddShopifyVariantsToProduct(_tenantContext.InstanceId, context, monitor.Id));

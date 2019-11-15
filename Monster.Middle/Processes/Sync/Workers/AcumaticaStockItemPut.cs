@@ -80,14 +80,14 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (stockItem != null)
             {
-                if (stockItem.HasMatch() && stockItem.MatchedVariant().IsMissing)
-                {
-                    var msg = $"Stock Item Import: removing sync from {stockItem.LogDescriptor()} "
-                                + "to Variant flagged missing";
-                    _logService.Log(msg);
+                //if (stockItem.HasMatch() && stockItem.MatchedVariant().IsMissing)
+                //{
+                //    var msg = $"Stock Item Import: removing sync from {stockItem.LogDescriptor()} "
+                //                + "to Variant flagged missing";
+                //    _logService.Log(msg);
 
-                    _syncRepository.DeleteItemSyncs(stockItem);
-                }
+                //    _syncRepository.DeleteItemSyncs(stockItem);
+                //}
 
                 if (!stockItem.HasMatch())
                 {
@@ -98,12 +98,13 @@ namespace Monster.Middle.Processes.Sync.Workers
                     _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
                     return;
                 }
-                else
-                {
-                    var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
-                    _logService.Log(msg);
-                    return;
-                }
+
+                //else
+                //{
+                //    var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
+                //    _logService.Log(msg);
+                //    return;
+                //}
             }
 
             // With neither duplicates or Auto-matching having succeeded,

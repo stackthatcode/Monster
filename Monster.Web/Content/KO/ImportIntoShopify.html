@@ -439,6 +439,10 @@
         self.Launch = function (payload) {
             self.SelectedStockItems(payload.AcumaticaStockItems);
 
+            self.ProductTitle("");
+            self.ProductType("");
+            self.ProductVendor("");
+            
             $('#create-new-product-modal').modal('show');
         };
 
@@ -461,7 +465,7 @@
                     vendor: self.ProductVendor(),
                 };
 
-                console.log("RunCreateNewShopifyProduct", model);
+                //console.log("RunCreateNewShopifyProduct", model);
                 
                 var ajax = new Monster.Ajax();
                 ajax.HttpPost("/Sync/RunImportToCreateNewProduct", model, this);

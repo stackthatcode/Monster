@@ -9,6 +9,7 @@ using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Product;
@@ -41,7 +42,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var product = new ProductVariantUpdate();
             product.id = context.ShopifyProductId;
-            var parent = new ProductVariantUpdateParent(product);
+            product.variants = new List<VariantNew>();
+            var parent = new { product };
 
             var stockItemRecords = BuildShopifyVariants(context.AcumaticaItemIds, product.variants);
 
@@ -57,12 +59,14 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run(ShopifyNewProductImportContext context)
         {
-            var product = new Product();
-            product.title = context.ProductTitle;
-            product.vendor = context.ProductVendor;
-            product.product_type = context.ProductType;
-            product.variants = new List<Variant>();
-            var parent = new ProductParent { product = product };
+            var product = new ProductNew()
+            {
+                title = context.ProductTitle,
+                vendor = context.ProductVendor,
+                product_type = context.ProductType,
+                variants = new List<VariantNew>()
+            };
+            var parent = new { product = product };
 
             var stockItemRecords = BuildShopifyVariants(context.AcumaticaItemIds, product.variants);
 
@@ -86,19 +90,17 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        private List<AcumaticaStockItem> BuildShopifyVariants(List<string> itemIds, List<Variant> variants)
+        private List<AcumaticaStockItem> BuildShopifyVariants(List<string> itemIds, List<VariantNew> variants)
         {
             var settings = _settingsRepository.RetrieveSettings();
             var stockItemRecords = GetStockItems(itemIds);
+
+            var counter = 1;
 
             foreach (var stockItemRecord in stockItemRecords)
             {
                 var stockItem = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
                 var price = stockItem.DefaultPrice.value;
-
-                var variant = new Variant();
-                variant.sku = stockItemRecord.ItemId;
-                variant.title = stockItemRecord.AcumaticaDescription;
 
                 var isTaxable = stockItemRecord.IsTaxable(settings);
                 if (isTaxable == null)
@@ -107,8 +109,19 @@ namespace Monster.Middle.Processes.Sync.Workers
                         $"{stockItem.TaxCategory} invalid Tax Category for {stockItemRecord.ItemId}");
                 }
 
+                var variant = new VariantNew();
+                variant.sku = stockItemRecord.ItemId;
+                variant.option1 = $"OPTION{counter++}";
+
+                //variant.title 
+                //    = stockItemRecord
+                //        .AcumaticaDescription
+                //        .IsNullOrEmptyAlt(stockItemRecord.ItemId);
+
                 variant.taxable = isTaxable.Value;
-                variant.price = price;
+                variant.price = (decimal)price;
+                variant.inventory_policy = "deny";
+                variant.fulfillment_service = "manual";
 
                 _logService.Log(LogBuilder.CreateShopifyVariant(stockItemRecord));
                 variants.Add(variant);

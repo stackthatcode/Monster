@@ -352,7 +352,8 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
 
-        private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms, bool onlyHavingUnsyncedVariants)
+        private IQueryable<ShopifyProduct> 
+                ProductSearchQueryable(string terms, bool onlyHavingUnsyncedVariants)
         {
             var dataSet = Entities.ShopifyProducts
                 .Include(x => x.ShopifyVariants)
@@ -360,8 +361,11 @@ namespace Monster.Middle.Processes.Sync.Persist
 
             if (onlyHavingUnsyncedVariants)
             {
+                // *** SAVE THIS... FOR NOW
+                //
                 dataSet = dataSet
-                    .Where(x => x.ShopifyVariants.Any(y => y.IsMissing == false && !y.ShopAcuItemSyncs.Any()));
+                    .Where(x => x.ShopifyVariants.Any(
+                            y => y.IsMissing == false && !y.ShopAcuItemSyncs.Any()));
             }
 
             var termList = terms.Split(' ').Where(x => x.Trim() != "").ToList();
@@ -422,8 +426,7 @@ namespace Monster.Middle.Processes.Sync.Persist
             return dataSet;
         }
 
-        public List<AcumaticaStockItem> 
-                    StockItemSearchRecords(string terms, int startingRecord, int pageSize)
+        public List<AcumaticaStockItem> StockItemSearchRecords(string terms, int startingRecord, int pageSize)
         {
             return StockItemSearchQueryable(terms)
                 .OrderBy(x => x.ItemId)

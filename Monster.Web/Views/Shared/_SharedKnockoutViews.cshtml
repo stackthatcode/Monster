@@ -215,15 +215,17 @@
                     <div class="mb-4">
                         <table class="table product-detail">
                             <tbody data-bind="foreach: Variants">
-                                <tr>
-                                    <td>
-                                        <div class="modal-heavy-text">
-                                            <span data-bind="text: Sku"></span>
-                                            - <span data-bind="text: VariantTitle"></span>
-                                        </div>
-                                        <div class="text-muted">
-                                            Variant Id: <span data-bind="text: ShopifyVariantId"></span>
-                                        </div>
+                            <tr>
+                                <td>
+                                    <div class="modal-heavy-text">
+                                        <span data-bind="text: Sku"></span>
+                                        - <span data-bind="text: VariantTitle"></span>
+                                    </div>
+                                    <div class="text-muted">
+                                        Variant Id: <span data-bind="text: ShopifyVariantId"></span>
+                                        <span data-bind="if: IsMissing">(Missing)</span>
+                                    </div>
+
                                     </td>
 
                                     <td>
@@ -253,7 +255,7 @@
     </div>
 </script>
 <script>
-    Monster.LaunchShopifyProductDetail = "/LaunchShopifyProductDetail ";
+    Monster.LaunchShopifyProductDetail = "/LaunchShopifyProductDetail";
 
     Monster.ShopifyProductDetail = function () {
         var self = this;
@@ -394,10 +396,9 @@
         self.RefreshGrid = function () {
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
-                    var url = "/Sync/FilterShopifyProducts" +
-                        "?terms=" + self.FilterTerms() +
-                        "&maxRecords=" + self.MaxRecords;
-
+                    var url = "/Sync/FilterShopifyProducts?" 
+                        + "terms=" + self.FilterTerms() + "&maxRecords=" + self.MaxRecords;
+                    
                     ajax.HttpGet(url, this);
                 },
                 function (response) {
