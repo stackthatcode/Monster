@@ -216,8 +216,8 @@ namespace Monster.Middle.Processes.Sync.Persist
         public void InsertItemSync(ShopifyVariant variant, AcumaticaStockItem stockItem, bool isSyncEnabled)
         {
             var sync = new ShopAcuItemSync();
-            sync.ShopifyVariant = variant;
-            sync.AcumaticaStockItem = stockItem;
+            sync.ShopifyVariantMonsterId = variant.MonsterId;
+            sync.AcumaticaItemMonsterId = stockItem.MonsterId;
             sync.IsSyncEnabled = isSyncEnabled;
             sync.DateCreated = DateTime.UtcNow;
             sync.LastUpdated = DateTime.UtcNow;
@@ -351,24 +351,20 @@ namespace Monster.Middle.Processes.Sync.Persist
                     .FirstOrDefault(x => x.ShopifyProductId == shopifyProductId);
         }
 
-        private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms, bool excludeSynced)
+
+        private IQueryable<ShopifyProduct> ProductSearchQueryable(string terms, bool onlyHavingUnsyncedVariants)
         {
-            var termList
-                = terms.Split(' ')
-                    .Where(x => x.Trim() != "")
-                    .ToList();
+            var dataSet = Entities.ShopifyProducts
+                .Include(x => x.ShopifyVariants)
+                .Include(x => x.ShopifyVariants.Select(y => y.ShopAcuItemSyncs));
 
-            var dataSet
-                = Entities
-                    .ShopifyProducts
-                    .IncludeFilter(x => x.ShopifyVariants.Where(y => y.IsMissing == false))
-                    .Include(x => x.ShopifyVariants.Select(y => y.ShopAcuItemSyncs));
-
-            if (excludeSynced)
+            if (onlyHavingUnsyncedVariants)
             {
-                dataSet = dataSet.Where(x => !x.ShopifyVariants.Any(y => y.ShopAcuItemSyncs.Any()));
+                dataSet = dataSet
+                    .Where(x => x.ShopifyVariants.Any(y => y.IsMissing == false && !y.ShopAcuItemSyncs.Any()));
             }
 
+            var termList = terms.Split(' ').Where(x => x.Trim() != "").ToList();
 
             foreach (var term in termList)
             {
@@ -384,18 +380,18 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
         public List<ShopifyProduct> ProductSearchRecords(
-                string terms, bool excludeSynced, int startingRecord, int pageSize)
+                string terms, bool onlyHavingUnsyncedVariants, int startingRecord, int pageSize)
         {
-            return ProductSearchQueryable(terms, excludeSynced)
+            return ProductSearchQueryable(terms, onlyHavingUnsyncedVariants)
                 .OrderBy(x => x.ShopifyTitle)
                 .Skip(startingRecord)
                 .Take(pageSize)
                 .ToList();
         }
 
-        public int ProductSearchCount(string terms, bool excludeSynced)
+        public int ProductSearchCount(string terms, bool onlyHavingUnsyncedVariants)
         {
-            return ProductSearchQueryable(terms, excludeSynced).Count();
+            return ProductSearchQueryable(terms, onlyHavingUnsyncedVariants).Count();
         }
 
 

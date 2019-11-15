@@ -564,8 +564,7 @@
             flow.exec(function () {
                     var ajax = new Monster.Ajax();
                     var url = "/Sync/FilterShopifyProducts?terms=" + self.FilterTerms()
-                        + "&maxRecords=" + self.MaximumRecords
-                        + "&excludeSynced=true";
+                            + "&maxRecords=" + self.MaximumRecords + "&onlyHavingUnsyncedVariants=true";
 
                     ajax.HttpGet(url, this);
                 },

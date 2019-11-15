@@ -461,7 +461,7 @@ namespace Monster.Middle.Persist.Instance
             MonsterSettings = new FakeDbSet<MonsterSetting>("Id");
             PaymentGateways = new FakeDbSet<PaymentGateway>("Id");
             PayoutPreferences = new FakeDbSet<PayoutPreference>("Id");
-            ShopAcuItemSyncs = new FakeDbSet<ShopAcuItemSync>("ShopifyVariantMonsterId", "AcumaticaItemMonsterId");
+            ShopAcuItemSyncs = new FakeDbSet<ShopAcuItemSync>("Id");
             ShopAcuWarehouseSyncs = new FakeDbSet<ShopAcuWarehouseSync>("Id");
             ShopifyBatchStates = new FakeDbSet<ShopifyBatchState>("Id");
             ShopifyCustomers = new FakeDbSet<ShopifyCustomer>("Id");
@@ -1222,8 +1222,9 @@ namespace Monster.Middle.Persist.Instance
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class ShopAcuItemSync
     {
-        public long ShopifyVariantMonsterId { get; set; } // ShopifyVariantMonsterId (Primary key)
-        public long AcumaticaItemMonsterId { get; set; } // AcumaticaItemMonsterId (Primary key)
+        public long Id { get; set; } // Id (Primary key)
+        public long ShopifyVariantMonsterId { get; set; } // ShopifyVariantMonsterId
+        public long AcumaticaItemMonsterId { get; set; } // AcumaticaItemMonsterId
         public bool IsSyncEnabled { get; set; } // IsSyncEnabled
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -2441,10 +2442,11 @@ namespace Monster.Middle.Persist.Instance
         public ShopAcuItemSyncConfiguration(string schema)
         {
             ToTable("ShopAcuItemSync", schema);
-            HasKey(x => new { x.ShopifyVariantMonsterId, x.AcumaticaItemMonsterId });
+            HasKey(x => x.Id);
 
-            Property(x => x.ShopifyVariantMonsterId).HasColumnName(@"ShopifyVariantMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.AcumaticaItemMonsterId).HasColumnName(@"AcumaticaItemMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.ShopifyVariantMonsterId).HasColumnName(@"ShopifyVariantMonsterId").HasColumnType("bigint").IsRequired();
+            Property(x => x.AcumaticaItemMonsterId).HasColumnName(@"AcumaticaItemMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.IsSyncEnabled).HasColumnName(@"IsSyncEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
