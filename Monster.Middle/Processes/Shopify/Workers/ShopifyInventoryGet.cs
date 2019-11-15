@@ -4,6 +4,7 @@ using System.Linq;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
@@ -151,7 +152,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             UpsertProduct(productMonsterId, product);
 
             // Flags the missing Variants
-            FlagMissingVariants(productMonsterId, product);
+            ProcessMissingVariants(productMonsterId, product);
 
             // Pull and write the Inventory
             PullAndUpsertInventory(productMonsterId);
@@ -205,23 +206,58 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
-        public void FlagMissingVariants(long parentMonsterId, Product product)
+        public void ProcessMissingVariants(long parentMonsterId, Product shopifyProduct)
         {
             var storedVariants = _inventoryRepository.RetrieveVariantsByParent(parentMonsterId);
 
-            foreach (var variant in storedVariants)
+            foreach (var storedVariant in storedVariants)
             {
-                if (product.variants.All(x => x.id != variant.ShopifyVariantId))
+                if (shopifyProduct.variants.All(x => x.id != storedVariant.ShopifyVariantId))
                 {
-                    var log =
-                        $"Shopify Variant {variant.ShopifySku} ({variant.ShopifyVariantId}) " +
-                        "is flagged: missing";
+                    ProcessMissingVariant(storedVariant);
+                }
+            }
+        }
 
-                    _logger.Debug(log);
+        public void ProcessMissingVariant(ShopifyVariant variantRecord)
+        {
+            var log = $"Shopify Variant {variantRecord.ShopifySku} ({variantRecord.ShopifyVariantId}) is missing";
+            _logger.Debug(log);
 
-                    variant.IsMissing = true;
+            using (var transaction = _inventoryRepository.BeginTransaction())
+            {
+                // Flag as Missing and destroy synchronization
+                //
+                variantRecord.IsMissing = true;
+                var stockItemRecord = variantRecord.AcumaticaStockItems.FirstOrDefault();
+
+                if (stockItemRecord != null)
+                {
+                    // Remove the synchronization
+                    //
+                    stockItemRecord.ShopifyVariant = null;
+
+                    // Locate replacement Variant to sync with
+                    //
+                    var replacements =
+                        variantRecord
+                            .ShopifyProduct
+                            .NonMissingVariants()
+                            .Where(x => x.ShopifySku.StandardizedSku() == variantRecord.ShopifySku.StandardizedSku())
+                            .ToList();
+
+                    // Either no viable Duplicates, abort
+                    //
+                    if (replacements.Count == 1)
+                    {
+                        stockItemRecord.ShopifyVariant = replacements.First();
+                    }
+
+                    stockItemRecord.LastUpdated = DateTime.UtcNow;
                     _inventoryRepository.SaveChanges();
                 }
+
+                transaction.Commit();
             }
         }
 
@@ -366,7 +402,14 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 }
 
                 product.IsDeleted = true;
-                product.ShopifyVariants.ForEach(x => x.IsMissing = true);
+
+                foreach (var variant in product.ShopifyVariants)
+                {
+                    // Flag Variant as missing and break synchronization with Stock Item
+                    //
+                    variant.IsMissing = true;
+                    variant.AcumaticaStockItems.ForEach(x => x.ShopifyVariant = null);
+                }
 
                 _inventoryRepository.SaveChanges();
             }

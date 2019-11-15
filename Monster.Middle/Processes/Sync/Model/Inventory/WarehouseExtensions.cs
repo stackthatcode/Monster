@@ -9,15 +9,12 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
     {
         public static string AcumaticaStockItemId(this ShopifyVariant input)
         {
-            if (input.ShopAcuItemSyncs.Count == 0)
+            if (!input.AcumaticaStockItems.Any())
             {
                 throw new Exception("No synchronized Acumatica Stock Items");
             }
 
-            return input
-                .ShopAcuItemSyncs
-                .First()
-                .AcumaticaStockItem.ItemId;
+            return input.AcumaticaStockItems.First().ItemId;
         }
 
         public static string AcumaticaWarehouseId(this ShopifyLocation input)

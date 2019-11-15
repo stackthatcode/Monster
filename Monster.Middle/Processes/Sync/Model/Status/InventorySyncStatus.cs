@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
             output.IsStockItemPriceSynced = input.IsPriceSynced;
             output.IsStockItemInventorySynced = input.AcumaticaWarehouseDetails.All(x => x.IsInventorySynced);
 
-            if (input.HasMatch())
+            if (input.IsSynced())
             {
                 output.ShopifyVariantId = input.MatchedVariant().ShopifyVariantId;
                 output.ShopifyVariantSku = input.MatchedVariant().ShopifySku;

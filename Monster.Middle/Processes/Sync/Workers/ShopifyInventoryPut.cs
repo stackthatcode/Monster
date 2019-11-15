@@ -72,7 +72,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
             var stockItemObj = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
 
-            if (!stockItemRecord.HasMatch())
+            if (!stockItemRecord.IsSynced())
             {
                 return;
             }

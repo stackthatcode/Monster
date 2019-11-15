@@ -10,23 +10,23 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
     {
         public static AcumaticaStockItem MatchedStockItem(this ShopifyVariant input)
         {
-            return input.ShopAcuItemSyncs?.First().AcumaticaStockItem;
+            return input.AcumaticaStockItems.FirstOrDefault();
         }
 
-        public static bool HasMatch(this AcumaticaStockItem input)
+        public static bool IsSynced(this AcumaticaStockItem input)
         {
-            return input.ShopAcuItemSyncs.Any();
+            return input.ShopifyVariant != null;
         }
 
         public static ShopifyVariant MatchedVariant(this AcumaticaStockItem stockItem)
         {
-            return stockItem.ShopAcuItemSyncs?.First().ShopifyVariant;
+            return stockItem.ShopifyVariant;
         }
 
 
         public static bool IsSynced(this ShopifyVariant input)
         {
-            return input.ShopAcuItemSyncs.Any();
+            return input.AcumaticaStockItems.Any();
         }
 
         public static bool AreSkuAndItemIdMismatched(this ShopifyVariant input)
@@ -81,27 +81,19 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
                 return false;
             }
 
-            if (input.ShopifyIsTaxable 
+            if (input.ShopifyIsTaxable
                 && input.MatchedStockItem().AcumaticaTaxCategory == settings.AcumaticaTaxableCategory)
             {
                 return false;
             }
 
-            if (!input.ShopifyIsTaxable 
+            if (!input.ShopifyIsTaxable
                 && input.MatchedStockItem().AcumaticaTaxCategory == settings.AcumaticaTaxExemptCategory)
             {
                 return false;
             }
 
             return true;
-        }
-
-
-        public static List<AcumaticaWarehouseDetail> WarehouseDetails(this AcumaticaStockItem input, string warehouseId)
-        {
-            return input.AcumaticaWarehouseDetails
-                        .Where(x => x.AcumaticaWarehouseId == warehouseId)
-                        .ToList();
         }
 
         public static List<AcumaticaWarehouseDetail> WarehouseDetails(this AcumaticaStockItem input, List<string> warehouseIds)

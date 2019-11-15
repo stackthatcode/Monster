@@ -89,7 +89,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 //    _syncRepository.DeleteItemSyncs(stockItem);
                 //}
 
-                if (!stockItem.HasMatch())
+                if (!stockItem.IsSynced())
                 {
                     var msg = $"Stock Item Import: auto-matched {stockItem.LogDescriptor()} "
                                 + $"to {variant.LogDescriptor()}";
@@ -98,13 +98,12 @@ namespace Monster.Middle.Processes.Sync.Workers
                     _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
                     return;
                 }
-
-                //else
-                //{
-                //    var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
-                //    _logService.Log(msg);
-                //    return;
-                //}
+                else
+                {
+                    var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
+                    _logService.Log(msg);
+                    return;
+                }
             }
 
             // With neither duplicates or Auto-matching having succeeded,

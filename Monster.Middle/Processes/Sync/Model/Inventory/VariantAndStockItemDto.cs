@@ -22,7 +22,7 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
         public string AcumaticaStockItemUrl { get; set; }
 
         public static VariantAndStockItemDto Make(
-                        ShopAcuItemSync input, 
+                        AcumaticaStockItem input, 
                         Func<long, long, string> variantUrlService,
                         Func<string, string> stockItemUrlService)
         {
@@ -42,10 +42,9 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
                         input.ShopifyVariant.ShopifyProduct.ShopifyProductId,
                         input.ShopifyVariant.ShopifyVariantId);
 
-            output.AcumaticaItemId = input.AcumaticaStockItem.ItemId;
-            output.AcumaticaDescription = input.AcumaticaStockItem.AcumaticaDescription;
-
-            output.AcumaticaStockItemUrl = stockItemUrlService(input.AcumaticaStockItem.ItemId);
+            output.AcumaticaItemId = input.ItemId;
+            output.AcumaticaDescription = input.AcumaticaDescription;
+            output.AcumaticaStockItemUrl = stockItemUrlService(input.ItemId);
 
             output.IsSyncEnabled = input.IsSyncEnabled;
 

@@ -197,10 +197,6 @@
                                 <span data-bind="text: ShopifyProductTitle"></span>
                             </div>
 
-                            <div style="color:#a9a9a9; font-size:0.8em;">
-                                VId:  <span data-bind="text: ShopifyVariantId"></span>
-                                PId: <span data-bind="text: ShopifyProductId"></span>
-                            </div>
                             <div>
                                 <a href="#" target="_blank"
                                    data-bind="attr: { href: ShopifyVariantUrl }">(Click here to view in Shopify)</a>
@@ -291,6 +287,8 @@
                 });
         };
 
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, self.ProcessStatus);
+
         self.Initialize = function () {
             self.JobRunningModel.StartPolling(true);
         };
@@ -351,8 +349,8 @@
                     ajax.HttpPost("/Sync/VariantAndStockItemMatches", model, this);
                 },
                 function (response) {
-                    // console.log(response);
-                    self.DecorateGridData(response);
+                    //console.log(response);
+                    self.DecorateGridData(response.results);
 
                     self.PagingWidget.RecordCount(response.count);
                     self.GridData(response.results);

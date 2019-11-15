@@ -16,7 +16,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public ShopifyOrder ShopifyOrderRecord { get; set; }
         public Order ShopifyOrder { get; set; }
 
-        public List<long> LineItemIdsWithUnrecognizedVariants { get; set; }
+        public List<long> LineItemIdsWithUnrecognizedSku { get; set; }
+        public List<string> SkusMissingFromShopify { get; set; }
         public List<string> SkusNotSyncedInAcumatica { get; set; }
         public List<string> SkusWithMismatchedStockItemId { get; set; }
         public List<string> SkusWithMismatchedTaxes { get; set; }
@@ -44,39 +45,38 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
                 .Add(x => !x.IsFulfilledBeforeSync,
                     $"Shopify Order has been fulfilled before sync with Acumatica", instantFailure: true)
-
                 .Add(x => !x.IsCancelledBeforeSync, $"Shopify Order has been cancelled before sync with Acumatica")
-
                 .Add(x => x.HasShopifyCustomer, "Shopify Customer has not been downloaded yet")
-
                 .Add(x => x.ShopifyOrderRecord.HasPayment(), "Shopify Payment has not been downloaded yet")
-
                 .Add(x => HasValidGateway, $"Does not have a valid payment gateway; please check configuration")
-
-                .Add(x => x.LineItemIdsWithUnrecognizedVariants.Count == 0, 
-                        "Shopify Order references manually created Variants")
-
-                .Add(x => x.SkusNotSyncedInAcumatica.Count == 0,
-                        x => $"References Variants not synced with Acumatica: " +
-                            x.SkusNotSyncedInAcumatica.StringJoin(","))
-
-                .Add(x => x.SkusWithMismatchedStockItemId.Count == 0,
-                    x => $"Shopify Variants SKU's are mismatched with Acumatica Stock Items ID's: " +
-                            x.SkusWithMismatchedStockItemId.StringJoin(","))
-
-                .Add(x => x.SkusWithMismatchedTaxes.Count == 0,
-                        x => $"Has Shopify Variants that mismatch with Acumatica Tax Category: " +
-                            x.SkusWithMismatchedTaxes.StringJoin(","))
-
                 .Add(x => x.OrderNumberValidForSync,
-                    $"Shopify Order number not greater than or equal to Settings -> Starting Order Number");
+                    $"Shopify Order number not greater than or equal to Settings -> Starting Order Number")
+
+                // The cardinal Synchronization Sins
+                //
+                .Add(x => !x.LineItemIdsWithUnrecognizedSku.Any(), "Shopify Order contains line item(s) without a SKU")
+                
+                .Add(x => !x.SkusMissingFromShopify.Any(), 
+                        x => $"Shopify Order contains line item(s) that reference missing Variant(s) {x.SkusMissingFromShopify.StringJoin(",")}")
+                
+                .Add(x => !x.SkusNotSyncedInAcumatica.Any(),
+                        x => $"Shopify Order contains Variant(s) not synced with Acumatica: {x.SkusNotSyncedInAcumatica.StringJoin(",")}")
+                
+                .Add(x => !x.SkusWithMismatchedStockItemId.Any(),
+                        x => $"Shopify Order contains Variant(s) with SKU's that mismatch with Acumatica Stock Items: " +
+                            x.SkusWithMismatchedStockItemId.StringJoin(","))
+                
+                .Add(x => !x.SkusWithMismatchedTaxes.Any(),
+                        x => $"Shopify Order contains Variant(s) that mismatched Taxes with Acumatica: " +
+                             x.SkusWithMismatchedTaxes.StringJoin(","));
 
             return validation.Run(this);
         }
 
         public OrderSyncValidation()
         {
-            LineItemIdsWithUnrecognizedVariants = new List<long>();
+            LineItemIdsWithUnrecognizedSku = new List<long>();
+            SkusMissingFromShopify = new List<string>();
             SkusNotSyncedInAcumatica = new List<string>();
             SkusWithMismatchedStockItemId = new List<string>();
             SkusWithMismatchedTaxes = new List<string>();

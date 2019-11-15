@@ -1,6 +1,7 @@
 ﻿using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
@@ -68,32 +69,33 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             foreach (var lineItem in validation.ShopifyOrder.line_items)
             {
-                if (!lineItem.variant_id.HasValue || lineItem.sku == null)
+                if (lineItem.sku == null)
                 {
-                    continue;
+                    validation.LineItemIdsWithUnrecognizedSku.Add(lineItem.id);
                 }
 
-                var variant = _syncInventoryRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
+                var variant = _syncInventoryRepository.RetrieveLiveVariant(lineItem.sku.StandardizedSku());
 
                 if (variant == null)
                 {
-                    validation.LineItemIdsWithUnrecognizedVariants.Add(lineItem.id);
+                    validation.SkusMissingFromShopify.Add(lineItem.sku);
                     continue;
                 }
 
-                if (variant.IsNotMatched())
+                if (!variant.IsSynced())
                 {
-                    validation.SkusNotSyncedInAcumatica.Add(variant.ShopifySku);
+                    validation.SkusNotSyncedInAcumatica.Add(lineItem.sku);
+                    continue;
                 }
 
                 if (variant.AreSkuAndItemIdMismatched())
                 {
-                    validation.SkusWithMismatchedStockItemId.Add(variant.ShopifySku);
+                    validation.SkusWithMismatchedStockItemId.Add(lineItem.sku);
                 }
 
                 if (variant.AreTaxesMismatched(settings))
                 {
-                    validation.SkusWithMismatchedTaxes.Add(variant.ShopifySku);
+                    validation.SkusWithMismatchedTaxes.Add(lineItem.sku);
                 }
             }
         }

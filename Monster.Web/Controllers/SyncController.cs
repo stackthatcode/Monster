@@ -250,7 +250,7 @@ namespace Monster.Web.Controllers
 
             var results = 
                 _syncInventoryRepository
-                    .SearchVariantAndStockItemResults(filterText, syncEnabledFilter, startingRecord, pageSize);
+                    .SearchSyncedStockItemsResults(filterText, syncEnabledFilter, startingRecord, pageSize);
 
             var resultsDtos = 
                 results.Select(item => 
@@ -260,8 +260,7 @@ namespace Monster.Web.Controllers
                         _acumaticaUrlService.AcumaticaStockItemUrl))
                     .ToList();
 
-            var count = _syncInventoryRepository
-                .SearchVariantAndStockItemCount(filterText, syncEnabledFilter);
+            var count = _syncInventoryRepository.SearchSyncedStockItemsCount(filterText, syncEnabledFilter);
 
             var output = new
             {

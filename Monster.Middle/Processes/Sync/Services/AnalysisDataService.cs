@@ -213,11 +213,11 @@ namespace Monster.Middle.Processes.Sync.Services
             _persistContext
                 .Entities
                 .ShopifyVariants
+                .Where(x => x.IsMissing == false)
                 .Include(x => x.ShopifyInventoryLevels)
                 .Include(x => x.ShopifyProduct)
-                .Include(x => x.ShopAcuItemSyncs)
-                .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem))
-                .Include(x => x.ShopAcuItemSyncs.Select(y => y.AcumaticaStockItem.AcumaticaWarehouseDetails));
+                .Include(x => x.AcumaticaStockItems)
+                .Include(x => x.AcumaticaStockItems.Select(y => y.AcumaticaWarehouseDetails));
 
         private IQueryable<ShopifyVariant> GetProductStockItemQueryable(AnalyzerRequest request)
         {
@@ -237,7 +237,7 @@ namespace Monster.Middle.Processes.Sync.Services
                         x => x.ShopifySku.Contains(term) ||
                              x.ShopifyTitle.Contains(term) ||
                              x.ShopifyProduct.ShopifyTitle.Contains(term) ||
-                             x.ShopAcuItemSyncs.Any(y => y.AcumaticaStockItem.ItemId.Contains(term)));
+                             x.AcumaticaStockItems.Any(y => y.ItemId.Contains(term)));
                 }
             }
 

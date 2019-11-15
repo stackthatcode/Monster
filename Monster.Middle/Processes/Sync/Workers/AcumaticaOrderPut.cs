@@ -182,8 +182,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         // Create new Sales Order
         //
-        private SalesOrder BuilderNewSalesOrder(
-                    ShopifyOrder shopifyOrderRecord, AcumaticaCustomer customer)
+        private SalesOrder BuilderNewSalesOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer customer)
         {
             // Header
             //
@@ -215,12 +214,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Build Line Items
             foreach (var lineItem in shopifyOrder.line_items)
             {
-                var variant =
-                    _syncInventoryRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
+                var standardizedSku = Canonizers.StandardizedSku(lineItem.sku);
+                var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(standardizedSku);
 
-                var stockItemRecord = variant.MatchedStockItem();
                 var detail = new SalesOrderDetail();
-
                 detail.InventoryID = stockItemRecord.ItemId.ToValue();
                 detail.OrderQty = ((double)lineItem.CancelAdjustedQuantity).ToValue();
                 detail.UnitPrice = ((double) lineItem.price).ToValue();

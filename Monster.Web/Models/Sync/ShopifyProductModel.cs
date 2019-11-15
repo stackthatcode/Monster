@@ -33,14 +33,12 @@ namespace Monster.Web.Models.Sync
             output.ShopifyUrl = productUrlBuilder(input.ShopifyProductId);
 
             output.SyncedVariantCount
-                = input.NonMissingVariants()
-                    .Count(x => x.ShopAcuItemSyncs != null && x.ShopAcuItemSyncs.Count > 0);
+                = input.NonMissingVariants().Count(x => x.AcumaticaStockItems.Any());
             
             if (includeVariantGraph)
             {
                 output.Variants
-                    = input.NonMissingVariants()
-                        .Select(x => ShopifyVariantModel.Make(x)).ToList();
+                    = input.NonMissingVariants().Select(x => ShopifyVariantModel.Make(x)).ToList();
             }
 
             return output;

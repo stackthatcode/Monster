@@ -15,6 +15,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
             _dataContext = dataContext;
         }
 
+        public DbContextTransaction BeginTransaction()
+        {
+            return Entities.Database.BeginTransaction();
+        }
 
         // Shopify Location queries
         //

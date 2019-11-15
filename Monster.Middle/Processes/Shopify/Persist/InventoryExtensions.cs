@@ -34,11 +34,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
                     .ToList();
         }
         
-        public static IList<ShopifyVariant> 
-                    ExcludeMatched(this IEnumerable<ShopifyVariant> input)
+        public static IList<ShopifyVariant> ExcludeMatched(this IEnumerable<ShopifyVariant> input)
         {
             return input
-                .Where(x => !x.ShopAcuItemSyncs.Any())
+                .Where(x => !x.AcumaticaStockItems.Any())
                 .ToList();
         }
 
@@ -64,7 +63,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public static bool IsMatched(this ShopifyVariant variant)
         {
-            return variant.ShopAcuItemSyncs.Any();
+            return variant.AcumaticaStockItems.Any();
         }
 
         public static bool IsNotMatched(this ShopifyVariant variant)

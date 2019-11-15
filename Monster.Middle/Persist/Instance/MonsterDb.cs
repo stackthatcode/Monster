@@ -54,7 +54,6 @@ namespace Monster.Middle.Persist.Instance
         System.Data.Entity.DbSet<MonsterSetting> MonsterSettings { get; set; } // MonsterSettings
         System.Data.Entity.DbSet<PaymentGateway> PaymentGateways { get; set; } // PaymentGateways
         System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; } // PayoutPreferences
-        System.Data.Entity.DbSet<ShopAcuItemSync> ShopAcuItemSyncs { get; set; } // ShopAcuItemSync
         System.Data.Entity.DbSet<ShopAcuWarehouseSync> ShopAcuWarehouseSyncs { get; set; } // ShopAcuWarehouseSync
         System.Data.Entity.DbSet<ShopifyBatchState> ShopifyBatchStates { get; set; } // ShopifyBatchState
         System.Data.Entity.DbSet<ShopifyCustomer> ShopifyCustomers { get; set; } // ShopifyCustomer
@@ -142,7 +141,6 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<MonsterSetting> MonsterSettings { get; set; } // MonsterSettings
         public System.Data.Entity.DbSet<PaymentGateway> PaymentGateways { get; set; } // PaymentGateways
         public System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; } // PayoutPreferences
-        public System.Data.Entity.DbSet<ShopAcuItemSync> ShopAcuItemSyncs { get; set; } // ShopAcuItemSync
         public System.Data.Entity.DbSet<ShopAcuWarehouseSync> ShopAcuWarehouseSyncs { get; set; } // ShopAcuWarehouseSync
         public System.Data.Entity.DbSet<ShopifyBatchState> ShopifyBatchStates { get; set; } // ShopifyBatchState
         public System.Data.Entity.DbSet<ShopifyCustomer> ShopifyCustomers { get; set; } // ShopifyCustomer
@@ -234,7 +232,6 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new MonsterSettingConfiguration());
             modelBuilder.Configurations.Add(new PaymentGatewayConfiguration());
             modelBuilder.Configurations.Add(new PayoutPreferenceConfiguration());
-            modelBuilder.Configurations.Add(new ShopAcuItemSyncConfiguration());
             modelBuilder.Configurations.Add(new ShopAcuWarehouseSyncConfiguration());
             modelBuilder.Configurations.Add(new ShopifyBatchStateConfiguration());
             modelBuilder.Configurations.Add(new ShopifyCustomerConfiguration());
@@ -281,7 +278,6 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new MonsterSettingConfiguration(schema));
             modelBuilder.Configurations.Add(new PaymentGatewayConfiguration(schema));
             modelBuilder.Configurations.Add(new PayoutPreferenceConfiguration(schema));
-            modelBuilder.Configurations.Add(new ShopAcuItemSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopAcuWarehouseSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopifyBatchStateConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopifyCustomerConfiguration(schema));
@@ -411,7 +407,6 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<MonsterSetting> MonsterSettings { get; set; }
         public System.Data.Entity.DbSet<PaymentGateway> PaymentGateways { get; set; }
         public System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; }
-        public System.Data.Entity.DbSet<ShopAcuItemSync> ShopAcuItemSyncs { get; set; }
         public System.Data.Entity.DbSet<ShopAcuWarehouseSync> ShopAcuWarehouseSyncs { get; set; }
         public System.Data.Entity.DbSet<ShopifyBatchState> ShopifyBatchStates { get; set; }
         public System.Data.Entity.DbSet<ShopifyCustomer> ShopifyCustomers { get; set; }
@@ -461,7 +456,6 @@ namespace Monster.Middle.Persist.Instance
             MonsterSettings = new FakeDbSet<MonsterSetting>("Id");
             PaymentGateways = new FakeDbSet<PaymentGateway>("Id");
             PayoutPreferences = new FakeDbSet<PayoutPreference>("Id");
-            ShopAcuItemSyncs = new FakeDbSet<ShopAcuItemSync>("Id");
             ShopAcuWarehouseSyncs = new FakeDbSet<ShopAcuWarehouseSync>("Id");
             ShopifyBatchStates = new FakeDbSet<ShopifyBatchState>("Id");
             ShopifyCustomers = new FakeDbSet<ShopifyCustomer>("Id");
@@ -1038,6 +1032,8 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaTaxCategory { get; set; } // AcumaticaTaxCategory (length: 50)
         public string AcumaticaDescription { get; set; } // AcumaticaDescription (length: 200)
         public bool IsPriceSynced { get; set; } // IsPriceSynced
+        public long? ShopifyVariantMonsterId { get; set; } // ShopifyVariantMonsterId
+        public bool IsSyncEnabled { get; set; } // IsSyncEnabled
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1047,15 +1043,17 @@ namespace Monster.Middle.Persist.Instance
         /// Child AcumaticaWarehouseDetails where [AcumaticaWarehouseDetails].[ParentMonsterId] point to this entity (FK_usrAcumaticaWarehouseDetails_usrAcumaticaStockItem)
         /// </summary>
         public virtual System.Collections.Generic.ICollection<AcumaticaWarehouseDetail> AcumaticaWarehouseDetails { get; set; } // AcumaticaWarehouseDetails.FK_usrAcumaticaWarehouseDetails_usrAcumaticaStockItem
+
+        // Foreign keys
+
         /// <summary>
-        /// Child ShopAcuItemSyncs where [ShopAcuItemSync].[AcumaticaItemMonsterId] point to this entity (FK_usrShopAcuItemSync_usrAcumaticaStockItem)
+        /// Parent ShopifyVariant pointed by [AcumaticaStockItem].([ShopifyVariantMonsterId]) (FK_AcumaticaStockItem_ShopifyVariant)
         /// </summary>
-        public virtual System.Collections.Generic.ICollection<ShopAcuItemSync> ShopAcuItemSyncs { get; set; } // ShopAcuItemSync.FK_usrShopAcuItemSync_usrAcumaticaStockItem
+        public virtual ShopifyVariant ShopifyVariant { get; set; } // FK_AcumaticaStockItem_ShopifyVariant
 
         public AcumaticaStockItem()
         {
             AcumaticaWarehouseDetails = new System.Collections.Generic.List<AcumaticaWarehouseDetail>();
-            ShopAcuItemSyncs = new System.Collections.Generic.List<ShopAcuItemSync>();
         }
     }
 
@@ -1216,30 +1214,6 @@ namespace Monster.Middle.Persist.Instance
     {
         public int Id { get; set; } // Id (Primary key)
         public string AcumaticaCashAccount { get; set; } // AcumaticaCashAccount (length: 50)
-    }
-
-    // ShopAcuItemSync
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class ShopAcuItemSync
-    {
-        public long Id { get; set; } // Id (Primary key)
-        public long ShopifyVariantMonsterId { get; set; } // ShopifyVariantMonsterId
-        public long AcumaticaItemMonsterId { get; set; } // AcumaticaItemMonsterId
-        public bool IsSyncEnabled { get; set; } // IsSyncEnabled
-        public System.DateTime DateCreated { get; set; } // DateCreated
-        public System.DateTime LastUpdated { get; set; } // LastUpdated
-
-        // Foreign keys
-
-        /// <summary>
-        /// Parent AcumaticaStockItem pointed by [ShopAcuItemSync].([AcumaticaItemMonsterId]) (FK_usrShopAcuItemSync_usrAcumaticaStockItem)
-        /// </summary>
-        public virtual AcumaticaStockItem AcumaticaStockItem { get; set; } // FK_usrShopAcuItemSync_usrAcumaticaStockItem
-
-        /// <summary>
-        /// Parent ShopifyVariant pointed by [ShopAcuItemSync].([ShopifyVariantMonsterId]) (FK_usrShopAcuItemSync_usrShopifyVariant)
-        /// </summary>
-        public virtual ShopifyVariant ShopifyVariant { get; set; } // FK_usrShopAcuItemSync_usrShopifyVariant
     }
 
     // ShopAcuWarehouseSync
@@ -1609,9 +1583,9 @@ namespace Monster.Middle.Persist.Instance
         // Reverse navigation
 
         /// <summary>
-        /// Child ShopAcuItemSyncs where [ShopAcuItemSync].[ShopifyVariantMonsterId] point to this entity (FK_usrShopAcuItemSync_usrShopifyVariant)
+        /// Child AcumaticaStockItems where [AcumaticaStockItem].[ShopifyVariantMonsterId] point to this entity (FK_AcumaticaStockItem_ShopifyVariant)
         /// </summary>
-        public virtual System.Collections.Generic.ICollection<ShopAcuItemSync> ShopAcuItemSyncs { get; set; } // ShopAcuItemSync.FK_usrShopAcuItemSync_usrShopifyVariant
+        public virtual System.Collections.Generic.ICollection<AcumaticaStockItem> AcumaticaStockItems { get; set; } // AcumaticaStockItem.FK_AcumaticaStockItem_ShopifyVariant
         /// <summary>
         /// Child ShopifyInventoryLevels where [ShopifyInventoryLevel].[ParentMonsterId] point to this entity (FK_usrShopifyInventoryLevels_usrShopifyVariant)
         /// </summary>
@@ -1626,7 +1600,7 @@ namespace Monster.Middle.Persist.Instance
 
         public ShopifyVariant()
         {
-            ShopAcuItemSyncs = new System.Collections.Generic.List<ShopAcuItemSync>();
+            AcumaticaStockItems = new System.Collections.Generic.List<AcumaticaStockItem>();
             ShopifyInventoryLevels = new System.Collections.Generic.List<ShopifyInventoryLevel>();
         }
     }
@@ -2200,8 +2174,13 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaTaxCategory).HasColumnName(@"AcumaticaTaxCategory").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaDescription).HasColumnName(@"AcumaticaDescription").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(200);
             Property(x => x.IsPriceSynced).HasColumnName(@"IsPriceSynced").HasColumnType("bit").IsRequired();
+            Property(x => x.ShopifyVariantMonsterId).HasColumnName(@"ShopifyVariantMonsterId").HasColumnType("bigint").IsOptional();
+            Property(x => x.IsSyncEnabled).HasColumnName(@"IsSyncEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
+
+            // Foreign keys
+            HasOptional(a => a.ShopifyVariant).WithMany(b => b.AcumaticaStockItems).HasForeignKey(c => c.ShopifyVariantMonsterId).WillCascadeOnDelete(false); // FK_AcumaticaStockItem_ShopifyVariant
         }
     }
 
@@ -2427,33 +2406,6 @@ namespace Monster.Middle.Persist.Instance
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaCashAccount).HasColumnName(@"AcumaticaCashAccount").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-        }
-    }
-
-    // ShopAcuItemSync
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class ShopAcuItemSyncConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ShopAcuItemSync>
-    {
-        public ShopAcuItemSyncConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public ShopAcuItemSyncConfiguration(string schema)
-        {
-            ToTable("ShopAcuItemSync", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyVariantMonsterId).HasColumnName(@"ShopifyVariantMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.AcumaticaItemMonsterId).HasColumnName(@"AcumaticaItemMonsterId").HasColumnType("bigint").IsRequired();
-            Property(x => x.IsSyncEnabled).HasColumnName(@"IsSyncEnabled").HasColumnType("bit").IsRequired();
-            Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
-            Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
-
-            // Foreign keys
-            HasRequired(a => a.AcumaticaStockItem).WithMany(b => b.ShopAcuItemSyncs).HasForeignKey(c => c.AcumaticaItemMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuItemSync_usrAcumaticaStockItem
-            HasRequired(a => a.ShopifyVariant).WithMany(b => b.ShopAcuItemSyncs).HasForeignKey(c => c.ShopifyVariantMonsterId).WillCascadeOnDelete(false); // FK_usrShopAcuItemSync_usrShopifyVariant
         }
     }
 

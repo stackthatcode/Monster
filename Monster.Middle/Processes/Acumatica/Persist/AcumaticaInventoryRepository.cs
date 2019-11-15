@@ -54,7 +54,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         {
             return Entities
                 .AcumaticaStockItems
-                .Include(x => x.ShopAcuItemSyncs)
+                .Include(x => x.ShopifyVariant)
                 .FirstOrDefault(x => x.ItemId == itemId);
         }
 
