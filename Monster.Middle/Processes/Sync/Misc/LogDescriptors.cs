@@ -44,6 +44,12 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Acumatica Stock Item {stockItem.ItemId}";
         }
 
+        public static string LogDescriptorItemId(this string itemId)
+        {
+            return $"Acumatica Stock Item {itemId}";
+        }
+
+
         public static string LogDescriptor(this AcumaticaSalesOrder salesOrder)
         {
             return $"Acumatica Sales Order {salesOrder.AcumaticaOrderNbr}";

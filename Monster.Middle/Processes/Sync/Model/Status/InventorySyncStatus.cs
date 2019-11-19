@@ -18,8 +18,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         // Computed
         public bool IsMatched => ShopifyVariantId.HasValue;
-        public bool AreIdentifiersMismatched
-            => IsMatched && Canonizers.StandardizedSku(StockItemId) != Canonizers.StandardizedSku(ShopifyVariantSku);
+        public bool IsSkuMismatchedWithItemId
+            => IsMatched && StockItemId.StandardizedSku() != ShopifyVariantSku.StandardizedSku();
         
 
         public static InventorySyncStatus Make(AcumaticaStockItem input)
@@ -44,8 +44,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         {
             var validation = new Validation<InventorySyncStatus>()
                 .Add(x => x.IsMatched, "Stock Item is not matched with a Shopify Variant")
-                .Add(x => !x.IsStockItemPriceSynced, "Stock Item is not flagged for needing Price update")
-                .Add(x => !x.IsShopifyVariantMissing, $"Matched Shopify Variant is missing");
+                .Add(x => !x.IsShopifyVariantMissing, $"Matched Shopify Variant is missing")
+                .Add(x => !x.IsSkuMismatchedWithItemId, $"Shopify Variant SKU is mismatched with Acumatica Stock Item ID");
 
             return validation.Run(this);
         }
@@ -54,8 +54,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         {
             var validation = new Validation<InventorySyncStatus>()
                 .Add(x => x.IsMatched, "Stock Item is not matched with a Shopify Variant")
-                .Add(x => !x.IsStockItemInventorySynced, "Stock Item is not flagged for needing Inventory update")
-                .Add(x => !x.IsShopifyVariantMissing, $"Matched Shopify Variant is missing");
+                .Add(x => !x.IsShopifyVariantMissing, $"Matched Shopify Variant is missing")
+                .Add(x => !x.IsSkuMismatchedWithItemId, $"Shopify Variant SKU is mismatched with Acumatica Stock Item ID");
 
             return validation.Run(this);
         }

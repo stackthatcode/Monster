@@ -185,6 +185,17 @@ namespace Monster.Middle.Processes.Sync.Persist
                                      && x.ShopifySku == sku);
         }
 
+        public ShopifyVariant RetrieveLiveVariant(long shopifyProductId, string sku)
+        {
+            return Entities
+                .ShopifyVariants
+                .Where(x => x.ShopifyProduct.ShopifyProductId == shopifyProductId)
+                .Include(x => x.AcumaticaStockItems)
+                .FirstOrDefault(x => x.IsMissing == false
+                                     && x.AcumaticaStockItems.Any()
+                                     && x.ShopifySku == sku);
+        }
+
         public AcumaticaStockItem RetrieveStockItem(string itemId)
         {
             return Entities
@@ -459,6 +470,12 @@ namespace Monster.Middle.Processes.Sync.Persist
             variants.ForEach(x => x.IsSyncEnabled = syncEnabled);
             Entities.SaveChanges();
         }
+
+        public bool SkuExistsInShopify(string sku)
+        {
+            return Entities.ShopifyVariants.Any(x => x.ShopifySku == sku);
+        }
+
 
         public void SaveChanges()
         {

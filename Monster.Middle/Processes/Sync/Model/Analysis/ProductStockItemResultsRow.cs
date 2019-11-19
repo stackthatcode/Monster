@@ -23,5 +23,9 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
         public string AcumaticaItemTax { get; set; }
         public decimal AcumaticaItemPrice { get; set; }
         public int AcumaticaItemAvailQty { get; set; }
+
+        public bool HasMismatchedSku { get; set; }
+        public bool HasMismatchedTaxes { get; set; }
+        public bool HasDuplicateSkus { get; set; }
     }
 }

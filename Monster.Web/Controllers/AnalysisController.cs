@@ -83,10 +83,10 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult ProductStockItemResults(AnalyzerRequest request)
         {
-            var grid = _analysisDataService.GetProductStockItemResults(request);
+            var stockItemResults = _analysisDataService.GetProductStockItemResults(request);
             var count = _analysisDataService.GetProductStockItemCount(request);
 
-            return new JsonNetResult(new { Grid = grid, Count = count });
+            return new JsonNetResult(new { Grid = stockItemResults, Count = count });
         }
     }
 }

@@ -10,6 +10,7 @@ using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Analysis;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
@@ -284,6 +285,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
             output.IsShopifyProductDeleted = variant.ShopifyProduct.IsDeleted;
             output.IsShopifyVariantMissing = variant.IsMissing;
+            output.HasDuplicateSkus = HasDuplicateSkus(variant.ShopifySku);
 
             if (variant.IsMatched())
             {
@@ -297,10 +299,22 @@ namespace Monster.Middle.Processes.Sync.Services
                 output.AcumaticaItemPrice = (decimal)stockItem.DefaultPrice.value;
                 output.AcumaticaItemAvailQty 
                     = stockItemRecord.AcumaticaWarehouseDetails.Sum(x => (int)x.AcumaticaQtyOnHand);
+
+                output.HasMismatchedSku = variant.AreSkuAndItemIdMismatched();
+                output.HasMismatchedTaxes = variant.AreTaxesMismatched(settings);
             }
 
             return output;
         }
+
+        public bool HasDuplicateSkus(string variantSku)
+        {
+            var standardSku = variantSku.StandardizedSku();
+            return _persistContext.Entities
+                       .ShopifyVariants
+                       .Count(x => x.ShopifySku == standardSku && x.IsMissing == false) > 1;
+        }
+
 
 
         private List<string> ParseSearchTerms(string rawInput)

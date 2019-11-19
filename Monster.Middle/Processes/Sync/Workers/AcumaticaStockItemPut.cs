@@ -60,11 +60,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         private void RunStockItemImport(AcumaticaStockItemImportContext context, ShopifyVariant variant)
         {
-            var matchingShopifySkus = _syncRepository.RetrieveNonMissingVariants(variant.StandardizedSku());
+            var matchingShopifySkus 
+                = _syncRepository.RetrieveNonMissingVariants(variant.StandardizedSku());
+
             if (matchingShopifySkus.Count > 1)
             {
-                _logService.Log(
-                    $"Stock Item Import: {variant.LogDescriptor()} has duplicates in Shopify - aborting");
+                _logService.Log($"Stock Item Import: {variant.LogDescriptor()} has duplicates in Shopify - aborting");
                 return;
             }
 
@@ -80,28 +81,18 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (stockItem != null)
             {
-                //if (stockItem.HasMatch() && stockItem.MatchedVariant().IsMissing)
-                //{
-                //    var msg = $"Stock Item Import: removing sync from {stockItem.LogDescriptor()} "
-                //                + "to Variant flagged missing";
-                //    _logService.Log(msg);
-
-                //    _syncRepository.DeleteItemSyncs(stockItem);
-                //}
-
-                if (!stockItem.IsSynced())
-                {
-                    var msg = $"Stock Item Import: auto-matched {stockItem.LogDescriptor()} "
-                                + $"to {variant.LogDescriptor()}";
-                    _logService.Log(msg);
-
-                    _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
-                    return;
-                }
-                else
+                if (stockItem.IsSynced())
                 {
                     var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
                     _logService.Log(msg);
+                    return;
+                }
+                else
+                { 
+                    var msg = $"Stock Item Import: auto-matched {stockItem.LogDescriptor()} to {variant.LogDescriptor()}";
+                    _logService.Log(msg);
+
+                    _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
                     return;
                 }
             }
@@ -133,6 +124,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             newRecord.AcumaticaJson = item.SerializeToJson();
             newRecord.AcumaticaDescription = item.Description.value;
             newRecord.AcumaticaTaxCategory = item.TaxCategory.value;
+            newRecord.IsPriceSynced = false;
             newRecord.DateCreated = DateTime.UtcNow;
             newRecord.LastUpdated = DateTime.UtcNow;
 

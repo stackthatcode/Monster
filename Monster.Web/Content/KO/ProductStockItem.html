@@ -51,7 +51,7 @@
             </div>
         </div>
 
-        <table class="table table-striped table-hover product-grid">
+        <table class="table table-hover product-grid">
             <thead>
             <tr style="color: #777;">
                 <th scope="col">Shopify Product / Shopify Variant</th>
@@ -80,6 +80,18 @@
                             <span data-bind="text: ShopifyVariantSku"></span>
                         </a>
                         <span data-bind="if: IsShopifyVariantMissing" class="text-muted">(Missing)</span>
+                    </div>
+                    
+                    <div>
+                        <span data-bind="if: HasDuplicateSkus">
+                            <span class="badge badge-danger">Duplicate SKU</span>
+                        </span>
+                        <span data-bind="if: HasMismatchedTaxes">
+                            <span class="badge badge-danger">Mismatched Taxes</span>
+                        </span>
+                        <span data-bind="if: HasMismatchedSku">
+                            <span class="badge badge-danger">Mismatched SKU</span>
+                        </span>
                     </div>
                 </td>
                 <td data-bind="text: ShopifyVariantTax"></td>
