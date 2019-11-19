@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
-using Push.Foundation.Web.Helpers;
 using Push.Shopify.Api.Product;
 using Push.Shopify.Http;
 
@@ -17,8 +17,7 @@ namespace Push.Shopify.Api
         private readonly IPushLogger _logger;
         
 
-        public ProductApi(
-                ShopifyHttpContext client, IPushLogger logger)
+        public ProductApi(ShopifyHttpContext client, IPushLogger logger)
         {
             _httpClient = client;
             _logger = logger;
@@ -82,16 +81,14 @@ namespace Push.Shopify.Api
         }
         
         
-        public virtual void AddMetafield(
-                long productId, MetafieldRead metafield)
+        public virtual void AddMetafield(long productId, MetafieldRead metafield)
         {
             var json = metafield.SerializeToJson();
             var path = $"/admin/products/{productId}/metafields.json";
             var clientResponse = _httpClient.Post(path, json);
         }
         
-        public virtual void UpdateMetafield(
-                    long product_id, MetafieldUpdateParent metafield)
+        public virtual void UpdateMetafield(long product_id, MetafieldUpdateParent metafield)
         {
             var json = metafield.SerializeToJson();
             var path = $"/admin/products/{product_id}/metafields/{metafield.metafield.id}.json";
@@ -129,5 +126,7 @@ namespace Push.Shopify.Api
             var clientResponse = _httpClient.Put(path,json);
             return clientResponse.Body;
         }
+
+
     }
 }

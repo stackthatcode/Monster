@@ -1,4 +1,5 @@
 ﻿using System;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Web.Helpers;
 
 namespace Push.Shopify.Api.Event

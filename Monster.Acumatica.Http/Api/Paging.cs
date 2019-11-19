@@ -13,8 +13,7 @@ namespace Monster.Acumatica.Api
 
     public static class PagingExtensions
     {
-        public static QueryStringBuilder 
-                AddPaging(this QueryStringBuilder builder, int page, int pageSize)
+        public static QueryStringBuilder AddPaging(this QueryStringBuilder builder, int page, int pageSize)
         {
             var skip = (page - 1) * pageSize;
             return builder.Add("$top", page).Add("$skip", skip);

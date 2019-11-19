@@ -43,9 +43,14 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Entities.SaveChanges();
         }
 
-        public IList<AcumaticaWarehouse> RetrieveWarehouses()
+        public List<AcumaticaWarehouse> RetrieveWarehouses()
         {
             return Entities.AcumaticaWarehouses.ToList();
+        }
+
+        public AcumaticaWarehouse RetrieveWarehouse(string warehouseId)
+        {
+            return Entities.AcumaticaWarehouses.FirstOrDefault(x => x.AcumaticaWarehouseId == warehouseId);
         }
 
         // Acumatica persistence
@@ -65,19 +70,17 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                     .FirstOrDefault(x => x.MonsterId == monsterId);
         }
 
-        public List<AcumaticaWarehouseDetail>
-                    RetrieveWarehouseDetails(long stockItemMonstedId)
+        public AcumaticaInventory RetrieveInventory(string itemId, string warehouseId)
         {
             return Entities
-                .AcumaticaWarehouseDetails
-                .Where(x => x.ParentMonsterId == stockItemMonstedId)
-                .ToList();
+                .AcumaticaInventories
+                .FirstOrDefault(x => x.AcumaticaStockItem.ItemId == itemId
+                                     && x.AcumaticaWarehouse.AcumaticaWarehouseId == warehouseId);
         }
 
-
-        public void InsertWarehouseDetails(AcumaticaWarehouseDetail details)
+        public void InsertInventory(AcumaticaInventory inventory)
         {
-            Entities.AcumaticaWarehouseDetails.Add(details);
+            Entities.AcumaticaInventories.Add(inventory);
             Entities.SaveChanges();
         }
 

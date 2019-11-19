@@ -223,7 +223,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 .Include(x => x.ShopifyInventoryLevels)
                 .Include(x => x.ShopifyProduct)
                 .Include(x => x.AcumaticaStockItems)
-                .Include(x => x.AcumaticaStockItems.Select(y => y.AcumaticaWarehouseDetails));
+                .Include(x => x.AcumaticaStockItems.Select(y => y.AcumaticaInventories));
 
         private IQueryable<ShopifyVariant> GetProductStockItemQueryable(AnalyzerRequest request)
         {
@@ -300,10 +300,9 @@ namespace Monster.Middle.Processes.Sync.Services
                 output.AcumaticaItemId = stockItemRecord.ItemId;
                 output.AcumaticaItemDesc = stockItemRecord.AcumaticaDescription;
                 output.AcumaticaItemUrl = _acumaticaUrlService.AcumaticaStockItemUrl(stockItemRecord.ItemId);
-                output.AcumaticaItemTax = stockItemRecord.IsTaxable(settings).YesNoNAPlainEnglish();
+                output.AcumaticaItemTax = stockItemRecord.IsTaxable(settings).YesNoNaPlainEnglish();
                 output.AcumaticaItemPrice = (decimal)stockItem.DefaultPrice.value;
-                output.AcumaticaItemAvailQty 
-                    = stockItemRecord.AcumaticaWarehouseDetails.Sum(x => (int)x.AcumaticaQtyOnHand);
+                output.AcumaticaItemAvailQty  = stockItemRecord.AcumaticaInventories.Sum(x => (int)x.AcumaticaAvailQty);
 
                 output.HasMismatchedSku = variant.AreSkuAndItemIdMismatched();
                 output.HasMismatchedTaxes = variant.AreTaxesMismatched(settings);

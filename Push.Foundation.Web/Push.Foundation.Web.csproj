@@ -161,7 +161,6 @@
     <Compile Include="Mvc\RequestActivityIdLogFormatter.cs" />
     <Compile Include="Helpers\ControllerHelpers.cs" />
     <Compile Include="Mvc\MyFormUrlEncodedContent.cs" />
-    <Compile Include="Helpers\QueryStringBuilder.cs" />
     <Compile Include="Mvc\RouteValueDictionaryExtensions.cs" />
     <Compile Include="Helpers\UrlExtensions.cs" />
     <Compile Include="Identity\PushIdentityDbContext.cs" />

@@ -46,18 +46,13 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var batchState = _batchStateRepository.Retrieve();
             _executionLogService.Log("Refreshing Stock Items from Acumatica");
+            RunStockItems(batchState.AcumaticaStockItemGetEnd);
 
-            if (batchState.AcumaticaStockItemGetEnd.HasValue)
-            {
-                Run(batchState.AcumaticaStockItemGetEnd);
-            }
-            else
-            {
-                Run();
-            }
+            _executionLogService.Log("Refreshing Inventory Status from Acumatica");
+            RunInventoryStatus(batchState.AcumaticaInventoryStatusGetEnd);
         }
 
-        public void Run(DateTime? lastModifiedMinUtc = null)
+        public void RunStockItems(DateTime? lastModifiedMinUtc = null)
         {
             var startOfRun = DateTime.UtcNow;
             var page = 1;
@@ -71,7 +66,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             {
                 var json = 
                     _inventoryClient.RetrieveStockItems(
-                        page: page, pageSize: _config.PageSize, lastModified: lastModifiedAcuTime);
+                        page: page, pageSize: _config.PageSize, lastModifiedAcuTz: lastModifiedAcuTime);
 
                 var stockItems = json.DeserializeFromJson<List<StockItem>>();
 
@@ -86,14 +81,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             }
 
             var batchStateEnd = startOfRun.AddAcumaticaBatchFudge();
-            _batchStateRepository.UpdateProductsEnd(batchStateEnd);
+            _batchStateRepository.UpdateStockItemGetEnd(batchStateEnd);
         }
         
-
         public void UpsertStockItemToPersist(List<StockItem> items)
         {
-            var settings = _settingsRepository.RetrieveSettings();
-
             foreach (var item in items)
             {
                 var existingData = _inventoryRepository.RetreiveStockItem(item.InventoryID.value);
@@ -105,6 +97,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     newData.AcumaticaJson = item.SerializeToJson();
                     newData.AcumaticaDescription = item.Description.value;
                     newData.AcumaticaTaxCategory = item.TaxCategory.value;
+                    newData.AcumaticaDefaultPrice = (decimal)item.DefaultPrice.value;
+                    newData.AcumaticaLastCost = (decimal)item.LastCost.value;
 
                     newData.IsPriceSynced = false;
                     newData.DateCreated = DateTime.UtcNow;
@@ -115,78 +109,90 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 else
                 {
                     existingData.AcumaticaJson = item.SerializeToJson();
-                    existingData.AcumaticaTaxCategory = item.TaxCategory.value;
                     existingData.AcumaticaDescription = item.Description.value;
+                    existingData.AcumaticaTaxCategory = item.TaxCategory.value;
+                    existingData.AcumaticaDefaultPrice = (decimal)item.DefaultPrice.value;
+                    existingData.AcumaticaLastCost = (decimal)item.LastCost.value;
 
-                    existingData.LastUpdated = DateTime.UtcNow;
                     existingData.IsPriceSynced = false;
+                    existingData.LastUpdated = DateTime.UtcNow;
 
                     _inventoryRepository.SaveChanges();
                 }
-
-                UpsertWarehouseDetails(item);
             }
         }
 
-        public bool? ComputeIsTaxable(MonsterSetting settings, string taxCategory)
+
+        public void RunInventoryStatus(DateTime? lastModifiedMinUtc = null)
         {
-            if (taxCategory == settings.AcumaticaTaxableCategory)
+            var startOfRun = DateTime.UtcNow;
+            var page = 1;
+
+            var lastModifiedAcuTime
+                = lastModifiedMinUtc.HasValue
+                    ? _instanceTimeZoneService.ToAcumaticaTimeZone(lastModifiedMinUtc.Value)
+                    : (DateTime?)null;
+
+            while (true)
             {
-                return true;
+                var json =
+                    _inventoryClient.RetrieveInventoryStatus(
+                        page: page, pageSize: _config.PageSize, lastModifiedAcuTz: lastModifiedAcuTime);
+
+                var status = json.DeserializeFromJson<InventoryStatusParent>();
+
+                UpsertInventoryStatus(status);
+
+                if (status.value.Count == 0)
+                {
+                    break;
+                }
+
+                page++;
             }
 
-            if (taxCategory == settings.AcumaticaTaxExemptCategory)
-            {
-                return false;
-            }
-
-            return null;
+            var batchStateEnd = startOfRun.AddAcumaticaBatchFudge();
+            _batchStateRepository.UpdateInventoryStatusGetEnd(batchStateEnd);
         }
 
-        public void UpsertWarehouseDetails(StockItem stockItem)
+
+        public void UpsertInventoryStatus(InventoryStatusParent inventoryStatusParent)
         {
-            var monsterStockItem = 
-                    _inventoryRepository.RetreiveStockItem(stockItem.InventoryID.value);
-
-            var stockItemMonsterId = monsterStockItem.MonsterId;
-
-            var existingDetails = 
-                    _inventoryRepository.RetrieveWarehouseDetails(stockItemMonsterId);
-
-            var warehouses = _inventoryRepository.RetrieveWarehouses();
-
-            foreach (var acumaticaDetail in stockItem.WarehouseDetails)
+            foreach (var entry in inventoryStatusParent.value)
             {
-                var acumaticaWarehouseId = acumaticaDetail.WarehouseID.value;
-                var monsterWarehouse
-                    = warehouses.First(x => x.AcumaticaWarehouseId == acumaticaWarehouseId);
+                UpsertInventoryStatus(entry);
+            }
+        }
 
-                var existingDetail 
-                    = existingDetails
-                        .FirstOrDefault(x => x.AcumaticaWarehouseId == acumaticaWarehouseId);
+        public void UpsertInventoryStatus(InventoryStatus inventoryStatus)
+        {
+            var stockItemRecord = _inventoryRepository.RetreiveStockItem(inventoryStatus.InventoryID);
 
-                if (existingDetail == null)
-                {
-                    var newDetail = new AcumaticaWarehouseDetail();
-                    newDetail.ParentMonsterId = monsterStockItem.MonsterId;
-                    newDetail.AcumaticaJson = acumaticaDetail.SerializeToJson();
-                    newDetail.AcumaticaWarehouseId = acumaticaDetail.WarehouseID.value;
-                    newDetail.AcumaticaQtyOnHand = acumaticaDetail.QtyOnHand.value;
-                    newDetail.WarehouseMonsterId = monsterWarehouse.Id;
-                    newDetail.IsInventorySynced = false;
-                    newDetail.DateCreated = DateTime.UtcNow;
-                    newDetail.LastUpdated = DateTime.UtcNow;
+            var existing =
+                _inventoryRepository
+                    .RetrieveInventory(inventoryStatus.InventoryID, inventoryStatus.WarehouseID);
 
-                    _inventoryRepository.InsertWarehouseDetails(newDetail);
-                }
-                else
-                {
-                    existingDetail.AcumaticaQtyOnHand = acumaticaDetail.QtyOnHand.value;
-                    existingDetail.AcumaticaJson = acumaticaDetail.SerializeToJson();
-                    existingDetail.IsInventorySynced = false;
-                    existingDetail.LastUpdated = DateTime.UtcNow;
-                    _inventoryRepository.SaveChanges();
-                }
+            if (existing == null)
+            {
+                var warehouse = _inventoryRepository.RetrieveWarehouse(inventoryStatus.WarehouseID);
+
+                var inventory = new AcumaticaInventory();
+                inventory.ParentMonsterId = stockItemRecord.MonsterId;
+                inventory.AcumaticaWarehouseId = inventoryStatus.WarehouseID;
+                inventory.AcumaticaAvailQty = inventoryStatus.QtyAvailable;
+                inventory.WarehouseMonsterId = warehouse.Id;
+                inventory.IsInventorySynced = false;
+                inventory.DateCreated = DateTime.UtcNow;
+                inventory.LastUpdated = DateTime.UtcNow;
+
+                _inventoryRepository.InsertInventory(inventory);
+            }
+            else
+            {
+                existing.AcumaticaAvailQty = inventoryStatus.QtyAvailable;
+                existing.IsInventorySynced = false;
+                existing.LastUpdated = DateTime.UtcNow;
+                _inventoryRepository.SaveChanges();
             }
         }
     }

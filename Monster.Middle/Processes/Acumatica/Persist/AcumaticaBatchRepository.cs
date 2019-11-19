@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Persist.Instance;
 
 namespace Monster.Middle.Processes.Acumatica.Persist
 {
@@ -38,10 +37,17 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Entities.SaveChanges();
         }
 
-        public void UpdateProductsEnd(DateTime endTimeUtc)
+        public void UpdateStockItemGetEnd(DateTime endTimeUtc)
         {
             var existingState = Retrieve();
             existingState.AcumaticaStockItemGetEnd = endTimeUtc;
+            Entities.SaveChanges();
+        }
+
+        public void UpdateInventoryStatusGetEnd(DateTime endTimeUtc)
+        {
+            var existingState = Retrieve();
+            existingState.AcumaticaInventoryStatusGetEnd = endTimeUtc;
             Entities.SaveChanges();
         }
 
@@ -59,8 +65,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Entities.SaveChanges();
         }
         
-
-
         public AcumaticaBatchState Retrieve()
         {
             var output =

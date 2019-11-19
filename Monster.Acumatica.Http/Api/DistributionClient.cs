@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ServiceModel.Syndication;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Web.Helpers;
 
 namespace Monster.Acumatica.Api
@@ -15,18 +17,6 @@ namespace Monster.Acumatica.Api
         }
 
 
-        public string RetrieveItemClass()
-        {
-            var response = _httpContext.Get("ItemClass");
-            return response.Body;
-        }
-        
-        public string RetrievePostingClasses()
-        {
-            var response = _httpContext.Get("PostingClass");
-            return response.Body;
-        }
-
         public string RetrieveWarehouses()
         {
             var queryString =
@@ -38,26 +28,13 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string AddNewWarehouse(string content)
+        public string RetrieveStockItems(DateTime? lastModifiedAcuTz = null, int page = 1, int? pageSize = null)
         {
-            var response = _httpContext.Put("Warehouse", content);
-            return response.Body;
-        }
+            var queryString = "$filter=ItemStatus eq 'Active'";
 
-        public string RetrieveItemWarehouses()
-        {
-            var response = _httpContext.Get("ItemWarehouse");
-            return response.Body;
-        }
-
-
-        public string RetrieveStockItems(DateTime? lastModified = null, int page = 1, int? pageSize = null)
-        {
-            var queryString = "$expand=WarehouseDetails&$filter=ItemStatus eq 'Active'";
-
-            if (lastModified.HasValue)
+            if (lastModifiedAcuTz.HasValue)
             {
-                var restDate = lastModified.Value.ToAcumaticaRestDate();
+                var restDate = lastModifiedAcuTz.Value.ToAcumaticaRestDate();
                 queryString += $" and LastModified gt datetimeoffset'{restDate}'";
             }
 
@@ -75,6 +52,28 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Put("StockItem", content);
             return response.Body;
         }
+
+        public string RetrieveInventoryStatus(DateTime? lastModifiedAcuTz = null, int page = 1, int? pageSize = null)
+        {
+            var builder = new QueryStringBuilder().Add("$format", "json");
+
+            if (lastModifiedAcuTz.HasValue)
+            {
+                builder.Add("$filter",
+                    $"INSiteStatus_lastModifiedDateTime gt datetime'{lastModifiedAcuTz.Value.ToAcumaticaRestDate()}'");
+            }
+
+            if (pageSize.HasValue)
+            {
+                builder.AddPaging(page, pageSize.Value);
+            }
+
+            var queryString = builder.ToString();
+
+            var response = _httpContext.Get($"OData/InventoryStatus?{queryString}");
+            return response.Body;
+        }
+
 
         public string AddInventoryReceipt(string content)
         {

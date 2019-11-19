@@ -18,8 +18,7 @@ namespace Monster.Web.Models.Sync
             output.ItemId = stockItem.ItemId;
             output.Description = stockItem.AcumaticaDescription;
             output.AcumaticaUrl = stockItemUrlBuilder(stockItem.ItemId);
-            output.QuantityOnHand = 
-                (int)stockItem.AcumaticaWarehouseDetails.Sum(x => x.AcumaticaQtyOnHand);
+            output.QuantityOnHand = (int)stockItem.AcumaticaInventories.Sum(x => x.AcumaticaAvailQty);
 
             return output;
         }

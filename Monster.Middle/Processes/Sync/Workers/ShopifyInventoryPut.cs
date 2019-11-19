@@ -22,6 +22,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly InventoryApi _inventoryApi;
         private readonly ProductApi _productApi;
         private readonly SyncInventoryRepository _syncInventoryRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
@@ -31,6 +32,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 ProductApi productApi,
                 ShopifyInventoryRepository inventoryRepository, 
                 SyncInventoryRepository syncInventoryRepository, 
+                SettingsRepository settingsRepository,
                 ExecutionLogService executionLogService, 
                 IPushLogger logger)
         {
@@ -38,6 +40,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _productApi = productApi;
             _inventoryRepository = inventoryRepository;
             _syncInventoryRepository = syncInventoryRepository;
+            _settingsRepository = settingsRepository;
             _executionLogService = executionLogService;
             _logger = logger;
         }
@@ -55,7 +58,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var stockItem in stockItems)
             {
-                var readyToSync = InventorySyncStatus.Make(stockItem).ReadyToSyncPrice();
+                var readyToSync = MakeSyncStatus(stockItem).ReadyToSyncPrice();
+
                 if (!readyToSync.Success)
                 {
                     _logger.Debug($"Skipping PriceUpdate for {stockItem.ItemId}");
@@ -63,12 +67,13 @@ namespace Monster.Middle.Processes.Sync.Workers
                 }
 
                 _executionLogService.Log(LogBuilder.UpdateShopifyPrice(stockItem));
-                PriceUpdate(stockItem);
+                PriceAndCostUpdate(stockItem);
             }
         }
 
-        public void PriceUpdate(AcumaticaStockItem stockItem)
+        public void PriceAndCostUpdate(AcumaticaStockItem stockItem)
         {
+            var settings = _settingsRepository.RetrieveSettings();
             var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
             var stockItemObj = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
 
@@ -77,28 +82,67 @@ namespace Monster.Middle.Processes.Sync.Workers
                 return;
             }
 
+            var variantRecord = stockItemRecord.MatchedVariant();
+
             // Build the Shopify DTO
             //
-            var variantShopifyId = stockItemRecord.MatchedVariant().ShopifyVariantId;
-            var variantSku = stockItemRecord.MatchedVariant().ShopifySku;
-            var price = stockItemObj.DefaultPrice.value;
-            var dto = VariantPriceUpdateParent.Make(variantShopifyId, price);
+            var variantShopifyId = variantRecord.ShopifyVariantId;
+            var variantSku = variantRecord.ShopifySku;
+            var price = (decimal)stockItemObj.DefaultPrice.value;
+            var taxable = stockItemRecord.IsTaxable(settings).Value;
+            var cogs = stockItem.AcumaticaLastCost;
 
-            // Push the price update to Shopify API
+            // Push the price update via Variant API
             //
-            _productApi.UpdateVariantPrice(variantShopifyId, dto.SerializeToJson());
+            var priceDto = VariantPriceUpdateParent.Make(variantShopifyId, price, taxable);
+            _productApi.UpdateVariantPrice(variantShopifyId, priceDto.SerializeToJson());
+
+            // Push the cost of goods via Inventory API
+            var costDto = new InventoryItem()
+            {
+                id = variantRecord.ShopifyInventoryItemId,
+                cost = cogs,
+            };
+            _inventoryApi.SetInventoryCost(variantRecord.ShopifyInventoryItemId, costDto.SerializeToJson());
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
-                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, (decimal)price);
+                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, (decimal)price, taxable, cogs);
                 _executionLogService.Log(log);
 
                 stockItem.IsPriceSynced = true;
                 stockItem.LastUpdated = DateTime.UtcNow;
+
+                variantRecord.ShopifyPrice = price;
+                variantRecord.ShopifyCost = cogs;
+                variantRecord.ShopifyIsTaxable = taxable;
+
                 _syncInventoryRepository.SaveChanges();
 
                 transaction.Commit();
             }
+        }
+
+        public InventorySyncStatus MakeSyncStatus(AcumaticaStockItem input)
+        {
+            var settings = _settingsRepository.RetrieveSettings();
+
+            var output = new InventorySyncStatus();
+            output.StockItemId = input.ItemId;
+            output.TaxCategoryId = input.AcumaticaTaxCategory;
+
+            output.IsStockItemPriceSynced = input.IsPriceSynced;
+            output.IsStockItemInventorySynced = input.AcumaticaInventories.All(x => x.IsInventorySynced);
+            output.IsTaxCategoryValid = input.IsValidTaxCategory(settings);
+
+            if (input.IsSynced())
+            {
+                output.ShopifyVariantId = input.MatchedVariant().ShopifyVariantId;
+                output.ShopifyVariantSku = input.MatchedVariant().ShopifySku;
+                output.IsShopifyVariantMissing = input.MatchedVariant().IsMissing;
+            }
+
+            return output;
         }
 
         public void RunInventoryUpdate()
@@ -107,7 +151,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var stockItem in stockItems)
             {
-                var readyToSync = InventorySyncStatus.Make(stockItem).ReadyToSyncInventory();
+                var readyToSync = MakeSyncStatus(stockItem).ReadyToSyncInventory();
                 if (!readyToSync.Success)
                 {
                     _logger.Debug($"Skipping StockItemInventoryUpdate for {stockItem.ItemId}");
@@ -153,35 +197,34 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var location = _syncInventoryRepository.RetrieveLocation(level.ShopifyLocationId);
             var warehouseIds = location.MatchedWarehouseIds();
-            var details = stockItem.WarehouseDetails(warehouseIds);
+            var details = stockItem.Inventory(warehouseIds);
                 
-            var totalQtyOnHand = (int)details.Sum(x => x.AcumaticaQtyOnHand);
+            var available = (int)details.Sum(x => x.AcumaticaAvailQty);
             var sku = level.ShopifyVariant.ShopifySku;
             
             var levelDto = new InventoryLevel
             {
                 inventory_item_id = level.ShopifyInventoryItemId,
-                available = totalQtyOnHand,
+                available = available,
                 location_id = location.ShopifyLocationId,
             };
 
             var levelJson = levelDto.SerializeToJson();
-            var result = _inventoryApi.SetInventoryLevels(levelJson);
+            _inventoryApi.SetInventoryLevels(levelJson);
+
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
                 var log = $"Updated Shopify Variant {sku} " +
-                          $"in Location {location.ShopifyLocationName} to Available Qty {totalQtyOnHand}";
+                          $"in Location {location.ShopifyLocationName} to Available Qty {available}";
 
                 _executionLogService.Log(log);
 
-                // Flag Acumatica Warehouse Detail as synchronized
-                //
                 details.ForEach(x => x.IsInventorySynced = true);
                 
                 // Update Shopify Inventory Level records
                 //
-                level.ShopifyAvailableQuantity = totalQtyOnHand;
+                level.ShopifyAvailableQuantity = available;
                 level.LastUpdated = DateTime.UtcNow;
 
                 _inventoryRepository.SaveChanges();

@@ -1,4 +1,5 @@
 ﻿using System;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Helpers;
 using Push.Shopify.Http;
@@ -47,8 +48,7 @@ namespace Push.Shopify.Api
         }
 
         public virtual string 
-                RetrievePayoutDetail(
-                    long? payout_id = null, long? since_id = null, int limit = 50)
+                RetrievePayoutDetail(long? payout_id = null, long? since_id = null, int limit = 50)
         {
             var builder = new QueryStringBuilder();
 

@@ -200,7 +200,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .AcumaticaStockItems
-                .Include(x => x.AcumaticaWarehouseDetails)
+                .Include(x => x.AcumaticaInventories)
                 .Include(x => x.ShopifyVariant)
                 .FirstOrDefault(x => x.ItemId == itemId);
         }
@@ -284,10 +284,10 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .AcumaticaStockItems
-                .Include(x => x.AcumaticaWarehouseDetails)
+                .Include(x => x.AcumaticaInventories)
                 .Include(x => x.ShopifyVariant)
                 .Where(x => x.IsSyncEnabled == true
-                            && x.AcumaticaWarehouseDetails.Any(y => y.IsInventorySynced == false))
+                            && x.AcumaticaInventories.Any(y => y.IsInventorySynced == false))
                 .ToList();
         }
 
@@ -418,7 +418,7 @@ namespace Monster.Middle.Processes.Sync.Persist
             var dataSet
                 = Entities
                     .AcumaticaStockItems
-                    .Include(x => x.AcumaticaWarehouseDetails)
+                    .Include(x => x.AcumaticaInventories)
                     .Where(x => x.ShopifyVariant == null);
 
             var settings = Entities.MonsterSettings.First();

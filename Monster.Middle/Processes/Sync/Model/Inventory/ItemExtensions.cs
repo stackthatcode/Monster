@@ -61,8 +61,13 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
             return isTaxable ? settings.AcumaticaTaxableCategory : settings.AcumaticaTaxExemptCategory;
         }
 
+        public static bool IsValidTaxCategory(this AcumaticaStockItem input, MonsterSetting settings)
+        {
+            return input.IsTaxable(settings).HasValue;
+        }
 
-        public static string YesNoNAPlainEnglish(this bool? input)
+
+        public static string YesNoNaPlainEnglish(this bool? input)
         {
             if (input.HasValue)
             {
@@ -96,9 +101,9 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
             return true;
         }
 
-        public static List<AcumaticaWarehouseDetail> WarehouseDetails(this AcumaticaStockItem input, List<string> warehouseIds)
+        public static List<AcumaticaInventory> Inventory(this AcumaticaStockItem input, List<string> warehouseIds)
         {
-            return input.AcumaticaWarehouseDetails
+            return input.AcumaticaInventories
                 .Where(x => warehouseIds.Contains(x.AcumaticaWarehouseId))
                 .ToList();
         }

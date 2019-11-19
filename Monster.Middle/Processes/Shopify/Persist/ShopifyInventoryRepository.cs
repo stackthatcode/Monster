@@ -64,8 +64,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
             Entities.SaveChanges();
         }
 
-        public List<ShopifyInventoryLevel> 
-                    RetrieveInventory(long shopifyInventoryItemId)
+        public List<ShopifyInventoryLevel> RetrieveInventory(long shopifyInventoryItemId)
         {
             return Entities
                     .ShopifyInventoryLevels
