@@ -60,7 +60,7 @@ namespace Monster.Middle
             //
             var connectionString = MonsterConfig.Settings.SystemDatabaseConnection;
 
-            // Use this connection string for IdentityDbContext OWIN stuff
+            // Persistence - Master-level
             //
             builder
                 .Register(ctx =>
@@ -72,10 +72,7 @@ namespace Monster.Middle
                 .As<SqlConnection>()
                 .As<DbConnection>()
                 .InstancePerLifetimeScope();
-
-            // Persistence - Master-level
-            //
-            builder.RegisterType<InstanceRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<MasterRepository>().InstancePerLifetimeScope();
 
             // Persistence - Instance-level Contexts
             //

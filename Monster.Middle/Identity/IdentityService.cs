@@ -17,7 +17,7 @@ namespace Monster.Middle.Identity
 {
     public class IdentityService
     {
-        private readonly InstanceRepository _systemRepository;
+        private readonly MasterRepository _systemRepository;
         private readonly PushIdentityDbContext _dbContext;
         private readonly IdentityUserManager _userManager;
         private readonly IdentityRoleManager _roleManager;
@@ -29,7 +29,7 @@ namespace Monster.Middle.Identity
         private readonly IPushLogger _logger;
 
         public IdentityService(
-                InstanceRepository systemRepository,
+                MasterRepository systemRepository,
                 PushIdentityDbContext dbContext,
                 IdentityUserManager userManager,
                 IdentityRoleManager roleManager,
@@ -202,6 +202,7 @@ namespace Monster.Middle.Identity
             var context = new IdentityContext();
 
             // ASP.NET User Identity
+            //
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
             var userRoleIds = user.Roles.Select(x => x.RoleId);
             var userRoles =
@@ -215,11 +216,13 @@ namespace Monster.Middle.Identity
             context.AspNetRoles = userRoles;
 
             // System -> Instance
+            //
             var instance = _systemRepository.RetrieveInstanceByUserId(userId);
             context.InstanceId = instance.Id;
             context.InstanceNickName = instance.Nickname;
 
             // Instance -> State
+            //
             _instanceContext.InitializePersistOnly(instance.Id);
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             context.SystemState = state;

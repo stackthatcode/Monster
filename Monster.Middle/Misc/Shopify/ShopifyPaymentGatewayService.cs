@@ -1,50 +1,45 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Persist.Master;
 
 namespace Monster.Middle.Misc.Shopify
 {
     public class ShopifyPaymentGatewayService
     {
-        private readonly static List<ShopifyPaymentGateway> _data 
-        = new List<ShopifyPaymentGateway>
-        {
-            new ShopifyPaymentGateway
-            {
-                Id = "shopify_payments",
-                Name = "Shopify Payments",
-            },
-            new ShopifyPaymentGateway
-            {
-                Id = "paypal",
-                Name = "PayPal",
-            },  
-            new ShopifyPaymentGateway
-            {
-                Id = "amazon_payments",
-                Name = "Amazon",
-            },
-            new ShopifyPaymentGateway
-            {
-                Id = "bogus",
-                Name = "Bogus Gateway (TEST)",
-            },
-        };
+        private static readonly List<PaymentGateway> _cachedList = new List<PaymentGateway>();
 
-        public List<ShopifyPaymentGateway> Retrieve()
+        private readonly MasterRepository _masterRepository;
+
+        public ShopifyPaymentGatewayService(MasterRepository masterRepository)
         {
-            return _data;
+            _masterRepository = masterRepository;
         }
 
-        public ShopifyPaymentGateway Retrieve(string gatewayId)
+        private void Hydration()
         {
-            return _data.FirstOrDefault(x => x.Id == gatewayId);
+            if (!_cachedList.Any())
+            {
+                var data = _masterRepository.RetrievePaymentGateways();
+                _cachedList.AddRange(data);
+            }
+        }
+
+        public List<PaymentGateway> Retrieve()
+        {
+            Hydration();
+            return _cachedList;
+        }
+
+        public PaymentGateway Retrieve(string gatewayId)
+        {
+            Hydration();
+            return _cachedList.FirstOrDefault(x => x.Id == gatewayId);
         }
 
         public bool Exists(string gatewayId)
         {
             return Retrieve(gatewayId) != null;
         }
-
 
         public string Name(string gatewayId)
         {

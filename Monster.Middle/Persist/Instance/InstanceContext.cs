@@ -10,7 +10,7 @@ namespace Monster.Middle.Persist.Instance
 {
     public class InstanceContext
     {
-        private readonly InstanceRepository _systemRepository;
+        private readonly MasterRepository _systemRepository;
         private readonly ExternalServiceRepository _connectionRepository;
         private readonly ProcessPersistContext _processPersistContext;
         private readonly MiscPersistContext _miscPersistContext;
@@ -26,7 +26,7 @@ namespace Monster.Middle.Persist.Instance
         public readonly Guid ConnectionIdentifier = Guid.NewGuid();
 
         public InstanceContext(
-                InstanceRepository systemRepository, 
+                MasterRepository systemRepository, 
                 ProcessPersistContext processPersistContext,
                 MiscPersistContext miscPersistContext,
                 ExternalServiceRepository connectionRepository,

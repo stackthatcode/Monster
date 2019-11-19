@@ -94,6 +94,11 @@ namespace Monster.Middle.Processes.Sync.Services
                 }
             }
 
+            if (request.OrderStatus == AnalyzerStatus.Blocked)
+            {
+                queryable = queryable.Where(x => x.IsBlocked == true);
+            }
+
             return queryable;
         }
 

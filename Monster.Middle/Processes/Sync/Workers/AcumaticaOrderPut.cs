@@ -101,12 +101,15 @@ namespace Monster.Middle.Processes.Sync.Workers
         public void RunOrder(long shopifyOrderId)
         {
             var status = _orderStatusService.GetOrderSyncValidator(shopifyOrderId);
-
             var readyToSyncValidation = status.Result();
+
             if (!readyToSyncValidation.Success)
             {
+                _syncOrderRepository.UpdateShopifyIsBlocked(shopifyOrderId, true);
                 return;
             }
+
+            _syncOrderRepository.UpdateShopifyIsBlocked(shopifyOrderId, false);
 
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
 

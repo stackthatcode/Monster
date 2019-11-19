@@ -135,7 +135,7 @@ namespace Monster.Middle.Processes.Acumatica.Services
             var referenceData = Retrieve();
             var gatewaySettings = _settingsRepository.RetrievePaymentGateways();
 
-            var deleteList = new List<PaymentGateway>();
+            var deleteList = new List<Middle.Persist.Instance.PaymentGateway>();
 
             foreach (var gateway in gatewaySettings)
             {

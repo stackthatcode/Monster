@@ -34,5 +34,12 @@ namespace Monster.Middle.Config
             get { return ((string) _settings["SystemDatabaseConnection"]); }
             set { this["SystemDatabaseConnection"] = value; }
         }
+        
+        [ConfigurationProperty("PaymentGateways", IsRequired = false)]
+        public string PaymentGateways
+        {
+            get { return ((string)_settings["PaymentGateways"]); }
+            set { this["PaymentGateways"] = value; }
+        }
     }
 }

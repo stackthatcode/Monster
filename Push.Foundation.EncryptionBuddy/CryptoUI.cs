@@ -186,7 +186,7 @@ namespace Push.Foundation
         {
             Helper.RunInLifetimeScope((scope) =>
             {
-                var repository = scope.Resolve<InstanceRepository>();
+                var repository = scope.Resolve<MasterRepository>();
                 var tenants = repository.RetrieveInstances();
                 comboBox.Items.Clear();
 
@@ -233,7 +233,7 @@ namespace Push.Foundation
                 var item = this.comboSummaryTenantId.SelectedItem as ComboboxItem;
                 var installationId = Guid.Parse(item.Value.ToString());
 
-                var systemRepository = scope.Resolve<InstanceRepository>();
+                var systemRepository = scope.Resolve<MasterRepository>();
                 var tenant = systemRepository.RetrieveInstance(installationId);
 
                 var tenantContextLoader = scope.Resolve<InstanceContext>();

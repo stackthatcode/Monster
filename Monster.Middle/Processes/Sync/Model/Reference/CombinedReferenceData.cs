@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Misc.Acumatica;
-using Monster.Middle.Misc.Shopify;
+using Monster.Middle.Persist.Master;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Processes.Sync.Model.Reference
@@ -11,7 +11,7 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
         public List<AcumaticaTimeZone> TimeZones { get; set; }
 
         public List<ItemClassModel> ItemClasses { get; set; }
-        public List<ShopifyPaymentGateway> PaymentGateways { get; set; }
+        public List<PaymentGateway> PaymentGateways { get; set; }
         public List<PaymentMethodModel> PaymentMethods { get; set; }
 
         public List<string> TaxIds { get; set; }

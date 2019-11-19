@@ -149,7 +149,7 @@
     <Compile Include="Misc\Hangfire\HangfireLogger.cs" />
     <Compile Include="Misc\Hangfire\HangfireLogProvider.cs" />
     <Compile Include="Misc\Hangfire\NamedLock.cs" />
-    <Compile Include="Misc\Shopify\ShopifyPaymentGateway.cs" />
+    <Compile Include="Persist\Master\PaymentGateway.cs" />
     <Compile Include="Misc\Shopify\ShopifyPaymentGatewayService.cs" />
     <Compile Include="Persist\Instance\MiscPersistContext.cs" />
     <Compile Include="Misc\Logging\LogLevel.cs" />
@@ -255,7 +255,7 @@
     <Compile Include="Identity\IdentityService.cs" />
     <Compile Include="Identity\SecurityConfig.cs" />
     <Compile Include="Persist\Instance\InstanceContext.cs" />
-    <Compile Include="Persist\Master\InstanceRepository.cs" />
+    <Compile Include="Persist\Master\MasterRepository.cs" />
     <Compile Include="Persist\Master\Instance.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyInventoryRepository.cs" />
     <Compile Include="Processes\Shopify\Persist\ShopifyPayoutRepository.cs" />

@@ -44,12 +44,12 @@
     <div id="order-grid grid-bg" style="min-height:400px;">
         <!-- Filtering -->
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-6">
                 <div class="input-group mb-3 filter-control">
                     <input type="text" class="form-control" 
                            data-bind="value: SearchText, event: { keyup: SearchTermsKeyCallback }"
-                           placeholder="Search by Shopify Order Number or ID, Acumatica Sales Order ID"
-                           aria-label="Search by Shopify Order Number or ID, Acumatica Sales Order ID"
+                           placeholder="Shopify Order Number or ID, Acumatica Sales Order ID"
+                           aria-label="Shopify Order Number or ID, Acumatica Sales Order ID"
                            maxlength="25" />
 
                     <div class="input-group-append">
@@ -58,6 +58,13 @@
                         </button>
                     </div>
                 </div>
+            </div>
+            
+            <div class="col-sm-2">
+                <select class="form-control" data-bind="value: OrderStatus">
+                    <option value="All">All</option>
+                    <option value="Blocked">Blocked</option>
+                </select>
             </div>
 
             <div class="col-sm-4 right">
@@ -75,7 +82,7 @@
                 <th scope="col">Acumatica<br /> Order Payment</th>
                 <th scope="col">Acumatica<br /> Net Payment</th>
                 <th scope="col">Acumatica<br /> Invoice Total</th>
-                <th scope="col">Outstanding<br /> Balance</th>
+                <th scope="col">Status</th>
             </tr>
             </thead>
             <tbody data-bind="foreach: Grid">
@@ -365,6 +372,7 @@
         //
         self.SearchText = ko.observable();
         self.Grid = ko.observableArray([]);
+        self.OrderStatus = ko.observable("All");
 
         self.ScrollToTop = function () {
             $('html,body').animate({ scrollTop: 0 });
@@ -395,6 +403,7 @@
                     PageNumber: self.PagingWidget.PageNumber(),
                     PageSize: self.PagingWidget.PageSize(),
                     SearchText: self.SearchText(),
+                    OrderStatus: self.OrderStatus(),
                 };
                 ajax.HttpPost("/Analysis/OrderSyncResults", request, this);
             },
@@ -403,6 +412,8 @@
                     self.PagingWidget.RecordCount(response.Count);
                 });
         };
+
+        self.OrderStatus.subscribe(self.RefreshGrid);
 
 
         // Order drill down...
