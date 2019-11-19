@@ -51,10 +51,10 @@ namespace Monster.Acumatica.Api
         }
 
 
-        public string RetrieveStockItems(
-                DateTime? lastModified = null, int page = 1, int? pageSize = null)
+        public string RetrieveStockItems(DateTime? lastModified = null, int page = 1, int? pageSize = null)
         {
             var queryString = "$expand=WarehouseDetails&$filter=ItemStatus eq 'Active'";
+
             if (lastModified.HasValue)
             {
                 var restDate = lastModified.Value.ToAcumaticaRestDate();
@@ -73,12 +73,6 @@ namespace Monster.Acumatica.Api
         public string AddNewStockItem(string content)
         {
             var response = _httpContext.Put("StockItem", content);
-            return response.Body;
-        }
-
-        public string RetreiveInventoryReceipts()
-        {
-            var response = _httpContext.Get("InventoryReceipt?$expand=Details");
             return response.Body;
         }
 
