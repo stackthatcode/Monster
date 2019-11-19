@@ -16,41 +16,6 @@
             {
                 <ul class="navbar-nav">
                     <li class="nav-item active dropdown">
-                        <a class="nav-link dropdown-toggle" href="#"
-                           id="configDropDown" data-toggle="dropdown"
-                           aria-haspopup="true" aria-expanded="false">
-                            Configure
-                        </a>
-                        <div class="dropdown-menu bg-primary" aria-labelledby="configDropDown">
-                            <a class="dropdown-item bg-primary active"
-                               href="@GlobalConfig.Url("/Config/Diagnostics")">
-                                Diagnostics
-                            </a>
-
-                            <div class="dropdown-divider">
-                            </div>
-
-                            <a class="dropdown-item bg-primary active"
-                               href="@GlobalConfig.Url("/ShopifyAuth/Domain")">Shopify Connection</a>
-
-                            <a class="dropdown-item bg-primary active"
-                               href="@GlobalConfig.Url("/Config/AcumaticaConnection")">Acumatica Connection</a>
-
-                            <a class="dropdown-item bg-primary active"
-                               href="@GlobalConfig.Url("/Config/AcumaticaRefData")">Reference Data</a>
-
-                            <a class="dropdown-item bg-primary active"
-                               href="@GlobalConfig.Url("/Config/Settings")">Settings</a>
-
-                            <a class="dropdown-item bg-primary active"
-                               href="@GlobalConfig.Url("/Config/SettingsTaxes")">Settings Taxes</a>
-
-                            <a class="dropdown-item bg-primary active"
-                               href="@GlobalConfig.Url("/Config/Warehouses")">Warehouses</a>
-                        </div>
-                    </li>
-
-                    <li class="nav-item active dropdown">
                         <a class="nav-link dropdown-toggle"
                            href="#" id="configSync" data-toggle="dropdown"
                            aria-haspopup="true" aria-expanded="false">
@@ -101,6 +66,41 @@
                                href="@GlobalConfig.Url("/Analysis/ExecutionLogs")">
                                 Execution Logs
                             </a>
+                        </div>
+                    </li>
+                    
+                    <li class="nav-item active dropdown">
+                        <a class="nav-link dropdown-toggle" href="#"
+                           id="configDropDown" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">
+                            Configure
+                        </a>
+                        <div class="dropdown-menu bg-primary" aria-labelledby="configDropDown">
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("/Config/Diagnostics")">
+                                Diagnostics
+                            </a>
+
+                            <div class="dropdown-divider">
+                            </div>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("/ShopifyAuth/Domain")">Shopify Connection</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("/Config/AcumaticaConnection")">Acumatica Connection</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("/Config/AcumaticaRefData")">Reference Data</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("/Config/Settings")">Settings</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("/Config/SettingsTaxes")">Settings Taxes</a>
+
+                            <a class="dropdown-item bg-primary active"
+                               href="@GlobalConfig.Url("/Config/Warehouses")">Warehouses</a>
                         </div>
                     </li>
                 </ul>

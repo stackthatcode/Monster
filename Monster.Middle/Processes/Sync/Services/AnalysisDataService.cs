@@ -211,6 +211,8 @@ namespace Monster.Middle.Processes.Sync.Services
                 output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal();
             }
 
+            output.IsBlocked = order.IsBlocked;
+
             return output;
         }
 

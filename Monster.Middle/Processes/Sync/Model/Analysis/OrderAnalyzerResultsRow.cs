@@ -16,6 +16,7 @@
         public decimal AcumaticaInvoiceTotal { get; set; }
 
         public decimal OutstandingBalance { get; set; }
+        public bool IsBlocked { get; set; }
 
         public OrderAnalyzerResultsRow()
         {

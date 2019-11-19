@@ -86,15 +86,22 @@
             </tr>
             </thead>
             <tbody data-bind="foreach: Grid">
-                <tr data-bind="click: $parent.OrderClick">
-                    <td data-bind="text: ShopifyOrderNbr"></td>
-                    <td data-bind="text: AcumaticaSalesOrderNbr"></td>
-                    <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
-                    <td data-bind="text: Monster.NumberFormat(ShopifyNetPayment)"></td>
-                    <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
-                    <td data-bind="text: Monster.NumberFormat(AcumaticaNetPayment)"></td>
-                    <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
-                    <td data-bind="text: Monster.NumberFormat(OutstandingBalance)"></td>
+            <tr data-bind="click: $parent.OrderClick">
+                <td data-bind="text: ShopifyOrderNbr"></td>
+                <td data-bind="text: AcumaticaSalesOrderNbr"></td>
+                <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
+                <td data-bind="text: Monster.NumberFormat(ShopifyNetPayment)"></td>
+                <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
+                <td data-bind="text: Monster.NumberFormat(AcumaticaNetPayment)"></td>
+                <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
+                <td>
+                    <div data-bind="if: IsBlocked">
+                        <div class="badge badge-danger">Blocked</div>
+                    </div>
+                    <div data-bind="ifnot: IsBlocked">
+                        <div class="badge badge-success">OK</div>
+                    </div>
+                </td>
                 </tr>
             </tbody>
         </table>
@@ -210,7 +217,6 @@
         </div>
     </div>
 </script>
-
 
 <script type="text/html" id="Order-Analyzer-Financial-Summary">
     <table class="table order-analyzer">
