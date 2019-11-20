@@ -186,7 +186,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     var trackingNumber = shipment.Packages.FirstOrDefault()?.TrackingNbr.value;
 
                     soShipment.AcumaticaShipmentJson = shipmentJson;
-                    soShipment.AcumaticaTrackingNbr = trackingNumber;
+                    soShipment.AcumaticaTrackingNbr = trackingNumber.IsNullOrEmptyAlt(BlankTrackingNumber());
 
                     _orderRepository.SaveChanges();
                 }
@@ -209,6 +209,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 soShipment.NeedShipmentGet = false;
                 _orderRepository.SaveChanges();
             }
+        }
+
+        public static string BlankTrackingNumber()
+        {
+            return $"(BLANK TRACKING #) - {Guid.NewGuid()}";
         }
 
 

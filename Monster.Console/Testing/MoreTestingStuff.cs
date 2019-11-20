@@ -172,7 +172,14 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyFulfillmentPut()
         {
-            throw new NotImplementedException();
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var shopifyFulfillmentPut = scope.Resolve<ShopifyFulfillmentPut>();
+
+                instanceContext.Initialize(TestInstanceId);
+                shopifyFulfillmentPut.Run();
+            });
         }
     }
 }
