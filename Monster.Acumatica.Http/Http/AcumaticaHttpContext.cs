@@ -65,6 +65,12 @@ namespace Monster.Acumatica.Http
                     }
                 };
 
+            var headerValue = $"{credentials.Username}:{credentials.Password}";
+            var byteArray = Encoding.ASCII.GetBytes(headerValue);
+            _httpClient.DefaultRequestHeaders.Authorization
+                = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
@@ -163,8 +169,7 @@ namespace Monster.Acumatica.Http
             var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response =
-                _executor.Do(
-                    () => _httpClient.PutAsync(address, httpContent).Result, errorContext);
+                _executor.Do(() => _httpClient.PutAsync(address, httpContent).Result, errorContext);
 
             var output = response.ToEnvelope();
 

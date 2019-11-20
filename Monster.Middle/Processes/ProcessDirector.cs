@@ -158,7 +158,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             try
             {
-                _executionLogService.Log("Inventory Refresh - encountered error");
+                _executionLogService.Log("Inventory Refresh - starting");
 
                 _shopifyManager.PullInventory();
                 _acumaticaManager.PullInventory();

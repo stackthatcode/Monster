@@ -26,7 +26,7 @@ namespace Monster.Acumatica.Api
 
             // Date filtering
             //
-            var restDate = minLastModified.ToAcumaticaRestDate();
+            var restDate = minLastModified.ToAcumaticaRestDateEncode();
             queryString += $"&$filter=LastModifiedDateTime gt datetimeoffset'{restDate}'";
 
             // Paging

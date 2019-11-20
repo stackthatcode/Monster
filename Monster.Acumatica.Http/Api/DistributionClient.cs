@@ -34,7 +34,7 @@ namespace Monster.Acumatica.Api
 
             if (lastModifiedAcuTz.HasValue)
             {
-                var restDate = lastModifiedAcuTz.Value.ToAcumaticaRestDate();
+                var restDate = lastModifiedAcuTz.Value.ToAcumaticaRestDateEncode();
                 queryString += $" and LastModified gt datetimeoffset'{restDate}'";
             }
 
@@ -70,7 +70,7 @@ namespace Monster.Acumatica.Api
 
             var queryString = builder.ToString();
 
-            var response = _httpContext.Get($"OData/InventoryStatus?{queryString}");
+            var response = _httpContext.Get($"/OData/InventoryStatus?{queryString}", excludeVersion:true);
             return response.Body;
         }
 

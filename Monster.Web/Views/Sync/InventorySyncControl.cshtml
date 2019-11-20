@@ -44,12 +44,6 @@
                 <div data-bind="template: { name: 'Inventory-Not-Pulled-Message' }"></div>
             </div>
         </div>
-
-        <div class="center std-pad">
-            <a href="#" class="btn btn-primary btn-lg" data-bind="click: InventoryPullClick">
-                Synchronize Now <i class="fas fa-bolt"></i>
-            </a>
-        </div>
     </div>
 </script>
 
@@ -57,22 +51,9 @@
     <div class="large-size">
         <div class="card std-pad-sm">
             <div class="card-title-interface">Inventory Sync Control</div>
-
-            <div class="center std-pad-sm-t">
-                <button type="button" class="btn btn-primary btn-sm" data-bind="click: InventoryPullClick">
-                    Refresh Inventory <i class="fas fa-bolt"></i>
-
-                    <span data-bind="if: LastRunBroken">
-                        <span class="badge badge-dark">FAILED</span>
-                    </span>
-                </button>
-
-                <span data-bind="if: LastRunBroken">
-                    <a href="@GlobalConfig.Url("/Config/Diagnostics")" class="btn btn-dark btn-sm">
-                        View Diagnostics <i class="fas fa-user-md"></i>
-                    </a>
-                </span>
-            </div>
+            
+            <div class="center" style="padding-top:10px;"
+                 data-bind="template: { name: 'Inventory-Refresh-Control', data: InventoryRefreshControlModel }"></div>
 
             <!-- Results -->
             <div class="std-pad-sm-side">
@@ -238,51 +219,27 @@
 
         self.JobRunningModel = new Monster.JobStatusModel();
 
-        self.InventoryPullState = ko.observable();
         self.InventorySyncGrid = new Monster.InventorySyncGrid();
-
-        // Abstract logic reduction
-        //
-        self.HasInventoryPullRun = ko.computed(function() {
-            return self.InventoryPullState() != StateCode.None;
-        });
-
-        self.LastRunBroken = ko.computed(function() {
-            return self.InventoryPullState() == StateCode.Invalid ||
-                self.InventoryPullState() == StateCode.SystemFault;
-        });
-
+        self.InventoryRefreshControlModel = new Monster.InventoryRefreshControlModel();
 
         // Interface logic reduction
         //
         self.ShowWelcomePanel = ko.computed(function() {
-            return !self.HasInventoryPullRun();
-        });
-
-        self.ShowIntermediatePanel = ko.computed(function() {
-            return self.HasInventoryPullRun() && false;
+            return !self.InventoryRefreshControlModel.HasRun();
         });
 
         self.ShowSearchPanel = ko.computed(function () {
-            return self.HasInventoryPullRun();
+            return self.InventoryRefreshControlModel.HasRun();
         });
 
 
         // Methods/Actions
         //
-        self.InventoryPullClick = function () {
-            var ajax = new Monster.Ajax();
-            ajax.HttpPost("/Sync/RunInventoryRefresh", {}, self.PollStatus);
-        };
-
         self.ProcessStatus = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpGet("/Job/InventoryRefreshStatus", this);
+            flow.exec(function() {
+                    self.InventoryRefreshControlModel.RefreshStatus(this);
                 },
-                function (response) {
-                    self.InventoryPullState(response.InventoryRefreshState);
+                function() {
                     self.InventorySyncGrid.RefreshGrid();
                 });
         };
