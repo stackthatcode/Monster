@@ -32,6 +32,7 @@ namespace Push.Foundation.Web.Helpers
         }
 
         // TODO - Need to fix this and retest everything
+        //
         public static string ExtractUserId(this HttpContext context)
         {
             var claimsPrincipal = HttpContext.Current.User as ClaimsPrincipal;
@@ -39,6 +40,7 @@ namespace Push.Foundation.Web.Helpers
         }
 
         // TODO - Need to fix this and retest everything
+        //
         public static string ExtractUserId(this HttpContextBase context)
         {
             var claimsPrincipal = HttpContext.Current.User as ClaimsPrincipal;

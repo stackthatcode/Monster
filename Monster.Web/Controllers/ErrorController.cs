@@ -39,7 +39,6 @@ namespace Monster.Web.Controllers
             return View(model);
         }
 
-
         [HttpGet]
         [IdentityProcessor]
         [AllowAnonymous]
@@ -52,7 +51,6 @@ namespace Monster.Web.Controllers
 
             return View();
         }
-
 
         [HttpGet]
         [IdentityProcessor]

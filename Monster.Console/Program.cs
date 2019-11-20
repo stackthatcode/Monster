@@ -1,15 +1,5 @@
 ﻿using System;
-using System.Configuration;
-using Autofac;
-using Hangfire;
-using Hangfire.Logging;
-using Hangfire.SqlServer;
 using Monster.ConsoleApp.Testing;
-using Monster.Middle;
-using Monster.Middle.Config;
-using Monster.Middle.Identity;
-using Monster.Middle.Misc.Hangfire;
-using Push.Foundation.Utilities.Helpers;
 
 
 namespace Monster.ConsoleApp
@@ -19,12 +9,16 @@ namespace Monster.ConsoleApp
         // System utilities
         //
         private const string RunHangfireBackgroundOption = "1";
-        private const string ProvisionNewUserAccountOption = "2";
-        private const string HydrateSecurityConfigOption = "3";
-        private const string ViewShopifyOrderAndTaxTransfer = "4";
-        private const string ViewAcumaticaTaxTransfer = "5";
-        private const string ShopifyOrderGetToAcumaticaOrderPut = "6";
-        private const string RunShopifyOrderFeederOption = "7";
+        private const string ViewShopifyOrderAndTaxTransfer = "2";
+        private const string ViewAcumaticaTaxTransfer = "3";
+        private const string ShopifyOrderGetToAcumaticaOrderPut = "4";
+
+        // Provisioning and user management functions
+        //
+        private const string HydrateSecurityConfigOption = "11";
+        private const string ProvisionNewUserAccountOption = "12";
+        private const string DisableUserAccount = "13";
+        private const string EnableUserAccount = "14";
 
         // Testing functions
         //
@@ -35,6 +29,7 @@ namespace Monster.ConsoleApp
         private const string AcumaticaOrderSync = "105";
         private const string AcumaticaPaymentGet = "106";
         private const string AcumaticaSalesOrderRetrieve = "107";
+        // private const string RunShopifyOrderFeederOption = "108";
 
 
 
@@ -45,18 +40,22 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"Logic Automated LLC - all rights reserved");
             Console.WriteLine();
 
-
-            // System utility functions
+            // Run-time utility functions
             //
             Console.WriteLine();
             Console.WriteLine($"{RunHangfireBackgroundOption} - Run Hangfire Background Service");
-            Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
-            Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
             Console.WriteLine($"{ViewShopifyOrderAndTaxTransfer} - View Shopify Order and Tax Transfer JSON");
             Console.WriteLine($"{ViewAcumaticaTaxTransfer} - View Acumatica Tax Transfer JSON");
             Console.WriteLine($"{ShopifyOrderGetToAcumaticaOrderPut} - Shopify Order Get + Acumatica Order Put");
             //Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
 
+            // Provisioning and user management functions
+            //
+            Console.WriteLine();
+            Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
+            Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
+            Console.WriteLine($"{DisableUserAccount} - Disable User Account");
+            Console.WriteLine($"{EnableUserAccount} - Enable User Account");
 
             // Component testing functions
             //
@@ -78,10 +77,6 @@ namespace Monster.ConsoleApp
             //
             if (input == RunHangfireBackgroundOption)
                 SystemUtilities.RunHangFireBackgroundService();
-            if (input == ProvisionNewUserAccountOption)
-                SystemUtilities.ProvisionNewUserAccount();
-            if (input == HydrateSecurityConfigOption)
-                SystemUtilities.HydrateSecurityConfig();
             if (input == ViewShopifyOrderAndTaxTransfer)
                 SystemUtilities.RunViewShopifyOrderAndTaxTransfer();
             if (input == ViewAcumaticaTaxTransfer)
@@ -89,9 +84,16 @@ namespace Monster.ConsoleApp
             if (input == ShopifyOrderGetToAcumaticaOrderPut)
                 SystemUtilities.RunShopifyOrderGetToAcumaticaOrderPut();
 
-            //if (input == RunShopifyOrderFeederOption)
-            //    MoreTestingStuff.RunShopifyOrderFeeder();
-
+            // Provisioning and user management functions
+            //
+            if (input == ProvisionNewUserAccountOption)
+                SystemUtilities.ProvisionNewUserAccount();
+            if (input == HydrateSecurityConfigOption)
+                SystemUtilities.HydrateSecurityConfig();
+            if (input == DisableUserAccount)
+                SystemUtilities.DisableUserAccount();
+            if (input == EnableUserAccount)
+                SystemUtilities.EnableUserAccount();
 
             // Testing functions
             //
@@ -109,6 +111,8 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunAcumaticaPaymentGet();
             if (input == AcumaticaSalesOrderRetrieve)
                 MoreTestingStuff.RunAcumaticaSalesOrderRetrieve();
+            //if (input == RunShopifyOrderFeederOption)
+            //    MoreTestingStuff.RunShopifyOrderFeeder();
 
             Console.WriteLine("FIN");
             Console.ReadKey();

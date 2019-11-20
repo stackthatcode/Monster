@@ -23,15 +23,25 @@
         </div>
     }
 
-    <p>
-        The next step in setup will be to connect @GlobalConfig.AppName with your Acumatica instance,
-        and to prepare your Acumatica instance for automated synchronization.
-    </p>
-    
+    @if (Model.IsWizardMode && Model.IsConnectionOk)
+    {
+        <p>
+            The next step in setup will be to connect @GlobalConfig.AppName with your Acumatica instance,
+            and to prepare your Acumatica instance for automated synchronization.
+        </p>
+    }
+    else
+    {
+        <div style="height: 30px;"></div>
+    }
+
     <div class="center std-pad">
-        <a href="@GlobalConfig.Url("/ShopifyAuth/Domain")" class="btn btn-secondary btn-lg">
-            Back to Shopify Domain <i class="fas fa-undo"></i>
-        </a>
+        @if (Model.IsWizardMode && !Model.IsConnectionOk)
+        {
+            <a href="@GlobalConfig.Url("/ShopifyAuth/Domain")" class="btn btn-secondary btn-lg">
+                Back to Shopify Domain <i class="fas fa-undo"></i>
+            </a>
+        }
 
         @if (!Model.IsWizardMode)
         {

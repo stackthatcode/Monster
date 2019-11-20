@@ -6,14 +6,8 @@ namespace Monster.Web.Plumbing
 {
     public class GlobalConfig
     {
-
 #if DEBUG
-        public static readonly bool DebugMode = 
-            (ConfigurationManager.AppSettings["demodata"] ?? "") == "demodata";
-        public static readonly bool ReleaseMode = false;
-#else
-        public static readonly  bool DebugMode = false;
-        public static readonly  bool ReleaseMode = true;
+        public static readonly bool DebugMode = (ConfigurationManager.AppSettings["demodata"] ?? "") == "demodata";
 #endif
 
         public static readonly string BaseUrl = ConfigurationManager.AppSettings["application_root_url"];
@@ -45,9 +39,7 @@ namespace Monster.Web.Plumbing
             return $"{BaseUrl}{relativepath}";
         }        
 
-        public static string LoginPage => Url("/Config/NotYetDetermined");
-
-        public static string DashboardHomePage => Url("RealTime/RealTime");
+        public static string LoginPage => Url("/ShopifyAuth/Domain");
     }
 }
 

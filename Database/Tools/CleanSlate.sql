@@ -11,7 +11,6 @@ GO
 CREATE PROCEDURE dbo.DeleteAllSyncRecords
 AS
 	DELETE FROM InventoryReceiptSync;
-	DELETE FROM ShopAcuItemSync;
 	DELETE FROM ShopAcuWarehouseSync;
 GO
 
@@ -40,7 +39,7 @@ GO
 CREATE PROCEDURE dbo.DeleteAllAcumaticaInventoryRecords
 AS
 	DELETE FROM AcumaticaInventoryReceipt;
-	DELETE FROM AcumaticaWarehouseDetails;
+	DELETE FROM AcumaticaInventory;
 	DELETE FROM AcumaticaStockItem;
 	DELETE FROM AcumaticaWarehouse;
 GO

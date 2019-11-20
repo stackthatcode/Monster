@@ -2,9 +2,7 @@
 @model Monster.Web.Models.ShopifyAuth.ShopifyDomainModel
 
 <main role="main" class="medium-size">
-
 @Html.Partial("_TopBrand")
-
 <hr />
 
 <h1 class="mt-4 center">Configuration - Shopify</h1>
@@ -27,14 +25,6 @@
                     </div>
                 }
 
-                @if (Model.CanEditShopifyUrl && Model.IsWizardMode)
-                {
-                    <p>
-                        In this step we're going to configure @GlobalConfig.AppName to connect with your Shopify store.
-                        Shopify will ask you for permission to let @GlobalConfig.AppName access your store's data.
-                    </p>
-                }
-
                 @if (Model.CanEditShopifyUrl)
                 {
                     <p>Enter your Shopify store domain below and hit the "Connect to Shopify" button.</p>
@@ -47,8 +37,7 @@
                 else
                 {
                     <p>
-                        Your Shopify domain is already set for this instance.
-                        If you want to connect to a different shop,
+                        Your Shopify domain is already set for this instance. If you want to connect to a different shop,
                         contact us and we can easily provision a new @GlobalConfig.AppName instance for you.
                     </p>
                 }
@@ -96,3 +85,4 @@
 
 <div style="height: 30px;"></div>
 </main>
+

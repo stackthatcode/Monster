@@ -8,5 +8,6 @@ namespace Monster.Middle.Persist.Master
         public string ConnectionString { get; set; }
         public string Nickname { get; set; }
         public string OwnerUserId { get; set; }
+        public bool IsEnabled { get; set; }
     }
 }

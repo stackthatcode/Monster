@@ -12,12 +12,15 @@ namespace Monster.Web.Attributes
             var logger = DependencyResolver.Current.GetService<IPushLogger>();
             var identityService = DependencyResolver.Current.GetService<IdentityService>();
 
-            var userId = filterContext.HttpContext.User.ExtractUserId();
-            var identity = identityService.HydrateIdentityContext(userId);
+            var userId = filterContext.HttpContext.ExtractUserId();
 
-            filterContext.HttpContext.SetIdentity(identity);
-            logger.Debug(
-                $"Successfully hydrated Identity {identity.AspNetUserId} / {identity.Email}");
+            if (userId != null)
+            {
+                var identity = identityService.ProcessIdentity(userId);
+
+                filterContext.HttpContext.SetIdentity(identity);
+                logger.Debug($"Successfully hydrated Identity {identity.AspNetUserId} / {identity.Email}");
+            }
         }
     }
 }

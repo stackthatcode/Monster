@@ -12,11 +12,11 @@ using Monster.Middle.Config;
 using Monster.Middle.Identity;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Model.TaxTransfer;
-using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Workers;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
@@ -51,7 +51,6 @@ namespace Monster.ConsoleApp
             var orderNbr = Console.ReadLine().Trim().IsNullOrEmptyAlt(DefaultSalesOrderNbr);
             return orderNbr;
         }
-
 
         public static void RunHangFireBackgroundService()
         {
@@ -89,43 +88,6 @@ namespace Monster.ConsoleApp
             LogProvider.SetCurrentLogProvider(new HangfireLogProvider());
 
             return container;
-        }
-
-        public static void ProvisionNewUserAccount()
-        {
-            Console.WriteLine(Environment.NewLine +
-                              "Enter New User's Email Address (which will be used as User ID)");
-            var email = Console.ReadLine();
-
-            Console.WriteLine(Environment.NewLine + "Enter New User's Shopify Domain");
-            var domain = Console.ReadLine();
-
-            Console.WriteLine(Environment.NewLine +
-                              $"New Account User ID: {email} - Shopify Domain: {domain}" +
-                              Environment.NewLine +
-                              "Please type 'YES' to proceed with provisioning");
-            var response = Console.ReadLine();
-            if (response.ToUpper().Trim() != "YES")
-            {
-                return;
-            }
-
-            Action<ILifetimeScope> process = scope =>
-            {
-                var identityService = scope.Resolve<IdentityService>();
-                var user = identityService.ProvisionNewAccount(email, domain).Result;
-            };
-
-            AutofacRunner.RunInLifetimeScope(process);
-        }
-
-        public static void HydrateSecurityConfig()
-        {
-            AutofacRunner.RunInLifetimeScope(scope =>
-            {
-                var identityService = scope.Resolve<IdentityService>();
-                identityService.PopulateRolesAndAdmin();
-            });
         }
 
         public static void RunViewShopifyOrderAndTaxTransfer()
@@ -198,6 +160,66 @@ namespace Monster.ConsoleApp
 
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
                 acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
+            });
+        }
+
+
+        // User management functions
+        //
+        public static void ProvisionNewUserAccount()
+        {
+            Console.WriteLine(
+                Environment.NewLine + "Enter New User's Email Address (which will be used as User ID)");
+            var email = Console.ReadLine();
+
+            Console.WriteLine(Environment.NewLine + "Enter New User's Shopify Domain");
+            var domain = Console.ReadLine();
+
+            Console.WriteLine(
+                Environment.NewLine + $"New Account User ID: {email} - Shopify Domain: {domain}" +
+                Environment.NewLine + "Please type 'YES' to proceed with provisioning");
+
+            var response = Console.ReadLine();
+            if (response.ToUpper().Trim() != "YES")
+            {
+                return;
+            }
+
+            Action<ILifetimeScope> process = scope =>
+            {
+                var identityService = scope.Resolve<IdentityService>();
+                var user = identityService.ProvisionNewAccount(email, domain).Result;
+            };
+
+            AutofacRunner.RunInLifetimeScope(process);
+        }
+
+        public static void HydrateSecurityConfig()
+        {
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var identityService = scope.Resolve<IdentityService>();
+                identityService.PopulateRolesAndAdmin();
+            });
+        }
+
+        public static void DisableUserAccount()
+        {
+            var instanceId = SolicitInstanceId();
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var repository = scope.Resolve<MasterRepository>();
+                repository.UpdateInstanceEnabled(instanceId, false);
+            });
+        }
+
+        public static void EnableUserAccount()
+        {
+            var instanceId = SolicitInstanceId();
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var repository = scope.Resolve<MasterRepository>();
+                repository.UpdateInstanceEnabled(instanceId, true);
             });
         }
     }

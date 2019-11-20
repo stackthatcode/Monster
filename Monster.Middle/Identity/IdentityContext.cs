@@ -32,7 +32,7 @@ namespace Monster.Middle.Identity
             AspNetRoles = new List<string>();
         }
 
-        public void UpdateState(SystemState state)
+        public void LoadState(SystemState state)
         {
             this.SystemState = state;
         }

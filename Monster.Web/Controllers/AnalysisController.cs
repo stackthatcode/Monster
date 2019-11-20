@@ -10,6 +10,7 @@ using Push.Foundation.Web.Json;
 namespace Monster.Web.Controllers
 {
     [IdentityProcessor]
+    [Authorize(Roles = "ADMIN, USER")]
     public class AnalysisController : Controller
     {
         private readonly ExecutionLogService _logRepository;

@@ -45,6 +45,12 @@ namespace Monster.Middle.Persist.Master
             return tenant;
         }
 
+        public void UpdateInstanceEnabled(Guid instanceId, bool enabled)
+        {
+            var sql = @"UPDATE Instance SET IsEnabled = @enabled WHERE Id = @instanceId";
+            _connection.Execute(sql, new {instanceId, enabled});
+        }
+
 
         public Instance RetrieveInstanceByUserId(string userId)
         {

@@ -133,16 +133,17 @@ namespace Monster.Web.Controllers
         }
 
         // No [IdentityProcessor] attribute - the Identity will be dictated by "shop" i.e. domain
+        //
         public ActionResult Return(string code, string shop, string returnUrl)
         {
-            // Attempt to locate the identity, as there are both a valid Domain and Access Token
+            // Attempt to locate the identity, as there maybe a valid Domain + Access Token
             //
-            var identity = _identityService.HydrateIdentityContextByDomain(shop);
+            var identity = _identityService.ProcessIdentityByDomain(shop);
 
             if (!identity.IsAuthenticated)
             {
                 throw new HttpException(
-                    (int)HttpStatusCode.Unauthorized,
+                    (int)HttpStatusCode.Unauthorized, 
                     $"Attempt to login using non-provisioned Shopify store {shop}");
             }
 
@@ -166,25 +167,28 @@ namespace Monster.Web.Controllers
                 var credentials = ShopifyCredentialsConfig.Settings.ToApiKeyAndSecret(shop);
                 _shopifyHttpContext.Initialize(credentials);
 
+                // Refresh the Shopify Access Token
+                //
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
                 _connectionContext.UpdateShopifyCredentials(shop, accessToken, codeHash);
-
-                // Update IdentityContext 
-                //
-                var updatedState = _stateRepository.RetrieveSystemStateNoTracking();
-                identity.UpdateState(updatedState);
-                HttpContext.SetIdentity(identity);
 
                 // Sign the User in
                 //
                 _identityService.SignInAspNetUser(identity.AspNetUserId);
+                HttpContext.SetIdentity(identity);
 
-                var model = new ReturnModel
+                if (identity.SystemState.IsRandomAccessMode)
                 {
-                    IsWizardMode = !updatedState.IsRandomAccessMode,
-                    IsConnectionOk = true,
-                };
-                return View(model);
+                    return Redirect(GlobalConfig.Url("/Sync/EndToEnd"));
+                }
+                else
+                {
+                    return View(new ReturnModel
+                    {
+                        IsWizardMode = true,
+                        IsConnectionOk = true,
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -205,13 +209,13 @@ namespace Monster.Web.Controllers
         {
             if (ShopifyCredentialsConfig.Settings.ApiKey.IsNullOrEmpty())
             {
-                throw new Exception(
-                    "Null or empty Shopify -> ApiKey - please check configuration");
+                throw new Exception("Null or empty Shopify -> ApiKey - please check configuration");
             }
 
-            // Build the Shopify OAuth request 
+            // Build the Shopify OAuth request
+            //
             var scopes = _shopifyOAuthScopes.ToCommaDelimited();
-            var redirectUrl = GlobalConfig.Url("/ShopifyAuth/Return");
+            var redirectUrl = GlobalConfig.Url($"/ShopifyAuth/Return");
 
             var urlBase = $"https://{fullShopDomain}/admin/oauth/authorize";
             var queryString =
@@ -221,8 +225,7 @@ namespace Monster.Web.Controllers
                     .Add("redirect_uri", redirectUrl)
                     .ToString();
 
-            var finalUrl = $"{urlBase}?{queryString}";
-            return finalUrl;
+            return $"{urlBase}?{queryString}";
         }
 
         private bool VerifyShopifyHmac()

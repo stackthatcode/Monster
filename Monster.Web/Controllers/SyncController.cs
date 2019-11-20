@@ -24,6 +24,8 @@ using Push.Shopify.Api.Order;
 namespace Monster.Web.Controllers
 {
     [IdentityProcessor]
+    [Authorize(Roles = "ADMIN, USER")]
+
     public class SyncController : Controller
     {
         private readonly StateRepository _stateRepository;

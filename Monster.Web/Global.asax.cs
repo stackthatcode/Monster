@@ -19,7 +19,6 @@ namespace Monster.Web
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
         
-
         protected void Application_Error(object sender, EventArgs e)
         {
             // Explicitly instantiate dependencies
@@ -71,3 +70,4 @@ namespace Monster.Web
         }
     }
 }
+

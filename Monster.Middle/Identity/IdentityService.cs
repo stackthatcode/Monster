@@ -169,19 +169,19 @@ namespace Monster.Middle.Identity
             var login = user.Logins.First(x => x.LoginProvider == "Shopify");
             var domain = login.ProviderKey;
 
-            var nextAvailableInstance = _systemRepository.RetrieveNextAvailableInstance();
-            if (nextAvailableInstance == null)
+            var instance = _systemRepository.RetrieveNextAvailableInstance();
+            if (instance == null)
             {
                 _logger.Error("There are no Instances available for assignment");
                 return null;
             }
 
-            _systemRepository.AssignInstanceToUser(nextAvailableInstance.Id, user.Id, domain);
-            _logger.Info($"Assigned User {user.Email} to Instance {nextAvailableInstance.Id}");
+            _systemRepository.AssignInstanceToUser(instance.Id, user.Id, domain);
+            _logger.Info($"Assigned User {user.Email} to Instance {instance.Id}");
             return user;
         }
 
-        public IdentityContext HydrateIdentityContextByDomain(string domain)
+        public IdentityContext ProcessIdentityByDomain(string domain)
         {
             var userId = _dbContext
                 .Users
@@ -189,10 +189,10 @@ namespace Monster.Middle.Identity
                 .Select(x => x.Id)
                 .FirstOrDefault();
 
-            return HydrateIdentityContext(userId);
+            return ProcessIdentity(userId);
         }
 
-        public IdentityContext HydrateIdentityContext(string userId)
+        public IdentityContext ProcessIdentity(string userId)
         {
             if (userId.IsNullOrEmpty())
             {
@@ -204,6 +204,18 @@ namespace Monster.Middle.Identity
             // ASP.NET User Identity
             //
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            var instance = _systemRepository.RetrieveInstanceByUserId(userId);
+
+            // Block disabled accounts from authenticating
+            //
+            if (!instance.IsEnabled)
+            {
+                SignOut();
+                return context;
+            }
+
+            // Successfully located User
+            //
             var userRoleIds = user.Roles.Select(x => x.RoleId);
             var userRoles =
                 _roleManager.Roles
@@ -217,16 +229,15 @@ namespace Monster.Middle.Identity
 
             // System -> Instance
             //
-            var instance = _systemRepository.RetrieveInstanceByUserId(userId);
             context.InstanceId = instance.Id;
             context.InstanceNickName = instance.Nickname;
 
             // Instance -> State
             //
             _instanceContext.InitializePersistOnly(instance.Id);
+
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             context.SystemState = state;
-
             return context;
         }
 
@@ -234,6 +245,12 @@ namespace Monster.Middle.Identity
         {
             var user = _userManager.Users.First(x => x.Id == identityAspNetUserId);
             _signInManager.SignIn(user, true, true);
+        }
+
+        public void SignOut()
+        {
+            _signInManager.AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+            _signInManager.AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
         }
     }
 }
