@@ -8,7 +8,6 @@ using Monster.Acumatica.Config;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
@@ -143,7 +142,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 {
                     continue;
                 }
-                if (shipment.Status.value != SoShipmentStatus.Complete)
+                if (shipment.Status.value != SoShipmentStatus.Completed)
                 {
                     continue;
                 }
@@ -158,6 +157,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 record.AcumaticaTrackingNbr = null;
                 record.AcumaticaInvoiceAmount = null;
                 record.AcumaticaInvoiceTax = null;
+                record.NeedShipmentGet = true;
                 record.DateCreated = DateTime.UtcNow;
                 record.LastUpdated = DateTime.UtcNow;
 
@@ -194,13 +194,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 if (soShipment.AcumaticaInvoiceAmount == null || soShipment.AcumaticaInvoiceTax == null)
                 {
                     var invoiceJson = 
-                        _salesOrderClient.RetrieveSalesOrderInvoiceAndTaxes(
-                            soShipment.AcumaticaInvoiceNbr, soShipment.AcumaticaInvoiceType);
+                        _salesOrderClient.RetrieveInvoiceAndTaxes(
+                                soShipment.AcumaticaInvoiceNbr, soShipment.AcumaticaInvoiceType);
 
-                    var invoice = invoiceJson.DeserializeFromJson<SalesInvoice>();
+                    var invoice = invoiceJson.DeserializeFromJson<Invoice>();
 
                     soShipment.AcumaticaInvoiceAmount = (decimal)invoice.Amount.value;
-                    soShipment.AcumaticaInvoiceTax = (decimal) invoice.TaxDetails.Sum(x => x.TaxAmount.value);
+                    soShipment.AcumaticaInvoiceTax = (decimal) invoice.TaxTotal.value;
+                    //TaxDetails.Sum(x => x.TaxAmount.value);
 
                     _orderRepository.SaveChanges();
                 }

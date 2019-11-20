@@ -17,8 +17,7 @@ namespace Monster.Acumatica.Api
         private readonly AcumaticaHttpConfig _config;
         private readonly IPushLogger _logger;
         
-        public SalesOrderClient(
-                IPushLogger logger, AcumaticaHttpContext httpContext, AcumaticaHttpConfig config)
+        public SalesOrderClient(IPushLogger logger, AcumaticaHttpContext httpContext, AcumaticaHttpConfig config)
         {
             _logger = logger;
             _httpContext = httpContext;
@@ -35,7 +34,7 @@ namespace Monster.Acumatica.Api
 
             // Date filtering
             //
-            var restDate = lastModified.ToAcumaticaRestDateEncode();
+            var restDate = lastModified.ToAcumaticaRestDate();
             builder.Add("$filter", $"LastModified gt datetimeoffset'{restDate}'");
 
             // Paging
@@ -71,10 +70,18 @@ namespace Monster.Acumatica.Api
 
         public string RetrieveSalesOrderInvoiceAndTaxes(string invoiceRefNbr, string invoiceType)
         {
-            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand={Expand.TaxDetails}";
+            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand={Expand.Invoice_TaxDetail}";
             var response = _httpContext.Get(url);
             return response.Body;
         }
+
+        public string RetrieveInvoiceAndTaxes(string invoiceRefNbr, string invoiceType)
+        {
+            var url = $"Invoice/{invoiceType}/{invoiceRefNbr}?$expand={Expand.Invoice_TaxDetail}";
+            var response = _httpContext.Get(url);
+            return response.Body;
+        }
+
 
         private void LogSalesOrderDetailIds(string resultJson)
         {

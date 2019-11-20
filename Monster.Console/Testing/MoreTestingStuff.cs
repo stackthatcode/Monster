@@ -63,9 +63,13 @@ namespace Monster.ConsoleApp.Testing
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaOrderGet = scope.Resolve<AcumaticaOrderGet>();
+                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
 
                 instanceContext.Initialize(TestInstanceId);
-                acumaticaOrderGet.RunAutomatic();
+                acumaticaContext.SessionRun(() =>
+                {
+                    acumaticaOrderGet.RunAutomatic();
+                });
             });
         }
 
@@ -164,6 +168,11 @@ namespace Monster.ConsoleApp.Testing
 
                 var acumaticaTime = acumaticaTimeZone.ToAcumaticaTimeZone(createdAtUtc.DateTime);
             });
+        }
+
+        public static void RunShopifyFulfillmentPut()
+        {
+            throw new NotImplementedException();
         }
     }
 }

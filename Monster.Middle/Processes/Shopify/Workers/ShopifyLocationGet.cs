@@ -2,9 +2,7 @@
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Inventory;
-using Monster.Middle.Processes.Sync.Persist.Matching;
 using Push.Foundation.Utilities.Json;
-using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
 
@@ -14,19 +12,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
     {
         private readonly ProductApi _productApi;
         private readonly ShopifyInventoryRepository _locationRepository;
-        private readonly ShopifyBatchRepository _shopifyBatchRepository;
-        private readonly IPushLogger _logger;
 
-        public ShopifyLocationGet(
-                ProductApi productApi,
-                ShopifyInventoryRepository locationRepository, 
-                ShopifyBatchRepository shopifyBatchRepository, 
-                IPushLogger logger)
+        public ShopifyLocationGet(ProductApi productApi, ShopifyInventoryRepository locationRepository)
         {
             _productApi = productApi;
             _locationRepository = locationRepository;
-            _shopifyBatchRepository = shopifyBatchRepository;
-            _logger = logger;
         }
 
         public void Run()

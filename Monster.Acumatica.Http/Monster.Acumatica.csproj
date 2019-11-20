@@ -83,6 +83,7 @@
     <Compile Include="Api\DistributionClient.cs" />
     <Compile Include="Api\SalesOrder\Address.cs" />
     <Compile Include="Api\SalesOrder\ContactOverride.cs" />
+    <Compile Include="Api\SalesOrder\Invoice.cs" />
     <Compile Include="Api\SalesOrder\ReturnForCreditWrite.cs" />
     <Compile Include="Api\SalesOrder\FinancialSettings.cs" />
     <Compile Include="Api\SalesOrder\PaymentSettings.cs" />

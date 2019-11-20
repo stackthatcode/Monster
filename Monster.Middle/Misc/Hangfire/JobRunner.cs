@@ -108,7 +108,7 @@ namespace Monster.Middle.Misc.Hangfire
 
                 if (_jobMonitoringService.IsMissingOrReceivedKillSignal(jobMonitorId))
                 {
-                    var msg = $"Job has received kill signal";
+                    var msg = $"Job is missing or has received stop signal";
                     _executionLogService.Log(msg);
                     _jobMonitoringService.CleanupPostExecution(jobMonitorId);
                     InstanceLock.Free(instanceId.ToString());
