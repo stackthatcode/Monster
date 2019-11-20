@@ -124,8 +124,7 @@
 </script>
 
 <script type="text/html" id="Sync-Settings">
-
-<table class="table" style="max-width: 600px; margin-left: auto; margin-right: auto;">
+    <table class="table" style="max-width: 600px; margin-left: auto; margin-right: auto;">
     <tbody>
     <tr>
         <td>
@@ -405,7 +404,7 @@
                 },
                 function (response) {
                     self.Close();
-                    Monster.Events.publish(eventKeys.PollJobStatus);
+                    Monster.Events.publish(eventKeys.RefreshSyncSettings);
                 });
         };
 

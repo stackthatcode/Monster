@@ -10,7 +10,7 @@ GO
 
 CREATE PROCEDURE dbo.ResetStartingShopifyOrder
 AS
-	UPDATE Preferences 
+	UPDATE MonsterSettings
 		SET ShopifyOrderId = NULL,
 		ShopifyOrderName = NULL,
 		ShopifyOrderCreatedAtUtc = NULL;
