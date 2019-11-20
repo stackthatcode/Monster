@@ -97,7 +97,7 @@
                     <hr />
                 </div>
 
-                <div class="center std-pad-t">
+                <div class="center">
                     <span data-bind="if: IsPrevButtonVisible">
                         <a href="@GlobalConfig.Url("/ShopifyAuth/Domain")"
                            class="btn btn-secondary btn-lg">
@@ -105,7 +105,7 @@
                         </a>
                     </span>
 
-                    <span data-bind="if: IsReturnButtonVisible">
+                    <span data-bind="if: IsRandomAccessMode">
                         <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
                             Back to Diagnostics <i class="fas fa-undo"></i>
                         </a>
@@ -225,7 +225,7 @@
                            data-bind="value: AcumaticaPassword" />
                 </div>
 
-                <div class="center std-pad-t">
+                <div class="center">
                     <span data-bind="if: IsCancelButtonVisible">
                         <a href="#" class="btn btn-secondary btn-lg"
                            data-bind="click: ShowStatusPanel">
@@ -264,7 +264,6 @@
         self.IsUrlFinalized = ko.observable();
         self.IsRandomAccessMode = ko.observable();
 
-
         self.HasConnectionBeenSet = ko.computed(function() {
             return self.ConnectionState() != StateCode.None;
         });
@@ -280,6 +279,7 @@
 
 
         // Control-visibility
+        //
         self.IsNextButtonVisible = ko.computed(function() {
             return !self.IsRandomAccessMode() && self.IsConnectionOk();
         });
@@ -288,19 +288,9 @@
             return !self.IsRandomAccessMode();
         });
 
-        self.IsBackToDashboardButtonVisible = ko.computed(function() {
-            return self.IsRandomAccessMode();
-        });
-
-        self.IsReturnButtonVisible = ko.computed(function() {
-            return self.IsRandomAccessMode();
-        });
-
         self.IsCancelButtonVisible = ko.computed(function() {
             return self.HasConnectionBeenSet();
         });
-
-
 
 
         // Data-entry State
@@ -336,6 +326,7 @@
                 function() {
                     self.ClearVisibility();
                     self.StatusVisible(true);
+                    self.DataEntryVisible(false);
 
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("/Config/AcumaticaCredentials", this);
@@ -377,6 +368,8 @@
                     self.ConnectionState(response.ConnectionState);
                     self.IsUrlFinalized(response.IsUrlFinalized);
                     self.IsRandomAccessMode(response.IsRandomAccessMode);
+
+                    console.log(response);
 
                     if (self.ConnectionState() == StateCode.None) {
                         self.ChangeSettingsClick();

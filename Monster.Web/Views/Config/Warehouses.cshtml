@@ -252,7 +252,7 @@
                     ajax.HttpGet("/Config/WarehouseSyncData", this);
                 },
                 function (response) {
-                    console.log(response);
+                    //console.log(response);
 
                     AQ(response.ActivatedLocations).each(function(item) { self.DecorateLocation(item); });
                     AQ(response.Warehouses).each(function (item) { self.DecorateWarehouse(item); });
@@ -286,7 +286,7 @@
                     window.location.href = '@GlobalConfig.Url("/Config/Complete")';
                 });
         };
-
+        
         self.Save = function(callback) {
             flow.exec(
                 function() {
@@ -300,8 +300,12 @@
 
                     ajax.HttpPost("/Config/WarehouseSyncDataUpdate", model, this);
                 },
-                function(response) {
-                    self.ProcessStatus();
+                function (response) {
+                    if (callback) {
+                        callback();
+                    } else {
+                        self.ProcessStatus();
+                    }
                 }
             );
         };
