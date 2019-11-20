@@ -125,6 +125,13 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             return orderRecord.ShopifyRefunds.Where(x => x.DebitAdjustment > 0m).ToList();
         }
+
+        public static List<AcumaticaSoShipment> SoShipments(this ShopifyOrder orderRecord)
+        {
+            return orderRecord.AcumaticaSalesOrder == null
+                   ? new List<AcumaticaSoShipment>()
+                   : orderRecord.AcumaticaSalesOrder.AcumaticaSoShipments.ToList();
+        }
     }
 }
 

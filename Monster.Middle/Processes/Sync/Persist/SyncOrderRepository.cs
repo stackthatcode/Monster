@@ -53,6 +53,8 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .ShopifyOrders
                 .AsNoTracking()
                 .Include(x => x.AcumaticaSalesOrder)
+                .Include(x => x.AcumaticaSalesOrder.AcumaticaSoShipments)
+                .Include(x => x.AcumaticaSalesOrder.AcumaticaSoShipments.Select(y => y.ShopifyFulfillment))
                 .Include(x => x.ShopifyTransactions)
                 .Include(x => x.ShopifyTransactions.Select(y => y.AcumaticaPayment))
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);

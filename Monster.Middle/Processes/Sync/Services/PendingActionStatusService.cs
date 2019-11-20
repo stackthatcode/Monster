@@ -16,7 +16,7 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly ShopifyUrlService _urlService;
 
         public PendingActionStatusService(
-                SyncOrderRepository orderRepository, 
+                SyncOrderRepository orderRepository,
                 OrderSyncValidationService validationService,
                 ShopifyUrlService urlService)
         {
@@ -30,9 +30,11 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var output = new OrderPendingActionStatus();
+
             BuildOrderPendingAction(orderRecord, output);
             BuildTransactionPendingActions(orderRecord, output);
             BuildRefundAdjPendingActions(orderRecord, output);
+            BuildShipmentInvoicePendingActions(orderRecord, output);
 
             return output;
         }
@@ -40,7 +42,7 @@ namespace Monster.Middle.Processes.Sync.Services
         private void BuildOrderPendingAction(ShopifyOrder orderRecord, OrderPendingActionStatus output)
         {
             var order = orderRecord.ToShopifyObj();
-            
+
             output.ShopifyOrderId = orderRecord.ShopifyOrderId;
             output.ShopifyOrderHref = _urlService.ShopifyOrderUrl(orderRecord.ShopifyOrderId);
             output.ShopifyOrderName = order.name;
@@ -80,6 +82,7 @@ namespace Monster.Middle.Processes.Sync.Services
                     paymentAction.Action = PendingAction.CreateInAcumatica;
                     paymentAction.ActionValidation = validator.ReadyToCreatePayment();
                 }
+
                 if (payment.ExistsInAcumatica() && payment.NeedsPaymentPut)
                 {
                     paymentAction.Action = PendingAction.UpdateInAcumatica;
@@ -143,5 +146,26 @@ namespace Monster.Middle.Processes.Sync.Services
                 output.AdjustmentMemoPendingActions.Add(action);
             }
         }
+
+        private void BuildShipmentInvoicePendingActions(
+                        ShopifyOrder orderRecord, OrderPendingActionStatus output)
+        {
+            foreach (var soShipment in orderRecord.SoShipments())
+            {
+                var action = new ShipmentInvoicePendingAction();
+
+                action.ShipmentNbr = soShipment.AcumaticaShipmentNbr;
+                action.InvoiceNbr = soShipment.AcumaticaInvoiceNbr;
+                action.Action 
+                    = soShipment.ShopifyFulfillment == null
+                        ? PendingAction.CreateInAcumatica : PendingAction.None;
+
+                action.InvoiceAmount = soShipment.AcumaticaInvoiceAmount.Value;
+                action.InvoiceTax = soShipment.AcumaticaInvoiceTax.Value;
+
+                output.ShipmentInvoicePendingActions.Add(action);
+            }
+        }
     }
 }
+

@@ -215,6 +215,19 @@
                 <span data-bind="text: ActionDesc"></span>
             </div>
         </div>
+
+        <div data-bind="foreach: ShipmentInvoicePendingActions">
+            <div class="alert alert-info">
+                <strong>
+                    Acumatica Shipment <span data-bind="text: ShipmentNbr"></span>
+                    <span>-</span> Invoice <span data-bind="text: InvoiceNbr"></span>
+                </strong>
+                <span>-</span>
+                <span data-bind="text:  Monster.NumberFormat(InvoiceTotal)"></span>
+                <span>-</span>
+                <span data-bind="text: ActionDesc"></span>
+            </div>
+        </div>
     </div>
 </script>
 

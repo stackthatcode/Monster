@@ -132,6 +132,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 // ... and assign Shipment thereto
                 //
                 salesOrderShipment.ShopifyFulfillment = fulfillmentRecord;
+                salesOrderShipment.LastUpdated = DateTime.UtcNow;
+                _shopifyOrderRepository.SaveChanges(); 
                 transaction.Commit();
             }
         }

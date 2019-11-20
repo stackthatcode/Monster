@@ -18,8 +18,9 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public TransactionPendingAction PaymentPendingAction { get; set; }
 
         public List<TransactionPendingAction> RefundPendingActions { get; set; }
-
         public List<AdjustmentPendingAction> AdjustmentMemoPendingActions { get; set; }
+        public List<ShipmentInvoicePendingAction> ShipmentInvoicePendingActions { get; set; }
+
 
         public OrderPendingActionStatus()
         {
@@ -31,6 +32,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
             RefundPendingActions = new List<TransactionPendingAction>();
             AdjustmentMemoPendingActions = new List<AdjustmentPendingAction>();
+            ShipmentInvoicePendingActions = new List<ShipmentInvoicePendingAction>();
         }
     }
 
@@ -65,4 +67,23 @@ namespace Monster.Middle.Processes.Sync.Model.Status
             Action = PendingAction.None;
         }
     }
+
+    public class ShipmentInvoicePendingAction
+    {
+        public string ShipmentNbr { get; set; }
+        public string InvoiceNbr { get; set; }
+
+        public decimal InvoiceAmount { get; set; }
+        public decimal InvoiceTax { get; set; }
+        public decimal InvoiceTotal => InvoiceAmount + InvoiceTax;
+
+        public PendingAction Action { get; set; }
+        public string ActionDesc => Action.Description();
+
+        public ShipmentInvoicePendingAction()
+        {
+            Action = PendingAction.None;
+        }
+    }
 }
+
