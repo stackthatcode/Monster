@@ -46,7 +46,7 @@ namespace Push.Shopify.Api
 
         public string SetInventoryCost(long inventory_item_id, string content)
         {
-            var path = $"/admin/inventory_items/#{inventory_item_id}.json";
+            var path = $"/admin/inventory_items/{inventory_item_id}.json";
             var response = _httpClient.Put(path, content);
             return response.Body;
         }

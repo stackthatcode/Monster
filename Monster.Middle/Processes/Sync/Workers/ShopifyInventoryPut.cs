@@ -98,11 +98,15 @@ namespace Monster.Middle.Processes.Sync.Workers
             _productApi.UpdateVariantPrice(variantShopifyId, priceDto.SerializeToJson());
 
             // Push the cost of goods via Inventory API
-            var costDto = new InventoryItem()
+            var costDto = new
             {
-                id = variantRecord.ShopifyInventoryItemId,
-                cost = cogs,
+                inventory_item = new
+                {
+                    id = variantRecord.ShopifyInventoryItemId,
+                    cost = cogs,
+                }
             };
+
             _inventoryApi.SetInventoryCost(variantRecord.ShopifyInventoryItemId, costDto.SerializeToJson());
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
@@ -197,9 +201,9 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var location = _syncInventoryRepository.RetrieveLocation(level.ShopifyLocationId);
             var warehouseIds = location.MatchedWarehouseIds();
-            var details = stockItem.Inventory(warehouseIds);
+            var warehouseDetails = stockItem.Inventory(warehouseIds);
                 
-            var available = (int)details.Sum(x => x.AcumaticaAvailQty);
+            var available = (int)warehouseDetails.Sum(x => x.AcumaticaAvailQty);
             var sku = level.ShopifyVariant.ShopifySku;
             
             var levelDto = new InventoryLevel
@@ -220,7 +224,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 _executionLogService.Log(log);
 
-                details.ForEach(x => x.IsInventorySynced = true);
+                warehouseDetails.ForEach(x => x.IsInventorySynced = true);
                 
                 // Update Shopify Inventory Level records
                 //

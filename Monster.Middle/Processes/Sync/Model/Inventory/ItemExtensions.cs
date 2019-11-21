@@ -104,8 +104,7 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
         public static List<AcumaticaInventory> Inventory(this AcumaticaStockItem input, List<string> warehouseIds)
         {
             return input.AcumaticaInventories
-                .Where(x => warehouseIds.Contains(x.AcumaticaWarehouseId))
-                .ToList();
+                .Where(x => warehouseIds.Contains(x.AcumaticaWarehouseId.Trim())).ToList();
         }
 
     }

@@ -75,7 +75,6 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         public decimal InvoiceAmount { get; set; }
         public decimal InvoiceTax { get; set; }
-        public decimal InvoiceTotal => InvoiceAmount + InvoiceTax;
 
         public PendingAction Action { get; set; }
         public string ActionDesc => Action.Description();
