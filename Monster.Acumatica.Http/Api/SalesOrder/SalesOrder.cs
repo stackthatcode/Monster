@@ -13,7 +13,9 @@ namespace Monster.Acumatica.Api.SalesOrder
         public BoolValue Approved { get; set; }
         public StringValue BaseCurrencyID { get; set; }
         public BoolValue BillToAddressOverride { get; set; }
+        public Address BillToAddress { get; set; }
         public BoolValue BillToContactOverride { get; set; }
+        public ContactOverride BillToContact { get; set; }
         public StringValue CashAccount { get; set; }
         public DoubleValue ControlTotal { get; set; }
         public BoolValue CreditHold { get; set; }

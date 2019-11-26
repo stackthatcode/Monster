@@ -60,8 +60,8 @@ namespace Push.Shopify.Api.Order
         public string contact_email { get; set; }
         public bool buyer_accepts_marketing { get; set; }
         public Customer.Customer customer { get; set; }
-        public BillingAddress billing_address { get; set; }
-        public ShippingAddress shipping_address { get; set; }
+        public OrderAddress billing_address { get; set; }
+        public OrderAddress shipping_address { get; set; }
 
         public string fulfillment_status { get; set; }
         public List<Fulfillment> fulfillments { get; set; }

@@ -97,7 +97,6 @@
     <Compile Include="Api\FulfillmentApi.cs" />
     <Compile Include="Api\OAuthApi.cs" />
     <Compile Include="Api\Order\AdjustmentMemo.cs" />
-    <Compile Include="Api\Order\BillingAddress.cs" />
     <Compile Include="Api\Order\ClientDetails.cs" />
     <Compile Include="Api\Customer\Customer.cs" />
     <Compile Include="Api\Customer\Address.cs" />
@@ -119,7 +118,7 @@
     <Compile Include="Api\Order\PaymentDetails.cs" />
     <Compile Include="Api\Order\Receipt.cs" />
     <Compile Include="Api\Order\Refund.cs" />
-    <Compile Include="Api\Order\ShippingAddress.cs" />
+    <Compile Include="Api\Order\OrderAddress.cs" />
     <Compile Include="Api\Order\ShippingLine.cs" />
     <Compile Include="Api\Order\TaxLine.cs" />
     <Compile Include="Api\Order\ValueType.cs" />

@@ -14,7 +14,6 @@ using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.TaxTransfer;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Persist.Matching;
 using Monster.Middle.Processes.Sync.Services;
 using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
@@ -196,15 +195,19 @@ namespace Monster.Middle.Processes.Sync.Workers
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
             salesOrder.Details = BuildSalesOrderDetail(shopifyOrder);
 
-            // Shipping Contact
+            // Billing Address & Contact
+            //
+            salesOrder.BillToContactOverride = true.ToValue();
+            salesOrder.BillToContact = BuildContact(shopifyOrder, shopifyOrder.billing_address);
+            salesOrder.BillToAddressOverride = true.ToValue();
+            salesOrder.BillToAddress = BuildAddress(shopifyOrder.billing_address);
+
+            // Shipping Address & Contact
             //
             salesOrder.ShipToContactOverride = true.ToValue();
-            salesOrder.ShipToContact = BuildShippingContact(shopifyOrder);
-
-            // Shipping Address
-            //
+            salesOrder.ShipToContact = BuildContact(shopifyOrder, shopifyOrder.shipping_address);
             salesOrder.ShipToAddressOverride = true.ToValue();
-            salesOrder.ShipToAddress = BuildShippingAddress(shopifyOrder);
+            salesOrder.ShipToAddress = BuildAddress(shopifyOrder.shipping_address);
 
             return salesOrder;
         }
@@ -281,6 +284,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             salesOrder.FinancialSettings = new FinancialSettings()
             {
+                
                 OverrideTaxZone = true.ToValue(),
                 CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
             };
@@ -296,33 +300,33 @@ namespace Monster.Middle.Processes.Sync.Workers
             return salesOrder;
         }
 
-        private Address BuildShippingAddress(Order shopifyOrder)
+        private Address BuildAddress(OrderAddress address)
         {
-            var shippingAddress = new Address();
-            if (shopifyOrder.shipping_address != null)
+            var output = new Address();
+            if (address != null)
             {
-                shippingAddress.AddressLine1 = shopifyOrder.shipping_address.address1.ToValue();
-                shippingAddress.AddressLine2 = shopifyOrder.shipping_address.address2.ToValue();
-                shippingAddress.City = shopifyOrder.shipping_address.city.ToValue();
-                shippingAddress.State = shopifyOrder.shipping_address.province.ToValue();
-                shippingAddress.PostalCode = shopifyOrder.shipping_address.zip.ToValue();
+                output.AddressLine1 = address.address1.ToValue();
+                output.AddressLine2 = address.address2.ToValue();
+                output.City = address.city.ToValue();
+                output.State = address.province.ToValue();
+                output.PostalCode = address.zip.ToValue();
             }
-            return shippingAddress;
+            return output;
         }
 
-        private ContactOverride BuildShippingContact(Order shopifyOrder)
+        private ContactOverride BuildContact(Order order, OrderAddress address)
         {
-            var shippingContact = new ContactOverride();
-            shippingContact.Email = shopifyOrder.contact_email.ToValue();
+            var contactOverride = new ContactOverride();
+            contactOverride.Email = order.contact_email.ToValue();
 
-            if (shopifyOrder.shipping_address != null)
+            if (address != null)
             {
-                shippingContact.Attention = shopifyOrder.shipping_address.FullName.ToValue();
-                shippingContact.BusinessName = shopifyOrder.shipping_address.company.ToValue();
-                shippingContact.Phone1 = shopifyOrder.shipping_address.phone.ToValue();
+                contactOverride.Attention =  address.FullName.ToValue();
+                contactOverride.BusinessName = address.company.ToValue();
+                contactOverride.Phone1 = address.phone.ToValue();
             }
 
-            return shippingContact;
+            return contactOverride;
         }
 
 
@@ -385,8 +389,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         //
         public AcumaticaCustomer PushNonExistentCustomer(ShopifyOrder shopifyOrder)
         {
-            var customer = 
-                _syncOrderRepository.RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
+            var customer = _syncOrderRepository
+                    .RetrieveCustomer(shopifyOrder.ShopifyCustomer.ShopifyCustomerId);
 
             if (customer.HasMatch())
             {
