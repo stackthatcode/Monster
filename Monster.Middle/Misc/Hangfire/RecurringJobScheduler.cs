@@ -26,7 +26,8 @@ namespace Monster.Middle.Misc.Hangfire
         {
             var jobId = _jobMonitoringService.RecurringEndToEndSyncJobId;
 
-            var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.EndToEndSync, jobId);
+            var monitor = _jobMonitoringService
+                .ProvisionJobMonitor(BackgroundJobType.EndToEndSync, true, jobId);
 
             RecurringJob.AddOrUpdate<JobRunner>(
                 jobId,
@@ -36,18 +37,18 @@ namespace Monster.Middle.Misc.Hangfire
 
             _jobMonitoringService.AssignHangfireJob(monitor.Id, jobId);
 
-            _executionLogService.Log("End-to-End Sync - Starting Background Job");
+            _executionLogService.Log("End-to-End Sync - recurring job - scheduled");
 
             RecurringJob.Trigger(jobId);
         }
         
         public void KillEndToEndSync()
         {
-            var monitor = _jobMonitoringService.RetrieveMonitorByType(BackgroundJobType.EndToEndSync);
+            var monitor = _jobMonitoringService.RetrieveMonitorByTypeNoTracking(BackgroundJobType.EndToEndSync);
             if (monitor != null)
             {
                 _jobMonitoringService.SendKillSignal(monitor.Id);
-                _executionLogService.Log($"End-to-End Sync - stop signal received");
+                _executionLogService.Log($"End-to-End Sync - recurring job - stop signal received");
             }
         }
     }

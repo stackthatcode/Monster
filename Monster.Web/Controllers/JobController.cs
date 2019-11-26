@@ -48,5 +48,13 @@ namespace Monster.Web.Controllers
             var output = new { state.InventoryRefreshState };
             return new JsonNetResult(output);
         }
+
+        [HttpPost]
+        public ActionResult Cleanup()
+        {
+            _jobStatusService.Cleanup();
+            return JsonNetResult.Success();
+        }
+
     }
 }

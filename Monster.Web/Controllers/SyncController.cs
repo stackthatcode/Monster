@@ -82,14 +82,17 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult StartEndToEnd()
         {
-            _recurringJobService.StartEndToEndSync();
+            _oneTimeJobService.EndToEndSync();
+            //_recurringJobService.StartEndToEndSync();
+
             return JsonNetResult.Success();
         }
 
         [HttpPost]
         public ActionResult PauseEndToEnd()
         {
-            _recurringJobService.KillEndToEndSync();
+            //_recurringJobService.KillEndToEndSync();
+
             return JsonNetResult.Success();
         }
 

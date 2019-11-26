@@ -31,7 +31,8 @@ namespace Monster.Middle.Misc.Hangfire
 
         private static readonly object _provisioningLock = new object();
 
-        public ExclusiveJobMonitor ProvisionJobMonitor(int backgroundJobType, string hangFireJobId = null)
+        public ExclusiveJobMonitor ProvisionJobMonitor(
+                int backgroundJobType, bool isRecurring, string hangFireJobId = null)
         {
             lock (_provisioningLock)
             {
@@ -64,8 +65,6 @@ namespace Monster.Middle.Misc.Hangfire
 
         public bool IsJobRunning(int backgroundJobType)
         {
-            Cleanup();
-
             return Entities.ExclusiveJobMonitors
                 .AsNoTracking()
                 .Any(x => x.BackgroundJobType == backgroundJobType);
@@ -73,8 +72,6 @@ namespace Monster.Middle.Misc.Hangfire
 
         public bool AreAnyJobsRunning()
         {
-            Cleanup();
-
             return Entities.ExclusiveJobMonitors
                 .AsNoTracking()
                 .Any();
@@ -93,14 +90,18 @@ namespace Monster.Middle.Misc.Hangfire
 
         public ExclusiveJobMonitor RetrieveMonitorNoTracking(long monitorId)
         {
-            return Entities.ExclusiveJobMonitors
+            return Entities
+                    .ExclusiveJobMonitors
                     .AsNoTracking()
                     .FirstOrDefault(x => x.Id == monitorId);
         }
 
-        public ExclusiveJobMonitor RetrieveMonitorByType(int jobType)
+        public ExclusiveJobMonitor RetrieveMonitorByTypeNoTracking(int jobType)
         {
-            return Entities.ExclusiveJobMonitors.FirstOrDefault(x => x.BackgroundJobType == jobType);
+            return Entities
+                .ExclusiveJobMonitors
+                .AsNoTracking()
+                .FirstOrDefault(x => x.BackgroundJobType == jobType);
         }
 
 
@@ -145,13 +146,13 @@ namespace Monster.Middle.Misc.Hangfire
             var monitor = Entities.ExclusiveJobMonitors.FirstOrDefault(x => x.Id == monitorId);
             if (monitor != null)
             {
-                if (monitor.BackgroundJobType.IsRecurring() && monitor.ReceivedKillSignal)
+                if (monitor.IsRecurring && monitor.ReceivedKillSignal)
                 {
                     RecurringJob.RemoveIfExists(monitor.HangFireJobId);
                     RemoveJobMonitor(monitor.Id);
                 }
 
-                if (!monitor.BackgroundJobType.IsRecurring())
+                if (!monitor.IsRecurring)
                 {
                     RemoveJobMonitor(monitor.Id);
                 }
@@ -186,7 +187,7 @@ namespace Monster.Middle.Misc.Hangfire
 
                     // Remove any Job Monitor for a One-Time Job that is no longer Alive
                     //
-                    if (monitor.BackgroundJobType.IsOneTime())
+                    if (!monitor.IsRecurring)
                     {
                         var hangfireRecord = connection.GetJobData(monitor.HangFireJobId);
                         if (!hangfireRecord.IsAlive())

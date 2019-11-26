@@ -298,17 +298,20 @@ namespace Monster.Middle.Processes.Sync.Managers
         private void EndToEndRunner(
                 Action[] actions, Expression<Func<SystemState, int>> stateVariable, string descriptor)
         {
+            _executionLogService.Log($"{descriptor}  - executing");
+
             foreach (var action in actions)
             {
                 try
                 {
-                    var monitor = _monitoringService.RetrieveMonitorByType(BackgroundJobType.EndToEndSync);
+                    var monitor = _monitoringService
+                        .RetrieveMonitorByTypeNoTracking(BackgroundJobType.EndToEndSync);
+
                     if (monitor == null || monitor.ReceivedKillSignal)
                     {
                         _executionLogService.Log($"{descriptor} - execution has been interrupted");
                         return;
                     }
-
                     action();
                 }
                 catch (Exception ex)

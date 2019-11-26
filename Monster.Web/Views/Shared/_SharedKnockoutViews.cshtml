@@ -9,6 +9,9 @@
     <p class="center">
         There is currently a background job running
     </p>
+    <a href="#" class="btn btn-secondary btn-sm" data-bind="click: RefreshCleanUp">
+        Clean-up Job Monitoring <i class="fa fa-refresh"></i>
+    </a>
 </script>
 <script type="text/html" id="Execution-Log-Ticker">
     <div style="font-size:0.9em; color:#555555; text-align:center; padding:15px; letter-spacing: 5px; text-transform: uppercase;">
@@ -70,10 +73,10 @@
 
         self.Poll = function () {
             flow.exec(function () {
-                var ajax = new Monster.Ajax();
-                ajax.DisablePopupsAndSpinners();
-                ajax.HttpGet("/Job/Status", this);
-            },
+                    var ajax = new Monster.Ajax();
+                    ajax.DisablePopupsAndSpinners();
+                    ajax.HttpGet("/Job/Status", this);
+                },
                 function (response) {
                     var oldAreAnyJobsRunning = self.AreAnyJobsRunning();
 
@@ -87,6 +90,12 @@
                     }
                 });
         };
+
+        self.RefreshCleanUp = function() {
+            var ajax = new Monster.Ajax();
+            ajax.DisablePopupsAndSpinners();
+            ajax.HttpPost("/Job/Cleanup", {});
+        }
 
         self.StartPolling = function (areAnyJobsRunning) {
             self.AreAnyJobsRunning(areAnyJobsRunning);
@@ -449,3 +458,4 @@
         </a>
     </div>
 </script>
+

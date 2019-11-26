@@ -15,15 +15,6 @@ namespace Monster.Middle.Misc.Hangfire
         public const int EndToEndSync = 9;
 
 
-        public static bool IsRecurring(this int jobType)
-        {
-            return jobType == EndToEndSync;
-        }
-
-        public static bool IsOneTime(this int jobType)
-        {
-            return !jobType.IsRecurring();
-        }
 
         public static readonly Dictionary<int, string> Name = new Dictionary<int, string>()
         {
@@ -39,3 +30,4 @@ namespace Monster.Middle.Misc.Hangfire
         };
     }
 }
+
