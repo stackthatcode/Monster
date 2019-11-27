@@ -458,14 +458,7 @@
         <td>Acumatica Credit/Debit Total</td>
         <td data-bind="text: Monster.NumberFormat(AcumaticaCreditDebitMemoTotal)"></td>
     </tr>
-    <tr>
-        <td>Shopify Refund Overpayment</td>
-        <td data-bind="text: Monster.NumberFormat(ShopifyRefundOverpayment)"></td>
-        <td> </td>
-        <td></td>
-        <td></td>
-    </tr>
-    -->
+        -->
     </table>
 </script>
 
@@ -589,8 +582,12 @@
     <!-- ko with: Transfer -->
     <table class="table shopify-detail" style="max-width:400px;">
         <tr>
-            <td class="shopify-detail-bold">Total Price</td>
+            <td class="shopify-detail-bold">Original Price</td>
             <td data-bind="text: Monster.NumberFormat(TotalPrice)"></td>
+        </tr>
+        <tr>
+            <td class="shopify-detail-bold">Original Tax</td>
+            <td data-bind="text: Monster.NumberFormat(TotalTax)"></td>
         </tr>
         <tr>
             <td class="shopify-detail-bold">Net Total Price</td>
@@ -601,23 +598,22 @@
             <td data-bind="text: Monster.NumberFormat(NetTaxableAmount)"></td>
         </tr>
         <tr>
-            <td class="shopify-detail-bold">Net Line Item Tax</td>
-            <td data-bind="text: Monster.NumberFormat(NetLineItemTax)"></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Net Freight Tax</td>
-            <td data-bind="text: Monster.NumberFormat(NetFreightTax)"></td>
-        </tr>
-        <tr>
             <td class="shopify-detail-bold">Net Total Tax</td>
             <td data-bind="text: Monster.NumberFormat(NetTotalTax)"></td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
         </tr>
         <tr>
             <td class="shopify-detail-bold">Payment</td>
             <td data-bind="text: Monster.NumberFormat(Payment)"></td>
         </tr>
         <tr>
-            <td class="shopify-detail-bold">NetPayment</td>
+            <td class="shopify-detail-bold">Refund Total</td>
+            <td data-bind="text: Monster.NumberFormat(RefundTotal)"></td>
+        </tr>
+        <tr>
+            <td class="shopify-detail-bold">Net Payment</td>
             <td data-bind="text: Monster.NumberFormat(NetPayment)"></td>
         </tr>
         <tr>

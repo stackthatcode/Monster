@@ -9,7 +9,7 @@
         public decimal Freight { get; set; }
         public decimal FreightTax { get; set; }
         public decimal TaxableAmount { get; set; }
-        public decimal TaxTotal { get; set; }
+        public decimal TaxTotal => LineItemsTax + FreightTax;
 
         public decimal Credit { get; set; }
         public decimal Debit { get; set; }

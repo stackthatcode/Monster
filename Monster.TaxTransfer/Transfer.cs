@@ -11,10 +11,9 @@ namespace Monster.TaxTransfer
         public TransferFreight Freight { get; set; }
         public List<TransferRefund> Refunds { get; set; }
 
-        // Non-participant in logic
         public decimal TotalPrice => LineItems.Sum(x => x.LineAmount) + Freight.Price 
                                      + LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
-        // Non-participant in logic
+        public decimal TotalTax => LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
         public decimal NetTotalPrice => TotalPrice
                                         - Refunds.Sum(x => x.LineItemTotal) 
                                         - Refunds.Sum(x => x.Freight);
@@ -27,16 +26,11 @@ namespace Monster.TaxTransfer
         public decimal NetFreightTax => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
         public decimal NetTotalTax => NetLineItemTax + NetFreightTax;
 
-
-        // Non-participant in logic
         public decimal Payment { get; set; }
-        // Non-participant in logic
-        public decimal NetPayment => Payment -  Refunds.Sum(x => x.RefundAmount);
-        // Non-participant in logic
+        public decimal RefundTotal => Refunds.Sum(x => x.RefundAmount);
+        public decimal NetPayment => Payment - RefundTotal;
         public decimal CreditTotal => Refunds.Sum(x => x.Credit);
-        // Non-participant in logic
         public decimal DebitTotal => Refunds.Sum(x => x.Debit);
-        // Non-participant in logic
         public decimal OverpaymentTotal => Refunds.Sum(x => x.Overpayment);
 
 
