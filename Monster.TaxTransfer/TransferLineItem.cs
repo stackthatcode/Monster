@@ -11,6 +11,7 @@ namespace Monster.TaxTransfer
         public decimal LineAmount => Quantity * UnitPrice;
         public decimal TaxableAmount { get; set; }
         public decimal TaxAmount { get; set; }
+        public decimal Total => LineAmount + TaxAmount;
 
         public List<TransferTaxLine> TaxLines { get; set; }
 

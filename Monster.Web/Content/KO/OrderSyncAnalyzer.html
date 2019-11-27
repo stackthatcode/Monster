@@ -1,32 +1,9 @@
 ﻿
-<style>
-    .order-grid { font-size: 0.8em; }
-    .order-grid td:nth-child(1), .order-grid th:nth-child(1) { text-align: left;}
-    .order-grid td:nth-child(2), .order-grid th:nth-child(2) { text-align: left;}
-    .order-grid td:nth-child(3), .order-grid th:nth-child(3) { text-align: right;}
-    .order-grid td:nth-child(4), .order-grid th:nth-child(4) { text-align: right;}
-    .order-grid td:nth-child(5), .order-grid th:nth-child(5) { text-align: right;}
-    .order-grid td:nth-child(6), .order-grid th:nth-child(6) { text-align: right;}
-    .order-grid td:nth-child(7), .order-grid th:nth-child(7) { text-align: right;}
-    .order-grid td:nth-child(8), .order-grid th:nth-child(8) { text-align: right;}
-
-    .order-link { font-weight: 700; }
-    .order-analyzer { font-size: 0.8em; }
-    .order-analyzer td:nth-child(1) { color: #666; width: 25%; text-align: left; font-weight: 700; }
-    .order-analyzer td:nth-child(2) { width: 20%; text-align: right; font-weight: 400; }
-    .order-analyzer td:nth-child(4) { color: #666; width: 25%;text-align: left; font-weight: 700; }
-    .order-analyzer td:nth-child(5) { width: 20%; text-align: right; font-weight: 400; }
-
-    .filter-control .btn, .filter-control input { font-size: 0.9em;}
-
-    .pending-action-view .alert { text-align: left; font-size: 0.9em; }
-</style>
-
 <div class="card std-pad-sm">
     <div class="card-title-interface">
         Order Synchronization Analyzer
     </div>
-    
+
     <div class="card-body std-pad-sm-side">
         <div data-bind="visible: HideDrilldown">
             <div data-bind="template: { name: 'Order-Analyzer-Grid' }"></div>
@@ -41,16 +18,62 @@
 </div>
 
 <script type="text/html" id="Order-Analyzer-Grid">
-    <div id="order-grid grid-bg" style="min-height:400px;">
+    <style>
+        .order-grid {
+            font-size: 0.8em;
+        }
+
+        .order-grid td:nth-child(1), .order-grid th:nth-child(1) {
+            text-align: left;
+        }
+
+        .order-grid td:nth-child(2), .order-grid th:nth-child(2) {
+            text-align: left;
+        }
+
+        .order-grid td:nth-child(3), .order-grid th:nth-child(3) {
+            text-align: right;
+        }
+
+        .order-grid td:nth-child(4), .order-grid th:nth-child(4) {
+            text-align: right;
+        }
+
+        .order-grid td:nth-child(5), .order-grid th:nth-child(5) {
+            text-align: right;
+        }
+
+        .order-grid td:nth-child(6), .order-grid th:nth-child(6) {
+            text-align: right;
+        }
+
+        .order-grid td:nth-child(7), .order-grid th:nth-child(7) {
+            text-align: right;
+        }
+
+        .order-grid td:nth-child(8), .order-grid th:nth-child(8) {
+            text-align: right;
+        }
+
+        .order-link {
+            font-weight: 700;
+        }
+
+        .filter-control .btn, .filter-control input {
+            font-size: 0.9em;
+        }
+    </style>
+
+    <div id="order-grid grid-bg" style="min-height: 400px;">
         <!-- Filtering -->
         <div class="row">
             <div class="col-sm-6">
                 <div class="input-group mb-3 filter-control">
-                    <input type="text" class="form-control" 
+                    <input type="text" class="form-control"
                            data-bind="value: SearchText, event: { keyup: SearchTermsKeyCallback }"
                            placeholder="Shopify Order Number or ID, Acumatica Sales Order ID"
                            aria-label="Shopify Order Number or ID, Acumatica Sales Order ID"
-                           maxlength="25" />
+                           maxlength="25"/>
 
                     <div class="input-group-append">
                         <button class="btn btn-secondary" type="button" data-bind="click: FilterOrdersClick">
@@ -59,7 +82,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-sm-2">
                 <select class="form-control" data-bind="value: OrderStatus">
                     <option value="All">All</option>
@@ -75,13 +98,13 @@
         <table class="table table-hover order-grid">
             <thead>
             <tr style="color: #777;">
-                <th scope="col">Shopify<br />Order Nbr</th>
-                <th scope="col">Acumatica<br /> Sales Order</th>
-                <th scope="col">Shopify<br /> Order Total</th>
-                <th scope="col">Shopify<br /> Net Payment</th>
-                <th scope="col">Acumatica<br /> Order Payment</th>
-                <th scope="col">Acumatica<br /> Net Payment</th>
-                <th scope="col">Acumatica<br /> Invoice Total</th>
+                <th scope="col">Shopify<br/>Order Nbr</th>
+                <th scope="col">Acumatica<br/> Sales Order</th>
+                <th scope="col">Shopify<br/> Order Total</th>
+                <th scope="col">Shopify<br/> Net Payment</th>
+                <th scope="col">Acumatica<br/> Order Payment</th>
+                <th scope="col">Acumatica<br/> Net Payment</th>
+                <th scope="col">Acumatica<br/> Invoice Total</th>
                 <th scope="col">Status</th>
             </tr>
             </thead>
@@ -102,7 +125,7 @@
                         <div class="badge badge-success">OK</div>
                     </div>
                 </td>
-                </tr>
+            </tr>
             </tbody>
         </table>
     </div>
@@ -127,6 +150,17 @@
                 <a class="nav-link" href="#">Financial Summary</a>
             </li>
             <!-- /ko -->
+            <!-- ko if: IsShopifyDetailActive -->
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Shopify Detail</a>
+            </li>
+            <!-- /ko -->
+            <!-- ko ifnot: IsShopifyDetailActive -->
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bind="click: ShopifyDetailClick">Shopify Detail</a>
+            </li>
+            <!-- /ko -->
+
             <!-- ko if: IsPendingActionSummaryActive -->
             <li class="nav-item">
                 <a class="nav-link active" href="#">Order Status</a>
@@ -149,10 +183,20 @@
             <div data-bind="template: { name: 'Order-Analyzer-Pending-Action', data: PendingActionSummary }">
             </div>
         </div>
+        <div data-bind="if: IsShopifyDetailActive">
+            <div data-bind="template: { name: 'Order-Analyzer-Shopify-Detail', data: ShopifyDetail }">
+            </div>
+        </div>
     </div>
 </script>
 
 <script type="text/html" id="Order-Analyzer-Pending-Action">
+    <style>
+        .pending-action-view .alert {
+            text-align: left;
+            font-size: 0.9em;
+        }
+    </style>
     <div style="min-height: 400px;" class="pending-action-view">
         <div class="alert" data-bind="css: {
                  'alert-info': OrderSyncValidation.Success,
@@ -232,6 +276,41 @@
 </script>
 
 <script type="text/html" id="Order-Analyzer-Financial-Summary">
+    <style>
+        .order-analyzer {
+            font-size: 0.9em;
+        }
+        
+        .order-analyzer td {
+            padding:0.5em;
+        }
+
+        .order-analyzer td:nth-child(1) {
+            color: #777;
+            width: 30%;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .order-analyzer td:nth-child(2) {
+            width: 15%;
+            text-align: right;
+            font-weight: 400;
+        }
+
+        .order-analyzer td:nth-child(4) {
+            color: #777;
+            width: 30%;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .order-analyzer td:nth-child(5) {
+            width: 15%;
+            text-align: right;
+            font-weight: 400;
+        }
+    </style>
     <table class="table order-analyzer">
         <tr>
             <td>Shopify Order Name</td>
@@ -393,13 +472,105 @@
     </table>
 </script>
 
+<script type="text/html" id="Order-Analyzer-Shopify-Detail">
+    <style>
+        .shopify-detail td {
+            font-size: 0.9em;
+            padding: 0.5em;
+        }
+
+        .shopify-detail-bold {
+            font-weight: 700;
+            color:#777;
+        }
+
+        .shopify-detail td:nth-child(1) {
+            text-align: left;
+        }
+
+        .shopify-detail td:nth-child(2),  
+        .shopify-detail td:nth-child(3),  
+        .shopify-detail td:nth-child(4),  
+        .shopify-detail td:nth-child(5),  
+        .shopify-detail td:nth-child(6),
+        .shopify-detail td:nth-child(7)        
+        {
+            text-align: right;
+        }
+    </style>
+
+    <table class="table shopify-detail">
+        <tr>
+            <td class="shopify-detail-bold">Shopify Order Name</td>
+            <td>
+                <a class="order-link" href="#" target="_blank"
+                   data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td class="shopify-detail-bold">Shopify Order ID</td>
+            <td>
+                <a class="order-link" href="#" target="_blank"
+                   data-bind="text: ShopifyOrderId, attr: { href: ShopifyOrderHref }"></a>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr><td colspan="7"></td></tr>
+
+        <tr class="shopify-detail-bold">
+            <td>Shopify SKU</td>
+            <td>Quantity</td>
+            <td>Unit Price</td>
+            <td>Line Amount</td>
+            <td>Taxable Amount</td>
+            <td>Tax Amount</td>
+            <td>Line Amount</td>
+        </tr>
+        <!-- ko with: Transfer -->
+        <!-- ko foreach: LineItems -->
+        <tr>
+            <td data-bind="text: InventoryID"></td>
+            <td data-bind="text: Monster.NumberFormat(Quantity)"></td>
+            <td data-bind="text: Monster.NumberFormat(UnitPrice)"></td>
+            <td data-bind="text: Monster.NumberFormat(LineAmount)"></td>
+            <td data-bind="text: Monster.NumberFormat(TaxableAmount)"></td>
+            <td data-bind="text: Monster.NumberFormat(TaxAmount)"></td>
+            <td data-bind="text: Monster.NumberFormat(Total)"></td>
+        </tr>
+        <!-- /ko -->
+        <!-- ko with: Freight-->
+        <tr>
+            <td>Shipping</td>
+            <td></td>
+            <td></td>
+            <td data-bind="text: Monster.NumberFormat(Price)"></td>
+            <td data-bind="text: Monster.NumberFormat(TaxableAmount)"></td>
+            <td data-bind="text: Monster.NumberFormat(TaxAmount)"></td>
+            <td data-bind="text: Monster.NumberFormat(Total)"></td>
+        </tr>
+        <!-- /ko -->
+        <tr><td colspan="7"></td></tr>
+
+        <!-- /ko -->
+    </table>
+</script>
 
 <script>
     var Monster = Monster || {};
 
     Monster.OrderSyncModel = function () {
         var self = this;
-
+        
         // Grid stuff...
         //
         self.SearchText = ko.observable();
@@ -452,17 +623,26 @@
         //
         self.FinancialSummary = ko.observable();
         self.PendingActionSummary = ko.observable();
+        self.ShopifyDetail = ko.observable();
 
         self.IsFinancialSummaryActive = ko.observable(true);
+        self.IsShopifyDetailActive = ko.observable(false);
         self.IsPendingActionSummaryActive = ko.observable(false);
 
         self.FinancialSummaryClick = function () {
             self.IsFinancialSummaryActive(true);
+            self.IsShopifyDetailActive(false);
             self.IsPendingActionSummaryActive(false);
         };
         self.PendingActionSummaryClick = function () {
             self.IsFinancialSummaryActive(false);
+            self.IsShopifyDetailActive(false);
             self.IsPendingActionSummaryActive(true);
+        };
+        self.ShopifyDetailClick = function() {
+            self.IsFinancialSummaryActive(false);
+            self.IsShopifyDetailActive(true);
+            self.IsPendingActionSummaryActive(false);
         };
 
 
@@ -480,6 +660,7 @@
                 function (response) {
                     self.FinancialSummary(response.FinancialSummary);
                     self.PendingActionSummary(response.PendingActionSummary);
+                    self.ShopifyDetail(response.ShopifyDetail);
                     self.ShowDrilldown(true);
                 });
         };
@@ -487,7 +668,7 @@
         return self;
     };
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         var model = new Monster.OrderSyncModel();
         ko.applyBindings(model);
         model.Initialize();

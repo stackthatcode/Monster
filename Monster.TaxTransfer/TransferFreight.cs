@@ -9,6 +9,7 @@ namespace Monster.TaxTransfer
 
         public decimal TaxAmount { get; set; }
         public decimal TaxableAmount { get; set; }
+        public decimal Total => TaxAmount + Price;
         public List<TransferTaxLine> TaxLines { get; set; }
 
         public TransferFreight()

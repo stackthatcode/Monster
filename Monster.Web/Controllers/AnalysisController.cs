@@ -1,7 +1,10 @@
 ﻿using System.Web.Mvc;
 using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Analysis;
+using Monster.Middle.Processes.Sync.Model.TaxTransfer;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Push.Foundation.Web.Json;
@@ -17,17 +20,23 @@ namespace Monster.Web.Controllers
         private readonly AnalysisDataService _analysisDataService;
         private readonly PendingActionStatusService _orderStatusService;
         private readonly InstanceContext _instanceContext;
+        private readonly ShopifyOrderRepository _shopifyOrderRepository;
+        private readonly ShopifyUrlService _shopifyUrlService;
 
         public AnalysisController(
                 ExecutionLogService logRepository,
                 AnalysisDataService analysisDataService, 
                 PendingActionStatusService orderStatusService,
-                InstanceContext instanceContext)
+                InstanceContext instanceContext, 
+                ShopifyOrderRepository shopifyOrderRepository, 
+                ShopifyUrlService shopifyUrlService)
         {
             _logRepository = logRepository;
             _analysisDataService = analysisDataService;
             _orderStatusService = orderStatusService;
             _instanceContext = instanceContext;
+            _shopifyOrderRepository = shopifyOrderRepository;
+            _shopifyUrlService = shopifyUrlService;
         }
 
 
@@ -67,9 +76,21 @@ namespace Monster.Web.Controllers
             var financialSummary = _analysisDataService.GetOrderFinancialSummary(shopifyOrderId, true);
             var pendingActionStatus = _orderStatusService.Create(shopifyOrderId);
 
+            var order = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
+            var taxTransfer = order.ToTaxTransfer();
+
+            var shopifyDetail = new
+            {
+                ShopifyOrderId = shopifyOrderId,
+                ShopifyOrderNbr = order.ShopifyOrderNumber,
+                ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(shopifyOrderId),
+                Transfer = taxTransfer,
+            };
+
             return new JsonNetResult(new
             {
                 FinancialSummary = financialSummary,
+                ShopifyDetail = shopifyDetail,
                 PendingActionSummary = pendingActionStatus,
             });
         }

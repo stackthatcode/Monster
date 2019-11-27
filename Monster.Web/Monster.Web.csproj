@@ -303,6 +303,10 @@
       <Project>{df155c7d-78c2-4d81-9af5-654725dda7b6}</Project>
       <Name>Monster.Middle</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Monster.TaxTransfer\Monster.TaxTransfer.csproj">
+      <Project>{7F7D0032-B991-43B4-B43E-29305048A8DE}</Project>
+      <Name>Monster.TaxTransfer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Push.Foundation.Utilities\Push.Foundation.Utilities.csproj">
       <Project>{4E08819B-BAB3-46EE-9479-141AF7A4057D}</Project>
       <Name>Push.Foundation.Utilities</Name>
