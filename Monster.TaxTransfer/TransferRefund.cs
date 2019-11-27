@@ -9,13 +9,17 @@
         public decimal Freight { get; set; }
         public decimal FreightTax { get; set; }
         public decimal TaxableAmount { get; set; }
+        public decimal TaxTotal { get; set; }
 
         public decimal Credit { get; set; }
         public decimal Debit { get; set; }
+        public decimal NetCreditDebit => Credit - Debit;
+        
         public decimal RefundAmount { get; set; }
 
-        public decimal ExpectedTotal => LineItemTotal + Freight + LineItemsTax + FreightTax;
-        public decimal Overpayment => RefundAmount - ExpectedTotal - Credit + Debit;
+        public decimal ExpectedTotal
+            => LineItemTotal + Freight + LineItemsTax + FreightTax + Credit - Debit;
+        public decimal Overpayment => RefundAmount - ExpectedTotal;
     }
 }
 

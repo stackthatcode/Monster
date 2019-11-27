@@ -33,6 +33,10 @@ namespace Monster.TaxTransfer
         // Non-participant in logic
         public decimal NetPayment => Payment -  Refunds.Sum(x => x.RefundAmount);
         // Non-participant in logic
+        public decimal CreditTotal => Refunds.Sum(x => x.Credit);
+        // Non-participant in logic
+        public decimal DebitTotal => Refunds.Sum(x => x.Debit);
+        // Non-participant in logic
         public decimal OverpaymentTotal => Refunds.Sum(x => x.Overpayment);
 
 
