@@ -309,8 +309,37 @@
             <td>Acumatica Net Payment Total</td>
             <td data-bind="text: Monster.NumberFormat(AcumaticaNetPaymentTotal)"></td>
         </tr>
-        <tr><td colspan="5"></td></tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td> </td>
+            <td>Acumatica Credit/Debit Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaCreditDebitMemoTotal)"></td>
+        </tr>
+        <tr>
+            <td>Shopify Refund Overpayment</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyRefundOverpayment)"></td>
+            <td> </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td> </td>
+            <td>Acumatica Invoice Tax Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTaxTotal)"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td> </td>
+            <td>Acumatica Invoice Total</td>
+            <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
+        </tr>
 
+        <!---
+        <tr><td colspan="5"></td></tr>
         <tr>
             <td>Shopify Refund Item Total</td>
             <td data-bind="text: Monster.NumberFormat(ShopifyRefundItemTotal)"></td>
@@ -354,29 +383,13 @@
             <td data-bind="text: Monster.NumberFormat(AcumaticaCreditDebitMemoTotal)"></td>
         </tr>
         <tr>
-            <td>Shopify Refund Discrepancy</td>
-            <td data-bind="text: Monster.NumberFormat(ShopifyRefundDiscrepancyTotal)"></td>
+            <td>Shopify Refund Overpayment</td>
+            <td data-bind="text: Monster.NumberFormat(ShopifyRefundOverpayment)"></td>
             <td> </td>
             <td></td>
             <td></td>
         </tr>
-
-        <tr><td colspan="5"></td></tr>
-
-        <tr>
-            <td></td>
-            <td></td>
-            <td> </td>
-            <td>Acumatica Invoice Tax Total</td>
-            <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTaxTotal)"></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td> </td>
-            <td>Acumatica Invoice Total</td>
-            <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
-        </tr>
+        -->
     </table>
 </script>
 

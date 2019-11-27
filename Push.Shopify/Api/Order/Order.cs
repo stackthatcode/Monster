@@ -102,7 +102,7 @@ namespace Push.Shopify.Api.Order
                 => RefundLineItemTotal + RefundShippingTotal + RefundCreditTotal + 
                    RefundTotalTax - RefundDebitTotal;
 
-        public decimal RefundDiscrepancyTotal => refunds.Sum(x => x.PaymentTotal) - RefundTotal;
+        public decimal RefundOverpayment => refunds.Sum(x => x.PaymentTotal) - RefundTotal;
 
 
         public List<LineItem> LineItemsWithManualVariants 

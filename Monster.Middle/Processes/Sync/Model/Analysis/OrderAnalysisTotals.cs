@@ -21,7 +21,7 @@
         public decimal ShopifyCreditTotal { get; set; }
         public decimal ShopifyDebitTotal { get; set; }
         public decimal ShopifyRefundTotal { get; set; }
-        public decimal ShopifyRefundDiscrepancyTotal { get; set; }
+        public decimal ShopifyRefundOverpayment { get; set; }
 
         public string AcumaticaSalesOrderNbr { get; set; }
         public string AcumaticaSalesOrderHref { get; set; }

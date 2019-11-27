@@ -9,8 +9,7 @@ namespace Monster.TaxTransfer
         public int Quantity { get; set; }   
         public decimal UnitPrice { get; set; }
         public decimal LineAmount => Quantity * UnitPrice;
-        public bool IsTaxable { get; set; }
-        public decimal TaxableAmount => IsTaxable ? LineAmount : 0m;
+        public decimal TaxableAmount { get; set; }
         public decimal TaxAmount { get; set; }
 
         public List<TransferTaxLine> TaxLines { get; set; }

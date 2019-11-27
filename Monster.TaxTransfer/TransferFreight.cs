@@ -8,8 +8,7 @@ namespace Monster.TaxTransfer
         public decimal Price { get; set; }
 
         public decimal TaxAmount { get; set; }
-        public bool IsTaxable { get; set; }
-        public decimal TaxableAmount => IsTaxable ? Price : 0m;
+        public decimal TaxableAmount { get; set; }
         public List<TransferTaxLine> TaxLines { get; set; }
 
         public TransferFreight()

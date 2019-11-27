@@ -3,13 +3,19 @@
     public class TransferRefund
     {
         public string ExternalRefNbr { get; set; }
+        
+        public decimal LineItemTotal { get; set; }
+        public decimal LineItemsTax { get; set; }
+        public decimal Freight { get; set; }
+        public decimal FreightTax { get; set; }
+        public decimal TaxableAmount { get; set; }
+
+        public decimal Credit { get; set; }
+        public decimal Debit { get; set; }
         public decimal RefundAmount { get; set; }
 
-        public decimal TotalTaxableLineAmounts { get; set; }
-        public decimal TotalLineItemsTax { get; set; }
-        
-        public decimal TaxableFreightAmount { get; set; }
-        public decimal FreightTax { get; set; }
+        public decimal ExpectedTotal => LineItemTotal + Freight + LineItemsTax + FreightTax;
+        public decimal Overpayment => RefundAmount - ExpectedTotal - Credit + Debit;
     }
 }
 

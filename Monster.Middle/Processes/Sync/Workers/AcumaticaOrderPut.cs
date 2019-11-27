@@ -227,6 +227,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 detail.InventoryID = stockItemRecord.ItemId.ToValue();
                 detail.OrderQty = ((double)lineItem.CancelAdjustedQuantity).ToValue();
                 detail.UnitPrice = ((double) lineItem.price).ToValue();
+                detail.DiscountAmount = ((double) lineItem.Discount).ToValue();
                 detail.ExtendedPrice = ((double)lineItem.NetLineAmount).ToValue();
 
                 detail.TaxCategory 
@@ -254,11 +255,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.Details = new List<SalesOrderDetail>();
 
             salesOrder.OrderType = SalesOrderType.SO.ToValue();
+            salesOrder.CustomerOrder = shopifyOrder.name.ToValue();
+            salesOrder.ExternalRef = $"{shopifyOrder.id}".ToValue();
             salesOrder.Status = SalesOrderStatus.Open.ToValue();
             salesOrder.Hold = false.ToValue();
-            salesOrder.ExternalRef = $"{shopifyOrder.id}".ToValue();
             salesOrder.Description = $"Shopify Order #{shopifyOrder.order_number}".ToValue();
             salesOrder.CustomerID = customer.AcumaticaCustomerId.ToValue();
+
             salesOrder.PaymentMethod = gateway.AcumaticaPaymentMethod.ToValue();
             salesOrder.CashAccount = gateway.AcumaticaCashAccount.ToValue();
 

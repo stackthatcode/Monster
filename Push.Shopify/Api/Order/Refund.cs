@@ -40,10 +40,6 @@ namespace Push.Shopify.Api.Order
         public decimal TotalShippingAdjustment => -ShippingAdjustments.Sum(x => x.amount);
 
         [JsonIgnore]
-        public decimal TotalTaxableShippingAdjustment
-                => -(ShippingAdjustments.Where(x => x.IsTaxable).Sum(x => x.amount));
-
-        [JsonIgnore]
         public decimal TotalShippingAdjustmentTax => -(ShippingAdjustments.Sum(x => x.tax_amount));
 
 
@@ -63,8 +59,13 @@ namespace Push.Shopify.Api.Order
         // Tax 
         //
         [JsonIgnore]
-        public decimal TotalTaxableLineItemAmount
-                => refund_line_items.Where(x => x.IsTaxable).Sum(x => x.subtotal);
+        public decimal TaxableLineAmounts => refund_line_items.Where(x => x.IsTaxable).Sum(x => x.subtotal);
+
+        [JsonIgnore]
+        public decimal TaxableShippingAdj => TotalShippingAdjustmentTax > 0 ? TotalShippingAdjustment : 0m;
+
+        [JsonIgnore]
+        public decimal TotalTaxableAmount => TaxableLineAmounts + TaxableShippingAdj;
 
         [JsonIgnore]
         public decimal TotalLineItemTax => refund_line_items.Sum(x => x.total_tax);

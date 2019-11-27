@@ -36,6 +36,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -45,7 +46,6 @@
     <Compile Include="TransferFreight.cs" />
     <Compile Include="TransferLineItem.cs" />
     <Compile Include="TransferRefund.cs" />
-    <Compile Include="TransferRefundLineItem.cs" />
     <Compile Include="TransferTaxLine.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

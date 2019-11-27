@@ -84,10 +84,14 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return order.UnreleasedTransaction().Any();
         }
 
+        public static decimal PaymentAmount(this ShopifyOrder order)
+        {
+            return (order.PaymentTransaction()?.ShopifyAmount ?? 0m);
+        }
+
         public static decimal NetPaymentAppliedToOrder(this ShopifyOrder order)
         {
-            return (order.PaymentTransaction()?.ShopifyAmount ?? 0m) -
-                    order.RefundTransactions().Sum(x => x.ShopifyAmount);
+            return order.PaymentAmount() - order.RefundTransactions().Sum(x => x.ShopifyAmount);
         }
 
 

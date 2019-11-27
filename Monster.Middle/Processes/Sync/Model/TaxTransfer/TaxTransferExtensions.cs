@@ -17,7 +17,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
             transfer.ExternalRefNbr = shopifyOrder.id.ToString();
 
             transfer.Freight.Price = shopifyOrder.ShippingTotal;
-            transfer.Freight.IsTaxable = shopifyOrder.ShippingTotal > 0 && shopifyOrder.ShippingTax > 0;
+            transfer.Freight.TaxableAmount = shopifyOrder.IsShippingTaxable ? shopifyOrder.ShippingTotal : 0m;
             transfer.Freight.TaxLines = shopifyOrder.shipping_lines.ToTransferTaxLines();
             transfer.Freight.TaxAmount = shopifyOrder.ShippingTax;
 
@@ -28,10 +28,9 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
                 xferLineItem.InventoryID = line_item.sku;
                 xferLineItem.Quantity = line_item.quantity;
                 xferLineItem.UnitPrice = line_item.UnitPriceAfterDiscount;
-                xferLineItem.IsTaxable = line_item.taxable;
+                xferLineItem.TaxableAmount = line_item.TaxableAmount;
                 xferLineItem.TaxAmount = line_item.Tax;
                 xferLineItem.TaxLines = line_item.tax_lines.ToTransferTaxLines();
-
                 transfer.LineItems.Add(xferLineItem);
             }
 
@@ -39,19 +38,18 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
             {
                 var xferRefund = new TransferRefund();
                 xferRefund.ExternalRefNbr = refund.id.ToString();
-                xferRefund.RefundAmount = refund.LineItemTotal;
+                xferRefund.TaxableAmount = refund.TotalTaxableAmount;
+                xferRefund.LineItemTotal = refund.LineItemTotal;
+                xferRefund.LineItemsTax = refund.TotalLineItemTax;
+                xferRefund.Freight = refund.TotalShippingAdjustment;
                 xferRefund.FreightTax = refund.TotalShippingAdjustmentTax;
-                xferRefund.TaxableFreightAmount = refund.TotalTaxableShippingAdjustment;
-                xferRefund.TotalLineItemsTax = refund.TotalLineItemTax;
-                xferRefund.TotalTaxableLineAmounts = refund.TotalTaxableLineItemAmount;
-
+                xferRefund.Credit = refund.CreditMemoTotal;
+                xferRefund.Debit = refund.DebitMemoTotal;
+                xferRefund.RefundAmount = refund.PaymentTotal;
                 transfer.Refunds.Add(xferRefund);
             }
 
-            transfer.RefundCreditTotal = shopifyOrder.RefundCreditTotal;
-            transfer.RefundDebitTotal = shopifyOrder.RefundDebitTotal;
-            transfer.NetPayment = shopifyOrderRecord.NetPaymentAppliedToOrder();
-
+            transfer.Payment = shopifyOrderRecord.PaymentAmount();
             return transfer;
         }
 

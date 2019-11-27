@@ -77,8 +77,8 @@ namespace Monster.TaxProvider.Calc
             result.AddTaxLine(
                 "Sales Order Tax", 
                 0m, 
-                transfer.NetTotalTaxableAmount, 
-                transfer.NetTotalTax + transfer.PaymentDiscrepancy);
+                transfer.NetTaxableAmount, 
+                transfer.NetTotalTax);
             return result;
         }
 
@@ -104,7 +104,7 @@ namespace Monster.TaxProvider.Calc
 
         private CalcResult InvoiceFinalTax(Transfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
         {
-            var taxableTotal = transfer.NetTotalTaxableAmount - otherInvoiceTaxes.TotalTaxableAmount;
+            var taxableTotal = transfer.NetTaxableAmount - otherInvoiceTaxes.TotalTaxableAmount;
             var taxTotal = transfer.NetTotalTax - otherInvoiceTaxes.TotalTaxAmount;
 
             // *** Add Payment Discrepancy
@@ -132,19 +132,21 @@ namespace Monster.TaxProvider.Calc
                 //
                 if (lineItem.ItemCode == null)
                 {
-                    result.AddTaxLine(lineItem.Description, 0m, lineItem.Amount, transfer.NetTotalFreightTax);
+                    result.AddTaxLine(lineItem.Description, 0m, lineItem.Amount, transfer.NetFreightTax);
                     continue;
                 }
 
-                if (transfer.LineItemExists(lineItem.ItemCode) == false)
+                var correctedItemCode = lineItem.ItemCode.Trim();
+
+                if (transfer.LineItemExists(correctedItemCode) == false)
                 {
-                    result.AddError($"Unable to locate Inventory ID {lineItem.ItemCode} in Tax Transfer");
+                    result.AddError($"Unable to locate Inventory ID {correctedItemCode} in Tax Transfer");
                     continue;
                 }
 
                 // Compute Line Item Tax using Tax Lines from Transfer
                 //
-                var lineItemTaxCalc = transfer.PlainLineItemTaxCalc(lineItem.ItemCode, (int)lineItem.Quantity);
+                var lineItemTaxCalc = transfer.PlainLineItemTaxCalc(correctedItemCode, (int)lineItem.Quantity);
 
                 result.AddTaxLine(lineItemTaxCalc.Name, 0m, lineItemTaxCalc.TaxableAmount, lineItemTaxCalc.TaxAmount);
             }

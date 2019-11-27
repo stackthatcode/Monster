@@ -132,7 +132,7 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyCreditTotal = shopifyOrder.RefundCreditTotal;
             output.ShopifyDebitTotal = shopifyOrder.RefundDebitTotal;
             output.ShopifyRefundTotal = shopifyOrder.RefundTotal;
-            output.ShopifyRefundDiscrepancyTotal = shopifyOrder.RefundDiscrepancyTotal;
+            output.ShopifyRefundOverpayment = shopifyOrder.RefundOverpayment;
 
             if (shopifyOrderRecord.ExistsInAcumatica())
             {
