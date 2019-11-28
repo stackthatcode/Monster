@@ -74,11 +74,7 @@ namespace Monster.TaxProvider.Calc
             var transfer = _repository.RetrieveTaxTransfer(context.OrderType, context.OrderNbr);
             var result = new CalcResult();
 
-            result.AddTaxLine(
-                "Sales Order Tax", 
-                0m, 
-                transfer.NetTaxableAmount, 
-                transfer.NetTotalTax);
+            result.AddTaxLine("Sales Order Tax", 0m, transfer.NetTaxableAmount, transfer.NetTotalTax);
             return result;
         }
 

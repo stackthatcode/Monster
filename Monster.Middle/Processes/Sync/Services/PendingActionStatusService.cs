@@ -158,7 +158,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 action.InvoiceNbr = soShipment.AcumaticaInvoiceNbr;
                 action.Action 
                     = soShipment.ShopifyFulfillment == null
-                        ? PendingAction.CreateInAcumatica : PendingAction.None;
+                        ? PendingAction.CreateInShopify : PendingAction.None;
 
                 action.InvoiceAmount = soShipment.AcumaticaInvoiceAmount.Value;
                 action.InvoiceTax = soShipment.AcumaticaInvoiceTax.Value;

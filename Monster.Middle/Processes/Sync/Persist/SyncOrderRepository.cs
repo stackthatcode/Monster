@@ -139,7 +139,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Where(x => x.ShopifyOrder.AcumaticaSalesOrder != null
                             && x.Ignore == false 
                             && (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
-                .Select(x => x.ShopifyOrder.Id)
+                .Select(x => x.ShopifyOrder.ShopifyOrderId)
                 .Distinct()
                 .ToList();
         }
@@ -151,7 +151,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Where(x => x.ShopifyOrder.AcumaticaSalesOrder != null
                             && x.AcumaticaPayment != null
                             && x.AcumaticaPayment.IsReleased == false)
-                .Select(x => x.ShopifyOrder.Id)
+                .Select(x => x.ShopifyOrder.ShopifyOrderId)
                 .Distinct()
                 .ToList();
         }

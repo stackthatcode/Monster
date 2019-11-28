@@ -91,7 +91,9 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public static decimal NetPaymentAppliedToOrder(this ShopifyOrder order)
         {
-            return order.PaymentAmount() - order.RefundTransactions().Sum(x => x.ShopifyAmount);
+            return order.PaymentAmount()
+                   - order.RefundTransactions().Sum(x => x.ShopifyAmount)
+                   - order.ShopifyRefunds.Sum(x => x.DebitAdjustment);
         }
 
 

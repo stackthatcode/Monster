@@ -13,18 +13,17 @@ namespace Monster.TaxTransfer
 
         public decimal TotalPrice => LineItems.Sum(x => x.LineAmount) + Freight.Price 
                                      + LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
+        public decimal TotalTaxableAmount => LineItems.Sum(x => x.TaxableAmount) + Freight.TaxableAmount;
         public decimal TotalTax => LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
+
         public decimal NetTotalPrice => TotalPrice
                                         - Refunds.Sum(x => x.LineItemTotal) 
                                         - Refunds.Sum(x => x.Freight);
-
-        public decimal NetTaxableAmount =>
-                    LineItems.Sum(x => x.TaxableAmount) 
-                    + Freight.TaxableAmount 
-                    - Refunds.Sum(x => x.TaxableAmount);
+        public decimal NetTaxableAmount => TotalTaxableAmount - Refunds.Sum(x => x.TaxableAmount);
         public decimal NetLineItemTax => LineItems.Sum(x => x.TaxAmount) - Refunds.Sum(x => x.LineItemsTax);
         public decimal NetFreightTax => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);
         public decimal NetTotalTax => NetLineItemTax + NetFreightTax;
+
 
         public decimal Payment { get; set; }
         public decimal RefundTotal => Refunds.Sum(x => x.RefundAmount);
@@ -55,7 +54,7 @@ namespace Monster.TaxTransfer
         {
             var output = new TransferTaxCalc();
             var lineItem = LineItem(inventoryID);
-            var taxableAmount = lineItem.TaxableAmount;
+            var taxableAmount = lineItem.OnTheFlyTaxableAmount(quantity);
                 
             output.Name = $"{lineItem.InventoryID} - qty {quantity}";
             output.TaxableAmount = taxableAmount;

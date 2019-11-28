@@ -12,14 +12,18 @@ namespace Monster.TaxTransfer
         public decimal TaxableAmount { get; set; }
         public decimal TaxAmount { get; set; }
         public decimal Total => LineAmount + TaxAmount;
-
+        public bool IsTaxable => TaxAmount > 0m;
         public List<TransferTaxLine> TaxLines { get; set; }
-
 
 
         public TransferLineItem()
         {
             TaxLines = new List<TransferTaxLine>();
+        }
+
+        public decimal OnTheFlyTaxableAmount(int quantity)
+        {
+            return IsTaxable ? quantity * UnitPrice : 0m;
         }
     }
 }

@@ -239,15 +239,6 @@ namespace Monster.Middle.Processes.Sync.Managers
                 x => x.AcumaticaOrderEtcGetState,
                 "End-to-End - Get Orders, Shipments and Customers from Acumatica");
 
-            EndToEndRunner(
-                new Action[]
-                {
-                    () => _shopifyManager.PullInventory(),
-                    () => _acumaticaManager.PullInventory(),
-                },
-                x => x.InventoryRefreshState, 
-                "End-to-End - Refresh Inventory from Shopify and Acumatica");
-
             var settings = _settingsRepository.RetrieveSettings();
 
             if (settings.SyncOrdersEnabled
@@ -285,6 +276,16 @@ namespace Monster.Middle.Processes.Sync.Managers
             if (settings.SyncInventoryEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncInventoryCountsToShopify()))
             {
+
+                EndToEndRunner(
+                    new Action[]
+                    {
+                        () => _shopifyManager.PullInventory(),
+                        () => _acumaticaManager.PullInventory(),
+                    },
+                    x => x.InventoryRefreshState,
+                    "End-to-End - Refresh Inventory from Shopify and Acumatica");
+
                 EndToEndRunner(
                     new Action[] { () => _syncManager.SyncInventoryCountsToShopify() },
                     x => x.ShopifyInventoryPutState, 
@@ -316,11 +317,10 @@ namespace Monster.Middle.Processes.Sync.Managers
                 }
                 catch (Exception ex)
                 {
-
+                    _logger.Error(ex);
                     _stateRepository.UpdateSystemState(stateVariable, StateCode.SystemFault);
                     _executionLogService.Log($"{descriptor} - encountered an error");
-                    _logger.Error(ex);
-                    return;
+                    throw;
                 }
             }
 

@@ -577,13 +577,17 @@
         <!-- /ko  -->
         <!-- /ko  -->
         <!-- /ko  -->
-    </table>
-    
-    <!-- ko with: Transfer -->
-    <table class="table shopify-detail" style="max-width:400px;">
+        <!-- ko with: Transfer -->
+        <tr>
+            <td colspan="8"></td>
+        </tr>
         <tr>
             <td class="shopify-detail-bold">Original Price</td>
             <td data-bind="text: Monster.NumberFormat(TotalPrice)"></td>
+        </tr>
+        <tr>
+            <td class="shopify-detail-bold">Original Taxable Amount</td>
+            <td data-bind="text: Monster.NumberFormat(TotalTaxableAmount)"></td>
         </tr>
         <tr>
             <td class="shopify-detail-bold">Original Tax</td>
@@ -628,8 +632,8 @@
             <td class="shopify-detail-bold">Refund Overpayment</td>
             <td data-bind="text: Monster.NumberFormat(OverpaymentTotal)"></td>
         </tr>
+        <!-- /ko  -->
     </table>
-    <!-- /ko  -->
 
 </script>
 

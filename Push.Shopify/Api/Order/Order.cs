@@ -70,9 +70,6 @@ namespace Push.Shopify.Api.Order
         
 
 
-        [JsonIgnore]
-        public decimal TaxLinesTotal => tax_lines.Sum(x => x.price);
-
         // Shipping Totals
         //
         [JsonIgnore]
@@ -84,29 +81,35 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
 
+        [JsonIgnore]
         public bool IsShippingTaxable => ShippingTotal > 0m && ShippingTax > 0m;
 
         [JsonIgnore]
-        public decimal NetShippingTotal
-                    => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
+        public decimal 
+                NetShippingTotal => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
 
         // Refund Totals
         //
+        [JsonIgnore]
         public decimal RefundLineItemTotal => refunds.Sum(x => x.LineItemTotal);
+        [JsonIgnore]
         public decimal RefundShippingTotal => refunds.Sum(x => x.TotalShippingAdjustment);
+        [JsonIgnore]
         public decimal RefundCreditTotal => refunds.Sum(x => x.CreditMemoTotal);
+        [JsonIgnore]
         public decimal RefundDebitTotal => refunds.Sum(x => x.DebitMemoTotal);
+        [JsonIgnore]
         public decimal RefundTotalTax => refunds.Sum(x => x.TotalTax);
-
+        [JsonIgnore]
         public decimal RefundTotal
                 => RefundLineItemTotal + RefundShippingTotal + RefundCreditTotal + 
                    RefundTotalTax - RefundDebitTotal;
-
+        [JsonIgnore]
         public decimal RefundOverpayment => refunds.Sum(x => x.PaymentTotal) - RefundTotal;
 
 
-        public List<LineItem> LineItemsWithManualVariants 
-            => line_items.Where(x => x.variant_id == null).ToList();
+        public List<LineItem> 
+                LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
 
         public LineItem LineItem(string sku)
         {
@@ -133,11 +136,12 @@ namespace Push.Shopify.Api.Order
         }
 
 
-        public void Initialize()
+        public Order Initialize()
         {
             line_items.ForEach(x => x.Parent = this);
             discount_applications.ForEach(x => x.Parent = this);
             refunds.ForEach(x => x.Parent = this);
+            return this;
         }
 
         public List<DiscountAllocation> FindAllocations(DiscountApplication application)
