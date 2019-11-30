@@ -67,8 +67,8 @@
             </thead>
             <tbody data-bind="foreach: Grid">
             <tr>
-                <td>
-                    <div>
+                <td style="max-width:250px;">
+                    <div class="ellipsis-overflow">
                         <a target="_blank" data-bind="text: ShopifyProductTitle, attr: { href: ShopifyProductUrl }"></a>
                         <span data-bind="if: IsShopifyProductDeleted" class="text-muted">(Deleted)</span>
                     </div>
@@ -98,10 +98,13 @@
                 <td data-bind="text: Monster.NumberFormat(ShopifyVariantPrice)"></td>
                 <td data-bind="text: Monster.NumberFormat(ShopifyVariantAvailQty)"></td>
                 
-                <td><a data-bind="attr: { href: AcumaticaItemUrl }">
-                        <span data-bind="text: AcumaticaItemDesc"></span><br />
-                        <span data-bind="text: AcumaticaItemId"></span>
-                    </a>
+                <td style="max-width:250px;">
+                    <div class="ellipsis-overflow">
+                        <a data-bind="attr: { href: AcumaticaItemUrl }">
+                            <span data-bind="text: AcumaticaItemDesc"></span><br />
+                            <span data-bind="text: AcumaticaItemId"></span>
+                        </a>
+                    </div>
                 </td>
                 <td data-bind="text: AcumaticaItemTax"></td>
                 <td data-bind="text: Monster.NumberFormat(AcumaticaItemPrice)"></td>

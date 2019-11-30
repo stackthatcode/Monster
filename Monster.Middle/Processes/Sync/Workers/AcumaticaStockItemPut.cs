@@ -53,7 +53,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 if (context.CreateInventoryReceipts)
                 {
-                    RunInventoryReceiptImport(shopifyProductId, context.VariantsForInventoryReceipt);
+                    RunInventoryReceiptImport(
+                        context.WarehouseId, shopifyProductId, context.VariantsForInventoryReceipt);
                 }
             }
         }
@@ -139,13 +140,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        public void RunInventoryReceiptImport(long shopifyProductId, List<ShopifyVariant> variants)
+        public void RunInventoryReceiptImport(string warehouseId, long shopifyProductId, List<ShopifyVariant> variants)
         {
             var inventoryForSyncing = variants.SelectMany(x => x.ShopifyInventoryLevels).ToList();
 
             // Push Inventory Receipt to Acumatica API
             //
-            var receipt = BuildReceipt(inventoryForSyncing);
+            var receipt = BuildReceipt(warehouseId, inventoryForSyncing);
             if (receipt.ControlQty.value == 0)
             {
                 // Empty Receipt
@@ -199,10 +200,13 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             var newStockItem = new StockItem();
             newStockItem.InventoryID = variant.StandardizedSku().ToValue();
-            newStockItem.Description = Canonizers.StandardizedStockItemTitle(shopifyProduct, shopifyVariant).ToValue();
+            newStockItem.Description 
+                = Canonizers.StandardizedStockItemTitle(shopifyProduct, shopifyVariant).ToValue();
 
             newStockItem.DefaultPrice = ((double) shopifyVariant.price).ToValue();
             newStockItem.DefaultWarehouseID = defaultWarehouseId.ToValue();
+            newStockItem.WeightUOM = WeightCalc.AcumaticaUnitsOfMeasure.ToValue();
+            newStockItem.DimensionWeight = ((double)shopifyVariant.grams).ToValue();
 
             newStockItem.ItemClass = defaultItemClass.ToValue();
             newStockItem.PostingClass = defaultPostingClass.ToValue();
@@ -210,7 +214,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             return newStockItem;
         }
 
-        private InventoryReceipt BuildReceipt(List<ShopifyInventoryLevel> inventory)
+        private InventoryReceipt BuildReceipt(string warehouseId, List<ShopifyInventoryLevel> inventory)
         {
             var postingDate = DateTime.UtcNow.Date;
 
@@ -233,7 +237,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var unitCogs = (double)inventoryLevel.ShopifyVariant.ShopifyCost;
 
                 var qty = (double) inventoryLevel.ShopifyAvailableQuantity;
-                var warehouseId = location.AcumaticaWarehouseId();
                 
                 var detail = new InventoryReceiptDetails();
                 detail.InventoryID = stockItemId.ToValue();

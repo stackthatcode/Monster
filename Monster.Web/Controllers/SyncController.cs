@@ -25,7 +25,6 @@ namespace Monster.Web.Controllers
 {
     [IdentityProcessor]
     [Authorize(Roles = "ADMIN, USER")]
-
     public class SyncController : Controller
     {
         private readonly StateRepository _stateRepository;
@@ -82,7 +81,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult StartEndToEnd()
         {
-            _oneTimeJobService.EndToEndSync();
+            _oneTimeJobService.EndToEndSyncStart();
             //_recurringJobService.StartEndToEndSync();
 
             return JsonNetResult.Success();
@@ -91,7 +90,7 @@ namespace Monster.Web.Controllers
         [HttpPost]
         public ActionResult PauseEndToEnd()
         {
-            //_recurringJobService.KillEndToEndSync();
+            _oneTimeJobService.EndToEndSyncStop();
 
             return JsonNetResult.Success();
         }
@@ -325,24 +324,30 @@ namespace Monster.Web.Controllers
         public ActionResult ProductDetail(long shopifyProductId)
         {
             var product = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
-            var output = ShopifyProductModel.Make(
-                product, _shopifyUrlService.ShopifyProductUrl, includeVariantGraph: true);
+            var output = ShopifyProductModel
+                .Make(product, _shopifyUrlService.ShopifyProductUrl, includeVariantGraph: true);
             return new JsonNetResult(output);
         }
 
         [HttpGet]
         public ActionResult SyncedWarehouses()
         {
-            var locations = _syncInventoryRepository.RetrieveLocations();
-            var output = LocationsModel.Make(locations);
-            return new JsonNetResult(output);
+            var warehouses = 
+                _syncInventoryRepository
+                    .RetrieveMatchedWarehouses()
+                    .Select(x => x.AcumaticaWarehouseId)
+                    .ToList();
+            return new JsonNetResult(warehouses);
         }
 
         [HttpPost]
         public ActionResult RunImportIntoAcumatica(
-                bool createInventoryReceipt, bool enableInventorySync, List<long> selectedSPIds)
+                bool createInventoryReceipt, string warehouseId, bool enableInventorySync, List<long> selectedSPIds)
         {
-            _oneTimeJobService.ImportAcumaticaStockItems(selectedSPIds, createInventoryReceipt, enableInventorySync);
+            _oneTimeJobService
+                .ImportAcumaticaStockItems(
+                    selectedSPIds, createInventoryReceipt, warehouseId, enableInventorySync);
+
             return JsonNetResult.Success();
         }
         

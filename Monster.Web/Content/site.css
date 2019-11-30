@@ -164,6 +164,11 @@ p {
     color: #777777;
 }
 
+.ellipsis-overflow {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 
 /* AJAX Spinner */

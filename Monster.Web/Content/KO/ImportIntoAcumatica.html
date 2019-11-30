@@ -158,7 +158,7 @@
             <tbody data-bind="foreach: VisibleData">
             <tr>
                 <td style="padding-left:0;">
-                    <div>
+                    <div class="ellipsis-overflow" style="max-width:400px;">
                         <a target="_blank" data-bind="attr: { href: ShopifyUrl }, text: ProductTitle"></a>
                     </div>
                     <div data-bind="text: Vendor"></div>
@@ -167,7 +167,7 @@
                     </div>
                 </td>
                 <td>
-                    <div>
+                    <div style="max-width:400px;">
                         <a href="#" data-bind="click: ProductDetailClick">
                             <span data-bind="text: VariantCount"></span>
                             Shopify Variants
@@ -179,7 +179,7 @@
                     </div>
                 </td>
 
-                <td style="text-align:right; padding-right:0; font-size:14px;">
+                <td style="text-align:right; padding-right:0; font-size:14px; width:30%;">
                     <div data-bind="if: IsSelected">
                         <a href="#" data-bind="click: UnselectClick"
                            class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
@@ -256,6 +256,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="confirm-import-modalLabel">Confirm Stock Item Import into Acumatica</h5>
+                    
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -263,9 +264,7 @@
                 <div class="modal-body">
                     <div class="mb-4">
                         <div class="mb-2">
-                            <label>
-                                Ready to proceed with importing into Acumatica:
-                            </label>
+                            <label>Ready to proceed with importing into Acumatica:</label>
                         </div>
 
                         <span class="modal-heavy-text">
@@ -274,26 +273,24 @@
                         </span>
                     </div>
 
-                    <div data-bind="if: ShowInventoryReceiptOptions">
-                        <div class="mb-4">
-                            <label>Create Inventory Receipts for new Stock Items</label>
+                    <div class="mb-4">
+                        <label>Create Inventory Receipts for new Stock Items</label>
 
-                            <select class="form-control"
-                                    data-bind="options: InventoryReceiptOptions,
-                                                value: InventoryReceiptChoice,
-                                                optionsText: 'Text',
-                                                optionsValue: 'Value'"></select>
-                        </div>
-                    </div>
-
-                    <div data-bind="ifnot: ShowInventoryReceiptOptions">
-                        <div class="alert alert-warning" style="text-align: left">
-                            NOTE: Your configuration contains Locations that are mapped to multiple Warehouses.
-                            Thus, it will not be possible to automatically create Warehouse Receipts on Product Import.
-                        </div>
+                        <select class="form-control"
+                                data-bind="options: InventoryReceiptOptions,
+                                            value: InventoryReceiptChoice,
+                                            optionsText: 'Text',
+                                            optionsValue: 'Value'"></select>
                     </div>
 
                     <div data-bind="if: ShowInventorySyncOptions">
+                        <div class="mb-4">
+                            <label>Select a Warehouse</label>
+                            <select class="form-control"
+                                    data-bind="options: Warehouses,
+                                            value: SelectedWarehouse"></select>
+                        </div>
+
                         <div class="mb-4">
                             <label>Inventory Synchronization</label>
                             <select class="form-control"
@@ -400,7 +397,11 @@
         var self = this;
 
         self.SelectedProducts = ko.observableArray([]);
-        
+
+        self.Warehouses = ko.observableArray([]);
+
+        self.SelectedWarehouse = ko.observable();
+
         self.InventoryReceiptOptions = ko.observableArray([
             { Text: 'Do not create Inventory Receipts', Value: 0 },
             { Text: 'Create Inventory Receipts', Value: 1 },
@@ -411,30 +412,14 @@
             { Text: 'Automatically Enable Sync', Value: 1 },
         ]);
 
-
         // State
         //
         self.InventoryReceiptChoice = ko.observable(0);
         self.InventorySyncChoice = ko.observable(0);
-        self.AnyMultipleWarehouseMapping = ko.observable();
-
-        // Computed State
-        //
-        self.ShowInventoryReceiptOptions = ko.computed(function () {
-            return self.AnyMultipleWarehouseMapping() == false;
-        });
-
-        // If there are Multiple Warehouse mappings, do not allow creation of Inventory Receipt
-        //
-        self.AnyMultipleWarehouseMapping.subscribe(function () {
-            if (self.AnyMultipleWarehouseMapping()) {
-                self.InventorySyncChoice(false);
-            }
-        });
 
         // If the user chooses not to create Warehouse Receipts, they can Enable Sync
         self.ShowInventorySyncOptions = ko.computed(function () {
-            return self.InventoryReceiptChoice() == false;
+            return !self.InventoryReceiptChoice();
         });
 
         self.ProductCount = ko.computed(function () { return self.SelectedProducts().length; });
@@ -457,7 +442,7 @@
                 },
                 function (response) {
                     //console.log(response);
-                    self.AnyMultipleWarehouseMapping(response.AnyMultipleWarehouseMapping);
+                    self.Warehouses(response);
                     $('#confirm-import-modal').modal('show');
                 });
         };
@@ -471,7 +456,8 @@
                             return x.ShopifyProductId;
                         }).toArray();
 
-                    var model = {
+                var model = {
+                        warehouse: self.SelectedWarehouse(),
                         createInventoryReceipt: self.InventoryReceiptChoice(),
                         enableInventorySync: self.InventorySyncChoice(),
                         selectedSPIds: selectedSPIds,

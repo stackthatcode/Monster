@@ -241,7 +241,6 @@
     <Compile Include="Models\Sync\ShopifyProductModel.cs" />
     <Compile Include="Models\Sync\DisplayFilter.cs" />
     <Compile Include="Models\Sync\OrderSyncSummary.cs" />
-    <Compile Include="Models\Sync\LocationModel.cs" />
     <Compile Include="Models\ShopifyAuth\ShopifyDomainModel.cs" />
     <Compile Include="Models\ShopifyAuth\ReturnModel.cs" />
     <Compile Include="Models\Config\WarehouseSyncStatusModel.cs" />

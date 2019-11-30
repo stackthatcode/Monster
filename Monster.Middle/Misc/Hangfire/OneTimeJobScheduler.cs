@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using BackgroundJob = Hangfire.BackgroundJob;
@@ -10,14 +11,16 @@ namespace Monster.Middle.Misc.Hangfire
     {
         private readonly InstanceContext _tenantContext;
         private readonly JobMonitoringService _jobMonitoringService;
-
+        private readonly ExecutionLogService _executionLogService;
 
         public OneTimeJobScheduler(
                 InstanceContext tenantContext, 
-                JobMonitoringService jobMonitoringService)
+                JobMonitoringService jobMonitoringService, 
+                ExecutionLogService executionLogService)
         {
             _tenantContext = tenantContext;
             _jobMonitoringService = jobMonitoringService;
+            _executionLogService = executionLogService;
         }
 
         public void ConnectToAcumatica()
@@ -75,13 +78,15 @@ namespace Monster.Middle.Misc.Hangfire
             _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
         
-        public void ImportAcumaticaStockItems(List<long> spids, bool createReceipts, bool automaticEnable)
+        public void ImportAcumaticaStockItems(
+                List<long> spids, bool createReceipts, string warehouseId, bool automaticEnable)
         {
             var context = new AcumaticaStockItemImportContext
             {
                 ShopifyProductIds = spids,
                 CreateInventoryReceipts = createReceipts,
                 IsSyncEnabled = automaticEnable,
+                WarehouseId = warehouseId
             };
 
             var monitor = _jobMonitoringService
@@ -115,7 +120,7 @@ namespace Monster.Middle.Misc.Hangfire
             _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
-        public void EndToEndSync()
+        public void EndToEndSyncStart()
         {
             var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.EndToEndSync, false);
 
@@ -123,6 +128,16 @@ namespace Monster.Middle.Misc.Hangfire
                 x => x.EndToEndSync(_tenantContext.InstanceId, monitor.Id));
 
             _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+        }
+
+        public void EndToEndSyncStop()
+        {
+            var monitor = _jobMonitoringService.RetrieveMonitorByTypeNoTracking(BackgroundJobType.EndToEndSync);
+            if (monitor != null)
+            {
+                _jobMonitoringService.SendKillSignal(monitor.Id);
+                _executionLogService.Log($"End-to-End Sync - recurring job - stop signal received");
+            }
         }
     }
 }

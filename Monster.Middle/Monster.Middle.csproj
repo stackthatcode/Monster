@@ -154,6 +154,7 @@
     <Compile Include="Persist\Instance\MiscPersistContext.cs" />
     <Compile Include="Misc\Logging\LogLevel.cs" />
     <Compile Include="Misc\State\StateExtensions.cs" />
+    <Compile Include="Processes\Sync\Misc\WeightCalc.cs" />
     <Compile Include="Processes\Sync\Misc\LogDescriptors.cs" />
     <Compile Include="Processes\Sync\Model\Analysis\Extensions.cs" />
     <Compile Include="Processes\Sync\Model\Analysis\OrderAnalysisTotals.cs" />

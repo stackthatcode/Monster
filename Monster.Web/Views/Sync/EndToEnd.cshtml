@@ -404,7 +404,7 @@
                 },
                 function (response) {
                     self.Close();
-                    Monster.Events.publish(eventKeys.RefreshSyncSettings);
+                    Monster.Events.publish(Monster.JobStatusRunningComplete);
                 });
         };
 

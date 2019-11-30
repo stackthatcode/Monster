@@ -7,7 +7,9 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
     {
         public List<long> ShopifyProductIds { get; set; }
         public bool CreateInventoryReceipts { get; set; }
+        public string WarehouseId { get; set; }
         public bool IsSyncEnabled { get; set; }
+
 
         // Added as a result of auto-matches
         //
