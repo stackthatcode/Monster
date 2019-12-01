@@ -63,7 +63,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 if (!readyToSync.Success)
                 {
                     _logger.Debug($"Skipping PriceUpdate for {stockItem.ItemId}");
-                    return;
+                    continue;
                 }
 
                 _executionLogService.Log(LogBuilder.UpdateShopifyPrice(stockItem));
@@ -71,7 +71,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        public void PriceAndCostUpdate(AcumaticaStockItem stockItem, bool isNewProduct = false)
+        public void PriceAndCostUpdate(AcumaticaStockItem stockItem, bool setTracking = false)
         {
             var settings = _settingsRepository.RetrieveSettings();
             var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
@@ -91,7 +91,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             var price = (decimal)stockItemObj.DefaultPrice.value;
             var grams = stockItemObj.DimensionWeight.value.ToShopifyGrams();
             var taxable = stockItemRecord.IsTaxable(settings).Value;
-            
+            var costOfGoods = stockItem.AcumaticaLastCost;
+
             // Push the price update via Variant API
             //
             var priceDto = VariantPriceUpdateParent.Make(variantShopifyId, price, taxable, grams);
@@ -99,29 +100,42 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Push the cost of goods via Inventory API
             //
-            var cogs = stockItem.AcumaticaLastCost;
-            var costDto = new
-            {
-                inventory_item = new
-                {
-                    id = variantRecord.ShopifyInventoryItemId,
-                    cost = cogs,
-                }
-            };
+            string content;
 
-            _inventoryApi.SetInventoryCost(variantRecord.ShopifyInventoryItemId, costDto.SerializeToJson());
+            if (setTracking)
+            {
+                var inventoryItem = new InventoryItem();
+                inventoryItem.id = variantRecord.ShopifyInventoryItemId;
+                inventoryItem.cost = costOfGoods;
+                inventoryItem.tracked = true;
+                content = new { inventory_item = inventoryItem }.SerializeToJson();
+            }
+            else
+            {
+                var inventoryItem = new InventoryItemUpdate();
+                inventoryItem.id = variantRecord.ShopifyInventoryItemId;
+                inventoryItem.cost = costOfGoods;
+                content = new { inventory_item = inventoryItem }.SerializeToJson();
+            }
+
+            _inventoryApi.SetInventoryCost(variantRecord.ShopifyInventoryItemId, content);
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
-                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, price, taxable, cogs, grams);
+                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, price, taxable, costOfGoods, grams);
                 _executionLogService.Log(log);
 
                 stockItem.IsPriceSynced = true;
                 stockItem.LastUpdated = DateTime.UtcNow;
 
                 variantRecord.ShopifyPrice = price;
-                variantRecord.ShopifyCost = cogs;
+                variantRecord.ShopifyCost = costOfGoods;
                 variantRecord.ShopifyIsTaxable = taxable;
+
+                if (setTracking)
+                {
+                    variantRecord.ShopifyIsTracked = true;
+                }
 
                 _syncInventoryRepository.SaveChanges();
                 transaction.Commit();

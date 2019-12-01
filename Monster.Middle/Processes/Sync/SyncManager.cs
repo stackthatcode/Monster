@@ -178,7 +178,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
         {
-            _shopifyProductVariantPut.Run(context);
+            _shopifyProductVariantPut.RunNewProduct(context);
         }
     }
 }

@@ -133,7 +133,7 @@
     <Compile Include="Api\Product\Product.cs" />
     <Compile Include="Api\Product\ProductNew.cs" />
     <Compile Include="Api\Product\ProductVariantUpdate.cs" />
-    <Compile Include="Api\Product\VariantNew.cs" />
+    <Compile Include="Api\Product\ShopifyVariantNew.cs" />
     <Compile Include="Api\Product\VariantPriceUpdate.cs" />
     <Compile Include="Api\SearchFilter.cs" />
     <Compile Include="Api\Product\Variant.cs" />

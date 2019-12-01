@@ -36,5 +36,10 @@ namespace Push.Shopify.Api.Product
         [JsonIgnore]
         public Product Parent { get; set; }
     }
+
+    public class VariantParent
+    {
+        public Variant variant { get; set; }
+    }
 }
 

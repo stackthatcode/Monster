@@ -1,4 +1,5 @@
 ﻿using Monster.Middle.Persist.Instance;
+using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Misc
 {
@@ -13,6 +14,11 @@ namespace Monster.Middle.Processes.Sync.Misc
         public static string LogDescriptor(this ShopifyVariant variant)
         {
             return $"Shopify Variant {variant.ShopifySku} ({variant.ShopifyVariantId})";
+        }
+
+        public static string LogDescriptor(this ShopifyVariantNew variant)
+        {
+            return $"Shopify Variant {variant.sku} (new)";
         }
 
         public static string LogDescriptor(this ShopifyCustomer customer)

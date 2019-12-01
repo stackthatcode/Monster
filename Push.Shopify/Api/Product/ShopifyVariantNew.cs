@@ -1,8 +1,9 @@
 ﻿namespace Push.Shopify.Api.Product
 {
-    public class VariantNew
+    public class ShopifyVariantNew
     {
         public string sku { get; set; }
+        public string title { get; set; }
         public string option1 { get; set; }
         public string option2 { get; set; }
         public string option3 { get; set; }

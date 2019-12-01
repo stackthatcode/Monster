@@ -1,4 +1,5 @@
 ﻿using Monster.Middle.Persist.Instance;
+using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Misc
 {
@@ -19,7 +20,7 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Creating Shopify Fulfillment for {shipmentRef.LogDescriptor()}";
         }
 
-        public static string CreateShopifyVariant(AcumaticaStockItem item)
+        public static string CreatingShopifyVariant(ShopifyVariantNew item)
         {
             return $"Creating Shopify Variant for {item.LogDescriptor()}";
         }

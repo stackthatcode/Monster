@@ -175,6 +175,14 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyVariantId == shopifyVariantId && x.ShopifySku == sku);
         }
 
+        public ShopifyVariant RetrieveVariant(long shopifyVariantId)
+        {
+            return Entities
+                .ShopifyVariants
+                .Include(x => x.AcumaticaStockItems)
+                .FirstOrDefault(x => x.ShopifyVariantId == shopifyVariantId);
+        }
+
         public ShopifyVariant RetrieveLiveVariant(string sku)
         {
             return Entities

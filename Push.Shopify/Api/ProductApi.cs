@@ -58,10 +58,10 @@ namespace Push.Shopify.Api
             return clientResponse.Body;
         }
 
-        public virtual string Update(long productId, string json)
+        public virtual string AddVariant(long productId, string json)
         {
-            var path = $"/admin/products/{productId}.json";
-            var clientResponse = _httpClient.Put(path, json);
+            var path = $"/admin/products/{productId}/variants.json";
+            var clientResponse = _httpClient.Post(path, json);
             return clientResponse.Body;
         }
 

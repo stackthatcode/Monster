@@ -56,12 +56,12 @@ SELECT	t1.MonsterId,
 		t1.ItemId,
 		t1.IsPriceSynced,
 		t2.AcumaticaWarehouseId,
-		t2.AcumaticaQtyOnHand,
+		t2.AcumaticaAvailQty,
 		t2.IsInventorySynced,
 		t1.LastUpdated AS StockItemLastUpdated,
 		t2.LastUpdated AS WarehouseDetailsLastUpdated
 FROM AcumaticaStockItem t1
-	LEFT JOIN AcumaticaWarehouseDetails t2
+	LEFT JOIN AcumaticaInventory t2
 		ON t2.ParentMonsterId = t1.MonsterId
 GO
 
@@ -79,11 +79,10 @@ SELECT t1.ShopifyVariantId,
 	t1.LastUpdated AS VariantLastUpdated,
 	t3.LastUpdated AS StockItemLastUpdated
 FROM ShopifyVariant t1
-	FULL OUTER JOIN ShopAcuItemSync t2
-		ON t2.ShopifyVariantMonsterId = t1.MonsterId
 	FULL OUTER JOIN AcumaticaStockItem t3
-		ON t3.MonsterId = t2.AcumaticaItemMonsterId
+		ON t3.ShopifyVariantMonsterId = t1.MonsterId
 GO
+
 
 DROP VIEW IF EXISTS vw_SyncVariantsAndStockItems_Alt
 GO
@@ -91,14 +90,12 @@ CREATE VIEW vw_SyncVariantsAndStockItems_Alt
 AS
 	SELECT	t2.MonsterId AS MonsterVariantId, t2.ShopifyProductId, t2.ShopifyTitle AS ShopifyProductTitle, t2.ShopifyVendor, t2.ShopifyProductType,
 			t1.ShopifyVariantId, t1.ShopifySku, t1.ShopifyTitle AS ShopifyVariantTitle, t4.ItemId AS AcumaticaItemId,
-			t4.AcumaticaDescription, t3.IsSyncEnabled
+			t4.AcumaticaDescription
 	FROM ShopifyVariant t1 
 		INNER JOIN ShopifyProduct t2
 			ON t1.ParentMonsterId = t2.MonsterId
-		INNER JOIN ShopAcuItemSync t3
-			ON t1.MonsterId = t3.ShopifyVariantMonsterId
 		INNER JOIN AcumaticaStockItem t4
-			ON t3.AcumaticaItemMonsterId = t4.MonsterId;		
+			ON t1.MonsterId = t4.ShopifyVariantMonsterId;		
 GO
 
 DROP VIEW IF EXISTS vw_SyncAcumaticaInventory
@@ -106,15 +103,13 @@ GO
 CREATE VIEW vw_SyncAcumaticaInventory
 AS
 SELECT t1.MonsterId,
+	t1.ShopifyVariantMonsterId,
 	t1.ItemId AS AcumaticaItemId, 
 	t3.AcumaticaWarehouseId, 
-	t3.AcumaticaQtyOnHand, 
-	t4.Id AS WarehouseSyncId,
-	t2.Id AS ItemSyncId
+	t3.AcumaticaAvailQty, 
+	t4.Id AS WarehouseSyncId
 FROM AcumaticaStockItem t1
-	FULL OUTER JOIN ShopAcuItemSync t2
-		ON t1.MonsterId = t2.AcumaticaItemMonsterId
-	FULL OUTER JOIN AcumaticaWarehouseDetails t3
+	FULL OUTER JOIN AcumaticaInventory t3
 		ON t1.MonsterId = t3.ParentMonsterId
 	FULL OUTER JOIN ShopAcuWarehouseSync t4
 		ON t3.WarehouseMonsterId = t4.AcumaticaWarehouseMonsterId;
@@ -131,15 +126,12 @@ SELECT	t1.MonsterId AS MonsterVariantId,
 		t2.ShopifyAvailableQuantity, 
 		t2.ShopifyLocationId,
 		t5.ShopifyLocationName,
-		t3.Id AS LocationSyncId, 
-		t4.Id AS VariantSyncId
+		t3.Id AS LocationSyncId
 FROM ShopifyVariant t1
 	FULL OUTER JOIN ShopifyInventoryLevel t2
 		ON t1.MonsterId = t2.ParentMonsterId
 	FULL OUTER JOIN ShopAcuWarehouseSync t3
 		ON t2.LocationMonsterId = t3.ShopifyLocationMonsterId
-	FULL OUTER JOIN ShopAcuItemSync t4
-		ON t1.MonsterId = t4.ShopifyVariantMonsterId 
 	INNER JOIN ShopifyLocation t5
 		ON t2.LocationMonsterId = t5.MonsterId;
 GO
@@ -156,12 +148,12 @@ SELECT t1.ShopifySku,
 	t1.ShopifyLocationName,
 	t2.AcumaticaWarehouseId,
 	t1.ShopifyAvailableQuantity,
-	t2.AcumaticaQtyOnHand,
-	t1.VariantSyncId AS SyncRecordId
+	t2.AcumaticaAvailQty
 FROM vw_SyncShopifyInventory t1
 	FULL OUTER JOIN vw_SyncAcumaticaInventory t2
-		ON t1.VariantSyncId = t2.ItemSyncId
+		ON t1.MonsterVariantId = t2.ShopifyVariantMonsterId
 GO
+
 
 DROP VIEW IF EXISTS vw_SyncInventoryLevelAndReceipts
 GO

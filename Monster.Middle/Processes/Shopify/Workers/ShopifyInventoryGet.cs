@@ -174,21 +174,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 
             if (existing == null)
             {
-                var data = new ShopifyVariant();
-
-                data.ParentMonsterId = parentProductId;
-                data.ShopifyVariantId = variant.id;
-                data.ShopifySku = variant.sku;
-                data.ShopifyTitle = variant.title ?? "";
-                data.ShopifyInventoryItemId = variant.inventory_item_id;
-                data.ShopifyVariantJson = variant.SerializeToJson();
-                data.ShopifyIsTaxable = variant.taxable;
-                data.ShopifyPrice = (decimal)variant.price;
-                data.IsMissing = false;
-                data.DateCreated = DateTime.UtcNow;
-                data.LastUpdated = DateTime.UtcNow;
-                
-                _inventoryRepository.InsertVariant(data);
+                CreateNewVariantRecord(parentProductId, variant);
             }
             else
             {
@@ -202,6 +188,25 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 _inventoryRepository.SaveChanges();
             }
+        }
+
+        public ShopifyVariant CreateNewVariantRecord(long parentProductId, Variant variant)
+        {
+            var data = new ShopifyVariant();
+            data.ParentMonsterId = parentProductId;
+            data.ShopifyVariantId = variant.id;
+            data.ShopifySku = variant.sku;
+            data.ShopifyTitle = variant.title ?? "";
+            data.ShopifyInventoryItemId = variant.inventory_item_id;
+            data.ShopifyVariantJson = variant.SerializeToJson();
+            data.ShopifyIsTaxable = variant.taxable;
+            data.ShopifyPrice = (decimal) variant.price;
+            data.IsMissing = false;
+            data.DateCreated = DateTime.UtcNow;
+            data.LastUpdated = DateTime.UtcNow;
+
+            _inventoryRepository.InsertVariant(data);
+            return data;
         }
 
         public void ProcessMissingVariants(long parentMonsterId, Product shopifyProduct)
