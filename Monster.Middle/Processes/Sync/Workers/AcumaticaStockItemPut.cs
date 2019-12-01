@@ -82,7 +82,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (stockItem != null)
             {
-                if (stockItem.IsSynced())
+                if (stockItem.IsMatched())
                 {
                     var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
                     _logService.Log(msg);
@@ -109,7 +109,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             _logService.Log(LogBuilder.CreateStockItem(variant));
 
-            var newStockItem = BuildNewStockItem(variant);
+            var newStockItem = BuildNewStockItem(context.WarehouseId, variant);
             var newStockItemJson = newStockItem.SerializeToJson();
 
             // Push to Acumatica API
@@ -184,16 +184,13 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
-        private StockItem BuildNewStockItem(ShopifyVariant variant)
+        private StockItem BuildNewStockItem(string warehouseId, ShopifyVariant variant)
         {
             var settings = _settingsRepository.RetrieveSettings();
             var defaultItemClass = settings.AcumaticaDefaultItemClass;
             var defaultPostingClass = settings.AcumaticaDefaultPostingClass;
 
             var defaultTaxCategory = variant.ShopifyIsTaxable.TaxCategory(settings);
-
-            var warehouses = _inventoryRepository.RetrieveWarehouses();
-            var defaultWarehouseId = warehouses.First().AcumaticaWarehouseId;
 
             var shopifyVariant = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
             var shopifyProduct = variant.ShopifyProduct.ShopifyJson.DeserializeFromJson<Product>();
@@ -204,13 +201,15 @@ namespace Monster.Middle.Processes.Sync.Workers
                 = Canonizers.StandardizedStockItemTitle(shopifyProduct, shopifyVariant).ToValue();
 
             newStockItem.DefaultPrice = ((double) shopifyVariant.price).ToValue();
-            newStockItem.DefaultWarehouseID = defaultWarehouseId.ToValue();
-            newStockItem.WeightUOM = WeightCalc.AcumaticaUnitsOfMeasure.ToValue();
-            newStockItem.DimensionWeight = ((double)shopifyVariant.grams).ToValue();
+            newStockItem.DefaultWarehouseID = warehouseId.ToValue();
 
+            var dimensionWeight = (double) shopifyVariant.grams.ToAcumaticaOunces();
+            // newStockItem.WeightUOM = WeightCalc.AcumaticaUnitsOfMeasure.ToValue();
+            newStockItem.DimensionWeight = dimensionWeight.ToValue();
             newStockItem.ItemClass = defaultItemClass.ToValue();
             newStockItem.PostingClass = defaultPostingClass.ToValue();
             newStockItem.TaxCategory = defaultTaxCategory.ToValue();
+
             return newStockItem;
         }
 

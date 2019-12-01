@@ -286,7 +286,8 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .AcumaticaStockItems
                 .Include(x => x.AcumaticaInventories)
                 .Include(x => x.ShopifyVariant)
-                .Where(x => x.IsSyncEnabled == true
+                .Where(x => x.ShopifyVariant.IsMissing == false
+                            && x.IsSyncEnabled == true
                             && x.AcumaticaInventories.Any(y => y.IsInventorySynced == false))
                 .ToList();
         }

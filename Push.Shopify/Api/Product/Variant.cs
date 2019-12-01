@@ -30,15 +30,8 @@ namespace Push.Shopify.Api.Product
         
         public string inventory_policy { get; set; }
         public string inventory_management { get; set; }
-
-        public bool IsTracked => inventory_management == "shopify";
-
         public long inventory_item_id { get; set; }
 
-        [Obsolete]
-        public int inventory_quantity { get; set; }
-        [Obsolete]
-        public int old_inventory_quantity { get; set; }
 
         [JsonIgnore]
         public Product Parent { get; set; }

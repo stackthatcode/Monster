@@ -184,7 +184,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 data.ShopifyVariantJson = variant.SerializeToJson();
                 data.ShopifyIsTaxable = variant.taxable;
                 data.ShopifyPrice = (decimal)variant.price;
-                data.ShopifyIsTracked = variant.IsTracked;
                 data.IsMissing = false;
                 data.DateCreated = DateTime.UtcNow;
                 data.LastUpdated = DateTime.UtcNow;
@@ -197,7 +196,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existing.ShopifyTitle = variant.title ?? "";
                 existing.ShopifyVariantJson = variant.SerializeToJson();
                 existing.ShopifyIsTaxable = variant.taxable;
-                existing.ShopifyIsTracked = variant.IsTracked;
                 existing.ShopifyPrice = (decimal)variant.price;
 
                 existing.LastUpdated = DateTime.UtcNow;
@@ -291,19 +289,18 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             foreach (var variant in variants)
             {
-                var variantItem =
-                    inventoryItems
-                        .First(x => x.id == variant.ShopifyInventoryItemId);
+                var inventoryItem = inventoryItems.First(x => x.id == variant.ShopifyInventoryItemId);
 
-                var variantLevels =
+                var inventoryLevel =
                     inventoryLevels
                         .Where(x => x.inventory_item_id == variant.ShopifyInventoryItemId)
                         .ToList();
 
-                variant.ShopifyCost = variantItem.cost ?? 0m;
+                variant.ShopifyCost = inventoryItem.cost ?? 0m;
+                variant.ShopifyIsTracked = inventoryItem.tracked == true;
                 _inventoryRepository.SaveChanges();
                 
-                UpsertInventory(variant, variantItem, variantLevels);
+                UpsertInventory(variant, inventoryItem, inventoryLevel);
             }
         }
 

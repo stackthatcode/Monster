@@ -4,9 +4,15 @@
     {
         public const string AcumaticaUnitsOfMeasure = "OZ";
 
-        public static decimal ShopifyGramsToAcumaticaOz(this int shopifyGrams)
+        public static decimal ToAcumaticaOunces(this int shopifyGrams)
         {
             return ((decimal)shopifyGrams) * 0.035274m;
         }
+
+        public static int ToShopifyGrams(this double acumaticaWeightOz)
+        {
+            return (int)(acumaticaWeightOz * 28.3495d);
+        }
     }
 }
+

@@ -13,17 +13,22 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         public bool IsStockItemPriceSynced { get; set; }
         public bool IsStockItemInventorySynced { get; set; }
+
         public long? ShopifyVariantId { get; set; }
         public string ShopifyVariantSku { get; set; }
+        public bool ShopifyInventoryIsTracked { get; set; }
+
         public bool IsShopifyVariantMissing { get; set; }
         public bool IsTaxCategoryValid { get; set; }
 
 
 
         // Computed
+        //
         public bool IsMatched => ShopifyVariantId.HasValue;
         public bool IsSkuMismatchedWithItemId
             => IsMatched && StockItemId.StandardizedSku() != ShopifyVariantSku.StandardizedSku();
+
 
 
         public ValidationResult ReadyToSyncPrice()
@@ -42,7 +47,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
             var validation = new Validation<InventorySyncStatus>()
                 .Add(x => x.IsMatched, "Stock Item is not matched with a Shopify Variant")
                 .Add(x => !x.IsShopifyVariantMissing, $"Matched Shopify Variant is missing")
-                .Add(x => !x.IsSkuMismatchedWithItemId, $"Shopify Variant SKU is mismatched with Acumatica Stock Item ID");
+                .Add(x => !x.IsSkuMismatchedWithItemId, $"Shopify Variant SKU is mismatched with Acumatica Stock Item ID")
+                .Add(x => x.ShopifyInventoryIsTracked, "Shopify Inventory is not tracked");
 
             return validation.Run(this);
         }

@@ -58,9 +58,11 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Updating Acumatica Sales Order from {order.LogDescriptor()}";
         }
 
-        public static string UpdateShopifyVariantPrice(string sku, decimal price, bool taxable, decimal cogs)
+        public static string UpdateShopifyVariantPrice(
+                string sku, decimal price, bool taxable, decimal cogs, int grams)
         {
-            return $"Updated Shopify Variant {sku} - price: {price}, taxable: {taxable}, CoGS: {cogs}";
+            return $"Updated Shopify Variant {sku} - " +
+                $"price: {price}, taxable: {taxable}, CoGS: {cogs}, grams: {grams}";
         }
 
         public static string CreateAcumaticaPayment(ShopifyTransaction transaction)

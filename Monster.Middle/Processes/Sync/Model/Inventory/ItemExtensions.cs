@@ -13,7 +13,7 @@ namespace Monster.Middle.Processes.Sync.Model.Inventory
             return input.AcumaticaStockItems.FirstOrDefault();
         }
 
-        public static bool IsSynced(this AcumaticaStockItem input)
+        public static bool IsMatched(this AcumaticaStockItem input)
         {
             return input.ShopifyVariant != null;
         }

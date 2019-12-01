@@ -9,6 +9,7 @@ using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
+using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
@@ -23,19 +24,22 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly ExecutionLogService _logService;
         private readonly ProductApi _productApi;
         private readonly ShopifyInventoryGet _shopifyInventoryGet;
+        private readonly ShopifyInventoryPut _shopifyInventoryPut;
 
         public ShopifyProductVariantPut(
                 SyncInventoryRepository syncInventoryRepository,
                 SettingsRepository settingsRepository,
-                ExecutionLogService logService, 
-                ProductApi productApi,
-                ShopifyInventoryGet shopifyInventoryGet)
+                ShopifyInventoryGet shopifyInventoryGet, 
+                ShopifyInventoryPut shopifyInventoryPut,
+                ExecutionLogService logService,
+                ProductApi productApi)
         {
             _syncInventoryRepository = syncInventoryRepository;
             _settingsRepository = settingsRepository;
+            _shopifyInventoryGet = shopifyInventoryGet;
+            _shopifyInventoryPut = shopifyInventoryPut;
             _logService = logService;
             _productApi = productApi;
-            _shopifyInventoryGet = shopifyInventoryGet;
         }
 
         public void Run(ShopifyAddVariantImportContext context)
@@ -68,6 +72,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Create Sync Records
             //
             WriteSyncRecords(newVariants, updatedProductRecord);
+
+            // Update Inventory data
+            //
+            RunInventoryUpdate(context.AcumaticaItemIds);
         }
 
         public void Run(ShopifyNewProductImportContext context)
@@ -101,6 +109,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Create Sync Records for the Variants that were created
             //
             WriteSyncRecords(newVariants, productRecord);
+
+            // Update Inventory data
+            //
+            RunInventoryUpdate(context.AcumaticaItemIds);
         }
 
         private void AutomatchExistingSkus(ShopifyAddVariantImportContext context)
@@ -146,13 +158,16 @@ namespace Monster.Middle.Processes.Sync.Workers
                     continue;
                 }
 
+                var shopifyWeightG = stockItem.DimensionWeight.value.ToShopifyGrams();
+
                 var variant = new VariantNew();
                 variant.sku = stockItemRecord.ItemId;
                 variant.option1 = $"OPTION1";
                 variant.taxable = isTaxable.Value;
+                variant.grams = shopifyWeightG;
                 variant.price = (decimal)price;
                 variant.inventory_policy = "deny";
-                variant.fulfillment_service = "manual";
+                variant.fulfillment_service = "shopify";
 
                 _logService.Log(LogBuilder.CreateShopifyVariant(stockItemRecord));
                 output.Add(variant);
@@ -174,7 +189,20 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var stockItem = _syncInventoryRepository.RetrieveStockItem(sku.StandardizedSku());
             stockItem.IsPriceSynced = false;
+            stockItem.AcumaticaInventories.ForEach(x => x.IsInventorySynced = false);
             _syncInventoryRepository.InsertItemSync(variantRecord, stockItem, true);
+        }
+
+        private void RunInventoryUpdate(List<string> acumaticaStockItemIds)
+        {
+            foreach (var itemId in acumaticaStockItemIds)
+            {
+                var stockItem = _syncInventoryRepository.RetrieveStockItem(itemId);
+
+                _shopifyInventoryPut.PriceAndCostUpdate(stockItem);
+                _shopifyInventoryPut.InventoryUpdate(stockItem);
+            }
         }
     }
 }
+

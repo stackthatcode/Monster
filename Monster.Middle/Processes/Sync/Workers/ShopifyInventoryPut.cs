@@ -71,13 +71,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        public void PriceAndCostUpdate(AcumaticaStockItem stockItem)
+        public void PriceAndCostUpdate(AcumaticaStockItem stockItem, bool isNewProduct = false)
         {
             var settings = _settingsRepository.RetrieveSettings();
             var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
             var stockItemObj = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
 
-            if (!stockItemRecord.IsSynced())
+            if (!stockItemRecord.IsMatched())
             {
                 return;
             }
@@ -89,15 +89,17 @@ namespace Monster.Middle.Processes.Sync.Workers
             var variantShopifyId = variantRecord.ShopifyVariantId;
             var variantSku = variantRecord.ShopifySku;
             var price = (decimal)stockItemObj.DefaultPrice.value;
+            var grams = stockItemObj.DimensionWeight.value.ToShopifyGrams();
             var taxable = stockItemRecord.IsTaxable(settings).Value;
-            var cogs = stockItem.AcumaticaLastCost;
-
+            
             // Push the price update via Variant API
             //
-            var priceDto = VariantPriceUpdateParent.Make(variantShopifyId, price, taxable);
+            var priceDto = VariantPriceUpdateParent.Make(variantShopifyId, price, taxable, grams);
             _productApi.UpdateVariantPrice(variantShopifyId, priceDto.SerializeToJson());
 
             // Push the cost of goods via Inventory API
+            //
+            var cogs = stockItem.AcumaticaLastCost;
             var costDto = new
             {
                 inventory_item = new
@@ -111,7 +113,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
-                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, (decimal)price, taxable, cogs);
+                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, price, taxable, cogs, grams);
                 _executionLogService.Log(log);
 
                 stockItem.IsPriceSynced = true;
@@ -122,7 +124,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                 variantRecord.ShopifyIsTaxable = taxable;
 
                 _syncInventoryRepository.SaveChanges();
-
                 transaction.Commit();
             }
         }
@@ -139,11 +140,17 @@ namespace Monster.Middle.Processes.Sync.Workers
             output.IsStockItemInventorySynced = input.AcumaticaInventories.All(x => x.IsInventorySynced);
             output.IsTaxCategoryValid = input.IsValidTaxCategory(settings);
 
-            if (input.IsSynced())
+            if (input.IsMatched())
             {
-                output.ShopifyVariantId = input.MatchedVariant().ShopifyVariantId;
-                output.ShopifyVariantSku = input.MatchedVariant().ShopifySku;
-                output.IsShopifyVariantMissing = input.MatchedVariant().IsMissing;
+                var variant = input.MatchedVariant();
+                output.ShopifyVariantId = variant.ShopifyVariantId;
+                output.ShopifyVariantSku = variant.ShopifySku;
+                output.IsShopifyVariantMissing = variant.IsMissing;
+                output.ShopifyInventoryIsTracked = variant.ShopifyIsTracked;
+            }
+            else
+            {
+                output.IsShopifyVariantMissing = true;
             }
 
             return output;
@@ -159,7 +166,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 if (!readyToSync.Success)
                 {
                     _logger.Debug($"Skipping StockItemInventoryUpdate for {stockItem.ItemId}");
-                    return;
+                    continue;
                 }
 
                 var content = LogBuilder.UpdateShopifyInventory(stockItem);
@@ -170,8 +177,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void InventoryUpdate(AcumaticaStockItem stockItem)
         {
-            var variant
-                = _inventoryRepository.RetrieveVariant(stockItem.MatchedVariant().ShopifyVariantId);
+            var variant = _inventoryRepository.RetrieveVariant(stockItem.MatchedVariant().ShopifyVariantId);
 
             if (variant.IsMissing)
             {

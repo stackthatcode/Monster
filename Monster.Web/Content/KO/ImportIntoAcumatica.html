@@ -285,13 +285,6 @@
 
                     <div data-bind="if: ShowInventorySyncOptions">
                         <div class="mb-4">
-                            <label>Select a Warehouse</label>
-                            <select class="form-control"
-                                    data-bind="options: Warehouses,
-                                            value: SelectedWarehouse"></select>
-                        </div>
-
-                        <div class="mb-4">
                             <label>Inventory Synchronization</label>
                             <select class="form-control"
                                     data-bind="options: InventorySyncOptions,
@@ -302,6 +295,13 @@
                     </div>
 
                     <div data-bind="ifnot: ShowInventorySyncOptions">
+                        <div class="mb-4">
+                            <label>Select a Warehouse</label>
+                            <select class="form-control"
+                                    data-bind="options: Warehouses,
+                                            value: SelectedWarehouse"></select>
+                        </div>
+
                         <div class="alert alert-warning" style="text-align: left">
                             NOTE: As Warehouse Receipts are being created, you will need to
                             enable synchronization through the Inventory Sync Control.
@@ -457,7 +457,7 @@
                         }).toArray();
 
                 var model = {
-                        warehouse: self.SelectedWarehouse(),
+                        warehouseId: self.SelectedWarehouse(),
                         createInventoryReceipt: self.InventoryReceiptChoice(),
                         enableInventorySync: self.InventorySyncChoice(),
                         selectedSPIds: selectedSPIds,
