@@ -12,6 +12,11 @@ namespace Monster.Middle.Misc.State
         }
 
 
+        public static bool IsShopifyUrlFinalized(this SystemState state)
+        {
+            return state.ShopifyConnState != StateCode.None;
+        }
+
         public static bool CanSyncOrdersToAcumatica(this SystemState state)
         {
             return state.AcumaticaConnState == StateCode.Ok &&

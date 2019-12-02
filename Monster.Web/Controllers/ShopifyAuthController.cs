@@ -90,7 +90,7 @@ namespace Monster.Web.Controllers
                 var model = new ShopifyDomainModel();
                 model.IsWizardMode = !state.IsRandomAccessMode;
                 model.IsConnectionBroken = state.ShopifyConnState.IsBroken();
-                model.CanEditShopifyUrl = !state.IsShopifyUrlFinalized;
+                model.CanEditShopifyUrl = !state.IsShopifyUrlFinalized();
                 model.ShopDomain = shopifyConnection.ShopifyDomain;
 
                 return View(model);
@@ -118,7 +118,7 @@ namespace Monster.Web.Controllers
             string fullShopDomain;
            
             var identity = HttpContext.GetIdentity();
-            if  (identity.IsAuthenticated && identity.SystemState.IsShopifyUrlFinalized)
+            if  (identity.IsAuthenticated && identity.SystemState.IsShopifyUrlFinalized())
             {
                 var tenant = _connectionRepository.Retrieve();
                 fullShopDomain = tenant.ShopifyDomain;

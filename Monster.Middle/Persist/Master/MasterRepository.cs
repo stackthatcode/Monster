@@ -18,7 +18,7 @@ namespace Monster.Middle.Persist.Master
 
         public IList<Instance> RetrieveInstances()
         {
-            var sql = @"SELECT * FROM Instance;";
+            var sql = @"SELECT * FROM Instance WHERE IsEnabled = 1;";
             return _connection.Query<Instance>(sql).ToList();
         }
 

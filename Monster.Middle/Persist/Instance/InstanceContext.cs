@@ -93,7 +93,6 @@ namespace Monster.Middle.Persist.Instance
             {
                 _connectionRepository.UpdateShopifyCredentials(shop, accessToken, codeHash);
                 _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
-                _stateRepository.UpdateSystemState(x => x.IsShopifyUrlFinalized, true);
                 transaction.Commit();
             }
         }
