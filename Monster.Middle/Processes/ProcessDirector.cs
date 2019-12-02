@@ -8,6 +8,7 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Shopify;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -305,12 +306,9 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 try
                 {
-                    var monitor = _monitoringService
-                        .RetrieveMonitorByTypeNoTracking(BackgroundJobType.EndToEndSync);
-
-                    if (monitor == null || monitor.ReceivedKillSignal)
+                    if (_monitoringService.IsInterruptedByJobType(BackgroundJobType.EndToEndSync))
                     {
-                        _executionLogService.Log($"{descriptor} - execution has been interrupted");
+                        _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
                         return;
                     }
                     action();

@@ -9,6 +9,9 @@ namespace Monster.Middle.Processes.Sync.Persist
     {
         private readonly ProcessPersistContext _dataContext;
 
+        public const int DefaultMaxNumberOfOrders = 5000;
+
+
         public MonsterDataContext Entities => _dataContext.Entities;
 
         public SettingsRepository(ProcessPersistContext dataContext)
@@ -80,16 +83,17 @@ namespace Monster.Middle.Processes.Sync.Persist
             {
                 if (!Entities.MonsterSettings.Any())
                 {
-                    var preferences = new MonsterSetting();
+                    var settings = new MonsterSetting();
 
-                    preferences.SyncOrdersEnabled = true;
-                    preferences.SyncInventoryEnabled = true;
-                    preferences.SyncRefundsEnabled = true;
-                    preferences.SyncFulfillmentsEnabled = true;
-                    preferences.MaxParallelAcumaticaSyncs = 1;
+                    settings.SyncOrdersEnabled = true;
+                    settings.SyncInventoryEnabled = true;
+                    settings.SyncRefundsEnabled = true;
+                    settings.SyncFulfillmentsEnabled = true;
+                    settings.MaxParallelAcumaticaSyncs = 1;
+                    settings.MaxNumberOfOrders = 1;
 
-                    Entities.MonsterSettings.Add(preferences);
-                    return preferences;
+                    Entities.MonsterSettings.Add(settings);
+                    return settings;
                 }
             }
 

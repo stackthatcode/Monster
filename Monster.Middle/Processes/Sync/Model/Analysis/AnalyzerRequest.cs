@@ -8,6 +8,7 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
         public int PageSize { get; set; }
         public string SearchText { get; set; }
         public string OrderStatus { get; set; }
+        public string SyncFilter { get; set; }
 
         public int StartRecord => PagingHelper.StartingRecord(PageNumber, PageSize);
     }

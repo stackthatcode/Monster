@@ -54,26 +54,34 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void ProcessOrder(long shopifyOrderId)
         {
-            // Clear-out any un-Released Transaction
-            //
-            var status = _pendingActionStatusService.Create(shopifyOrderId);
-            ProcessTransactionRelease(status.PaymentPendingAction);
-            foreach (var refund in status.RefundPendingActions)
+            try
             {
-                ProcessTransactionRelease(refund);
+                // Clear-out any un-Released Transaction
+                //
+                var status = _pendingActionStatusService.Create(shopifyOrderId);
+                ProcessTransactionRelease(status.PaymentPendingAction);
+                foreach (var refund in status.RefundPendingActions)
+                {
+                    ProcessTransactionRelease(refund);
+                }
+
+                // Refresh Status and run for Payment Transaction
+                //
+                status = _pendingActionStatusService.Create(shopifyOrderId);
+                ProcessPaymentTransaction(status.PaymentPendingAction);
+
+                // Refresh Status and run for Refund Transactions
+                //
+                status = _pendingActionStatusService.Create(shopifyOrderId);
+                foreach (var refund in status.RefundPendingActions)
+                {
+                    ProcessRefundTransaction(refund);
+                }
             }
-
-            // Refresh Status and run for Payment Transaction
-            //
-            status = _pendingActionStatusService.Create(shopifyOrderId);
-            ProcessPaymentTransaction(status.PaymentPendingAction);
-
-            // Refresh Status and run for Refund Transactions
-            //
-            status = _pendingActionStatusService.Create(shopifyOrderId);
-            foreach (var refund in status.RefundPendingActions)
+            catch
             {
-                ProcessRefundTransaction(refund);
+                _logService.Log($"Encounter error syncing Payments for Shopify Order {shopifyOrderId}");
+                throw;
             }
         }
 
@@ -211,11 +219,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Applied To Order
             var paymentMinusRefundsAndDebits = order.NetRemainingPayment();
 
-            // On hold for now - this simply isn't so.
+            // Doing this to force Acumatica to load the Payment into the cache
+            //
             var paymentInAcumatica = _paymentClient.RetrievePayment(paymentNbr, PaymentType.Payment);
-            var appliedToDocuments = paymentInAcumatica.AppliedToDocuments.value;
-            var appliedToOrder = paymentMinusRefundsAndDebits - (decimal)appliedToDocuments;
 
+            // *** On hold for now - until Invoices are Released, Acumatica will error on certain API calls
+            //var appliedToDocuments = paymentInAcumatica.AppliedToDocuments.value;
+            //var appliedToOrder = paymentMinusRefundsAndDebits - (decimal)appliedToDocuments;
 
             // Create the payload for Acumatica
             //
@@ -223,7 +233,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             payment.ReferenceNbr = paymentNbr.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
             payment.OrdersToApply 
-                = PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double)appliedToOrder);
+                = PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double)paymentMinusRefundsAndDebits);
 
             return payment;
         }

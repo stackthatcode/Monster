@@ -107,7 +107,9 @@ SELECT t1.MonsterId,
 	t1.ItemId AS AcumaticaItemId, 
 	t3.AcumaticaWarehouseId, 
 	t3.AcumaticaAvailQty, 
-	t4.Id AS WarehouseSyncId
+	t4.Id AS WarehouseSyncId,
+	t1.IsPriceSynced,
+	t3.IsInventorySynced
 FROM AcumaticaStockItem t1
 	FULL OUTER JOIN AcumaticaInventory t3
 		ON t1.MonsterId = t3.ParentMonsterId

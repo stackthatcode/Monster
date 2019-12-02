@@ -117,25 +117,26 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult SyncSettingsAndEnables()
         {
-            var preferences = _settingsRepository.RetrieveSettings();
+            var settings = _settingsRepository.RetrieveSettings();
 
             var output = new SyncSettingsModel();
-            output.SyncOrdersEnabled = preferences.SyncOrdersEnabled;
-            output.SyncInventoryEnabled = preferences.SyncInventoryEnabled;
-            output.SyncRefundsEnabled = preferences.SyncRefundsEnabled;
-            output.SyncShipmentsEnabled = preferences.SyncFulfillmentsEnabled;
+            output.SyncOrdersEnabled = settings.SyncOrdersEnabled;
+            output.SyncInventoryEnabled = settings.SyncInventoryEnabled;
+            output.SyncRefundsEnabled = settings.SyncRefundsEnabled;
+            output.SyncShipmentsEnabled = settings.SyncFulfillmentsEnabled;
 
-            output.StartingOrderId = preferences.ShopifyOrderId;
-            output.StartingOrderName = preferences.ShopifyOrderName.IsNullOrEmptyAlt("(not set)");
+            output.StartingOrderId = settings.ShopifyOrderId;
+            output.StartingOrderName = settings.ShopifyOrderName.IsNullOrEmptyAlt("(not set)");
             output.StartOrderCreatedAtUtc 
-                = preferences.ShopifyOrderCreatedAtUtc?.ToString() ?? "(not set)";
+                = settings.ShopifyOrderCreatedAtUtc?.ToString() ?? "(not set)";
 
-            if (preferences.ShopifyOrderId.HasValue)
+            if (settings.ShopifyOrderId.HasValue)
             {
-                output.StartingOrderHref = _shopifyUrlService.ShopifyOrderUrl(preferences.ShopifyOrderId.Value);
+                output.StartingOrderHref = _shopifyUrlService.ShopifyOrderUrl(settings.ShopifyOrderId.Value);
             }
 
-            output.MaxParallelAcumaticaSyncs = preferences.MaxParallelAcumaticaSyncs;
+            output.MaxParallelAcumaticaSyncs = settings.MaxParallelAcumaticaSyncs;
+            output.MaxNumberOfOrders = settings.MaxNumberOfOrders;
 
             return new JsonNetResult(output);
         }
@@ -204,6 +205,10 @@ namespace Monster.Web.Controllers
             }
 
             data.MaxParallelAcumaticaSyncs = model.MaxParallelAcumaticaSyncs;
+            data.MaxNumberOfOrders
+                = model.MaxNumberOfOrders == 0 
+                    ? SettingsRepository.DefaultMaxNumberOfOrders : model.MaxNumberOfOrders;
+
             _settingsRepository.SaveChanges();
 
             //// TODO - are we sure about this...?

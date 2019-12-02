@@ -26,9 +26,7 @@ namespace Monster.Middle.Persist.Master
         {
             var sql = @"SELECT * FROM Instance WHERE Id = @instanceId";
 
-            return _connection
-                    .QueryFirstOrDefault<Instance>(
-                        sql, new { instanceId = instanceId });
+            return _connection.QueryFirstOrDefault<Instance>(sql, new { instanceId });
         }
 
         public Instance InsertInstance(string connectionString, string nickName = null)
@@ -37,7 +35,7 @@ namespace Monster.Middle.Persist.Master
             {
                 Id = Guid.NewGuid(),
                 ConnectionString = connectionString,
-                Nickname = nickName,
+                OwnerNickname = nickName,
             };
 
             var sql = @"INSERT INTO Instance VALUES ( '@Id', @ConnectionString )";

@@ -480,7 +480,7 @@ namespace Monster.Middle.Persist.Instance
             VwShopifyOrderRefunds = new FakeDbSet<VwShopifyOrderRefund>("Id", "ShopifyOrderId", "ShopifyOrderNumber", "ShopifyFinancialStatus", "NeedsTransactionGet", "NeedsOrderPut", "OrderLastUpdated");
             VwShopifyOrderTransactions = new FakeDbSet<VwShopifyOrderTransaction>("Id", "ShopifyOrderId", "ShopifyOrderNumber", "ShopifyFinancialStatus", "NeedsTransactionGet", "NeedsOrderPut", "OrderLastUpdated");
             VwSyncShopifyInventories = new FakeDbSet<VwSyncShopifyInventory>("ShopifyLocationName");
-            VwSyncVariantsAndStockItemsAlts = new FakeDbSet<VwSyncVariantsAndStockItemsAlt>("MonsterVariantId", "ShopifyProductId", "ShopifyProductTitle", "ShopifyVendor", "ShopifyProductType", "ShopifyVariantId", "ShopifySku", "ShopifyVariantTitle", "AcumaticaItemId", "IsSyncEnabled");
+            VwSyncVariantsAndStockItemsAlts = new FakeDbSet<VwSyncVariantsAndStockItemsAlt>("MonsterVariantId", "ShopifyProductId", "ShopifyProductTitle", "ShopifyVendor", "ShopifyProductType", "ShopifyVariantId", "ShopifySku", "ShopifyVariantTitle", "AcumaticaItemId");
         }
 
         public int SaveChangesCount { get; private set; }
@@ -1198,6 +1198,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyOrderName { get; set; } // ShopifyOrderName (length: 50)
         public System.DateTime? ShopifyOrderCreatedAtUtc { get; set; } // ShopifyOrderCreatedAtUtc
         public int MaxParallelAcumaticaSyncs { get; set; } // MaxParallelAcumaticaSyncs
+        public int MaxNumberOfOrders { get; set; } // MaxNumberOfOrders
     }
 
     // PaymentGateways
@@ -1639,7 +1640,7 @@ namespace Monster.Middle.Persist.Instance
         public string ItemId { get; set; } // ItemId (Primary key) (length: 100)
         public bool IsPriceSynced { get; set; } // IsPriceSynced (Primary key)
         public string AcumaticaWarehouseId { get; set; } // AcumaticaWarehouseId (length: 50)
-        public double? AcumaticaQtyOnHand { get; set; } // AcumaticaQtyOnHand
+        public double? AcumaticaAvailQty { get; set; } // AcumaticaAvailQty
         public bool? IsInventorySynced { get; set; } // IsInventorySynced
         public System.DateTime StockItemLastUpdated { get; set; } // StockItemLastUpdated (Primary key)
         public System.DateTime? WarehouseDetailsLastUpdated { get; set; } // WarehouseDetailsLastUpdated
@@ -1778,11 +1779,13 @@ namespace Monster.Middle.Persist.Instance
     public class VwSyncAcumaticaInventory
     {
         public long? MonsterId { get; set; } // MonsterId
+        public long? ShopifyVariantMonsterId { get; set; } // ShopifyVariantMonsterId
         public string AcumaticaItemId { get; set; } // AcumaticaItemId (length: 100)
         public string AcumaticaWarehouseId { get; set; } // AcumaticaWarehouseId (length: 50)
-        public double? AcumaticaQtyOnHand { get; set; } // AcumaticaQtyOnHand
+        public double? AcumaticaAvailQty { get; set; } // AcumaticaAvailQty
         public long? WarehouseSyncId { get; set; } // WarehouseSyncId
-        public long? ItemSyncId { get; set; } // ItemSyncId
+        public bool? IsPriceSynced { get; set; } // IsPriceSynced
+        public bool? IsInventorySynced { get; set; } // IsInventorySynced
     }
 
     // The table 'vw_SyncCustomerWithCustomers' is not usable by entity framework because it
@@ -1828,8 +1831,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyLocationName { get; set; } // ShopifyLocationName (length: 50)
         public string AcumaticaWarehouseId { get; set; } // AcumaticaWarehouseId (length: 50)
         public int? ShopifyAvailableQuantity { get; set; } // ShopifyAvailableQuantity
-        public double? AcumaticaQtyOnHand { get; set; } // AcumaticaQtyOnHand
-        public long? SyncRecordId { get; set; } // SyncRecordId
+        public double? AcumaticaAvailQty { get; set; } // AcumaticaAvailQty
     }
 
     // The table 'vw_SyncInventoryLevelAndReceipts' is not usable by entity framework because it
@@ -1896,7 +1898,6 @@ namespace Monster.Middle.Persist.Instance
         public long? ShopifyLocationId { get; set; } // ShopifyLocationId
         public string ShopifyLocationName { get; set; } // ShopifyLocationName (Primary key) (length: 50)
         public long? LocationSyncId { get; set; } // LocationSyncId
-        public long? VariantSyncId { get; set; } // VariantSyncId
     }
 
     // The table 'vw_SyncTransactionAndPayment' is not usable by entity framework because it
@@ -1951,7 +1952,6 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyVariantTitle { get; set; } // ShopifyVariantTitle (Primary key) (length: 200)
         public string AcumaticaItemId { get; set; } // AcumaticaItemId (Primary key) (length: 100)
         public string AcumaticaDescription { get; set; } // AcumaticaDescription (length: 200)
-        public bool IsSyncEnabled { get; set; } // IsSyncEnabled (Primary key)
     }
 
     // The table 'vw_SyncWarehousesAndLocations' is not usable by entity framework because it
@@ -2371,6 +2371,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyOrderName).HasColumnName(@"ShopifyOrderName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyOrderCreatedAtUtc).HasColumnName(@"ShopifyOrderCreatedAtUtc").HasColumnType("datetime").IsOptional();
             Property(x => x.MaxParallelAcumaticaSyncs).HasColumnName(@"MaxParallelAcumaticaSyncs").HasColumnType("int").IsRequired();
+            Property(x => x.MaxNumberOfOrders).HasColumnName(@"MaxNumberOfOrders").HasColumnType("int").IsRequired();
         }
     }
 
@@ -2828,7 +2829,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ItemId).HasColumnName(@"ItemId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.IsPriceSynced).HasColumnName(@"IsPriceSynced").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.AcumaticaWarehouseId).HasColumnName(@"AcumaticaWarehouseId").HasColumnType("nvarchar").IsOptional().HasMaxLength(50);
-            Property(x => x.AcumaticaQtyOnHand).HasColumnName(@"AcumaticaQtyOnHand").HasColumnType("float").IsOptional();
+            Property(x => x.AcumaticaAvailQty).HasColumnName(@"AcumaticaAvailQty").HasColumnType("float").IsOptional();
             Property(x => x.IsInventorySynced).HasColumnName(@"IsInventorySynced").HasColumnType("bit").IsOptional();
             Property(x => x.StockItemLastUpdated).HasColumnName(@"StockItemLastUpdated").HasColumnType("datetime").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.WarehouseDetailsLastUpdated).HasColumnName(@"WarehouseDetailsLastUpdated").HasColumnType("datetime").IsOptional();
@@ -3071,7 +3072,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyLocationId).HasColumnName(@"ShopifyLocationId").HasColumnType("bigint").IsOptional();
             Property(x => x.ShopifyLocationName).HasColumnName(@"ShopifyLocationName").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.LocationSyncId).HasColumnName(@"LocationSyncId").HasColumnType("bigint").IsOptional();
-            Property(x => x.VariantSyncId).HasColumnName(@"VariantSyncId").HasColumnType("bigint").IsOptional();
         }
     }
 
@@ -3087,7 +3087,7 @@ namespace Monster.Middle.Persist.Instance
         public VwSyncVariantsAndStockItemsAltConfiguration(string schema)
         {
             ToTable("vw_SyncVariantsAndStockItems_Alt", schema);
-            HasKey(x => new { x.MonsterVariantId, x.ShopifyProductId, x.ShopifyProductTitle, x.ShopifyVendor, x.ShopifyProductType, x.ShopifyVariantId, x.ShopifySku, x.ShopifyVariantTitle, x.AcumaticaItemId, x.IsSyncEnabled });
+            HasKey(x => new { x.MonsterVariantId, x.ShopifyProductId, x.ShopifyProductTitle, x.ShopifyVendor, x.ShopifyProductType, x.ShopifyVariantId, x.ShopifySku, x.ShopifyVariantTitle, x.AcumaticaItemId });
 
             Property(x => x.MonsterVariantId).HasColumnName(@"MonsterVariantId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyProductId).HasColumnName(@"ShopifyProductId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
@@ -3099,7 +3099,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyVariantTitle).HasColumnName(@"ShopifyVariantTitle").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(200).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.AcumaticaItemId).HasColumnName(@"AcumaticaItemId").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(100).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.AcumaticaDescription).HasColumnName(@"AcumaticaDescription").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(200);
-            Property(x => x.IsSyncEnabled).HasColumnName(@"IsSyncEnabled").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
         }
     }
 

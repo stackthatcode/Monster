@@ -6,7 +6,7 @@ using Monster.Middle.Config;
 using Monster.Middle.Misc.External;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
-using Monster.Middle.Persist.Instance;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Utilities.Security;
 
@@ -26,37 +26,23 @@ namespace Push.Foundation
             this.Height = 600;
         }        
 
-        private void button1_Click(object sender, EventArgs e)
+        private void shopifyConfig_Click(object sender, EventArgs e)
         {
             // *** COME ON, PUT THE TEXT IN SEPARATE FIELDS
-
 
             textShopifyXml.Text =
                 $@"<shopifyCredentials 
     xdt:Transform=""Replace""
-    ApiKey=""{textShopifyApiKey.Text.ToSecureString().DpApiEncryptString()}"" 
-    ApiPassword=""{textShopifyApiPwd.Text.ToSecureString().DpApiEncryptString()}"" 
-    ApiSecret=""{textShopifyApiSecret.Text.ToSecureString().DpApiEncryptString()}"" 
+    ApiKey=""{textShopifyApiKey.Text.EncryptConfig()}"" 
+    ApiPassword=""{textShopifyApiPwd.Text.EncryptConfig()}"" 
+    ApiSecret=""{textShopifyApiSecret.Text.EncryptConfig()}"" 
     Domain=""{textShopifyDomain.Text}""                        
 />";
 
             Clipboard.SetText(textShopifyXml.Text);
         }
 
-        private void buttonEncrypt_Click(object sender, EventArgs e)
-        {
-            this.textEncryptedOutput.Text = 
-                this.textNonEncrypted.Text.ToSecureString().DpApiEncryptString();
-            Clipboard.SetText(textEncryptedOutput.Text);
-        }
 
-        private void buttonDecrypt_Click(object sender, EventArgs e)
-        {
-            this.textDecryptedOutput.Text =
-                this.textEncryptedInput.Text.DpApiDecryptString().ToInsecureString();
-
-            Clipboard.SetText(textDecryptedOutput.Text);
-        }
 
         private void buttonAesEncrypt_Click(object sender, EventArgs e)
         {
@@ -74,6 +60,7 @@ namespace Push.Foundation
             this.textAesDecryptedOutput.Text = crypto.Decrypt(this.textAesEncryptedInput.Text);
             Clipboard.SetText(textAesDecryptedOutput.Text);
         }
+
 
         private void buttonHMAC256_Click(object sender, EventArgs e)
         {
@@ -107,8 +94,8 @@ namespace Push.Foundation
             textMonsterConfig.Text =
                 $@"<monsterConfig 
     xdt:Transform=""Replace""
-    EncryptKey=""{this.textMonsterAesKey.Text.ToSecureString().DpApiEncryptString()}"" 
-    EncryptIv=""{this.textMonsterAesIv.Text.ToSecureString().DpApiEncryptString()}"" 
+    EncryptKey=""{this.textMonsterAesKey.Text.EncryptConfig()}"" 
+    EncryptIv=""{this.textMonsterAesIv.Text.EncryptConfig()}"" 
     SystemDatabaseConnection=""{this.textMonsterSystemConnstr.Text}""
 />";
         }
@@ -147,7 +134,7 @@ namespace Push.Foundation
             }
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
+        private void shopifyConfig_Click_1(object sender, EventArgs e)
         {
             var builder = new ContainerBuilder();
             using (var container = MiddleAutofac.Build(builder).Build())
@@ -194,7 +181,7 @@ namespace Push.Foundation
                 {
                     var item = new ComboboxItem()
                     {
-                        Text = t.Nickname,
+                        Text = t.OwnerNickname,
                         Value = t.Id,
                     };
 
@@ -242,26 +229,22 @@ namespace Push.Foundation
                 var persistContext = scope.Resolve<ProcessPersistContext>();
 
                 var repository = scope.Resolve<ExternalServiceRepository>();
-                var tenantContext = repository.Retrieve();
+                var connection = repository.Retrieve();
+
+                var notset = "(not set)";
 
                 var output =
+                    $"Nickname = {tenant.OwnerNickname}" + Environment.NewLine +
                     $"System Connection = {MonsterConfig.Settings.SystemDatabaseConnection}" + Environment.NewLine +
-                    $"Nickname = {tenant.Nickname}" + Environment.NewLine +
                     $"Instance Connection = {persistContext.ConnectionString}" + Environment.NewLine +
-                    $"Acumatica URL = {tenantContext.AcumaticaInstanceUrl}" + Environment.NewLine +
-                    $"Acumatica Company = {tenantContext.AcumaticaCompanyName}" + Environment.NewLine +
-                    $"Acumatica Branch = {tenantContext.AcumaticaBranch}" + Environment.NewLine +
-                    $"Shopify URL = {tenantContext.ShopifyDomain}" + Environment.NewLine;
+                    $"Acumatica URL = {connection.AcumaticaInstanceUrl.IsNullOrEmptyAlt(notset)}" + Environment.NewLine +
+                    $"Acumatica Company = {connection.AcumaticaCompanyName.IsNullOrEmptyAlt(notset)}" + Environment.NewLine +
+                    $"Acumatica Branch = {connection.AcumaticaBranch.IsNullOrEmptyAlt(notset)}" + Environment.NewLine +
+                    $"Shopify URL = {connection.ShopifyDomain.IsNullOrEmptyAlt(notset)}" + Environment.NewLine;
 
                 this.textSummary.Text = output;
             });
-
         }
-
-        private void TextMonsterSystemConnstr_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-    }        
+    }
 }
 

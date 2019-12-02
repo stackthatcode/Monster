@@ -104,8 +104,13 @@ namespace Monster.Middle.Misc.Hangfire
                 .FirstOrDefault(x => x.BackgroundJobType == jobType);
         }
 
+        public bool IsInterruptedByJobType(int jobType)
+        {
+            var monitor = RetrieveMonitorByTypeNoTracking(jobType);
+            return (monitor == null || monitor.ReceivedKillSignal);
+        }
 
-        public bool IsMissingOrReceivedKillSignal(long monitorId)
+        public bool IsInterrupted(long monitorId)
         {
             var monitor = RetrieveMonitorNoTracking(monitorId);
             return (monitor == null || monitor.ReceivedKillSignal);

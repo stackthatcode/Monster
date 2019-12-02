@@ -15,7 +15,7 @@
 
     .popup-sync-label {
         display: inline-block;
-        min-width: 300px; 
+        min-width: 300px;
         text-align: left;
     }
 
@@ -80,11 +80,11 @@
 </script>
 
 <script type="text/html" id="Non-Running-State">
-<div data-bind="template: { name: 'End-To-End-Sync-Control-Panel' }"></div>
+    <div data-bind="template: { name: 'End-To-End-Sync-Control-Panel' }"></div>
 
-<div style="height: 15px;"></div>
+    <div style="height: 15px;"></div>
 
-<div data-bind="template: { name: 'Sync-Settings', data: SyncSettingsModel }"></div>
+    <div data-bind="template: { name: 'Sync-Settings', data: SyncSettingsModel }"></div>
 </script>
 
 <script type="text/html" id="End-To-End-Sync-Control-Panel">
@@ -125,79 +125,83 @@
 
 <script type="text/html" id="Sync-Settings">
     <table class="table" style="max-width: 600px; margin-left: auto; margin-right: auto;">
-    <tbody>
-    <tr>
-        <td>
-        <div style="clear: both; vertical-align: middle;"
-             data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
-        </div>
-        </td>
-    </tr>
+        <tbody>
+        <tr>
+            <td>
+                <div style="clear: both; vertical-align: middle;"
+                     data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
+                </div>
+            </td>
+        </tr>
 
-    <tr>
-        <td>
-        <div style="float: left;">
-            <!-- Starting Order Number -->
-            <div style="clear: both; text-align: left;">
-                <span class="sync-label" style="min-width: 200px; text-align: left;">Beginning Mark Order</span>
+        <tr>
+            <td>
+                <div style="float: left;">
+                    <!-- Starting Order Number -->
+                    <div style="clear: both; text-align: left;">
+                        <span class="sync-label" style="min-width: 200px; text-align: left;">Beginning Mark Order</span>
 
-                <!-- Display Link if populated... -->
-                <span data-bind="if: ShopifyOrderHref">
-                    <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
-                        <span data-bind="text: StartingOrderName">
+                        <!-- Display Link if populated... -->
+                        <span data-bind="if: ShopifyOrderHref">
+                            <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
+                                <span data-bind="text: StartingOrderName">
+                                </span>
+                            </a>
                         </span>
-                    </a>
-                </span>
 
-                <!-- ... else show alternate text -->
-                <span data-bind="ifnot: ShopifyOrderHref">
-                    <span class="bold-light" data-bind="text: StartingOrderName">
-                    </span>
-                </span>
-            </div>
+                        <!-- ... else show alternate text -->
+                        <span data-bind="ifnot: ShopifyOrderHref">
+                            <span class="bold-light" data-bind="text: StartingOrderName">
+                            </span>
+                        </span>
+                    </div>
 
-            <div style="clear: both; text-align: left;">
-                <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
-                <span class="bold-light" data-bind="text: StartOrderCreatedAtUtc">
-                </span>
-            </div>
-            <div style="clear: both; text-align: left;">
-                <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
-                <span class="bold-light" data-bind="text: MaxParallelAcumaticaSyncs"></span>
-            </div>
-        </div>
+                    <div style="clear: both; text-align: left;">
+                        <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
+                        <span class="bold-light" data-bind="text: StartOrderCreatedAtUtc">
+                        </span>
+                    </div>
+                    <div style="clear: both; text-align: left;">
+                        <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
+                        <span class="bold-light" data-bind="text: MaxParallelAcumaticaSyncs"></span>
+                    </div>
+                    <div style="clear: both; text-align: left;">
+                        <span class="sync-label" style="min-width: 200px; text-align: left;">Max # Orders per Sync</span>
+                        <span class="bold-light" data-bind="text: MaxNumberOfOrders"></span>
+                    </div>
+                </div>
 
-        <div style="float: right; padding-top: 15px;">
-            <a href="#" class="btn btn-primary btn-sm"
-               data-bind="click: EditOrderSettingsClick"
-               style="padding-top: 8px; padding-bottom: 8px;">
-                EDIT SETTINGS <i class="fa fa-pencil-alt"></i>
-            </a>
-        </div>
+                    <div style="float: right; padding-top: 15px;">
+                        <a href="#" class="btn btn-primary btn-sm"
+                           data-bind="click: EditOrderSettingsClick"
+                           style="padding-top: 8px; padding-bottom: 8px;">
+                            EDIT SETTINGS <i class="fa fa-pencil-alt"></i>
+                        </a>
+                    </div>
 
-        <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
-            <div style="height: 20px;"></div>
-            <div class="alert alert-secondary">
-                <strong>Beginning Mark Order must be set to start End-to-End</strong>
-            </div>
-        </div>
-        </td>
-    </tr>
+                    <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
+                        <div style="height: 20px;"></div>
+                        <div class="alert alert-secondary">
+                            <strong>Beginning Mark Order must be set to start End-to-End</strong>
+                        </div>
+                    </div>
+                </td>
+            </tr>
 
-    <tr>
-        <td style="vertical-align: middle;"
-            data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }"></td>
-    </tr>
-    <tr>
-        <td style="vertical-align: middle;"
-            data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
-    </tr>
-    <tr>
-        <td style="vertical-align: middle;"
-            data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
-    </tr>
-    </tbody>
-</table>
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }"></td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
+            </tr>
+        </tbody>
+    </table>
 </script>
 
 <script type="text/html" id="Sync-Enable-Item">
@@ -247,7 +251,7 @@
                         <hr />
                         <div style="height:10px;"></div>
                     </div>
-            
+
                     <div data-bind="ifnot: IsStartingOrderValid">
                         <div style="height:91px;">
                             <div class="alert alert-secondary">
@@ -255,11 +259,11 @@
                             </div>
                         </div>
                     </div>
-                
+
                     <div data-bind="ifnot: IsStartingOrderSet">
                         <div class="form-group">
                             <label for="orderNumber">Enter Beginning Mark Shopify Order Number or ID </label>
-                    
+
                             <div class="input-group">
                                 <input id="orderNumber"
                                        class="form-control"
@@ -267,7 +271,7 @@
                                        maxlength="20"
                                        data-bind="value: NewStartingOrderNumber,
                                             event: { keyup: InvokeKeyCallback }" />
-                            
+
                                 <div class="input-group-append">
                                     <button data-bind="click: VerifyShopifyOrder"
                                             class="btn btn-primary" type="button">
@@ -280,48 +284,62 @@
                                 @GlobalConfig.AppName will only load Shopify Orders that are created
                                 <strong>after</strong> the Beginning Mark Order.
                             </small>
-                        
+
                             <div class="error-message">
-                                WARNING - this can only be saved once. After saving, you'll need to 
+                                WARNING - this can only be saved once. After saving, you'll need to
                                 contact tech support to change your Beginning Mark Order.
                             </div>
+                            <hr />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="orderNumber">
+                            Maximum # of Parallel Syncs to Acumatica
+                        </label>
+                        <select class="form-control" data-bind="value: MaxParallelSyncs">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
+
+                        <small id="orderNumberHelp" class="form-text text-muted">
+                            @GlobalConfig.AppName will run up to this many syncs to Acumatica at the same time.
+                            <div style="font-weight:700;">WARNING - be sure confirm that you have sufficient Acumatica licenses </div>
+                        </small>
                         <hr />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="orderNumber">
+                            Maximum # of new Shopify Orders to load
+                        </label>
+                        
+                        <input class="form-control" type="text" maxlength="6"
+                               data-bind="numeric, value: MaxNumberOfOrders" />
+
+                        <small id="orderNumberHelp" class="form-text text-muted">
+                            Leaving this field blank will use the system default of 5,000
+                        </small>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="orderNumber">
-                        Maximum # of Parallel Syncs to Acumatica
-                    </label>
-                    <select class="form-control" data-bind="value: MaxParallelSyncs">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
-
-                    <small id="orderNumberHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will run up to this many syncs to Acumatica at the same time.
-                        <div style="font-weight:700;">WARNING - be sure confirm that you have sufficient Acumatica licenses </div>
-                    </small>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" data-bind="click: SaveSettings" class="btn btn-primary">
+                        Save <i class="fas fa-check"></i>
+                    </button>
                 </div>
-            </div>
-    
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Cancel <i class="fas fa-times"></i>
-                </button>
-                <button type="button" data-bind="click: SaveSettings" class="btn btn-primary">
-                    Save <i class="fas fa-check"></i>
-                </button>
             </div>
         </div>
     </div>
-</div>
 </script>
 
 
@@ -350,14 +368,12 @@
         //
         self.IsStartingOrderValid = ko.observable(false);
 
-        // New Starting Order - data entry field
+        // Data entry fields
         //
         self.NewStartingOrderNumber = ko.observable();
-
-
-        // Max Acumatica Parallel Sync
-        //
         self.MaxParallelSyncs = ko.observable();
+        self.MaxNumberOfOrders = ko.observable();
+        
 
         self.ShowValidation = ko.observable(false);
 
@@ -370,7 +386,7 @@
             }
         };
 
-        self.VerifyShopifyOrder = function() {
+        self.VerifyShopifyOrder = function () {
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
@@ -390,6 +406,13 @@
         self.SaveSettings = function () {
             self.ShowValidation(true);
 
+            var maxNumberOfOrders = $.isNumeric(self.MaxNumberOfOrders()) ? self.MaxNumberOfOrders() : 5000;
+            if (!maxNumberOfOrders) {
+                maxNumberOfOrders = 5000;
+            }
+
+            self.MaxNumberOfOrders(maxNumberOfOrders);
+
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
@@ -398,6 +421,7 @@
                         ShopifyOrderName: self.ShopifyOrderName(),
                         ShopifyOrderCreatedAtUtc: self.ShopifyOrderCreatedAtUtc(),
                         MaxParallelAcumaticaSyncs: self.MaxParallelSyncs(),
+                        MaxNumberOfOrders: self.MaxNumberOfOrders(),
                     };
 
                     ajax.HttpPost("/Sync/OrderSyncSettingsUpdate", data, this);
@@ -427,7 +451,10 @@
                     self.ShopifyOrderHref(settings.StartingOrderHref);
                     self.ShopifyOrderCreatedAtUtc(settings.StartOrderCreatedAtUtc);
 
+                    self.MaxNumberOfOrders(settings.MaxNumberOfOrders);
                     self.MaxParallelSyncs(settings.MaxParallelAcumaticaSyncs);
+                    self.NewStartingOrderNumber("");
+
 
                     $("#order-sync-settings-modal").modal('show');
                 });
@@ -436,7 +463,7 @@
         Monster.Events.subscribe("/LaunchOrderSyncSettings", self.LaunchEditOrderSyncSettings);
         return self;
     };
-    
+
     Monster.SyncEnabledModel = function (label, event) {
         var self = this;
 
@@ -479,6 +506,7 @@
         self.StartOrderCreatedAtUtc = ko.observable();
         self.ShopifyOrderHref = ko.observable();
         self.MaxParallelAcumaticaSyncs = ko.observable();
+        self.MaxNumberOfOrders = ko.observable();
         self.IsStartingOrderSet = ko.observable();
 
         // Publishes an event to trigger launch of Order Sync Settings editor pop-up
@@ -486,7 +514,7 @@
         self.EditOrderSettingsClick = function () {
             Monster.Events.publish(eventKeys.LaunchOrderSyncSettings);
         };
-        
+
         self.RefreshSyncSettings = function () {
             flow.exec(
                 function () {
@@ -508,6 +536,7 @@
                     self.StartOrderCreatedAtUtc(model.StartOrderCreatedAtUtc);
                     self.ShopifyOrderHref(model.StartingOrderHref);
                     self.MaxParallelAcumaticaSyncs(model.MaxParallelAcumaticaSyncs);
+                    self.MaxNumberOfOrders(model.MaxNumberOfOrders);
                     self.IsStartingOrderSet(model.IsStartingOrderSet);
                 });
         };
@@ -603,22 +632,22 @@
                 var ajax = new Monster.Ajax();
                 ajax.HttpGet("/Sync/EndToEndStatus", this);
             },
-            function (response) {
-                self.NonRunningStateModel.Populate(response);
-                Monster.Events.publish(eventKeys.RefreshSyncSettings);
-            });
+                function (response) {
+                    self.NonRunningStateModel.Populate(response);
+                    Monster.Events.publish(eventKeys.RefreshSyncSettings);
+                });
         };
 
         Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
 
         self.Initialize = function () {
-            self.JobRunningModel.StartPolling(true); 
+            self.JobRunningModel.StartPolling(true);
         };
 
         return self;
     };
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         var model = new Monster.ParentInterface();
         ko.applyBindings(model);
         model.Initialize();

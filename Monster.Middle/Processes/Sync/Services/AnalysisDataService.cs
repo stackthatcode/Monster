@@ -232,6 +232,11 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var queryable = ProductStockItemQueryable;
 
+            if (request.SyncFilter != "All")
+            {
+                queryable = queryable.Where(x => x.AcumaticaStockItems.Any());
+            }
+
             foreach (var term in ParseSearchTerms(request.SearchText))
             {
                 if (term.IsLong())

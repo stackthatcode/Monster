@@ -123,7 +123,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                         $"OrderSyncInChildScope - Acumatica Context: {childAcumaticaContext.ObjectIdentifier}");
 
                     childConnectionContext.Initialize(instanceId);
-                    childAcumaticaContext.SessionRun(() => childOrderSync.RunWorker(queue));
+                    childAcumaticaContext.SessionRun(() => childOrderSync.RunQueue(queue));
                 }
             }
             catch (Exception ex)

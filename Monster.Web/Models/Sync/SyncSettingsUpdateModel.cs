@@ -11,5 +11,6 @@ namespace Monster.Web.Models.Sync
         public DateTime ShopifyOrderCreatedAtUtc { get; set; }
 
         public int MaxParallelAcumaticaSyncs { get; set; }
+        public int MaxNumberOfOrders { get; set; }
     }
 }

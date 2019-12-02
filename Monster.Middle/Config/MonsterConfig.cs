@@ -13,18 +13,18 @@ namespace Monster.Middle.Config
 
         public static MonsterConfig Settings { get; } = new MonsterConfig();
 
-        
+
         [ConfigurationProperty("EncryptKey", IsRequired = false)]
         public string EncryptKey
         {
-            get { return ((string)_settings["EncryptKey"]).DpApiDecryptString().ToInsecureString(); }
+            get { return ((string)_settings["EncryptKey"]).DecryptConfig(); }
             set { this["EncryptKey"] = value; }
         }
 
         [ConfigurationProperty("EncryptIv", IsRequired = false)]
         public string EncryptIv
         {
-            get { return ((string)_settings["EncryptIv"]).DpApiDecryptString().ToInsecureString(); }
+            get { return ((string)_settings["EncryptIv"]).DecryptConfig(); }
             set { this["EncryptIv"] = value; }
         }
         
@@ -33,13 +33,6 @@ namespace Monster.Middle.Config
         {
             get { return ((string) _settings["SystemDatabaseConnection"]); }
             set { this["SystemDatabaseConnection"] = value; }
-        }
-        
-        [ConfigurationProperty("PaymentGateways", IsRequired = false)]
-        public string PaymentGateways
-        {
-            get { return ((string)_settings["PaymentGateways"]); }
-            set { this["PaymentGateways"] = value; }
         }
     }
 }

@@ -30,9 +30,9 @@
     <div id="product-grid grid-bg" style="min-height:400px;">
         <!-- Filtering -->
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-6">
                 <div class="input-group mb-3 filter-control">
-                    <input type="text" class="form-control" 
+                    <input type="text" class="form-control"
                            data-bind="value: SearchText, event: { keyup: SearchTermsKeyCallback }"
                            placeholder="Search by Shopify Product ID, Variant ID, SKU, or Acumatica Item ID"
                            aria-label="Search by Shopify Product ID, Variant ID, SKU, or Acumatica Item ID"
@@ -44,6 +44,13 @@
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <div class="col-sm-2">
+                <select class="form-control" data-bind="value: SyncFilter">
+                    <option value="All">All</option>
+                    <option value="Blocked">Synced Only</option>
+                </select>
             </div>
 
             <div class="col-sm-4 right">
@@ -137,6 +144,9 @@
             self.RefreshGrid(self.ScrollToTop);
         };
 
+        self.SyncFilter = ko.observable("All");
+        self.SyncFilter.subscribe(function() { self.RefreshGrid(); });
+
         self.FilterClick = function () {
             self.RefreshGrid();
         };
@@ -157,6 +167,7 @@
                     PageNumber: self.PagingWidget.PageNumber(),
                     PageSize: self.PagingWidget.PageSize(),
                     SearchText: self.SearchText(),
+                    SyncFilter: self.SyncFilter(),
                 };
                 ajax.HttpPost("/Analysis/ProductStockItemResults", request, this);
             },

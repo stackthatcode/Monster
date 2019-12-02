@@ -230,7 +230,7 @@ namespace Monster.Middle.Identity
             // System -> Instance
             //
             context.InstanceId = instance.Id;
-            context.InstanceNickName = instance.Nickname;
+            context.InstanceNickName = instance.OwnerNickname;
 
             // Instance -> State
             //

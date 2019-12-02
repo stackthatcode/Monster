@@ -85,6 +85,11 @@ namespace Monster.Middle.Processes.Sync.Misc
         {
             return $"Releasing Acumatica record for {transaction.LogDescriptor()}";
         }
+
+        public static string JobExecutionIsInterrupted()
+        {
+            return $"Execution has been interrupted";
+        }
     }
 }
 

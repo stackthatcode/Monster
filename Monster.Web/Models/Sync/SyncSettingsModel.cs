@@ -11,6 +11,7 @@
         public string StartingOrderName { get; set; }
         public string StartOrderCreatedAtUtc { get; set; }
         public int MaxParallelAcumaticaSyncs { get; set; }
+        public int MaxNumberOfOrders { get; set; }
 
         public string StartingOrderHref { get; set; }
         public bool IsStartingOrderSet => StartingOrderId.HasValue;

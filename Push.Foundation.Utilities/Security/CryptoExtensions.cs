@@ -14,8 +14,7 @@ namespace Push.Foundation.Utilities.Security
         // static readonly byte[] PermanentSalt = Encoding.Unicode.GetBytes("Salt This, Baby!");
         //
         private static readonly 
-                byte[] PermanentSalt = 
-                    Encoding.Unicode.GetBytes("Salt My Boomba, Baby!");
+                byte[] PermanentSalt = Encoding.Unicode.GetBytes("Salt My Boomba, Baby!");
         
 
         public static string DpApiEncryptString(this SecureString input)
