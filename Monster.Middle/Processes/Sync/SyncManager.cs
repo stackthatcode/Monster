@@ -128,6 +128,8 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
             catch (Exception ex)
             {
+                // NOTE => must do this, as an uncaught exception will bring the entire process down
+                //
                 _logger.Error(ex);
             }
         }

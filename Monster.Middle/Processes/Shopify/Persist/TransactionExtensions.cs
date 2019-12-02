@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Sync.Model.Analysis;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Shopify.Api.Transactions;
 
@@ -89,11 +90,12 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return (order.PaymentTransaction()?.ShopifyAmount ?? 0m);
         }
 
-        public static decimal NetPaymentAppliedToOrder(this ShopifyOrder order)
+        public static decimal NetRemainingPayment(this ShopifyOrder order)
         {
             return order.PaymentAmount()
                    - order.RefundTransactions().Sum(x => x.ShopifyAmount)
-                   - order.ShopifyRefunds.Sum(x => x.DebitAdjustment);
+                   - order.ShopifyRefunds.Sum(x => x.DebitAdjustment)
+                   - order.AcumaticaInvoiceTotal();
         }
 
 

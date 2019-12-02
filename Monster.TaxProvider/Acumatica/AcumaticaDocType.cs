@@ -5,5 +5,6 @@
         public const string SalesOrder = "SO";
         public const string Invoice = "INV";
         public const string Freight = "Freight";
+        public const string Open = "Open";
     }
 }

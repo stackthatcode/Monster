@@ -41,6 +41,16 @@ namespace Monster.TaxProvider.Calc
                 };
             }
 
+            if (parts[0] == AcumaticaDocType.SalesOrder && parts[2] == AcumaticaDocType.Open)
+            {
+                return new CalcRequestContext
+                {
+                    Type = CalcRequestTypeEnum.SalesOrder,
+                    OrderType = parts[0],
+                    OrderNbr = parts[1]
+                };
+            }
+
             if (parts[0] == AcumaticaDocType.SalesOrder && parts[1] == AcumaticaDocType.SalesOrder)
             {
                 return new CalcRequestContext

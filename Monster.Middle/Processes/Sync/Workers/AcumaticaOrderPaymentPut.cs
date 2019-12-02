@@ -188,7 +188,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Amount computations
             //
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
-            var appliedToOrder = order.NetPaymentAppliedToOrder();
+            var appliedToOrder = order.NetRemainingPayment();
             payment.OrdersToApply = PaymentOrdersRef.ForOrder(
                 acumaticaOrderRef, SalesOrderType.SO, (double)appliedToOrder);
 
@@ -199,24 +199,31 @@ namespace Monster.Middle.Processes.Sync.Workers
             return payment;
         }
 
+
         private PaymentWrite BuildPaymentForUpdate(ShopifyTransaction transactionRecord)
         {
             // Build the Payment Ref and Description
             //
             var order = _syncOrderRepository.RetrieveShopifyOrder(transactionRecord.OrderId());
             var acumaticaOrderRef = order.AcumaticaSalesOrderId();
+            var paymentNbr = transactionRecord.AcumaticaPayment.AcumaticaRefNbr;
 
             // Applied To Order
-            var amountApplied = order.NetPaymentAppliedToOrder();
+            var paymentMinusRefundsAndDebits = order.NetRemainingPayment();
+
+            // On hold for now - this simply isn't so.
+            var paymentInAcumatica = _paymentClient.RetrievePayment(paymentNbr, PaymentType.Payment);
+            var appliedToDocuments = paymentInAcumatica.AppliedToDocuments.value;
+            var appliedToOrder = paymentMinusRefundsAndDebits - (decimal)appliedToDocuments;
+
 
             // Create the payload for Acumatica
             //
             var payment = new PaymentWrite();
-            payment.ReferenceNbr = transactionRecord.AcumaticaPayment.AcumaticaRefNbr.ToValue();
+            payment.ReferenceNbr = paymentNbr.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
             payment.OrdersToApply 
-                = PaymentOrdersRef.ForOrder(
-                        acumaticaOrderRef, SalesOrderType.SO, (double)amountApplied);
+                = PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double)appliedToOrder);
 
             return payment;
         }

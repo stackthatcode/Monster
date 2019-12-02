@@ -25,11 +25,11 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string RetrievePayment(string referenceNbr, string paymentType, string expand)
+        public Payment.Payment RetrievePayment(string referenceNbr, string paymentType)
         {
-            var path = $"Payment/{paymentType}/{referenceNbr}?$expand={expand}";
+            var path = $"Payment/{paymentType}/{referenceNbr}"; //?$expand={expand}";
             var response = _httpContext.Get(path);
-            return response.Body;
+            return response.Body.DeserializeFromJson<Payment.Payment>();
         }
 
         public string ReleasePayment(string referenceNbr, string paymentType)

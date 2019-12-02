@@ -113,7 +113,7 @@ namespace Monster.ConsoleApp.Testing
                 instanceContext.Initialize(TestInstanceId);
                 acumaticaContext.SessionRun(() =>
                 {
-                    var result = paymentClient.RetrievePayment("000014", "PMT", "ApplicationHistory"); 
+                    var result = paymentClient.RetrievePayment("000014", "PMT"); // "ApplicationHistory"); 
                     
                     // "DocumentsToApply");
                 });
