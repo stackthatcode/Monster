@@ -22,6 +22,14 @@ namespace Push.Foundation.Web
         }
 
 
+        public static void RegisterOwinAuthentication(ContainerBuilder builder)
+        {
+
+            builder
+                .Register(ctx => new HttpContextWrapper(HttpContext.Current).GetOwinContext().Authentication)
+                .As<IAuthenticationManager>();
+        }
+
         public static void RegisterOwinIdentity(ContainerBuilder builder)
         {
             // OWIN framework objects
@@ -39,10 +47,6 @@ namespace Push.Foundation.Web
             //    .RegisterType<UserStore<ApplicationUser>>()
             //    .As<IUserStore<ApplicationUser>>()
             //    .As<UserStore<ApplicationUser>>();
-
-            builder
-                .Register(ctx => new HttpContextWrapper(HttpContext.Current).GetOwinContext().Authentication)
-                .As<IAuthenticationManager>();
 
             builder.RegisterType<RoleStore<IdentityRole>>();
 

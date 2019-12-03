@@ -18,6 +18,7 @@ namespace Monster.Web
 
             // Dependent component registrations
             Push.Foundation.Web.FoundationWebAutofac.Build(builder);
+            Push.Foundation.Web.FoundationWebAutofac.RegisterOwinAuthentication(builder);
             Middle.MiddleAutofac.Build(builder);
 
             // Logging
