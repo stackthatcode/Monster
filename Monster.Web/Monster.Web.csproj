@@ -426,7 +426,7 @@
     <Content Include="Views\Analysis\ProductStockItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Customizations\TaxSnapShot.zip" />
+    <Content Include="Content\Customizations\BridgeForShopifyAcumatica.zip" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
