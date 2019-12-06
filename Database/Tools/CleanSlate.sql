@@ -117,12 +117,23 @@ ALTER DATABASE AcuInst0001 SET MULTI_USER
 
 
 /*
+
+DELETE FROM ExclusiveJobMOnitor
+
+DELETE FROM ExecutionLog
+
+EXEC dbo.DeleteAllAcumaticaOrderRecords;
+
+SELECT * FROM ShopifyOrder;
+
+
+
+*/
+/*
 DROP DATABASE AcuInst6;
 GO
 
 -- TODO - RESTORE DATABASE FROM FILE
-RESTORE DATABASE AcuInst6
-FROM DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\Backup\AcuInst2.bak'
 */
 
 UPDATE AcuInst0001..Users SET Password = '123456'

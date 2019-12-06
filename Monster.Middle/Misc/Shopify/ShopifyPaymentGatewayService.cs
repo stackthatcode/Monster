@@ -17,10 +17,13 @@ namespace Monster.Middle.Misc.Shopify
 
         private void Hydration()
         {
-            if (!_cachedList.Any())
+            lock (_cachedList)
             {
-                var data = _masterRepository.RetrievePaymentGateways();
-                _cachedList.AddRange(data);
+                if (!_cachedList.Any())
+                {
+                    var data = _masterRepository.RetrievePaymentGateways();
+                    _cachedList.AddRange(data);
+                }
             }
         }
 

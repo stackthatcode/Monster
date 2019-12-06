@@ -987,6 +987,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaShipmentDetailsJson { get; set; } // AcumaticaShipmentDetailsJson
         public string AcumaticaOrderNbr { get; set; } // AcumaticaOrderNbr (length: 50)
         public string AcumaticaStatus { get; set; } // AcumaticaStatus (length: 25)
+        public bool AcumaticaIsTaxValid { get; set; } // AcumaticaIsTaxValid
         public long ShopifyCustomerMonsterId { get; set; } // ShopifyCustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -2140,6 +2141,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaShipmentDetailsJson).HasColumnName(@"AcumaticaShipmentDetailsJson").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.AcumaticaOrderNbr).HasColumnName(@"AcumaticaOrderNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.AcumaticaIsTaxValid).HasColumnName(@"AcumaticaIsTaxValid").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyCustomerMonsterId).HasColumnName(@"ShopifyCustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();

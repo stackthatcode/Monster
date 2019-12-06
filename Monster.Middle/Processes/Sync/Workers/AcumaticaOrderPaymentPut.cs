@@ -13,6 +13,7 @@ using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Workers
@@ -24,19 +25,22 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly PaymentClient _paymentClient;
         private readonly SettingsRepository _settingsRepository;
         private readonly PendingActionStatusService _pendingActionStatusService;
+        private readonly IPushLogger _systemLogger;
 
         public AcumaticaOrderPaymentPut(
                     SyncOrderRepository syncOrderRepository, 
                     PaymentClient paymentClient, 
                     SettingsRepository settingsRepository, 
                     ExecutionLogService logService, 
-                    PendingActionStatusService pendingActionStatusService)
+                    PendingActionStatusService pendingActionStatusService, 
+                    IPushLogger systemLogger)
         {
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
             _settingsRepository = settingsRepository;
             _logService = logService;
             _pendingActionStatusService = pendingActionStatusService;
+            _systemLogger = systemLogger;
         }
 
 
@@ -52,7 +56,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        public void ProcessOrder(long shopifyOrderId)
+        public bool ProcessOrder(long shopifyOrderId)
         {
             try
             {
@@ -77,17 +81,18 @@ namespace Monster.Middle.Processes.Sync.Workers
                 {
                     ProcessRefundTransaction(refund);
                 }
+
+                return true;
             }
-            catch
+            catch(Exception ex)
             {
+                _systemLogger.Error(ex);
                 _logService.Log($"Encounter error syncing Payments for Shopify Order {shopifyOrderId}");
-                throw;
+                return false;
             }
         }
 
 
-        // Worker methods
-        //
         private void ProcessTransactionRelease(TransactionPendingAction status)
         {
             if (status.Action == PendingAction.ReleaseInAcumatica && status.ActionValidation.Success)

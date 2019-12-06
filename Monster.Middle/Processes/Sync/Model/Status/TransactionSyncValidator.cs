@@ -11,6 +11,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
         public ShopifyTransaction ThisTransaction { get; set; }
         public bool ValidPaymentGateway { get; set; }
         public ShopifyOrder ShopifyOrder { get; set; }
+        public AcumaticaSalesOrder AcumaticaSalesOrder { get; set; }
         public ShopifyTransaction PaymentTransaction => ShopifyOrder.PaymentTransaction();
 
         private Validation<TransactionSyncValidator> BuildBaseValidation()
@@ -24,7 +25,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
             var validation
                 = BuildBaseValidation()
                     .Add(x => !x.ThisTransaction.ExistsInAcumatica(), "Payment has already been created in Acumatica")
-                    .Add(x => x.ThisTransaction.IsPayment(), $"Transaction is not a capture or sale");
+                    .Add(x => x.ThisTransaction.IsPayment(), $"Transaction is not a capture or sale")
+                    .Add(x => x.AcumaticaSalesOrder.AcumaticaIsTaxValid, "Acumatica Sales Order Taxes are invalid");
 
             return validation.Run(this);
         }

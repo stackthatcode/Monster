@@ -37,6 +37,7 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 ValidPaymentGateway = _gatewayService.Exists(thisTransaction.ShopifyGateway),
                 ShopifyOrder = shopifyOrder,
+                AcumaticaSalesOrder = shopifyOrder.AcumaticaSalesOrder,
                 ThisTransaction = thisTransaction,
             };
         }

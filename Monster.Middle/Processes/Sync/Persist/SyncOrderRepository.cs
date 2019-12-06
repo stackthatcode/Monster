@@ -26,6 +26,9 @@ namespace Monster.Middle.Processes.Sync.Persist
         //
         public List<ShopifyOrder> RetrieveShopifyOrdersToPut()
         {
+            var settings = Entities.MonsterSettings.First();
+            var numberOfOrders = settings.MaxNumberOfOrders;
+
             return Entities
                 .ShopifyOrders
                 .Where(x => x.AcumaticaSalesOrder == null || x.NeedsOrderPut)
@@ -33,6 +36,8 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Include(x => x.ShopifyFulfillments)
                 .Include(x => x.ShopifyRefunds)
                 .Include(x => x.ShopifyTransactions)
+                .OrderBy(x => x.ShopifyOrderId)
+                .Take(numberOfOrders)
                 .ToList();
         }
 

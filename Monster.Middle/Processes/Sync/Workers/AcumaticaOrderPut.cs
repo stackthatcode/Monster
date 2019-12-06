@@ -19,6 +19,7 @@ using Monster.Middle.Processes.Sync.Services;
 using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
 using Push.Shopify.Api.Transactions;
 
@@ -36,6 +37,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
         private readonly OrderSyncValidationService _orderStatusService;
         private readonly JobMonitoringService _jobMonitoringService;
+        private readonly IPushLogger _systemLogger;
         private readonly SalesOrderClient _salesOrderClient;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
 
@@ -50,7 +52,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 AcumaticaCustomerPut acumaticaCustomerSync, 
                 AcumaticaOrderPaymentPut acumaticaOrderPaymentPut,
                 OrderSyncValidationService orderStatusService,
-                JobMonitoringService jobMonitoringService)
+                JobMonitoringService jobMonitoringService,
+                IPushLogger systemLogger)
         {
             _logService = logRepository;
             _settingsRepository = settingsRepository;
@@ -62,6 +65,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _acumaticaOrderPaymentPut = acumaticaOrderPaymentPut;
             _orderStatusService = orderStatusService;
             _jobMonitoringService = jobMonitoringService;
+            _systemLogger = systemLogger;
         }
 
 
@@ -111,6 +115,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             try
             {
+                _systemLogger.Debug($"AcumaticaOrderPut -> RunOrder({shopifyOrderId})");
+
                 var status = _orderStatusService.GetOrderSyncValidator(shopifyOrderId);
                 var readyToSyncValidation = status.Result();
 
@@ -134,15 +140,16 @@ namespace Monster.Middle.Processes.Sync.Workers
                 }
                 else
                 {
-                    _acumaticaOrderPaymentPut.ProcessOrder(orderRecord.ShopifyOrderId);
-
-                    UpdateExistingOrder(orderRecord);
+                    if (_acumaticaOrderPaymentPut.ProcessOrder(orderRecord.ShopifyOrderId))
+                    {
+                        UpdateExistingOrder(orderRecord);
+                    }
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                _systemLogger.Error(ex);
                 _logService.Log($"Encounter error syncing Shopify Order {shopifyOrderId}");
-                throw;
             }
         }
 
@@ -161,7 +168,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Create the local Order Record and Sync
             //
-            var newOrder = resultJson.DeserializeFromJson<SalesOrder>();
+            var newOrder = resultJson.ToSalesOrderObj();
 
             var newRecord = new AcumaticaSalesOrder();
             newRecord.ShopifyOrderMonsterId = shopifyOrderRecord.Id;
@@ -173,17 +180,18 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
             newRecord.AcumaticaStatus = newOrder.Status.value;
+            newRecord.AcumaticaIsTaxValid = newOrder.IsTaxValid.value;
             newRecord.ShopifyCustomerMonsterId = acumaticaCustomer.ShopifyCustomerMonsterId;
             newRecord.DateCreated = DateTime.UtcNow;
             newRecord.LastUpdated = DateTime.UtcNow;
 
             _acumaticaOrderRepository.InsertSalesOrder(newRecord);
 
-            shopifyOrderRecord.NeedsOrderPut = false;
+            shopifyOrderRecord.NeedsOrderPut = !newRecord.AcumaticaIsTaxValid;
             _syncOrderRepository.SaveChanges();
         }
 
-        private void UpdateExistingOrder(ShopifyOrder shopifyOrderRecord)
+        public AcumaticaSalesOrder UpdateExistingOrder(ShopifyOrder shopifyOrderRecord)
         {
             var logContent = LogBuilder.UpdatingAcumaticaSalesOrder(shopifyOrderRecord);
             _logService.Log(logContent);
@@ -192,11 +200,18 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             var resultJson = _salesOrderClient.WriteSalesOrder(updateOrderJson);
 
-            var acumaticaRecord = shopifyOrderRecord.SyncedSalesOrder();
-            acumaticaRecord.LastUpdated = DateTime.Now;
-            shopifyOrderRecord.NeedsOrderPut = false;
+            var salesOrder = resultJson.ToSalesOrderObj();
 
+            var acumaticaRecord = shopifyOrderRecord.SyncedSalesOrder();
+            acumaticaRecord.AcumaticaIsTaxValid = salesOrder.IsTaxValid.value;
+            acumaticaRecord.AcumaticaStatus = salesOrder.Status.value;
+            acumaticaRecord.LastUpdated = DateTime.Now;
             _syncOrderRepository.SaveChanges();
+
+            shopifyOrderRecord.NeedsOrderPut = !acumaticaRecord.AcumaticaIsTaxValid;
+            _syncOrderRepository.SaveChanges();
+
+            return acumaticaRecord;
         }
 
 

@@ -135,7 +135,10 @@ namespace Monster.Middle.Misc.Hangfire
                 _jobMonitoringService.CleanupPostExecution(jobMonitorId);
 
                 _logger.Error(ex);
-                throw;
+
+                // Do we need to do this...?
+                //
+                //throw;
             }
         }
     }

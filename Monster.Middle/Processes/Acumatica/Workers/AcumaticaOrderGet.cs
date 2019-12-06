@@ -120,6 +120,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
                 existingData.AcumaticaShipmentDetailsJson = order.SerializeToJson();
                 existingData.AcumaticaStatus = order.Status.value;
+                existingData.AcumaticaIsTaxValid = order.IsTaxValid.value;
                 existingData.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();
 
