@@ -15,17 +15,13 @@ namespace Monster.TaxProvider.Calc
     public class TaxCalcService
     {
         private readonly Logger _logger;
-        private readonly BqlRepository _repository;
         private readonly List<ITaxProviderSetting> _settings;
-        private readonly OtherInvoiceTaxService _invoiceTaxService;
 
         public TaxCalcService(Logger logger, List<ITaxProviderSetting> settings)
         {
             _logger = logger;
             _settings = settings;
 
-            _repository = new BqlRepository(new PXGraph(), _logger);
-            _invoiceTaxService = new OtherInvoiceTaxService(_repository, _logger);
         }
 
         public GetTaxResult Calculate(GetTaxRequest request)
@@ -71,7 +67,9 @@ namespace Monster.TaxProvider.Calc
 
         private CalcResult SalesOrderTax(CalcRequestContext context)
         {
-            var transfer = _repository.RetrieveTaxTransfer(context.OrderType, context.OrderNbr);
+            var repository = new BqlRepository(new PXGraph(), _logger);
+
+            var transfer = repository.RetrieveTaxTransfer(context.OrderType, context.OrderNbr);
             var result = new CalcResult();
 
             result.AddTaxLine("Sales Order Tax", 0m, transfer.NetTaxableAmount, transfer.NetTotalTax);
@@ -81,12 +79,15 @@ namespace Monster.TaxProvider.Calc
         private CalcResult InvoiceTax(GetTaxRequest request)
         {
             var context = request.ToCalcRequestContext();
-            var salesOrder = _repository.RetrieveSalesOrderByInvoice(context.InvoiceType, context.InvoiceNbr);
 
-            var transfer = _repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
+            var graph = new PXGraph();
+            var repository = new BqlRepository(graph, _logger);
+            var invoiceTaxService = new OtherInvoiceTaxService(repository, _logger);
 
-            var otherInvoiceTaxes =
-                    _invoiceTaxService.GetOtherTaxes(context.InvoiceType, context.InvoiceNbr);
+            var salesOrder = repository.RetrieveSalesOrderByInvoice(context.InvoiceType, context.InvoiceNbr);
+            var transfer = repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
+
+            var otherInvoiceTaxes = invoiceTaxService.GetOtherTaxes(context.InvoiceType, context.InvoiceNbr);
 
             if (salesOrder.OpenOrderQty == 0)
             {
@@ -104,7 +105,7 @@ namespace Monster.TaxProvider.Calc
             var taxTotal = transfer.NetTotalTax - otherInvoiceTaxes.TotalTaxAmount;
 
             // *** Add Payment Discrepancy
-
+            //
             var result = new CalcResult();
             result.AddTaxLine("Final Invoice Tax", 0m, taxableTotal, taxTotal);
             return result;

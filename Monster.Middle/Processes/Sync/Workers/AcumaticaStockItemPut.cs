@@ -46,20 +46,25 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 var variants = _syncRepository.RetrieveUnmatchedVariants(shopifyProductId);
 
+                var variantsForReceipt = new List<ShopifyVariant>();
+
                 foreach (var variant in variants)
                 {
-                    RunStockItemImport(context, variant);
+                    if (RunStockItemImport(context, variant))
+                    {
+                        variantsForReceipt.Add(variant);
+                    }
                 }
 
                 if (context.CreateInventoryReceipts)
                 {
                     RunInventoryReceiptImport(
-                        context.WarehouseId, shopifyProductId, context.VariantsForInventoryReceipt);
+                        context.WarehouseId, shopifyProductId, variantsForReceipt);
                 }
             }
         }
 
-        private void RunStockItemImport(AcumaticaStockItemImportContext context, ShopifyVariant variant)
+        private bool RunStockItemImport(AcumaticaStockItemImportContext context, ShopifyVariant variant)
         {
             var matchingShopifySkus 
                 = _syncRepository.RetrieveNonMissingVariants(variant.StandardizedSku());
@@ -67,7 +72,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             if (matchingShopifySkus.Count > 1)
             {
                 _logService.Log($"Stock Item Import: {variant.LogDescriptor()} has duplicates in Shopify - aborting");
-                return;
+                return false;
             }
 
             // Attempt to Auto-match
@@ -75,7 +80,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             if (variant.IsMatched())
             {
                 _logService.Log($"Stock Item Import: {variant.LogDescriptor()} already matched - aborting");
-                return;
+                return false;
             }
 
             var stockItem = _syncRepository.RetrieveStockItem(variant.StandardizedSku());
@@ -86,7 +91,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 {
                     var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
                     _logService.Log(msg);
-                    return;
+                    return false;
                 }
                 else
                 { 
@@ -94,7 +99,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                     _logService.Log(msg);
 
                     _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
-                    return;
+                    return false;
                 }
             }
 
@@ -103,6 +108,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             StockItemPush(context, variant);
             context.VariantsForInventoryReceipt.Add(variant);
+
+            return true;
         }
 
         public void StockItemPush(AcumaticaStockItemImportContext context, ShopifyVariant variant)

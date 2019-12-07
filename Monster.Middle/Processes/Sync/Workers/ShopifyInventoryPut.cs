@@ -48,11 +48,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            RunPriceUpdates();
-            RunInventoryUpdate();
+            return;
+            //RunPriceUpdates();
+            //RunInventoryUpdate();
         }
 
-        public void RunPriceUpdates()
+        private void RunPriceUpdates()
         {
             var stockItems = _syncInventoryRepository.RetrieveStockItemsPriceNotSynced();
 
@@ -170,7 +171,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             return output;
         }
 
-        public void RunInventoryUpdate()
+        private void RunInventoryUpdate()
         {
             var stockItems = _syncInventoryRepository.RetrieveStockItemInventoryNotSynced();
 

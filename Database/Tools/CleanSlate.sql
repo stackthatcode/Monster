@@ -98,17 +98,6 @@ AS
 GO
 
 
-
-EXEC dbo.DeleteAllSyncRecords;
-EXEC dbo.DeleteAllAcumaticaOrderRecords;
-EXEC dbo.DeleteAllAcumaticaInventoryRecords;
-EXEC dbo.DeleteAllShopifyOrderRecords;
-EXEC dbo.DeleteAllShopifyInventoryRecords;
-EXEC dbo.DeleteAllSystemRecords;
-
-
-
-
 ALTER DATABASE Monster0001 SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
 ALTER DATABASE Monster0001 SET MULTI_USER
 
@@ -117,25 +106,12 @@ ALTER DATABASE AcuInst0001 SET MULTI_USER
 
 
 /*
-
-DELETE FROM ExclusiveJobMOnitor
-
-DELETE FROM ExecutionLog
-
-EXEC dbo.DeleteAllAcumaticaOrderRecords;
-
-SELECT * FROM ShopifyOrder;
-
-
-
-*/
-/*
 DROP DATABASE AcuInst6;
 GO
 
+UPDATE AcuInst0001..Users SET Password = '123456'
+
 -- TODO - RESTORE DATABASE FROM FILE
 */
-
-UPDATE AcuInst0001..Users SET Password = '123456'
 
 

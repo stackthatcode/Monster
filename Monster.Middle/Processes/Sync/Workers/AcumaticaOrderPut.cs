@@ -261,7 +261,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 detail.OrderQty = ((double)lineItem.CancelAdjustedQuantity).ToValue();
                 detail.UnitPrice = ((double) lineItem.price).ToValue();
                 detail.DiscountAmount = ((double) lineItem.Discount).ToValue();
-                detail.ExtendedPrice = ((double)lineItem.NetLineAmount).ToValue();
+
+                // detail.ExtendedPrice = ((double)lineItem.NetLineAmount).ToValue();
 
                 detail.TaxCategory 
                     = lineItem.taxable

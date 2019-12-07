@@ -26,7 +26,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
                 = BuildBaseValidation()
                     .Add(x => !x.ThisTransaction.ExistsInAcumatica(), "Payment has already been created in Acumatica")
                     .Add(x => x.ThisTransaction.IsPayment(), $"Transaction is not a capture or sale")
-                    .Add(x => x.AcumaticaSalesOrder.AcumaticaIsTaxValid, "Acumatica Sales Order Taxes are invalid");
+                    .Add(x => x.AcumaticaSalesOrder == null || x.AcumaticaSalesOrder.AcumaticaIsTaxValid, "Acumatica Sales Order Taxes are invalid");
 
             return validation.Run(this);
         }

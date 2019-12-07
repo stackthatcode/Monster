@@ -1,0 +1,222 @@
+<Customization level="0" description="" product-version="19.112">
+    <Page path="~/pages/so/so301000.aspx" ControlId="1" pageSource="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">
+        <PXFormView ID="form" ParentId="phF_form" TypeFullName="PX.Web.UI.PXFormView">
+            <Children Key="Template">
+                <AddItem>
+                    <PXTextEdit TypeFullName="PX.Web.UI.PXTextEdit">
+                        <Prop Key="Virtual:ApplyStylesheetSkin" />
+                        <Prop Key="ID" Value="CstPXTextEdit1" />
+                        <Prop Key="DataField" Value="UsrTaxSnapshot" />
+                    </PXTextEdit>
+                </AddItem>
+                <PXLayoutRule OriginalIndex="13" />
+            </Children>
+        </PXFormView>
+    </Page>
+    <EntityEndpoint>
+        <Endpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="BridgeEndpoint" version="18.200.001" systemContractVersion="3" xmlns="http://www.acumatica.com/entity/maintenance/5.31">
+            <ExtendsEndpoint name="Default" version="18.200.001" />
+            <TopLevelEntity name="SalesOrder" screen="SO301000">
+                <Fields>
+                    <Field name="FreightPrice" type="DecimalValue" />
+                    <Field name="FreightTaxCategory" type="StringValue" />
+                    <Field name="OverrideFreightPrice" type="BooleanValue" />
+                    <Field name="UsrTaxSnapshot" type="StringValue" />
+                </Fields>
+                <Mappings>
+                    <Mapping field="OverrideFreightPrice">
+                        <To object="CurrentDocument: 6" field="OverrideFreightAmount" />
+                    </Mapping>
+                    <Mapping field="FreightPrice">
+                        <To object="CurrentDocument: 6" field="CuryFreightAmt" />
+                    </Mapping>
+                    <Mapping field="FreightTaxCategory">
+                        <To object="CurrentDocument: 6" field="FreightTaxCategoryID" />
+                    </Mapping>
+                </Mappings>
+            </TopLevelEntity>
+        </Endpoint>
+    </EntityEndpoint>
+    <File AppRelativePath="Bin\Monster.TaxProvider.dll" />
+    <File AppRelativePath="Bin\Monster.TaxProvider.pdb" />
+    <File AppRelativePath="Bin\Monster.TaxTransfer.dll" />
+    <File AppRelativePath="Bin\Monster.TaxTransfer.pdb" />
+    <GenericInquiryScreen>
+        <data-set>
+            <relations format-version="3" relations-version="20180809" main-table="GIDesign" stable-sharing="True" file-name="(Name)">
+                <link from="GIFilter (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GIGroupBy (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GIMassAction (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GIMassUpdateField (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GINavigationScreen (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GINavigationParameter (DesignID, ScreenID)" to="GINavigationScreen (DesignID, ScreenID)" />
+                <link from="GIOn (DesignID, RelationNbr)" to="GIRelation (DesignID, LineNbr)" />
+                <link from="GIRecordDefault (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GIRelation (DesignID, ParentTable)" to="GITable (DesignID, Alias)" />
+                <link from="GIRelation (DesignID, ChildTable)" to="GITable (DesignID, Alias)" />
+                <link from="GIResult (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GIResult (ObjectName, DesignID)" to="GITable (Alias, DesignID)" />
+                <link from="GISort (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GITable (DesignID)" to="GIDesign (DesignID)" />
+                <link from="GIWhere (DesignID)" to="GIDesign (DesignID)" />
+                <link from="SiteMap (Url)" to="GIDesign (DesignID)" type="WeakByUrl" linkname="toDesignById" baseurl="~/GenericInquiry/GenericInquiry.aspx" paramnames="id" />
+                <link from="SiteMap (Url)" to="GIDesign (Name)" type="WeakByUrl" linkname="toDesignByName" baseurl="~/GenericInquiry/GenericInquiry.aspx" />
+                <link from="ListEntryPoint (ListScreenID)" to="SiteMap (ScreenID)" />
+                <link from="SiteMap (ScreenID)" to="GIDesign (PrimaryScreenIDNew)" linkname="to1Screen" />
+                <link from="SiteMap (NodeID)" to="SiteMap (ParentID)" type="WeakToParent" recursive-nesting="yes" include-parents="False" />
+                <link from="FilterHeader (ScreenID)" to="SiteMap (ScreenID)" />
+                <link from="FilterRow (FilterID)" to="FilterHeader (FilterID)" />
+                <link from="PivotTable (NoteID)" to="FilterHeader (RefNoteID)" />
+                <link from="PivotField (ScreenID, PivotTableID)" to="PivotTable (ScreenID, PivotTableID)" />
+                <link from="MUIScreen (NodeID)" to="SiteMap (NodeID)" />
+                <link from="MUIWorkspace (WorkspaceID)" to="MUIScreen (WorkspaceID)" type="FromMaster" linkname="workspaceToScreen" split-location="yes" updateable="True" />
+                <link from="MUISubcategory (SubcategoryID)" to="MUIScreen (SubcategoryID)" type="FromMaster" updateable="True" />
+                <link from="MUITile (ScreenID)" to="SiteMap (ScreenID)" />
+                <link from="MUIWorkspace (WorkspaceID)" to="MUITile (WorkspaceID)" type="FromMaster" linkname="workspaceToTile" split-location="yes" updateable="True" />
+                <link from="MUIArea (AreaID)" to="MUIWorkspace (AreaID)" type="FromMaster" updateable="True" />
+                <link from="MUIPinnedScreen (NodeID, WorkspaceID)" to="MUIScreen (NodeID, WorkspaceID)" type="WeakIfEmpty" isEmpty="Username" />
+                <link from="MUIFavoriteWorkspace (WorkspaceID)" to="MUIWorkspace (WorkspaceID)" type="WeakIfEmpty" isEmpty="Username" />
+                <link from="GIDesign (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="GIFilter (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="GIFilter (NoteID)" to="GIFilterKvExt (RecordID)" type="RowKvExt" />
+                <link from="GIGroupBy (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="GIOn (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="GIRelation (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="GIResult (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="GIResult (NoteID)" to="GIResultKvExt (RecordID)" type="RowKvExt" />
+                <link from="GISort (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="GITable (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="GIWhere (NoteID)" to="Note (NoteID)" type="Note" />
+                <link from="FilterHeader (NoteID)" to="Note (NoteID)" type="Note" />
+            </relations>
+            <layout>
+                <table name="GIDesign">
+                    <table name="GIFilter" uplink="(DesignID) = (DesignID)">
+                        <table name="Note" uplink="(NoteID) = (NoteID)" />
+                        <table name="GIFilterKvExt" uplink="(NoteID) = (RecordID)" />
+                    </table>
+                    <table name="GIGroupBy" uplink="(DesignID) = (DesignID)">
+                        <table name="Note" uplink="(NoteID) = (NoteID)" />
+                    </table>
+                    <table name="GIMassAction" uplink="(DesignID) = (DesignID)" />
+                    <table name="GIMassUpdateField" uplink="(DesignID) = (DesignID)" />
+                    <table name="GINavigationScreen" uplink="(DesignID) = (DesignID)">
+                        <table name="GINavigationParameter" uplink="(DesignID, ScreenID) = (DesignID, ScreenID)" />
+                    </table>
+                    <table name="GIRecordDefault" uplink="(DesignID) = (DesignID)" />
+                    <table name="GISort" uplink="(DesignID) = (DesignID)">
+                        <table name="Note" uplink="(NoteID) = (NoteID)" />
+                    </table>
+                    <table name="GITable" uplink="(DesignID) = (DesignID)">
+                        <table name="GIRelation" uplink="(DesignID, Alias) = (DesignID, ParentTable)">
+                            <table name="GIOn" uplink="(DesignID, LineNbr) = (DesignID, RelationNbr)">
+                                <table name="Note" uplink="(NoteID) = (NoteID)" />
+                            </table>
+                            <table name="Note" uplink="(NoteID) = (NoteID)" />
+                        </table>
+                        <table name="GIResult" uplink="(Alias, DesignID) = (ObjectName, DesignID)">
+                            <table name="Note" uplink="(NoteID) = (NoteID)" />
+                            <table name="GIResultKvExt" uplink="(NoteID) = (RecordID)" />
+                        </table>
+                        <table name="Note" uplink="(NoteID) = (NoteID)" />
+                    </table>
+                    <table name="GIWhere" uplink="(DesignID) = (DesignID)">
+                        <table name="Note" uplink="(NoteID) = (NoteID)" />
+                    </table>
+                    <table name="SiteMap" uplink="(DesignID) = (Url)" recursion="(NodeID) = (ParentID)" linkname="toDesignById">
+                        <table name="ListEntryPoint" uplink="(ScreenID) = (ListScreenID)" />
+                        <table name="FilterHeader" uplink="(ScreenID) = (ScreenID)">
+                            <table name="FilterRow" uplink="(FilterID) = (FilterID)" />
+                            <table name="PivotTable" uplink="(RefNoteID) = (NoteID)">
+                                <table name="PivotField" uplink="(ScreenID, PivotTableID) = (ScreenID, PivotTableID)" />
+                            </table>
+                            <table name="Note" uplink="(NoteID) = (NoteID)" />
+                        </table>
+                        <table name="MUIScreen" uplink="(NodeID) = (NodeID)">
+                            <table name="MUIPinnedScreen" uplink="(NodeID, WorkspaceID) = (NodeID, WorkspaceID)" />
+                        </table>
+                        <table name="MUITile" uplink="(ScreenID) = (ScreenID)" />
+                    </table>
+                    <table name="SiteMap" uplink="(Name) = (Url)" recursion="(NodeID) = (ParentID)" linkname="toDesignByName">
+                        <table name="ListEntryPoint" uplink="(ScreenID) = (ListScreenID)" />
+                        <table name="FilterHeader" uplink="(ScreenID) = (ScreenID)">
+                            <table name="FilterRow" uplink="(FilterID) = (FilterID)" />
+                            <table name="PivotTable" uplink="(RefNoteID) = (NoteID)">
+                                <table name="PivotField" uplink="(ScreenID, PivotTableID) = (ScreenID, PivotTableID)" />
+                            </table>
+                            <table name="Note" uplink="(NoteID) = (NoteID)" />
+                        </table>
+                        <table name="MUIScreen" uplink="(NodeID) = (NodeID)">
+                            <table name="MUIPinnedScreen" uplink="(NodeID, WorkspaceID) = (NodeID, WorkspaceID)" />
+                        </table>
+                        <table name="MUITile" uplink="(ScreenID) = (ScreenID)" />
+                    </table>
+                    <table name="SiteMap" uplink="(PrimaryScreenIDNew) = (ScreenID)" recursion="(NodeID) = (ParentID)" linkname="to1Screen">
+                        <table name="ListEntryPoint" uplink="(ScreenID) = (ListScreenID)" />
+                        <table name="FilterHeader" uplink="(ScreenID) = (ScreenID)">
+                            <table name="FilterRow" uplink="(FilterID) = (FilterID)" />
+                            <table name="PivotTable" uplink="(RefNoteID) = (NoteID)">
+                                <table name="PivotField" uplink="(ScreenID, PivotTableID) = (ScreenID, PivotTableID)" />
+                            </table>
+                            <table name="Note" uplink="(NoteID) = (NoteID)" />
+                        </table>
+                        <table name="MUIScreen" uplink="(NodeID) = (NodeID)">
+                            <table name="MUIPinnedScreen" uplink="(NodeID, WorkspaceID) = (NodeID, WorkspaceID)" />
+                        </table>
+                        <table name="MUITile" uplink="(ScreenID) = (ScreenID)" />
+                    </table>
+                    <table name="Note" uplink="(NoteID) = (NoteID)" />
+                </table>
+                <table name="MUIWorkspace">
+                    <table name="MUIFavoriteWorkspace" uplink="(WorkspaceID) = (WorkspaceID)" />
+                </table>
+                <table name="MUISubcategory" />
+                <table name="MUIArea" />
+            </layout>
+            <data>
+                <GIDesign>
+                    <row DesignID="0ecb05fd-7b11-4671-a7c0-ce8bc6c0f179" Name="InventoryStatus" FilterColCount="3" PageSize="0" ExportTop="0" NewRecordCreationEnabled="0" MassDeleteEnabled="0" AutoConfirmDelete="0" MassRecordsUpdateEnabled="0" MassActionsOnRecordsEnabled="0" ExposeViaOData="1" ExposeViaMobile="0">
+                        <GISort LineNbr="1" IsActive="1" DataFieldName="InventoryItem.inventoryCD" SortOrder="A" />
+                        <GITable Alias="InventoryItem" Name="PX.Objects.IN.InventoryItem">
+                            <GIResult LineNbr="4" SortOrder="4" IsActive="1" Field="basePrice" SchemaField="InventoryItem.BasePrice" IsVisible="1" DefaultNav="1" QuickFilter="0" FastFilter="1" RowID="a9110603-4f10-4187-a0e1-4cfbb9097489" />
+                            <GIResult LineNbr="1" SortOrder="1" IsActive="1" Field="inventoryCD" SchemaField="InventoryItem.InventoryCD" IsVisible="1" DefaultNav="1" QuickFilter="0" FastFilter="1" RowID="1b476f0c-5ef7-414e-92b7-b921bcf230a1" />
+                        </GITable>
+                        <GITable Alias="INSiteStatus" Name="PX.Objects.IN.INSiteStatus">
+                            <GIRelation LineNbr="2" ChildTable="INItemCost" IsActive="1" JoinType="I">
+                                <GIOn LineNbr="2" ParentField="inventoryID" Condition="E " ChildField="inventoryID" Operation="A" />
+                            </GIRelation>
+                            <GIRelation LineNbr="1" ChildTable="InventoryItem" IsActive="1" JoinType="I">
+                                <GIOn LineNbr="1" ParentField="inventoryID" Condition="E " ChildField="inventoryID" Operation="A" />
+                            </GIRelation>
+                            <GIResult LineNbr="3" SortOrder="3" IsActive="1" Field="qtyAvail" SchemaField="INSiteStatus.QtyAvail" IsVisible="1" DefaultNav="1" QuickFilter="0" FastFilter="1" RowID="b6632e53-b57e-480e-8279-4a42c7215809" />
+                            <GIResult LineNbr="2" SortOrder="2" IsActive="1" Field="lastModifiedDateTime" SchemaField="INSiteStatus.LastModifiedDateTime" IsVisible="1" DefaultNav="1" QuickFilter="0" FastFilter="0" RowID="947365b5-69c2-4cc5-aa94-da49de717aa1" />
+                        </GITable>
+                        <GITable Alias="INItemCost" Name="PX.Objects.IN.INItemCost">
+                            <GIResult LineNbr="5" SortOrder="5" IsActive="1" Field="lastCost" SchemaField="INItemCost.LastCost" IsVisible="1" DefaultNav="1" QuickFilter="0" FastFilter="1" RowID="2092974b-5de5-4cc7-af89-c83156304fc7" />
+                        </GITable>
+                        <SiteMap linkname="toDesignById">
+                            <row Position="6" Title="Inventory Status" Url="~/GenericInquiry/GenericInquiry.aspx?id=0ecb05fd-7b11-4671-a7c0-ce8bc6c0f179" Expanded="0" IsFolder="0" ScreenID="GI000014" NodeID="e943674e-7cfe-439f-b8d1-bb71e793966b" ParentID="53d64564-18b5-4e53-8015-59b902c6ab92">
+                                <MUIScreen IsPortal="0" WorkspaceID="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" Order="1990" SubcategoryID="98e86774-69e3-41ea-b94f-eb2c7a8426d4" />
+                            </row>
+                        </SiteMap>
+                    </row>
+                </GIDesign>
+                <MUIWorkspace>
+                    <row IsPortal="1" WorkspaceID="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" Order="5" Title="Data Views" Icon="poll" IsSystem="1">
+                        <MUIFavoriteWorkspace IsPortal="0" Username="" IsFavorite="1" />
+                    </row>
+                    <row IsPortal="0" WorkspaceID="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" Order="32" Title="Data Views" Icon="poll" IsSystem="1">
+                        <MUIFavoriteWorkspace IsPortal="0" Username="" IsFavorite="1" />
+                    </row>
+                </MUIWorkspace>
+                <MUISubcategory>
+                    <row IsPortal="1" SubcategoryID="98e86774-69e3-41ea-b94f-eb2c7a8426d4" Order="896" Name="Inquiries" Icon="" IsSystem="1" />
+                    <row IsPortal="0" SubcategoryID="98e86774-69e3-41ea-b94f-eb2c7a8426d4" Order="896" Name="Inquiries" Icon="" IsSystem="1" />
+                </MUISubcategory>
+            </data>
+        </data-set>
+    </GenericInquiryScreen>
+    <Table TableName="SOOrder">
+        <Column TableName="SOOrder" ColumnName="UsrTaxSnapshot" ColumnType="string" AllowNull="True" MaxLength="4000" DecimalPrecision="0" DecimalLength="0" IsNewColumn="True" IsUnicode="True" />
+    </Table>
+</Customization>

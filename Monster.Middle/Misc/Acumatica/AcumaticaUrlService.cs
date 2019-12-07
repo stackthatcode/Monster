@@ -21,7 +21,7 @@ namespace Monster.Middle.Misc.Acumatica
         public string AcumaticaSalesOrderUrl(string orderType, string refNbr)
         {
             var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
-            return $"{acumaticaCredentials.InstanceUrl}Main" 
+            return $"{acumaticaCredentials.InstanceUrl}/Main" 
                    + $"?ScreenId=SO301000&OrderType={orderType}&OrderNbr={refNbr}";
         }
     }

@@ -51,7 +51,7 @@ namespace Monster.TaxProvider.Acumatica
                 ((SOOrder)PXSelect<SOOrder,
                         Where<SOOrder.orderNbr, Equal<Required<SOOrder.orderNbr>>,
                             And<SOOrder.orderType, Equal<Required<SOOrder.orderType>>>>>
-                    .Select(_graph, orderNumber, orderType));
+                    .Select(_graph, orderNumber, orderType))
             return salesOrder;
         }
 

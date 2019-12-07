@@ -48,21 +48,22 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments();
+            return;
+            //var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments();
             
-            foreach (var salesOrderRef in salesOrderRefs)
-            {
-                var syncReadiness = _fulfillmentStatusService.IsReadyToSyncWithShopify(salesOrderRef);
+            //foreach (var salesOrderRef in salesOrderRefs)
+            //{
+            //    var syncReadiness = _fulfillmentStatusService.IsReadyToSyncWithShopify(salesOrderRef);
 
-                if (syncReadiness.IsReady)
-                {
-                    PushFulfillmentToShopify(salesOrderRef);
-                }
-            }
+            //    if (syncReadiness.IsReady)
+            //    {
+            //        PushFulfillmentToShopify(salesOrderRef);
+            //    }
+            //}
         }
 
 
-        public void PushFulfillmentToShopify(AcumaticaSoShipment salesOrderShipment)
+        private void PushFulfillmentToShopify(AcumaticaSoShipment salesOrderShipment)
         {
             var salesOrderNbr = salesOrderShipment.AcumaticaSalesOrder.AcumaticaOrderNbr;
             var orderRecord = _syncOrderRepository.RetrieveSalesOrder(salesOrderNbr);
@@ -138,7 +139,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        public Location RetrieveMatchingLocation(Shipment shipment)
+        private Location RetrieveMatchingLocation(Shipment shipment)
         {
             var warehouse = _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
             var locationRecord = warehouse.MatchedLocation();
