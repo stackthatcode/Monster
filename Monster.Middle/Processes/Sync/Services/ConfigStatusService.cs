@@ -124,7 +124,7 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var state = _stateRepository.RetrieveSystemStateNoTracking();
             
-            var referenceData = _combinedRefDataService.Retrieve();
+            var referenceData = _combinedRefDataService.RetrieveRefData();
             
             var model = new AcumaticaReferenceDataState()
             {

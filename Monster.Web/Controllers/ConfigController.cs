@@ -158,7 +158,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult AcumaticaReferenceData()
         {
-            var data = _combinedRefDataService.Retrieve();
+            var data = _combinedRefDataService.RetrieveRefData();
             return new JsonNetResult(data);
         }
 
