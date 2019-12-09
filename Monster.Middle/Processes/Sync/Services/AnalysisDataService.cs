@@ -100,11 +100,15 @@ namespace Monster.Middle.Processes.Sync.Services
                 queryable = queryable.Where(x => x.IsBlocked == true);
             }
 
+            if (request.OrderStatus == AnalyzerStatus.Errors)
+            {
+                queryable = queryable.Where(x => x.HasError == true);
+            }
+
             return queryable;
         }
 
-        public OrderAnalysisTotals GetOrderFinancialSummary(
-                long shopifyOrderId, bool includeAcumaticaTotals = false)
+        public OrderAnalysisTotals GetOrderFinancialSummary(long shopifyOrderId, bool includeAcumaticaTotals = false)
         {
             var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -119,12 +123,9 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyTotalTax = shopifyOrder.total_tax;
             output.ShopifyOrderTotal = shopifyOrder.total_price;
 
-            output.ShopifyOrderPayment
-                = shopifyOrderRecord.ShopifyPaymentAmount();
-            output.ShopifyRefundPayment 
-                = shopifyOrderRecord.RefundTransactions().Sum(x => x.ShopifyAmount);
-            output.ShopifyNetPayment
-                = shopifyOrderRecord.ShopifyNetPayment();
+            output.ShopifyOrderPayment = shopifyOrderRecord.ShopifyPaymentAmount();
+            output.ShopifyRefundPayment = shopifyOrderRecord.RefundTransactions().Sum(x => x.ShopifyAmount);
+            output.ShopifyNetPayment = shopifyOrderRecord.ShopifyNetPayment();
 
             output.ShopifyRefundItemTotal = shopifyOrder.RefundLineItemTotal;
             output.ShopifyRefundShippingTotal = shopifyOrder.RefundShippingTotal;
@@ -213,7 +214,7 @@ namespace Monster.Middle.Processes.Sync.Services
             }
 
             output.IsBlocked = order.IsBlocked;
-
+            output.HasError = order.HasError;
             return output;
         }
 
@@ -232,9 +233,13 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var queryable = ProductStockItemQueryable;
 
-            if (request.SyncFilter != "All")
+            if (request.SyncFilter == "Synced Only")
             {
                 queryable = queryable.Where(x => x.AcumaticaStockItems.Any());
+            }
+            if (request.SyncFilter == "Unsynced Only")
+            {
+                queryable = queryable.Where(x => !x.AcumaticaStockItems.Any());
             }
 
             foreach (var term in ParseSearchTerms(request.SearchText))

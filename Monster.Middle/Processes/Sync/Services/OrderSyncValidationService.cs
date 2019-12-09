@@ -11,19 +11,16 @@ namespace Monster.Middle.Processes.Sync.Services
 {
     public class OrderSyncValidationService
     {
-        private readonly ShopifyPaymentGatewayService _gatewayService;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly SettingsRepository _settingsRepository;
 
 
         public OrderSyncValidationService(
-                ShopifyPaymentGatewayService gatewayService, 
                 SyncOrderRepository syncOrderRepository, 
                 SettingsRepository settingsRepository, 
                 SyncInventoryRepository syncInventoryRepository)
         {
-            _gatewayService = gatewayService;
             _syncOrderRepository = syncOrderRepository;
             _settingsRepository = settingsRepository;
             _syncInventoryRepository = syncInventoryRepository;
@@ -35,7 +32,7 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             return new TransactionSyncValidator
             {
-                ValidPaymentGateway = _gatewayService.Exists(thisTransaction.ShopifyGateway),
+                ValidPaymentGateway = _settingsRepository.GatewayExists(thisTransaction.ShopifyGateway),
                 ShopifyOrder = shopifyOrder,
                 AcumaticaSalesOrder = shopifyOrder.AcumaticaSalesOrder,
                 ThisTransaction = thisTransaction,
@@ -60,7 +57,7 @@ namespace Monster.Middle.Processes.Sync.Services
             if (orderRecord.HasPayment())
             {
                 output.ShopifyPaymentGatewayId = orderRecord.PaymentTransaction().ShopifyGateway;
-                output.HasValidGateway = _gatewayService.Exists(output.ShopifyPaymentGatewayId);
+                output.HasValidGateway = _settingsRepository.GatewayExists(output.ShopifyPaymentGatewayId);
             }
 
             return output;

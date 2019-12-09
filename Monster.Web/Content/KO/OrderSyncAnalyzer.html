@@ -87,6 +87,7 @@
                 <select class="form-control" data-bind="value: OrderStatus">
                     <option value="All">All</option>
                     <option value="Blocked">Blocked</option>
+                    <option value="Errors">Errors</option>
                 </select>
             </div>
 
@@ -121,7 +122,10 @@
                     <div data-bind="if: IsBlocked">
                         <div class="badge badge-danger">Blocked</div>
                     </div>
-                    <div data-bind="ifnot: IsBlocked">
+                    <div data-bind="if: HasError">
+                        <div class="badge badge-warning">Error</div>
+                    </div>
+                    <div data-bind="ifnot: IsBlocked || HasError">
                         <div class="badge badge-success">OK</div>
                     </div>
                 </td>

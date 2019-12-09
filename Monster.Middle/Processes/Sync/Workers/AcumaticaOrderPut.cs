@@ -145,11 +145,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                         UpdateExistingOrder(orderRecord);
                     }
                 }
+
+                _syncOrderRepository.UpdateShopifyHasError(shopifyOrderId, false);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _systemLogger.Error(ex);
                 _logService.Log($"Encounter error syncing Shopify Order {shopifyOrderId}");
+                _syncOrderRepository.UpdateShopifyHasError(shopifyOrderId, true);
             }
         }
 

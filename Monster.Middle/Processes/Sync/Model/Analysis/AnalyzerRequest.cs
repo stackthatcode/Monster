@@ -17,5 +17,6 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
     {
         public const string All = "All";
         public const string Blocked = "Blocked";
+        public const string Errors = "Errors";
     }
 }

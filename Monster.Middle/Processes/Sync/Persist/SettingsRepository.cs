@@ -76,6 +76,11 @@ namespace Monster.Middle.Processes.Sync.Persist
             _dataContext.Entities.SaveChanges();
         }
 
+        public bool GatewayExists(string shopifyGatewayId)
+        {
+            return _dataContext.Entities.PaymentGateways.Any(x => x.ShopifyGatewayId == shopifyGatewayId);
+        }
+
 
         public MonsterSetting RetrieveSettings()
         {
@@ -85,10 +90,10 @@ namespace Monster.Middle.Processes.Sync.Persist
                 {
                     var settings = new MonsterSetting();
 
-                    settings.SyncOrdersEnabled = true;
-                    settings.SyncInventoryEnabled = true;
-                    settings.SyncRefundsEnabled = true;
-                    settings.SyncFulfillmentsEnabled = true;
+                    settings.SyncOrdersEnabled = false;
+                    settings.SyncInventoryEnabled = false;
+                    settings.SyncRefundsEnabled = false;
+                    settings.SyncFulfillmentsEnabled = false;
                     settings.MaxParallelAcumaticaSyncs = 1;
                     settings.MaxNumberOfOrders = 1;
 

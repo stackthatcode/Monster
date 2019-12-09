@@ -1398,6 +1398,7 @@ namespace Monster.Middle.Persist.Instance
         public bool NeedsTransactionGet { get; set; } // NeedsTransactionGet
         public bool NeedsOrderPut { get; set; } // NeedsOrderPut
         public bool IsBlocked { get; set; } // IsBlocked
+        public bool HasError { get; set; } // HasError
         public long CustomerMonsterId { get; set; } // CustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
@@ -2593,6 +2594,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.NeedsTransactionGet).HasColumnName(@"NeedsTransactionGet").HasColumnType("bit").IsRequired();
             Property(x => x.NeedsOrderPut).HasColumnName(@"NeedsOrderPut").HasColumnType("bit").IsRequired();
             Property(x => x.IsBlocked).HasColumnName(@"IsBlocked").HasColumnType("bit").IsRequired();
+            Property(x => x.HasError).HasColumnName(@"HasError").HasColumnType("bit").IsRequired();
             Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();

@@ -17,6 +17,7 @@
 
         public decimal OutstandingBalance { get; set; }
         public bool IsBlocked { get; set; }
+        public bool HasError { get; set; }
 
         public OrderAnalyzerResultsRow()
         {

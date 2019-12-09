@@ -49,7 +49,8 @@
             <div class="col-sm-2">
                 <select class="form-control" data-bind="value: SyncFilter">
                     <option value="All">All</option>
-                    <option value="Blocked">Synced Only</option>
+                    <option value="Synced Only">Synced Only</option>
+                    <option value="Unsynced Only">Unsynced Only</option>
                 </select>
             </div>
 
@@ -145,7 +146,7 @@
         };
 
         self.SyncFilter = ko.observable("All");
-        self.SyncFilter.subscribe(function() { self.RefreshGrid(); });
+        self.SyncFilter.subscribe(function() {self.RefreshGrid(); });
 
         self.FilterClick = function () {
             self.RefreshGrid();
@@ -162,6 +163,8 @@
 
         self.RefreshGrid = function (callback) {
             flow.exec(function () {
+                //alert(self.SyncFilter());
+
                 var ajax = new Monster.Ajax();
                 var request = {
                     PageNumber: self.PagingWidget.PageNumber(),

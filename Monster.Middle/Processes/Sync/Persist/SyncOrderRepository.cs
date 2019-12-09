@@ -184,6 +184,12 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
 
+        public void UpdateShopifyHasError(long shopifyOrderId, bool hasError)
+        {
+            var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);
+            order.HasError = hasError;
+            Entities.SaveChanges();
+        }
 
         // Payment Synchronization
         //
