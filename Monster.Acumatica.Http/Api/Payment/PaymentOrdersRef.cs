@@ -9,8 +9,7 @@ namespace Monster.Acumatica.Api.Payment
         public StringValue OrderType { get; set; }
         public DoubleValue AppliedToOrder { get; set; }
 
-        public static List<PaymentOrdersRef> 
-                ForOrder(string orderNbr, string orderType, double appliedToOrder)
+        public static List<PaymentOrdersRef> ForOrder(string orderNbr, string orderType, double appliedToOrder)
         {
             return new List<PaymentOrdersRef>()
             {
@@ -24,3 +23,4 @@ namespace Monster.Acumatica.Api.Payment
         }
     }
 }
+

@@ -24,21 +24,33 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Order Syncing
         //
-        public List<ShopifyOrder> RetrieveShopifyOrdersToPut()
+        private IQueryable<ShopifyOrder> 
+            OrdersForPutting =>
+                Entities.ShopifyOrders
+                    .Include(x => x.ShopifyCustomer)
+                    .Include(x => x.ShopifyFulfillments)
+                    .Include(x => x.ShopifyRefunds)
+                    .Include(x => x.ShopifyTransactions);
+
+        public List<long> RetrieveShopifyOrdersToPut()
         {
             var settings = Entities.MonsterSettings.First();
             var numberOfOrders = settings.MaxNumberOfOrders;
 
-            return Entities
-                .ShopifyOrders
-                .Where(x => x.AcumaticaSalesOrder == null || x.NeedsOrderPut)
-                .Include(x => x.ShopifyCustomer)
-                .Include(x => x.ShopifyFulfillments)
-                .Include(x => x.ShopifyRefunds)
-                .Include(x => x.ShopifyTransactions)
-                .OrderBy(x => x.ShopifyOrderId)
+            var newOrders = OrdersForPutting
+                .Where(x => x.AcumaticaSalesOrder == null)
                 .Take(numberOfOrders)
+                .Select(x => x.ShopifyOrderId)
                 .ToList();
+
+            var updatedOrders = OrdersForPutting
+                .Where(x => x.NeedsOrderPut == true && x.AcumaticaSalesOrder != null)
+                .Select(x => x.ShopifyOrderId)
+                .ToList();
+
+            var output = newOrders;
+            output.AddRange(updatedOrders);
+            return output.Distinct().OrderBy(x => x).ToList();
         }
 
         public ShopifyOrder RetrieveShopifyOrder(long shopifyOrderId)
@@ -141,9 +153,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
-                .Where(x => x.ShopifyOrder.AcumaticaSalesOrder != null
-                            && x.Ignore == false 
-                            && (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
+                .Where(x => x.Ignore == false && (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
                 .Select(x => x.ShopifyOrder.ShopifyOrderId)
                 .Distinct()
                 .ToList();
@@ -153,9 +163,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
-                .Where(x => x.ShopifyOrder.AcumaticaSalesOrder != null
-                            && x.AcumaticaPayment != null
-                            && x.AcumaticaPayment.IsReleased == false)
+                .Where(x => x.AcumaticaPayment != null && x.AcumaticaPayment.IsReleased == false)
                 .Select(x => x.ShopifyOrder.ShopifyOrderId)
                 .Distinct()
                 .ToList();

@@ -117,18 +117,6 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 settings.AcumaticaTaxExemptCategory = null;
             }
 
-            if (referenceData.TaxIds.All(x => x != settings.AcumaticaLineItemTaxId))
-            {
-                _logService.Log($"Tax ID {settings.AcumaticaLineItemTaxId} is missing from Acumatica");
-                settings.AcumaticaLineItemTaxId = null;
-            }
-
-            if (referenceData.TaxIds.All(x => x != settings.AcumaticaFreightTaxId))
-            {
-                _logService.Log($"Tax ID {settings.AcumaticaFreightTaxId} is missing from Acumatica");
-                settings.AcumaticaFreightTaxId = null;
-            }
-
             if (referenceData.TaxZones.All(x => x != settings.AcumaticaTaxZone))
             {
                 _logService.Log($"Tax Zone {settings.AcumaticaTaxZone} is missing from Acumatica");

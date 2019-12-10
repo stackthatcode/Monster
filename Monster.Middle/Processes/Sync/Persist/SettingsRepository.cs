@@ -76,7 +76,7 @@ namespace Monster.Middle.Processes.Sync.Persist
             _dataContext.Entities.SaveChanges();
         }
 
-        public bool GatewayExists(string shopifyGatewayId)
+        public bool GatewayExistsInConfig(string shopifyGatewayId)
         {
             return _dataContext.Entities.PaymentGateways.Any(x => x.ShopifyGatewayId == shopifyGatewayId);
         }

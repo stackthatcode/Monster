@@ -165,14 +165,14 @@
             </li>
             <!-- /ko -->
 
-            <!-- ko if: IsPendingActionSummaryActive -->
+            <!-- ko if: IsRootActionActive -->
             <li class="nav-item">
                 <a class="nav-link active" href="#">Order Status</a>
             </li>
             <!-- /ko -->
-            <!-- ko ifnot: IsPendingActionSummaryActive -->
+            <!-- ko ifnot: IsRootActionActive -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-bind="click: PendingActionSummaryClick">Order Status</a>
+                <a class="nav-link" href="#" data-bind="click: RootActionClick">Order Status</a>
             </li>
             <!-- /ko -->
         </ul>
@@ -183,8 +183,8 @@
             <div data-bind="template: { name: 'Order-Analyzer-Financial-Summary', data: FinancialSummary }">
             </div>
         </div>
-        <div data-bind="if: IsPendingActionSummaryActive">
-            <div data-bind="template: { name: 'Order-Analyzer-Pending-Action', data: PendingActionSummary }">
+        <div data-bind="if: IsRootActionActive">
+            <div data-bind="template: { name: 'Order-Analyzer-Pending-Action', data: RootAction }">
             </div>
         </div>
         <div data-bind="if: IsShopifyDetailActive">
@@ -203,58 +203,56 @@
     </style>
     <div style="min-height: 400px;" class="pending-action-view">
         <div class="alert" data-bind="css: {
-                 'alert-info': OrderSyncValidation.Success,
-                 'alert-danger': !OrderSyncValidation.Success }">
+                 'alert-info': OrderAction.IsValid.Success,
+                 'alert-danger': !OrderAction.IsValid.Success }">
             <strong>
                 <a target="_blank" data-bind="attr: { href: ShopifyOrderHref }">
                     Shopify Order <span data-bind="text: ShopifyOrderName"></span>
                 </a>
             </strong>
 
-            <span>-</span> <span data-bind="text: ShopifyOrderActionDesc"></span>
+            <span>-</span> <span data-bind="text: OrderAction.ShopifyOrderActionDesc"></span>
 
-            <div data-bind="foreach: OrderSyncValidation.FailureMessages">
+            <div data-bind="foreach: OrderAction.CreateOrderValidation.FailureMessages">
                 <div data-bind="text: $data" style="font-style: italic"></div>
             </div>
         </div>
 
-        <div data-bind="with: PaymentPendingAction">
+        <div data-bind="with: PaymentAction">
             <div class="alert" data-bind="css: {
-                     'alert-info': ActionValidation.Success,
-                     'alert-danger': !ActionValidation.Success }">
+                     'alert-info': IsValid,
+                     'alert-danger': !IsValid }">
                 <strong>
-                    <span data-bind="text: TransDesc"></span>
-                    (<span data-bind="text: PaymentGateway"></span>)
+                    <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
                 </strong>
                 <span>-</span>
                 <span data-bind="text: Monster.NumberFormat(Amount)"></span>
                 <span>-</span>
                 <span data-bind="text: ActionDesc"></span>
-                <div data-bind="foreach: ActionValidation.FailureMessages">
+                <div data-bind="foreach: Validation.FailureMessages">
                     <div style="font-style: italic" data-bind="text: $data"></div>
                 </div>
             </div>
         </div>
 
-        <div data-bind="foreach: RefundPendingActions">
+        <div data-bind="foreach: RefundPaymentActions">
             <div class="alert" data-bind="css: {
-                     'alert-info': ActionValidation.Success,
-                     'alert-danger': !ActionValidation.Success }">
+                     'alert-info': IsValid,
+                     'alert-danger': !IsValid}">
                 <strong>
-                    <span data-bind="text: TransDesc"></span>
-                    (<span data-bind="text: PaymentGateway"></span>)
+                    <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
                 </strong>
                 <span>-</span>
                 <span data-bind="text: Monster.NumberFormat(Amount)"></span>
                 <span>-</span>
                 <span data-bind="text: ActionDesc"></span>
-                <div data-bind="foreach: ActionValidation.FailureMessages">
+                <div data-bind="foreach: Validation.FailureMessages">
                     <div style="font-style: italic" data-bind="text: $data"></div>
                 </div>
             </div>
         </div>
 
-        <div data-bind="foreach: AdjustmentMemoPendingActions">
+        <div data-bind="foreach: AdjustmentMemoActions">
             <div class="alert alert-secondary">
                 <strong>Shopify <span data-bind="text: MemoTypeDesc"></span></strong>
                 <span>-</span>
@@ -264,7 +262,7 @@
             </div>
         </div>
 
-        <div data-bind="foreach: ShipmentInvoicePendingActions">
+        <div data-bind="foreach: ShipmentInvoiceActions">
             <div class="alert alert-info">
                 <strong>
                     Acumatica Shipment <span data-bind="text: ShipmentNbr"></span>
@@ -698,27 +696,27 @@
         // Order drill down...
         //
         self.FinancialSummary = ko.observable();
-        self.PendingActionSummary = ko.observable();
+        self.RootAction = ko.observable();
         self.ShopifyDetail = ko.observable();
 
         self.IsFinancialSummaryActive = ko.observable(true);
         self.IsShopifyDetailActive = ko.observable(false);
-        self.IsPendingActionSummaryActive = ko.observable(false);
+        self.IsRootActionActive = ko.observable(false);
 
         self.FinancialSummaryClick = function () {
             self.IsFinancialSummaryActive(true);
             self.IsShopifyDetailActive(false);
-            self.IsPendingActionSummaryActive(false);
+            self.IsRootActionActive(false);
         };
-        self.PendingActionSummaryClick = function () {
+        self.RootActionClick = function () {
             self.IsFinancialSummaryActive(false);
             self.IsShopifyDetailActive(false);
-            self.IsPendingActionSummaryActive(true);
+            self.IsRootActionActive(true);
         };
         self.ShopifyDetailClick = function() {
             self.IsFinancialSummaryActive(false);
             self.IsShopifyDetailActive(true);
-            self.IsPendingActionSummaryActive(false);
+            self.IsRootActionActive(false);
         };
 
 
@@ -735,7 +733,7 @@
             },
                 function (response) {
                     self.FinancialSummary(response.FinancialSummary);
-                    self.PendingActionSummary(response.PendingActionSummary);
+                    self.RootAction(response.RootAction);
                     self.ShopifyDetail(response.ShopifyDetail);
                     self.ShowDrilldown(true);
                 });

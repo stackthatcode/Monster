@@ -203,8 +203,9 @@ namespace Monster.Middle
             //
             builder.RegisterType<CombinedRefDataService>().InstancePerLifetimeScope();
             builder.RegisterType<ConfigStatusService>().InstancePerLifetimeScope();
-            builder.RegisterType<PendingActionStatusService>().InstancePerLifetimeScope();
-            builder.RegisterType<OrderSyncValidationService>().InstancePerLifetimeScope();
+            builder.RegisterType<PendingActionService>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderValidationService>().InstancePerLifetimeScope();
+            builder.RegisterType<PaymentValidationService>().InstancePerLifetimeScope();
             builder.RegisterType<FulfillmentStatusService>().InstancePerLifetimeScope();
             builder.RegisterType<AnalysisDataService>().InstancePerLifetimeScope();
 

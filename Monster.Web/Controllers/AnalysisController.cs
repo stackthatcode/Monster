@@ -18,7 +18,7 @@ namespace Monster.Web.Controllers
     {
         private readonly ExecutionLogService _logRepository;
         private readonly AnalysisDataService _analysisDataService;
-        private readonly PendingActionStatusService _orderStatusService;
+        private readonly PendingActionService _pendingActionService;
         private readonly InstanceContext _instanceContext;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly ShopifyUrlService _shopifyUrlService;
@@ -26,14 +26,14 @@ namespace Monster.Web.Controllers
         public AnalysisController(
                 ExecutionLogService logRepository,
                 AnalysisDataService analysisDataService, 
-                PendingActionStatusService orderStatusService,
+                PendingActionService pendingActionService,
                 InstanceContext instanceContext, 
                 ShopifyOrderRepository shopifyOrderRepository, 
                 ShopifyUrlService shopifyUrlService)
         {
             _logRepository = logRepository;
             _analysisDataService = analysisDataService;
-            _orderStatusService = orderStatusService;
+            _pendingActionService = pendingActionService;
             _instanceContext = instanceContext;
             _shopifyOrderRepository = shopifyOrderRepository;
             _shopifyUrlService = shopifyUrlService;
@@ -74,7 +74,7 @@ namespace Monster.Web.Controllers
         {
             _instanceContext.InitializeAcumatica(HttpContext.GetIdentity().InstanceId);
             var financialSummary = _analysisDataService.GetOrderFinancialSummary(shopifyOrderId, true);
-            var pendingActionStatus = _orderStatusService.Create(shopifyOrderId);
+            var rootAction = _pendingActionService.Create(shopifyOrderId);
 
             var order = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
             var taxTransfer = order.ToTaxTransfer();
@@ -91,7 +91,7 @@ namespace Monster.Web.Controllers
             {
                 FinancialSummary = financialSummary,
                 ShopifyDetail = shopifyDetail,
-                PendingActionSummary = pendingActionStatus,
+                RootAction = rootAction,
             });
         }
 

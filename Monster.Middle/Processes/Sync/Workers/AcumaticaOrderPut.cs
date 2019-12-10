@@ -35,7 +35,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
-        private readonly OrderSyncValidationService _orderStatusService;
+        private readonly OrderValidationService _orderValidation;
         private readonly JobMonitoringService _jobMonitoringService;
         private readonly IPushLogger _systemLogger;
         private readonly SalesOrderClient _salesOrderClient;
@@ -51,7 +51,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 AcumaticaCustomerPut acumaticaCustomerSync, 
                 AcumaticaOrderPaymentPut acumaticaOrderPaymentPut,
-                OrderSyncValidationService orderStatusService,
+                OrderValidationService orderValidation,
                 JobMonitoringService jobMonitoringService,
                 IPushLogger systemLogger)
         {
@@ -63,7 +63,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaOrderPaymentPut = acumaticaOrderPaymentPut;
-            _orderStatusService = orderStatusService;
+            _orderValidation = orderValidation;
             _jobMonitoringService = jobMonitoringService;
             _systemLogger = systemLogger;
         }
@@ -76,18 +76,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var order in orders)
             {
-                output.Enqueue(order.ShopifyOrderId);
+                output.Enqueue(order);
             }
 
             return output;
         }
 
-        public void RunNonParallel()
-        {
-            var queue = BuildOrderPutQueue();
-            RunQueue(queue);
-        }
-        
         public void RunQueue(ConcurrentQueue<long> queue)
         {
             while (true)
@@ -117,36 +111,43 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 _systemLogger.Debug($"AcumaticaOrderPut -> RunOrder({shopifyOrderId})");
 
-                var status = _orderStatusService.GetOrderSyncValidator(shopifyOrderId);
-                var readyToSyncValidation = status.Result();
-
-                if (!readyToSyncValidation.Success)
-                {
-                    _syncOrderRepository.UpdateShopifyIsBlocked(shopifyOrderId, true);
-                    return;
-                }
-
-                _syncOrderRepository.UpdateShopifyIsBlocked(shopifyOrderId, false);
-
                 var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
 
                 if (!orderRecord.ExistsInAcumatica())
                 {
-                    var acumaticaCustomer = PushNonExistentCustomer(orderRecord);
-                    CreateNewOrder(orderRecord, acumaticaCustomer);
+                    // Validate whether a new Sales Order can be created
+                    //
+                    var validation = _orderValidation.ReadyToCreateOrder(shopifyOrderId);
+                    _syncOrderRepository.UpdateShopifyIsBlocked(shopifyOrderId, validation.Failed);
+                    if (validation.Failed)
+                    {
+                        return;
+                    }
 
+                    // Create Sales Order and Payment
+                    //
+                    CreateNewOrder(orderRecord);
                     _acumaticaOrderPaymentPut.ProcessOrder(orderRecord.ShopifyOrderId);
-
                 }
                 else
                 {
-                    if (_acumaticaOrderPaymentPut.ProcessOrder(orderRecord.ShopifyOrderId))
-                    {
-                        UpdateExistingOrder(orderRecord);
-                    }
-                }
+                    // Attempt to update Payment (amounts applied to Order as needed)
+                    //
+                    _acumaticaOrderPaymentPut.ProcessOrder(orderRecord.ShopifyOrderId);
 
-                _syncOrderRepository.UpdateShopifyHasError(shopifyOrderId, false);
+                    // If this was successful, the Order can be updated
+                    //
+                    var validation = _orderValidation.ReadyToUpdateOrder(shopifyOrderId);
+                    _syncOrderRepository.UpdateShopifyIsBlocked(shopifyOrderId, validation.Failed);
+                    if (validation.Failed)
+                    {
+                        return;
+                    }
+
+                    // Update the Sales Order
+                    //
+                    UpdateExistingOrder(orderRecord);
+                }
             }
             catch (Exception ex)
             {
@@ -159,8 +160,10 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         // Push Order
         //
-        private void CreateNewOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer acumaticaCustomer)
+        private void CreateNewOrder(ShopifyOrder shopifyOrderRecord)
         {
+            var acumaticaCustomer = PushNonExistentCustomer(shopifyOrderRecord);
+
             var logContent = LogBuilder.CreateAcumaticaSalesOrder(shopifyOrderRecord);
             _logService.Log(logContent);
 
@@ -191,6 +194,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _acumaticaOrderRepository.InsertSalesOrder(newRecord);
 
             shopifyOrderRecord.NeedsOrderPut = !newRecord.AcumaticaIsTaxValid;
+            shopifyOrderRecord.HasError = false;
             _syncOrderRepository.SaveChanges();
         }
 
@@ -212,6 +216,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _syncOrderRepository.SaveChanges();
 
             shopifyOrderRecord.NeedsOrderPut = !acumaticaRecord.AcumaticaIsTaxValid;
+            shopifyOrderRecord.HasError = false;
             _syncOrderRepository.SaveChanges();
 
             return acumaticaRecord;

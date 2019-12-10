@@ -48,18 +48,17 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            return;
-            //var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments();
-            
-            //foreach (var salesOrderRef in salesOrderRefs)
-            //{
-            //    var syncReadiness = _fulfillmentStatusService.IsReadyToSyncWithShopify(salesOrderRef);
+            var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments();
 
-            //    if (syncReadiness.IsReady)
-            //    {
-            //        PushFulfillmentToShopify(salesOrderRef);
-            //    }
-            //}
+            foreach (var salesOrderRef in salesOrderRefs)
+            {
+                var syncReadiness = _fulfillmentStatusService.IsReadyToSyncWithShopify(salesOrderRef);
+
+                if (syncReadiness.IsReady)
+                {
+                    PushFulfillmentToShopify(salesOrderRef);
+                }
+            }
         }
 
 

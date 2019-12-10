@@ -21,7 +21,7 @@ namespace Monster.Acumatica.Api.Payment
         public List<PaymentDocumentsToApply> DocumentsToApply { get; set; }
 
         public double AmountAppliedToOrder =>
-            OrdersToApply == null ? 0d : OrdersToApply.Sum(x => x.AppliedToOrder.value);
+            OrdersToApply == null ? 0d : OrdersToApply.Sum(x => x.AppliedToOrder?.value ?? 0);
     }
 }
 

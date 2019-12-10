@@ -8,6 +8,7 @@ namespace Push.Foundation.Utilities.Validation
     {
         public bool Success => !FailureMessages.Any();
         public List<string> FailureMessages { get; set; }
+        public bool Failed => !Success;
 
         public ValidationResult()
         {

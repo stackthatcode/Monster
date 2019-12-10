@@ -8,8 +8,9 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
+using Monster.Middle.Processes.Sync.Model.Analysis;
 using Monster.Middle.Processes.Sync.Model.Orders;
-using Monster.Middle.Processes.Sync.Model.Status;
+using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
@@ -24,7 +25,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
         private readonly SettingsRepository _settingsRepository;
-        private readonly PendingActionStatusService _pendingActionStatusService;
+        private readonly PendingActionService _pendingActionService;
         private readonly IPushLogger _systemLogger;
 
         public AcumaticaOrderPaymentPut(
@@ -32,14 +33,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                     PaymentClient paymentClient, 
                     SettingsRepository settingsRepository, 
                     ExecutionLogService logService, 
-                    PendingActionStatusService pendingActionStatusService, 
+                    PendingActionService pendingActionService, 
                     IPushLogger systemLogger)
         {
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
             _settingsRepository = settingsRepository;
             _logService = logService;
-            _pendingActionStatusService = pendingActionStatusService;
+            _pendingActionService = pendingActionService;
             _systemLogger = systemLogger;
         }
 
@@ -48,8 +49,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var processingList = _syncOrderRepository.RetrieveOrdersWithUnsyncedTransactions();
             processingList.AddRange(_syncOrderRepository.RetrieveOrdersWithUnreleasedTransactions());
-            var shopifyOrderIds = processingList.Distinct().OrderBy(x => x);
 
+            var shopifyOrderIds = processingList.Distinct().OrderBy(x => x);
             foreach (var shopifyOrderId in shopifyOrderIds)
             {
                 ProcessOrder(shopifyOrderId);
@@ -60,42 +61,122 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             try
             {
+                _systemLogger.Debug($"AcumaticaOrderPaymentPut for Shopify Order {shopifyOrderId}");
+
                 // Clear-out any un-Released Transaction
                 //
-                var status = _pendingActionStatusService.Create(shopifyOrderId);
-                ProcessTransactionRelease(status.PaymentPendingAction);
-                foreach (var refund in status.RefundPendingActions)
-                {
-                    ProcessTransactionRelease(refund);
-                }
+                ProcessAllTransactionReleases(shopifyOrderId);
 
                 // Refresh Status and run for Payment Transaction
                 //
-                status = _pendingActionStatusService.Create(shopifyOrderId);
-                ProcessPaymentTransaction(status.PaymentPendingAction);
+                ProcessPaymentTransaction(shopifyOrderId);
+                ProcessAllTransactionReleases(shopifyOrderId);
 
                 // Refresh Status and run for Refund Transactions
                 //
-                status = _pendingActionStatusService.Create(shopifyOrderId);
-                foreach (var refund in status.RefundPendingActions)
+                var rootAction = _pendingActionService.Create(shopifyOrderId);
+                foreach (var refundAction in rootAction.RefundPaymentActions)
                 {
-                    ProcessRefundTransaction(refund);
+                    ProcessRefundTransaction(refundAction);
+                    ProcessTransactionRelease(refundAction);
                 }
 
+                _syncOrderRepository.UpdateShopifyHasError(shopifyOrderId, false);
                 return true;
             }
             catch(Exception ex)
             {
                 _systemLogger.Error(ex);
                 _logService.Log($"Encounter error syncing Payments for Shopify Order {shopifyOrderId}");
+
+                _syncOrderRepository.UpdateShopifyHasError(shopifyOrderId, true);
                 return false;
             }
         }
 
 
-        private void ProcessTransactionRelease(TransactionPendingAction status)
+        private void ProcessPaymentTransaction(long shopifyOrderId)
         {
-            if (status.Action == PendingAction.ReleaseInAcumatica && status.ActionValidation.Success)
+            var rootAction = _pendingActionService.Create(shopifyOrderId);
+            var paymentAction = rootAction.PaymentAction;
+                
+            if (paymentAction.ActionCode == ActionCode.None)
+            {
+                return;
+            }
+
+            if (paymentAction.ActionCode == ActionCode.CreateInAcumatica && paymentAction.IsValid)
+            {
+                // Build Create Payment payload for Acumatica
+                //
+                var transaction =
+                    _syncOrderRepository
+                        .RetrieveShopifyTransactionWithNoTracking(paymentAction.ShopifyTransactionId);
+                var payment = BuildPaymentForCreate(transaction);
+
+                // Push to Acumatica and write Sync Record 
+                //
+                _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
+                PushPaymentAndWriteSync(transaction, payment);
+                return;
+            }
+
+            if (paymentAction.ActionCode == ActionCode.UpdateInAcumatica && paymentAction.IsValid)
+            {
+                // Build Payment Update payload for Acumatica
+                //
+                var transaction =
+                    _syncOrderRepository
+                        .RetrieveShopifyTransactionWithNoTracking(paymentAction.ShopifyTransactionId);
+                var payment = BuildPaymentForUpdate(transaction);
+
+                // Push to Acumatica and write Sync Record 
+                //
+                _logService.Log(LogBuilder.UpdateAcumaticaPayment(transaction));
+                PushPaymentAndWriteSync(transaction, payment);
+            }
+        }
+
+        private void ProcessRefundTransaction(PaymentAction refundAction)
+        {
+            if (refundAction.ActionCode == ActionCode.None)
+            {
+                return;
+            }
+
+            if (refundAction.ActionCode == ActionCode.CreateInAcumatica && refundAction.IsValid)
+            {
+                // Create Acumatica Refund payload
+                // 
+                var transaction =
+                    _syncOrderRepository
+                        .RetrieveShopifyTransactionWithNoTracking(refundAction.ShopifyTransactionId);
+
+                var refundWrite = BuildCustomerRefund(transaction);
+
+                // Push to Acumatica and write Sync Record
+                //
+                _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
+                PushPaymentAndWriteSync(transaction, refundWrite);
+            }
+        }
+
+
+        private void ProcessAllTransactionReleases(long shopifyOrderId)
+        {
+            var status = _pendingActionService.Create(shopifyOrderId);
+
+            ProcessTransactionRelease(status.PaymentAction);
+
+            foreach (var refund in status.RefundPaymentActions)
+            {
+                ProcessTransactionRelease(refund);
+            }
+        }
+
+        private void ProcessTransactionRelease(PaymentAction status)
+        {
+            if (status.ActionCode == ActionCode.ReleaseInAcumatica && status.IsValid)
             {
                 var transaction
                     = _syncOrderRepository
@@ -105,73 +186,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                 PushReleaseAndUpdateSync(transaction);
             }
         }
-
-        private void ProcessPaymentTransaction(TransactionPendingAction status)
-        {
-            if (status.Action == PendingAction.None)
-            {
-                return;
-            }
-
-            if (status.Action == PendingAction.CreateInAcumatica && status.ActionValidation.Success)
-            {
-                // Push Payment to Acumatica and create Sync
-                //
-                var transaction =
-                    _syncOrderRepository
-                        .RetrieveShopifyTransactionWithNoTracking(status.ShopifyTransactionId);
-
-                _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
-                var payment = BuildPaymentForCreate(transaction);
-                PushToAcumaticaAndCreateSync(transaction, payment);
-
-                // Upon creation of Payment, run Release process
-                //
-                PushReleaseAndUpdateSync(transaction);
-                return;
-            }
-
-            if (status.Action == PendingAction.UpdateInAcumatica && status.ActionValidation.Success)
-            {
-                // Push Payment Update to Acumatica and create Sync
-                //
-                var transaction =
-                    _syncOrderRepository
-                        .RetrieveShopifyTransactionWithNoTracking(status.ShopifyTransactionId);
-
-                _logService.Log(LogBuilder.UpdateAcumaticaPayment(transaction));
-                var payment = BuildPaymentForUpdate(transaction);
-                PushToAcumaticaAndCreateSync(transaction, payment);
-            }
-        }
-
-        private void ProcessRefundTransaction(TransactionPendingAction status)
-        {
-            if (status.Action == PendingAction.None)
-            {
-                return;
-            }
-
-            if (status.Action == PendingAction.CreateInAcumatica && status.ActionValidation.Success)
-            {
-                // Push Payment to Acumatica and create Sync
-                //
-                var transaction =
-                    _syncOrderRepository
-                        .RetrieveShopifyTransactionWithNoTracking(status.ShopifyTransactionId);
-
-                _logService.Log(LogBuilder.CreateAcumaticaPayment(transaction));
-                var refundWrite = BuildCustomerRefund(transaction);
-
-                PushToAcumaticaAndCreateSync(transaction, refundWrite);
-
-                // Upon creation of Customer Refund, run Release process
-                //
-                PushReleaseAndUpdateSync(transaction);
-                return;
-            }
-        }
-
 
 
         private PaymentWrite BuildPaymentForCreate(ShopifyTransaction transactionRecord)
@@ -196,14 +210,15 @@ namespace Monster.Middle.Processes.Sync.Workers
             payment.CustomerID = acumaticaCustId.ToValue();
             payment.Hold = false.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
-            payment.PaymentRef = $"{order.ShopifyOrderNumber}".ToValue();
+            payment.PaymentRef = $"{transaction.id}".ToValue();
 
             // Amount computations
             //
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
             var appliedToOrder = order.NetRemainingPayment();
-            payment.OrdersToApply = PaymentOrdersRef.ForOrder(
-                acumaticaOrderRef, SalesOrderType.SO, (double)appliedToOrder);
+
+            payment.OrdersToApply = 
+                PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double)appliedToOrder);
 
             payment.PaymentMethod = gateway.AcumaticaPaymentMethod.ToValue();
             payment.CashAccount = gateway.AcumaticaCashAccount.ToValue();
@@ -211,7 +226,6 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             return payment;
         }
-
 
         private PaymentWrite BuildPaymentForUpdate(ShopifyTransaction transactionRecord)
         {
@@ -263,7 +277,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             refundPayment.CustomerID = acumaticaCustId.ToValue();
             refundPayment.Hold = false.ToValue();
             refundPayment.Type = PaymentType.CustomerRefund.ToValue();
-            refundPayment.PaymentRef = $"{order.ShopifyOrderNumber}".ToValue();
+            refundPayment.PaymentRef = $"{transaction.id}".ToValue();
             refundPayment.PaymentAmount = ((double)transaction.amount).ToValue();
 
             // Reference to the original Payment
@@ -282,7 +296,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
-        private void PushToAcumaticaAndCreateSync(ShopifyTransaction transactionRecord, PaymentWrite payment)
+        private void PushPaymentAndWriteSync(ShopifyTransaction transactionRecord, PaymentWrite payment)
         {
             // Push to Acumatica
             //
@@ -297,9 +311,12 @@ namespace Monster.Middle.Processes.Sync.Workers
                 //
                 var paymentRecord = new AcumaticaPayment();
                 paymentRecord.ShopifyTransactionMonsterId = transactionRecord.Id;
-                paymentRecord.AcumaticaRefNbr = resultPayment.ReferenceNbr.value;
-                paymentRecord.AcumaticaDocType = resultPayment.Type.value;
-                paymentRecord.AcumaticaAmount = (decimal) resultPayment.PaymentAmount.value;
+                paymentRecord.AcumaticaRefNbr 
+                    = (resultPayment == null) 
+                        ? AcumaticaSyncConstants.UnknownRefNbr : resultPayment.ReferenceNbr.value;
+
+                paymentRecord.AcumaticaDocType = payment.Type.value;
+                paymentRecord.AcumaticaAmount = (decimal)payment.PaymentAmount.value;
                 paymentRecord.AcumaticaAppliedToOrder = (decimal) payment.AmountAppliedToOrder;
                 paymentRecord.DateCreated = DateTime.UtcNow;
                 paymentRecord.LastUpdated = DateTime.UtcNow;
@@ -314,7 +331,6 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             _syncOrderRepository.UpdateShopifyTransactionNeedsPut(transactionRecord.Id, false);
         }
-
 
         private void PushReleaseAndUpdateSync(ShopifyTransaction transactionRecord)
         {

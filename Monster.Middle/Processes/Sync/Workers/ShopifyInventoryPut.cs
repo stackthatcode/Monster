@@ -48,9 +48,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            return;
-            //RunPriceUpdates();
-            //RunInventoryUpdate();
+            RunPriceUpdates();
+            RunInventoryUpdate();
         }
 
         private void RunPriceUpdates()

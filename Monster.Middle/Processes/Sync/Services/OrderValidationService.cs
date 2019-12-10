@@ -3,20 +3,22 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
+using Push.Foundation.Utilities.Validation;
 
 
 namespace Monster.Middle.Processes.Sync.Services
 {
-    public class OrderSyncValidationService
+    public class OrderValidationService
     {
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly SettingsRepository _settingsRepository;
 
 
-        public OrderSyncValidationService(
+        public OrderValidationService(
                 SyncOrderRepository syncOrderRepository, 
                 SettingsRepository settingsRepository, 
                 SyncInventoryRepository syncInventoryRepository)
@@ -26,22 +28,9 @@ namespace Monster.Middle.Processes.Sync.Services
             _syncInventoryRepository = syncInventoryRepository;
         }
 
-
-        public TransactionSyncValidator 
-                GetTransSyncValidator(ShopifyOrder shopifyOrder, ShopifyTransaction thisTransaction)
+        public ValidationResult ReadyToCreateOrder(long shopifyOrderId)
         {
-            return new TransactionSyncValidator
-            {
-                ValidPaymentGateway = _settingsRepository.GatewayExists(thisTransaction.ShopifyGateway),
-                ShopifyOrder = shopifyOrder,
-                AcumaticaSalesOrder = shopifyOrder.AcumaticaSalesOrder,
-                ThisTransaction = thisTransaction,
-            };
-        }
-
-        public OrderSyncValidation GetOrderSyncValidator(long shopifyOrderId)
-        {
-            var output = new OrderSyncValidation();
+            var output = new CreateOrderValidation();
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
             var settings = _settingsRepository.RetrieveSettings();
 
@@ -57,13 +46,22 @@ namespace Monster.Middle.Processes.Sync.Services
             if (orderRecord.HasPayment())
             {
                 output.ShopifyPaymentGatewayId = orderRecord.PaymentTransaction().ShopifyGateway;
-                output.HasValidGateway = _settingsRepository.GatewayExists(output.ShopifyPaymentGatewayId);
+                output.HasValidGateway = _settingsRepository.GatewayExistsInConfig(output.ShopifyPaymentGatewayId);
             }
 
-            return output;
+            return output.Result();
         }
 
-        private void BuildLineItemValidations(OrderSyncValidation validation, MonsterSetting settings)
+        public ValidationResult ReadyToUpdateOrder(long shopifyOrderId)
+        {
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var validation = new Validation<ShopifyOrder>()
+                .Add(x => !x.PaymentTransaction().NeedsPaymentPut, 
+                        "Payment needs to be updated before updating Sales Order");
+            return validation.Run(orderRecord);
+        }
+
+        private void BuildLineItemValidations(CreateOrderValidation validation, MonsterSetting settings)
         {
             foreach (var lineItem in validation.ShopifyOrder.line_items)
             {
