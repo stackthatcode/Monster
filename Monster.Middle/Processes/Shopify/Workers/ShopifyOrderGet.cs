@@ -124,7 +124,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             UpsertOrderFulfillments(order);
             UpsertOrderRefunds(order);
 
-            _shopifyTransactionGet.RunOptional(order.id);
+            _shopifyTransactionGet.RunTransactionIfPullNeeded(order.id);
         }
 
         private void UpsertOrderAndCustomer(Order order)
@@ -139,7 +139,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 newOrder.ShopifyOrderId = order.id;
                 newOrder.ShopifyOrderNumber = order.name;
-                newOrder.ShopifyIsCancelled = order.cancelled_at != null;
+                newOrder.IsEmptyOrCancelled = order.IsEmptyOrCancelled;
                 newOrder.ShopifyJson = order.SerializeToJson();
                 newOrder.ShopifyFinancialStatus = order.financial_status;
                 newOrder.NeedsTransactionGet = true;
@@ -153,7 +153,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             else
             {
                 existingOrder.ShopifyJson = order.SerializeToJson();
-                existingOrder.ShopifyIsCancelled = order.cancelled_at != null;
+                existingOrder.IsEmptyOrCancelled = order.IsEmptyOrCancelled;
                 existingOrder.ShopifyFinancialStatus = order.financial_status;
                 existingOrder.NeedsTransactionGet = true;
                 existingOrder.NeedsOrderPut = true;

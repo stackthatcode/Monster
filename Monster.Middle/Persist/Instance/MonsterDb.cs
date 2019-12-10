@@ -1393,8 +1393,8 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyJson { get; set; } // ShopifyJson
         public long ShopifyOrderId { get; set; } // ShopifyOrderId
         public string ShopifyOrderNumber { get; set; } // ShopifyOrderNumber (length: 25)
-        public bool ShopifyIsCancelled { get; set; } // ShopifyIsCancelled
         public string ShopifyFinancialStatus { get; set; } // ShopifyFinancialStatus (length: 25)
+        public bool IsEmptyOrCancelled { get; set; } // IsEmptyOrCancelled
         public bool NeedsTransactionGet { get; set; } // NeedsTransactionGet
         public bool NeedsOrderPut { get; set; } // NeedsOrderPut
         public bool IsBlocked { get; set; } // IsBlocked
@@ -2589,8 +2589,8 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyJson).HasColumnName(@"ShopifyJson").HasColumnType("nvarchar(max)").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderNumber).HasColumnName(@"ShopifyOrderNumber").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
-            Property(x => x.ShopifyIsCancelled).HasColumnName(@"ShopifyIsCancelled").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyFinancialStatus).HasColumnName(@"ShopifyFinancialStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.IsEmptyOrCancelled).HasColumnName(@"IsEmptyOrCancelled").HasColumnType("bit").IsRequired();
             Property(x => x.NeedsTransactionGet).HasColumnName(@"NeedsTransactionGet").HasColumnType("bit").IsRequired();
             Property(x => x.NeedsOrderPut).HasColumnName(@"NeedsOrderPut").HasColumnType("bit").IsRequired();
             Property(x => x.IsBlocked).HasColumnName(@"IsBlocked").HasColumnType("bit").IsRequired();

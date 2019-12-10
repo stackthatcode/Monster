@@ -49,22 +49,35 @@ namespace Monster.Middle.Processes.Sync.Services
 
         private void BuildOrderPendingAction(ShopifyOrder orderRecord, RootAction output)
         {
-            var orderPendingActions = new OrderAction();
-            orderPendingActions.ActionCode = ActionCode.None;
+            output.OrderAction = new OrderAction();
+            output.OrderAction.ActionCode = ActionCode.None;
 
             if (!orderRecord.ExistsInAcumatica())
             {
-                orderPendingActions.ActionCode = ActionCode.CreateInAcumatica;
-                orderPendingActions.CreateOrderValidation = 
+                var order = orderRecord.ToShopifyObj();
+
+                if (!order.IsEmptyOrCancelled)
+                {
+                    output.OrderAction.ActionCode = ActionCode.CreateInAcumatica;
+                    output.OrderAction.CreateOrderValidation =
                         _orderValidation.ReadyToCreateOrder(orderRecord.ShopifyOrderId);
+                    return;
+                }
+
+                if (order.IsEmptyOrCancelled)
+                {
+                    output.OrderAction.ActionCode = ActionCode.CreateBlankSyncRecord;
+                    return;
+                }
             }
 
             if (orderRecord.ExistsInAcumatica() && orderRecord.NeedsOrderPut)
             {
-                orderPendingActions.ActionCode = ActionCode.UpdateInAcumatica;
+                output.OrderAction.ActionCode = ActionCode.UpdateInAcumatica;
+                output.OrderAction.UpdateOrderValidation =
+                    _orderValidation.ReadyToUpdateOrder(orderRecord.ShopifyOrderId);
+                return;
             }
-
-            output.OrderAction = orderPendingActions;
         }
 
         private void BuildPaymentActions(ShopifyOrder orderRecord, RootAction output)

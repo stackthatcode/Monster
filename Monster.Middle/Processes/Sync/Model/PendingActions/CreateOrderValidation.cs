@@ -44,7 +44,9 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
                 .Add(x => !x.IsFulfilledBeforeSync,
                         $"Shopify Order has been fulfilled before sync with Acumatica", instantFailure: true)
                 
-                .Add(x => !x.IsCancelledBeforeSync, $"Shopify Order has been cancelled before sync with Acumatica")
+                .Add(x => !x.ShopifyOrder.AllLineItemsRefunded, "All Line Items have been refunded")
+
+                //.Add(x => !x.IsCancelledBeforeSync, $"Shopify Order has been cancelled before sync with Acumatica")
                 
                 .Add(x => x.HasShopifyCustomer, "Shopify Customer has not been downloaded yet")
                 

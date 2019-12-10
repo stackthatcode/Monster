@@ -6,9 +6,10 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
     {
          None = 1,
          CreateInAcumatica = 2,
-         ReleaseInAcumatica = 3,
-         UpdateInAcumatica = 4,
-         CreateInShopify = 5,
+         CreateBlankSyncRecord = 3,
+         ReleaseInAcumatica = 4,
+         UpdateInAcumatica = 5,
+         CreateInShopify = 6,
     }
 
     public static class ActionCodeDesc

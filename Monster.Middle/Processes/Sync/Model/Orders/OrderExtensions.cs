@@ -13,7 +13,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 
         public static bool ExistsInAcumatica(this ShopifyOrder order)
         {
-            return order.SyncedSalesOrder() != null;
+            return order.SyncedSalesOrder() != null && !order.IsEmptyOrCancelled;
         }
 
         public static string AcumaticaSalesOrderId(this ShopifyOrder order)

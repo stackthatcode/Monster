@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
-        public void RunOptional(long shopifyOrderId)
+        public void RunTransactionIfPullNeeded(long shopifyOrderId)
         {
             var order = _orderRepository.RetrieveOrder(shopifyOrderId);
             if (order.NeedsTransactionGet)

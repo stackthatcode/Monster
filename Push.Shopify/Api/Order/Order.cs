@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Push.Foundation.Utilities.Json;
 
 namespace Push.Shopify.Api.Order
 {
@@ -107,6 +106,7 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public decimal RefundOverpayment => refunds.Sum(x => x.PaymentTotal) - RefundTotal;
 
+        [JsonIgnore]
 
         public List<LineItem> 
                 LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
@@ -129,6 +129,15 @@ namespace Push.Shopify.Api.Order
                 .Where(x => x.restock_type == RestockType.Cancel)
                 .ToList();
         }
+
+        [JsonIgnore]
+        public int RefundedLineItems => refunds.Sum(x => x.refund_line_items.Sum(y => y.quantity));
+
+        [JsonIgnore]
+        public bool AllLineItemsRefunded => (line_items.Sum(x => x.quantity) - RefundedLineItems) == 0;
+
+        public bool IsEmptyOrCancelled => AllLineItemsRefunded || cancelled_at.HasValue;
+
 
         public Refund RefundByTransaction(long transaction_id)
         {

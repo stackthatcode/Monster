@@ -39,12 +39,14 @@ namespace Monster.Middle.Processes.Sync.Persist
 
             var newOrders = OrdersForPutting
                 .Where(x => x.AcumaticaSalesOrder == null)
+                .OrderBy(x => x.ShopifyOrderId)
                 .Take(numberOfOrders)
                 .Select(x => x.ShopifyOrderId)
                 .ToList();
 
             var updatedOrders = OrdersForPutting
                 .Where(x => x.NeedsOrderPut == true && x.AcumaticaSalesOrder != null)
+                .OrderBy(x => x.ShopifyOrderId)
                 .Select(x => x.ShopifyOrderId)
                 .ToList();
 
