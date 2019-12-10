@@ -141,6 +141,7 @@
            data-bind="click: function() { ShowDrilldown(false); }">
             Back to Results <i class="fas fa-undo"></i>
         </a>
+
         <div style="height: 20px;"></div>
 
         <ul class="nav nav-tabs nav-fill" style="font-size: 0.9em;">
@@ -149,16 +150,19 @@
                 <a class="nav-link active" href="#">Financial Summary</a>
             </li>
             <!-- /ko -->
+
             <!-- ko ifnot: IsFinancialSummaryActive -->
             <li class="nav-item" data-bind="click: FinancialSummaryClick">
                 <a class="nav-link" href="#">Financial Summary</a>
             </li>
             <!-- /ko -->
+
             <!-- ko if: IsShopifyDetailActive -->
             <li class="nav-item">
                 <a class="nav-link active" href="#">Shopify Detail</a>
             </li>
             <!-- /ko -->
+
             <!-- ko ifnot: IsShopifyDetailActive -->
             <li class="nav-item">
                 <a class="nav-link" href="#" data-bind="click: ShopifyDetailClick">Shopify Detail</a>
@@ -203,34 +207,36 @@
     </style>
     <div style="min-height: 400px;" class="pending-action-view">
         <div class="alert" data-bind="css: {
-                 'alert-info': OrderAction.IsValid.Success,
-                 'alert-danger': !OrderAction.IsValid.Success }">
+                 'alert-info': OrderAction.IsValid,
+                 'alert-danger': !OrderAction.IsValid }">
             <strong>
                 <a target="_blank" data-bind="attr: { href: ShopifyOrderHref }">
                     Shopify Order <span data-bind="text: ShopifyOrderName"></span>
                 </a>
             </strong>
 
-            <span>-</span> <span data-bind="text: OrderAction.ShopifyOrderActionDesc"></span>
+            <span>-</span> <span data-bind="text: OrderAction.ActionDesc"></span>
 
             <div data-bind="foreach: OrderAction.CreateOrderValidation.FailureMessages">
                 <div data-bind="text: $data" style="font-style: italic"></div>
             </div>
         </div>
 
-        <div data-bind="with: PaymentAction">
-            <div class="alert" data-bind="css: {
+        <div data-bind="if: PaymentAction">
+            <div data-bind="with: PaymentAction">
+                <div class="alert" data-bind="css: {
                      'alert-info': IsValid,
                      'alert-danger': !IsValid }">
-                <strong>
-                    <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
-                </strong>
-                <span>-</span>
-                <span data-bind="text: Monster.NumberFormat(Amount)"></span>
-                <span>-</span>
-                <span data-bind="text: ActionDesc"></span>
-                <div data-bind="foreach: Validation.FailureMessages">
-                    <div style="font-style: italic" data-bind="text: $data"></div>
+                    <strong>
+                        <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
+                    </strong>
+                    <span>-</span>
+                    <span data-bind="text: Monster.NumberFormat(Amount)"></span>
+                    <span>-</span>
+                    <span data-bind="text: ActionDesc"></span>
+                    <div data-bind="foreach: Validation.FailureMessages">
+                        <div style="font-style: italic" data-bind="text: $data"></div>
+                    </div>
                 </div>
             </div>
         </div>

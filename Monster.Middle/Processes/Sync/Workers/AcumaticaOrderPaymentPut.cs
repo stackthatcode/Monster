@@ -78,7 +78,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 foreach (var refundAction in rootAction.RefundPaymentActions)
                 {
                     ProcessRefundTransaction(refundAction);
-                    ProcessTransactionRelease(refundAction);
+                    ProcessAllTransactionReleases(shopifyOrderId);
                 }
 
                 _syncOrderRepository.UpdateShopifyHasError(shopifyOrderId, false);

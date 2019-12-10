@@ -97,9 +97,19 @@ namespace Monster.Middle.Processes.Sync.Services
                     paymentAction.ActionCode = ActionCode.ReleaseInAcumatica;
                     paymentAction.Validation = _paymentValidation.ReadyToRelease(payment);
                 }
+
+            }
+            else
+            {
+                paymentAction.ShopifyTransactionId = -1;
+                paymentAction.TransDesc = $"Shopify Payment not found yet";
+                paymentAction.PaymentGateway = "No Gateway";
+                paymentAction.Amount = 0.00m;
+                paymentAction.ActionCode = ActionCode.None;
             }
 
             output.PaymentAction = paymentAction;
+
         }
 
         private void BuildRefundPaymentActions(ShopifyOrder orderRecord, RootAction output)
