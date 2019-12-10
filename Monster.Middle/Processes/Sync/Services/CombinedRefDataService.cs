@@ -52,6 +52,7 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 reference.PaymentMethod.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<AcumaticaPaymentMethod>>()
                     .Select(x => new PaymentMethodModel(x))
+                    .Where(x => x.Validation.Success)
                     .ToList();
 
             var taxIds =
@@ -129,36 +130,41 @@ namespace Monster.Middle.Processes.Acumatica.Services
         public void ReconcilePaymentGatewaysWithRefData()
         {
             var referenceData = RetrieveRefData();
-            var gatewaySettings = _settingsRepository.RetrievePaymentGateways();
+            var settingsGateways = _settingsRepository.RetrievePaymentGateways();
 
             var deleteList = new List<Middle.Persist.Instance.PaymentGateway>();
 
-            foreach (var gateway in gatewaySettings)
+            foreach (var settingsGateway in settingsGateways)
             {
-                var selectedShopifyGatewayId = gateway.ShopifyGatewayId;
-                var selectedPaymentMethod = gateway.AcumaticaPaymentMethod;
+                var selectedShopifyGatewayId = settingsGateway.ShopifyGatewayId;
+                var selectedPaymentMethod = settingsGateway.AcumaticaPaymentMethod;
                 
+                // Remove if Payment Gateway is no longer supported by Bridge
+                //
                 if (!referenceData.PaymentGateways.Any(x => x.Id == selectedShopifyGatewayId))
                 {
                     _logService.Log($"Payment Gateway {selectedShopifyGatewayId} is missing");
-                    deleteList.Add(gateway);
+                    deleteList.Add(settingsGateway);
                     continue;
                 }
 
+                // Remove if Payment Method is missing from Acumatica pull
                 var acumaticaPaymentMethod 
                     = referenceData.PaymentMethods.FirstOrDefault(x => x.PaymentMethod == selectedPaymentMethod);
 
                 if (acumaticaPaymentMethod == null)
                 {
                     _logService.Log($"Payment Method {selectedPaymentMethod} is missing");
-                    deleteList.Add(gateway);
+                    deleteList.Add(settingsGateway);
                     continue;
                 }
 
+                // Remove if Acumatica Payment method is invalid
+                //
                 if (!acumaticaPaymentMethod.Validation.Success)
                 {
                     _logService.Log($"Payment Method {selectedPaymentMethod} is invalid");
-                    deleteList.Add(gateway);
+                    deleteList.Add(settingsGateway);
                 }
             }
 

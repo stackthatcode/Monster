@@ -52,6 +52,15 @@ namespace Monster.Middle.Processes.Sync.Services
             return output.Result();
         }
 
+        public ValidationResult ReadyToCreateBlankOrder(long shopifyOrderId)
+        {
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var validation = new Validation<ShopifyOrder>()
+                .Add(x => x.IsEmptyOrCancelled, "This is not an actual empty or cancelled Shopify Order");
+            return validation.Run(orderRecord);
+        }
+
+
         public ValidationResult ReadyToUpdateOrder(long shopifyOrderId)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);

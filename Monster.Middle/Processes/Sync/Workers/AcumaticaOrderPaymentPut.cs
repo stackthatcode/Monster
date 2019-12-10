@@ -217,8 +217,11 @@ namespace Monster.Middle.Processes.Sync.Workers
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
             var appliedToOrder = order.NetRemainingPayment();
 
-            payment.OrdersToApply = 
-                PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double)appliedToOrder);
+            if (!order.IsEmptyOrCancelled)
+            {
+                payment.OrdersToApply =
+                    PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double) appliedToOrder);
+            }
 
             payment.PaymentMethod = gateway.AcumaticaPaymentMethod.ToValue();
             payment.CashAccount = gateway.AcumaticaCashAccount.ToValue();

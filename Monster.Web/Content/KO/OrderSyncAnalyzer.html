@@ -217,7 +217,7 @@
 
             <span>-</span> <span data-bind="text: OrderAction.ActionDesc"></span>
 
-            <div data-bind="foreach: OrderAction.CreateOrderValidation.FailureMessages">
+            <div data-bind="foreach: OrderAction.Validation.FailureMessages">
                 <div data-bind="text: $data" style="font-style: italic"></div>
             </div>
         </div>

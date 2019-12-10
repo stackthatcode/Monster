@@ -4,6 +4,7 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Persist;
+using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Order;
 
 
@@ -47,35 +48,35 @@ namespace Monster.Middle.Processes.Sync.Services
             return output;
         }
 
-        private void BuildOrderPendingAction(ShopifyOrder orderRecord, RootAction output)
+        private void BuildOrderPendingAction(ShopifyOrder record, RootAction output)
         {
             output.OrderAction = new OrderAction();
             output.OrderAction.ActionCode = ActionCode.None;
+            output.OrderAction.Validation = new ValidationResult();
 
-            if (!orderRecord.ExistsInAcumatica())
+            if (!record.ExistsInAcumatica())
             {
-                var order = orderRecord.ToShopifyObj();
+                var order = record.ToShopifyObj();
 
                 if (!order.IsEmptyOrCancelled)
                 {
                     output.OrderAction.ActionCode = ActionCode.CreateInAcumatica;
-                    output.OrderAction.CreateOrderValidation =
-                        _orderValidation.ReadyToCreateOrder(orderRecord.ShopifyOrderId);
+                    output.OrderAction.Validation = _orderValidation.ReadyToCreateOrder(record.ShopifyOrderId);
                     return;
                 }
 
                 if (order.IsEmptyOrCancelled)
                 {
                     output.OrderAction.ActionCode = ActionCode.CreateBlankSyncRecord;
+                    output.OrderAction.Validation = _orderValidation.ReadyToCreateBlankOrder(record.ShopifyOrderId);
                     return;
                 }
             }
 
-            if (orderRecord.ExistsInAcumatica() && orderRecord.NeedsOrderPut)
+            if (record.ExistsInAcumatica() && record.NeedsOrderPut)
             {
                 output.OrderAction.ActionCode = ActionCode.UpdateInAcumatica;
-                output.OrderAction.UpdateOrderValidation =
-                    _orderValidation.ReadyToUpdateOrder(orderRecord.ShopifyOrderId);
+                output.OrderAction.Validation = _orderValidation.ReadyToUpdateOrder(record.ShopifyOrderId);
                 return;
             }
         }
@@ -122,7 +123,6 @@ namespace Monster.Middle.Processes.Sync.Services
             }
 
             output.PaymentAction = paymentAction;
-
         }
 
         private void BuildRefundPaymentActions(ShopifyOrder orderRecord, RootAction output)
