@@ -25,4 +25,15 @@ UPDATE AcumaticaSoShipment SET ShopifyFulfillmentMonsterId = 2 WHERE ID = 2;
 
 SELECT * FROM AcumaticaInventory;
 
+SELECT * FROM AcumaticaSalesOrder;
+
+SELECT * FROM ShopifyFulfillment;
+
+
+UPDATE ShopifyOrder SET IsEmptyOrCancelled = 1
+
+SELECT * FROM ShopifyTransaction;
+
+SELECT * FROM AcumaticaPayment;
+
 

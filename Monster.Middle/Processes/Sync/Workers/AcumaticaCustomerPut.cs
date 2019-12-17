@@ -7,7 +7,6 @@ using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Misc;
-using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 
@@ -131,6 +130,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var customer = new Customer();
             customer.CustomerID = shopifyCustomer.id.ToString().ToValue();
             customer.CustomerName = name.ToValue();
+
             customer.TaxZone = settings.AcumaticaTaxZone.ToValue();
 
             var address = new Address();
@@ -143,6 +143,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 address.City = shopifyAddress.city.ToValue();
                 address.State = shopifyAddress.province.ToValue();
                 address.PostalCode = shopifyAddress.zip.ToValue();
+                address.CountryID = shopifyAddress.country_code.ToValue();
             }
 
             var mainContact = new Contact();

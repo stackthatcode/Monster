@@ -9,5 +9,6 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue City { get; set; }
         public StringValue State { get; set; }
         public StringValue PostalCode { get; set; }
+        public StringValue CountryID;
     }
 }

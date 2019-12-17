@@ -30,7 +30,7 @@ namespace Monster.ConsoleApp
         private const string AcumaticaPaymentGet = "106";
         private const string AcumaticaSalesOrderRetrieve = "107";
         private const string ShopifyFulfillmentPut = "108";
-        // private const string RunShopifyOrderFeederOption = "109";
+        private const string ShopifyFulfillmentEmail = "109";
 
 
 
@@ -69,6 +69,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{AcumaticaPaymentGet} - Acumatica Payment Get");
             Console.WriteLine($"{AcumaticaSalesOrderRetrieve} - Acumatica Sales Order Retrieve");
             Console.WriteLine($"{ShopifyFulfillmentPut} - Shopify Fulfillment Put");
+            Console.WriteLine($"{ShopifyFulfillmentEmail} - Shopify Fulfillment Email");
             Console.WriteLine();
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
@@ -115,8 +116,8 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunAcumaticaSalesOrderRetrieve();
             if (input == ShopifyFulfillmentPut)
                 MoreTestingStuff.RunShopifyFulfillmentPut();
-            //if (input == RunShopifyOrderFeederOption)
-            //    MoreTestingStuff.RunShopifyOrderFeeder();
+            if (input == ShopifyFulfillmentEmail)
+                MoreTestingStuff.RunShopifyFulfillmentEmail();
 
             Console.WriteLine("FIN");
             Console.ReadKey();

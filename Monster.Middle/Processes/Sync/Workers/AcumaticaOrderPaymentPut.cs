@@ -3,6 +3,7 @@ using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
+using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -25,6 +26,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly PaymentClient _paymentClient;
         private readonly SettingsRepository _settingsRepository;
+        private readonly AcumaticaTimeZoneService _acumaticaTimeZoneService;
         private readonly PendingActionService _pendingActionService;
         private readonly IPushLogger _systemLogger;
 
@@ -34,7 +36,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                     SettingsRepository settingsRepository, 
                     ExecutionLogService logService, 
                     PendingActionService pendingActionService, 
-                    IPushLogger systemLogger)
+                    IPushLogger systemLogger, AcumaticaTimeZoneService acumaticaTimeZoneService)
         {
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
@@ -42,6 +44,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _logService = logService;
             _pendingActionService = pendingActionService;
             _systemLogger = systemLogger;
+            _acumaticaTimeZoneService = acumaticaTimeZoneService;
         }
 
 
@@ -93,7 +96,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                 return false;
             }
         }
-
 
         private void ProcessPaymentTransaction(long shopifyOrderId)
         {
@@ -201,8 +203,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Build the Payment Ref and Description
             //
-            var order = _syncOrderRepository.RetrieveShopifyOrder(transactionRecord.OrderId());
-            var acumaticaOrderRef = order.AcumaticaSalesOrderId();
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(transactionRecord.OrderId());
+            var order = orderRecord.ToShopifyObj();
+            var acumaticaOrderRef = orderRecord.AcumaticaSalesOrderId();
 
             // Create the payload for Acumatica
             //
@@ -212,12 +215,16 @@ namespace Monster.Middle.Processes.Sync.Workers
             payment.Type = PaymentType.Payment.ToValue();
             payment.PaymentRef = $"{transaction.id}".ToValue();
 
+            var createdAtUtc = (transaction.created_at ?? order.created_at).UtcDateTime;
+            var acumaticaDate = _acumaticaTimeZoneService.ToAcumaticaTimeZone(createdAtUtc);
+            payment.ApplicationDate = acumaticaDate.Date.ToValue();
+
             // Amount computations
             //
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
-            var appliedToOrder = order.NetRemainingPayment();
+            var appliedToOrder = orderRecord.NetRemainingPayment();
 
-            if (!order.IsEmptyOrCancelled)
+            if (!orderRecord.IsEmptyOrCancelled)
             {
                 payment.OrdersToApply =
                     PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double) appliedToOrder);
@@ -225,7 +232,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             payment.PaymentMethod = gateway.AcumaticaPaymentMethod.ToValue();
             payment.CashAccount = gateway.AcumaticaCashAccount.ToValue();
-            payment.Description = $"Payment for Shopify Order #{order.ShopifyOrderNumber}".ToValue();
+            payment.Description = $"Payment for Shopify Order #{orderRecord.ShopifyOrderNumber}".ToValue();
 
             return payment;
         }

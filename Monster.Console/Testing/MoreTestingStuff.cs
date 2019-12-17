@@ -8,21 +8,31 @@ using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
-using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync.Model.TaxTransfer;
-using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Workers;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
-using Push.Foundation.Utilities.Logging;
+using Push.Shopify.Api;
+
 
 namespace Monster.ConsoleApp.Testing
 {
     public class MoreTestingStuff
     {
         private static Guid TestInstanceId = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
+
+        public static long SolicitShopifyOrderId(long defaultId)
+        {
+            Console.WriteLine(Environment.NewLine + $"Enter Shopify Order Id (Default Id: {defaultId})");
+            return Console.ReadLine().IsNullOrEmptyAlt(defaultId.ToString()).ToLong();
+        }
+
+        public static long SolicitShopifyFulfillmentId(long defaultId)
+        {
+            Console.WriteLine(Environment.NewLine + $"Enter Shopify Fulfillment Id (Default Id: {defaultId})");
+            return Console.ReadLine().IsNullOrEmptyAlt(defaultId.ToString()).ToLong();
+        }
 
         public static void RunAcumaticaOrderSync()
         {
@@ -179,6 +189,34 @@ namespace Monster.ConsoleApp.Testing
 
                 instanceContext.Initialize(TestInstanceId);
                 shopifyFulfillmentPut.Run();
+            });
+        }
+
+        public static void RunShopifyFulfillmentEmail()
+        {
+            var orderId = SolicitShopifyOrderId(1876709146668);
+            var fulfillmentId = SolicitShopifyFulfillmentId(1767491698732);
+
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var fulfillmentApi = scope.Resolve<FulfillmentApi>();
+
+                var json = new
+                {
+                    fulfillment = new
+                    {
+                        id = fulfillmentId,
+                        notify_customer = true,
+                    },
+                    tracking_numbers = new []
+                    {
+                        "1ZY1234567890"
+                    }
+                }.SerializeToJson();
+
+                instanceContext.Initialize(TestInstanceId);
+                fulfillmentApi.Update(orderId, fulfillmentId, json);
             });
         }
     }

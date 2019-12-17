@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
@@ -30,24 +31,23 @@ namespace Monster.Middle.Processes.Sync.Workers
 {
     public class AcumaticaOrderPut
     {
-        private readonly ExecutionLogService _logService;
         private readonly SettingsRepository _settingsRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
+        private readonly AcumaticaTimeZoneService _acumaticaTimeZoneService;
+        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly OrderValidationService _orderValidation;
         private readonly PendingActionService _pendingActionService;
         private readonly JobMonitoringService _jobMonitoringService;
-        private readonly IPushLogger _systemLogger;
         private readonly SalesOrderClient _salesOrderClient;
-        private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
+        private readonly ExecutionLogService _logService;
+        private readonly IPushLogger _systemLogger;
 
 
         public AcumaticaOrderPut(
-                ExecutionLogService logRepository,
-                SettingsRepository settingsRepository,
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 SalesOrderClient salesOrderClient,
@@ -57,19 +57,23 @@ namespace Monster.Middle.Processes.Sync.Workers
                 OrderValidationService orderValidation,
                 PendingActionService pendingActionService,
                 JobMonitoringService jobMonitoringService,
+                AcumaticaTimeZoneService acumaticaTimeZoneService,
+                SettingsRepository settingsRepository,
+                ExecutionLogService logRepository,
                 IPushLogger systemLogger)
         {
-            _logService = logRepository;
-            _settingsRepository = settingsRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _salesOrderClient = salesOrderClient;
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaOrderPaymentPut = acumaticaOrderPaymentPut;
+            _acumaticaTimeZoneService = acumaticaTimeZoneService;
             _orderValidation = orderValidation;
             _pendingActionService = pendingActionService;
             _jobMonitoringService = jobMonitoringService;
+            _settingsRepository = settingsRepository;
+            _logService = logRepository;
             _systemLogger = systemLogger;
         }
 
@@ -182,15 +186,11 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Create the local Order Record and Sync
             //
             var newOrder = resultJson.ToSalesOrderObj();
-
             var newRecord = new AcumaticaSalesOrder();
             newRecord.ShopifyOrderMonsterId = shopifyOrderRecord.Id;
 
             // Conspicuously not set - waiting on AcumaticaOrderGet to update this
             //
-            //newRecord.AcumaticaShipmentDetailsJson = resultJson;
-            //
-
             newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
             newRecord.AcumaticaStatus = newOrder.Status.value;
             newRecord.AcumaticaIsTaxValid = newOrder.IsTaxValid.value;
@@ -322,6 +322,11 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.Details = new List<SalesOrderDetail>();
 
             salesOrder.OrderType = SalesOrderType.SO.ToValue();
+
+            var createdAtUtc = shopifyOrder.created_at.UtcDateTime;
+            var acumaticaDate = _acumaticaTimeZoneService.ToAcumaticaTimeZone(createdAtUtc);
+            salesOrder.Date = acumaticaDate.Date.ToValue();
+
             salesOrder.CustomerOrder = shopifyOrder.name.ToValue();
             salesOrder.ExternalRef = $"{shopifyOrder.id}".ToValue();
             salesOrder.Status = SalesOrderStatus.Open.ToValue();
@@ -380,6 +385,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 output.City = address.city.ToValue();
                 output.State = address.province.ToValue();
                 output.PostalCode = address.zip.ToValue();
+                output.CountryID = address.country_code.ToValue();
             }
             return output;
         }
