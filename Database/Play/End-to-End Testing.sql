@@ -10,7 +10,6 @@ EXEC dbo.DeleteAllAcumaticaInventoryRecords;
 EXEC dbo.DeleteAllShopifyOrderRecords;
 EXEC dbo.DeleteAllShopifyInventoryRecords;
 EXEC dbo.DeleteAllSystemRecords;
-
 EXEC dbo.ResetStartingShopifyOrder;
 */
 

@@ -8,31 +8,23 @@
 
 <div class="medium-size">
     <div class="card std-pad-sm">
-        <div class="card-title-interface">
-            Next Steps
-        </div>
-        
         <div class="card-body">                    
-            <p>Congratulations! You have just completed setting up the baseline configuration for @GlobalConfig.AppName.
-            </p>
-            <p>
+            <p>Congratulations! You have just completed setting your configuration for @GlobalConfig.AppName.
                 At any time you can use <a href="@GlobalConfig.Url("/Config/Diagnostics")">Config Diagnostics</a>
-                to troubleshoot synchronization issues.
+                to check your config status.
             </p>
 
             <p>
-                The next step is to begin <a href="@GlobalConfig.Url("/Sync/ImportIntoAcumatica")">loading inventory from Shopify into Acumatica</a>. 
-                
-                If you have an existing catalog in Shopify, you can <a href="#">import Products and Variants from Shopify into Acumatica</a>.                        
+                The next step is to prepare your inventory for synchronization. @GlobalConfig.AppName allows you 
+                to load inventory from <a href="@GlobalConfig.Url("/Sync/ImportIntoAcumatica")">Shopify into Acumatica</a>,
+                and also from <a href="@GlobalConfig.Url("/Sync/ImportIntoShopify")">Acumatica into Shopify</a>.                        
             </p>
 
             <div class="center std-pad-t">
-                <a href="@GlobalConfig.Url("/Sync/ImportIntoAcumatica")" 
-                   class="btn btn-primary btn-lg">
+                <a href="@GlobalConfig.Url("/Sync/ImportIntoAcumatica")" style="min-width:225px" class="btn btn-primary btn">
                     Import into Acumatica <i class="fa fa-upload" aria-hidden="true"></i>
                 </a>
-                <a href="#" 
-                   class="btn btn-primary btn-lg">
+                <a href="@GlobalConfig.Url("/Sync/ImportIntoShopify")" style="min-width:225px" class="btn btn-primary btn">
                     Import into Shopify <i class="fa fa-upload" aria-hidden="true"></i>
                 </a>
             </div>

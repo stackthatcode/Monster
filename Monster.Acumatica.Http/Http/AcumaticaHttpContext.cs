@@ -95,11 +95,18 @@ namespace Monster.Acumatica.Http
             IsLoggedIn = false;
         }
 
-        public string MakePath(string path, bool excludeVersion = false)
+        public string MakeFinalUrl(string path, bool excludeVersion = false)
         {
-            return !excludeVersion
-                ? $"{_instanceUrl}{_settings.VersionSegment}{path}"
-                : $"{_instanceUrl}{path}";
+            var output 
+                = !excludeVersion
+                    ? $"{_instanceUrl}{_settings.VersionSegment}{path}"
+                    : $"{_instanceUrl}{path}";
+
+            output +=
+                (path.Contains("?"))
+                    ? $"&company={_credentials.CompanyName}"
+                    : $"?company={_credentials.CompanyName}";
+            return output;
         }
 
         public ResponseEnvelope Get(
@@ -108,7 +115,7 @@ namespace Monster.Acumatica.Http
                 bool excludeVersion = false)
         {
             // Arrange
-            var address = MakePath(path, excludeVersion);
+            var address = MakeFinalUrl(path, excludeVersion);
             var urlDebug = $"HTTP GET on {address} (ContextId: {this.ObjectIdentifier})";
             var errorContext = BuildErrorContext(urlDebug);
             _logger.Debug(urlDebug);
@@ -131,7 +138,7 @@ namespace Monster.Acumatica.Http
                 bool excludeVersion = false)
         {
             // Arrange
-            var address = MakePath(path, excludeVersion);
+            var address = MakeFinalUrl(path, excludeVersion);
             var urlDebug = $"HTTP POST on {address} (ContextId: {this.ObjectIdentifier})";
             var errorContext = BuildErrorContext(urlDebug, content);
             _logger.Debug(urlDebug);
@@ -158,7 +165,7 @@ namespace Monster.Acumatica.Http
                 Dictionary<string, string> headers = null,
                 bool excludeVersion = false)
         {
-            var address = MakePath(path, excludeVersion);
+            var address = MakeFinalUrl(path, excludeVersion);
 
             var urlDebug = $"HTTP PUT on {address} (ContextId: {this.ObjectIdentifier})";
             var errorContext = BuildErrorContext(urlDebug, content);

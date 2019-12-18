@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using Monster.Middle;
 using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
@@ -116,7 +115,7 @@ namespace Monster.Web.Controllers
             {
                 _connectionRepository
                     .UpdateAcumaticaCredentials(
-                        model.InstanceUrl, model.Company, model.Branch, model.UserName, model.Password);
+                        model.InstanceUrl, model.Branch, model.Company, model.UserName, model.Password);
             }
 
             _oneTimeJobService.ConnectToAcumatica();

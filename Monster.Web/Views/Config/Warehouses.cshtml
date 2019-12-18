@@ -101,7 +101,7 @@
 
 <script type="text/html" id="Sync-State-Details">
     <div class="card">
-        <div class="card-body center std-pad-b">
+        <div class="card-body center std-pad-b" style="min-height:420px;">
             <div class="card-title-interface">
                 Warehouse &amp; Location Mapping
             </div>
@@ -112,7 +112,7 @@
                     Refresh Warehouses &amp; Locations <i class="fas fa-bolt"></i></button>
             </div>
             
-            <div data-bind="if: WarehouseSyncState() == StateCode.Invalid">
+            <div data-bind="if: !AllLocationsAssigned() && WarehouseSyncState() == StateCode.Invalid">
                 <div class="alert alert-danger">
                     <strong>Warehouse Location Synchronization - Unassigned Locations</strong>
                 </div>
@@ -245,6 +245,8 @@
         self.ActivatedLocations = ko.observableArray([]);
         self.Warehouses = ko.observableArray([]);
 
+
+
         self.RefreshWarehouseData = function() {
             flow.exec(
                 function() {
@@ -277,6 +279,12 @@
                     });
                 });
         };
+
+        self.AllLocationsAssigned = ko.computed(function() {
+            return (AQ(self.ActivatedLocations()).all(function(location) {
+                return location.Assigned();
+            }));
+        });
 
         self.SaveClick = function () { self.Save(); };
 
