@@ -355,8 +355,18 @@ namespace Monster.Web.Controllers
 
             return JsonNetResult.Success();
         }
-        
-        
+
+
+        [HttpPost]
+        public ActionResult RunSyncWithAcumatica(bool enableInventorySync, List<long> selectedSPIds)
+        {
+            _oneTimeJobService.SyncAcumaticaStockItems(selectedSPIds, enableInventorySync);
+
+            return JsonNetResult.Success();
+        }
+
+
+
 
         // Import into Shopify methods
         //

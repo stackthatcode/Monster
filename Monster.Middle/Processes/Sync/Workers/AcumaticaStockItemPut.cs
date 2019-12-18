@@ -50,7 +50,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 foreach (var variant in variants)
                 {
-                    if (RunStockItemImport(context, variant))
+                    var result = RunStockItemImport(context, variant);
+
+                    if (result == StockItemPutResult.CreatedStockItem && context.CreateInventoryReceipts)
                     {
                         variantsForReceipt.Add(variant);
                     }
@@ -64,15 +66,14 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        private bool RunStockItemImport(AcumaticaStockItemImportContext context, ShopifyVariant variant)
+        private int RunStockItemImport(AcumaticaStockItemImportContext context, ShopifyVariant variant)
         {
-            var matchingShopifySkus 
-                = _syncRepository.RetrieveNonMissingVariants(variant.StandardizedSku());
+            var matchingShopifySkus = _syncRepository.RetrieveNonMissingVariants(variant.StandardizedSku());
 
             if (matchingShopifySkus.Count > 1)
             {
                 _logService.Log($"Stock Item Import: {variant.LogDescriptor()} has duplicates in Shopify - aborting");
-                return false;
+                return StockItemPutResult.NoAction;
             }
 
             // Attempt to Auto-match
@@ -80,18 +81,17 @@ namespace Monster.Middle.Processes.Sync.Workers
             if (variant.IsMatched())
             {
                 _logService.Log($"Stock Item Import: {variant.LogDescriptor()} already matched - aborting");
-                return false;
+                return StockItemPutResult.NoAction;
             }
 
             var stockItem = _syncRepository.RetrieveStockItem(variant.StandardizedSku());
-
             if (stockItem != null)
             {
                 if (stockItem.IsMatched())
                 {
                     var msg = $"Stock Item Import: {variant.LogDescriptor()} SKU already synchronized";
                     _logService.Log(msg);
-                    return false;
+                    return StockItemPutResult.NoAction;
                 }
                 else
                 { 
@@ -99,17 +99,23 @@ namespace Monster.Middle.Processes.Sync.Workers
                     _logService.Log(msg);
 
                     _syncRepository.InsertItemSync(variant, stockItem, context.IsSyncEnabled);
-                    return false;
+                    return StockItemPutResult.Synchronized;
                 }
             }
+
+            // Abort any further processing
+            if (context.SynchronizeOnly == true)
+            {
+                return StockItemPutResult.NoAction;
+            }
+
 
             // With neither duplicates or Auto-matching having succeeded,
             // ... we'll create a new Stock Item in Acumatica
             //
             StockItemPush(context, variant);
-            context.VariantsForInventoryReceipt.Add(variant);
-
-            return true;
+            context.VariantsForNextInventoryReceipt.Add(variant);
+            return StockItemPutResult.CreatedStockItem;
         }
 
         public void StockItemPush(AcumaticaStockItemImportContext context, ShopifyVariant variant)

@@ -86,7 +86,8 @@ namespace Monster.Middle.Misc.Hangfire
                 ShopifyProductIds = spids,
                 CreateInventoryReceipts = createReceipts,
                 IsSyncEnabled = automaticEnable,
-                WarehouseId = warehouseId
+                WarehouseId = warehouseId,
+                SynchronizeOnly = false,
             };
 
             var monitor = _jobMonitoringService
@@ -97,6 +98,27 @@ namespace Monster.Middle.Misc.Hangfire
 
             _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
+
+        public void SyncAcumaticaStockItems(List<long> spids, bool automaticEnable)
+        {
+            var context = new AcumaticaStockItemImportContext
+            {
+                ShopifyProductIds = spids,
+                IsSyncEnabled = automaticEnable,
+                CreateInventoryReceipts = false,
+                SynchronizeOnly = true,
+                WarehouseId = null,
+            };
+
+            var monitor = _jobMonitoringService
+                .ProvisionJobMonitor(BackgroundJobType.ImportAcumaticaStockItems, false);
+
+            var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
+                x => x.ImportAcumaticaStockItems(_tenantContext.InstanceId, context, monitor.Id));
+
+            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+        }
+
 
         public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
         {

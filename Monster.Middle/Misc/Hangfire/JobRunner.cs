@@ -61,6 +61,13 @@ namespace Monster.Middle.Misc.Hangfire
             ExecuteJob(instanceId, () => _processDirector.ImportAcumaticaStockItems(context), jobMonitorId);
         }
 
+
+        public void SyncWithAcumaticaStockItems(
+            Guid instanceId, AcumaticaStockItemImportContext context, long jobMonitorId)
+        {
+            ExecuteJob(instanceId, () => _processDirector.ImportAcumaticaStockItems(context), jobMonitorId);
+        }
+
         public void ImportNewShopifyProduct(
                     Guid instanceId, ShopifyNewProductImportContext context, long jobMonitorId)
         {

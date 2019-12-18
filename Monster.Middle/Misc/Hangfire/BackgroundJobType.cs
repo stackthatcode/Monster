@@ -10,9 +10,10 @@ namespace Monster.Middle.Misc.Hangfire
         public const int Diagnostics = 4;
         public const int RefreshInventory = 5;
         public const int ImportAcumaticaStockItems = 6;
-        public const int ImportNewShopifyProduct = 7;
-        public const int ImportAddShopifyVariantsToProduct = 8;
-        public const int EndToEndSync = 9;
+        public const int SyncWithAcumaticaStockItems = 7;
+        public const int ImportNewShopifyProduct = 8;
+        public const int ImportAddShopifyVariantsToProduct = 9;
+        public const int EndToEndSync = 10;
 
 
 
@@ -24,6 +25,7 @@ namespace Monster.Middle.Misc.Hangfire
             { Diagnostics, "Diagnostics" },
             { RefreshInventory, "Refresh Inventory Cache" },
             { ImportAcumaticaStockItems, "Import Stock Items into Acumatica" },
+            { SyncWithAcumaticaStockItems,"Sync with Stock Items in Acumatica" },
             { ImportNewShopifyProduct, "Import New Shopify Product" },
             { ImportAddShopifyVariantsToProduct, "Import Add Shopify Variants to Existing Product" },
             { EndToEndSync, "End To End Sync" },

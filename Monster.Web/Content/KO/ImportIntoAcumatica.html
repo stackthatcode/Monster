@@ -7,6 +7,10 @@
         font-size: 0.9em;
     }
 
+    #confirm-sync-modal label {
+        font-size: 0.9em;
+    }
+
     #import-product-detail-modal label {
         font-size: 0.9em;
     }
@@ -15,11 +19,11 @@
         color: #666666;
         font-weight: 700;
     }
-    
+
     .sync-grid td {
-         vertical-align: middle;
-         font-size: 0.84em;
-         background-color: white;
+        vertical-align: middle;
+        font-size: 0.84em;
+        background-color: white;
     }
 </style>
 
@@ -43,11 +47,14 @@
             </div>
         </div>
     </div>
-    
+
 
     <!-- Render Dialog Boxes Separately -->
     <div data-bind="template: { name: 'Shopify-Product-Detail', data: ShopifyProductDetail }"></div>
     <div data-bind="template: { name: 'Import-Confirmation', data: ImportConfirmModel }"></div>
+    <div data-bind="template: { name: 'Sync-Confirmation', data: SyncConfirmModel }"></div>
+
+    
     <div data-bind="template: { name: 'Import-Selected-Products', data: ImportSelectedProductModel }"></div>
     <div data-bind="template: { name: 'Import-Completion' }"></div>
 </div>
@@ -69,7 +76,7 @@
         <div class="card-title-interface">
             Import from Shopify into Acumatica
         </div>
-        
+
         <div class="center" style="padding-top:10px;"
              data-bind="template: { name: 'Inventory-Refresh-Control', data: InventoryRefreshControlModel }"></div>
 
@@ -91,7 +98,7 @@
                            maxlength="50" />
 
                     <div class="input-group-append">
-                        <button class="btn btn-secondary" type="button" 
+                        <button class="btn btn-secondary" type="button"
                                 style="font-size:0.9em;"
                                 data-bind="click: RefreshGrid">
                             Filter Inventory <i class="fas fa-search"></i>
@@ -127,10 +134,17 @@
                 <div role="group" aria-label="Basic example">
 
                     <button type="button"
-                            data-bind="click: ImportIntoAcumaticaClick, enable: ImportButtonEnabled"
+                            data-bind="click: ImportIntoAcumaticaClick, enable: SyncButtonsEnabled"
                             class="btn btn-sm btn-primary">
                         Import into Acumatica <i class="fas fa-bolt"></i>
                     </button>
+
+                    <button type="button"
+                            data-bind="click: SyncWithAcumaticaClick, enable: SyncButtonsEnabled"
+                            class="btn btn-sm btn-primary">
+                        Sync with Acumatica <i class="fas fa-bolt"></i>
+                    </button>
+
                 </div>
 
                 <div style="clear:both; float:left; font-weight:700; font-size:0.9em; padding-top:8px;">
@@ -157,48 +171,48 @@
     <div style="min-height:500px;" data-bind="visible: !EmptyResults()" class="grid-bg">
         <table class="table sync-grid" style="border-bottom: 1px #999 dashed;">
             <tbody data-bind="foreach: VisibleData">
-            <tr>
-                <td style="padding-left:0;">
-                    <div class="ellipsis-overflow" style="max-width:400px;">
-                        <a target="_blank" data-bind="attr: { href: ShopifyUrl }, text: ProductTitle"></a>
-                    </div>
-                    <div data-bind="text: Vendor"></div>
-                    <div class="text-muted">
-                        Id: <span data-bind="text: ShopifyProductId"></span>
-                    </div>
-                </td>
-                <td>
-                    <div style="max-width:400px;">
-                        <a href="#" data-bind="click: ProductDetailClick">
-                            <span data-bind="text: VariantCount"></span>
-                            Shopify Variants
-                        </a>
-                    </div>
-                    <div>
-                        <span data-bind="text: SyncedVariantCount"></span>
-                        synced with Acumatica
-                    </div>
-                </td>
+                <tr>
+                    <td style="padding-left:0;">
+                        <div class="ellipsis-overflow" style="max-width:400px;">
+                            <a target="_blank" data-bind="attr: { href: ShopifyUrl }, text: ProductTitle"></a>
+                        </div>
+                        <div data-bind="text: Vendor"></div>
+                        <div class="text-muted">
+                            Id: <span data-bind="text: ShopifyProductId"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="max-width:400px;">
+                            <a href="#" data-bind="click: ProductDetailClick">
+                                <span data-bind="text: VariantCount"></span>
+                                Shopify Variants
+                            </a>
+                        </div>
+                        <div>
+                            <span data-bind="text: SyncedVariantCount"></span>
+                            synced with Acumatica
+                        </div>
+                    </td>
 
-                <td style="text-align:right; padding-right:0; font-size:14px; width:30%;">
-                    <div data-bind="if: IsSelected">
-                        <a href="#" data-bind="click: UnselectClick"
-                           class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
-                    </div>
-                    <div data-bind="ifnot: IsSelected">
-                        <a href="#" data-bind="click: SelectClick"
-                           class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
-                    </div>
-                </td>
-            </tr>
+                    <td style="text-align:right; padding-right:0; font-size:14px; width:30%;">
+                        <div data-bind="if: IsSelected">
+                            <a href="#" data-bind="click: UnselectClick"
+                               class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
+                        </div>
+                        <div data-bind="ifnot: IsSelected">
+                            <a href="#" data-bind="click: SelectClick"
+                               class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 </script>
 
 <script id="Import-Selected-Products" type="text/html">
-    <div class="modal fade" 
-         id="import-selected-products-modal" tabindex="-1" role="dialog" 
+    <div class="modal fade"
+         id="import-selected-products-modal" tabindex="-1" role="dialog"
          aria-labelledby="import-selected-products-modal-label" aria-hidden="true">
 
         <div class="modal-dialog" role="document" style="max-width:900px;">
@@ -212,32 +226,31 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                
+
                 <div class="modal-body">
                     <table class="table table-striped" style="font-size: 0.9em;">
                         <tbody data-bind="foreach: SelectedProducts">
-                        <tr>
-                            <td>
-                                <a target="_blank" href="#" data-bind="text: ProductTitle, attr: { href: ShopifyUrl }">
-                                </a>
-                            </td>
-                            <td data-bind="text: Vendor">
-                            </td>
-                            <td>
-                                <span data-bind="text: UnsyncedVariantCount"></span> unsynced variants
-                            </td>
-                            <td style="text-align:right;">
-                                <span data-bind="if: IsSelected">
-                                    <a href="#" data-bind="click: UnselectClick"
-                                       class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
-                                </span>
-                                <span data-bind="ifnot: IsSelected">
-                                    <a href="#" data-bind="click: SelectClick"
-                                       class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
-                                </span>
-                            </td>
-                    </tr>
-                    </tbody>
+                            <tr>
+                                <td>
+                                    <a target="_blank" href="#" data-bind="text: ProductTitle, attr: { href: ShopifyUrl }">
+                                    </a>
+                                </td>
+                                <td data-bind="text: Vendor"></td>
+                                <td>
+                                    <span data-bind="text: UnsyncedVariantCount"></span> unsynced variants
+                                </td>
+                                <td style="text-align:right;">
+                                    <span data-bind="if: IsSelected">
+                                        <a href="#" data-bind="click: UnselectClick"
+                                           class="badge badge-primary" style="padding:10px; width:80px;">SELECTED</a>
+                                    </span>
+                                    <span data-bind="ifnot: IsSelected">
+                                        <a href="#" data-bind="click: SelectClick"
+                                           class="badge badge-secondary" style="padding:10px; width:80px;">UNSELECTED</a>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -251,13 +264,13 @@
 </script>
 
 <script id="Import-Confirmation" type="text/html">
-    <div class="modal fade" id="confirm-import-modal" 
+    <div class="modal fade" id="confirm-import-modal"
          tabindex="-1" role="dialog" aria-labelledby="confirm-import-modalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document" style="max-width:600px;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="confirm-import-modalLabel">Confirm Stock Item Import into Acumatica</h5>
-                    
+
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -323,24 +336,67 @@
     </div>
 </script>
 
-<script id="Import-Completion" type="text/html">
-    <div class="modal fade" id="complete-import-modal" tabindex="-1" role="dialog" aria-labelledby="complete-import-modalLabel" aria-hidden="true">
+<script id="Sync-Confirmation" type="text/html">
+    <div class="modal fade" id="confirm-sync-modal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document" style="max-width:600px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="complete-import-modalLabel">Import into Acumatica Complete</h5>
+                    <h5 class="modal-title">Confirm Stock Item Sync with Acumatica</h5>
+
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-4">
-                        The process of loading Shopify Products into Acumatica is now complete.
+                        <div class="mb-2">
+                            <label>Ready to proceed with importing into Acumatica:</label>
+                        </div>
+
+                        <span class="modal-heavy-text">
+                            <span data-bind="text: ProductCount"></span> Shopify Product(s) with
+                            <span data-bind="text: UnsyncedVariantCount"></span> Unsynced Shopify Variant(s)
+                        </span>
                     </div>
+
                     <div class="mb-4">
-                        To enable/disable synchronization Inventory Counts with Shopify, navigate to
-                        <a href="@GlobalConfig.Url("/Sync/InventorySyncControl")">
-                        Synchronize -> Inventory Sync Control</a>.
+                        <label>Inventory Synchronization</label>
+                        <select class="form-control"
+                                data-bind="options: InventorySyncOptions,
+                                        value: InventorySyncChoice,
+                                        optionsText: 'Text',
+                                        optionsValue: 'Value'"></select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" data-bind="click: RunSyncWithAcumatica" class="btn btn-primary">
+                        Proceed with Sync <i class="fas fa-bolt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+
+<script id="Import-Completion" type="text/html">
+    <div class="modal fade" id="complete-import-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import into Acumatica Complete</h5>
+                    
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        The process of loading/syncing Shopify Products into Acumatica is now complete.
                     </div>
 
                     <div class="mb-4">
@@ -367,6 +423,7 @@
     var events = {
         ImportProductDetail: "/ImportProductDetail",
         LaunchImportConfirm: "/LaunchImportConfirm",
+        LaunchSyncConfirm: "/LaunchSyncConfirm",
         LaunchViewSelectedProduct: "/LaunchViewSelectedProduct",
     };
 
@@ -376,7 +433,7 @@
         UnselectedOnly: 'UnselectedOnly',
     };
 
-    Monster.ImportSelectedProductModel = function() {
+    Monster.ImportSelectedProductModel = function () {
         var self = this;
 
         self.SelectedProducts = ko.observableArray([]);
@@ -390,7 +447,7 @@
         };
 
         Monster.Events.subscribe(events.LaunchViewSelectedProduct, self.Launch);
-        
+
         return self;
     };
 
@@ -436,11 +493,11 @@
         //
         self.Launch = function (data) {
             flow.exec(function () {
-                    self.SelectedProducts(data);
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpGet("/Sync/SyncedWarehouses", this);
-                },
+                self.SelectedProducts(data);
+                var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
+                ajax.HttpGet("/Sync/SyncedWarehouses", this);
+            },
                 function (response) {
                     //console.log(response);
                     self.Warehouses(response);
@@ -452,27 +509,84 @@
 
         self.RunImportIntoAcumatica = function () {
             flow.exec(function () {
-                    var selectedSPIds
-                        = AQ(self.SelectedProducts()).select(function (x) {
-                            return x.ShopifyProductId;
-                        }).toArray();
+                var selectedSPIds
+                    = AQ(self.SelectedProducts()).select(function (x) {
+                        return x.ShopifyProductId;
+                    }).toArray();
 
                 var model = {
-                        warehouseId: self.SelectedWarehouse(),
-                        createInventoryReceipt: self.InventoryReceiptChoice(),
-                        enableInventorySync: self.InventorySyncChoice(),
-                        selectedSPIds: selectedSPIds,
-                    };
+                    warehouseId: self.SelectedWarehouse(),
+                    createInventoryReceipt: self.InventoryReceiptChoice(),
+                    enableInventorySync: self.InventorySyncChoice(),
+                    selectedSPIds: selectedSPIds,
+                };
 
-                    var ajax = new Monster.Ajax();
-                    ajax.DisablePopupsAndSpinners();
-                    ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
-                },
+                var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
+                ajax.HttpPost("/Sync/RunImportIntoAcumatica", model, this);
+            },
                 function (response) {
                     $('#confirm-import-modal').modal('hide');
 
                     Monster.Events.publish(Monster.JobStatusIsRunning);
                 });
+        }
+
+        return self;
+    };
+
+    Monster.SyncConfirmModel = function () {
+        var self = this;
+
+        self.SelectedProducts = ko.observableArray([]);
+
+        self.InventorySyncOptions = ko.observableArray([
+            { Text: 'Automatically Disable Sync', Value: 0 },
+            { Text: 'Automatically Enable Sync', Value: 1 },
+        ]);
+
+        // State
+        //
+        self.InventorySyncChoice = ko.observable(0);
+
+        self.ProductCount = ko.computed(function () { return self.SelectedProducts().length; });
+
+        self.UnsyncedVariantCount = ko.computed(function () {
+            return AQ(self.SelectedProducts()).sum(function (x) { return x.UnsyncedVariantCount });
+        });
+
+        // AJAX Methods
+
+        // Parameter data should match C# DTO ShopifyProductModel
+        //
+        self.Launch = function (data) {
+            $('#confirm-sync-modal').modal('show');
+            self.SelectedProducts(data);
+        };
+
+        Monster.Events.subscribe(events.LaunchSyncConfirm, self.Launch);
+
+        self.RunSyncWithAcumatica = function () {
+            flow.exec(function () {
+                var selectedSPIds
+                    = AQ(self.SelectedProducts()).select(function (x) {
+                        return x.ShopifyProductId;
+                    }).toArray();
+
+                var model = {
+                    enableInventorySync: self.InventorySyncChoice(),
+                    selectedSPIds: selectedSPIds,
+                };
+
+                var ajax = new Monster.Ajax();
+                ajax.DisablePopupsAndSpinners();
+                ajax.HttpPost("/Sync/RunSyncAcumatica", model, this);
+            },
+            function (response) {
+                $('#confirm-import-modal').modal('hide');
+
+                Monster.Events.publish(Monster.JobStatusIsRunning);
+            });
         }
 
         return self;
@@ -496,7 +610,7 @@
         //
         self.EmptyResults = ko.computed(function () { return self.GridData().length == 0; });
 
-        self.ImportButtonEnabled = ko.computed(function() { return self.SelectedProducts().length > 0; });
+        self.SyncButtonsEnabled = ko.computed(function () { return self.SelectedProducts().length > 0; });
 
 
         // Grid interaction methods
@@ -513,7 +627,7 @@
         self.DecorateGridRow = function (row) {
             row.IsSelected = ko.computed(function () {
                 return AQ(self.SelectedProducts())
-                    .any(function(x) { return x.ShopifyProductId == row.ShopifyProductId; });
+                    .any(function (x) { return x.ShopifyProductId == row.ShopifyProductId; });
             });
 
             row.SelectClick = function () {
@@ -525,7 +639,7 @@
                 }
             };
 
-            row.UnselectClick = function() {
+            row.UnselectClick = function () {
                 if (row.IsSelected()) {
                     self.SelectedProducts.remove(row);
                 }
@@ -549,12 +663,12 @@
 
         self.RefreshGrid = function () {
             flow.exec(function () {
-                    var ajax = new Monster.Ajax();
-                    var url = "/Sync/FilterShopifyProducts?terms=" + self.FilterTerms()
-                            + "&maxRecords=" + self.MaximumRecords + "&onlyHavingUnsyncedVariants=true";
+                var ajax = new Monster.Ajax();
+                var url = "/Sync/FilterShopifyProducts?terms=" + self.FilterTerms()
+                    + "&maxRecords=" + self.MaximumRecords + "&onlyHavingUnsyncedVariants=true";
 
-                    ajax.HttpGet(url, this);
-                },
+                ajax.HttpGet(url, this);
+            },
                 function (response) {
                     AQ(response.searchResult).each(function (x) { self.DecorateGridRow(x); });
                     self.GridData(response.searchResult);
@@ -587,6 +701,10 @@
             Monster.Events.publish(events.LaunchViewSelectedProduct, self.SelectedProducts());
         };
 
+        self.SyncWithAcumaticaClick = function () {
+            Monster.Events.publish(events.LaunchSyncConfirm, self.SelectedProducts());
+        };
+
         return self;
     };
 
@@ -603,6 +721,7 @@
         //
         self.InventoryImportModel = new Monster.InventoryImportModel();
         self.ImportConfirmModel = new Monster.ImportConfirmModel();
+        self.SyncConfirmModel = new Monster.SyncConfirmModel();
         self.ImportSelectedProductModel = new Monster.ImportSelectedProductModel();
 
         // Interface logic reduction
@@ -619,10 +738,10 @@
         //
         self.ProcessStatus = function () {
             flow.exec(
-                function() {
+                function () {
                     self.InventoryRefreshControlModel.RefreshStatus(this);
                 },
-                function() {
+                function () {
                     if (self.ShowImportPanel()) {
                         self.InventoryImportModel.RefreshGrid();
                         self.InventoryImportModel.UnselectAllClick();
@@ -630,8 +749,8 @@
                 });
         };
 
-        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function() {
-             self.ProcessStatus();
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () {
+            self.ProcessStatus();
         });
 
         self.Initialize = function () { self.JobRunningModel.StartPolling(true); };
@@ -639,22 +758,10 @@
         return self;
     };
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         var model = new Monster.RootModel();
         ko.applyBindings(model);
         model.Initialize();
     });
-
-    
-    // *** SAVE FOR LATER
-    //
-    //self.ImportJobTriggered = ko.observable(false);
-    //Monster.Events.subscribe(events.ImportJobTriggered, function () { self.ImportJobTriggered(true); });
-    // Show the completion dialog if the flag was set
-    //if (self.ImportJobTriggered()) {
-    //    $("#complete-import-modal").modal('show');
-
-    //    // Clear the flag
-    //    self.ImportJobTriggered(false);
-    //}
 </script>
+
