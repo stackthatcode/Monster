@@ -123,10 +123,10 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         private void AutomatchAndRemoveExistingSkus(ShopifyAddVariantImportContext context)
         {
-            foreach (var itemId in context.AcumaticaItemIds)
+            foreach (var itemId in context.AcumaticaItemIds.ToList())
             {
                 var existingVariant =
-                    _syncInventoryRepository.RetrieveLiveVariant(context.ShopifyProductId, itemId.StandardizedSku());
+                    _syncInventoryRepository.RetrieveVariantForAutomatch(context.ShopifyProductId, itemId.StandardizedSku());
 
                 if (existingVariant != null)
                 {

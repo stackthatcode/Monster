@@ -193,14 +193,14 @@ namespace Monster.Middle.Processes.Sync.Persist
                                      && x.ShopifySku == sku);
         }
 
-        public ShopifyVariant RetrieveLiveVariant(long shopifyProductId, string sku)
+        public ShopifyVariant RetrieveVariantForAutomatch(long shopifyProductId, string sku)
         {
             return Entities
                 .ShopifyVariants
                 .Where(x => x.ShopifyProduct.ShopifyProductId == shopifyProductId)
                 .Include(x => x.AcumaticaStockItems)
                 .FirstOrDefault(x => x.IsMissing == false
-                                     && x.AcumaticaStockItems.Any()
+                                     && !x.AcumaticaStockItems.Any()
                                      && x.ShopifySku == sku);
         }
 
