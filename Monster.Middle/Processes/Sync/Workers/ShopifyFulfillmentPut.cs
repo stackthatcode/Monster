@@ -48,7 +48,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            return; // SKOUTS HONOR
+            //return; // SKOUTS HONOR
 
             var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments();
 
