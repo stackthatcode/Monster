@@ -350,7 +350,8 @@
                 <div class="modal-body">
                     <div class="mb-4">
                         <div class="mb-2">
-                            <label>Ready to proceed with importing into Acumatica:</label>
+                            <label>Ready to proceed with synchronizing Shopify Product-Variants with 
+                             existing Acumatica Stock Items (no new Items will be created).</label>
                         </div>
 
                         <span class="modal-heavy-text">
@@ -381,7 +382,6 @@
         </div>
     </div>
 </script>
-
 
 <script id="Import-Completion" type="text/html">
     <div class="modal fade" id="complete-import-modal" tabindex="-1" role="dialog">
@@ -580,10 +580,10 @@
 
                 var ajax = new Monster.Ajax();
                 ajax.DisablePopupsAndSpinners();
-                ajax.HttpPost("/Sync/RunSyncAcumatica", model, this);
+                ajax.HttpPost("/Sync/RunSyncWithAcumatica", model, this);
             },
             function (response) {
-                $('#confirm-import-modal').modal('hide');
+                $('#confirm-sync-modal').modal('hide');
 
                 Monster.Events.publish(Monster.JobStatusIsRunning);
             });
