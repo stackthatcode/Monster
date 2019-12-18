@@ -144,6 +144,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newOrder.ShopifyFinancialStatus = order.financial_status;
                 newOrder.NeedsTransactionGet = true;
                 newOrder.NeedsOrderPut = true;
+                newOrder.IsBlocked = false;
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;

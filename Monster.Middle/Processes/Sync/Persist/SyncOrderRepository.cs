@@ -155,7 +155,9 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
-                .Where(x => x.Ignore == false && (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
+                .Where(x => x.Ignore == false &&
+                            x.ShopifyOrder.AcumaticaSalesOrder != null
+                            && (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
                 .Select(x => x.ShopifyOrder.ShopifyOrderId)
                 .Distinct()
                 .ToList();

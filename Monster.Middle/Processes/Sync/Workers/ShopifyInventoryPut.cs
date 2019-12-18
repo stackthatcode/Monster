@@ -48,6 +48,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
+            return; // SKOUTS HONOR
+
             RunPriceUpdates();
             RunInventoryUpdate();
         }
@@ -73,6 +75,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void PriceAndCostUpdate(AcumaticaStockItem stockItem, bool setTracking = false)
         {
+            return; // SKOUTS HONOR
+
             var settings = _settingsRepository.RetrieveSettings();
             var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
             var stockItemObj = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();

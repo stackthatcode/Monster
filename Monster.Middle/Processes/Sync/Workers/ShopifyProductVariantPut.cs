@@ -41,6 +41,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run(ShopifyAddVariantImportContext context)
         {
+            return; // SKOUTS HONOR
+
             // Attempt to auto-match Item Ids SKU's that exists, and remove from context
             //
             AutomatchAndRemoveExistingSkus(context);
@@ -76,6 +78,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void RunNewProduct(ShopifyNewProductImportContext context)
         {
+            return; // SKOUTS HONOR
+
             var newVariants = CleanAndBuildVariantPayload(context.AcumaticaItemIds);
 
             var product = new ProductNew()

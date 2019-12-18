@@ -121,7 +121,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _systemLogger.Debug($"AcumaticaOrderPut -> RunOrder({shopifyOrderId})");
 
                 var orderAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
-                _syncOrderRepository.UpdateShopifyIsBlocked(shopifyOrderId, orderAction.IsValid);
+                _syncOrderRepository.UpdateShopifyIsBlocked(shopifyOrderId, !orderAction.IsValid);
 
                 if (!orderAction.IsValid)
                 {
