@@ -73,7 +73,7 @@
                            data-bind="value: SearchText, event: { keyup: SearchTermsKeyCallback }"
                            placeholder="Shopify Order Number or ID, Acumatica Sales Order ID"
                            aria-label="Shopify Order Number or ID, Acumatica Sales Order ID"
-                           maxlength="25"/>
+                           maxlength="25" />
 
                     <div class="input-group-append">
                         <button class="btn btn-secondary" type="button" data-bind="click: FilterOrdersClick">
@@ -96,42 +96,50 @@
             </div>
         </div>
 
-        <table class="table table-hover order-grid">
-            <thead>
-            <tr style="color: #777;">
-                <th scope="col">Shopify<br/>Order Nbr</th>
-                <th scope="col">Acumatica<br/> Sales Order</th>
-                <th scope="col">Shopify<br/> Order Total</th>
-                <th scope="col">Shopify<br/> Net Payment</th>
-                <th scope="col">Acumatica<br/> Order Payment</th>
-                <th scope="col">Acumatica<br/> Net Payment</th>
-                <th scope="col">Acumatica<br/> Invoice Total</th>
-                <th scope="col">Status</th>
-            </tr>
-            </thead>
-            <tbody data-bind="foreach: Grid">
-            <tr data-bind="click: $parent.OrderClick">
-                <td data-bind="text: ShopifyOrderNbr"></td>
-                <td data-bind="text: AcumaticaSalesOrderNbr"></td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyNetPayment)"></td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaNetPayment)"></td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
-                <td>
-                    <div data-bind="if: IsBlocked">
-                        <div class="badge badge-danger">Blocked</div>
-                    </div>
-                    <div data-bind="if: HasError">
-                        <div class="badge badge-warning">Error</div>
-                    </div>
-                    <div data-bind="ifnot: IsBlocked || HasError">
-                        <div class="badge badge-success">OK</div>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div data-bind="ifnot: Grid().length">
+            <div style="height: 400px; padding-top:150px;" class="empty-grid">
+                <h1>Unable find any records that match your query</h1>
+            </div>
+        </div>
+
+        <div data-bind="if: Grid().length">
+            <table class="table table-hover order-grid">
+                <thead>
+                    <tr style="color: #777;">
+                        <th scope="col">Shopify<br />Order Nbr</th>
+                        <th scope="col">Acumatica<br /> Sales Order</th>
+                        <th scope="col">Shopify<br /> Order Total</th>
+                        <th scope="col">Shopify<br /> Net Payment</th>
+                        <th scope="col">Acumatica<br /> Order Payment</th>
+                        <th scope="col">Acumatica<br /> Net Payment</th>
+                        <th scope="col">Acumatica<br /> Invoice Total</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: Grid">
+                    <tr data-bind="click: $parent.OrderClick">
+                        <td data-bind="text: ShopifyOrderNbr"></td>
+                        <td data-bind="text: AcumaticaSalesOrderNbr"></td>
+                        <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
+                        <td data-bind="text: Monster.NumberFormat(ShopifyNetPayment)"></td>
+                        <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
+                        <td data-bind="text: Monster.NumberFormat(AcumaticaNetPayment)"></td>
+                        <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
+                        <td>
+                            <div data-bind="if: IsBlocked">
+                                <div class="badge badge-danger">Blocked</div>
+                            </div>
+                            <div data-bind="if: HasError">
+                                <div class="badge badge-warning">Error</div>
+                            </div>
+                            <div data-bind="ifnot: IsBlocked || HasError">
+                                <div class="badge badge-success">OK</div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </script>
 

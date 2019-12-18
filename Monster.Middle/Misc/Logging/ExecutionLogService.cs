@@ -23,6 +23,19 @@ namespace Monster.Middle.Misc.Logging
         {
             try
             {
+                if (level == LogLevel.Information)
+                {
+                    _logger.Info(content);
+                }
+                if (level == LogLevel.Debug)
+                {
+                    _logger.Debug(content);
+                }
+                if (level == LogLevel.Error)
+                {
+                    _logger.Error(content);
+                }
+
                 var logEntry = new ExecutionLog();
                 logEntry.LogContent = content;
                 logEntry.LogLevel = level;

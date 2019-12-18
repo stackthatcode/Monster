@@ -58,69 +58,77 @@
                 <div data-bind="template: { name: 'Monster-Paging-Widget', data: PagingWidget }"></div>
             </div>
         </div>
+        
+        <div data-bind="ifnot: Grid().length">
+            <div style="height: 400px; padding-top:150px;" class="empty-grid">
+                <h1>Unable find any records that match your query</h1>
+            </div>
+        </div>
 
-        <table class="table table-hover product-grid">
-            <thead>
-            <tr style="color: #777;">
-                <th scope="col">Shopify Product / Shopify Variant</th>
-                <th scope="col">Shopify<br />Tax</th>
-                <th scope="col">Shopify<br />Price</th>
-                <th scope="col">Shopify<br />Avail Qty</th>
+        <div data-bind="if: Grid().length">
+            <table class="table table-hover product-grid">
+                <thead>
+                <tr style="color: #777;">
+                    <th scope="col">Shopify Product / Shopify Variant</th>
+                    <th scope="col">Shopify<br />Tax</th>
+                    <th scope="col">Shopify<br />Price</th>
+                    <th scope="col">Shopify<br />Avail Qty</th>
 
-                <th scope="col">Acumatica Stock Item</th>
-                <th scope="col">Acumatica<br />Tax</th>
-                <th scope="col">Acumatica<br />Price</th>
-                <th scope="col">Acumatica<br />Avail Qty</th>
-            </tr>
-            </thead>
-            <tbody data-bind="foreach: Grid">
-            <tr>
-                <td style="max-width:250px;">
-                    <div class="ellipsis-overflow">
-                        <a target="_blank" data-bind="text: ShopifyProductTitle, attr: { href: ShopifyProductUrl }"></a>
-                        <span data-bind="if: IsShopifyProductDeleted" class="text-muted">(Deleted)</span>
-                    </div>
-                   
-                    <div>
-                        <a target="_blank" data-bind="attr: { href: ShopifyVariantUrl }">
-                            <span data-bind="text: ShopifyVariantTitle"></span>
-                            <span>-</span>
-                            <span data-bind="text: ShopifyVariantSku"></span>
-                        </a>
-                        <span data-bind="if: IsShopifyVariantMissing" class="text-muted">(Missing)</span>
-                    </div>
+                    <th scope="col">Acumatica Stock Item</th>
+                    <th scope="col">Acumatica<br />Tax</th>
+                    <th scope="col">Acumatica<br />Price</th>
+                    <th scope="col">Acumatica<br />Avail Qty</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: Grid">
+                <tr>
+                    <td style="max-width:250px;">
+                        <div class="ellipsis-overflow">
+                            <a target="_blank" data-bind="text: ShopifyProductTitle, attr: { href: ShopifyProductUrl }"></a>
+                            <span data-bind="if: IsShopifyProductDeleted" class="text-muted">(Deleted)</span>
+                        </div>
+                       
+                        <div>
+                            <a target="_blank" data-bind="attr: { href: ShopifyVariantUrl }">
+                                <span data-bind="text: ShopifyVariantTitle"></span>
+                                <span>-</span>
+                                <span data-bind="text: ShopifyVariantSku"></span>
+                            </a>
+                            <span data-bind="if: IsShopifyVariantMissing" class="text-muted">(Missing)</span>
+                        </div>
+                        
+                        <div>
+                            <span data-bind="if: HasDuplicateSkus">
+                                <span class="badge badge-danger">Duplicate SKU</span>
+                            </span>
+                            <span data-bind="if: HasMismatchedTaxes">
+                                <span class="badge badge-danger">Mismatched Taxes</span>
+                            </span>
+                            <span data-bind="if: HasMismatchedSku">
+                                <span class="badge badge-danger">Mismatched SKU</span>
+                            </span>
+                        </div>
+                    </td>
+                    <td data-bind="text: ShopifyVariantTax"></td>
+                    <td data-bind="text: Monster.NumberFormat(ShopifyVariantPrice)"></td>
+                    <td data-bind="text: Monster.NumberFormat(ShopifyVariantAvailQty)"></td>
                     
-                    <div>
-                        <span data-bind="if: HasDuplicateSkus">
-                            <span class="badge badge-danger">Duplicate SKU</span>
-                        </span>
-                        <span data-bind="if: HasMismatchedTaxes">
-                            <span class="badge badge-danger">Mismatched Taxes</span>
-                        </span>
-                        <span data-bind="if: HasMismatchedSku">
-                            <span class="badge badge-danger">Mismatched SKU</span>
-                        </span>
-                    </div>
-                </td>
-                <td data-bind="text: ShopifyVariantTax"></td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyVariantPrice)"></td>
-                <td data-bind="text: Monster.NumberFormat(ShopifyVariantAvailQty)"></td>
-                
-                <td style="max-width:250px;">
-                    <div class="ellipsis-overflow">
-                        <a data-bind="attr: { href: AcumaticaItemUrl }">
-                            <span data-bind="text: AcumaticaItemDesc"></span><br />
-                            <span data-bind="text: AcumaticaItemId"></span>
-                        </a>
-                    </div>
-                </td>
-                <td data-bind="text: AcumaticaItemTax"></td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaItemPrice)"></td>
-                <td data-bind="text: Monster.NumberFormat(AcumaticaItemAvailQty)"></td>
+                    <td style="max-width:250px;">
+                        <div class="ellipsis-overflow">
+                            <a data-bind="attr: { href: AcumaticaItemUrl }">
+                                <span data-bind="text: AcumaticaItemDesc"></span><br />
+                                <span data-bind="text: AcumaticaItemId"></span>
+                            </a>
+                        </div>
+                    </td>
+                    <td data-bind="text: AcumaticaItemTax"></td>
+                    <td data-bind="text: Monster.NumberFormat(AcumaticaItemPrice)"></td>
+                    <td data-bind="text: Monster.NumberFormat(AcumaticaItemAvailQty)"></td>
 
-            </tr>
-            </tbody>
-        </table>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </script>
 
