@@ -112,6 +112,9 @@ namespace Monster.Middle.Persist.Instance
         int DeleteAllSystemRecords();
         // DeleteAllSystemRecordsAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
 
+        int DeleteBatchStateOnly();
+        // DeleteBatchStateOnlyAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
+
         int ResetStartingShopifyOrder();
         // ResetStartingShopifyOrderAsync cannot be created due to having out parameters, or is relying on the procedure result (int)
 
@@ -361,6 +364,15 @@ namespace Monster.Middle.Persist.Instance
             return (int) procResultParam.Value;
         }
 
+        public int DeleteBatchStateOnly()
+        {
+            var procResultParam = new System.Data.SqlClient.SqlParameter { ParameterName = "@procResult", SqlDbType = System.Data.SqlDbType.Int, Direction = System.Data.ParameterDirection.Output };
+
+            Database.ExecuteSqlCommand(System.Data.Entity.TransactionalBehavior.DoNotEnsureTransaction, "EXEC @procResult = [dbo].[DeleteBatchStateOnly] ", procResultParam);
+
+            return (int) procResultParam.Value;
+        }
+
         public int ResetStartingShopifyOrder()
         {
             var procResultParam = new System.Data.SqlClient.SqlParameter { ParameterName = "@procResult", SqlDbType = System.Data.SqlDbType.Int, Direction = System.Data.ParameterDirection.Output };
@@ -575,6 +587,12 @@ namespace Monster.Middle.Persist.Instance
         }
 
         public int DeleteAllSystemRecords()
+        {
+
+            return 0;
+        }
+
+        public int DeleteBatchStateOnly()
         {
 
             return 0;
@@ -1138,7 +1156,6 @@ namespace Monster.Middle.Persist.Instance
     {
         public long Id { get; set; } // Id (Primary key)
         public int BackgroundJobType { get; set; } // BackgroundJobType
-        public bool IsRecurring { get; set; } // IsRecurring
         public string HangFireJobId { get; set; } // HangFireJobId (length: 100)
         public bool ReceivedKillSignal { get; set; } // ReceivedKillSignal
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -2287,7 +2304,6 @@ namespace Monster.Middle.Persist.Instance
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.BackgroundJobType).HasColumnName(@"BackgroundJobType").HasColumnType("int").IsRequired();
-            Property(x => x.IsRecurring).HasColumnName(@"IsRecurring").HasColumnType("bit").IsRequired();
             Property(x => x.HangFireJobId).HasColumnName(@"HangFireJobId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
             Property(x => x.ReceivedKillSignal).HasColumnName(@"ReceivedKillSignal").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();

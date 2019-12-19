@@ -14,7 +14,7 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         // BUT => why not include Inventory Refresh State...?
 
-        public bool IsConfigReadyForEndToEnd =>
+        public bool IsConfigReady =>
             this.ShopifyConnection == StateCode.Ok
             && this.AcumaticaConnection == StateCode.Ok
             && this.AcumaticaReferenceData == StateCode.Ok
@@ -24,9 +24,8 @@ namespace Monster.Middle.Processes.Sync.Model.Status
 
         // Starting Shopify Order
         //
-        public bool IsStartingOrderReadyForEndToEnd => StartingShopifyOrder == StateCode.Ok;
+        public bool IsStartingOrderReady => StartingShopifyOrder == StateCode.Ok;
 
-        public bool CanEndToEndSyncBeStarted 
-                => IsConfigReadyForEndToEnd && IsStartingOrderReadyForEndToEnd;
+        public bool CanStartEndToEnd => IsConfigReady && IsStartingOrderReady;
     }
 }

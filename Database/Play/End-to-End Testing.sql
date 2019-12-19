@@ -20,6 +20,6 @@ SELECT * FROM MonsterSys..AspNetUserLogins;
 SELECT * FROM MonsterSys..Instance;
 */
 
+-- UPDATE MonsterSys..AspNetUserLogins SET ProviderKey = 'onemoreteststorecanthurt.myshopify.com';
 
--- UPDATE MonsterSys..AspNetUserLogins SET ProviderKey = 'skouts.myshopify.com';
 

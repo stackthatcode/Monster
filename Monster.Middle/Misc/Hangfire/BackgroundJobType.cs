@@ -16,7 +16,6 @@ namespace Monster.Middle.Misc.Hangfire
         public const int EndToEndSync = 10;
 
 
-
         public static readonly Dictionary<int, string> Name = new Dictionary<int, string>()
         {
             { ConnectToAcumatica, "Connect to Acumatica" },

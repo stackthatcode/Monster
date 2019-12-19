@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
@@ -10,46 +11,58 @@ namespace Monster.Middle.Misc.Hangfire
         private readonly InstanceContext _instanceContext;
         private readonly ExecutionLogService _executionLogService;
         private readonly JobMonitoringService _jobMonitoringService;
+        private readonly OneTimeJobScheduler _oneTimeJobScheduler;
+
+
+        // Always use the same Job ID for Recurring Jobs
+        //
+        public string RecurringEndToEndSyncJobId => "RecurringEndToEndSync:" + _instanceContext.InstanceId;
 
 
         public RecurringJobScheduler(
                 InstanceContext instanceContext, 
                 ExecutionLogService executionLogService,
-                JobMonitoringService jobMonitoringService)
+                JobMonitoringService jobMonitoringService, 
+                OneTimeJobScheduler oneTimeJobScheduler)
         {
             _instanceContext = instanceContext;
             _executionLogService = executionLogService;
             _jobMonitoringService = jobMonitoringService;
+            _oneTimeJobScheduler = oneTimeJobScheduler;
         }
 
         public void StartEndToEndSync()
         {
-            var jobId = _jobMonitoringService.RecurringEndToEndSyncJobId;
-
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.EndToEndSync, true, jobId);
-
             RecurringJob.AddOrUpdate<JobRunner>(
-                jobId,
-                x => x.EndToEndSync(_instanceContext.InstanceId, monitor.Id),
-                "*/1 * * * *",
+                RecurringEndToEndSyncJobId, 
+                x => x.TriggerEndToEndSync(_instanceContext.InstanceId),
+                "0 * * * *", 
                 TimeZoneInfo.Utc);
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, jobId);
-
-            _executionLogService.Log("End-to-End Sync - recurring job - scheduled");
-
-            RecurringJob.Trigger(jobId);
+            _executionLogService.Log("End-to-End Sync - Recurring Job Started");
         }
-        
+
+        public bool IsEndToEndSyncActive()
+        {
+            using (var connection = JobStorage.Current.GetConnection())
+            {
+                var entries = connection.GetAllEntriesFromHash("recurring-job:" + RecurringEndToEndSyncJobId);
+                if (entries == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return entries.Any();
+                }
+            }
+        }
+
         public void KillEndToEndSync()
         {
-            var monitor = _jobMonitoringService.RetrieveMonitorByTypeNoTracking(BackgroundJobType.EndToEndSync);
-            if (monitor != null)
-            {
-                _jobMonitoringService.SendKillSignal(monitor.Id);
-                _executionLogService.Log($"End-to-End Sync - recurring job - stop signal received");
-            }
+            RecurringJob.RemoveIfExists(RecurringEndToEndSyncJobId);
+
+            _executionLogService.Log("End-to-End Sync - Recurring Job Paused");
         }
     }
 }

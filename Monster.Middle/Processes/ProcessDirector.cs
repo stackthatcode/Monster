@@ -306,7 +306,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 try
                 {
-                    if (_monitoringService.IsInterruptedByJobType(BackgroundJobType.EndToEndSync))
+                    if (_monitoringService.IsJobTypeInterrupted(BackgroundJobType.EndToEndSync))
                     {
                         _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
                         return;

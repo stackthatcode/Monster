@@ -214,9 +214,8 @@
         }
     </style>
     <div style="min-height: 400px;" class="pending-action-view">
-        <div class="alert" data-bind="css: {
-                 'alert-info': OrderAction.IsValid,
-                 'alert-danger': !OrderAction.IsValid }">
+        <div class="alert" 
+             data-bind="css: { 'alert-info': OrderAction.IsValid, 'alert-danger': !OrderAction.IsValid }">
             <strong>
                 <a target="_blank" data-bind="attr: { href: ShopifyOrderHref }">
                     Shopify Order <span data-bind="text: ShopifyOrderName"></span>

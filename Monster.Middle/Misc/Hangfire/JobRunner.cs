@@ -13,6 +13,7 @@ namespace Monster.Middle.Misc.Hangfire
         private readonly InstanceContext _instanceContext;
         private readonly JobMonitoringService _jobMonitoringService;
         private readonly ExecutionLogService _executionLogService;
+        private readonly OneTimeJobScheduler _oneTimeJobScheduler;
         private readonly IPushLogger _logger;
 
         public JobRunner(
@@ -20,12 +21,14 @@ namespace Monster.Middle.Misc.Hangfire
                 InstanceContext instanceContext,
                 JobMonitoringService jobMonitoringService, 
                 ExecutionLogService executionLogService,
+                OneTimeJobScheduler oneTimeJobScheduler,
                 IPushLogger logger)
         {
             _processDirector = processDirector;
             _instanceContext = instanceContext;
             _jobMonitoringService = jobMonitoringService;
             _executionLogService = executionLogService;
+            _oneTimeJobScheduler = oneTimeJobScheduler;
             _logger = logger;
         }
 
@@ -78,6 +81,12 @@ namespace Monster.Middle.Misc.Hangfire
                     Guid instanceId, ShopifyAddVariantImportContext context, long jobMonitorId)
         {
             ExecuteJob(instanceId, () => _processDirector.ImportAddShopifyVariantsToProduct(context), jobMonitorId);
+        }
+
+        public void TriggerEndToEndSync(Guid instanceId)
+        {
+            _instanceContext.Initialize(instanceId);
+            _oneTimeJobScheduler.EndToEndSync();
         }
 
         public void EndToEndSync(Guid instanceId, long jobMonitorId)

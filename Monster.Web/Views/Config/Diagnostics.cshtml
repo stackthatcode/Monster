@@ -32,7 +32,7 @@
     <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
         <div class="card">
             <div class="card-body std-pad-b">
-                <div data-bind="if: IsConfigReadyForEndToEnd">
+                <div data-bind="if: IsConfigReady">
                     <div class="alert alert-info">
                         <strong>System OK - Ready to Start End-to-End Sync</strong>
                     </div>
@@ -44,7 +44,7 @@
                     </p>
                 </div>
 
-                <div data-bind="ifnot: IsConfigReadyForEndToEnd">
+                <div data-bind="ifnot: IsConfigReady">
                     <div class="alert alert-danger">
                         <strong>End-to-End Synchronization - Disabled</strong>
                     </div>
@@ -121,7 +121,7 @@ Monster.InventoryConfigModel = function() {
     
     // Diagnosis
     //
-    self.IsConfigReadyForEndToEnd = ko.observable(false);
+    self.IsConfigReady = ko.observable(false);
     self.ConfigDiagnosis = ko.observableArray();
 
     self.StartConfigDiagnosisClick = function () {
@@ -170,7 +170,7 @@ Monster.InventoryConfigModel = function() {
                 ];
 
                 self.ConfigDiagnosis(configData);
-                self.IsConfigReadyForEndToEnd(response.IsConfigReadyForEndToEnd);
+                self.IsConfigReady(response.IsConfigReady);
             });
     };
 

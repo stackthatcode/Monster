@@ -2,8 +2,8 @@
 {
     public class NonRunningStateModel
     {
-        public bool IsConfigReadyForEndToEnd { get; set; }
-        public bool IsStartingOrderReadyForEndToEnd { get; set; }
-        public bool CanEndToEndSyncBeStarted { get; set; }
+        public bool IsConfigReady { get; set; }
+        public bool IsStartingOrderReady { get; set; }
+        public bool CanStartEndToEnd { get; set; }
     }
 }

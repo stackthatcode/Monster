@@ -77,6 +77,16 @@ AS
 GO
 
 
+DROP PROCEDURE IF EXISTS dbo.DeleteBatchStateOnly
+GO
+
+CREATE PROCEDURE dbo.DeleteBatchStateOnly
+AS
+	DELETE FROM AcumaticaBatchState;
+	DELETE FROM ShopifyBatchState;
+GO
+
+
 -- Clear out System tables
 --
 DROP PROCEDURE IF EXISTS dbo.DeleteAllSystemRecords

@@ -14,16 +14,19 @@ namespace Monster.Web.Controllers
     {
         private readonly ExecutionLogService _logRepository;
         private readonly JobMonitoringService _jobStatusService;
+        private readonly RecurringJobScheduler _recurringJobScheduler;
         private readonly StateRepository _stateRepository;
 
         public JobController(
                 JobMonitoringService jobStatusService,
                 ExecutionLogService logRepository, 
-                StateRepository stateRepository)
+                StateRepository stateRepository, 
+                RecurringJobScheduler recurringJobScheduler)
         {
             _jobStatusService = jobStatusService;
             _logRepository = logRepository;
             _stateRepository = stateRepository;
+            _recurringJobScheduler = recurringJobScheduler;
         }
 
 
@@ -32,14 +35,24 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult Status()
         {
+            var areAnyJobsRunning = _jobStatusService.AreAnyJobsRunning();
+            var logs = _logRepository.RetrieveExecutionLogs(100);
+
             var output = new
             {
-                IsEndToEndSyncRunning = _jobStatusService.IsJobRunning(BackgroundJobType.EndToEndSync),
-                AreAnyJobsRunning = _jobStatusService.AreAnyJobsRunning(),
-                Logs = _logRepository.RetrieveExecutionLogs(100),
+                AreAnyJobsRunning = areAnyJobsRunning,
+                Logs = logs
             };
             return new JsonNetResult(output);
         }
+
+        [HttpPost]
+        public ActionResult StopAll()
+        {
+            _jobStatusService.SendKillSignal();
+            return JsonNetResult.Success();
+        }
+
 
         [HttpGet]
         public ActionResult InventoryRefreshStatus()

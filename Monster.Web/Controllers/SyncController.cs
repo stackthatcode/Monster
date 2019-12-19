@@ -79,32 +79,39 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult StartEndToEnd()
+        public ActionResult StartEndToEndRecurring()
         {
-            _oneTimeJobService.EndToEndSyncStart();
-            //_recurringJobService.StartEndToEndSync();
-
+            _recurringJobService.StartEndToEndSync();
             return JsonNetResult.Success();
         }
 
         [HttpPost]
-        public ActionResult PauseEndToEnd()
+        public ActionResult PauseEndToEndRecurring()
         {
-            _oneTimeJobService.EndToEndSyncStop();
-
+            _recurringJobService.KillEndToEndSync();
             return JsonNetResult.Success();
         }
+
+        [HttpPost]
+        public ActionResult RunEndToEndImmediately()
+        {
+            _oneTimeJobService.EndToEndSync();
+            return JsonNetResult.Success();
+        }
+
 
         [HttpGet]
         public ActionResult EndToEndStatus()
         {
             var status = _configStatusService.GetConfigStatusSummary();
+            var isRecurringEndToEndActive = _recurringJobService.IsEndToEndSyncActive();
 
             var output = new 
             {
-                status.IsStartingOrderReadyForEndToEnd,
-                status.IsConfigReadyForEndToEnd,
-                status.CanEndToEndSyncBeStarted,
+                status.IsStartingOrderReady,
+                status.IsConfigReady,
+                status.CanStartEndToEnd,
+                IsRecurringEndToEndActive = isRecurringEndToEndActive,
             };
 
             return new JsonNetResult(output);

@@ -9,8 +9,11 @@
     <p class="center">
         There is currently a background job running
     </p>
-    <a href="#" class="btn btn-secondary btn-sm" data-bind="click: RefreshCleanUp">
-        Clean-up Job Monitoring <i class="fa fa-refresh"></i>
+    <a href="#" class="btn btn-secondary btn-sm" style="width:125px;" data-bind="click: RefreshCleanUp">
+        Clean-up <i class="fa fa-recycle"></i>
+    </a>
+    <a href="#" class="btn btn-secondary btn-sm" style="width:125px;" data-bind="click: StopAll">
+        Stop All <i class="fa fa-times"></i>
     </a>
 </script>
 
@@ -64,7 +67,7 @@
         var self = this;
 
         self.IsPollingStarted = ko.observable(false);
-        self.IsEndToEndSyncRunning = ko.observable(false);
+        self.IsRecurringEndToEndActive = ko.observable(false);
         self.AreAnyJobsRunning = ko.observable(false);
         self.Logs = ko.observableArray([]);
 
@@ -81,7 +84,7 @@
                 function (response) {
                     var oldAreAnyJobsRunning = self.AreAnyJobsRunning();
 
-                    self.IsEndToEndSyncRunning(response.IsEndToEndSyncRunning);
+                    self.IsRecurringEndToEndActive(response.IsRecurringEndToEndActive);
                     self.AreAnyJobsRunning(response.AreAnyJobsRunning);
                     self.Logs(response.Logs);
                     setTimeout(self.Poll, 1000);
@@ -96,6 +99,12 @@
             var ajax = new Monster.Ajax();
             ajax.DisablePopupsAndSpinners();
             ajax.HttpPost("/Job/Cleanup", {});
+        }
+
+        self.StopAll = function() {
+            var ajax = new Monster.Ajax();
+            ajax.DisablePopupsAndSpinners();
+            ajax.HttpPost("/Job/StopAll", {});
         }
 
         self.StartPolling = function (areAnyJobsRunning) {

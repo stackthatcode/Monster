@@ -10,72 +10,68 @@ namespace Monster.Middle.Misc.Hangfire
     public class OneTimeJobScheduler
     {
         private readonly InstanceContext _tenantContext;
-        private readonly JobMonitoringService _jobMonitoringService;
+        private readonly JobMonitoringService _monitoringService;
         private readonly ExecutionLogService _executionLogService;
 
         public OneTimeJobScheduler(
                 InstanceContext tenantContext, 
-                JobMonitoringService jobMonitoringService, 
+                JobMonitoringService monitoringService, 
                 ExecutionLogService executionLogService)
         {
             _tenantContext = tenantContext;
-            _jobMonitoringService = jobMonitoringService;
+            _monitoringService = monitoringService;
             _executionLogService = executionLogService;
         }
 
         public void ConnectToAcumatica()
         {
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.ConnectToAcumatica, false);
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.ConnectToAcumatica);
             
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.ConnectToAcumatica(_tenantContext.InstanceId, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
         public void RefreshAcumaticaReferenceData()
         {
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.RefreshAcumaticaRefData, false);
+            var monitor = 
+                _monitoringService.ProvisionMonitor(BackgroundJobType.RefreshAcumaticaRefData);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.RefreshAcumaticaRefData(_tenantContext.InstanceId, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
         public void SyncWarehouseAndLocation()
         {
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.SyncWarehouseAndLocation, false);
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.SyncWarehouseAndLocation);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.SyncWarehouseAndLocation(_tenantContext.InstanceId, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
         
         public void RunDiagnostics()
         {
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.Diagnostics, false);
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.Diagnostics);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.Diagnostics(_tenantContext.InstanceId, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
         public void RefreshInventory()
         {
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.RefreshInventory, false);
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.RefreshInventory);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.RefreshInventory(_tenantContext.InstanceId, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
         
         public void ImportAcumaticaStockItems(
@@ -90,13 +86,13 @@ namespace Monster.Middle.Misc.Hangfire
                 SynchronizeOnly = false,
             };
 
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.ImportAcumaticaStockItems, false);
+            var monitor = 
+                _monitoringService.ProvisionMonitor(BackgroundJobType.ImportAcumaticaStockItems);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.ImportAcumaticaStockItems(_tenantContext.InstanceId, context, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
         public void SyncAcumaticaStockItems(List<long> spids, bool automaticEnable)
@@ -110,56 +106,43 @@ namespace Monster.Middle.Misc.Hangfire
                 WarehouseId = null,
             };
 
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.ImportAcumaticaStockItems, false);
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.ImportAcumaticaStockItems);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                 x => x.ImportAcumaticaStockItems(_tenantContext.InstanceId, context, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
 
         public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
         {
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.ImportNewShopifyProduct, false);
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.ImportNewShopifyProduct);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.ImportNewShopifyProduct(_tenantContext.InstanceId, context, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
         public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
         {
-            var monitor = _jobMonitoringService
-                .ProvisionJobMonitor(BackgroundJobType.ImportAddShopifyVariantsToProduct, false);
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.ImportAddShopifyVariantsToProduct);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                     x => x.ImportAddShopifyVariantsToProduct(_tenantContext.InstanceId, context, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
 
-        public void EndToEndSyncStart()
+        public void EndToEndSync()
         {
-            var monitor = _jobMonitoringService.ProvisionJobMonitor(BackgroundJobType.EndToEndSync, false);
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.EndToEndSync);
 
             var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
                 x => x.EndToEndSync(_tenantContext.InstanceId, monitor.Id));
 
-            _jobMonitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
-        }
-
-        public void EndToEndSyncStop()
-        {
-            var monitor = _jobMonitoringService.RetrieveMonitorByTypeNoTracking(BackgroundJobType.EndToEndSync);
-            if (monitor != null)
-            {
-                _jobMonitoringService.SendKillSignal(monitor.Id);
-                _executionLogService.Log($"End-to-End Sync - recurring job - stop signal received");
-            }
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
     }
 }
