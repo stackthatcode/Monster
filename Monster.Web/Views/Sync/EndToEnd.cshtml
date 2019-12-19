@@ -1,4 +1,5 @@
-﻿@using Monster.Web.Plumbing
+﻿@using Monster.Middle.Misc.Hangfire
+@using Monster.Web.Plumbing
 
 <style>
     .container {
@@ -12,18 +13,21 @@
         font-weight: 500;
         color: #999999;
     }
+
     .sync-action-label {
-        float:left;
+        float: left;
         font-weight: 700;
         display: inline-block;
         color: #555555;
     }
+
     .sync-action-label-sub {
-        float:left;
+        float: left;
         font-weight: 400;
         display: inline-block;
         color: #555555;
     }
+
     .sync-button {
         width: 190px;
     }
@@ -41,11 +45,15 @@
     }
 
     .alert-danger-link {
-        color:#A23c54 !important;
+        color: #A23c54 !important;
     }
+
     .panel-size {
-        max-width: 600px; margin-left: auto; margin-right: auto;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
     }
+
     table.sync-settings td {
         padding-left: 0px;
         padding-right: 0px;
@@ -60,40 +68,31 @@
 
         <div class="card-body center">
             <div data-bind="if: JobRunningModel.AreAnyJobsRunning">
-                <div data-bind="template: { name: 'Running-State', data: JobRunningModel }"></div>
+                <hr />
+                <div style="text-align: center;" class="std-pad-sm">
+                    <div data-bind="template: { name: 'Job-Running-Panel', data: JobRunningModel }"></div>
+                </div>
+
+                <div style="height: 15px;"></div>
             </div>
 
             <div data-bind="ifnot: JobRunningModel.AreAnyJobsRunning">
-                <div data-bind="template: { name: 'Non-Running-State', data: JobTriggerPanelModel }"></div>
+                <hr />
+                <div data-bind="template: { name: 'Job-Trigger-Control-Panel', data: JobTriggerPanelModel }"></div>
+
+                <div style="height: 15px;"></div>
+
+                <div data-bind="template: { name: 'Order-Sync-Settings', data: SyncSettingsModel }"></div>
             </div>
         </div>
     </div>
 
-    <div data-bind="template: { name: 'Order-Order-Sync-Settings-Popup', data: OrderSyncSettingsPopupModel }"></div>
+    <div data-bind="template: { name: 'Order-Sync-Settings-Popup', data: OrderSyncSettingsPopupModel }"></div>
+    <div data-bind="template: { name: 'Recurring-Settings-Popup', data: RecurringSettingsPopupModel }"></div>
 </main>
 
-<script type="text/html" id="Running-State">
-    <hr />
-
-    <div style="text-align: center;" class="std-pad-sm">
-        <div data-bind="template: { name: 'Job-Running-Panel' }"></div>
-    </div>
-
-    <div style="height: 15px;"></div>
-</script>
-
-<script type="text/html" id="Non-Running-State">
-    <hr />
-
-    <div data-bind="template: { name: 'End-To-End-Sync-Control-Panel' }"></div>
-
-    <div style="height: 15px;"></div>
-
-    <div data-bind="template: { name: 'Order-Sync-Settings', data: SyncSettingsModel }"></div>
-</script>
-
-<script type="text/html" id="End-To-End-Sync-Control-Panel">
-    <div class="panel-size alert" 
+<script type="text/html" id="Job-Trigger-Control-Panel">
+    <div class="panel-size alert"
          data-bind="css: { 'alert-info': CanStartEndToEnd(), 'alert-danger': !CanStartEndToEnd() }">
         <strong>
             <div data-bind="ifnot: IsConfigReady">
@@ -104,7 +103,7 @@
             <div data-bind="if: IsConfigReady">
                 Configuration Settings Ready <i class="fa fa-check"></i>
             </div>
-            
+
             <div data-bind="ifnot: IsStartingOrderReady">
                 <a href="#" class="alert-danger-link"
                    data-bind="click: function() { Monster.Events.publish(eventKeys.LaunchOrderSyncSettings); }">
@@ -123,7 +122,7 @@
             <div data-bind="ifnot: IsRecurringEndToEndActive">
                 <div data-bind="if: CanStartEndToEnd">
                     <label class="sync-action-label">Recurring End-to-End Sync disabled</label>
-                    <a href="#" data-bind="click: $root.StartEndToEndRecurring"
+                    <a href="#" data-bind="click: StartEndToEndRecurring"
                        style="float:right;"
                        class="btn btn-primary sync-button">
                         Start Recurring <i class="fas fa-clock"></i>
@@ -132,14 +131,14 @@
                 <div data-bind="ifnot: CanStartEndToEnd">
                     <label class="sync-action-label">Recurring End-to-End Sync disabled</label>
                     <a href="#" style="float:right;"
-                            class="btn btn-secondary sync-button" data-bind="click: function() { return false; }">
+                       class="btn btn-secondary sync-button" data-bind="click: function() { return false; }">
                         Start Recurring <i class="fas fa-clock"></i>
                     </a>
                 </div>
             </div>
 
             <div data-bind="if: IsRecurringEndToEndActive">
-                <a href="#" data-bind="click: $root.PauseEndToEndRecurring"
+                <a href="#" data-bind="click: PauseEndToEndRecurring"
                    class="btn btn-primary sync-button"
                    style="float:right;">
                     Stop Recurring <i class="fas fa-clock"></i>
@@ -156,9 +155,9 @@
             <div data-bind="ifnot: CanStartEndToEnd">
                 <label class="sync-action-label">Run End-to-End Sync immediately</label>
 
-                <button type="button" 
-                        class="btn btn-secondary sync-button" 
-                        style="float:right;" 
+                <button type="button"
+                        class="btn btn-secondary sync-button"
+                        style="float:right;"
                         disable="disabled">
                     Run End-to-End Now <i class="fas fa-bolt"></i>
                 </button>
@@ -167,9 +166,8 @@
             <div data-bind="if: CanStartEndToEnd">
                 <label class="sync-action-label">Run End-to-End Sync immediately</label>
 
-                <a href="#" data-bind="click: $root.RunEndToEndImmediately" 
-                   style="float:right;" 
-                   class="btn btn-primary sync-button">
+                <a href="#" data-bind="click: RunEndToEndImmediately"
+                   style="float:right;" class="btn btn-primary sync-button">
                     Run End-to-End Sync <i class="fas fa-bolt"></i>
                 </a>
             </div>
@@ -180,78 +178,78 @@
 <script type="text/html" id="Order-Sync-Settings">
     <table class="table sync-settings" style="max-width: 600px; margin-left: auto; margin-right: auto;">
         <tbody>
-        <tr>
-            <td>
-                <div style="clear: both; vertical-align: middle;"
-                     data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div id="order-settings" style="float: left;">
-                    <!-- Starting Order Number -->
-                    <div style="clear: both; text-align: left;">
-                        <span class="sync-label" style="min-width: 200px; text-align: left;">Beginning Mark Order</span>
+            <tr>
+                <td>
+                    <div style="clear: both; vertical-align: middle;"
+                         data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="order-settings" style="float: left;">
+                        <!-- Starting Order Number -->
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Beginning Mark Order</span>
 
-                        <!-- Display Link if populated... -->
-                        <span data-bind="if: ShopifyOrderHref">
-                            <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
-                                <span data-bind="text: StartingOrderName">
-                                </span>
-                            </a>
-                        </span>
-
-                        <!-- ... else show alternate text -->
-                        <span data-bind="ifnot: ShopifyOrderHref">
-                            <span class="bold-light" data-bind="text: StartingOrderName">
+                            <!-- Display Link if populated... -->
+                            <span data-bind="if: ShopifyOrderHref">
+                                <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
+                                    <span data-bind="text: StartingOrderName">
+                                    </span>
+                                </a>
                             </span>
-                        </span>
+
+                            <!-- ... else show alternate text -->
+                            <span data-bind="ifnot: ShopifyOrderHref">
+                                <span class="bold-light" data-bind="text: StartingOrderName">
+                                </span>
+                            </span>
+                        </div>
+
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
+                            <span class="bold-light" data-bind="text: StartOrderCreatedAtUtc">
+                            </span>
+                        </div>
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
+                            <span class="bold-light" data-bind="text: MaxParallelAcumaticaSyncs"></span>
+                        </div>
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Max # Orders per Sync</span>
+                            <span class="bold-light" data-bind="text: MaxNumberOfOrders"></span>
+                        </div>
                     </div>
 
-                    <div style="clear: both; text-align: left;">
-                        <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
-                        <span class="bold-light" data-bind="text: StartOrderCreatedAtUtc">
-                        </span>
+                    <div style="float: right; padding-top: 15px;">
+                        <a href="#" class="btn btn-primary btn-sm"
+                           data-bind="click: EditOrderSettingsClick"
+                           style="padding: 8px;">
+                            Settings <i class="fa fa-pencil-alt"></i>
+                        </a>
                     </div>
-                    <div style="clear: both; text-align: left;">
-                        <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
-                        <span class="bold-light" data-bind="text: MaxParallelAcumaticaSyncs"></span>
-                    </div>
-                    <div style="clear: both; text-align: left;">
-                        <span class="sync-label" style="min-width: 200px; text-align: left;">Max # Orders per Sync</span>
-                        <span class="bold-light" data-bind="text: MaxNumberOfOrders"></span>
-                    </div>
-                </div>
 
-                <div style="float: right; padding-top: 15px;">
-                    <a href="#" class="btn btn-primary btn-sm"
-                       data-bind="click: EditOrderSettingsClick"
-                       style="padding: 8px;">
-                        Settings <i class="fa fa-pencil-alt"></i>
-                    </a>
-                </div>
-
-                <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
-                    <div style="height: 20px;"></div>
-                    <div class="alert alert-secondary">
-                        <strong>Beginning Mark Order must be set to start End-to-End</strong>
+                    <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
+                        <div style="height: 20px;"></div>
+                        <div class="alert alert-secondary">
+                            <strong>Beginning Mark Order must be set to start End-to-End</strong>
+                        </div>
                     </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td style="vertical-align: middle;"
-                data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }"></td>
-        </tr>
-        <tr>
-            <td style="vertical-align: middle;"
-                data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
-        </tr>
-        <tr>
-            <td style="vertical-align: middle;"
-                data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
-        </tr>
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }"></td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;"
+                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
+            </tr>
         </tbody>
     </table>
 </script>
@@ -275,7 +273,7 @@
     </div>
 </script>
 
-<script id="Order-Order-Sync-Settings-Popup" type="text/html">
+<script id="Order-Sync-Settings-Popup" type="text/html">
     <div class="modal fade" id="order-sync-settings-modal" tabindex="-1"
          role="dialog" aria-labelledby="order-sync-settings-modal" aria-hidden="true">
 
@@ -371,7 +369,7 @@
                         <label for="orderNumber">
                             Maximum # of new Shopify Orders to load
                         </label>
-                        
+
                         <input class="form-control" type="text" maxlength="6"
                                data-bind="numeric, value: MaxNumberOfOrders" />
 
@@ -394,6 +392,43 @@
     </div>
 </script>
 
+<script id="Recurring-Settings-Popup" type="text/html">
+    <div class="modal fade" id="recurring-settings-modal" tabindex="-1" role="dialog">
+
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Recurring Sync Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body left">
+                    <label for="orderNumber">
+                        Maximum # of Parallel Syncs to Acumatica
+                    </label>
+                    <select class="form-control" data-bind="value: RecurringFrequency">
+                        @foreach (var option in RecurringFrequency.Options)
+                        {
+                            <option value="@option.Id">@option.Desc</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary"
+                            data-bind="click: StartEndToEndRecurring">
+                        Start <i class="fas fa-clock"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
 
 <script>
     var Monster = Monster || {};
@@ -401,8 +436,42 @@
     var eventKeys = {
         UpdateSyncEnables: "/UpdateSyncEnables",
         LaunchOrderSyncSettings: "/LaunchOrderSyncSettings",
+        LaunchRecurringSettings: "/LaunchRecurringSettings",
         RefreshSyncSettings: "/RefreshSyncSettings",
-        PollJobStatus: "/PollJobStatus",
+        ProcessStatus: "/ProcessStatus",
+    };
+
+    Monster.RecurringSettingsPopupModel = function () {
+        var self = this;
+
+        // Existing Starting Order
+        //
+        self.RecurringFrequency = ko.observable();
+
+        self.StartEndToEndRecurring = function () {
+
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("/Sync/PauseEndToEndRecurring", {}, this);
+                },
+                function (response) {
+                    self.ProcessStatus();
+                });
+
+            // Copy the Ajax method in heah!
+        };
+
+        self.Close = function () {
+            $("#recurring-settings-modal").modal('hide');
+        }
+
+        self.LaunchRecurringSettings = function () {
+            $("#recurring-settings-modal").modal('show');
+        };
+
+        Monster.Events.subscribe("/LaunchRecurringSettings", self.LaunchRecurringSettings);
+        return self;
     };
 
     Monster.OrderSyncSettingsPopupModel = function () {
@@ -425,7 +494,7 @@
         self.NewStartingOrderNumber = ko.observable();
         self.MaxParallelSyncs = ko.observable();
         self.MaxNumberOfOrders = ko.observable();
-        
+
 
         self.ShowValidation = ko.observable(false);
 
@@ -487,7 +556,7 @@
         self.Close = function () {
             $("#order-sync-settings-modal").modal('hide');
         }
-        
+
         self.LaunchEditOrderSyncSettings = function () {
             flow.exec(
                 function () {
@@ -629,9 +698,33 @@
         self.CanStartEndToEnd = ko.observable(false);
         self.IsRecurringEndToEndActive = ko.observable(false);
 
-        // Sync Settings data entry models
+        self.StartEndToEndRecurring = function () {
+            Monster.Events.publish(eventKeys.LaunchRecurringSettings);
+        }
+
+        // Interactivity to trigger the End-to-End-Sync
         //
-        self.SyncSettingsModel = new Monster.SyncSettingsModel();
+        self.PauseEndToEndRecurring = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("/Sync/PauseEndToEndRecurring", {}, this);
+                },
+                function (response) {
+                    self.ProcessStatus();
+                });
+            };
+
+        self.RunEndToEndImmediately = function() {
+            flow.exec(
+                function() {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpPost("/Sync/RunEndToEndImmediately", {}, this);
+                },
+                function(response) {
+                    Monster.Events.publish(eventKeys.ProcessStatus);
+                });
+            };
 
         // Model loading function
         //
@@ -648,43 +741,16 @@
     Monster.ParentInterface = function () {
         var self = this;
 
-        // Current Job status
-        //
-        self.JobRunningModel = new Monster.JobStatusModel();
-
-        self.PauseEndToEndRecurring = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("/Sync/PauseEndToEndRecurring", {}, this);
-                },
-                function (response) {
-                    self.ProcessStatus();
-                });
-        };
-
-        // Interactivity to trigger the End-to-End-Sync
-        //
-        self.StartEndToEndRecurring = function () {
-            flow.exec(
-                function () {
-                    var ajax = new Monster.Ajax();
-                    ajax.HttpPost("/Sync/StartEndToEndRecurring", {}, this);
-                },
-                function (response) {
-                    Monster.Events.publish(Monster.JobStatusStartPolling);
-                });
-        };
-
-        self.RunEndToEndImmediately = function() {
-            alert('ok!!!');
-        }
-
-
         // Child Models divide by state
         //
+        self.JobRunningModel = new Monster.JobStatusModel();
         self.JobTriggerPanelModel = new Monster.JobTriggerPanelModel();
+        self.SyncSettingsModel = new Monster.SyncSettingsModel();
+
+        // Pop-up Models
+        //
         self.OrderSyncSettingsPopupModel = new Monster.OrderSyncSettingsPopupModel();
+        self.RecurringSettingsPopupModel = new Monster.RecurringSettingsPopupModel();
 
         self.ProcessStatus = function () {
             flow.exec(function () {
@@ -698,7 +764,9 @@
         };
 
         Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
+        Monster.Events.subscribe(Monster.ProcessStatus, function () { self.ProcessStatus(); });
 
+        
         self.Initialize = function () {
             self.JobRunningModel.StartPolling(true);
         };

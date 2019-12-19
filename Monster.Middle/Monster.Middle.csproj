@@ -145,6 +145,7 @@
     <Compile Include="Misc\Hangfire\JobRunner.cs" />
     <Compile Include="Misc\Hangfire\BackgroundJobType.cs" />
     <Compile Include="Misc\Hangfire\JobMonitoringService.cs" />
+    <Compile Include="Misc\Hangfire\RecurringFrequency.cs" />
     <Compile Include="Misc\Hangfire\RecurringJobScheduler.cs" />
     <Compile Include="Misc\Hangfire\OneTimeJobScheduler.cs" />
     <Compile Include="Misc\Hangfire\HangfireLogger.cs" />

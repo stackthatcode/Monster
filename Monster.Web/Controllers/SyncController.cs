@@ -79,9 +79,11 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult StartEndToEndRecurring()
+        public ActionResult StartEndToEndRecurring(int frequencyId)
         {
-            _recurringJobService.StartEndToEndSync();
+            var option = RecurringFrequency.Options.First(x => x.Id == frequencyId);
+
+            _recurringJobService.StartEndToEndSync(option.Cron);
             return JsonNetResult.Success();
         }
 
@@ -98,7 +100,6 @@ namespace Monster.Web.Controllers
             _oneTimeJobService.EndToEndSync();
             return JsonNetResult.Success();
         }
-
 
         [HttpGet]
         public ActionResult EndToEndStatus()

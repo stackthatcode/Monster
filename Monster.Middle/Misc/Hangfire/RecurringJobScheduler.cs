@@ -10,8 +10,6 @@ namespace Monster.Middle.Misc.Hangfire
     {
         private readonly InstanceContext _instanceContext;
         private readonly ExecutionLogService _executionLogService;
-        private readonly JobMonitoringService _jobMonitoringService;
-        private readonly OneTimeJobScheduler _oneTimeJobScheduler;
 
 
         // Always use the same Job ID for Recurring Jobs
@@ -21,22 +19,18 @@ namespace Monster.Middle.Misc.Hangfire
 
         public RecurringJobScheduler(
                 InstanceContext instanceContext, 
-                ExecutionLogService executionLogService,
-                JobMonitoringService jobMonitoringService, 
-                OneTimeJobScheduler oneTimeJobScheduler)
+                ExecutionLogService executionLogService)
         {
             _instanceContext = instanceContext;
             _executionLogService = executionLogService;
-            _jobMonitoringService = jobMonitoringService;
-            _oneTimeJobScheduler = oneTimeJobScheduler;
         }
 
-        public void StartEndToEndSync()
+        public void StartEndToEndSync(string cron)
         {
             RecurringJob.AddOrUpdate<JobRunner>(
                 RecurringEndToEndSyncJobId, 
                 x => x.TriggerEndToEndSync(_instanceContext.InstanceId),
-                "0 * * * *", 
+                cron, 
                 TimeZoneInfo.Utc);
 
             _executionLogService.Log("End-to-End Sync - Recurring Job Started");

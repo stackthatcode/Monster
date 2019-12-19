@@ -53,7 +53,6 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
         }
 
-
         [HttpGet]
         public ActionResult InventoryRefreshStatus()
         {
