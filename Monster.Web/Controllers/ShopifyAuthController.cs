@@ -139,11 +139,17 @@ namespace Monster.Web.Controllers
         //
         public ActionResult Return(string code, string shop, string returnUrl)
         {
-            // If back button detected, redirect to domain entry page
+
+            // Attempt to locate the identity, as there maybe a valid Domain + Access Token
+            // This needs to happen before try-catch, else failure will make it attempt to
+            // update using System State Repository
             //
-            if (BackButtonDetected(code))
+            var userId = _provisioningService.RetrieveUserIdByShopifyDomain(shop);
+            var identity = _identityService.HydrateIdentity(userId);
+            if (!identity.IsAuthenticated)
             {
-                return Redirect("Domain");
+                throw new HttpException(
+                    (int)HttpStatusCode.Unauthorized, $"Attempt to login using invalid Shopify store {shop}");
             }
 
             try
@@ -153,15 +159,10 @@ namespace Monster.Web.Controllers
                     throw new Exception("Failed HMAC verification from Shopify Return");
                 }
 
-                // Attempt to locate the identity, as there maybe a valid Domain + Access Token
-                //
-                var userId = _provisioningService.RetrieveUserIdByShopifyDomain(shop);
-                var identity = _identityService.ProcessIdentity(userId);
 
-                if (!identity.IsAuthenticated)
+                if (BackButtonDetected(code))
                 {
-                    throw new HttpException(
-                        (int)HttpStatusCode.Unauthorized, $"Attempt to login using invalid Shopify store {shop}");
+                    return Redirect("Domain");
                 }
 
                 // Get Key and Secret credentials from config file - and there is not Instance-specific.

@@ -258,10 +258,11 @@ namespace Monster.ConsoleApp
                 var instances = repository.RetrieveInstances();
                 foreach (var instance in instances)
                 {
-                    var output = 
-                        $"{instance.Id} - {instance.ConnectionString ?? "(connection string missing)"}" + Environment.NewLine +
+                    var output =
+                        $"{instance.Id} - {instance.ConnectionString ?? "(connection string missing)"}" +
+                        Environment.NewLine +
                         $"{instance.OwnerDomain ?? "(unassigned)"} - {instance.OwnerNickname ?? "(unassigned)"}" +
-                        Environment.NewLine;
+                        $" - Enabled: {instance.IsEnabled}" + Environment.NewLine;
                     Console.WriteLine(output);
                 }
             });

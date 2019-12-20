@@ -16,7 +16,7 @@ namespace Monster.Web.Attributes
 
             if (userId != null)
             {
-                var identity = identityService.ProcessIdentity(userId);
+                var identity = identityService.HydrateIdentity(userId);
 
                 filterContext.HttpContext.SetIdentity(identity);
                 logger.Debug($"Successfully hydrated Identity {identity.AspNetUserId} / {identity.Email}");

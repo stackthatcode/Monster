@@ -44,7 +44,7 @@ namespace Monster.Middle.Identity
             _logger = logger;
         }
 
-        public IdentityContext ProcessIdentity(string userId)
+        public IdentityContext HydrateIdentity(string userId)
         {
             if (userId.IsNullOrEmpty())
             {
@@ -54,7 +54,7 @@ namespace Monster.Middle.Identity
             // If the User's instance is not enabled, vacate
             //
             var instances = _masterRepository.RetrieveInstanceByUserId(userId);
-            if (instances.Count > 0)
+            if (instances.Count > 1)
             {
                 // *** Pending multi-domain feature release
                 //
