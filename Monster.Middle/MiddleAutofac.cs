@@ -133,6 +133,7 @@ namespace Monster.Middle
         private static void RegisterIdentityPlumbing(ContainerBuilder builder)
         {
             builder.RegisterType<IdentityService>();
+            builder.RegisterType<ProvisioningService>();
         }
 
         private static void RegisterPayoutProcess(ContainerBuilder builder)

@@ -50,28 +50,45 @@ namespace Monster.Middle.Persist.Master
         }
 
 
-        public Instance RetrieveInstanceByUserId(string userId)
-        {
-            var sql = "SELECT * FROM Instance WHERE OwnerUserId = @userId";
-            return _connection.QueryFirstOrDefault<Instance>(sql, new { userId });
-        }
-
         public Instance RetrieveNextAvailableInstance()
         {
-            var sql = "SELECT * FROM Instance ORDER BY AvailabilityOrder";
+            var sql = "SELECT * FROM Instance WHERE OwnerUserID IS NULL ORDER BY AvailabilityOrder";
             return _connection.QueryFirstOrDefault<Instance>(sql);
         }
 
-        public void AssignInstanceToUser(Guid instanceId, string aspNetUserId, string domain)
+        public Instance RetrieveInstanceByDomain(string domain)
+        {
+            var sql = "SELECT * FROM Instance WHERE OwnerDomain = @domain";
+            return _connection.Query<Instance>(sql, new { domain }).FirstOrDefault();
+        }
+
+
+        public List<Instance> RetrieveInstanceByUserId(string aspNetUserId)
+        {
+            var sql = "SELECT * FROM Instance WHERE OwnerUserId = @userId";
+            return _connection.Query<Instance>(sql, new {userId = aspNetUserId}).ToList();
+        }
+
+        public void AssignInstanceToUser(Guid instanceId, string aspNetUserId, string nickname, string domain)
         {
             var sql = @"UPDATE Instance
                         SET OwnerUserId = @aspNetUserId,
-                        OwnerNickName = @domain
+                        OwnerNickName = @nickname,
+                        OwnerDomain = @domain,
+                        IsEnabled = 1
                         WHERE Id = @instanceId";
             
-            _connection.Execute(sql, new { instanceId, aspNetUserId, domain });
+            _connection.Execute(sql, new { instanceId, aspNetUserId, nickname, domain });
         }
 
+        public void RevokeInstance(Guid instanceId)
+        {
+            var sql = @"UPDATE Instance 
+                        SET OwnerUserId = NULL, OwnerNickName = NULL, OwnerDomain = NULL, IsEnabled = 0
+                        WHERE Id = @instanceId";
+
+            _connection.Execute(sql, new { instanceId });
+        }
 
         public List<PaymentGateway> RetrievePaymentGateways()
         {

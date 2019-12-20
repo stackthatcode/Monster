@@ -183,8 +183,8 @@ namespace Monster.ConsoleApp
 
             Action<ILifetimeScope> process = scope =>
             {
-                var identityService = scope.Resolve<IdentityService>();
-                var user = identityService.ProvisionNewAccount(email, domain).Result;
+                var service = scope.Resolve<ProvisioningService>();
+                var user = service.ProvisionNewAccount(email, domain).Result;
             };
 
             AutofacRunner.RunInLifetimeScope(process);
@@ -194,12 +194,39 @@ namespace Monster.ConsoleApp
         {
             AutofacRunner.RunInLifetimeScope(scope =>
             {
-                var identityService = scope.Resolve<IdentityService>();
-                identityService.PopulateRolesAndAdmin();
+                var service = scope.Resolve<ProvisioningService>();
+                service.PopulateRolesAndAdmin();
             });
         }
 
-        public static void DisableUserAccount()
+        public static void AssignInstance()
+        {
+            Console.WriteLine(Environment.NewLine + "Enter New User's Email Address (which will be used as User ID)");
+            var email = Console.ReadLine();
+
+            Console.WriteLine(Environment.NewLine + "Enter a Nick Name for the Instance Assignment");
+            var nickname = Console.ReadLine();
+
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var service = scope.Resolve<ProvisioningService>();
+                service.AssignNextAvailableInstance(email, nickname);
+            });
+        }
+
+        public static void RevokeInstance()
+        {
+            Console.WriteLine(Environment.NewLine + "Enter Domain for Instance");
+            var domain = Console.ReadLine();
+
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var service = scope.Resolve<ProvisioningService>();
+                service.RevokeInstanceByDomain(domain);
+            });
+        }
+
+        public static void DisableInstance()
         {
             var instanceId = SolicitInstanceId();
             AutofacRunner.RunInLifetimeScope(scope =>
@@ -209,26 +236,13 @@ namespace Monster.ConsoleApp
             });
         }
 
-        public static void EnableUserAccount()
+        public static void EnableInstance()
         {
             var instanceId = SolicitInstanceId();
             AutofacRunner.RunInLifetimeScope(scope =>
             {
                 var repository = scope.Resolve<MasterRepository>();
                 repository.UpdateInstanceEnabled(instanceId, true);
-            });
-        }
-
-        public static void AssignInstance()
-        {
-            Console.WriteLine(
-                Environment.NewLine + "Enter New User's Email Address (which will be used as User ID)");
-            var email = Console.ReadLine();
-
-            AutofacRunner.RunInLifetimeScope(scope =>
-            {
-                var repository = scope.Resolve<IdentityService>();
-                repository.AssignNextAvailableInstance(email);
             });
         }
     }

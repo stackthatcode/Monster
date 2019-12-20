@@ -2,6 +2,7 @@
 using Autofac;
 using Monster.Middle;
 using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Web;
 
 namespace Monster.ConsoleApp
 {
@@ -11,8 +12,9 @@ namespace Monster.ConsoleApp
             Action<ILifetimeScope> action, Action<ContainerBuilder> builderPreExec = null)
         {
             var builder = new ContainerBuilder();
-            MiddleAutofac.Build(builder);
             builderPreExec?.Invoke(builder);
+            MiddleAutofac.Build(builder);
+            FoundationWebAutofac.RegisterOwinAuthentication(builder);
 
             var container = builder.Build();
             using (var scope = container.BeginLifetimeScope())

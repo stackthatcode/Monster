@@ -130,19 +130,6 @@ namespace Monster.ConsoleApp.Testing
             });
         }
 
-        public static void RunShopifyOrderFeeder()
-        {
-            AutofacRunner.RunInLifetimeScope(
-                scope =>
-                {
-                    var feeder = scope.Resolve<ShopifyDataFeeder>();
-                    feeder.Run();
-                },
-                builder =>
-                {
-                    builder.RegisterType<ShopifyDataFeeder>().InstancePerLifetimeScope();
-                });
-        }
 
         public static void RunShopifyOrderGet()
         {

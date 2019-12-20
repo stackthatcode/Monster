@@ -18,8 +18,9 @@ namespace Monster.ConsoleApp
         private const string HydrateSecurityConfigOption = "11";
         private const string ProvisionNewUserAccountOption = "12";
         private const string AssignInstanceToAccountOption = "13";
-        private const string EnableUserAccount = "14";
-        private const string DisableUserAccount = "15";
+        private const string RevokeInstanceOption = "14";
+        private const string EnableInstanceOption = "15";
+        private const string DisableInstanceOption = "16";
 
         // Testing functions
         //
@@ -49,8 +50,9 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
             Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
             Console.WriteLine($"{AssignInstanceToAccountOption} - Assign Instance to Account");
-            Console.WriteLine($"{EnableUserAccount} - Enable User Account");
-            Console.WriteLine($"{DisableUserAccount} - Disable User Account");
+            Console.WriteLine($"{RevokeInstanceOption} - Revoke Instance from Account");
+            Console.WriteLine($"{EnableInstanceOption} - Enable Instance");
+            Console.WriteLine($"{DisableInstanceOption} - Disable Instance");
 
             // Display the testing functions
             //
@@ -79,12 +81,16 @@ namespace Monster.ConsoleApp
                 SystemUtilities.ProvisionNewUserAccount();
             if (input == HydrateSecurityConfigOption)
                 SystemUtilities.HydrateSecurityConfig();
-            if (input == DisableUserAccount)
-                SystemUtilities.DisableUserAccount();
             if (input == AssignInstanceToAccountOption)
                 SystemUtilities.AssignInstance();
-            if (input == EnableUserAccount)
-                SystemUtilities.EnableUserAccount();
+            if (input == RevokeInstanceOption)
+                SystemUtilities.RevokeInstance();
+
+            if (input == DisableInstanceOption)
+                SystemUtilities.DisableInstance();
+            if (input == EnableInstanceOption)
+                SystemUtilities.EnableInstance();
+
 
             // Testing functions
             //

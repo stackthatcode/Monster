@@ -31,6 +31,7 @@ namespace Monster.Web.Controllers
         private readonly InstanceContext _connectionContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly IdentityService _identityService;
+        private readonly ProvisioningService _provisioningService;
         private readonly StateRepository _stateRepository;
         private readonly IPushLogger _logger;
         private readonly HmacCryptoService _hmacCrypto;
@@ -63,16 +64,18 @@ namespace Monster.Web.Controllers
                 IdentityService identityService,
                 StateRepository stateRepository, 
                 HmacCryptoService hmacCrypto,
+                ProvisioningService provisioningService,
                 IPushLogger logger)
         {
-            _logger = logger;
+            _provisioningService = provisioningService;
+            _identityService = identityService;
             _oAuthApi = oAuthApi;
             _connectionRepository = connectionRepository;
             _connectionContext = connectionContext;
             _shopifyHttpContext = shopifyHttpContext;
-            _identityService = identityService;
             _stateRepository = stateRepository;
             _hmacCrypto = hmacCrypto;
+            _logger = logger;
         }
 
 
@@ -136,21 +139,9 @@ namespace Monster.Web.Controllers
         //
         public ActionResult Return(string code, string shop, string returnUrl)
         {
-            // Attempt to locate the identity, as there maybe a valid Domain + Access Token
+            // If back button detected, redirect to domain entry page
             //
-            var identity = _identityService.ProcessIdentityByDomain(shop);
-
-            if (!identity.IsAuthenticated)
-            {
-                throw new HttpException(
-                    (int)HttpStatusCode.Unauthorized, 
-                    $"Attempt to login using non-provisioned Shopify store {shop}");
-            }
-
-            // Did the User hit the Back Button...? If so, the codeHash will be the same
-            //
-            var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
-            if (_connectionRepository.IsSameAuthCode(codeHash))
+            if (BackButtonDetected(code))
             {
                 return Redirect("Domain");
             }
@@ -162,6 +153,17 @@ namespace Monster.Web.Controllers
                     throw new Exception("Failed HMAC verification from Shopify Return");
                 }
 
+                // Attempt to locate the identity, as there maybe a valid Domain + Access Token
+                //
+                var userId = _provisioningService.RetrieveUserIdByShopifyDomain(shop);
+                var identity = _identityService.ProcessIdentity(userId);
+
+                if (!identity.IsAuthenticated)
+                {
+                    throw new HttpException(
+                        (int)HttpStatusCode.Unauthorized, $"Attempt to login using invalid Shopify store {shop}");
+                }
+
                 // Get Key and Secret credentials from config file - and there is not Instance-specific.
                 // 
                 var credentials = ShopifyCredentialsConfig.Settings.ToApiKeyAndSecret(shop);
@@ -169,10 +171,11 @@ namespace Monster.Web.Controllers
 
                 // Refresh the Shopify Access Token
                 //
+                var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
                 var accessToken = _oAuthApi.RetrieveAccessToken(code, credentials);
                 _connectionContext.UpdateShopifyCredentials(shop, accessToken, codeHash);
 
-                // Sign the User in
+                // Issue ASP.NET sign-in cookie
                 //
                 _identityService.SignInAspNetUser(identity.AspNetUserId);
                 HttpContext.SetIdentity(identity);
@@ -194,13 +197,7 @@ namespace Monster.Web.Controllers
             {
                 _logger.Error(ex);
                 _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
-
-                var model = new ReturnModel
-                {
-                    IsWizardMode = !identity.SystemState.IsRandomAccessMode,
-                    IsConnectionOk = false,
-                };
-                return View(model);
+                throw;
             }
         }
 
@@ -226,6 +223,12 @@ namespace Monster.Web.Controllers
                     .ToString();
 
             return $"{urlBase}?{queryString}";
+        }
+
+        private bool BackButtonDetected(string code)
+        {
+            var codeHash = _hmacCrypto.ToBase64EncodedSha256(code);
+            return _connectionRepository.IsSameAuthCode(codeHash);
         }
 
         private bool VerifyShopifyHmac()
