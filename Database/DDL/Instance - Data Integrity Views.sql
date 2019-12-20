@@ -4,6 +4,46 @@ GO
 -- Shopify Workers checks
 --
 
+DROP VIEW IF EXISTS vw_SyncWarehousesAndLocations
+GO
+DROP VIEW IF EXISTS vw_ShopifyInventory 
+GO
+DROP VIEW IF EXISTS vw_AcumaticaInventory 
+GO
+DROP VIEW IF EXISTS vw_SyncVariantsAndStockItems
+GO
+DROP VIEW IF EXISTS vw_SyncVariantsAndStockItems_Alt
+GO
+DROP VIEW IF EXISTS vw_SyncAcumaticaInventory
+GO
+DROP VIEW IF EXISTS vw_SyncShopifyInventory
+GO
+DROP VIEW IF EXISTS vw_SyncInventoryAllInclusive
+GO
+DROP VIEW IF EXISTS vw_SyncInventoryLevelAndReceipts
+GO
+DROP VIEW IF EXISTS vw_ShopifyOrderCustomer 
+GO
+DROP VIEW IF EXISTS vw_ShopifyOrderRefunds
+GO
+DROP VIEW IF EXISTS vw_ShopifyOrderFulfillments
+GO
+DROP VIEW IF EXISTS vw_ShopifyOrderTransactions
+GO
+DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndCustomer
+GO
+DROP VIEW IF EXISTS vw_AcumaticaSalesOrderAndShipmentInvoices
+GO
+DROP VIEW IF EXISTS vw_SyncCustomerWithCustomers
+GO
+DROP VIEW IF EXISTS vw_SyncOrdersAndSalesOrders
+GO
+DROP VIEW IF EXISTS vw_SyncFulfillmentsAndShipments
+GO
+DROP VIEW IF EXISTS vw_SyncTransactionAndPayment
+GO
+
+
 
 DROP VIEW IF EXISTS vw_SyncWarehousesAndLocations
 GO
@@ -54,7 +94,7 @@ CREATE VIEW vw_AcumaticaInventory
 AS
 SELECT	t1.MonsterId, 
 		t1.ItemId,
-		t1.IsPriceSynced,
+		t1.IsVariantSynced,
 		t2.AcumaticaWarehouseId,
 		t2.AcumaticaAvailQty,
 		t2.IsInventorySynced,
@@ -108,7 +148,7 @@ SELECT t1.MonsterId,
 	t3.AcumaticaWarehouseId, 
 	t3.AcumaticaAvailQty, 
 	t4.Id AS WarehouseSyncId,
-	t1.IsPriceSynced,
+	t1.IsVariantSynced,
 	t3.IsInventorySynced
 FROM AcumaticaStockItem t1
 	FULL OUTER JOIN AcumaticaInventory t3
@@ -339,7 +379,7 @@ CREATE VIEW vw_SyncOrdersAndSalesOrders
 AS
 	SELECT t1.ShopifyOrderId, 
 		t1.ShopifyOrderNumber, 
-		t1.ShopifyIsCancelled, 
+		t1.IsEmptyOrCancelled, 
 		t1.ShopifyFinancialStatus,
 		t1.NeedsOrderPut,
 		t1.NeedsTransactionGet,

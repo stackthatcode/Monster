@@ -154,10 +154,10 @@ namespace Monster.Middle.Identity
                 transaction.Commit();
             }
 
-            return AssignNextAvailableInstanceToUser(emailAddress);
+            return user;
         }
 
-        public ApplicationUser AssignNextAvailableInstanceToUser(string userEmail)
+        public ApplicationUser AssignNextAvailableInstance(string userEmail)
         {
             var user = _userManager.FindByName(userEmail);
             if (user == null)
@@ -181,6 +181,10 @@ namespace Monster.Middle.Identity
             return user;
         }
 
+        // public void RevokeInstance(string )
+
+
+
         public IdentityContext ProcessIdentityByDomain(string domain)
         {
             var userId = _dbContext
@@ -199,23 +203,9 @@ namespace Monster.Middle.Identity
                 return new IdentityContext();
             }
 
-            var context = new IdentityContext();
-
-            // ASP.NET User Identity
-            //
-            var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
-            var instance = _systemRepository.RetrieveInstanceByUserId(userId);
-
-            // Block disabled accounts from authenticating
-            //
-            if (!instance.IsEnabled)
-            {
-                SignOut();
-                return context;
-            }
-
             // Successfully located User
             //
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
             var userRoleIds = user.Roles.Select(x => x.RoleId);
             var userRoles =
                 _roleManager.Roles
@@ -223,16 +213,26 @@ namespace Monster.Middle.Identity
                     .Select(x => x.Name)
                     .ToList();
 
+            var context = new IdentityContext();
             context.AspNetUserId = user.Id;
             context.Email = user.Email;
             context.AspNetRoles = userRoles;
 
-            // System -> Instance
+            // Block disabled instance usage
+            //
+            var instance = _systemRepository.RetrieveInstanceByUserId(userId);
+            if (!instance.IsEnabled)
+            {
+                SignOut();
+                return context;
+            }
+
+            // Located valid Instance - load data into properties
             //
             context.InstanceId = instance.Id;
             context.InstanceNickName = instance.OwnerNickname;
 
-            // Instance -> State
+            // Auto-initialize persistence layer
             //
             _instanceContext.InitializePersistOnly(instance.Id);
 

@@ -1,5 +1,5 @@
-USE Monster0001;
-GO
+
+-- **** WARNING THIS IS A NUCLEAR QUERY!!! ****
 
 /*
 EXEC dbo.DeleteAllSyncRecords;
@@ -12,8 +12,8 @@ EXEC dbo.DeleteAllSystemRecords;
 EXEC dbo.ResetStartingShopifyOrder;
 */
 
-USE MonsterSys;
-SELECT * FROM AspNetUsers;
 
-
+/*
+EXEC dbo.ResetStartingShopifyOrder;
+*/
 

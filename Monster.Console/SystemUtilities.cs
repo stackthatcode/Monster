@@ -175,12 +175,8 @@ namespace Monster.ConsoleApp
             Console.WriteLine(Environment.NewLine + "Enter New User's Shopify Domain");
             var domain = Console.ReadLine();
 
-            Console.WriteLine(
-                Environment.NewLine + $"New Account User ID: {email} - Shopify Domain: {domain}" +
-                Environment.NewLine + "Please type 'YES' to proceed with provisioning");
-
-            var response = Console.ReadLine();
-            if (response.ToUpper().Trim() != "YES")
+            var msg = $"Create a new Account for User ID: {email} - Shopify Domain: {domain}";
+            if (CommandLineFuncs.Confirm(msg))
             {
                 return;
             }
@@ -220,6 +216,19 @@ namespace Monster.ConsoleApp
             {
                 var repository = scope.Resolve<MasterRepository>();
                 repository.UpdateInstanceEnabled(instanceId, true);
+            });
+        }
+
+        public static void AssignInstance()
+        {
+            Console.WriteLine(
+                Environment.NewLine + "Enter New User's Email Address (which will be used as User ID)");
+            var email = Console.ReadLine();
+
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var repository = scope.Resolve<IdentityService>();
+                repository.AssignNextAvailableInstance(email);
             });
         }
     }

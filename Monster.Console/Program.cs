@@ -17,20 +17,13 @@ namespace Monster.ConsoleApp
         //
         private const string HydrateSecurityConfigOption = "11";
         private const string ProvisionNewUserAccountOption = "12";
-        private const string DisableUserAccount = "13";
+        private const string AssignInstanceToAccountOption = "13";
         private const string EnableUserAccount = "14";
+        private const string DisableUserAccount = "15";
 
         // Testing functions
         //
-        private const string ShopifyOrderTimezoneTest = "101";
-        private const string ShopifyOrderGet = "102";
-        private const string AcumaticaCustomerGet = "103";
-        private const string AcumaticaOrderGet = "104";
-        private const string AcumaticaOrderSync = "105";
-        private const string AcumaticaPaymentGet = "106";
-        private const string AcumaticaSalesOrderRetrieve = "107";
-        private const string ShopifyFulfillmentPut = "108";
-        private const string ShopifyFulfillmentEmail = "109";
+        private const string TestingFunctionsOption = "100";
 
 
 
@@ -55,25 +48,18 @@ namespace Monster.ConsoleApp
             Console.WriteLine();
             Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
             Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
-            Console.WriteLine($"{DisableUserAccount} - Disable User Account");
+            Console.WriteLine($"{AssignInstanceToAccountOption} - Assign Instance to Account");
             Console.WriteLine($"{EnableUserAccount} - Enable User Account");
+            Console.WriteLine($"{DisableUserAccount} - Disable User Account");
 
-            // Component testing functions
+            // Display the testing functions
             //
             Console.WriteLine();
-            Console.WriteLine($"{ShopifyOrderTimezoneTest} - Shopify Order to Acumatica Timezone Test");
-            Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get (Automatic)");
-            Console.WriteLine($"{AcumaticaCustomerGet} - Acumatica Customer Get");
-            Console.WriteLine($"{AcumaticaOrderGet} - Acumatica Order Get");
-            Console.WriteLine($"{AcumaticaOrderSync} - Acumatica Order Sync (Order ID)");
-            Console.WriteLine($"{AcumaticaPaymentGet} - Acumatica Payment Get");
-            Console.WriteLine($"{AcumaticaSalesOrderRetrieve} - Acumatica Sales Order Retrieve");
-            Console.WriteLine($"{ShopifyFulfillmentPut} - Shopify Fulfillment Put");
-            Console.WriteLine($"{ShopifyFulfillmentEmail} - Shopify Fulfillment Email");
-            Console.WriteLine();
+            Console.WriteLine($"{TestingFunctionsOption} - Testing Functions");
 
+            // Solicit input
+            //
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
-
             var input = Console.ReadLine();
 
             // Monster utility functions
@@ -95,8 +81,51 @@ namespace Monster.ConsoleApp
                 SystemUtilities.HydrateSecurityConfig();
             if (input == DisableUserAccount)
                 SystemUtilities.DisableUserAccount();
+            if (input == AssignInstanceToAccountOption)
+                SystemUtilities.AssignInstance();
             if (input == EnableUserAccount)
                 SystemUtilities.EnableUserAccount();
+
+            // Testing functions
+            //
+            if (input == TestingFunctionsOption)
+                DisplayTestingFunctions();
+
+            Console.WriteLine("FIN");
+            Console.ReadKey();
+        }
+
+
+        // Testing functions
+        //
+        private const string ShopifyOrderTimezoneTest = "101";
+        private const string ShopifyOrderGet = "102";
+        private const string AcumaticaCustomerGet = "103";
+        private const string AcumaticaOrderGet = "104";
+        private const string AcumaticaOrderSync = "105";
+        private const string AcumaticaPaymentGet = "106";
+        private const string AcumaticaSalesOrderRetrieve = "107";
+        private const string ShopifyFulfillmentPut = "108";
+        private const string ShopifyFulfillmentEmail = "109";
+
+        private static void DisplayTestingFunctions()
+        {
+            // Component testing functions
+            //
+            Console.WriteLine();
+            Console.WriteLine($"{ShopifyOrderTimezoneTest} - Shopify Order to Acumatica Timezone Test");
+            Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get (Automatic)");
+            Console.WriteLine($"{AcumaticaCustomerGet} - Acumatica Customer Get");
+            Console.WriteLine($"{AcumaticaOrderGet} - Acumatica Order Get");
+            Console.WriteLine($"{AcumaticaOrderSync} - Acumatica Order Sync (Order ID)");
+            Console.WriteLine($"{AcumaticaPaymentGet} - Acumatica Payment Get");
+            Console.WriteLine($"{AcumaticaSalesOrderRetrieve} - Acumatica Sales Order Retrieve");
+            Console.WriteLine($"{ShopifyFulfillmentPut} - Shopify Fulfillment Put");
+            Console.WriteLine($"{ShopifyFulfillmentEmail} - Shopify Fulfillment Email");
+            Console.WriteLine();
+
+            Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
+            var input = Console.ReadLine();
 
             // Testing functions
             //
@@ -118,12 +147,7 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunShopifyFulfillmentPut();
             if (input == ShopifyFulfillmentEmail)
                 MoreTestingStuff.RunShopifyFulfillmentEmail();
-
-            Console.WriteLine("FIN");
-            Console.ReadKey();
         }
-
-
     }
 }
 
