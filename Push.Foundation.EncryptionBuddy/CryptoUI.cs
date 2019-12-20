@@ -169,19 +169,19 @@ namespace Push.Foundation
         }
 
 
-        private void GetTenants(ComboBox comboBox)
+        private void GetInstances(ComboBox comboBox)
         {
             Helper.RunInLifetimeScope((scope) =>
             {
                 var repository = scope.Resolve<MasterRepository>();
-                var tenants = repository.RetrieveInstances();
+                var instances = repository.RetrieveInstances();
                 comboBox.Items.Clear();
 
-                foreach (var t in tenants)
+                foreach (var t in instances)
                 {
                     var item = new ComboboxItem()
                     {
-                        Text = t.OwnerNickname,
+                        Text = t.OwnerDomain ?? "(not assigned)",
                         Value = t.Id,
                     };
 
@@ -193,24 +193,24 @@ namespace Push.Foundation
 
         private void buttonShopifyGetTenants_Click(object sender, EventArgs e)
         {
-            GetTenants(this.comboShopifyTenantId);
+            GetInstances(this.comboShopifyTenantId);
         }
 
         private void buttonAcumaticaRefresh_Click(object sender, EventArgs e)
         {
-            GetTenants(this.comboAcumaticaTenantId);
+            GetInstances(this.comboAcumaticaTenantId);
         }
 
         private void CryptoUi_Load(object sender, EventArgs e)
         {
-            GetTenants(this.comboShopifyTenantId);
-            GetTenants(this.comboAcumaticaTenantId);
-            GetTenants(this.comboSummaryTenantId);
+            GetInstances(this.comboShopifyTenantId);
+            GetInstances(this.comboAcumaticaTenantId);
+            GetInstances(this.comboSummaryTenantId);
         }
 
         private void buttonSummaryRefreshTenant_Click(object sender, EventArgs e)
         {
-            GetTenants(this.comboSummaryTenantId);
+            GetInstances(this.comboSummaryTenantId);
         }
 
         private void buttonSummaryGetCurrent_Click(object sender, EventArgs e)
@@ -234,13 +234,21 @@ namespace Push.Foundation
                 var notset = "(not set)";
 
                 var output =
-                    $"Nickname = {tenant.OwnerNickname}" + Environment.NewLine +
                     $"System Connection = {MonsterConfig.Settings.SystemDatabaseConnection}" + Environment.NewLine +
-                    $"Instance Connection = {persistContext.ConnectionString}" + Environment.NewLine +
-                    $"Acumatica URL = {connection.AcumaticaInstanceUrl.IsNullOrEmptyAlt(notset)}" + Environment.NewLine +
-                    $"Acumatica Company = {connection.AcumaticaCompanyName.IsNullOrEmptyAlt(notset)}" + Environment.NewLine +
-                    $"Acumatica Branch = {connection.AcumaticaBranch.IsNullOrEmptyAlt(notset)}" + Environment.NewLine +
-                    $"Shopify URL = {connection.ShopifyDomain.IsNullOrEmptyAlt(notset)}" + Environment.NewLine;
+                    $"Nickname = {tenant.OwnerNickname ?? "(no instance assigned)"}" + Environment.NewLine +
+                    $"Instance Connection = {persistContext.ConnectionString ?? "(no instance assigned)"}" + Environment.NewLine;
+
+                if (connection != null)
+                {
+                    output +=
+                        $"Acumatica URL = {connection.AcumaticaInstanceUrl.IsNullOrEmptyAlt(notset)}" +
+                        Environment.NewLine +
+                        $"Acumatica Company = {connection.AcumaticaCompanyName.IsNullOrEmptyAlt(notset)}" +
+                        Environment.NewLine +
+                        $"Acumatica Branch = {connection.AcumaticaBranch.IsNullOrEmptyAlt(notset)}" +
+                        Environment.NewLine +
+                        $"Shopify URL = {connection.ShopifyDomain.IsNullOrEmptyAlt(notset)}" + Environment.NewLine;
+                }
 
                 this.textSummary.Text = output;
             });
