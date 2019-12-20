@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Monster.ConsoleApp.Testing;
 
 
@@ -16,11 +17,12 @@ namespace Monster.ConsoleApp
         // Provisioning and user management functions
         //
         private const string HydrateSecurityConfigOption = "11";
-        private const string ProvisionNewUserAccountOption = "12";
-        private const string AssignInstanceToAccountOption = "13";
-        private const string RevokeInstanceOption = "14";
-        private const string EnableInstanceOption = "15";
-        private const string DisableInstanceOption = "16";
+        private const string ListInstancesOption = "12";
+        private const string ProvisionNewUserAccountOption = "13";
+        private const string AssignInstanceToAccountOption = "14";
+        private const string RevokeInstanceOption = "15";
+        private const string EnableInstanceOption = "16";
+        private const string DisableInstanceOption = "17";
 
         // Testing functions
         //
@@ -35,6 +37,18 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"Logic Automated LLC - all rights reserved");
             Console.WriteLine();
 
+            while (MainLoop())
+            {
+                Console.WriteLine("Hit any key to proceed...");
+                Console.ReadKey();
+            }
+
+            Console.WriteLine("FIN");
+            Console.ReadKey();
+        }
+
+        private static bool MainLoop()
+        {
             // Run-time utility functions
             //
             Console.WriteLine();
@@ -48,9 +62,10 @@ namespace Monster.ConsoleApp
             //
             Console.WriteLine();
             Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
+            Console.WriteLine($"{ListInstancesOption} - List all Monster Instances");
             Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
             Console.WriteLine($"{AssignInstanceToAccountOption} - Assign Instance to Account");
-            Console.WriteLine($"{RevokeInstanceOption} - Revoke Instance from Account");
+            Console.WriteLine($"{RevokeInstanceOption} - Revoke Instance by Domain");
             Console.WriteLine($"{EnableInstanceOption} - Enable Instance");
             Console.WriteLine($"{DisableInstanceOption} - Disable Instance");
 
@@ -85,20 +100,19 @@ namespace Monster.ConsoleApp
                 SystemUtilities.AssignInstance();
             if (input == RevokeInstanceOption)
                 SystemUtilities.RevokeInstance();
-
+            if (input == ListInstancesOption)
+                SystemUtilities.ListInstances();
             if (input == DisableInstanceOption)
                 SystemUtilities.DisableInstance();
             if (input == EnableInstanceOption)
                 SystemUtilities.EnableInstance();
-
 
             // Testing functions
             //
             if (input == TestingFunctionsOption)
                 DisplayTestingFunctions();
 
-            Console.WriteLine("FIN");
-            Console.ReadKey();
+            return input.Trim() != "";
         }
 
 

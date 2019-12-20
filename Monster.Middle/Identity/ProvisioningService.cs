@@ -3,8 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Monster.Middle.Misc.State;
-using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
@@ -145,25 +143,21 @@ namespace Monster.Middle.Identity
             return user;
         }
 
-        public ApplicationUser AssignNextAvailableInstance(string email, string nickname)
+        public void AssignNextAvailableInstance(string email, string domain, string nickname)
         {
             var user = _userManager.FindByName(email);
             if (user == null)
             {
-                _logger.Error($"Unable to locate User {email}");
-                return null;
+                throw new Exception($"Unable to locate User {email}");
             }
 
-            var logins = user.Logins.Where(x => x.LoginProvider == "Shopify").ToList();
-            if (logins.Count > 1)
+            var login = user.Logins.Where(
+                    x => x.LoginProvider == "Shopify" && x.ProviderKey == domain).ToList();
+
+            if (login == null)
             {
-                // *** Pending multi-domain feature release
-                //
-                throw new Exception($"Multiple logins associated with user {email} - critical error");
+                throw new Exception($"Unable to locate Domain {domain} for User {email}");
             }
-
-            var login = logins.First();
-            var domain = login.ProviderKey;
 
             var instance = _masterRepository.RetrieveNextAvailableInstance();
             if (instance == null)
@@ -179,12 +173,16 @@ namespace Monster.Middle.Identity
 
             _masterRepository.AssignInstanceToUser(instance.Id, user.Id, nickname, domain);
             _logger.Info($"Assigned User {user.Email} to Instance {instance.Id}");
-            return user;
         }
 
         public void RevokeInstanceByDomain(string domain)
         {
             var instance = _masterRepository.RetrieveInstanceByDomain(domain);
+            if (domain == null)
+            {
+                throw new Exception($"Unable to locate Domain {domain} for revocation");
+            }
+
             _masterRepository.RevokeInstance(instance.Id);
         }
 

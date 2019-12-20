@@ -18,7 +18,7 @@ namespace Monster.Middle.Persist.Master
 
         public IList<Instance> RetrieveInstances()
         {
-            var sql = @"SELECT * FROM Instance WHERE IsEnabled = 1;";
+            var sql = @"SELECT * FROM Instance ORDER BY AvailabilityOrder;";
             return _connection.Query<Instance>(sql).ToList();
         }
 
@@ -49,7 +49,6 @@ namespace Monster.Middle.Persist.Master
             _connection.Execute(sql, new {instanceId, enabled});
         }
 
-
         public Instance RetrieveNextAvailableInstance()
         {
             var sql = "SELECT * FROM Instance WHERE OwnerUserID IS NULL ORDER BY AvailabilityOrder";
@@ -61,7 +60,6 @@ namespace Monster.Middle.Persist.Master
             var sql = "SELECT * FROM Instance WHERE OwnerDomain = @domain";
             return _connection.Query<Instance>(sql, new { domain }).FirstOrDefault();
         }
-
 
         public List<Instance> RetrieveInstanceByUserId(string aspNetUserId)
         {

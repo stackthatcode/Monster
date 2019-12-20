@@ -176,7 +176,7 @@ namespace Monster.ConsoleApp
             var domain = Console.ReadLine();
 
             var msg = $"Create a new Account for User ID: {email} - Shopify Domain: {domain}";
-            if (CommandLineFuncs.Confirm(msg))
+            if (!CommandLineFuncs.Confirm(msg))
             {
                 return;
             }
@@ -185,6 +185,7 @@ namespace Monster.ConsoleApp
             {
                 var service = scope.Resolve<ProvisioningService>();
                 var user = service.ProvisionNewAccount(email, domain).Result;
+                Console.WriteLine(Environment.NewLine + "Created User...");
             };
 
             AutofacRunner.RunInLifetimeScope(process);
@@ -201,16 +202,19 @@ namespace Monster.ConsoleApp
 
         public static void AssignInstance()
         {
-            Console.WriteLine(Environment.NewLine + "Enter New User's Email Address (which will be used as User ID)");
+            Console.WriteLine(Environment.NewLine + "Enter Account Email Address:");
             var email = Console.ReadLine();
 
-            Console.WriteLine(Environment.NewLine + "Enter a Nick Name for the Instance Assignment");
+            Console.WriteLine(Environment.NewLine + "Enter Domain Name of Shopify store:");
+            var domain = Console.ReadLine();
+
+            Console.WriteLine(Environment.NewLine + "Enter a Nick Name for the Instance assignment:");
             var nickname = Console.ReadLine();
 
             AutofacRunner.RunInLifetimeScope(scope =>
             {
                 var service = scope.Resolve<ProvisioningService>();
-                service.AssignNextAvailableInstance(email, nickname);
+                service.AssignNextAvailableInstance(email, domain, nickname);
             });
         }
 
@@ -243,6 +247,23 @@ namespace Monster.ConsoleApp
             {
                 var repository = scope.Resolve<MasterRepository>();
                 repository.UpdateInstanceEnabled(instanceId, true);
+            });
+        }
+
+        public static void ListInstances()
+        {
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var repository = scope.Resolve<MasterRepository>();
+                var instances = repository.RetrieveInstances();
+                foreach (var instance in instances)
+                {
+                    var output = 
+                        $"{instance.Id} - {instance.ConnectionString ?? "(connection string missing)"}" + Environment.NewLine +
+                        $"{instance.OwnerDomain ?? "(unassigned)"} - {instance.OwnerNickname ?? "(unassigned)"}" +
+                        Environment.NewLine;
+                    Console.WriteLine(output);
+                }
             });
         }
     }
