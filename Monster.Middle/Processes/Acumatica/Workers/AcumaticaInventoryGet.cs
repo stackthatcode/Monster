@@ -99,7 +99,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     newData.AcumaticaDefaultPrice = (decimal)item.DefaultPrice.value;
                     newData.AcumaticaLastCost = (decimal)item.LastCost.value;
 
-                    newData.IsPriceSynced = false;
+                    newData.IsVariantSynced = false;
                     newData.DateCreated = DateTime.UtcNow;
                     newData.LastUpdated = DateTime.UtcNow;
 
@@ -113,7 +113,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     existingData.AcumaticaDefaultPrice = (decimal)item.DefaultPrice.value;
                     existingData.AcumaticaLastCost = (decimal)item.LastCost.value;
 
-                    existingData.IsPriceSynced = false;
+                    existingData.IsVariantSynced = false;
                     existingData.LastUpdated = DateTime.UtcNow;
 
                     _inventoryRepository.SaveChanges();

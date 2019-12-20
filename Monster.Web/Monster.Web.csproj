@@ -228,6 +228,7 @@
     <Compile Include="Models\Sync\EndToEndStatusModel.cs" />
     <Compile Include="Models\Sync\ImportIntoShopifyModel.cs" />
     <Compile Include="Models\Sync\NonRunningStateModel.cs" />
+    <Compile Include="Models\Sync\InventorySyncSettingsUpdateModel.cs" />
     <Compile Include="Models\Sync\OrderVerification.cs" />
     <Compile Include="Models\Sync\RunningStateModel.cs" />
     <Compile Include="Models\Config\ShopifyLocationModel.cs" />
@@ -235,7 +236,7 @@
     <Compile Include="Models\Sync\AcumaticaStockItemModel.cs" />
     <Compile Include="Models\Sync\SyncEnablesUpdateModel.cs" />
     <Compile Include="Models\Sync\SyncSettingsModel.cs" />
-    <Compile Include="Models\Sync\SyncSettingsUpdateModel.cs" />
+    <Compile Include="Models\Sync\OrderSyncSettingsUpdateModel.cs" />
     <Compile Include="Models\ExecutionLogModel.cs" />
     <Compile Include="Models\Config\SettingsSelectionsModel.cs" />
     <Compile Include="Models\Sync\ShopifyProductModel.cs" />

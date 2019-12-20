@@ -189,7 +189,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private void CreateSyncRecord(string sku, ShopifyVariant variantRecord)
         {
             var stockItem = _syncInventoryRepository.RetrieveStockItem(sku.StandardizedSku());
-            stockItem.IsPriceSynced = false;
+            stockItem.IsVariantSynced = false;
             stockItem.AcumaticaInventories.ForEach(x => x.IsInventorySynced = false);
             _syncInventoryRepository.InsertItemSync(variantRecord, stockItem, true);
         }
@@ -205,8 +205,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var stockItem = _syncInventoryRepository.RetrieveStockItem(itemId);
 
-            _shopifyInventoryPut.PriceAndCostUpdate(stockItem, true);
-            _shopifyInventoryPut.InventoryUpdate(stockItem);
+            _shopifyInventoryPut.UpdatePriceAndCost(stockItem, true);
+            _shopifyInventoryPut.UpdateInventoryLevels(stockItem);
         }
     }
 }

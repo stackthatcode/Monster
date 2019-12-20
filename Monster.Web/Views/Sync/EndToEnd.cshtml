@@ -89,6 +89,7 @@
 
     <div data-bind="template: { name: 'Order-Sync-Settings-Popup', data: OrderSyncSettingsPopupModel }"></div>
     <div data-bind="template: { name: 'Recurring-Settings-Popup', data: RecurringSettingsPopupModel }"></div>
+    <div data-bind="template: { name: 'Inventory-Settings-Popup', data: InventorySettingsPopupModel }"></div>
 </main>
 
 <script type="text/html" id="Job-Trigger-Control-Panel">
@@ -146,7 +147,7 @@
 
                 <div class="sync-action-label">Recurring End-to-End Sync enabled</div>
                 <div style="clear:left;"></div>
-                <div class="sync-action-label-sub">(will run every 4 hours)</div>
+                <div class="sync-action-label-sub">(Runs <span data-bind="text:RecurringSchedule"></span>)</div>
 
             </div>
         </div>
@@ -183,51 +184,52 @@
                     <div style="clear: both; vertical-align: middle;"
                          data-bind="template: { name: 'Sync-Enable-Item', data: SyncOrdersEnabled }">
                     </div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <div id="order-settings" style="float: left;">
+
+                    <div style="clear:both; height:10px;"></div>
+
+                    <div id="order-settings">
+                        <div style="float: right; padding-top: 15px;">
+                            <a href="#" class="btn btn-primary btn-sm"
+                               data-bind="click: EditOrderSettingsClick"
+                               style="padding: 8px;">
+                                Settings <i class="fa fa-pencil-alt"></i>
+                            </a>
+                        </div>
+
+
                         <!-- Starting Order Number -->
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Beginning Mark Order</span>
+                        <div style="float:left;">
+                            <div style="clear: both; text-align: left;">
+                                <span class="sync-label" style="min-width: 200px; text-align: left;">Beginning Mark Order</span>
 
-                            <!-- Display Link if populated... -->
-                            <span data-bind="if: ShopifyOrderHref">
-                                <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
-                                    <span data-bind="text: StartingOrderName">
-                                    </span>
-                                </a>
-                            </span>
-
-                            <!-- ... else show alternate text -->
-                            <span data-bind="ifnot: ShopifyOrderHref">
-                                <span class="bold-light" data-bind="text: StartingOrderName">
+                                <!-- Display Link if populated... -->
+                                <span data-bind="if: ShopifyOrderHref">
+                                    <a class="sync-link" data-bind="attr: { href: ShopifyOrderHref }" target="_blank">
+                                        <span data-bind="text: StartingOrderName">
+                                        </span>
+                                    </a>
                                 </span>
-                            </span>
-                        </div>
 
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
-                            <span class="bold-light" data-bind="text: StartOrderCreatedAtUtc">
-                            </span>
+                                <!-- ... else show alternate text -->
+                                <span data-bind="ifnot: ShopifyOrderHref">
+                                    <span class="bold-light" data-bind="text: StartingOrderName">
+                                    </span>
+                                </span>
+                            </div>
+                            <div style="clear: both; text-align: left;">
+                                <span class="sync-label" style="min-width: 200px; text-align: left;">Order Created At (UTC)</span>
+                                <span class="bold-light" data-bind="text: StartOrderCreatedAtUtc">
+                                </span>
+                            </div>
+                            <div style="clear: both; text-align: left;">
+                                <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
+                                <span class="bold-light" data-bind="text: MaxParallelAcumaticaSyncs"></span>
+                            </div>
+                            <div style="clear: both; text-align: left;">
+                                <span class="sync-label" style="min-width: 200px; text-align: left;">Max # Orders per Sync</span>
+                                <span class="bold-light" data-bind="text: MaxNumberOfOrders"></span>
+                            </div>
                         </div>
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Max Parallel Syncs</span>
-                            <span class="bold-light" data-bind="text: MaxParallelAcumaticaSyncs"></span>
-                        </div>
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Max # Orders per Sync</span>
-                            <span class="bold-light" data-bind="text: MaxNumberOfOrders"></span>
-                        </div>
-                    </div>
-
-                    <div style="float: right; padding-top: 15px;">
-                        <a href="#" class="btn btn-primary btn-sm"
-                           data-bind="click: EditOrderSettingsClick"
-                           style="padding: 8px;">
-                            Settings <i class="fa fa-pencil-alt"></i>
-                        </a>
                     </div>
 
                     <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
@@ -239,8 +241,38 @@
                 </td>
             </tr>
             <tr>
-                <td style="vertical-align: middle;"
-                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }"></td>
+                <td>
+                    <div style="clear: both; vertical-align: middle;"
+                         data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }">
+                    </div>
+
+                    <div style="clear:both; height:10px;"></div>
+
+                    <div id="inventory-settings" style="float: left;">
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Avail Qty</span>
+                            <span class="bold-light"
+                                  data-bind="text: Monster.BoolToEnabled(InventorySyncAvailableQty())"></span>
+                        </div>
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Price</span>
+                            <span class="bold-light"
+                                  data-bind="text: Monster.BoolToEnabled(InventorySyncPrice())"></span>
+                        </div>
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Weight</span>
+                            <span class="bold-light" data-bind="text: Monster.BoolToEnabled(InventorySyncWeight())"></span>
+                        </div>
+                    </div>
+
+                    <div style="float: right; padding-top: 15px;">
+                        <a href="#" class="btn btn-primary btn-sm"
+                           data-bind="click: EditInventorySettingsClick"
+                           style="padding: 8px;">
+                            Settings <i class="fa fa-pencil-alt"></i>
+                        </a>
+                    </div>
+                </td>
             </tr>
             <tr>
                 <td style="vertical-align: middle;"
@@ -406,12 +438,12 @@
 
                 <div class="modal-body left">
                     <label for="orderNumber">
-                        Maximum # of Parallel Syncs to Acumatica
+                        Choose schedule for Recurring End-to-End Sync:
                     </label>
-                    <select class="form-control" data-bind="value: RecurringFrequency">
-                        @foreach (var option in RecurringFrequency.Options)
+                    <select class="form-control" data-bind="value: RecurringSchedule">
+                        @foreach (var option in RecurringSchedule.Options)
                         {
-                            <option value="@option.Id">@option.Desc</option>
+                            <option value="@option.Id">Run @option.Desc</option>
                         }
                     </select>
                 </div>
@@ -430,6 +462,59 @@
     </div>
 </script>
 
+<script id="Inventory-Settings-Popup" type="text/html">
+    <div class="modal fade" id="inventory-settings-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Inventory Sync Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body left">
+                    <div style="margin-bottom:20px;"><strong>NOTE: Inventory Sync always updates Taxability and Cost of Goods</strong></div>
+
+                    <label>
+                        Synchronize Available Quantity
+                    </label>
+                    <select class="form-control" data-bind="value: InventorySyncAvailableQty">
+                        <option value="true">Enabled</option>
+                        <option value="false">Disabled</option>
+                    </select>
+                    <hr />
+                    <label>
+                        Synchronize Price
+                    </label>
+                    <select class="form-control" data-bind="value: InventorySyncPrice">
+                        <option value="true">Enabled</option>
+                        <option value="false">Disabled</option>
+                    </select>
+                    <hr />
+                    <label>
+                        Synchronize Weight
+                    </label>
+                    <select class="form-control" data-bind="value: InventorySyncWeight">
+                        <option value="true">Enabled</option>
+                        <option value="false">Disabled</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary"
+                            data-bind="click: SaveClick">
+                        Save <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
 <script>
     var Monster = Monster || {};
 
@@ -437,8 +522,58 @@
         UpdateSyncEnables: "/UpdateSyncEnables",
         LaunchOrderSyncSettings: "/LaunchOrderSyncSettings",
         LaunchRecurringSettings: "/LaunchRecurringSettings",
+        LaunchInventorySettings: "/LaunchInventorySettings",
         RefreshSyncSettings: "/RefreshSyncSettings",
         ProcessStatus: "/ProcessStatus",
+    };
+
+    Monster.InventorySettingsPopupModel = function () {
+        var self = this;
+
+        self.InventorySyncAvailableQty = ko.observable();
+        self.InventorySyncPrice = ko.observable();
+        self.InventorySyncWeight = ko.observable();
+
+        self.SaveClick = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    var data = {
+                        InventorySyncAvailableQty: self.InventorySyncAvailableQty(),
+                        InventorySyncPrice: self.InventorySyncPrice(),
+                        InventorySyncWeight: self.InventorySyncWeight(),
+                    };
+
+                    console.log(data);
+                    ajax.HttpPost("/Sync/InventorySettingsUpdate", data, this);
+                },
+                function (response) {
+                    self.Close();
+                    Monster.Events.publish(eventKeys.ProcessStatus);
+                });
+        };
+
+        self.Close = function () {
+            $("#inventory-settings-modal").modal('hide');
+        }
+
+        self.LaunchInventorySettings = function () {
+            flow.exec(
+                function () {
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("/Sync/SyncSettingsAndEnables", this);
+                },
+                function (response) {
+                    self.InventorySyncAvailableQty(response.InventorySyncAvailableQty);
+                    self.InventorySyncPrice(response.InventorySyncPrice);
+                    self.InventorySyncWeight(response.InventorySyncWeight);
+
+                    $("#inventory-settings-modal").modal('show');
+                });
+        };
+
+        Monster.Events.subscribe(eventKeys.LaunchInventorySettings, self.LaunchInventorySettings);
+        return self;
     };
 
     Monster.RecurringSettingsPopupModel = function () {
@@ -446,17 +581,20 @@
 
         // Existing Starting Order
         //
-        self.RecurringFrequency = ko.observable();
+        self.RecurringSchedule = ko.observable();
 
         self.StartEndToEndRecurring = function () {
-
             flow.exec(
                 function () {
                     var ajax = new Monster.Ajax();
-                    ajax.HttpPost("/Sync/PauseEndToEndRecurring", {}, this);
+                    ajax.HttpPost("/Sync/StartEndToEndRecurring",
+                        {
+                            scheduleId: self.RecurringSchedule(),
+                        }, this);
                 },
                 function (response) {
-                    self.ProcessStatus();
+                    self.Close();
+                    Monster.Events.publish(eventKeys.ProcessStatus);
                 });
 
             // Copy the Ajax method in heah!
@@ -549,7 +687,7 @@
                 },
                 function (response) {
                     self.Close();
-                    Monster.Events.publish(Monster.JobStatusRunningComplete);
+                    Monster.Events.publish(event.ProcessStatus);
                 });
         };
 
@@ -575,7 +713,6 @@
                     self.MaxNumberOfOrders(settings.MaxNumberOfOrders);
                     self.MaxParallelSyncs(settings.MaxParallelAcumaticaSyncs);
                     self.NewStartingOrderNumber("");
-
 
                     $("#order-sync-settings-modal").modal('show');
                 });
@@ -606,6 +743,10 @@
         return self;
     };
 
+    Monster.BoolToEnabled = function (input) {
+        return input ? "ENABLED" : "DISABLED";
+    }
+
     Monster.SyncSettingsModel = function () {
         var self = this;
 
@@ -630,10 +771,20 @@
         self.MaxNumberOfOrders = ko.observable();
         self.IsStartingOrderSet = ko.observable();
 
+        // Inventory Sync Settings
+        //
+        self.InventorySyncAvailableQty = ko.observable();
+        self.InventorySyncPrice = ko.observable();
+        self.InventorySyncWeight = ko.observable();
+
         // Publishes an event to trigger launch of Order Sync Settings editor pop-up
         //
         self.EditOrderSettingsClick = function () {
             Monster.Events.publish(eventKeys.LaunchOrderSyncSettings);
+        };
+
+        self.EditInventorySettingsClick = function () {
+            Monster.Events.publish(eventKeys.LaunchInventorySettings);
         };
 
         self.RefreshSyncSettings = function () {
@@ -659,6 +810,12 @@
                     self.MaxParallelAcumaticaSyncs(model.MaxParallelAcumaticaSyncs);
                     self.MaxNumberOfOrders(model.MaxNumberOfOrders);
                     self.IsStartingOrderSet(model.IsStartingOrderSet);
+
+                    // Inventory Sync Settings
+                    //
+                    self.InventorySyncAvailableQty(model.InventorySyncAvailableQty);
+                    self.InventorySyncPrice(model.InventorySyncPrice);
+                    self.InventorySyncWeight(model.InventorySyncWeight);
                 });
         };
 
@@ -697,6 +854,7 @@
         self.IsStartingOrderReady = ko.observable(false);
         self.CanStartEndToEnd = ko.observable(false);
         self.IsRecurringEndToEndActive = ko.observable(false);
+        self.RecurringSchedule = ko.observable();
 
         self.StartEndToEndRecurring = function () {
             Monster.Events.publish(eventKeys.LaunchRecurringSettings);
@@ -711,20 +869,20 @@
                     ajax.HttpPost("/Sync/PauseEndToEndRecurring", {}, this);
                 },
                 function (response) {
-                    self.ProcessStatus();
+                    Monster.Events.publish(eventKeys.ProcessStatus);
                 });
-            };
+        };
 
-        self.RunEndToEndImmediately = function() {
+        self.RunEndToEndImmediately = function () {
             flow.exec(
-                function() {
+                function () {
                     var ajax = new Monster.Ajax();
                     ajax.HttpPost("/Sync/RunEndToEndImmediately", {}, this);
                 },
-                function(response) {
+                function (response) {
                     Monster.Events.publish(eventKeys.ProcessStatus);
                 });
-            };
+        };
 
         // Model loading function
         //
@@ -733,6 +891,7 @@
             self.IsStartingOrderReady(model.IsStartingOrderReady);
             self.CanStartEndToEnd(model.CanStartEndToEnd);
             self.IsRecurringEndToEndActive(model.IsRecurringEndToEndActive);
+            self.RecurringSchedule(model.RecurringSchedule);
         };
 
         return self;
@@ -751,6 +910,7 @@
         //
         self.OrderSyncSettingsPopupModel = new Monster.OrderSyncSettingsPopupModel();
         self.RecurringSettingsPopupModel = new Monster.RecurringSettingsPopupModel();
+        self.InventorySettingsPopupModel = new Monster.InventorySettingsPopupModel();
 
         self.ProcessStatus = function () {
             flow.exec(function () {
@@ -764,9 +924,8 @@
         };
 
         Monster.Events.subscribe(Monster.JobStatusRunningComplete, function () { self.ProcessStatus(); });
-        Monster.Events.subscribe(Monster.ProcessStatus, function () { self.ProcessStatus(); });
+        Monster.Events.subscribe(eventKeys.ProcessStatus, function () { self.ProcessStatus(); });
 
-        
         self.Initialize = function () {
             self.JobRunningModel.StartPolling(true);
         };

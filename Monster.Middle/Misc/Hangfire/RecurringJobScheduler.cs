@@ -33,7 +33,7 @@ namespace Monster.Middle.Misc.Hangfire
                 cron, 
                 TimeZoneInfo.Utc);
 
-            _executionLogService.Log("End-to-End Sync - Recurring Job Started");
+            _executionLogService.Log("End-to-End Sync - Recurring Job Started ");
         }
 
         public bool IsEndToEndSyncActive()

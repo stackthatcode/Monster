@@ -255,12 +255,12 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Inventory Price
         //
-        public List<AcumaticaStockItem> RetrieveStockItemsPriceNotSynced()
+        public List<AcumaticaStockItem> RetrieveStockItemsNotSynced()
         {
             return Entities
                     .AcumaticaStockItems
                     .Include(x => x.ShopifyVariant)
-                    .Where(x => x.IsPriceSynced == false && x.IsSyncEnabled == true)
+                    .Where(x => x.IsVariantSynced == false && x.IsSyncEnabled == true)
                     .ToList();
         }
         

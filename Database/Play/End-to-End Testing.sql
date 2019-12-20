@@ -22,4 +22,19 @@ SELECT * FROM MonsterSys..Instance;
 
 -- UPDATE MonsterSys..AspNetUserLogins SET ProviderKey = 'onemoreteststorecanthurt.myshopify.com';
 
+USE MonsterSys;
+
+SELECT * FROM HangFire.Hash;
+
+USE Monster0001;
+GO
+
+DELETE FROM ExclusiveJobMonitor;
+
+SELECT * FROM SystemState;
+
+UPDATE SystemState SET SettingsState = 2;
+
+
+UPDATE MonsterSettings SET LastRecurringFrequency = 1;
 

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
@@ -45,23 +45,26 @@ namespace Monster.Middle.Processes.Sync.Workers
             _logger = logger;
         }
 
-
         public void Run()
         {
             //return; // SKOUTS HONOR
+            //
 
-            RunPriceUpdates();
-            RunInventoryUpdate();
+            RunPriceCostWeightUpdates();
+            var settings = _settingsRepository.RetrieveSettings();
+            if (settings.InventorySyncAvailableQty)
+            {
+                RunInventoryUpdate();
+            }
         }
 
-        private void RunPriceUpdates()
+        private void RunPriceCostWeightUpdates()
         {
-            var stockItems = _syncInventoryRepository.RetrieveStockItemsPriceNotSynced();
+            var stockItems = _syncInventoryRepository.RetrieveStockItemsNotSynced();
 
             foreach (var stockItem in stockItems)
             {
                 var readyToSync = MakeSyncStatus(stockItem).ReadyToSyncPrice();
-
                 if (!readyToSync.Success)
                 {
                     _logger.Debug($"Skipping PriceUpdate for {stockItem.ItemId}");
@@ -69,38 +72,48 @@ namespace Monster.Middle.Processes.Sync.Workers
                 }
 
                 _executionLogService.Log(LogBuilder.UpdateShopifyPrice(stockItem));
-                PriceAndCostUpdate(stockItem);
+
+                UpdatePriceAndCost(stockItem);
             }
         }
 
-        public void PriceAndCostUpdate(AcumaticaStockItem stockItem, bool setTracking = false)
+        private void RunInventoryUpdate()
+        {
+            var stockItems = _syncInventoryRepository.RetrieveStockItemInventoryNotSynced();
+
+            foreach (var stockItem in stockItems)
+            {
+                var readyToSync = MakeSyncStatus(stockItem).ReadyToSyncInventory();
+                if (!readyToSync.Success)
+                {
+                    _logger.Debug($"Skipping StockItemInventoryUpdate for {stockItem.ItemId}");
+                    continue;
+                }
+
+                var content = LogBuilder.UpdateShopifyInventory(stockItem);
+                _executionLogService.Log(content);
+                UpdateInventoryLevels(stockItem);
+            }
+        }
+
+
+        public void UpdatePriceAndCost(AcumaticaStockItem stockItemRecord, bool setTracking = false)
         {
             //return; // SKOUTS HONOR
-
-            var settings = _settingsRepository.RetrieveSettings();
-            var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(stockItem.ItemId);
-            var stockItemObj = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
-
+            //
             if (!stockItemRecord.IsMatched())
             {
                 return;
             }
 
+            UpdateShopifyVariant(stockItemRecord, setTracking);
+            UpdateVariantCostOfGoods(stockItemRecord, setTracking);
+        }
+
+        private void UpdateVariantCostOfGoods(AcumaticaStockItem stockItemRecord, bool setTracking)
+        {
             var variantRecord = stockItemRecord.MatchedVariant();
-
-            // Build the Shopify DTO
-            //
-            var variantShopifyId = variantRecord.ShopifyVariantId;
-            var variantSku = variantRecord.ShopifySku;
-            var price = (decimal)stockItemObj.DefaultPrice.value;
-            var grams = stockItemObj.DimensionWeight.value.ToShopifyGrams();
-            var taxable = stockItemRecord.IsTaxable(settings).Value;
-            var costOfGoods = stockItem.AcumaticaLastCost;
-
-            // Push the price update via Variant API
-            //
-            var priceDto = VariantPriceUpdateParent.Make(variantShopifyId, price, taxable, grams);
-            _productApi.UpdateVariantPrice(variantShopifyId, priceDto.SerializeToJson());
+            var costOfGoods = stockItemRecord.AcumaticaLastCost;
 
             // Push the cost of goods via Inventory API
             //
@@ -112,30 +125,73 @@ namespace Monster.Middle.Processes.Sync.Workers
                 inventoryItem.id = variantRecord.ShopifyInventoryItemId;
                 inventoryItem.cost = costOfGoods;
                 inventoryItem.tracked = true;
-                content = new { inventory_item = inventoryItem }.SerializeToJson();
+                content = new {inventory_item = inventoryItem}.SerializeToJson();
             }
             else
             {
                 var inventoryItem = new InventoryItemUpdate();
                 inventoryItem.id = variantRecord.ShopifyInventoryItemId;
                 inventoryItem.cost = costOfGoods;
-                content = new { inventory_item = inventoryItem }.SerializeToJson();
+                content = new {inventory_item = inventoryItem}.SerializeToJson();
             }
 
             _inventoryApi.SetInventoryCost(variantRecord.ShopifyInventoryItemId, content);
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
-                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, price, taxable, costOfGoods, grams);
+                var log = LogBuilder.UpdateShopifyVariantCogsOfGoods(variantRecord.ShopifySku, costOfGoods);
                 _executionLogService.Log(log);
 
-                stockItem.IsPriceSynced = true;
-                stockItem.LastUpdated = DateTime.UtcNow;
-
-                variantRecord.ShopifyPrice = price;
                 variantRecord.ShopifyCost = costOfGoods;
-                variantRecord.ShopifyIsTaxable = taxable;
+                _syncInventoryRepository.SaveChanges();
+                transaction.Commit();
+            }
+        }
 
+        private void UpdateShopifyVariant(AcumaticaStockItem stockItemRecord, bool setTracking)
+        {
+            var settings = _settingsRepository.RetrieveSettings();
+            var variantRecord = stockItemRecord.MatchedVariant();
+            var stockItemObj = stockItemRecord.ToStockItemObj();
+
+            // Build the Shopify DTO
+            //
+            var variantShopifyId = variantRecord.ShopifyVariantId;
+            var variantSku = variantRecord.ShopifySku;
+
+            // Push the update via Variant API
+            //
+            var updateDto = new VariantUpdate();
+            updateDto.taxable = stockItemRecord.IsTaxable(settings).Value;
+            if (settings.InventorySyncPrice)
+            {
+                updateDto.price = (decimal)stockItemObj.DefaultPrice.value;
+            }
+            if (settings.InventorySyncWeight)
+            {
+                updateDto.grams = stockItemObj.DimensionWeight.value.ToShopifyGrams();
+            }
+
+            _productApi.UpdateVariantPrice(variantShopifyId, updateDto.ToJson());
+
+
+            using (var transaction = _syncInventoryRepository.BeginTransaction())
+            {
+                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, updateDto);
+                _executionLogService.Log(log);
+
+                // Update Stock Item record
+                //
+                stockItemRecord.IsVariantSynced = true;
+                stockItemRecord.LastUpdated = DateTime.UtcNow;
+
+                // Update Variant record
+                //
+                variantRecord.ShopifyIsTaxable = updateDto.taxable;
+                if (updateDto.price.HasValue)
+                {
+                    variantRecord.ShopifyPrice = updateDto.price.Value;
+                }
                 if (setTracking)
                 {
                     variantRecord.ShopifyIsTracked = true;
@@ -146,6 +202,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
+
         public InventorySyncStatus MakeSyncStatus(AcumaticaStockItem input)
         {
             var settings = _settingsRepository.RetrieveSettings();
@@ -154,7 +211,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             output.StockItemId = input.ItemId;
             output.TaxCategoryId = input.AcumaticaTaxCategory;
 
-            output.IsStockItemPriceSynced = input.IsPriceSynced;
+            output.IsStockItemPriceSynced = input.IsVariantSynced;
             output.IsStockItemInventorySynced = input.AcumaticaInventories.All(x => x.IsInventorySynced);
             output.IsTaxCategoryValid = input.IsValidTaxCategory(settings);
 
@@ -174,26 +231,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             return output;
         }
 
-        private void RunInventoryUpdate()
-        {
-            var stockItems = _syncInventoryRepository.RetrieveStockItemInventoryNotSynced();
-
-            foreach (var stockItem in stockItems)
-            {
-                var readyToSync = MakeSyncStatus(stockItem).ReadyToSyncInventory();
-                if (!readyToSync.Success)
-                {
-                    _logger.Debug($"Skipping StockItemInventoryUpdate for {stockItem.ItemId}");
-                    continue;
-                }
-
-                var content = LogBuilder.UpdateShopifyInventory(stockItem);
-                _executionLogService.Log(content);
-                InventoryUpdate(stockItem);
-            }
-        }
-
-        public void InventoryUpdate(AcumaticaStockItem stockItem)
+        public void UpdateInventoryLevels(AcumaticaStockItem stockItem)
         {
             var variant = _inventoryRepository.RetrieveVariant(stockItem.MatchedVariant().ShopifyVariantId);
 
@@ -217,11 +255,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var level in variant.ShopifyInventoryLevels)
             {
-                RunInventoryLevelUpdate(stockItem, level);
+                UpdateInventoryLevel(stockItem, level);
             }
         }
 
-        public void RunInventoryLevelUpdate(AcumaticaStockItem stockItem, ShopifyInventoryLevel level)
+        private void UpdateInventoryLevel(AcumaticaStockItem stockItem, ShopifyInventoryLevel level)
         {
             var location = _syncInventoryRepository.RetrieveLocation(level.ShopifyLocationId);
             var warehouseIds = location.MatchedWarehouseIds();

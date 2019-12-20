@@ -138,7 +138,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             newRecord.AcumaticaJson = item.SerializeToJson();
             newRecord.AcumaticaDescription = item.Description.value;
             newRecord.AcumaticaTaxCategory = item.TaxCategory.value;
-            newRecord.IsPriceSynced = false;
+            newRecord.IsVariantSynced = false;
             newRecord.DateCreated = DateTime.UtcNow;
             newRecord.LastUpdated = DateTime.UtcNow;
 

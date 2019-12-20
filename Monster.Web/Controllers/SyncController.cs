@@ -79,11 +79,15 @@ namespace Monster.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult StartEndToEndRecurring(int frequencyId)
+        public ActionResult StartEndToEndRecurring(int scheduleId)
         {
-            var option = RecurringFrequency.Options.First(x => x.Id == frequencyId);
-
+            var option = RecurringSchedule.Options.First(x => x.Id == scheduleId);
+            _logRepository.Log($"Scheduling Recurring End-to-End Sync - run {option.Desc}");
             _recurringJobService.StartEndToEndSync(option.Cron);
+
+            var settings = _settingsRepository.RetrieveSettings();
+            settings.LastRecurringSchedule = scheduleId;
+            _settingsRepository.SaveChanges();
             return JsonNetResult.Success();
         }
 
@@ -106,6 +110,10 @@ namespace Monster.Web.Controllers
         {
             var status = _configStatusService.GetConfigStatusSummary();
             var isRecurringEndToEndActive = _recurringJobService.IsEndToEndSyncActive();
+            var settings = _settingsRepository.RetrieveSettings();
+            var recurringSchedule =
+                RecurringSchedule
+                    .Options.First(x => x.Id == settings.LastRecurringSchedule).Desc;
 
             var output = new 
             {
@@ -113,6 +121,7 @@ namespace Monster.Web.Controllers
                 status.IsConfigReady,
                 status.CanStartEndToEnd,
                 IsRecurringEndToEndActive = isRecurringEndToEndActive,
+                RecurringSchedule = recurringSchedule,
             };
 
             return new JsonNetResult(output);
@@ -145,6 +154,10 @@ namespace Monster.Web.Controllers
 
             output.MaxParallelAcumaticaSyncs = settings.MaxParallelAcumaticaSyncs;
             output.MaxNumberOfOrders = settings.MaxNumberOfOrders;
+
+            output.InventorySyncAvailableQty = settings.InventorySyncAvailableQty;
+            output.InventorySyncPrice = settings.InventorySyncPrice;
+            output.InventorySyncWeight = settings.InventorySyncWeight;
 
             return new JsonNetResult(output);
         }
@@ -224,7 +237,19 @@ namespace Monster.Web.Controllers
 
             return JsonNetResult.Success();
         }
-        
+
+
+        [HttpPost]
+        public ActionResult InventorySettingsUpdate(InventorySyncSettingsUpdateModel model)
+        {
+            var data = _settingsRepository.RetrieveSettings();
+            data.InventorySyncAvailableQty = model.InventorySyncAvailableQty;
+            data.InventorySyncPrice = model.InventorySyncPrice;
+            data.InventorySyncWeight = model.InventorySyncWeight;
+            _settingsRepository.SaveChanges();
+            return JsonNetResult.Success();
+        }
+
 
 
         // Inventory Sync Control

@@ -15,6 +15,10 @@
 
         public string StartingOrderHref { get; set; }
         public bool IsStartingOrderSet => StartingOrderId.HasValue;
+
+        public bool InventorySyncAvailableQty { get; set; }
+        public bool InventorySyncPrice { get; set; }
+        public bool InventorySyncWeight { get; set; }
     }
 }
 

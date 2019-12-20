@@ -1078,7 +1078,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaDescription { get; set; } // AcumaticaDescription (length: 200)
         public decimal AcumaticaDefaultPrice { get; set; } // AcumaticaDefaultPrice
         public decimal AcumaticaLastCost { get; set; } // AcumaticaLastCost
-        public bool IsPriceSynced { get; set; } // IsPriceSynced
+        public bool IsVariantSynced { get; set; } // IsVariantSynced
         public long? ShopifyVariantMonsterId { get; set; } // ShopifyVariantMonsterId
         public bool IsSyncEnabled { get; set; } // IsSyncEnabled
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -1217,6 +1217,10 @@ namespace Monster.Middle.Persist.Instance
         public System.DateTime? ShopifyOrderCreatedAtUtc { get; set; } // ShopifyOrderCreatedAtUtc
         public int MaxParallelAcumaticaSyncs { get; set; } // MaxParallelAcumaticaSyncs
         public int MaxNumberOfOrders { get; set; } // MaxNumberOfOrders
+        public bool InventorySyncPrice { get; set; } // InventorySyncPrice
+        public bool InventorySyncWeight { get; set; } // InventorySyncWeight
+        public bool InventorySyncAvailableQty { get; set; } // InventorySyncAvailableQty
+        public int LastRecurringSchedule { get; set; } // LastRecurringSchedule
     }
 
     // PaymentGateways
@@ -2226,7 +2230,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaDescription).HasColumnName(@"AcumaticaDescription").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(200);
             Property(x => x.AcumaticaDefaultPrice).HasColumnName(@"AcumaticaDefaultPrice").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.AcumaticaLastCost).HasColumnName(@"AcumaticaLastCost").HasColumnType("money").IsRequired().HasPrecision(19,4);
-            Property(x => x.IsPriceSynced).HasColumnName(@"IsPriceSynced").HasColumnType("bit").IsRequired();
+            Property(x => x.IsVariantSynced).HasColumnName(@"IsVariantSynced").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyVariantMonsterId).HasColumnName(@"ShopifyVariantMonsterId").HasColumnType("bigint").IsOptional();
             Property(x => x.IsSyncEnabled).HasColumnName(@"IsSyncEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
@@ -2390,6 +2394,10 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyOrderCreatedAtUtc).HasColumnName(@"ShopifyOrderCreatedAtUtc").HasColumnType("datetime").IsOptional();
             Property(x => x.MaxParallelAcumaticaSyncs).HasColumnName(@"MaxParallelAcumaticaSyncs").HasColumnType("int").IsRequired();
             Property(x => x.MaxNumberOfOrders).HasColumnName(@"MaxNumberOfOrders").HasColumnType("int").IsRequired();
+            Property(x => x.InventorySyncPrice).HasColumnName(@"InventorySyncPrice").HasColumnType("bit").IsRequired();
+            Property(x => x.InventorySyncWeight).HasColumnName(@"InventorySyncWeight").HasColumnType("bit").IsRequired();
+            Property(x => x.InventorySyncAvailableQty).HasColumnName(@"InventorySyncAvailableQty").HasColumnType("bit").IsRequired();
+            Property(x => x.LastRecurringSchedule).HasColumnName(@"LastRecurringSchedule").HasColumnType("int").IsRequired();
         }
     }
 
