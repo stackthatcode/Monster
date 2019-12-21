@@ -119,39 +119,6 @@
 
     <div style="height: 15px;"></div>
     <div class="panel-size">
-        <div style="height:70px;">
-            <div data-bind="ifnot: IsRecurringEndToEndActive">
-                <div data-bind="if: CanStartEndToEnd">
-                    <label class="sync-action-label">Recurring End-to-End Sync disabled</label>
-                    <a href="#" data-bind="click: StartEndToEndRecurring"
-                       style="float:right;"
-                       class="btn btn-primary sync-button">
-                        Start Recurring <i class="fas fa-clock"></i>
-                    </a>
-                </div>
-                <div data-bind="ifnot: CanStartEndToEnd">
-                    <label class="sync-action-label">Recurring End-to-End Sync disabled</label>
-                    <a href="#" style="float:right;"
-                       class="btn btn-secondary sync-button" data-bind="click: function() { return false; }">
-                        Start Recurring <i class="fas fa-clock"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div data-bind="if: IsRecurringEndToEndActive">
-                <a href="#" data-bind="click: PauseEndToEndRecurring"
-                   class="btn btn-primary sync-button"
-                   style="float:right;">
-                    Stop Recurring <i class="fas fa-clock"></i>
-                </a>
-
-                <div class="sync-action-label">Recurring End-to-End Sync enabled</div>
-                <div style="clear:left;"></div>
-                <div class="sync-action-label-sub">(Runs <span data-bind="text:RecurringSchedule"></span>)</div>
-
-            </div>
-        </div>
-
         <div style="height:60px;">
             <div data-bind="ifnot: CanStartEndToEnd">
                 <label class="sync-action-label">Run End-to-End Sync immediately</label>
@@ -171,6 +138,38 @@
                    style="float:right;" class="btn btn-primary sync-button">
                     Run End-to-End Sync <i class="fas fa-bolt"></i>
                 </a>
+            </div>
+        </div>
+
+        <div style="height:60px;">
+            <div data-bind="if: IsRecurringEndToEndActive">
+                <a href="#" data-bind="click: PauseEndToEndRecurring"
+                   class="btn btn-primary sync-button"
+                   style="float:right;">
+                    Stop Recurring <i class="fas fa-clock"></i>
+                </a>
+
+                <div class="sync-action-label">Recurring End-to-End Sync enabled</div>
+                <div style="clear:left;"></div>
+                <div class="sync-action-label-sub">(Runs <span data-bind="text:RecurringSchedule"></span>)</div>
+            </div>
+            
+            <div data-bind="ifnot: IsRecurringEndToEndActive">
+                <div data-bind="if: CanStartEndToEnd">
+                    <label class="sync-action-label">Recurring End-to-End Sync disabled</label>
+                    <a href="#" data-bind="click: StartEndToEndRecurring"
+                       style="float:right;"
+                       class="btn btn-primary sync-button">
+                        Start Recurring <i class="fas fa-clock"></i>
+                    </a>
+                </div>
+                <div data-bind="ifnot: CanStartEndToEnd">
+                    <label class="sync-action-label">Recurring End-to-End Sync disabled</label>
+                    <a href="#" style="float:right;"
+                       class="btn btn-secondary sync-button" data-bind="click: function() { return false; }">
+                        Start Recurring <i class="fas fa-clock"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

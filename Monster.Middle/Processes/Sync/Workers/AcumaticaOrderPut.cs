@@ -125,6 +125,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 if (!orderAction.IsValid)
                 {
+                    _logService.Log(LogBuilder.SkippingInvalidShopifyOrder(shopifyOrderId));
                     return;
                 }
 

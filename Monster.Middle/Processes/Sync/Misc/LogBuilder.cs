@@ -104,6 +104,11 @@ namespace Monster.Middle.Processes.Sync.Misc
         {
             return $"Execution has been interrupted";
         }
+
+        public static string SkippingInvalidShopifyOrder(long shopifyOrderId)
+        {
+            return $"Shopify Order {shopifyOrderId} block from writing to Acumatica";
+        }
     }
 }
 
