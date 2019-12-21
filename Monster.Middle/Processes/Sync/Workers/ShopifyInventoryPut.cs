@@ -161,24 +161,27 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Push the update via Variant API
             //
-            var updateDto = new VariantUpdate();
-            updateDto.taxable = stockItemRecord.IsTaxable(settings).Value;
-            updateDto.id = variantShopifyId;
-            //if (settings.InventorySyncPrice)
-            //{
-                updateDto.price = (decimal)stockItemObj.DefaultPrice.value;
-            //}
-            if (settings.InventorySyncWeight)
-            {
-                updateDto.grams = stockItemObj.DimensionWeight.value.ToShopifyGrams();
-            }
+            var id = variantShopifyId;
+            var taxable = stockItemRecord.IsTaxable(settings).Value;
 
-            _productApi.UpdateVariantPrice(variantShopifyId, updateDto.ToJson());
+            var price =
+                settings.InventorySyncPrice 
+                    ? (decimal) stockItemObj.DefaultPrice.value 
+                    : (decimal?)null;
+
+            var grams =
+                settings.InventorySyncWeight
+                    ? stockItemObj.DimensionWeight.value.ToShopifyGrams()
+                    : (int?) null;
+
+            string json = VariantUpdate.Make(id, taxable, price, grams);
+            
+            _productApi.UpdateVariantPrice(variantShopifyId, json);
 
 
             using (var transaction = _syncInventoryRepository.BeginTransaction())
             {
-                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, updateDto);
+                var log = LogBuilder.UpdateShopifyVariantPrice(variantSku, taxable, price, grams);
                 _executionLogService.Log(log);
 
                 // Update Stock Item record
@@ -188,10 +191,10 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 // Update Variant record
                 //
-                variantRecord.ShopifyIsTaxable = updateDto.taxable;
-                if (updateDto.price.HasValue)
+                variantRecord.ShopifyIsTaxable = taxable;
+                if (price.HasValue)
                 {
-                    variantRecord.ShopifyPrice = updateDto.price.Value;
+                    variantRecord.ShopifyPrice = price.Value;
                 }
                 if (setTracking)
                 {

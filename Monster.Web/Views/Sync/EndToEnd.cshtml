@@ -250,14 +250,14 @@
 
                     <div id="inventory-settings" style="float: left;">
                         <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Avail Qty</span>
-                            <span class="bold-light"
-                                  data-bind="text: Monster.BoolToEnabled(InventorySyncAvailableQty())"></span>
-                        </div>
-                        <div style="clear: both; text-align: left;">
                             <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Price</span>
                             <span class="bold-light"
                                   data-bind="text: Monster.BoolToEnabled(InventorySyncPrice())"></span>
+                        </div>
+                        <div style="clear: both; text-align: left;">
+                            <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Avail Qty</span>
+                            <span class="bold-light"
+                                  data-bind="text: Monster.BoolToEnabled(InventorySyncAvailableQty())"></span>
                         </div>
                         <div style="clear: both; text-align: left;">
                             <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Weight</span>
@@ -477,17 +477,17 @@
                     <div style="margin-bottom:20px;"><strong>NOTE: Inventory Sync always updates Taxability and Cost of Goods</strong></div>
 
                     <label>
-                        Synchronize Available Quantity
+                        Synchronize Price
                     </label>
-                    <select class="form-control" data-bind="value: InventorySyncAvailableQty">
+                    <select class="form-control" data-bind="value: InventorySyncPrice">
                         <option value="1">Enabled</option>
                         <option value="0">Disabled</option>
                     </select>
                     <hr />
                     <label>
-                        Synchronize Price
+                        Synchronize Available Quantity
                     </label>
-                    <select class="form-control" data-bind="value: InventorySyncPrice">
+                    <select class="form-control" data-bind="value: InventorySyncAvailableQty">
                         <option value="1">Enabled</option>
                         <option value="0">Disabled</option>
                     </select>
@@ -702,7 +702,7 @@
                 },
                 function (response) {
                     self.Close();
-                    Monster.Events.publish(event.ProcessStatus);
+                    Monster.Events.publish(eventKeys.ProcessStatus);
                 });
         };
 

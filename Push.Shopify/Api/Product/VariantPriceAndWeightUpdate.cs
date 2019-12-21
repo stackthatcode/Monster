@@ -4,17 +4,24 @@ namespace Push.Shopify.Api.Product
 {
     public class VariantUpdate
     {
-        public long id { get; set; }
-        public bool taxable { get; set; }
-        public decimal? price { get; set; }
-        public int? grams { get; set; }
-
-        public string ToJson()
+        public static string Make(long id, bool taxable, decimal? price, int? grams)
         {
-            return new
+            if (price.HasValue && grams.HasValue)
             {
-                variant = this
-            }.SerializeToJson();
+                return new {variant = new {id, taxable, price, grams,}}.SerializeToJson();
+            }
+
+            if (price.HasValue && !grams.HasValue)
+            {
+                return new { variant = new { id, taxable, price,  } }.SerializeToJson();
+            }
+
+            if (!price.HasValue && grams.HasValue)
+            {
+                return new { variant = new { id, taxable, grams, } }.SerializeToJson();
+            }
+
+            return new { variant = new { id, taxable } }.SerializeToJson();
         }
     }
 }

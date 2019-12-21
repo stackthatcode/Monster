@@ -59,16 +59,17 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Updating Acumatica Sales Order from {order.LogDescriptor()}";
         }
 
-        public static string UpdateShopifyVariantPrice(string sku, VariantUpdate update)
+        public static string UpdateShopifyVariantPrice(
+                string sku, bool taxable, decimal? price, int? grams)
         {
-            var output = $"Updated Shopify Variant {sku} - taxable: {update.taxable}";
-            if (update.price.HasValue)
+            var output = $"Updated Shopify Variant {sku} - taxable: {taxable}";
+            if (price.HasValue)
             {
-                output += $", price: {update.price}";
+                output += $", price: {price}";
             }
-            if (update.grams.HasValue)
+            if (grams.HasValue)
             {
-                output += $", weight (grams): {update.grams}";
+                output += $", weight (grams): {grams}";
             }
             return output;
         }
