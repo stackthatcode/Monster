@@ -185,7 +185,9 @@ namespace Monster.Middle.Processes.Sync.Managers
                 return;
             }
 
-            _syncManager.ImportAcumaticaStockItems(context);
+            BackgroundJobRunner(
+                () => _syncManager.ImportAcumaticaStockItems(context),
+                BackgroundJobType.ImportAcumaticaStockItems);
         }
 
         public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
@@ -198,7 +200,9 @@ namespace Monster.Middle.Processes.Sync.Managers
                 return;
             }
 
-            _syncManager.ImportNewShopifyProduct(context);
+            BackgroundJobRunner(
+                () => _syncManager.ImportNewShopifyProduct(context),
+                BackgroundJobType.ImportNewShopifyProduct);
         }
 
         public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
@@ -212,8 +216,34 @@ namespace Monster.Middle.Processes.Sync.Managers
                 return;
             }
 
-            _syncManager.ImportAddShopifyVariantsToProduct(context);
+            BackgroundJobRunner(
+                () => _syncManager.ImportAddShopifyVariantsToProduct(context),
+                BackgroundJobType.ImportAddShopifyVariantsToProduct);
         }
+
+        private void BackgroundJobRunner(Action action, int jobType)
+        {
+            string descriptor = BackgroundJobType.Name[jobType];
+
+            _executionLogService.Log($"{descriptor}  - executing");
+
+            try
+            {
+                if (_monitoringService.IsJobTypeInterrupted(jobType))
+                {
+                    _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
+                    return;
+                }
+                action();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                _executionLogService.Log($"{descriptor} - encountered an error");
+                throw;
+            }
+        }
+
 
 
         // Synchronization

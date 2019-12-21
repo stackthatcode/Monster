@@ -432,7 +432,7 @@ namespace Monster.Middle.Processes.Sync.Persist
 
             var settings = Entities.MonsterSettings.First();
             dataSet = dataSet.Where(x => x.AcumaticaTaxCategory == settings.AcumaticaTaxableCategory ||
-                                         x.AcumaticaTaxCategory == settings.AcumaticaTaxableCategory);
+                                         x.AcumaticaTaxCategory == settings.AcumaticaTaxExemptCategory);
 
             foreach (var term in termList)
             {

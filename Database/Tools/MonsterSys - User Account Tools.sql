@@ -13,10 +13,12 @@ FROM AspNetUsers t1
 		ON t1.Id = t5.OwnerUserId
 
 
-
 /*SELECT * FROM AspNetUsers
 SELECT * FROM AspNetUserLogins;
 SELECT * FROM Instance;*/
 
-UPDATE AspNetUsers SET Email = 'info@logicautomated.com' WHERE Id = '0d8d758b-0815-4e92-a464-863b5c4d7291';
+/*
+EXEC dbo.DeleteUserAccount 'aleks@logicautomated.com';
+*/
+
 

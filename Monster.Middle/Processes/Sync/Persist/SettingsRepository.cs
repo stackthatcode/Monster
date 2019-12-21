@@ -97,6 +97,9 @@ namespace Monster.Middle.Processes.Sync.Persist
                     settings.SyncFulfillmentsEnabled = false;
                     settings.MaxParallelAcumaticaSyncs = 1;
                     settings.MaxNumberOfOrders = 1;
+                    settings.InventorySyncWeight = true;
+                    settings.InventorySyncPrice = true;
+                    settings.InventorySyncAvailableQty = true;
                     settings.LastRecurringSchedule = RecurringSchedule.Default.Id;
                     Entities.MonsterSettings.Add(settings);
                     return settings;

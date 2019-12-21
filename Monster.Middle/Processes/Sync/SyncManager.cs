@@ -175,7 +175,7 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
         {
-            _shopifyProductVariantPut.Run(context);
+            _shopifyProductVariantPut.RunAddToProduct(context);
         }
 
         public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)

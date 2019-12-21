@@ -480,24 +480,24 @@
                         Synchronize Available Quantity
                     </label>
                     <select class="form-control" data-bind="value: InventorySyncAvailableQty">
-                        <option value="true">Enabled</option>
-                        <option value="false">Disabled</option>
+                        <option value="1">Enabled</option>
+                        <option value="0">Disabled</option>
                     </select>
                     <hr />
                     <label>
                         Synchronize Price
                     </label>
                     <select class="form-control" data-bind="value: InventorySyncPrice">
-                        <option value="true">Enabled</option>
-                        <option value="false">Disabled</option>
+                        <option value="1">Enabled</option>
+                        <option value="0">Disabled</option>
                     </select>
                     <hr />
                     <label>
                         Synchronize Weight
                     </label>
                     <select class="form-control" data-bind="value: InventorySyncWeight">
-                        <option value="true">Enabled</option>
-                        <option value="false">Disabled</option>
+                        <option value="1">Enabled</option>
+                        <option value="0">Disabled</option>
                     </select>
                 </div>
 
@@ -527,6 +527,19 @@
         ProcessStatus: "/ProcessStatus",
     };
 
+    
+    Monster.BoolToEnabled = function (input) {
+        return input ? "ENABLED" : "DISABLED";
+    }
+    
+    Monster.BoolToBit = function (input) {
+        return input ? 1 : 0;
+    }
+        
+    Monster.BitToBool = function (input) {
+        return input == 1 ? true : false;
+    }
+
     Monster.InventorySettingsPopupModel = function () {
         var self = this;
 
@@ -539,9 +552,9 @@
                 function () {
                     var ajax = new Monster.Ajax();
                     var data = {
-                        InventorySyncAvailableQty: self.InventorySyncAvailableQty(),
-                        InventorySyncPrice: self.InventorySyncPrice(),
-                        InventorySyncWeight: self.InventorySyncWeight(),
+                        InventorySyncAvailableQty: Monster.BitToBool(self.InventorySyncAvailableQty()),
+                        InventorySyncPrice: Monster.BitToBool(self.InventorySyncPrice()),
+                        InventorySyncWeight: Monster.BitToBool(self.InventorySyncWeight()),
                     };
 
                     console.log(data);
@@ -564,9 +577,11 @@
                     ajax.HttpGet("/Sync/SyncSettingsAndEnables", this);
                 },
                 function (response) {
-                    self.InventorySyncAvailableQty(response.InventorySyncAvailableQty);
-                    self.InventorySyncPrice(response.InventorySyncPrice);
-                    self.InventorySyncWeight(response.InventorySyncWeight);
+                    console.log(response);
+
+                    self.InventorySyncAvailableQty(Monster.BoolToBit(response.InventorySyncAvailableQty));
+                    self.InventorySyncPrice(Monster.BoolToBit(response.InventorySyncPrice));
+                    self.InventorySyncWeight(Monster.BoolToBit(response.InventorySyncWeight));
 
                     $("#inventory-settings-modal").modal('show');
                 });
@@ -742,10 +757,6 @@
 
         return self;
     };
-
-    Monster.BoolToEnabled = function (input) {
-        return input ? "ENABLED" : "DISABLED";
-    }
 
     Monster.SyncSettingsModel = function () {
         var self = this;

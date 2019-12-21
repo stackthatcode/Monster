@@ -39,40 +39,47 @@ namespace Monster.Middle.Processes.Sync.Workers
             _productApi = productApi;
         }
 
-        public void Run(ShopifyAddVariantImportContext context)
+        public void RunAddToProduct(ShopifyAddVariantImportContext context)
         {
             //return; // SKOUTS HONOR
 
-            // Attempt to auto-match Item Ids SKU's that exists, and remove from context
+            // Attempt to auto-match Item Ids SKU's that exists
             //
-            AutomatchAndRemoveExistingSkus(context);
+            AutomatchExistingSkus(context);
 
-            // Creates payload for Shopify API, and removes invalid Variants
+            // Creates payload for Shopify API only including valid Variants not in Shopify
             //
-            var newVariants = CleanAndBuildVariantPayload(context.AcumaticaItemIds);
-
+            var createVariantList = CleanAndBuildVariantPayload(context.AcumaticaItemIds);
             var shopifyProductRecord = _syncInventoryRepository.RetrieveProduct(context.ShopifyProductId);
 
             // Add Variants thru Shopify API
             //
-            foreach (var newVariant in newVariants)
+            foreach (var createVariant in createVariantList)
             {
-                _logService.Log(LogBuilder.CreatingShopifyVariant(newVariant));
+                _logService.Log(LogBuilder.CreatingShopifyVariant(createVariant));
 
                 // Invoke Shopify API and create new Variant
                 //
-                var json = new { variant = newVariant }.SerializeToJson();
+                var json = new {variant = createVariant}.SerializeToJson();
                 var resultJson = _productApi.AddVariant(context.ShopifyProductId, json);
                 var result = resultJson.DeserializeFromJson<VariantParent>();
 
                 // Create Variant Record and Sync
                 //
-                var variantRecord = _shopifyInventoryGet.CreateNewVariantRecord(shopifyProductRecord.MonsterId, result.variant);
-                CreateSyncRecord(newVariant.sku.StandardizedSku(), variantRecord);
+                var variantRecord =
+                    _shopifyInventoryGet.CreateNewVariantRecord(shopifyProductRecord.MonsterId, result.variant);
+                CreateSyncRecord(createVariant.sku.StandardizedSku(), variantRecord);
+            }
 
+            // Need to refresh local cache of Product, so Inventory Levels records reflect current state
+            //
+            _shopifyInventoryGet.Run(context.ShopifyProductId);
+
+            foreach (var stockItemId in context.AcumaticaItemIds)
+            {
                 // Update the Inventory data 
                 //
-                RunInventoryUpdate(result.variant.id);
+                RunInventoryUpdate(stockItemId);
             }
         }
 
@@ -125,7 +132,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
-        private void AutomatchAndRemoveExistingSkus(ShopifyAddVariantImportContext context)
+        private void AutomatchExistingSkus(ShopifyAddVariantImportContext context)
         {
             foreach (var itemId in context.AcumaticaItemIds.ToList())
             {
@@ -138,7 +145,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                         $"Auto-matched {itemId.LogDescriptorItemId()} to {existingVariant.LogDescriptor()}");
 
                     CreateSyncRecord(itemId.StandardizedSku(), existingVariant);
-                    context.AcumaticaItemIds.Remove(itemId);
+                    //context.AcumaticaItemIds.Remove(itemId);
                 }
             }
         }

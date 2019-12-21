@@ -163,10 +163,11 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var updateDto = new VariantUpdate();
             updateDto.taxable = stockItemRecord.IsTaxable(settings).Value;
-            if (settings.InventorySyncPrice)
-            {
+            updateDto.id = variantShopifyId;
+            //if (settings.InventorySyncPrice)
+            //{
                 updateDto.price = (decimal)stockItemObj.DefaultPrice.value;
-            }
+            //}
             if (settings.InventorySyncWeight)
             {
                 updateDto.grams = stockItemObj.DimensionWeight.value.ToShopifyGrams();
