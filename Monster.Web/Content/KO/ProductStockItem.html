@@ -110,13 +110,14 @@
                             </span>
                         </div>
                     </td>
+
                     <td data-bind="text: ShopifyVariantTax"></td>
                     <td data-bind="text: Monster.NumberFormat(ShopifyVariantPrice)"></td>
                     <td data-bind="text: Monster.NumberFormat(ShopifyVariantAvailQty)"></td>
                     
                     <td style="max-width:250px;">
                         <div class="ellipsis-overflow">
-                            <a data-bind="attr: { href: AcumaticaItemUrl }">
+                            <a data-bind="attr: { href: AcumaticaItemUrl }" target="_blank">
                                 <span data-bind="text: AcumaticaItemDesc"></span><br />
                                 <span data-bind="text: AcumaticaItemId"></span>
                             </a>
