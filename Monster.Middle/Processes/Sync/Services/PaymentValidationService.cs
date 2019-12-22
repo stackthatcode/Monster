@@ -97,8 +97,8 @@ namespace Monster.Middle.Processes.Sync.Services
                     .Add(x => x.CurrentTransaction.ExistsInAcumatica(), "Refund has not been synced yet")
                     .Add(x => x.OriginalPaymentTransaction.ExistsInAcumatica(), $"Payment has not been synced yet")
                     .Add(x => x.CurrentTransaction.IsRefund(), $"Transaction Kind is not a refund")
-                    .Add(x => x.CurrentTransaction.AcumaticaPayment.AcumaticaRefNbr != AcumaticaSyncConstants.UnknownRefNbr,
-                            $"Acumatica Payment/Customer Refund has '{AcumaticaSyncConstants.UnknownRefNbr}' Reference Number");
+                    .Add(x => x.CurrentTransaction.AcumaticaPayment.AcumaticaRefNbr != AcumaticaSyncConstants.BlankRefNbr,
+                            $"Acumatica Payment/Customer Refund has '{AcumaticaSyncConstants.BlankRefNbr}' Reference Number");
 
             return validation.Run(context);
         }

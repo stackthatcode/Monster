@@ -335,7 +335,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 paymentRecord.ShopifyTransactionMonsterId = transactionRecord.Id;
                 paymentRecord.AcumaticaRefNbr 
                     = (resultPayment == null) 
-                        ? AcumaticaSyncConstants.UnknownRefNbr : resultPayment.ReferenceNbr.value;
+                        ? AcumaticaSyncConstants.BlankRefNbr : resultPayment.ReferenceNbr.value;
 
                 paymentRecord.AcumaticaDocType = payment.Type.value;
                 paymentRecord.AcumaticaAmount = (decimal)payment.PaymentAmount.value;

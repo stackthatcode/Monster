@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         {
             var validation = new Validation<CreateOrderValidation>()
                 .Add(x => x.ShopifyOrderRecord.PutErrorCount < SystemConsts.ErrorThreshold,
-                        "Encountered too many errors attempt to synchronize this Shopify Order")
+                        "Encountered too many errors attempting to synchronize this Shopify Order")
 
                 .Add(x => !x.IsFulfilledBeforeSync,
                         $"Shopify Order has been fulfilled before sync with Acumatica", instantFailure: true)

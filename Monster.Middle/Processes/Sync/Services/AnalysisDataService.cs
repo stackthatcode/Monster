@@ -139,7 +139,8 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyRefundTotal = shopifyOrder.RefundTotal;
             output.ShopifyRefundOverpayment = shopifyOrder.RefundOverpayment;
 
-            if (shopifyOrderRecord.ExistsInAcumatica())
+            if (shopifyOrderRecord.ExistsInAcumatica() &&
+                shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr != AcumaticaSyncConstants.BlankRefNbr)
             {
                 output.AcumaticaSalesOrderNbr = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr;
                 output.AcumaticaSalesOrderHref
@@ -196,7 +197,8 @@ namespace Monster.Middle.Processes.Sync.Services
 
             output.ShopifyNetPayment = order.ShopifyNetPayment();
 
-            if (order.AcumaticaSalesOrder != null)
+            if (order.AcumaticaSalesOrder != null 
+                && order.AcumaticaSalesOrder.AcumaticaOrderNbr != AcumaticaSyncConstants.BlankRefNbr)
             {
                 output.AcumaticaSalesOrderNbr = order.AcumaticaSalesOrder.AcumaticaOrderNbr;
                 output.AcumaticaSalesOrderHref =

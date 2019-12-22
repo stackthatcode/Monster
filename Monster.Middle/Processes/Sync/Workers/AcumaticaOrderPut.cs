@@ -205,35 +205,46 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             _acumaticaOrderRepository.InsertSalesOrder(newRecord);
 
-            shopifyOrderRecord.NeedsOrderPut = !newRecord.AcumaticaIsTaxValid;
+            if (!newRecord.AcumaticaIsTaxValid)
+            {
+                shopifyOrderRecord.NeedsOrderPut = true;
+            }
+            else
+            {
+                shopifyOrderRecord.NeedsOrderPut = false;
+            }
+
             shopifyOrderRecord.PutErrorCount = 0;
             _syncOrderRepository.SaveChanges();
         }
 
-        public AcumaticaSalesOrder UpdateExistingSalesOrder(long shopifyOrderId)
+        public void UpdateExistingSalesOrder(long shopifyOrderId)
         {
             var shopifyOrderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var acumaticaRecord = shopifyOrderRecord.SyncedSalesOrder();
+
+            if (acumaticaRecord.AcumaticaOrderNbr == AcumaticaSyncConstants.BlankRefNbr)
+            {
+                shopifyOrderRecord.NeedsOrderPut = !acumaticaRecord.AcumaticaIsTaxValid;
+                shopifyOrderRecord.PutErrorCount = 0;
+                _syncOrderRepository.SaveChanges();
+                return;
+            }
 
             var logContent = LogBuilder.UpdatingAcumaticaSalesOrder(shopifyOrderRecord);
             _logService.Log(logContent);
 
             var updateOrderJson = BuildSalesOrderUpdate(shopifyOrderRecord).SerializeToJson();
-
             var resultJson = _salesOrderClient.WriteSalesOrder(updateOrderJson);
-
             var salesOrder = resultJson.ToSalesOrderObj();
 
-            var acumaticaRecord = shopifyOrderRecord.SyncedSalesOrder();
             acumaticaRecord.AcumaticaIsTaxValid = salesOrder.IsTaxValid.value;
             acumaticaRecord.AcumaticaStatus = salesOrder.Status.value;
             acumaticaRecord.LastUpdated = DateTime.Now;
-            _syncOrderRepository.SaveChanges();
-
+            
             shopifyOrderRecord.NeedsOrderPut = !acumaticaRecord.AcumaticaIsTaxValid;
             shopifyOrderRecord.PutErrorCount = 0;
             _syncOrderRepository.SaveChanges();
-
-            return acumaticaRecord;
         }
 
         private void CreateBlankSalesOrderRecord(long shopifyOrderId)
@@ -243,12 +254,14 @@ namespace Monster.Middle.Processes.Sync.Workers
             var acumaticaRecord = new AcumaticaSalesOrder();
             acumaticaRecord.AcumaticaIsTaxValid = true;
             acumaticaRecord.AcumaticaStatus = "N/A";
-            acumaticaRecord.AcumaticaOrderNbr = AcumaticaSyncConstants.UnknownRefNbr;
+            acumaticaRecord.AcumaticaOrderNbr = AcumaticaSyncConstants.BlankRefNbr;
             acumaticaRecord.AcumaticaShipmentDetailsJson = String.Empty;
             acumaticaRecord.ShopifyOrder = shopifyRecord;
+            acumaticaRecord.AcumaticaCustomer = shopifyRecord.ShopifyCustomer.AcumaticaCustomer;
             acumaticaRecord.DateCreated = DateTime.UtcNow;
             acumaticaRecord.LastUpdated = DateTime.UtcNow;
 
+            _syncOrderRepository.Entities.AcumaticaSalesOrders.Add(acumaticaRecord);
             _syncOrderRepository.SaveChanges();
         }
 

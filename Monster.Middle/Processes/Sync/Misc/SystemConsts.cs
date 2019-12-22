@@ -2,6 +2,6 @@
 {
     public class SystemConsts
     {
-        public const int ErrorThreshold = 1;
+        public const int ErrorThreshold = 3;
     }
 }

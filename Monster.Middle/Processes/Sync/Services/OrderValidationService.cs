@@ -65,7 +65,7 @@ namespace Monster.Middle.Processes.Sync.Services
             var validation = new Validation<ShopifyOrder>()
                 .Add(x => x.PutErrorCount < SystemConsts.ErrorThreshold,
                         "Encountered too many errors attempting to synchronize this Order")
-                .Add(x => !x.IsEmptyOrCancelled, "Empty or Cancelled Orders cannot be updated")
+               // .Add(x => !x.IsEmptyOrCancelled, "Empty or Cancelled Orders cannot be updated")
                 .Add(x => !x.PaymentTransaction().NeedsPaymentPut, 
                         "Payment needs to be updated before updating Sales Order");
 

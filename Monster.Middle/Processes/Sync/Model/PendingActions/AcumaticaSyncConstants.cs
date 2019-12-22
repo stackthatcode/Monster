@@ -2,6 +2,6 @@
 {
     public class AcumaticaSyncConstants
     {
-        public const string UnknownRefNbr = "UNKNOWN";
+        public const string BlankRefNbr = "UNKNOWN";
     }
 }

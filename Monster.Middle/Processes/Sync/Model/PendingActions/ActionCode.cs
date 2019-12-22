@@ -21,7 +21,8 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
                 {ActionCode.CreateInAcumatica, "Pending creation in Acumatica"},
                 {ActionCode.ReleaseInAcumatica, "Pending release in Acumatica"},
                 {ActionCode.UpdateInAcumatica, "Pending update in Acumatica"},
-                {ActionCode.CreateInShopify, "Pending creation in Shopify"}
+                {ActionCode.CreateInShopify, "Pending creation in Shopify"},
+                {ActionCode.CreateBlankSyncRecord, "Pending creation in Acumatica"}
             };
 
         public static string Description(this ActionCode actionCode)
