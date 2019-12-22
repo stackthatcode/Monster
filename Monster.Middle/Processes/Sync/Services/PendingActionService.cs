@@ -15,17 +15,20 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly OrderValidationService _orderValidation;
         private readonly PaymentValidationService _paymentValidation;
+        private readonly FulfillmentStatusService _fulfillmentStatusService;
         private readonly ShopifyUrlService _urlService;
 
         public PendingActionService(
                 SyncOrderRepository orderRepository,
                 OrderValidationService orderValidation,
                 PaymentValidationService paymentValidation,
+                FulfillmentStatusService fulfillmentStatusService,
                 ShopifyUrlService urlService)
         {
             _syncOrderRepository = orderRepository;
             _orderValidation = orderValidation;
             _paymentValidation = paymentValidation;
+            _fulfillmentStatusService = fulfillmentStatusService;
             _urlService = urlService;
         }
 
@@ -61,7 +64,8 @@ namespace Monster.Middle.Processes.Sync.Services
                 if (!order.IsEmptyOrCancelled)
                 {
                     output.OrderAction.ActionCode = ActionCode.CreateInAcumatica;
-                    output.OrderAction.Validation = _orderValidation.ReadyToCreateOrder(record.ShopifyOrderId);
+                    output.OrderAction.Validation = 
+                            _orderValidation.ReadyToCreateOrder(record.ShopifyOrderId);
                     return;
                 }
 
@@ -181,15 +185,21 @@ namespace Monster.Middle.Processes.Sync.Services
             foreach (var soShipment in orderRecord.SoShipments())
             {
                 var action = new ShipmentAction();
-
                 action.ShipmentNbr = soShipment.AcumaticaShipmentNbr;
                 action.InvoiceNbr = soShipment.AcumaticaInvoiceNbr;
-                action.ActionCode 
-                    = soShipment.ShopifyFulfillment == null
-                        ? ActionCode.CreateInShopify : ActionCode.None;
-
                 action.InvoiceAmount = soShipment.AcumaticaInvoiceAmount.Value;
                 action.InvoiceTax = soShipment.AcumaticaInvoiceTax.Value;
+
+                if (soShipment.ShopifyFulfillment == null)
+                {
+                    action.ActionCode = ActionCode.CreateInShopify;
+                    action.Validation = _fulfillmentStatusService.ReadyToSync(soShipment).Result();
+                }
+                else
+                {
+                    action.ActionCode = ActionCode.None;
+                    action.Validation = new ValidationResult();
+                }
 
                 output.ShipmentInvoiceActions.Add(action);
             }

@@ -74,8 +74,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 record.ShopifyJson = transaction.SerializeToJson();
                 record.ShopifyGateway = transaction.gateway;
                 record.ShopifyAmount = transaction.amount;
-
                 record.Ignore = transaction.Ignore();
+                record.PutErrorCount = 0;
                 record.NeedsPaymentPut = !transaction.Ignore();
                 record.OrderMonsterId = orderRecord.Id;
 

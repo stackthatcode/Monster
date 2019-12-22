@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Sync.Misc;
 using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Persist
@@ -24,27 +25,29 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Order Syncing
         //
-        private IQueryable<ShopifyOrder> 
-            OrdersForPutting =>
-                Entities.ShopifyOrders
-                    .Include(x => x.ShopifyCustomer)
-                    .Include(x => x.ShopifyFulfillments)
-                    .Include(x => x.ShopifyRefunds)
-                    .Include(x => x.ShopifyTransactions);
+        private IQueryable<ShopifyOrder> OrdersForPutting(int errorThreshold = SystemConsts.ErrorThreshold)
+        {
+            return Entities.ShopifyOrders
+                .Where(x => x.PutErrorCount < errorThreshold)
+                .Include(x => x.ShopifyCustomer)
+                .Include(x => x.ShopifyFulfillments)
+                .Include(x => x.ShopifyRefunds)
+                .Include(x => x.ShopifyTransactions);
+        }
 
-        public List<long> RetrieveShopifyOrdersToPut()
+        public List<long> RetrieveShopifyOrdersToPut(int errorThreshold = SystemConsts.ErrorThreshold)
         {
             var settings = Entities.MonsterSettings.First();
             var numberOfOrders = settings.MaxNumberOfOrders;
 
-            var newOrders = OrdersForPutting
+            var newOrders = OrdersForPutting(errorThreshold)
                 .Where(x => x.AcumaticaSalesOrder == null)
                 .OrderBy(x => x.ShopifyOrderId)
                 .Take(numberOfOrders)
                 .Select(x => x.ShopifyOrderId)
                 .ToList();
 
-            var updatedOrders = OrdersForPutting
+            var updatedOrders = OrdersForPutting(errorThreshold)
                 .Where(x => x.NeedsOrderPut == true && x.AcumaticaSalesOrder != null)
                 .OrderBy(x => x.ShopifyOrderId)
                 .Select(x => x.ShopifyOrderId)
@@ -139,11 +142,13 @@ namespace Monster.Middle.Processes.Sync.Persist
                           x.ShopifyFulfillments.Any(y => !y.AcumaticaSoShipments.Any()));
         }
 
-        public List<AcumaticaSoShipment> RetrieveUnsyncedSoShipments()
+        public List<AcumaticaSoShipment> RetrieveUnsyncedSoShipments(int errorThreshold = SystemConsts.ErrorThreshold)
         {
             return Entities.AcumaticaSoShipments
                 .Include(x => x.AcumaticaSalesOrder)
-                .Where(x => x.NeedShipmentGet == false && x.ShopifyFulfillment == null)
+                .Where(x => x.PutErrorCount < errorThreshold &&
+                            x.NeedShipmentGet == false && 
+                            x.ShopifyFulfillment == null)
                 .ToList();
         }
 
@@ -151,26 +156,50 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Shopify Transactions
         //
-        public List<long> RetrieveOrdersWithUnsyncedTransactions()
+        public List<long> RetrieveOrdersWithUnsyncedTransactions(int errorTheshold = 3)
         {
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
                 .Where(x => x.Ignore == false &&
-                            x.ShopifyOrder.AcumaticaSalesOrder != null
-                            && (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
+                            x.PutErrorCount < errorTheshold &&
+                            x.ShopifyOrder.AcumaticaSalesOrder != null && 
+                            (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
                 .Select(x => x.ShopifyOrder.ShopifyOrderId)
                 .Distinct()
                 .ToList();
         }
 
-        public List<long> RetrieveOrdersWithUnreleasedTransactions()
+        public List<long> RetrieveOrdersWithUnreleasedTransactions(int errorTheshold = 3)
         {
             return Entities.ShopifyTransactions
                 .Include(x => x.ShopifyOrder)
-                .Where(x => x.AcumaticaPayment != null && x.AcumaticaPayment.IsReleased == false)
+                .Where(x => x.PutErrorCount < errorTheshold &&
+                            x.AcumaticaPayment != null && 
+                            x.AcumaticaPayment.IsReleased == false)
                 .Select(x => x.ShopifyOrder.ShopifyOrderId)
                 .Distinct()
                 .ToList();
+        }
+
+
+        public void IncreaseSoShipmentErrorCount(string invoiceNbr, string shipmentNbr)
+        {
+            var soShipment = Entities.
+                AcumaticaSoShipments
+                .First(x => x.AcumaticaInvoiceNbr == invoiceNbr &&
+                            x.AcumaticaShipmentNbr == shipmentNbr);
+            soShipment.PutErrorCount += 1;
+            Entities.SaveChanges();
+        }
+
+        public void ResetSoShipmentErrorCount(string invoiceNbr, string shipmentNbr)
+        {
+            var soShipment = Entities.
+                AcumaticaSoShipments
+                .First(x => x.AcumaticaInvoiceNbr == invoiceNbr &&
+                            x.AcumaticaShipmentNbr == shipmentNbr);
+            soShipment.PutErrorCount = 0;
+            Entities.SaveChanges();
         }
 
 
@@ -189,22 +218,44 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
 
-        public void UpdateShopifyIsBlocked(long shopifyOrderId, bool isBlocked)
+        public void UpdateShopifyOrderIsBlocked(long shopifyOrderId, bool isBlocked)
         {
             var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);
             order.IsBlocked = isBlocked;
             Entities.SaveChanges();
         }
 
-        public void UpdateShopifyHasError(long shopifyOrderId, bool hasError)
+        public void IncreaseOrderErrorCount(long shopifyOrderId)
         {
             var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);
-            order.HasError = hasError;
+            order.PutErrorCount += 1;
             Entities.SaveChanges();
         }
 
+        public void ResetOrderErrorCount(long shopifyOrderId)
+        {
+            var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);
+            order.PutErrorCount = 0;
+            Entities.SaveChanges();
+        }
+
+
         // Payment Synchronization
         //
+        public void IncreaseTransactionErrorCount(long shopifyTransactionId)
+        {
+            var order = Entities.ShopifyTransactions.First(x => x.ShopifyTransactionId == shopifyTransactionId);
+            order.PutErrorCount += 1;
+            Entities.SaveChanges();
+        }
+
+        public void ResetTransactionErrorCount(long shopifyTransactionId)
+        {
+            var order = Entities.ShopifyTransactions.First(x => x.ShopifyTransactionId == shopifyTransactionId);
+            order.PutErrorCount = 0;
+            Entities.SaveChanges();
+        }
+
         public void InsertPayment(AcumaticaPayment payment)
         {
             Entities.AcumaticaPayments.Add(payment);

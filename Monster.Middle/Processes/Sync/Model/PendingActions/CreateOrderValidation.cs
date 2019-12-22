@@ -2,6 +2,7 @@
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Order;
@@ -40,6 +41,8 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         public ValidationResult Result()
         {
             var validation = new Validation<CreateOrderValidation>()
+                .Add(x => x.ShopifyOrderRecord.PutErrorCount < SystemConsts.ErrorThreshold,
+                        "Encountered too many errors attempt to synchronize this Shopify Order")
 
                 .Add(x => !x.IsFulfilledBeforeSync,
                         $"Shopify Order has been fulfilled before sync with Acumatica", instantFailure: true)

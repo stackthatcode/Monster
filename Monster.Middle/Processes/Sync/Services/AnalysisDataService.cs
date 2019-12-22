@@ -102,7 +102,11 @@ namespace Monster.Middle.Processes.Sync.Services
 
             if (request.OrderStatus == AnalyzerStatus.Errors)
             {
-                queryable = queryable.Where(x => x.HasError == true);
+                queryable = queryable
+                    .Where(x => x.PutErrorCount > SystemConsts.ErrorThreshold ||
+                                x.AcumaticaSalesOrder
+                                    .AcumaticaSoShipments
+                                    .Any(y => y.PutErrorCount > SystemConsts.ErrorThreshold));
             }
 
             return queryable;
@@ -214,7 +218,11 @@ namespace Monster.Middle.Processes.Sync.Services
             }
 
             output.IsBlocked = order.IsBlocked;
-            output.HasError = order.HasError;
+            output.HasError
+                = order.PutErrorCount >= SystemConsts.ErrorThreshold ||
+                  (order.AcumaticaSalesOrder != null && order.AcumaticaSalesOrder
+                      .AcumaticaSoShipments.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold)) ||
+                  order.ShopifyTransactions.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold);
             return output;
         }
 

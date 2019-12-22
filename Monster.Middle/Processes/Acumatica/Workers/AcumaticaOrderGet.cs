@@ -159,6 +159,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 record.AcumaticaInvoiceAmount = null;
                 record.AcumaticaInvoiceTax = null;
                 record.NeedShipmentGet = true;
+                record.PutErrorCount = 0;
                 record.DateCreated = DateTime.UtcNow;
                 record.LastUpdated = DateTime.UtcNow;
 

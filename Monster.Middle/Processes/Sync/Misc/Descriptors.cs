@@ -3,9 +3,8 @@ using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Misc
 {
-    public static class LogDescriptors
+    public static class Descriptors
     {
-
         public static string LogDescriptor(this ShopifyProduct shopifyProduct)
         {
             return $"Shopify Product {shopifyProduct.ShopifyProductId}";

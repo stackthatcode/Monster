@@ -145,6 +145,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newOrder.NeedsTransactionGet = true;
                 newOrder.NeedsOrderPut = true;
                 newOrder.IsBlocked = false;
+                newOrder.PutErrorCount = 0;
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
@@ -154,10 +155,16 @@ namespace Monster.Middle.Processes.Shopify.Workers
             else
             {
                 existingOrder.ShopifyJson = order.SerializeToJson();
+
+                if (existingOrder.IsEmptyOrCancelled != order.IsEmptyOrCancelled ||
+                    existingOrder.ShopifyFinancialStatus != order.financial_status)
+                {
+                    existingOrder.NeedsOrderPut = true;
+                }
+
                 existingOrder.IsEmptyOrCancelled = order.IsEmptyOrCancelled;
                 existingOrder.ShopifyFinancialStatus = order.financial_status;
                 existingOrder.NeedsTransactionGet = true;
-                existingOrder.NeedsOrderPut = true;
                 existingOrder.LastUpdated = DateTime.UtcNow;
 
                 _orderRepository.SaveChanges();
@@ -210,6 +217,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 if (refundRecord == null)
                 {
+                    orderRecord.NeedsOrderPut = true;
+
                     var newRecord = new ShopifyRefund();
                     newRecord.ShopifyRefundId = refund.id;
                     newRecord.ShopifyOrderId = order.id;

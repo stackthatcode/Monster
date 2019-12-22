@@ -11,6 +11,7 @@ using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Json;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Inventory;
 using Push.Shopify.Api.Order;
@@ -26,6 +27,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ExecutionLogService _logService;
         private readonly FulfillmentStatusService _fulfillmentStatusService;
+        private readonly IPushLogger _pushLogger;
 
         public ShopifyFulfillmentPut(
                 ShopifyOrderRepository shopifyOrderRepository,
@@ -34,7 +36,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 SyncInventoryRepository syncInventoryRepository,
                 FulfillmentApi fulfillmentApi, 
                 ExecutionLogService logService, 
-                FulfillmentStatusService fulfillmentStatusService)
+                FulfillmentStatusService fulfillmentStatusService, 
+                IPushLogger pushLogger)
         {
             _shopifyOrderRepository = shopifyOrderRepository;
             _orderRepository = orderRepository;
@@ -43,6 +46,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _fulfillmentApi = fulfillmentApi;
             _logService = logService;
             _fulfillmentStatusService = fulfillmentStatusService;
+            _pushLogger = pushLogger;
         }
 
 
@@ -54,15 +58,31 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var salesOrderRef in salesOrderRefs)
             {
-                var syncReadiness = _fulfillmentStatusService.IsReadyToSyncWithShopify(salesOrderRef);
+                var syncReadiness = _fulfillmentStatusService.ReadyToSync(salesOrderRef);
 
-                if (syncReadiness.IsReady)
+                if (syncReadiness.Result().Success)
                 {
-                    PushFulfillmentToShopify(salesOrderRef);
+                    PushFulfillmentToShopifyAux(salesOrderRef);
                 }
             }
         }
 
+        private void PushFulfillmentToShopifyAux(AcumaticaSoShipment salesOrderShipment)
+        {
+            try
+            {
+                PushFulfillmentToShopify(salesOrderShipment);
+            }
+            catch (Exception ex)
+            {
+                _pushLogger.Error(ex);
+                _logService.Log($"Encounter error syncing {salesOrderShipment.LogDescriptor()}");
+                _syncOrderRepository
+                    .IncreaseSoShipmentErrorCount(
+                        salesOrderShipment.AcumaticaInvoiceNbr, salesOrderShipment.AcumaticaShipmentNbr);
+                throw;
+            }
+        }
 
         private void PushFulfillmentToShopify(AcumaticaSoShipment salesOrderShipment)
         {

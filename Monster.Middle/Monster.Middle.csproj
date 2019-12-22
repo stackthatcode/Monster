@@ -157,8 +157,9 @@
     <Compile Include="Persist\Instance\MiscPersistContext.cs" />
     <Compile Include="Misc\Logging\LogLevel.cs" />
     <Compile Include="Misc\State\StateExtensions.cs" />
+    <Compile Include="Processes\Sync\Misc\SystemConsts.cs" />
     <Compile Include="Processes\Sync\Misc\WeightCalc.cs" />
-    <Compile Include="Processes\Sync\Misc\LogDescriptors.cs" />
+    <Compile Include="Processes\Sync\Misc\Descriptors.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\StockItemPutResult.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\AcumaticaSyncConstants.cs" />
     <Compile Include="Processes\Sync\Model\Analysis\Extensions.cs" />
@@ -179,7 +180,7 @@
     <Compile Include="Processes\Sync\Model\PendingActions\OrderAction.cs" />
     <Compile Include="Processes\Sync\Model\Status\InventorySyncStatus.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\PaymentValidationContext.cs" />
-    <Compile Include="Processes\Sync\Model\Status\FullfillmentSyncReadiness.cs" />
+    <Compile Include="Processes\Sync\Model\PendingActions\CreateFullfillmentValidation.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\ActionCode.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
     <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
@@ -249,7 +250,6 @@
     <Compile Include="Processes\Sync\Workers\AcumaticaRefundPut.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaOrderPut.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaConstants.cs" />
-    <Compile Include="Processes\Sync\Model\Status\ShipmentSyncReadiness.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyTransactionGet.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyCustomerGet.cs" />
     <Compile Include="Processes\Sync\Workers\ShopifyFulfillmentPut.cs" />

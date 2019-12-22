@@ -1,12 +1,12 @@
 ﻿using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
-using Monster.Middle.Processes.Sync.Model.Status;
+using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Persist;
-using Monster.Middle.Processes.Sync.Persist.Matching;
 using Push.Foundation.Utilities.Json;
+
 
 namespace Monster.Middle.Processes.Sync.Services
 {
@@ -24,9 +24,10 @@ namespace Monster.Middle.Processes.Sync.Services
         }
 
 
-        public FulfillmentSyncReadiness IsReadyToSyncWithShopify(AcumaticaSoShipment soShipment)
+        public CreateFulfillmentValidation ReadyToSync(AcumaticaSoShipment soShipment)
         {
-            var output = new FulfillmentSyncReadiness();
+            var output = new CreateFulfillmentValidation();
+
             var salesOrder = 
                 _syncOrderRepository.RetrieveSalesOrder(soShipment.AcumaticaSalesOrder.AcumaticaOrderNbr);
             var shopifyOrderId = salesOrder.OriginalShopifyOrder().ShopifyOrderId;
@@ -59,14 +60,11 @@ namespace Monster.Middle.Processes.Sync.Services
                     output.UnmatchedVariantStockItems.Add(stockItem.ItemId);
                     continue;
                 }
-
-                var inventoryItem = variant.InventoryLevel(locationRecord.ShopifyLocationId);
-
-                if (inventoryItem.ShopifyAvailableQuantity < line.ShippedQty.value)
-                {
-                    output.VariantsWithInsuffientInventory.Add(variant.ShopifySku);
-                }
             }
+
+            // Error threshold
+            //
+            output.ErrorThresholdExceeded = soShipment.PutErrorCount >= SystemConsts.ErrorThreshold;
 
             return output;
         }

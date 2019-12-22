@@ -1,5 +1,6 @@
 ﻿using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Analysis;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
@@ -28,7 +29,9 @@ namespace Monster.Middle.Processes.Sync.Services
         private Validation<PaymentValidationContext> BuildBaseValidation()
         {
             return new Validation<PaymentValidationContext>()
-                .Add(x => x.CurrentTransaction.DoNotIgnore(), $"Transaction is not valid for synchronization");
+                .Add(x => x.CurrentTransaction.DoNotIgnore(), $"Transaction is not valid for synchronization")
+                .Add(x => x.CurrentTransaction.PutErrorCount < SystemConsts.ErrorThreshold,
+                    "Encountered too many errors attempting to synchronize this Transaction");
         }
 
         public ValidationResult ReadyToCreatePayment(ShopifyTransaction currentTransaction)

@@ -276,7 +276,9 @@
         </div>
 
         <div data-bind="foreach: ShipmentInvoiceActions">
-            <div class="alert alert-info">
+            <div class="alert" data-bind="css: {
+                     'alert-info': IsValid,
+                     'alert-danger': !IsValid}">
                 <strong>
                     Acumatica Shipment <span data-bind="text: ShipmentNbr"></span>
                     <span>-</span> Invoice <span data-bind="text: InvoiceNbr"></span>
@@ -285,6 +287,9 @@
                 <span data-bind="text:  Monster.NumberFormat(InvoiceAmount)"></span>
                 <span>-</span>
                 <span data-bind="text: ActionDesc"></span>
+                <div data-bind="foreach: Validation.FailureMessages">
+                    <div style="font-style: italic" data-bind="text: $data"></div>
+                </div>
             </div>
         </div>
     </div>

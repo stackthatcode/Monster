@@ -84,7 +84,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                     ProcessAllTransactionReleases(shopifyOrderId);
                 }
 
-                _syncOrderRepository.UpdateShopifyHasError(shopifyOrderId, false);
                 return true;
             }
             catch(Exception ex)
@@ -92,7 +91,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _systemLogger.Error(ex);
                 _logService.Log($"Encounter error syncing Payments for Shopify Order {shopifyOrderId}");
 
-                _syncOrderRepository.UpdateShopifyHasError(shopifyOrderId, true);
+                _syncOrderRepository.IncreaseOrderErrorCount(shopifyOrderId);
                 return false;
             }
         }
@@ -310,9 +309,22 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             // Push to Acumatica
             //
-            var resultJson = _paymentClient.WritePayment(payment.SerializeToJson());
-            var resultPayment = resultJson.DeserializeFromJson<PaymentWrite>();
+            string resultJson;
+            try
+            {
+                resultJson = _paymentClient.WritePayment(payment.SerializeToJson());
+                
+                _syncOrderRepository.ResetTransactionErrorCount(transactionRecord.ShopifyTransactionId);
+            }
+            catch (Exception ex)
+            {
+                _systemLogger.Error(ex);
+                _logService.Log($"Encounter error syncing {transactionRecord.LogDescriptor()}");
+                _syncOrderRepository.IncreaseTransactionErrorCount(transactionRecord.ShopifyTransactionId);
+                return;
+            }
 
+            var resultPayment = resultJson.DeserializeFromJson<PaymentWrite>();
             var existingRecord = _syncOrderRepository.RetreivePayment(transactionRecord.Id);
 
             if (existingRecord == null)

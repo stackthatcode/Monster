@@ -1,5 +1,4 @@
-﻿using Monster.Middle.Processes.Sync.Model.Status;
-using Push.Foundation.Utilities.Validation;
+﻿using Push.Foundation.Utilities.Validation;
 
 
 namespace Monster.Middle.Processes.Sync.Model.PendingActions
