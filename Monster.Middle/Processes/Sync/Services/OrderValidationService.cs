@@ -1,4 +1,5 @@
-﻿using Monster.Middle.Persist.Instance;
+﻿using System.Linq;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
@@ -65,9 +66,8 @@ namespace Monster.Middle.Processes.Sync.Services
             var validation = new Validation<ShopifyOrder>()
                 .Add(x => x.PutErrorCount < SystemConsts.ErrorThreshold,
                         "Encountered too many errors attempting to synchronize this Order")
-               // .Add(x => !x.IsEmptyOrCancelled, "Empty or Cancelled Orders cannot be updated")
-                .Add(x => !x.PaymentTransaction().NeedsPaymentPut, 
-                        "Payment needs to be updated before updating Sales Order");
+                .Add(x => !x.ShopifyTransactions.Any(y => y.NeedsPaymentPut), 
+                        "Payments/Refunds need to be synced before updating Sales Order");
 
             return validation.Run(orderRecord);
         }

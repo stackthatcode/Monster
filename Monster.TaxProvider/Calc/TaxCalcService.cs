@@ -89,6 +89,9 @@ namespace Monster.TaxProvider.Calc
 
             var otherInvoiceTaxes = invoiceTaxService.GetOtherTaxes(context.InvoiceType, context.InvoiceNbr);
 
+            // *** TODO - get the Sales Order Shipments and count Shipped Qty therefrom
+            //      ... as means to protect against multiple non-Invoiced Shipments causing OpenOrderQty == 0
+            //
             if (salesOrder.OpenOrderQty == 0)
             {
                 return InvoiceFinalTax(transfer, otherInvoiceTaxes);

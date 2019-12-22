@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Misc;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Shopify.Api.Transactions;
 
 namespace Monster.Middle.Processes.Sync.Persist
@@ -28,7 +29,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         private IQueryable<ShopifyOrder> OrdersForPutting(int errorThreshold = SystemConsts.ErrorThreshold)
         {
             return Entities.ShopifyOrders
-                .Where(x => x.PutErrorCount < errorThreshold)
+                .WhereOrderSyncErrorsBelowThreshold(errorThreshold)
                 .Include(x => x.ShopifyCustomer)
                 .Include(x => x.ShopifyFulfillments)
                 .Include(x => x.ShopifyRefunds)
@@ -146,9 +147,8 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities.AcumaticaSoShipments
                 .Include(x => x.AcumaticaSalesOrder)
-                .Where(x => x.PutErrorCount < errorThreshold &&
-                            x.NeedShipmentGet == false && 
-                            x.ShopifyFulfillment == null)
+                .WhereShipmentSyncErrorsBelowThreshold(errorThreshold)
+                .Where(x => x.NeedShipmentGet == false && x.ShopifyFulfillment == null)
                 .ToList();
         }
 
@@ -156,27 +156,28 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Shopify Transactions
         //
-        public List<long> RetrieveOrdersWithUnsyncedTransactions(int errorTheshold = 3)
+        public List<long> RetrieveSyncedOrdersWithUnsyncedTransactions(int errorTheshold = 3)
         {
-            return Entities.ShopifyTransactions
-                .Include(x => x.ShopifyOrder)
-                .Where(x => x.Ignore == false &&
-                            x.PutErrorCount < errorTheshold &&
-                            x.ShopifyOrder.AcumaticaSalesOrder != null && 
-                            (x.AcumaticaPayment == null || x.NeedsPaymentPut == true))
-                .Select(x => x.ShopifyOrder.ShopifyOrderId)
+            return Entities.ShopifyOrders
+                .Include(x => x.ShopifyTransactions)
+                .WhereOrderSyncErrorsBelowThreshold(errorTheshold)
+                .Where(x => x.AcumaticaSalesOrder != null)
+                .Where(x => x.ShopifyTransactions.Any(
+                            y => y.Ignore == false &&
+                            (y.AcumaticaPayment == null || y.NeedsPaymentPut == true)))
+                .Select(x => x.ShopifyOrderId)
                 .Distinct()
                 .ToList();
         }
 
         public List<long> RetrieveOrdersWithUnreleasedTransactions(int errorTheshold = 3)
         {
-            return Entities.ShopifyTransactions
-                .Include(x => x.ShopifyOrder)
-                .Where(x => x.PutErrorCount < errorTheshold &&
-                            x.AcumaticaPayment != null && 
-                            x.AcumaticaPayment.IsReleased == false)
-                .Select(x => x.ShopifyOrder.ShopifyOrderId)
+            return Entities.ShopifyOrders
+                .Include(x => x.ShopifyTransactions)
+                .WhereOrderSyncErrorsBelowThreshold(errorTheshold)
+                .Where(x => x.ShopifyTransactions
+                            .Any(y => y.AcumaticaPayment != null && y.AcumaticaPayment.IsReleased == false))
+                .Select(x => x.ShopifyOrderId)
                 .Distinct()
                 .ToList();
         }
@@ -268,6 +269,21 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .AcumaticaPayments
                 .FirstOrDefault(x => x.ShopifyTransactionMonsterId == shopifyTransactionMonsterId);
         }
+
+        public void UpdateUnknownPaymentRecord(long shopifyTransactionMonsterId, string paymentNbr)
+        {
+            var payment = RetreivePayment(shopifyTransactionMonsterId);
+            payment.AcumaticaRefNbr = paymentNbr;
+            Entities.SaveChanges();
+        }
+
+        public void DeleteErroneousPaymentRecord(long shopifyTransactionMonsterId)
+        {
+            var payment = RetreivePayment(shopifyTransactionMonsterId);
+            Entities.AcumaticaPayments.Remove(payment);
+            Entities.SaveChanges();
+        }
+
 
         public void PaymentIsReleased(long shopifyTransactionMonsterId)
         {

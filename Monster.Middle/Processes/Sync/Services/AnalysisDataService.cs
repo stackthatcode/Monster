@@ -81,10 +81,11 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 if (term.IsLong())
                 {
-                    var shopifyOrderId = term.ToLong();
+                    var longIdentifier = term.ToLong();
                     queryable = queryable.Where(
-                        x => x.ShopifyOrderId == shopifyOrderId ||
+                        x => x.ShopifyOrderId == longIdentifier ||
                              x.ShopifyOrderNumber.Contains(term) ||
+                             x.ShopifyTransactions.Any(y => y.ShopifyTransactionId == longIdentifier) ||
                              x.AcumaticaSalesOrder.AcumaticaOrderNbr.Contains(term));
                 }
                 else
@@ -103,10 +104,12 @@ namespace Monster.Middle.Processes.Sync.Services
             if (request.OrderStatus == AnalyzerStatus.Errors)
             {
                 queryable = queryable
-                    .Where(x => x.PutErrorCount > SystemConsts.ErrorThreshold ||
+                    .Where(x => x.PutErrorCount >= SystemConsts.ErrorThreshold ||
+                                x.ShopifyTransactions
+                                    .Any(y => y.PutErrorCount >= SystemConsts.ErrorThreshold) ||
                                 x.AcumaticaSalesOrder
                                     .AcumaticaSoShipments
-                                    .Any(y => y.PutErrorCount > SystemConsts.ErrorThreshold));
+                                    .Any(y => y.PutErrorCount >= SystemConsts.ErrorThreshold));
             }
 
             return queryable;
@@ -220,11 +223,7 @@ namespace Monster.Middle.Processes.Sync.Services
             }
 
             output.IsBlocked = order.IsBlocked;
-            output.HasError
-                = order.PutErrorCount >= SystemConsts.ErrorThreshold ||
-                  (order.AcumaticaSalesOrder != null && order.AcumaticaSalesOrder
-                      .AcumaticaSoShipments.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold)) ||
-                  order.ShopifyTransactions.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold);
+            output.HasError = order.HasErrorsPastThreshold();
             return output;
         }
 

@@ -1,11 +1,20 @@
 ﻿using System.Linq;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class OrderExtensions
     {
+        public static bool HasErrorsPastThreshold(this ShopifyOrder order)
+        {
+            return order.PutErrorCount >= SystemConsts.ErrorThreshold ||
+                   (order.AcumaticaSalesOrder != null && order.AcumaticaSalesOrder
+                        .AcumaticaSoShipments.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold)) ||
+                   order.ShopifyTransactions.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold);
+        }
+
+
         public static AcumaticaSalesOrder SyncedSalesOrder(this ShopifyOrder order)
         {
             return order.AcumaticaSalesOrder;

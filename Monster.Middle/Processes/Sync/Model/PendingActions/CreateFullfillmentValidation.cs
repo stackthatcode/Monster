@@ -17,7 +17,7 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
                     "Corrupted state - fulfillments were created in Shopify by other means")
                 .Add(x => !x.WarehouseLocationUnmatched, "Unmatched Warehouse Locations")
                 .Add(x => x.UnmatchedVariantStockItems.Count == 0, "Unmatched Variants and Stock Items")
-                .Add(x => !x.ErrorThresholdExceeded, "Encountered too many errors attempt to synchronize Acumatica Shipment");
+                .Add(x => !x.ErrorThresholdExceeded, "Encountered too many errors attempting to synchronize Acumatica Shipment");
             return validation.Run(this);
         }
 

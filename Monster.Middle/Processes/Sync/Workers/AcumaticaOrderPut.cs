@@ -121,14 +121,11 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _systemLogger.Debug($"AcumaticaOrderPut -> RunOrder({shopifyOrderId})");
 
                 var orderAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
-                //_syncOrderRepository.UpdateShopifyOrderIsBlocked(shopifyOrderId, !orderAction.IsValid);
-
                 if (orderAction.ActionCode == ActionCode.UpdateInAcumatica)
                 {
                     // Attempt to update Payment (amounts applied to Order as needed)
                     //
                     _acumaticaOrderPaymentPut.ProcessOrder(shopifyOrderId);
-                    orderAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
                 }
 
                 if (!orderAction.IsValid)
@@ -148,7 +145,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                     // Re-validate and attempt to 
                     //
                     var nextValidation = _orderValidation.ReadyToUpdateOrder(shopifyOrderId);
-                    _syncOrderRepository.UpdateShopifyOrderIsBlocked(shopifyOrderId, nextValidation.Failed);
                     if (nextValidation.Failed)
                     {
                         return;
@@ -365,8 +361,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Freight Price and Taxes
             //
-            salesOrder.FreightPrice 
-                = ((double)shopifyOrder.NetShippingTotal).ToValue();
+            salesOrder.FreightPrice = ((double)shopifyOrder.NetShippingTotal).ToValue();
 
             salesOrder.OverrideFreightPrice = true.ToValue();
             salesOrder.FreightTaxCategory = shopifyOrder.IsShippingTaxable

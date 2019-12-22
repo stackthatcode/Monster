@@ -50,7 +50,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void RunAutomatic()
         {
-            var processingList = _syncOrderRepository.RetrieveOrdersWithUnsyncedTransactions();
+            var processingList = _syncOrderRepository.RetrieveSyncedOrdersWithUnsyncedTransactions();
             processingList.AddRange(_syncOrderRepository.RetrieveOrdersWithUnreleasedTransactions());
 
             var shopifyOrderIds = processingList.Distinct().OrderBy(x => x);
@@ -162,7 +162,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-
         private void ProcessAllTransactionReleases(long shopifyOrderId)
         {
             var status = _pendingActionService.Create(shopifyOrderId);
@@ -182,12 +181,10 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var transaction
                     = _syncOrderRepository
                         .RetrieveShopifyTransactionWithNoTracking(status.ShopifyTransactionId);
-
                 _logService.Log(LogBuilder.ReleasingTransaction(transaction));
                 PushReleaseAndUpdateSync(transaction);
             }
         }
-
 
         private PaymentWrite BuildPaymentForCreate(ShopifyTransaction transactionRecord)
         {
@@ -247,14 +244,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Applied To Order
             var paymentMinusRefundsAndDebits = order.NetRemainingPayment();
 
-            // Doing this to force Acumatica to load the Payment into the cache
-            //
-            var paymentInAcumatica = _paymentClient.RetrievePayment(paymentNbr, PaymentType.Payment);
-
-            // *** On hold for now - until Invoices are Released, Acumatica will error on certain API calls
-            //var appliedToDocuments = paymentInAcumatica.AppliedToDocuments.value;
-            //var appliedToOrder = paymentMinusRefundsAndDebits - (decimal)appliedToDocuments;
-
             // Create the payload for Acumatica
             //
             var payment = new PaymentWrite();
@@ -297,6 +286,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                         acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double)transaction.amount);
 
             // Amounts
+            //
             refundPayment.PaymentMethod = paymentGateway.AcumaticaPaymentMethod.ToValue();
             refundPayment.CashAccount = paymentGateway.AcumaticaCashAccount.ToValue();
             refundPayment.Description = $"Refund for Order #{order.ShopifyOrderNumber} (TransId #{transaction.id})".ToValue();
@@ -333,9 +323,17 @@ namespace Monster.Middle.Processes.Sync.Workers
                 //
                 var paymentRecord = new AcumaticaPayment();
                 paymentRecord.ShopifyTransactionMonsterId = transactionRecord.Id;
-                paymentRecord.AcumaticaRefNbr 
-                    = (resultPayment == null) 
-                        ? AcumaticaSyncConstants.BlankRefNbr : resultPayment.ReferenceNbr.value;
+
+                if (resultPayment == null)
+                {
+                    // Workaround for Acumatica Bug
+                    //
+                    paymentRecord.AcumaticaRefNbr = AcumaticaSyncConstants.UnknownRefNbr;
+                }
+                else
+                {
+                    paymentRecord.AcumaticaRefNbr = resultPayment.ReferenceNbr.value;
+                }
 
                 paymentRecord.AcumaticaDocType = payment.Type.value;
                 paymentRecord.AcumaticaAmount = (decimal)payment.PaymentAmount.value;
@@ -356,11 +354,48 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         private void PushReleaseAndUpdateSync(ShopifyTransaction transactionRecord)
         {
-            var acumaticaPayment = transactionRecord.AcumaticaPayment;
-            _paymentClient.ReleasePayment(acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType);
-            _syncOrderRepository.PaymentIsReleased(acumaticaPayment.ShopifyTransactionMonsterId);
+            try
+            {
+                // Workarounds for Acumatica bug that prevents storage of Payment Nbr
+                //
+                var acumaticaPayment = transactionRecord.AcumaticaPayment;
+                if (acumaticaPayment.AcumaticaRefNbr == AcumaticaSyncConstants.UnknownRefNbr)
+                {
+                    var paymentRef = transactionRecord.ShopifyTransactionId.ToString();
+                    var payments = _paymentClient.RetrievePaymentByPaymentRef(paymentRef);
+
+                    if (payments.Count == 0)
+                    {
+                        _syncOrderRepository.DeleteErroneousPaymentRecord(transactionRecord.Id);
+
+                        throw new Exception(
+                            $"Shopify Transaction {transactionRecord.Id} sync to Acumatica Payment false record detected");
+                    }
+                    if (payments.Count > 1)
+                    {
+                        throw new Exception(
+                            $"Multiple Acumatica Payment records with Payment Ref {paymentRef}");
+                    }
+
+                    var correctedPaymentNbr = payments.First().ReferenceNbr.value;
+                    _syncOrderRepository.UpdateUnknownPaymentRecord(transactionRecord.Id, correctedPaymentNbr);
+                    acumaticaPayment.AcumaticaRefNbr = correctedPaymentNbr;
+                }
+                
+                // Release the actual Payment
+                //
+                _paymentClient.ReleasePayment(acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType);
+                _syncOrderRepository.PaymentIsReleased(acumaticaPayment.ShopifyTransactionMonsterId);
+                _syncOrderRepository.ResetTransactionErrorCount(transactionRecord.ShopifyTransactionId);
+            }
+            catch (Exception ex)
+            {
+                _systemLogger.Error(ex);
+                _logService.Log($"Encounter error syncing {transactionRecord.LogDescriptor()}");
+                _syncOrderRepository.IncreaseTransactionErrorCount(transactionRecord.ShopifyTransactionId);
+                return;
+            }
         }
     }
 }
-
 

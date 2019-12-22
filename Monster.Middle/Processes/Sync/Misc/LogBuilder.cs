@@ -107,7 +107,7 @@ namespace Monster.Middle.Processes.Sync.Misc
 
         public static string SkippingInvalidShopifyOrder(long shopifyOrderId)
         {
-            return $"Shopify Order {shopifyOrderId} block from writing to Acumatica";
+            return $"Shopify Order {shopifyOrderId} is blocked from syncing to Acumatica";
         }
     }
 }

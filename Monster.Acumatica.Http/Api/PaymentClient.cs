@@ -1,4 +1,5 @@
-﻿using Monster.Acumatica.Api.Common;
+﻿using System.Collections.Generic;
+using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Http;
 using Push.Foundation.Utilities.Json;
 
@@ -31,6 +32,14 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get(path);
             return response.Body.DeserializeFromJson<Payment.Payment>();
         }
+
+        public List<Payment.Payment> RetrievePaymentByPaymentRef(string paymentRef)
+        {
+            var path = $"Payment?$filter=PaymentRef eq '{paymentRef}'";
+            var response = _httpContext.Get(path);
+            return response.Body.DeserializeFromJson<List<Payment.Payment>>();
+        }
+
 
         public string ReleasePayment(string referenceNbr, string paymentType)
         {
