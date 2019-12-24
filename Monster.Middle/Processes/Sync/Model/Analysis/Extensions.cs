@@ -40,7 +40,7 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
 
         public static bool IsPaymentSynced(this ShopifyOrder order)
         {
-            return order.PaymentTransaction().AcumaticaPayment != null;
+            return order.PaymentTransaction()?.AcumaticaPayment != null;
         }
 
         public static decimal AcumaticaPaymentAmount(this ShopifyOrder order)
@@ -60,12 +60,12 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
 
         public static decimal AcumaticaInvoiceTaxTotal(this ShopifyOrder order)
         {
-            return order.AcumaticaSalesOrder.AcumaticaSoShipments.Sum(x => x.AcumaticaInvoiceTax ?? 0m);
+            return order.AcumaticaSalesOrder?.AcumaticaSoShipments.Sum(x => x.AcumaticaInvoiceTax ?? 0m) ?? 0m;
         }
 
         public static decimal AcumaticaInvoiceTotal(this ShopifyOrder order)
         {
-            return order.AcumaticaSalesOrder.AcumaticaSoShipments.Sum(x => x.AcumaticaInvoiceAmount ?? 0m);
+            return order.AcumaticaSalesOrder?.AcumaticaSoShipments.Sum(x => x.AcumaticaInvoiceAmount ?? 0m) ?? 0m;
         }
     }
 }

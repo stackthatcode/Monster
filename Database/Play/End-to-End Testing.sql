@@ -55,6 +55,20 @@ UPDATE AcumaticaSoShipment SET PutErrorCount = 0;
 */
 
 SELECT ShopifyOrderId, ShopifyOrderNumber, NeedsOrderPut, PutErrorCount FROM ShopifyORder;
+SELECT ShopifyTransactionId, ShopifyOrderId, ShopifySTatus, ShopifyKind, NeedsPaymentPut, PutErrorCount FROM ShopifyTransaction;
+
 SELECT AcumaticaShipmentNbr, AcumaticaInvoiceNbr, AcumaticaInvoiceType, PutErrorCount FROM AcumaticaSoShipment;
+
+SELECT ShopifyOrderId, ShopifyOrderNumber, NeedsOrderPut, PutErrorCount 
+FROM ShopifyORder WHERE ShopifyOrderId = 1886864834604;
+
+SELECT * FROM AcumaticaSalesOrder;
+
+
+SELECT Id, ShopifyTransactionId, ShopifyOrderId, ShopifyStatus, ShopifyKind, NeedsPaymentPut, PutErrorCount
+FROM ShopifyTransaction 
+WHERE Id IN (SELECT ShopifyTransactionMonsterId FROM AcumaticaPayment WHERE AcumaticaRefNbr = 'UNKNOWN');
+
+UPDATE ShopifyTransaction SET PutErrorCount = 0 WHERE ShopifyTransactionId = 2427870183468;
 
 

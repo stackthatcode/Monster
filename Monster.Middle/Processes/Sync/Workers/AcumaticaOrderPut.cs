@@ -126,6 +126,10 @@ namespace Monster.Middle.Processes.Sync.Workers
                     // Attempt to update Payment (amounts applied to Order as needed)
                     //
                     _acumaticaOrderPaymentPut.ProcessOrder(shopifyOrderId);
+
+                    // *** DANGEROUS - imperative style programming
+                    //
+                    orderAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
                 }
 
                 if (!orderAction.IsValid)
@@ -138,25 +142,20 @@ namespace Monster.Middle.Processes.Sync.Workers
                 {
                     CreateSalesOrder(shopifyOrderId);
                     _acumaticaOrderPaymentPut.ProcessOrder(shopifyOrderId);
+                    return;
                 }
 
                 if (orderAction.ActionCode == ActionCode.UpdateInAcumatica)
                 {
-                    // Re-validate and attempt to 
-                    //
-                    var nextValidation = _orderValidation.ReadyToUpdateOrder(shopifyOrderId);
-                    if (nextValidation.Failed)
-                    {
-                        return;
-                    }
-
                     // Update the Sales Order
                     UpdateExistingSalesOrder(shopifyOrderId);
+                    return;
                 }
 
                 if (orderAction.ActionCode == ActionCode.CreateBlankSyncRecord)
                 {
                     CreateBlankSalesOrderRecord(shopifyOrderId);
+                    return;
                 }
             }
             catch (Exception ex)

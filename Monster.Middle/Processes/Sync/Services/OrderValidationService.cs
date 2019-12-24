@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Sync.Services
         public ValidationResult ReadyToCreateOrder(long shopifyOrderId)
         {
             var output = new CreateOrderValidation();
-            var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var settings = _settingsRepository.RetrieveSettings();
 
             // If the Starting Shopify Order weren't populated, we would not be here i.e.
@@ -53,7 +53,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
         public ValidationResult ReadyToCreateBlankOrder(long shopifyOrderId)
         {
-            var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var validation = new Validation<ShopifyOrder>()
                 .Add(x => x.IsEmptyOrCancelled, "This is not an actual empty or cancelled Shopify Order");
             return validation.Run(orderRecord);
@@ -62,7 +62,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
         public ValidationResult ReadyToUpdateOrder(long shopifyOrderId)
         {
-            var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+            var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var validation = new Validation<ShopifyOrder>()
                 .Add(x => x.PutErrorCount < SystemConsts.ErrorThreshold,
                         "Encountered too many errors attempting to synchronize this Order")

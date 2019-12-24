@@ -148,25 +148,25 @@ namespace Monster.Middle.Processes.Sync.Services
                 output.AcumaticaSalesOrderNbr = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr;
                 output.AcumaticaSalesOrderHref
                     = _acumaticaUrlService.AcumaticaSalesOrderUrl(
-                            SalesOrderType.SO, shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr);
+                        SalesOrderType.SO, shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr);
 
                 if (includeAcumaticaTotals)
                 {
                     InjectTotalsFromAcumatica(shopifyOrderRecord, output);
                 }
-
-                output.AcumaticaPaymentTotal = shopifyOrderRecord.AcumaticaPaymentAmount();
-                output.AcumaticaRefundPaymentTotal = shopifyOrderRecord.AcumaticaCustomerRefundTotal();
-                output.AcumaticaNetPaymentTotal = shopifyOrderRecord.AcumaticaNetPaymentAmount();
-
-                //output.AcumaticaCreditTotal
-                //output.AcumaticaRefundDebitTotal
-                //output.AcumaticaCreditDebitMemoTotal
-
-                output.AcumaticaInvoiceTaxTotal = shopifyOrderRecord.AcumaticaInvoiceTaxTotal();
-                output.AcumaticaInvoiceTotal = shopifyOrderRecord.AcumaticaInvoiceTotal();
             }
 
+            output.AcumaticaPaymentTotal = shopifyOrderRecord.AcumaticaPaymentAmount();
+            output.AcumaticaRefundPaymentTotal = shopifyOrderRecord.AcumaticaCustomerRefundTotal();
+            output.AcumaticaNetPaymentTotal = shopifyOrderRecord.AcumaticaNetPaymentAmount();
+
+            //output.AcumaticaCreditTotal
+            //output.AcumaticaRefundDebitTotal
+            //output.AcumaticaCreditDebitMemoTotal
+
+            output.AcumaticaInvoiceTaxTotal = shopifyOrderRecord.AcumaticaInvoiceTaxTotal();
+            output.AcumaticaInvoiceTotal = shopifyOrderRecord.AcumaticaInvoiceTotal();
+            
             return output;
         }
 
@@ -200,27 +200,27 @@ namespace Monster.Middle.Processes.Sync.Services
 
             output.ShopifyNetPayment = order.ShopifyNetPayment();
 
-            if (order.AcumaticaSalesOrder != null 
+            if (order.AcumaticaSalesOrder != null
                 && order.AcumaticaSalesOrder.AcumaticaOrderNbr != AcumaticaSyncConstants.BlankRefNbr)
             {
                 output.AcumaticaSalesOrderNbr = order.AcumaticaSalesOrder.AcumaticaOrderNbr;
                 output.AcumaticaSalesOrderHref =
                     _acumaticaUrlService.AcumaticaSalesOrderUrl(
-                            SalesOrderType.SO, order.AcumaticaSalesOrder.AcumaticaOrderNbr);
-
-                if (order.IsPaymentSynced())
-                {
-                    output.AcumaticaOrderPayment = order.AcumaticaPaymentAmount();
-                    output.AcumaticaNetPayment = order.AcumaticaNetPaymentAmount();
-                }
-                else
-                {
-                    output.AcumaticaOrderPayment = 0.00m;
-                    output.AcumaticaNetPayment = 0.00m;
-                }
-
-                output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal();
+                        SalesOrderType.SO, order.AcumaticaSalesOrder.AcumaticaOrderNbr);
             }
+
+            if (order.IsPaymentSynced())
+            {
+                output.AcumaticaOrderPayment = order.AcumaticaPaymentAmount();
+                output.AcumaticaNetPayment = order.AcumaticaNetPaymentAmount();
+            }
+            else
+            {
+                output.AcumaticaOrderPayment = 0.00m;
+                output.AcumaticaNetPayment = 0.00m;
+            }
+
+            output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal();
 
             output.IsBlocked = order.IsBlocked;
             output.HasError = order.HasErrorsPastThreshold();
