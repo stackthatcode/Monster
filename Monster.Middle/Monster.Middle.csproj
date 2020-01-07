@@ -274,7 +274,7 @@
     <Compile Include="MiddleAutofac.cs" />
     <Compile Include="Persist\Instance\ProcessPersistContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Misc\External\ExternalServiceRepository.cs" />
+    <Compile Include="Misc\External\CredentialsRepository.cs" />
     <Compile Include="Misc\Acumatica\AcumaticaTimeZone.cs" />
     <Compile Include="Misc\Shopify\ShopifyTimeZoneTranslator.cs" />
     <Compile Include="Misc\Acumatica\AcumaticaTimeZoneService.cs" />

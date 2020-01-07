@@ -4,9 +4,9 @@ namespace Monster.Middle.Misc.Acumatica
 {
     public class AcumaticaUrlService
     {
-        private readonly ExternalServiceRepository _connectionRepository;
+        private readonly CredentialsRepository _connectionRepository;
 
-        public AcumaticaUrlService(ExternalServiceRepository connectionRepository)
+        public AcumaticaUrlService(CredentialsRepository connectionRepository)
         {
             _connectionRepository = connectionRepository;
         }

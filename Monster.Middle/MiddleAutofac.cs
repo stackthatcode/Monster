@@ -101,7 +101,7 @@ namespace Monster.Middle
         {
             // External Services
             //
-            builder.RegisterType<ExternalServiceRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<CredentialsRepository>().InstancePerLifetimeScope();
 
             // Hangfire 
             //

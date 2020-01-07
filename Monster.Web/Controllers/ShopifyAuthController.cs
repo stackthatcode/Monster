@@ -27,7 +27,7 @@ namespace Monster.Web.Controllers
     public class ShopifyAuthController : Controller
     {
         private readonly OAuthApi _oAuthApi;
-        private readonly ExternalServiceRepository _connectionRepository;
+        private readonly CredentialsRepository _connectionRepository;
         private readonly InstanceContext _connectionContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
         private readonly IdentityService _identityService;
@@ -58,7 +58,7 @@ namespace Monster.Web.Controllers
 
         public ShopifyAuthController(
                 OAuthApi oAuthApi, 
-                ExternalServiceRepository connectionRepository,
+                CredentialsRepository connectionRepository,
                 InstanceContext connectionContext,
                 ShopifyHttpContext shopifyHttpContext, 
                 IdentityService identityService,
@@ -145,6 +145,7 @@ namespace Monster.Web.Controllers
             // update using System State Repository
             //
             var userId = _provisioningService.RetrieveUserIdByShopifyDomain(shop);
+
             var identity = _identityService.HydrateIdentity(userId);
             if (!identity.IsAuthenticated)
             {

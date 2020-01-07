@@ -59,7 +59,7 @@ namespace Push.Foundation.Utilities.Security
             byte[] rawPlaintext = System.Text.Encoding.Unicode.GetBytes(input);
 
             // Check arguments.
-            if (input == null || input.Length <= 0)
+            if (input == null)
                 throw new ArgumentNullException("plainText");
             if (Key == null || Key.Length <= 0)
                 throw new ArgumentNullException("Key");

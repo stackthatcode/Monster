@@ -29,7 +29,8 @@ namespace Push.Foundation
         private void shopifyConfig_Click(object sender, EventArgs e)
         {
             // *** COME ON, PUT THE TEXT IN SEPARATE FIELDS
-
+            // ... UPDATE 1/7/2020 - Or rly??
+            //
             textShopifyXml.Text =
                 $@"<shopifyCredentials 
     xdt:Transform=""Replace""
@@ -117,7 +118,7 @@ namespace Push.Foundation
                     var contextLoader = scope.Resolve<InstanceContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<ExternalServiceRepository>();
+                    var repository = scope.Resolve<CredentialsRepository>();
 
                     repository.CreateIfMissing();
                     repository.UpdateShopifyCredentials(
@@ -150,7 +151,7 @@ namespace Push.Foundation
                     var contextLoader = scope.Resolve<InstanceContext>();
                     contextLoader.InitializePersistOnly(tenantId);
 
-                    var repository = scope.Resolve<ExternalServiceRepository>();
+                    var repository = scope.Resolve<CredentialsRepository>();
 
                     repository.CreateIfMissing();
                     repository.UpdateAcumaticaCredentials(
@@ -228,7 +229,7 @@ namespace Push.Foundation
 
                 var persistContext = scope.Resolve<ProcessPersistContext>();
 
-                var repository = scope.Resolve<ExternalServiceRepository>();
+                var repository = scope.Resolve<CredentialsRepository>();
                 var connection = repository.Retrieve();
 
                 var notset = "(not set)";

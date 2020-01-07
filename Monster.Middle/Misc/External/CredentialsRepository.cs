@@ -9,15 +9,14 @@ using Push.Shopify.Http.Credentials;
 
 namespace Monster.Middle.Misc.External
 {
-    public class ExternalServiceRepository
+    public class CredentialsRepository
     {
         private readonly ProcessPersistContext _dataContext;
         public MonsterDataContext Entities => _dataContext.Entities;
 
         private readonly ICryptoService _cryptoService;
 
-        public ExternalServiceRepository(
-                ProcessPersistContext dataContext, ICryptoService cryptoService)
+        public CredentialsRepository(ProcessPersistContext dataContext, ICryptoService cryptoService)
         {
             _dataContext = dataContext;
             _cryptoService = cryptoService;
@@ -92,9 +91,7 @@ namespace Monster.Middle.Misc.External
         }
         
         public void UpdateShopifyCredentials(
-                string shopifyDomain,
-                string shopifyApiKey,
-                string shopifyApiPassword,
+                string shopifyDomain, string shopifyApiKey, string shopifyApiPassword,
                 string shopifyApiSecret)
         {
             var context = Retrieve();
@@ -112,9 +109,7 @@ namespace Monster.Middle.Misc.External
         }
 
         public void UpdateShopifyCredentials(
-                string shopifyDomain,
-                string shopifyAccessToken,
-                string shopifyAuthCodeHash)
+                string shopifyDomain, string shopifyAccessToken, string shopifyAuthCodeHash)
         {
             var context = Retrieve();
             var encryptedAccessToken = _cryptoService.Encrypt(shopifyAccessToken);

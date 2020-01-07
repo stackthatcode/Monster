@@ -11,7 +11,7 @@ namespace Monster.Middle.Persist.Instance
     public class InstanceContext
     {
         private readonly MasterRepository _systemRepository;
-        private readonly ExternalServiceRepository _connectionRepository;
+        private readonly CredentialsRepository _connectionRepository;
         private readonly ProcessPersistContext _processPersistContext;
         private readonly MiscPersistContext _miscPersistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
@@ -29,7 +29,7 @@ namespace Monster.Middle.Persist.Instance
                 MasterRepository systemRepository, 
                 ProcessPersistContext processPersistContext,
                 MiscPersistContext miscPersistContext,
-                ExternalServiceRepository connectionRepository,
+                CredentialsRepository connectionRepository,
                 ShopifyHttpContext shopifyHttpContext,
                 StateRepository stateRepository,
                 AcumaticaHttpContext acumaticaHttpContext)

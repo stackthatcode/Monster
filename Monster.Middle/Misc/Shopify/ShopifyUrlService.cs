@@ -4,9 +4,9 @@ namespace Monster.Middle.Misc.Shopify
 {
     public class ShopifyUrlService
     {
-        private readonly ExternalServiceRepository _connectionRepository;
+        private readonly CredentialsRepository _connectionRepository;
 
-        public ShopifyUrlService(ExternalServiceRepository connectionRepository)
+        public ShopifyUrlService(CredentialsRepository connectionRepository)
         {
             _connectionRepository = connectionRepository;
         }

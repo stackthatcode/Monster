@@ -24,7 +24,7 @@ namespace Monster.Web.Controllers
     [Authorize(Roles = "ADMIN, USER")]
     public class ConfigController : Controller
     {
-        private readonly ExternalServiceRepository _connectionRepository;
+        private readonly CredentialsRepository _connectionRepository;
         private readonly StateRepository _stateRepository;
 
         private readonly ExecutionLogService _logRepository;
@@ -38,7 +38,7 @@ namespace Monster.Web.Controllers
         private readonly ShopifyPaymentGatewayService _gatewayService;
 
         public ConfigController(
-                ExternalServiceRepository connectionRepository,
+                CredentialsRepository connectionRepository,
                 StateRepository stateRepository,
                 ExecutionLogService logRepository,
                 OneTimeJobScheduler oneTimeJobService,

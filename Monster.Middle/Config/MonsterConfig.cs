@@ -1,15 +1,12 @@
 ﻿using System.Collections;
 using System.Configuration;
-using Push.Foundation.Utilities.Security;
 
 namespace Monster.Middle.Config
 {    
     public class MonsterConfig : ConfigurationSection
     {
-        private static readonly
-            Hashtable _settings =
-                (Hashtable)ConfigurationManager
-                    .GetSection("monsterConfig") ?? new Hashtable();
+        private static readonly Hashtable _settings =
+                (Hashtable)ConfigurationManager.GetSection("monsterConfig") ?? new Hashtable();
 
         public static MonsterConfig Settings { get; } = new MonsterConfig();
 
