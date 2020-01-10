@@ -16,12 +16,13 @@ namespace Monster.ConsoleApp
         // Provisioning and user management functions
         //
         private const string HydrateSecurityConfigOption = "11";
-        private const string ListInstancesOption = "12";
-        private const string ProvisionNewUserAccountOption = "13";
-        private const string AssignInstanceToAccountOption = "14";
-        private const string RevokeInstanceOption = "15";
-        private const string EnableInstanceOption = "16";
-        private const string DisableInstanceOption = "17";
+        private const string RegisterInstanceOption = "12";
+        private const string ListInstancesOption = "13";
+        private const string ProvisionNewUserAccountOption = "14";
+        private const string AssignInstanceToAccountOption = "15";
+        private const string RevokeInstanceOption = "16";
+        private const string EnableInstanceOption = "17";
+        private const string DisableInstanceOption = "18";
 
         // Testing functions
         //
@@ -61,7 +62,8 @@ namespace Monster.ConsoleApp
             //
             Console.WriteLine();
             Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
-            Console.WriteLine($"{ListInstancesOption} - List all Monster Instances");
+            Console.WriteLine($"{RegisterInstanceOption} - Register a new Instance database");
+            Console.WriteLine($"{ListInstancesOption} - List all Instances");
             Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
             Console.WriteLine($"{AssignInstanceToAccountOption} - Assign Instance to Account");
             Console.WriteLine($"{RevokeInstanceOption} - Revoke Instance by Domain");
@@ -91,10 +93,12 @@ namespace Monster.ConsoleApp
 
             // Provisioning and user management functions
             //
-            if (input == ProvisionNewUserAccountOption)
-                SystemUtilities.ProvisionNewUserAccount();
             if (input == HydrateSecurityConfigOption)
                 SystemUtilities.HydrateSecurityConfig();
+            if (input == RegisterInstanceOption)
+                SystemUtilities.RegisterInstance();
+            if (input == ProvisionNewUserAccountOption)
+                SystemUtilities.ProvisionNewUserAccount();
             if (input == AssignInstanceToAccountOption)
                 SystemUtilities.AssignInstance();
             if (input == RevokeInstanceOption)

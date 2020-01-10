@@ -9,14 +9,14 @@ namespace Monster.Middle.Persist.Instance
 
         public MonsterDataContext Entities { get; private set; }
 
-        public void Initialize(string connectionString)
+        public void Initialize(string instanceDB)
         {
             if (Entities != null)
             {
                 throw new Exception("InstancePersistContext already initialized");
             }
 
-            ConnectionString = connectionString;
+            ConnectionString = ConnectionBuilder.Build(instanceDB);
 
             // CRITICAL => Lifetime Scoped PersistContext always explicitly controls
             // .. the life cycle of its (EF) Database Context

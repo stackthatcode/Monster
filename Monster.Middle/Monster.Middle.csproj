@@ -152,6 +152,7 @@
     <Compile Include="Misc\Hangfire\HangfireLogger.cs" />
     <Compile Include="Misc\Hangfire\HangfireLogProvider.cs" />
     <Compile Include="Misc\Hangfire\NamedLock.cs" />
+    <Compile Include="Persist\Instance\ConnectionBuilder.cs" />
     <Compile Include="Persist\Master\PaymentGateway.cs" />
     <Compile Include="Misc\Shopify\ShopifyPaymentGatewayService.cs" />
     <Compile Include="Persist\Instance\MiscPersistContext.cs" />

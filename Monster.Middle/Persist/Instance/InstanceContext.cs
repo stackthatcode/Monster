@@ -53,8 +53,8 @@ namespace Monster.Middle.Persist.Instance
 
             // Load the Instance Connection String
             // 
-            _processPersistContext.Initialize(instance.ConnectionString);
-            _miscPersistContext.Initialize(instance.ConnectionString);
+            _processPersistContext.Initialize(instance.InstanceDatabase);
+            _miscPersistContext.Initialize(instance.InstanceDatabase);
 
             InitializeShopify(instanceId);
             InitializeAcumatica(instanceId);
@@ -83,8 +83,8 @@ namespace Monster.Middle.Persist.Instance
         {
             _instanceId = instanceId;
             var instance = _systemRepository.RetrieveInstance(instanceId);
-            _miscPersistContext.Initialize(instance.ConnectionString);
-            _processPersistContext.Initialize(instance.ConnectionString);
+            _miscPersistContext.Initialize(instance.InstanceDatabase);
+            _processPersistContext.Initialize(instance.InstanceDatabase);
         }
 
         public void UpdateShopifyCredentials(string shop, string accessToken, string codeHash)

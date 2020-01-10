@@ -200,6 +200,27 @@ namespace Monster.ConsoleApp
             });
         }
 
+
+        public static void RegisterInstance()
+        {
+            Console.WriteLine(Environment.NewLine + "Enter Instance database name:");
+            var database = Console.ReadLine();
+
+            if (!CommandLineFuncs.Confirm(
+                    $"Are you sure you want to register database: {database} as an Instance?"))
+            {
+                return;
+            }
+
+            AutofacRunner.RunInLifetimeScope(scope =>
+            {
+                var repository = scope.Resolve<MasterRepository>();
+                repository.InsertInstance(database, true);
+            });
+
+            Console.WriteLine($"Database {database} registered as an Instance..." + Environment.NewLine );
+        }
+
         public static void AssignInstance()
         {
             Console.WriteLine(Environment.NewLine + "Enter Account Email Address:");
@@ -259,7 +280,7 @@ namespace Monster.ConsoleApp
                 foreach (var instance in instances)
                 {
                     var output =
-                        $"{instance.Id} - {instance.ConnectionString ?? "(connection string missing)"}" +
+                        $"{instance.Id} - {instance.InstanceDatabase ?? "(connection string missing)"}" +
                         Environment.NewLine +
                         $"{instance.OwnerDomain ?? "(unassigned)"} - {instance.OwnerNickname ?? "(unassigned)"}" +
                         $" - Enabled: {instance.IsEnabled}" + Environment.NewLine;

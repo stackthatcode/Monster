@@ -29,16 +29,29 @@ namespace Monster.Middle.Persist.Master
             return _connection.QueryFirstOrDefault<Instance>(sql, new { instanceId });
         }
 
-        public Instance InsertInstance(string connectionString, string nickName = null)
+        public int NextAvailabilityOrder()
         {
+            var sql = @"SELECT MAX(AvailabilityOrder) FROM Instance";
+
+            var maxOrder = _connection.QueryFirstOrDefault<int>(sql);
+            return maxOrder + 1;
+        }
+
+        public Instance InsertInstance(string instanceDatabase, bool isEnabled)
+        {
+            var availabilityOrder = NextAvailabilityOrder();
+
             var tenant = new Instance()
             {
                 Id = Guid.NewGuid(),
-                ConnectionString = connectionString,
-                OwnerNickname = nickName,
+                AvailabilityOrder = availabilityOrder,
+                InstanceDatabase = instanceDatabase,
+                IsEnabled = isEnabled,
             };
 
-            var sql = @"INSERT INTO Instance VALUES ( '@Id', @ConnectionString )";
+            var sql = 
+                @"INSERT INTO MonsterSys..Instance (Id, AvailabilityOrder, InstanceDatabase, IsEnabled) 
+	            VALUES ( @Id, @AvailabilityOrder, @InstanceDatabase, @IsEnabled )";
             _connection.Execute(sql, tenant);
             return tenant;
         }
@@ -66,6 +79,7 @@ namespace Monster.Middle.Persist.Master
             var sql = "SELECT * FROM Instance WHERE OwnerUserId = @userId";
             return _connection.Query<Instance>(sql, new {userId = aspNetUserId}).ToList();
         }
+
 
         public void AssignInstanceToUser(Guid instanceId, string aspNetUserId, string nickname, string domain)
         {
