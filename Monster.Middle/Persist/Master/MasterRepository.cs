@@ -33,8 +33,8 @@ namespace Monster.Middle.Persist.Master
         {
             var sql = @"SELECT MAX(AvailabilityOrder) FROM Instance";
 
-            var maxOrder = _connection.QueryFirstOrDefault<int>(sql);
-            return maxOrder + 1;
+            var maxOrder = _connection.QueryFirstOrDefault<int?>(sql);
+            return (maxOrder ?? 0) + 1;
         }
 
         public Instance InsertInstance(string instanceDatabase, bool isEnabled)
@@ -50,7 +50,7 @@ namespace Monster.Middle.Persist.Master
             };
 
             var sql = 
-                @"INSERT INTO MonsterSys..Instance (Id, AvailabilityOrder, InstanceDatabase, IsEnabled) 
+                @"INSERT INTO Instance (Id, AvailabilityOrder, InstanceDatabase, IsEnabled) 
 	            VALUES ( @Id, @AvailabilityOrder, @InstanceDatabase, @IsEnabled )";
             _connection.Execute(sql, tenant);
             return tenant;
