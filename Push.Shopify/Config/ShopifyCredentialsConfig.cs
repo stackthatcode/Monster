@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Configuration;
+using Push.Foundation.Utilities.Config;
 using Push.Foundation.Utilities.Security;
 using Push.Shopify.Http;
 using Push.Shopify.Http.Credentials;
@@ -21,21 +22,21 @@ namespace Push.Shopify.Config
         [ConfigurationProperty("ApiKey", IsRequired = true)]
         public string ApiKey
         {
-            get { return ((string)_settings["ApiKey"]).DpApiDecryptString().ToInsecureString(); }
+            get { return ((string) _settings["ApiKey"]).DecryptConfig(); }
             set { this["ApiKey"] = value; }
         }
         
         [ConfigurationProperty("ApiPassword", IsRequired = true)]
         public string ApiPassword
         {
-            get { return ((string)_settings["ApiPassword"]).DpApiDecryptString().ToInsecureString(); }
+            get { return ((string)_settings["ApiPassword"]).DecryptConfig(); }
             set { this["ApiPassword"] = value; }
         }
 
         [ConfigurationProperty("ApiSecret", IsRequired = true)]
         public string ApiSecret
         {
-            get { return ((string)_settings["ApiSecret"]).DpApiDecryptString().ToInsecureString(); }
+            get { return ((string) _settings["ApiSecret"]).DecryptConfig(); }
             set { this["ApiSecret"] = value; }
         }
         

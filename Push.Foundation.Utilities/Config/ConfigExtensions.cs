@@ -1,6 +1,6 @@
 ﻿using Push.Foundation.Utilities.Security;
 
-namespace Monster.Middle.Config
+namespace Push.Foundation.Utilities.Config
 {
     public static class ConfigExtensions
     {

@@ -102,6 +102,7 @@
   <ItemGroup>
     <Compile Include="Autofac\Extensions.cs" />
     <Compile Include="Autofac\ServiceLocator.cs" />
+    <Compile Include="Config\ConfigExtensions.cs" />
     <Compile Include="Execution\FaultTolerantExecutor.cs" />
     <Compile Include="Execution\Throttler.cs" />
     <Compile Include="General\BoolExtensions.cs" />

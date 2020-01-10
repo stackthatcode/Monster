@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Configuration;
+using Push.Foundation.Utilities.Config;
 
 namespace Monster.Middle.Config
 {    

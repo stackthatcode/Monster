@@ -6,9 +6,14 @@ namespace Monster.Web.Plumbing
 {
     public class GlobalConfig
     {
+        public static readonly bool DemoMode;
+
+        static GlobalConfig()
+        {
 #if DEBUG
-        public static readonly bool DebugMode = (ConfigurationManager.AppSettings["demodata"] ?? "") == "demodata";
+            DemoMode = (ConfigurationManager.AppSettings["demodata"] ?? "") == "demodata";
 #endif
+        }
 
         public static readonly string BaseUrl = ConfigurationManager.AppSettings["application_root_url"];
         public static readonly string AppName = ConfigurationManager.AppSettings["application_name"];

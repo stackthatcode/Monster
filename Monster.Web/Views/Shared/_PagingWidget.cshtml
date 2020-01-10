@@ -23,7 +23,7 @@
                 <span data-bind="text: PageCount"></span>
             </button>
             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                @if (GlobalConfig.DebugMode)
+                @if (GlobalConfig.DemoMode)
                 {
                     <a class="dropdown-item" data-bind="click: function() { PageSize(2); }" href="#">2 per page</a>
                     <a class="dropdown-item" data-bind="click: function() { PageSize(5); }" href="#">5 per page</a>
