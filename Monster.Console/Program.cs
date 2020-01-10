@@ -13,16 +13,20 @@ namespace Monster.ConsoleApp
         private const string ViewAcumaticaTaxTransfer = "3";
         private const string ShopifyOrderGetToAcumaticaOrderPut = "4";
 
-        // Provisioning and user management functions
+        // User management functions
         //
         private const string HydrateSecurityConfigOption = "11";
-        private const string RegisterInstanceOption = "12";
-        private const string ListInstancesOption = "13";
-        private const string ProvisionNewUserAccountOption = "14";
-        private const string AssignInstanceToAccountOption = "15";
-        private const string RevokeInstanceOption = "16";
-        private const string EnableInstanceOption = "17";
-        private const string DisableInstanceOption = "18";
+        private const string ProvisionUserAccount = "12";
+        private const string ListUserAccountsOption = "13";
+
+        // Instance registration and provisioning functions
+        //
+        private const string RegisterInstanceOption = "21";
+        private const string ListInstancesOption = "22";
+        private const string AssignInstanceToAccountOption = "23";
+        private const string RevokeInstanceOption = "24";
+        private const string EnableInstanceOption = "25";
+        private const string DisableInstanceOption = "26";
 
         // Testing functions
         //
@@ -57,22 +61,27 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{ViewAcumaticaTaxTransfer} - View Acumatica Tax Transfer JSON");
             Console.WriteLine($"{ShopifyOrderGetToAcumaticaOrderPut} - Shopify Order Get + Acumatica Order Put");
             //Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
-
-            // Provisioning and user management functions
-            //
             Console.WriteLine();
+
+            // User management functions
+            //
             Console.WriteLine($"{HydrateSecurityConfigOption} - Hydrate Security Config");
-            Console.WriteLine($"{RegisterInstanceOption} - Register a new Instance database");
+            Console.WriteLine($"{ProvisionUserAccount} - Provision New User Account");
+            Console.WriteLine($"{ListUserAccountsOption} - List all User Accounts");
+            Console.WriteLine();
+
+            // Instance registration and provisioning functions
+            //
+            Console.WriteLine($"{RegisterInstanceOption} - Register new Instance");
             Console.WriteLine($"{ListInstancesOption} - List all Instances");
-            Console.WriteLine($"{ProvisionNewUserAccountOption} - Provision New User Account");
-            Console.WriteLine($"{AssignInstanceToAccountOption} - Assign Instance to Account");
-            Console.WriteLine($"{RevokeInstanceOption} - Revoke Instance by Domain");
+            Console.WriteLine($"{AssignInstanceToAccountOption} - Assign Instance to User Account");
+            Console.WriteLine($"{RevokeInstanceOption} - Revoke Instance from Account by Domain");
             Console.WriteLine($"{EnableInstanceOption} - Enable Instance");
             Console.WriteLine($"{DisableInstanceOption} - Disable Instance");
+            Console.WriteLine();
 
             // Display the testing functions
             //
-            Console.WriteLine();
             Console.WriteLine($"{TestingFunctionsOption} - Testing Functions");
 
             // Solicit input
@@ -91,20 +100,25 @@ namespace Monster.ConsoleApp
             if (input == ShopifyOrderGetToAcumaticaOrderPut)
                 SystemUtilities.RunShopifyOrderGetToAcumaticaOrderPut();
 
-            // Provisioning and user management functions
+            // User management functions
             //
             if (input == HydrateSecurityConfigOption)
                 SystemUtilities.HydrateSecurityConfig();
+            if (input == ProvisionUserAccount)
+                SystemUtilities.ProvisionNewUserAccount();
+            if (input == ListUserAccountsOption)
+                SystemUtilities.ListAllUserAccounts();
+
+            // Instance registration and provisioning functions
+            //
             if (input == RegisterInstanceOption)
                 SystemUtilities.RegisterInstance();
-            if (input == ProvisionNewUserAccountOption)
-                SystemUtilities.ProvisionNewUserAccount();
+            if (input == ListInstancesOption)
+                SystemUtilities.ListInstances();
             if (input == AssignInstanceToAccountOption)
                 SystemUtilities.AssignInstance();
             if (input == RevokeInstanceOption)
                 SystemUtilities.RevokeInstance();
-            if (input == ListInstancesOption)
-                SystemUtilities.ListInstances();
             if (input == DisableInstanceOption)
                 SystemUtilities.DisableInstance();
             if (input == EnableInstanceOption)

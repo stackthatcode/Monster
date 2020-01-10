@@ -53,7 +53,7 @@ namespace Monster.Middle.Identity
 
             // If the User's instance is not enabled, vacate
             //
-            var instances = _masterRepository.RetrieveInstanceByUserId(userId);
+            var instances = _masterRepository.RetrievesInstanceByUserId(userId);
             if (instances.Count > 1)
             {
                 // *** Pending multi-domain feature release

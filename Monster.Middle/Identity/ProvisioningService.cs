@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -143,26 +145,32 @@ namespace Monster.Middle.Identity
             return user;
         }
 
+        public List<ApplicationUser> RetrieveUsers()
+        {
+            var output = _dbContext.Users.Include(x => x.Logins).Include(x => x.Roles).ToList();
+
+                //.Where(x => x.Roles.Any(y => y.RoleId == role))
+            return output;
+        }
+
         public void AssignNextAvailableInstance(string email, string domain, string nickname)
         {
+            var instance = _masterRepository.RetrieveNextAvailableInstance();
+            if (instance == null)
+            {
+                throw new Exception("There are no Instances available for assignment");
+            }
+
             var user = _userManager.FindByName(email);
             if (user == null)
             {
                 throw new Exception($"Unable to locate User {email}");
             }
 
-            var login = user.Logins.Where(
-                    x => x.LoginProvider == "Shopify" && x.ProviderKey == domain).ToList();
-
+            var login = user.Logins.Where(x => x.LoginProvider == "Shopify" && x.ProviderKey == domain).ToList();
             if (login == null)
             {
                 throw new Exception($"Unable to locate Domain {domain} for User {email}");
-            }
-
-            var instance = _masterRepository.RetrieveNextAvailableInstance();
-            if (instance == null)
-            {
-                throw new Exception("There are no Instances available for assignment");
             }
 
             var domainInstance = _masterRepository.RetrieveInstanceByDomain(domain);
@@ -196,18 +204,5 @@ namespace Monster.Middle.Identity
             return userId;
         }
 
-        public bool IsUserEnabled(string aspNetUserId)
-        {
-            var instances = _masterRepository.RetrieveInstanceByUserId(aspNetUserId);
-            if (instances.Count > 1)
-            {
-                // *** Pending multi-domain feature release
-                //
-                throw new NotImplementedException("Multiple Instances feature not available yet");
-            }
-
-            var instance = instances.First();
-            return instance.IsEnabled;
-        }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using Autofac;
 using Hangfire;
 using Hangfire.Logging;
 using Hangfire.SqlServer;
+using Microsoft.AspNet.Identity;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Http;
@@ -22,6 +25,7 @@ using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
+using Push.Foundation.Web.Identity;
 
 
 namespace Monster.ConsoleApp
@@ -198,6 +202,57 @@ namespace Monster.ConsoleApp
                 var service = scope.Resolve<ProvisioningService>();
                 service.PopulateRolesAndAdmin();
             });
+        }
+
+        public static void ListAllUserAccounts()
+        {
+            Action<ILifetimeScope> process = scope =>
+            {
+                var service = scope.Resolve<ProvisioningService>();
+                var repository = scope.Resolve<MasterRepository>();
+                var roleManager = scope.Resolve<IdentityRoleManager>();
+                var users = service.RetrieveUsers();
+
+                foreach (var user in users)
+                {
+                    var roleNames = new List<string>();
+                    foreach (var userRole in user.Roles)
+                    {
+                        roleNames.Add(roleManager.Roles.First(x => x.Id == userRole.RoleId).Name);
+                    }
+                    Console.WriteLine($"User: {user.Email} (Id: {user.Id}) - Roles: {roleNames.ToCommaDelimited()}");
+
+                    if (user.Logins.Count > 0)
+                    {
+                        foreach (var login in user.Logins)
+                        {
+                            Console.WriteLine($"Login: {login.LoginProvider} - {login.ProviderKey}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("*** User has no ASP.NET Logins ***");
+                    }
+
+                    var instances = repository.RetrievesInstanceByUserId(user.Id);
+                    if (instances.Count > 0)
+                    {
+                        foreach (var instance in instances)
+                        {
+                            Console.WriteLine(
+                                $"Instance: {instance.InstanceDatabase} - {instance.OwnerDomain} - {instance.OwnerNickname}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("*** User has no Instance assignments ***");
+                    }
+
+                    Console.WriteLine();
+                }
+            };
+
+            AutofacRunner.RunInLifetimeScope(process);
         }
 
 

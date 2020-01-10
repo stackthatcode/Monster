@@ -10,7 +10,6 @@ namespace Monster.Web
 {
     public partial class AuthConfig
     {
-        // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
         public static void ConfigureAuth(IAppBuilder app)
         {
             // Enable the application to use a cookie to store information for the signed in user

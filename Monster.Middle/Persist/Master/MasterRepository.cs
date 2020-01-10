@@ -74,7 +74,7 @@ namespace Monster.Middle.Persist.Master
             return _connection.Query<Instance>(sql, new { domain }).FirstOrDefault();
         }
 
-        public List<Instance> RetrieveInstanceByUserId(string aspNetUserId)
+        public List<Instance> RetrievesInstanceByUserId(string aspNetUserId)
         {
             var sql = "SELECT * FROM Instance WHERE OwnerUserId = @userId";
             return _connection.Query<Instance>(sql, new {userId = aspNetUserId}).ToList();

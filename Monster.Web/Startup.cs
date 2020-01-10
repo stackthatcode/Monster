@@ -1,9 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.Owin;
-using Monster.Middle.Persist.Instance;
-using Monster.Middle.Processes.Sync.Model.Settings;
-using Monster.Web.Models.Config;
-using Monster.Web.Models.Sync;
+﻿using Microsoft.Owin;
 using Owin;
 using Startup = Monster.Web.Startup;
 
