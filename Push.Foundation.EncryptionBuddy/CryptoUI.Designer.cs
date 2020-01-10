@@ -106,6 +106,7 @@ namespace Push.Foundation
             this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.buttonConfigFileKeys = new System.Windows.Forms.Button();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage7.SuspendLayout();
@@ -210,6 +211,7 @@ namespace Push.Foundation
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.buttonConfigFileKeys);
             this.tabPage2.Controls.Add(this.label11);
             this.tabPage2.Controls.Add(this.textAesIv);
             this.tabPage2.Controls.Add(this.textAesKey);
@@ -1018,6 +1020,18 @@ namespace Push.Foundation
             this.tabControl1.Size = new System.Drawing.Size(2275, 1350);
             this.tabControl1.TabIndex = 30;
             // 
+            // buttonConfigFileKeys
+            // 
+            this.buttonConfigFileKeys.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.125F);
+            this.buttonConfigFileKeys.Location = new System.Drawing.Point(1495, 129);
+            this.buttonConfigFileKeys.Margin = new System.Windows.Forms.Padding(5);
+            this.buttonConfigFileKeys.Name = "buttonConfigFileKeys";
+            this.buttonConfigFileKeys.Size = new System.Drawing.Size(407, 107);
+            this.buttonConfigFileKeys.TabIndex = 76;
+            this.buttonConfigFileKeys.Text = "Config";
+            this.buttonConfigFileKeys.UseVisualStyleBackColor = true;
+            this.buttonConfigFileKeys.Click += new System.EventHandler(this.ButtonConfigFileKeys_Click);
+            // 
             // CryptoUi
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
@@ -1127,6 +1141,7 @@ namespace Push.Foundation
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.Button buttonConfigFileKeys;
     }
 }
 

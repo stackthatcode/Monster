@@ -254,6 +254,12 @@ namespace Push.Foundation
                 this.textSummary.Text = output;
             });
         }
+
+        private void ButtonConfigFileKeys_Click(object sender, EventArgs e)
+        {
+            textAesKey.Text = ConfigExtensions.X;
+            textAesIv.Text = ConfigExtensions.Y;
+        }
     }
 }
 

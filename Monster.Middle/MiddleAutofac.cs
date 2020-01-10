@@ -60,7 +60,8 @@ namespace Monster.Middle
             //
             var connectionString = MonsterConfig.Settings.SystemDatabaseConnection;
 
-            // Persistence - Master-level
+            // Persistence - System-level
+            // SqlConnection/DbConnection are used by 
             //
             builder
                 .Register(ctx =>
@@ -72,6 +73,7 @@ namespace Monster.Middle
                 .As<SqlConnection>()
                 .As<DbConnection>()
                 .InstancePerLifetimeScope();
+
             builder.RegisterType<MasterRepository>().InstancePerLifetimeScope();
 
             // Persistence - Instance-level Contexts
