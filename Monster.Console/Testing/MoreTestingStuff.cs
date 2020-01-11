@@ -40,7 +40,7 @@ namespace Monster.ConsoleApp.Testing
                 Environment.NewLine + "Enter Shopify Order ID (Default ID: 1840328409132)");
             var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1840328409132").ToLong();
 
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
@@ -53,7 +53,7 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunAcumaticaCustomerGet()
         {
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
@@ -69,7 +69,7 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunAcumaticaOrderGet()
         {
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaOrderGet = scope.Resolve<AcumaticaOrderGet>();
@@ -91,7 +91,7 @@ namespace Monster.ConsoleApp.Testing
                     + $"Enter Acumatica Sales Order ID (Default ID: {defaultSalesOrderNbr})");
             var orderNbr = Console.ReadLine().Trim().IsNullOrEmptyAlt(defaultSalesOrderNbr);
 
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var salesOrderClient = scope.Resolve<SalesOrderClient>();
@@ -114,7 +114,7 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunAcumaticaPaymentGet()
         {
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
@@ -133,7 +133,7 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyOrderGet()
         {
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
@@ -150,7 +150,7 @@ namespace Monster.ConsoleApp.Testing
 
             var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1778846826540").ToLong();
 
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 instanceContext.Initialize(TestInstanceId);
@@ -169,7 +169,7 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyFulfillmentPut()
         {
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var shopifyFulfillmentPut = scope.Resolve<ShopifyFulfillmentPut>();
@@ -184,7 +184,7 @@ namespace Monster.ConsoleApp.Testing
             var orderId = SolicitShopifyOrderId(1876709146668);
             var fulfillmentId = SolicitShopifyFulfillmentId(1767491698732);
 
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var fulfillmentApi = scope.Resolve<FulfillmentApi>();

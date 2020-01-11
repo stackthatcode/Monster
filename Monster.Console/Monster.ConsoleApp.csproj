@@ -89,6 +89,7 @@
   <ItemGroup>
     <Compile Include="AutofacRunner.cs" />
     <Compile Include="CommandLineFuncs.cs" />
+    <Compile Include="ConsoleAppAutofac.cs" />
     <Compile Include="SystemUtilities.cs" />
     <Compile Include="Testing\Feeder\OrderPayload.cs" />
     <Compile Include="Testing\Feeder\ShopifyDataFeeder.cs" />

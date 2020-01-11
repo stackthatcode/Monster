@@ -141,6 +141,7 @@
   <ItemGroup>
     <Compile Include="Config\MonsterConfig.cs" />
     <Compile Include="Identity\ProvisioningService.cs" />
+    <Compile Include="Misc\Hangfire\HangFireConfig.cs" />
     <Compile Include="Misc\Hangfire\HangfireExtensions.cs" />
     <Compile Include="Misc\Hangfire\JobRunner.cs" />
     <Compile Include="Misc\Hangfire\BackgroundJobType.cs" />

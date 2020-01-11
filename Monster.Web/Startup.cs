@@ -1,4 +1,10 @@
-﻿using Microsoft.Owin;
+﻿using System.Web.Mvc;
+using Autofac.Integration.Mvc;
+using Hangfire;
+using Microsoft.Owin;
+using Monster.Middle.Misc.Hangfire;
+using Monster.Web.Attributes;
+using Monster.Web.Plumbing;
 using Owin;
 using Startup = Monster.Web.Startup;
 
@@ -9,10 +15,22 @@ namespace Monster.Web
     {
         public void Configuration(IAppBuilder app)
         {            
-            var autofacContainer = WebAutofac.Build();
-            
+            var container = WebAutofac.Build();
+            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+
             AuthConfig.ConfigureAuth(app);
-            HangFireConfig.Configure(app);
+
+            // HangFire setup...
+            //
+            HangFireConfig.ConfigureStorage();
+
+            app.UseHangfireDashboard(
+                "/hangfire", 
+                new DashboardOptions
+                {
+                    Authorization = new[] { new HangFireAuthorizationFilter(), },
+                    AppPath = GlobalConfig.LoginPage,
+                });
         }
     }
 }

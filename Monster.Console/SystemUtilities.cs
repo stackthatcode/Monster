@@ -5,13 +5,9 @@ using System.Linq;
 using Autofac;
 using Hangfire;
 using Hangfire.Logging;
-using Hangfire.SqlServer;
-using Microsoft.AspNet.Identity;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Http;
-using Monster.Middle;
-using Monster.Middle.Config;
 using Monster.Middle.Identity;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Persist.Instance;
@@ -58,15 +54,20 @@ namespace Monster.ConsoleApp
 
         public static void RunHangFireBackgroundService()
         {
-            ConfigureHangFire();
+            var container = ConsoleAppAutofac.BuildContainer();
+
+            // Configure Hangfire for Background Job
+            //
+            HangFireConfig.ConfigureStorage();
+
+            GlobalConfiguration.Configuration.UseAutofacActivator(container);
+            LogProvider.SetCurrentLogProvider(new HangfireLogProvider());
 
             var options = new BackgroundJobServerOptions()
             {
                 SchedulePollingInterval = new TimeSpan(0, 0, 0, 1),
+                WorkerCount = ConfigurationManager.AppSettings["HangFireWorkerCount"].ToIntegerAlt(10),
             };
-
-            options.WorkerCount =
-                ConfigurationManager.AppSettings["HangFireWorkerCount"].ToIntegerAlt(10);
 
             using (var server = new BackgroundJobServer(options))
             {
@@ -75,31 +76,14 @@ namespace Monster.ConsoleApp
             }
         }
 
-        public static IContainer ConfigureHangFire()
-        {
-            var builder = new ContainerBuilder();
-            MiddleAutofac.Build(builder);
-
-            // Wire in the Autofac container
-            var container = builder.Build();
-            GlobalConfiguration.Configuration.UseAutofacActivator(container);
-
-            // Set the HangFire storage
-            var systemDbConnection = MonsterConfig.Settings.SystemDatabaseConnection;
-            JobStorage.Current = new SqlServerStorage(systemDbConnection);
-
-            // HangFireLogProvider -> HangFireLogger -> LoggerSingleton
-            LogProvider.SetCurrentLogProvider(new HangfireLogProvider());
-
-            return container;
-        }
+        
 
         public static void RunViewShopifyOrderAndTaxTransfer()
         {
             var instanceId = SolicitInstanceId();
             var shopifyOrderId = SolicitShopifyId();
             
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var logger = scope.Resolve<IPushLogger>();
                 var instanceContext = scope.Resolve<InstanceContext>();
@@ -122,7 +106,7 @@ namespace Monster.ConsoleApp
             var instanceId = SolicitInstanceId();
             var salesOrderNbr = SolicitAcumaticaSalesOrderId();
 
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var logger = scope.Resolve<IPushLogger>();
                 var instanceContext = scope.Resolve<InstanceContext>();
@@ -150,7 +134,7 @@ namespace Monster.ConsoleApp
         {
             var instanceId = SolicitInstanceId();
             var shopifyOrderId = SolicitShopifyId();
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 instanceContext.Initialize(instanceId);
@@ -192,12 +176,12 @@ namespace Monster.ConsoleApp
                 Console.WriteLine(Environment.NewLine + "Created User...");
             };
 
-            AutofacRunner.RunInLifetimeScope(process);
+            AutofacRunner.RunInScope(process);
         }
 
         public static void HydrateSecurityConfig()
         {
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var service = scope.Resolve<ProvisioningService>();
                 service.PopulateRolesAndAdmin();
@@ -252,7 +236,7 @@ namespace Monster.ConsoleApp
                 }
             };
 
-            AutofacRunner.RunInLifetimeScope(process);
+            AutofacRunner.RunInScope(process);
         }
 
 
@@ -267,7 +251,7 @@ namespace Monster.ConsoleApp
                 return;
             }
 
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var repository = scope.Resolve<MasterRepository>();
                 repository.InsertInstance(database, true);
@@ -287,7 +271,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine(Environment.NewLine + "Enter a Nick Name for the Instance assignment:");
             var nickname = Console.ReadLine();
 
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var service = scope.Resolve<ProvisioningService>();
                 service.AssignNextAvailableInstance(email, domain, nickname);
@@ -299,7 +283,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine(Environment.NewLine + "Enter Domain for Instance");
             var domain = Console.ReadLine();
 
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var service = scope.Resolve<ProvisioningService>();
                 service.RevokeInstanceByDomain(domain);
@@ -309,7 +293,7 @@ namespace Monster.ConsoleApp
         public static void DisableInstance()
         {
             var instanceId = SolicitInstanceId();
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var repository = scope.Resolve<MasterRepository>();
                 repository.UpdateInstanceEnabled(instanceId, false);
@@ -319,7 +303,7 @@ namespace Monster.ConsoleApp
         public static void EnableInstance()
         {
             var instanceId = SolicitInstanceId();
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var repository = scope.Resolve<MasterRepository>();
                 repository.UpdateInstanceEnabled(instanceId, true);
@@ -328,7 +312,7 @@ namespace Monster.ConsoleApp
 
         public static void ListInstances()
         {
-            AutofacRunner.RunInLifetimeScope(scope =>
+            AutofacRunner.RunInScope(scope =>
             {
                 var repository = scope.Resolve<MasterRepository>();
                 var instances = repository.RetrieveInstances();

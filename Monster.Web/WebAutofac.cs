@@ -48,7 +48,6 @@ namespace Monster.Web
                         ShopifyCredentialsConfig.Settings.ApiSecret));
 
             var container = builder.Build();
-            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
             return container;
         }
     }

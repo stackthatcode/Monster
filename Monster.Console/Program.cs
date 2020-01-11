@@ -60,7 +60,6 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{ViewShopifyOrderAndTaxTransfer} - View Shopify Order and Tax Transfer JSON");
             Console.WriteLine($"{ViewAcumaticaTaxTransfer} - View Acumatica Tax Transfer JSON");
             Console.WriteLine($"{ShopifyOrderGetToAcumaticaOrderPut} - Shopify Order Get + Acumatica Order Put");
-            //Console.WriteLine($"{RunShopifyOrderFeederOption} - Run Shopify Test Order Feeder");
             Console.WriteLine();
 
             // User management functions

@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using Monster.Middle;
+using Monster.Middle.Misc.Hangfire;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web;
 
@@ -8,15 +9,11 @@ namespace Monster.ConsoleApp
 {
     public class AutofacRunner
     {
-        public static void RunInLifetimeScope(
-            Action<ILifetimeScope> action, Action<ContainerBuilder> builderPreExec = null)
+        public static void RunInScope(Action<ILifetimeScope> action)
         {
-            var builder = new ContainerBuilder();
-            builderPreExec?.Invoke(builder);
-            MiddleAutofac.Build(builder);
-            FoundationWebAutofac.RegisterOwinAuthentication(builder);
+            var container =  ConsoleAppAutofac.BuildContainer();
+            HangFireConfig.ConfigureStorage();
 
-            var container = builder.Build();
             using (var scope = container.BeginLifetimeScope())
             {
                 var logger = scope.Resolve<IPushLogger>();
