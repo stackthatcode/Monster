@@ -64,8 +64,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 if (!order.IsEmptyOrCancelled)
                 {
                     output.OrderAction.ActionCode = ActionCode.CreateInAcumatica;
-                    output.OrderAction.Validation = 
-                            _orderValidation.ReadyToCreateOrder(record.ShopifyOrderId);
+                    output.OrderAction.Validation = _orderValidation.ReadyToCreateOrder(record.ShopifyOrderId);
                     return;
                 }
 

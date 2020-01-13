@@ -28,7 +28,8 @@ namespace Monster.TaxProvider.Calc
         {
             var calcRequestType = request.ToCalcRequestContext();
             _logger.Info(
-                $"TaxCalcService -> Calculate (Type) - {JsonConvert.SerializeObject(calcRequestType)}");
+                $"TaxCalcService -> Calculate (Type) - " +
+                $"{JsonConvert.SerializeObject(calcRequestType)}");
 
             if (calcRequestType.Type == CalcRequestTypeEnum.SalesOrder)
             {
@@ -76,6 +77,11 @@ namespace Monster.TaxProvider.Calc
             return result;
         }
 
+
+
+
+        // TODO - offload this to web service
+        //
         private CalcResult InvoiceTax(GetTaxRequest request)
         {
             var context = request.ToCalcRequestContext();
@@ -102,6 +108,8 @@ namespace Monster.TaxProvider.Calc
             }
         }
 
+        // TODO - offload this to web service
+        //
         private CalcResult InvoiceFinalTax(Transfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
         {
             var taxableTotal = transfer.NetTaxableAmount - otherInvoiceTaxes.TotalTaxableAmount;

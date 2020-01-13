@@ -10,9 +10,11 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Workers;
+using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 
 
@@ -22,10 +24,10 @@ namespace Monster.ConsoleApp.Testing
     {
         private static Guid TestInstanceId = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
 
-        public static long SolicitShopifyOrderId(long defaultId)
+        public static long SolicitShopifyOrderId()
         {
-            Console.WriteLine(Environment.NewLine + $"Enter Shopify Order Id (Default Id: {defaultId})");
-            return Console.ReadLine().IsNullOrEmptyAlt(defaultId.ToString()).ToLong();
+            Console.WriteLine(Environment.NewLine + "Enter Shopify Order Id (Default Id: 1840328409132)");
+            return Console.ReadLine().IsNullOrEmptyAlt("1840328409132").ToLong();
         }
 
         public static long SolicitShopifyFulfillmentId(long defaultId)
@@ -143,6 +145,27 @@ namespace Monster.ConsoleApp.Testing
             });
         }
 
+
+        public static void RunShopifyOrderRetrieve()
+        {
+            AutofacRunner.RunInScope(scope =>
+            {
+                var id = SolicitShopifyOrderId();
+
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var shopifyOrderApi = scope.Resolve<OrderApi>();
+                var logger = scope.Resolve<IPushLogger>();
+
+                instanceContext.Initialize(TestInstanceId);
+                var json = shopifyOrderApi.Retrieve(id);
+                var compressed = json.SerializeToJson(Formatting.None).ToBase64Zip();
+
+                logger.Info($"Shopify Order size: {json.Length} bytes - (compressed {compressed.Length} bytes)");
+
+            });
+        }
+
+
         public static void RunShopifyOrderTimezoneTest()
         {
             Console.WriteLine(
@@ -181,7 +204,7 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyFulfillmentEmail()
         {
-            var orderId = SolicitShopifyOrderId(1876709146668);
+            var orderId = SolicitShopifyOrderId();
             var fulfillmentId = SolicitShopifyFulfillmentId(1767491698732);
 
             AutofacRunner.RunInScope(scope =>

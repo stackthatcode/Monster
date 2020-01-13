@@ -143,6 +143,7 @@ namespace Monster.ConsoleApp
         private const string AcumaticaSalesOrderRetrieve = "107";
         private const string ShopifyFulfillmentPut = "108";
         private const string ShopifyFulfillmentEmail = "109";
+        private const string ShopifyRetrieveOrder = "110";
 
         private static void DisplayTestingFunctions()
         {
@@ -158,6 +159,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{AcumaticaSalesOrderRetrieve} - Acumatica Sales Order Retrieve");
             Console.WriteLine($"{ShopifyFulfillmentPut} - Shopify Fulfillment Put");
             Console.WriteLine($"{ShopifyFulfillmentEmail} - Shopify Fulfillment Email");
+            Console.WriteLine($"{ShopifyRetrieveOrder} - Measure Shopify Order JSON storage size");
             Console.WriteLine();
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
@@ -183,6 +185,8 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunShopifyFulfillmentPut();
             if (input == ShopifyFulfillmentEmail)
                 MoreTestingStuff.RunShopifyFulfillmentEmail();
+            if (input == ShopifyRetrieveOrder)
+                MoreTestingStuff.RunShopifyOrderRetrieve();
         }
     }
 }

@@ -17,6 +17,7 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Model.TaxTransfer;
 using Monster.Middle.Processes.Sync.Workers;
+using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
@@ -98,6 +99,10 @@ namespace Monster.ConsoleApp
 
                 var taxTransfer = shopifyOrder.ToTaxTransfer();
                 logger.Info("Shopify Tax Transfer" + Environment.NewLine + taxTransfer.SerializeToJson());
+
+                var compressedSize = taxTransfer.SerializeToJson(Formatting.None).ToBase64Zip();
+                logger.Info($"Shopify Tax Transfer size: {compressedSize.Length} bytes");
+
             });
         }
 
