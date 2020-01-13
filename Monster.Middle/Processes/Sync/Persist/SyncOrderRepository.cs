@@ -147,6 +147,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities.AcumaticaSoShipments
                 .Include(x => x.AcumaticaSalesOrder)
+                .Include(x => x.AcumaticaSalesOrder.ShopifyOrder)
                 .WhereShipmentSyncErrorsBelowThreshold(errorThreshold)
                 .Where(x => x.NeedShipmentGet == false && x.ShopifyFulfillment == null)
                 .ToList();

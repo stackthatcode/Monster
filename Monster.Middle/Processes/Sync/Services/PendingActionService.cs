@@ -1,5 +1,9 @@
-﻿using Monster.Middle.Misc.Shopify;
+﻿using System;
+using System.Collections.Generic;
+using Monster.Middle.Misc.Acumatica;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
@@ -16,77 +20,96 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly OrderValidationService _orderValidation;
         private readonly PaymentValidationService _paymentValidation;
         private readonly FulfillmentStatusService _fulfillmentStatusService;
-        private readonly ShopifyUrlService _urlService;
+        private readonly ShopifyUrlService _shopifyUrlService;
+        private readonly AcumaticaUrlService _acumaticaUrlService;
 
         public PendingActionService(
                 SyncOrderRepository orderRepository,
                 OrderValidationService orderValidation,
                 PaymentValidationService paymentValidation,
                 FulfillmentStatusService fulfillmentStatusService,
-                ShopifyUrlService urlService)
+                ShopifyUrlService shopifyUrlService, 
+                AcumaticaUrlService acumaticaUrlService)
         {
             _syncOrderRepository = orderRepository;
             _orderValidation = orderValidation;
             _paymentValidation = paymentValidation;
             _fulfillmentStatusService = fulfillmentStatusService;
-            _urlService = urlService;
+            _shopifyUrlService = shopifyUrlService;
+            _acumaticaUrlService = acumaticaUrlService;
         }
 
 
-        public RootAction Create(long shopifyOrderId)
+        public RootAction Create(long shopifyOrderId, bool validate = true)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
+
             var output = new RootAction();
+            output.OrderAction = BuildOrderPendingAction(orderRecord);
+            output.PaymentAction = BuildPaymentActions(orderRecord);
+            output.RefundPaymentActions = BuildRefundPaymentActions(orderRecord);
+            output.AdjustmentMemoActions = BuildRefundAdjustmentActions(orderRecord);
+            output.ShipmentInvoiceActions = BuildShipmentInvoiceActions(orderRecord);
 
-            output.ShopifyOrderId = orderRecord.ShopifyOrderId;
-            output.ShopifyOrderHref = _urlService.ShopifyOrderUrl(orderRecord.ShopifyOrderId);
-            output.ShopifyOrderName = orderRecord.ToShopifyObj().name;
+            if (validate)
+            {
+                _orderValidation.Validate(output.OrderAction);
+                _paymentValidation.ValidatePayment(orderRecord, output.PaymentAction);
 
-            BuildOrderPendingAction(orderRecord, output);
-            BuildPaymentActions(orderRecord, output);
-            BuildRefundPaymentActions(orderRecord, output);
-            BuildRefundAdjustmentActions(orderRecord, output);
-            BuildShipmentInvoiceActions(orderRecord, output);
+                foreach (var action in output.RefundPaymentActions)
+                {
+                    _paymentValidation.ValidateRefundPayment(orderRecord, action);
+                }
+
+                foreach (var action in output.ShipmentInvoiceActions)
+                {
+                    _fulfillmentStatusService.Validate(orderRecord, action);
+                }
+            }
 
             return output;
         }
 
-        private void BuildOrderPendingAction(ShopifyOrder record, RootAction output)
+        private OrderAction BuildOrderPendingAction(ShopifyOrder record)
         {
-            output.OrderAction = new OrderAction();
-            output.OrderAction.ActionCode = ActionCode.None;
-            output.OrderAction.Validation = new ValidationResult();
+            var output = new OrderAction();
+
+            output.ShopifyOrderId = record.ShopifyOrderId;
+            output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(record.ShopifyOrderId);
+            output.ShopifyOrderName = record.ToShopifyObj().name;
+
+            output.Validation = new ValidationResult();
+            output.ActionCode = ActionCode.None;
 
             if (!record.ExistsInAcumatica())
             {
                 var order = record.ToShopifyObj();
 
-                if (!order.IsEmptyOrCancelled)
-                {
-                    output.OrderAction.ActionCode = ActionCode.CreateInAcumatica;
-                    output.OrderAction.Validation = _orderValidation.ReadyToCreateOrder(record.ShopifyOrderId);
-                    return;
-                }
-
-                if (order.IsEmptyOrCancelled)
-                {
-                    output.OrderAction.ActionCode = ActionCode.CreateBlankSyncRecord;
-                    output.OrderAction.Validation = _orderValidation.ReadyToCreateBlankOrder(record.ShopifyOrderId);
-                    return;
-                }
+                output.ActionCode =
+                    !order.IsEmptyOrCancelled 
+                        ? ActionCode.CreateInAcumatica : ActionCode.CreateBlankSyncRecord;
             }
-
-            if (record.ExistsInAcumatica() && record.NeedsOrderPut)
+            else // Exists in Acumatica
             {
-                output.OrderAction.ActionCode = ActionCode.UpdateInAcumatica;
-                output.OrderAction.Validation = _orderValidation.ReadyToUpdateOrder(record.ShopifyOrderId);
-                return;
+                output.AcumaticaSalesOrderNbr = record.AcumaticaSalesOrder.AcumaticaOrderNbr;
+                output.AcumaticaSalesOrderHref
+                        = _acumaticaUrlService.AcumaticaSalesOrderUrl(
+                                SalesOrderType.SO, record.AcumaticaSalesOrder.AcumaticaOrderNbr);
+
+                if (record.NeedsOrderPut)
+                {
+                    output.ActionCode = ActionCode.UpdateInAcumatica;
+                }
             }
+
+            return output;
         }
 
-        private void BuildPaymentActions(ShopifyOrder orderRecord, RootAction output)
+        private PaymentAction BuildPaymentActions(ShopifyOrder orderRecord)
         {
             var paymentAction = new PaymentAction();
+            paymentAction.ActionCode = ActionCode.None;
+            paymentAction.Validation = new ValidationResult();
 
             if (orderRecord.HasPayment())
             {
@@ -101,20 +124,16 @@ namespace Monster.Middle.Processes.Sync.Services
                 if (!payment.ExistsInAcumatica())
                 {
                     paymentAction.ActionCode = ActionCode.CreateInAcumatica;
-                    paymentAction.Validation = _paymentValidation.ReadyToCreatePayment(payment);
                 }
 
                 if (payment.ExistsInAcumatica() && payment.NeedsPaymentPut)
                 {
                     paymentAction.ActionCode = ActionCode.UpdateInAcumatica;
-                    paymentAction.Validation = _paymentValidation.ReadyToUpdatePayment(payment);
                 }
                 else if (payment.ExistsInAcumatica() && !payment.AcumaticaPayment.IsReleased)
                 {
                     paymentAction.ActionCode = ActionCode.ReleaseInAcumatica;
-                    paymentAction.Validation = _paymentValidation.ReadyToRelease(payment);
                 }
-
             }
             else
             {
@@ -125,11 +144,13 @@ namespace Monster.Middle.Processes.Sync.Services
                 paymentAction.ActionCode = ActionCode.None;
             }
 
-            output.PaymentAction = paymentAction;
+            return paymentAction;
         }
 
-        private void BuildRefundPaymentActions(ShopifyOrder orderRecord, RootAction output)
+        private List<PaymentAction> BuildRefundPaymentActions(ShopifyOrder orderRecord)
         {
+            var output = new List<PaymentAction>();
+
             foreach (var refund in orderRecord.RefundTransactions())
             {
                 var refundAction = new PaymentAction();
@@ -143,21 +164,23 @@ namespace Monster.Middle.Processes.Sync.Services
                 if (!refund.ExistsInAcumatica())
                 {
                     refundAction.ActionCode = ActionCode.CreateInAcumatica;
-                    refundAction.Validation = _paymentValidation.ReadyToCreateRefundPayment(refund);
                 }
 
                 if (refund.ExistsInAcumatica() && !refund.IsReleased())
                 {
                     refundAction.ActionCode = ActionCode.ReleaseInAcumatica;
-                    refundAction.Validation = _paymentValidation.ReadyToReleaseRefundPayment(refund);
                 }
 
-                output.RefundPaymentActions.Add(refundAction);
+                output.Add(refundAction);
             }
+
+            return output;
         }
 
-        private void BuildRefundAdjustmentActions(ShopifyOrder orderRecord, RootAction output)
+        private List<AdjustmentAction> BuildRefundAdjustmentActions(ShopifyOrder orderRecord)
         {
+            var output = new List<AdjustmentAction>();
+
             foreach (var creditAdj in orderRecord.CreditAdustmentRefunds())
             {
                 var action = new AdjustmentAction();
@@ -165,7 +188,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 action.MemoType = AdjustmentMemoType.CreditMemo;
                 action.MemoAmount = creditAdj.CreditAdjustment;
 
-                output.AdjustmentMemoActions.Add(action);
+                output.Add(action);
             }
 
             foreach (var debitAdj in orderRecord.DebitAdustmentRefunds())
@@ -175,12 +198,16 @@ namespace Monster.Middle.Processes.Sync.Services
                 action.MemoType = AdjustmentMemoType.DebitMemo;
                 action.MemoAmount = debitAdj.DebitAdjustment;
 
-                output.AdjustmentMemoActions.Add(action);
+                output.Add(action);
             }
+
+            return output;
         }
 
-        private void BuildShipmentInvoiceActions(ShopifyOrder orderRecord, RootAction output)
+        private List<ShipmentAction> BuildShipmentInvoiceActions(ShopifyOrder orderRecord)
         {
+            var output = new List<ShipmentAction>();
+
             foreach (var soShipment in orderRecord.SoShipments())
             {
                 var action = new ShipmentAction();
@@ -192,16 +219,16 @@ namespace Monster.Middle.Processes.Sync.Services
                 if (soShipment.ShopifyFulfillment == null)
                 {
                     action.ActionCode = ActionCode.CreateInShopify;
-                    action.Validation = _fulfillmentStatusService.ReadyToSync(soShipment).Result();
                 }
                 else
                 {
                     action.ActionCode = ActionCode.None;
-                    action.Validation = new ValidationResult();
                 }
 
-                output.ShipmentInvoiceActions.Add(action);
+                output.Add(action);
             }
+
+            return output;
         }
     }
 }

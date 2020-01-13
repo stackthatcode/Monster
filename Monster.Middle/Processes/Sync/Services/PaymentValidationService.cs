@@ -1,7 +1,7 @@
-﻿using Monster.Middle.Persist.Instance;
+﻿using System.Linq;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
-using Monster.Middle.Processes.Sync.Model.Analysis;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Persist;
@@ -17,6 +17,53 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             _settingsRepository = settingsRepository;
         }
+
+        public void ValidatePayment(ShopifyOrder order, PaymentAction action)
+        {
+            var transaction = order
+                .ShopifyTransactions
+                .First(x => x.ShopifyTransactionId == action.ShopifyTransactionId);
+
+            action.Validation = new ValidationResult();
+            
+            if (action.ActionCode == ActionCode.CreateInAcumatica)
+            {
+                action.Validation = ReadyToCreatePayment(transaction);
+                return;
+            }
+
+            if (action.ActionCode == ActionCode.UpdateInAcumatica)
+            {
+                action.Validation = ReadyToUpdatePayment(transaction);
+                return;
+            }
+
+            if (action.ActionCode == ActionCode.ReleaseInAcumatica)
+            {
+                action.Validation = ReadyToRelease(transaction);
+                return;
+            }
+        }
+
+        public void ValidateRefundPayment(ShopifyOrder order, PaymentAction action)
+        {
+            var transaction = order
+                .ShopifyTransactions
+                .First(x => x.ShopifyTransactionId == action.ShopifyTransactionId);
+
+            action.Validation = new ValidationResult();
+
+            if (action.ActionCode == ActionCode.CreateInAcumatica)
+            {
+                action.Validation = ReadyToCreateRefundPayment(transaction);
+            }
+
+            if (action.ActionCode == ActionCode.ReleaseInAcumatica)
+            {
+                action.Validation = ReadyToReleaseRefundPayment(transaction);
+            }
+        }
+
 
         private PaymentValidationContext BuildContext(ShopifyTransaction currentTransaction)
         {
@@ -34,7 +81,7 @@ namespace Monster.Middle.Processes.Sync.Services
                     "Encountered too many errors attempting to synchronize this Transaction");
         }
 
-        public ValidationResult ReadyToCreatePayment(ShopifyTransaction currentTransaction)
+        private ValidationResult ReadyToCreatePayment(ShopifyTransaction currentTransaction)
         {
             var context = BuildContext(currentTransaction);
 
@@ -49,7 +96,7 @@ namespace Monster.Middle.Processes.Sync.Services
             return validation.Run(context);
         }
 
-        public ValidationResult ReadyToUpdatePayment(ShopifyTransaction currentTransaction)
+        private ValidationResult ReadyToUpdatePayment(ShopifyTransaction currentTransaction)
         {
             var context = BuildContext(currentTransaction);
 
@@ -62,7 +109,7 @@ namespace Monster.Middle.Processes.Sync.Services
             return validation.Run(context);
         }
 
-        public ValidationResult ReadyToRelease(ShopifyTransaction currentTransaction)
+        private ValidationResult ReadyToRelease(ShopifyTransaction currentTransaction)
         {
             var context = BuildContext(currentTransaction);
 
@@ -74,7 +121,7 @@ namespace Monster.Middle.Processes.Sync.Services
             return validation.Run(context);
         }
 
-        public ValidationResult ReadyToCreateRefundPayment(ShopifyTransaction currentTransaction)
+        private ValidationResult ReadyToCreateRefundPayment(ShopifyTransaction currentTransaction)
         {
             var context = BuildContext(currentTransaction);
 
@@ -88,7 +135,7 @@ namespace Monster.Middle.Processes.Sync.Services
             return validation.Run(context);
         }
 
-        public ValidationResult ReadyToReleaseRefundPayment(ShopifyTransaction currentTransaction)
+        private ValidationResult ReadyToReleaseRefundPayment(ShopifyTransaction currentTransaction)
         {
             var context = BuildContext(currentTransaction);
 

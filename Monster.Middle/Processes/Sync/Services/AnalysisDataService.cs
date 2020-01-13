@@ -67,11 +67,10 @@ namespace Monster.Middle.Processes.Sync.Services
                 .Entities
                 .ShopifyOrders
                 .Include(x => x.AcumaticaSalesOrder)
-                .Include(x => x.AcumaticaSalesOrder.AcumaticaSoShipments)
+                .Include(x => x.AcumaticaSalesOrder.AcumaticaSoShipments.Select(y => y.ShopifyFulfillment))
                 .Include(x => x.ShopifyTransactions)
                 .Include(x => x.ShopifyTransactions.Select(y => y.AcumaticaPayment))
-                .Include(x => x.ShopifyRefunds)
-                .Include(x => x.ShopifyFulfillments);
+                .Include(x => x.ShopifyRefunds);
 
         private IQueryable<ShopifyOrder> GetOrderAnalysisQueryable(AnalyzerRequest request)
         {
@@ -115,7 +114,8 @@ namespace Monster.Middle.Processes.Sync.Services
             return queryable;
         }
 
-        public OrderAnalysisTotals GetOrderFinancialSummary(long shopifyOrderId, bool includeAcumaticaTotals = false)
+        public OrderAnalysisTotals 
+                GetOrderFinancialSummary(long shopifyOrderId, bool includeAcumaticaTotals = true)
         {
             var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -152,7 +152,15 @@ namespace Monster.Middle.Processes.Sync.Services
 
                 if (includeAcumaticaTotals)
                 {
-                    InjectTotalsFromAcumatica(shopifyOrderRecord, output);
+                    var acumaticaOrder = shopifyOrderRecord.AcumaticaSalesOrder.ToSalesOrderObj();
+
+                    if (acumaticaOrder.Totals != null)
+                    {
+                        output.AcumaticaOrderLineTotal = (decimal) acumaticaOrder.Totals.LineTotalAmount.value;
+                        output.AcumaticaOrderFreight = (decimal) acumaticaOrder.Totals.Freight.value;
+                        output.AcumaticaTaxTotal = (decimal) acumaticaOrder.Totals.TaxTotal.value;
+                        output.AcumaticaOrderTotal = (decimal) acumaticaOrder.OrderTotal.value;
+                    }
                 }
             }
 
@@ -168,24 +176,6 @@ namespace Monster.Middle.Processes.Sync.Services
             output.AcumaticaInvoiceTotal = shopifyOrderRecord.AcumaticaInvoiceTotal();
             
             return output;
-        }
-
-        private void InjectTotalsFromAcumatica(ShopifyOrder shopifyOrderRecord, OrderAnalysisTotals output)
-        {
-            SalesOrder acumaticaOrder = null;
-            var acumaticaOrderNbr = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr;
-
-            _acumaticaHttpContext.SessionRun(() =>
-            {
-                var json = _salesOrderClient
-                    .RetrieveSalesOrder(acumaticaOrderNbr, SalesOrderType.SO, Expand.Totals);
-                acumaticaOrder = json.ToSalesOrderObj();
-            });
-
-            output.AcumaticaOrderLineTotal = (decimal)acumaticaOrder.Totals.LineTotalAmount.value;
-            output.AcumaticaOrderFreight = (decimal)acumaticaOrder.Totals.Freight.value;
-            output.AcumaticaTaxTotal = (decimal)acumaticaOrder.Totals.TaxTotal.value;
-            output.AcumaticaOrderTotal = (decimal)acumaticaOrder.OrderTotal.value;
         }
 
         private OrderAnalyzerResultsRow MakeOrderAnalyzerResults(ShopifyOrder order)

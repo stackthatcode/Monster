@@ -27,7 +27,33 @@ namespace Monster.Middle.Processes.Sync.Services
             _syncInventoryRepository = syncInventoryRepository;
         }
 
-        public ValidationResult ReadyToCreateOrder(long shopifyOrderId)
+        public void Validate(OrderAction action)
+        {
+            action.Validation = new ValidationResult();
+
+            if (action.ActionCode == ActionCode.CreateInAcumatica)
+            {
+                action.Validation = ReadyToCreateOrder(action.ShopifyOrderId);
+                return;
+            }
+
+            if (action.ActionCode == ActionCode.CreateInAcumatica)
+            {
+                action.Validation = ReadyToCreateBlankOrder(action.ShopifyOrderId);
+                return;
+            }
+
+            if (action.ActionCode == ActionCode.CreateBlankSyncRecord)
+            {
+                action.Validation = ReadyToCreateBlankOrder(action.ShopifyOrderId);
+                return;
+            }
+
+            // Vhut, no validation for Update Order...?
+            return;
+        }
+
+        private ValidationResult ReadyToCreateOrder(long shopifyOrderId)
         {
             var output = new CreateOrderValidation();
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
@@ -51,7 +77,7 @@ namespace Monster.Middle.Processes.Sync.Services
             return output.Result();
         }
 
-        public ValidationResult ReadyToCreateBlankOrder(long shopifyOrderId)
+        private ValidationResult ReadyToCreateBlankOrder(long shopifyOrderId)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var validation = new Validation<ShopifyOrder>()
@@ -60,7 +86,7 @@ namespace Monster.Middle.Processes.Sync.Services
         }
 
 
-        public ValidationResult ReadyToUpdateOrder(long shopifyOrderId)
+        private ValidationResult ReadyToUpdateOrder(long shopifyOrderId)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var validation = new Validation<ShopifyOrder>()
@@ -71,6 +97,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
             return validation.Run(orderRecord);
         }
+
 
         private void BuildLineItemValidations(CreateOrderValidation validation, MonsterSetting settings)
         {

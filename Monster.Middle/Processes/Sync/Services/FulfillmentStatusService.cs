@@ -1,11 +1,14 @@
-﻿using Monster.Acumatica.Api.Shipment;
+﻿using System.Linq;
+using Monster.Acumatica.Api.Shipment;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
+using Push.Foundation.Utilities.Validation;
 
 
 namespace Monster.Middle.Processes.Sync.Services
@@ -16,20 +19,29 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly SyncOrderRepository _syncOrderRepository;
 
         public FulfillmentStatusService(
-                SyncInventoryRepository syncInventoryRepository, 
-                SyncOrderRepository syncOrderRepository)
+                SyncInventoryRepository syncInventoryRepository, SyncOrderRepository syncOrderRepository)
         {
             _syncInventoryRepository = syncInventoryRepository;
             _syncOrderRepository = syncOrderRepository;
         }
 
 
-        public CreateFulfillmentValidation ReadyToSync(AcumaticaSoShipment soShipment)
+        public void Validate(ShopifyOrder orderRecord, ShipmentAction action)
+        {
+            var soShipment = orderRecord.SoShipments()
+                .First(x => x.AcumaticaShipmentNbr == action.ShipmentNbr &&
+                            x.AcumaticaInvoiceNbr == action.InvoiceNbr);
+
+            action.Validation = Validate(soShipment);
+        }
+
+        public ValidationResult Validate(AcumaticaSoShipment shipmentRecord)
         {
             var output = new CreateFulfillmentValidation();
 
-            var salesOrder = 
-                _syncOrderRepository.RetrieveSalesOrder(soShipment.AcumaticaSalesOrder.AcumaticaOrderNbr);
+            var salesOrder = shipmentRecord.AcumaticaSalesOrder;
+            
+
             var shopifyOrderId = salesOrder.OriginalShopifyOrder().ShopifyOrderId;
 
             // Fulfilled in Shopify - thus corrupted!
@@ -38,7 +50,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
             // Unmatched Warehouse
             //
-            var shipment = soShipment.AcumaticaShipmentJson.DeserializeFromJson<Shipment>();
+            var shipment = shipmentRecord.AcumaticaShipmentJson.DeserializeFromJson<Shipment>();
 
             var warehouseRecord = _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
 
@@ -64,9 +76,8 @@ namespace Monster.Middle.Processes.Sync.Services
 
             // Error threshold
             //
-            output.ErrorThresholdExceeded = soShipment.PutErrorCount >= SystemConsts.ErrorThreshold;
-
-            return output;
+            output.ErrorThresholdExceeded = shipmentRecord.PutErrorCount >= SystemConsts.ErrorThreshold;
+            return output.Result();
         }
     }
 }

@@ -65,18 +65,18 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
                 .Add(x => !x.LineItemIdsWithUnrecognizedSku.Any(), "Shopify Order contains line item(s) without a SKU")
                 
                 .Add(x => !x.SkusMissingFromShopify.Any(), 
-                        x => $"Shopify Order contains line item(s) that reference missing Variant(s) {x.SkusMissingFromShopify.StringJoin(",")}")
+                        x => $"Shopify Order contains line item(s) that reference missing Variant(s) {x.SkusMissingFromShopify.StringJoin(", ")}")
                 
                 .Add(x => !x.SkusNotSyncedInAcumatica.Any(),
-                        x => $"Shopify Order contains Variant(s) not synced with Acumatica: {x.SkusNotSyncedInAcumatica.StringJoin(",")}")
+                        x => $"Shopify Order contains Variant(s) not synced with Acumatica: {x.SkusNotSyncedInAcumatica.StringJoin(", ")}")
                 
                 .Add(x => !x.SkusWithMismatchedStockItemId.Any(),
                         x => $"Shopify Order contains Variant(s) with SKU's that mismatch with Acumatica Stock Items: " +
-                        x.SkusWithMismatchedStockItemId.StringJoin(","))
+                        x.SkusWithMismatchedStockItemId.StringJoin(", "))
                 
                 .Add(x => !x.SkusWithMismatchedTaxes.Any(),
                         x => $"Shopify Order contains Variant(s) that mismatched Taxes with Acumatica: " +
-                        x.SkusWithMismatchedTaxes.StringJoin(","));
+                        x.SkusWithMismatchedTaxes.StringJoin(", "));
 
             return validation.Run(this);
         }

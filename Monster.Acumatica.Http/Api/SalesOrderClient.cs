@@ -59,12 +59,9 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string WriteSalesOrder(string json)
+        public string WriteSalesOrder(string json, string expand)
         {
-            //?$custom=Document.UsrTaxSnapshot", json);
-
-            var response = _httpContext.Put($"SalesOrder", json);   
-            LogSalesOrderDetailIds(response.Body);
+            var response = _httpContext.Put($"SalesOrder?$expand={expand}", json);   
             return response.Body;
         }
 
@@ -83,24 +80,6 @@ namespace Monster.Acumatica.Api
         }
 
 
-        private void LogSalesOrderDetailIds(string resultJson)
-        {
-            var order = resultJson.DeserializeFromJson<SalesOrder.SalesOrder>();
-            var details = order.Details ?? new List<SalesOrderDetail>();
-            _logger.Trace($"Sales Order {order.OrderNbr.value} Detail");
-
-            if (details.Count == 0)
-            {
-                _logger.Trace("(No details returned)");
-                return;
-            }
-
-            foreach (var detail in details)
-            {
-                _logger.Trace(
-                    $"{detail.InventoryID.value} - {detail.id}" + $" - OrderQty {detail.OrderQty.value}");
-            }
-        }
     }
 }
 

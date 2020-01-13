@@ -172,7 +172,6 @@ namespace Monster.Middle.Processes.Sync.Workers
         private void CreateSalesOrder(long shopifyOrderId)
         {
             var shopifyOrderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
-
             var acumaticaCustomer = PushNonExistentCustomer(shopifyOrderRecord);
 
             var logContent = LogBuilder.CreateAcumaticaSalesOrder(shopifyOrderRecord);
@@ -180,8 +179,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Write the Sales Order to Acumatica
             //
-            var salesOrder = BuilderNewSalesOrder(shopifyOrderRecord, acumaticaCustomer);
-            var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson());
+            var salesOrder = BuildNewSalesOrder(shopifyOrderRecord, acumaticaCustomer);
+            var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson(), Expand.Totals);
 
             // Create the local Order Record and Sync
             //
@@ -230,11 +229,17 @@ namespace Monster.Middle.Processes.Sync.Workers
             _logService.Log(logContent);
 
             var updateOrderJson = BuildSalesOrderUpdate(shopifyOrderRecord).SerializeToJson();
-            var resultJson = _salesOrderClient.WriteSalesOrder(updateOrderJson);
+            var resultJson = _salesOrderClient.WriteSalesOrder(updateOrderJson, Expand.Totals);
             var salesOrder = resultJson.ToSalesOrderObj();
 
             acumaticaRecord.AcumaticaIsTaxValid = salesOrder.IsTaxValid.value;
             acumaticaRecord.AcumaticaStatus = salesOrder.Status.value;
+            acumaticaRecord.AcumaticaFreight = (decimal)salesOrder.Totals.Freight.value;
+            acumaticaRecord.AcumaticaLineTotal = (decimal)salesOrder.Totals.LineTotalAmount.value;
+            acumaticaRecord.AcumaticaTaxTotal = (decimal)salesOrder.Totals.TaxTotal.value;
+            acumaticaRecord.AcumaticaOrderTotal = (decimal)salesOrder.OrderTotal.value;
+
+
             acumaticaRecord.LastUpdated = DateTime.Now;
             
             shopifyOrderRecord.NeedsOrderPut = !acumaticaRecord.AcumaticaIsTaxValid;
@@ -263,7 +268,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         // Create new Sales Order
         //
-        private SalesOrder BuilderNewSalesOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer customer)
+        private SalesOrder BuildNewSalesOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer customer)
         {
             // Header
             //

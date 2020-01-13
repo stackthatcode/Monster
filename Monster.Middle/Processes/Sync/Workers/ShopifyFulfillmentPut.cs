@@ -58,9 +58,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var salesOrderRef in salesOrderRefs)
             {
-                var syncReadiness = _fulfillmentStatusService.ReadyToSync(salesOrderRef);
+                var syncReadiness = _fulfillmentStatusService.Validate(salesOrderRef);
 
-                if (syncReadiness.Result().Success)
+                if (syncReadiness.Success)
                 {
                     PushFulfillmentToShopifyAux(salesOrderRef);
                 }
