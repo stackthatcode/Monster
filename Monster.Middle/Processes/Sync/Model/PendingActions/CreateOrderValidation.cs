@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         {
             var validation = new Validation<CreateOrderValidation>()
                 .Add(x => x.ShopifyOrderRecord.PutErrorCount < SystemConsts.ErrorThreshold,
-                        "Encountered too many errors attempting to synchronize this Shopify Order")
+                        "Encountered too many errors attempting to synchronize this Shopify Order", true)
 
                 .Add(x => !x.IsFulfilledBeforeSync,
                         $"Shopify Order has been fulfilled before sync with Acumatica", instantFailure: true)
@@ -51,9 +51,9 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
 
                 //.Add(x => !x.IsCancelledBeforeSync, $"Shopify Order has been cancelled before sync with Acumatica")
                 
-                .Add(x => x.HasShopifyCustomer, "Shopify Customer has not been downloaded yet")
+                .Add(x => x.HasShopifyCustomer, "Shopify Customer has not been downloaded yet", true)
                 
-                .Add(x => x.ShopifyOrderRecord.HasPayment(), "Shopify Payment has not been downloaded yet")
+                .Add(x => x.ShopifyOrderRecord.HasPayment(), "Shopify Payment has not been downloaded yet; possibly caused by non-captured Payment", true)
                 
                 .Add(x => HasValidGateway, $"Does not have a valid payment gateway; please check configuration")
                 
