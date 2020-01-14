@@ -43,7 +43,11 @@ namespace Monster.Middle.Processes.Sync.Services
         public RootAction Create(long shopifyOrderId, bool validate = true)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
+            return Create(orderRecord, validate);
+        }
 
+        public RootAction Create(ShopifyOrder orderRecord, bool validate = true)
+        {
             var output = new RootAction();
             output.OrderAction = BuildOrderPendingAction(orderRecord);
             output.PaymentAction = BuildPaymentActions(orderRecord);
@@ -86,8 +90,9 @@ namespace Monster.Middle.Processes.Sync.Services
                 var order = record.ToShopifyObj();
 
                 output.ActionCode =
-                    !order.IsEmptyOrCancelled 
-                        ? ActionCode.CreateInAcumatica : ActionCode.CreateBlankSyncRecord;
+                    order.IsCancelled ||  order.AllLineItemsRefunded
+                        ? ActionCode.CreateBlankSyncRecord
+                        : ActionCode.CreateInAcumatica;
             }
             else // Exists in Acumatica
             {

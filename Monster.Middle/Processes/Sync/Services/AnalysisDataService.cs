@@ -25,24 +25,21 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly ProcessPersistContext _persistContext;
         private readonly ShopifyUrlService _shopifyUrlService;
         private readonly AcumaticaUrlService _acumaticaUrlService;
-        private readonly AcumaticaHttpContext _acumaticaHttpContext;
-        private readonly SalesOrderClient _salesOrderClient;
         private readonly SettingsRepository _settingsRepository;
+        private readonly PendingActionService _pendingActionService;
 
         public AnalysisDataService(
                 ProcessPersistContext persistContext, 
                 ShopifyUrlService shopifyUrlService, 
                 AcumaticaUrlService acumaticaUrlService, 
-                AcumaticaHttpContext acumaticaHttpContext, 
-                SalesOrderClient salesOrderClient, 
-                SettingsRepository settingsRepository)
+                SettingsRepository settingsRepository, 
+                PendingActionService pendingActionService)
         {
             _persistContext = persistContext;
             _shopifyUrlService = shopifyUrlService;
             _acumaticaUrlService = acumaticaUrlService;
-            _acumaticaHttpContext = acumaticaHttpContext;
-            _salesOrderClient = salesOrderClient;
             _settingsRepository = settingsRepository;
+            _pendingActionService = pendingActionService;
         }
 
         public List<OrderAnalyzerResultsRow> GetOrderAnalysisResults(AnalyzerRequest request)
@@ -54,7 +51,12 @@ namespace Monster.Middle.Processes.Sync.Services
                 .Take(request.PageSize)
                 .ToList();
 
-            return results.Select(x => MakeOrderAnalyzerResults(x)).ToList();
+            var output = new List<OrderAnalyzerResultsRow>();
+            foreach (var result in results)
+            {
+                output.Add(MakeOrderAnalyzerResults(result));
+            }
+            return output;
         }
 
         public int GetOrderAnalysisRecordCount(AnalyzerRequest request)
@@ -93,11 +95,6 @@ namespace Monster.Middle.Processes.Sync.Services
                         x => x.ShopifyOrderNumber.Contains(term) ||
                              x.AcumaticaSalesOrder.AcumaticaOrderNbr.Contains(term));
                 }
-            }
-
-            if (request.OrderStatus == AnalyzerStatus.Blocked)
-            {
-                queryable = queryable.Where(x => x.IsBlocked == true);
             }
 
             if (request.OrderStatus == AnalyzerStatus.Errors)
@@ -186,9 +183,14 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(order.ShopifyOrderId);
 
             var shopifyOrder = order.ToShopifyObj();
-            output.ShopifyOrderTotal = shopifyOrder.total_price;
 
+            output.ShopifyOrderTotal = shopifyOrder.total_price;
             output.ShopifyNetPayment = order.ShopifyNetPayment();
+
+            output.ShopifyFinancialStatus = order.ShopifyFinancialStatus;
+            output.ShopifyFulfillmentStatus = order.ShopifyFulfillmentStatus;
+            output.ShopifyIsCancelled = order.ShopifyIsCancelled;
+            output.ShopifyIsCompletelyRefunded = order.IsCompletelyRefunded;
 
             if (order.AcumaticaSalesOrder != null
                 && order.AcumaticaSalesOrder.AcumaticaOrderNbr != AcumaticaSyncConstants.BlankRefNbr)
@@ -196,7 +198,8 @@ namespace Monster.Middle.Processes.Sync.Services
                 output.AcumaticaSalesOrderNbr = order.AcumaticaSalesOrder.AcumaticaOrderNbr;
                 output.AcumaticaSalesOrderHref =
                     _acumaticaUrlService.AcumaticaSalesOrderUrl(
-                        SalesOrderType.SO, order.AcumaticaSalesOrder.AcumaticaOrderNbr);
+                            SalesOrderType.SO, order.AcumaticaSalesOrder.AcumaticaOrderNbr);
+                output.AcumaticaStatus = order.AcumaticaSalesOrder.AcumaticaStatus;
             }
 
             if (order.IsPaymentSynced())
@@ -211,9 +214,11 @@ namespace Monster.Middle.Processes.Sync.Services
             }
 
             output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal();
-
-            output.IsBlocked = order.IsBlocked;
             output.HasError = order.HasErrorsPastThreshold();
+
+            output.HasPendingActions = 
+                _pendingActionService.Create(order, validate: false).HasPendingActions;
+
             return output;
         }
 

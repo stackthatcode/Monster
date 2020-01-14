@@ -220,13 +220,6 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
 
-        public void UpdateShopifyOrderIsBlocked(long shopifyOrderId, bool isBlocked)
-        {
-            var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);
-            order.IsBlocked = isBlocked;
-            Entities.SaveChanges();
-        }
-
         public void IncreaseOrderErrorCount(long shopifyOrderId)
         {
             var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);

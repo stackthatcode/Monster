@@ -22,6 +22,9 @@
         .order-grid {
             font-size: 0.8em;
         }
+        .order-grid .badge { 
+            font-size:85%;
+        }
 
         .order-grid td:nth-child(1), .order-grid th:nth-child(1) {
             text-align: left;
@@ -32,11 +35,11 @@
         }
 
         .order-grid td:nth-child(3), .order-grid th:nth-child(3) {
-            text-align: right;
+            text-align: left;
         }
 
         .order-grid td:nth-child(4), .order-grid th:nth-child(4) {
-            text-align: right;
+            text-align: left;
         }
 
         .order-grid td:nth-child(5), .order-grid th:nth-child(5) {
@@ -86,7 +89,6 @@
             <div class="col-sm-2">
                 <select class="form-control" data-bind="value: OrderStatus">
                     <option value="All">All</option>
-                    <option value="Blocked">Blocked</option>
                     <option value="Errors">Errors</option>
                 </select>
             </div>
@@ -105,35 +107,55 @@
         <div data-bind="if: Grid().length">
             <table class="table table-hover order-grid">
                 <thead>
-                    <tr style="color: #777;">
-                        <th scope="col">Shopify<br />Order Nbr</th>
-                        <th scope="col">Acumatica<br /> Sales Order</th>
-                        <th scope="col">Shopify<br /> Order Total</th>
-                        <th scope="col">Shopify<br /> Net Payment</th>
-                        <th scope="col">Acumatica<br /> Order Payment</th>
-                        <th scope="col">Acumatica<br /> Net Payment</th>
-                        <th scope="col">Acumatica<br /> Invoice Total</th>
-                        <th scope="col">Status</th>
-                    </tr>
+                <tr style="color: #777;">
+                    <th scope="col">Shopify<br />Order Nbr</th>
+                    <th scope="col">Shopify<br />Status</th>
+                    <th scope="col">Acumatica<br />Sales Order</th>
+                    <th scope="col">Acumatica<br />Status</th>
+
+                    <th scope="col">Shopify<br />Order Total</th>
+                    <th scope="col">Acumatica<br />Order Total</th>
+                    <th scope="col">Acumatica<br />Invoice Total</th>
+                    <th scope="col">Pending<br />Actions</th>
+                </tr>
                 </thead>
                 <tbody data-bind="foreach: Grid">
                     <tr data-bind="click: $parent.OrderClick">
-                        <td data-bind="text: ShopifyOrderNbr"></td>
-                        <td data-bind="text: AcumaticaSalesOrderNbr"></td>
+                        <td>
+                            <a target="_blank" data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="badge badge-light" data-bind="text: ShopifyFinancialStatus"></div>
+                            </div>
+                            <div>
+                                <div class="badge badge-light" data-bind="text: ShopifyFulfillmentStatus"></div>
+                            </div>
+                            <div data-bind="if: ShopifyIsCancelled">
+                                <div class="badge badge-warning">Order Cancelled</div>
+                            </div>
+                            <div data-bind="if: ShopifyIsCompletelyRefunded">
+                                <div class="badge badge-warning">All Items Refunded</div>
+                            </div>
+                        </td>
+
+                        <td data-bind="ifnot:Monster.MissingField == AcumaticaSalesOrderNbr">
+                            <div data-bind="text: AcumaticaSalesOrderNbr"></div>
+                        </td>
+
+                        <td data-bind="ifnot:Monster.MissingField == AcumaticaStatus">
+                            <div class="badge badge-light" data-bind="text: AcumaticaStatus"></div>
+                        </td>
+
                         <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
-                        <td data-bind="text: Monster.NumberFormat(ShopifyNetPayment)"></td>
                         <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
-                        <td data-bind="text: Monster.NumberFormat(AcumaticaNetPayment)"></td>
                         <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
                         <td>
-                            <div data-bind="if: IsBlocked">
-                                <div class="badge badge-danger">Blocked</div>
+                            <div data-bind="if: HasPendingActions">
+                                <div class="badge badge-success">Pending</div>
                             </div>
                             <div data-bind="if: HasError">
-                                <div class="badge badge-warning">Error</div>
-                            </div>
-                            <div data-bind="ifnot: IsBlocked || HasError">
-                                <div class="badge badge-success">OK</div>
+                                <div class="badge badge-danger">Error</div>
                             </div>
                         </td>
                     </tr>
@@ -214,18 +236,20 @@
         }
     </style>
     <div style="min-height: 400px;" class="pending-action-view">
-        <div class="alert" 
-             data-bind="css: { 'alert-info': OrderAction.IsValid, 'alert-danger': !OrderAction.IsValid }">
-            <strong>
-                <a target="_blank" data-bind="attr: { href: ShopifyOrderHref }">
-                    Shopify Order <span data-bind="text: ShopifyOrderName"></span>
-                </a>
-            </strong>
+        <div data-bind="with: OrderAction">
+            <div class="alert"
+                 data-bind="css: { 'alert-info': IsValid, 'alert-danger': !IsValid }">
+                <strong>
+                    <a target="_blank" data-bind="attr: { href: ShopifyOrderHref }">
+                        Shopify Order <span data-bind="text: ShopifyOrderName"></span>
+                    </a>
+                </strong>
 
-            <span>-</span> <span data-bind="text: OrderAction.ActionDesc"></span>
+                <span>-</span> <span data-bind="text: ActionDesc"></span>
 
-            <div data-bind="foreach: OrderAction.Validation.FailureMessages">
-                <div data-bind="text: $data" style="font-style: italic"></div>
+                <div data-bind="foreach: Validation.FailureMessages">
+                    <div data-bind="text: $data" style="font-style: italic"></div>
+                </div>
             </div>
         </div>
 

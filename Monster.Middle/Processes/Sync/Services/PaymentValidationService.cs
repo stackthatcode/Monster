@@ -20,11 +20,16 @@ namespace Monster.Middle.Processes.Sync.Services
 
         public void ValidatePayment(ShopifyOrder order, PaymentAction action)
         {
+            action.Validation = new ValidationResult();
+
             var transaction = order
                 .ShopifyTransactions
-                .First(x => x.ShopifyTransactionId == action.ShopifyTransactionId);
+                .FirstOrDefault(x => x.ShopifyTransactionId == action.ShopifyTransactionId);
 
-            action.Validation = new ValidationResult();
+            if (transaction == null)
+            {
+                return;
+            }
             
             if (action.ActionCode == ActionCode.CreateInAcumatica)
             {

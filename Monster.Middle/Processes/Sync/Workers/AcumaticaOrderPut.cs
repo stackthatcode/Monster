@@ -186,6 +186,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var newOrder = resultJson.ToSalesOrderObj();
             var newRecord = new AcumaticaSalesOrder();
+
             newRecord.ShopifyOrderMonsterId = shopifyOrderRecord.Id;
 
             // Conspicuously not set - waiting on AcumaticaOrderGet to update this
@@ -193,7 +194,14 @@ namespace Monster.Middle.Processes.Sync.Workers
             newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
             newRecord.AcumaticaStatus = newOrder.Status.value;
             newRecord.AcumaticaIsTaxValid = newOrder.IsTaxValid.value;
+
+            newRecord.AcumaticaLineTotal = (decimal)newOrder.Totals.LineTotalAmount.value;
+            newRecord.AcumaticaFreight = (decimal)newOrder.Totals.Freight.value;
+            newRecord.AcumaticaTaxTotal = (decimal)newOrder.Totals.TaxTotal.value;
+            newRecord.AcumaticaOrderTotal = (decimal)newOrder.OrderTotal.value;
+
             newRecord.ShopifyCustomerMonsterId = acumaticaCustomer.ShopifyCustomerMonsterId;
+
             newRecord.DateCreated = DateTime.UtcNow;
             newRecord.LastUpdated = DateTime.UtcNow;
 

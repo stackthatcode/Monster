@@ -82,7 +82,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             {
                 var orders = 
                     _salesOrderClient.RetrieveUpdatedSalesOrders(
-                        lastModifiedMin, page, pageSize, expand:Expand.Shipments_ShippingSettings);
+                        lastModifiedMin, page, pageSize, 
+                        expand:Expand.Shipments_ShippingSettings);
 
                 if (orders.Count == 0)
                 {
@@ -119,8 +120,15 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 }
 
                 existingData.AcumaticaShipmentDetailsJson = order.SerializeToJson();
+
+                existingData.AcumaticaFreight = (decimal)order.Totals.Freight.value;
+                existingData.AcumaticaLineTotal = (decimal)order.Totals.LineTotalAmount.value;
+                existingData.AcumaticaTaxTotal = (decimal)order.Totals.TaxTotal.value;
+                existingData.AcumaticaOrderTotal = (decimal)order.OrderTotal.value;
+
                 existingData.AcumaticaStatus = order.Status.value;
                 existingData.AcumaticaIsTaxValid = order.IsTaxValid.value;
+
                 existingData.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();
 
@@ -137,7 +145,9 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             foreach (var shipment in salesOrder.Shipments)
             {
                 var exists = _orderRepository.SoShipmentExists(
-                        salesOrderRecord.ShopifyOrderMonsterId, shipment.ShipmentNbr.value, shipment.InvoiceNbr.value);
+                        salesOrderRecord.ShopifyOrderMonsterId, 
+                        shipment.ShipmentNbr.value, 
+                        shipment.InvoiceNbr.value);
 
                 if (exists)
                 {

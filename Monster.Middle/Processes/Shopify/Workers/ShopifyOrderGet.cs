@@ -139,12 +139,17 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 newOrder.ShopifyOrderId = order.id;
                 newOrder.ShopifyOrderNumber = order.name;
-                newOrder.IsEmptyOrCancelled = order.IsEmptyOrCancelled;
                 newOrder.ShopifyJson = order.SerializeToJson();
+
+                newOrder.ShopifyTotalPrice = order.total_price;
                 newOrder.ShopifyFinancialStatus = order.financial_status;
+                newOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
+                newOrder.ShopifyIsCancelled = order.IsCancelled;
+                newOrder.IsCompletelyRefunded = order.AllLineItemsRefunded;
+
                 newOrder.NeedsTransactionGet = true;
                 newOrder.NeedsOrderPut = true;
-                newOrder.IsBlocked = false;
+
                 newOrder.PutErrorCount = 0;
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
@@ -156,14 +161,13 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 existingOrder.ShopifyJson = order.SerializeToJson();
 
-                if (existingOrder.IsEmptyOrCancelled != order.IsEmptyOrCancelled ||
-                    existingOrder.ShopifyFinancialStatus != order.financial_status)
-                {
-                    existingOrder.NeedsOrderPut = true;
-                }
-
-                existingOrder.IsEmptyOrCancelled = order.IsEmptyOrCancelled;
+                existingOrder.ShopifyTotalPrice = order.total_price;
                 existingOrder.ShopifyFinancialStatus = order.financial_status;
+                existingOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
+                existingOrder.ShopifyIsCancelled = order.IsCancelled;
+                existingOrder.IsCompletelyRefunded = order.AllLineItemsRefunded;
+
+                existingOrder.NeedsOrderPut = existingOrder.ChangesDetected(order);
                 existingOrder.NeedsTransactionGet = true;
                 existingOrder.LastUpdated = DateTime.UtcNow;
 

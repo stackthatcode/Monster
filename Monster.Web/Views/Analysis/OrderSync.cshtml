@@ -1,4 +1,10 @@
-﻿@Html.Partial("_PagingWidget")
+﻿@using Monster.Middle.Processes.Sync.Model.Analysis
+@Html.Partial("_PagingWidget")
+
+<script>
+    var Monster = Monster || {};
+    Monster.MissingField = '@AnalysisExtensions.MissingField';
+</script>
 
 <main role="main" class="large-size">
     @Html.Partial("_TopBrand")

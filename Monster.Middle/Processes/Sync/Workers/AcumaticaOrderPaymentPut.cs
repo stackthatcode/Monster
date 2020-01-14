@@ -220,7 +220,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
             var appliedToOrder = orderRecord.NetRemainingPayment();
 
-            if (!orderRecord.IsEmptyOrCancelled)
+            if (!orderRecord.IsCompletelyRefunded && !orderRecord.ShopifyIsCancelled)
             {
                 payment.OrdersToApply =
                     PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double) appliedToOrder);

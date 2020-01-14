@@ -1420,10 +1420,12 @@ namespace Monster.Middle.Persist.Instance
         public long ShopifyOrderId { get; set; } // ShopifyOrderId
         public string ShopifyOrderNumber { get; set; } // ShopifyOrderNumber (length: 25)
         public string ShopifyFinancialStatus { get; set; } // ShopifyFinancialStatus (length: 25)
-        public bool IsEmptyOrCancelled { get; set; } // IsEmptyOrCancelled
+        public string ShopifyFulfillmentStatus { get; set; } // ShopifyFulfillmentStatus (length: 25)
+        public decimal ShopifyTotalPrice { get; set; } // ShopifyTotalPrice
+        public bool ShopifyIsCancelled { get; set; } // ShopifyIsCancelled
+        public bool IsCompletelyRefunded { get; set; } // IsCompletelyRefunded
         public bool NeedsTransactionGet { get; set; } // NeedsTransactionGet
         public bool NeedsOrderPut { get; set; } // NeedsOrderPut
-        public bool IsBlocked { get; set; } // IsBlocked
         public int PutErrorCount { get; set; } // PutErrorCount
         public long CustomerMonsterId { get; set; } // CustomerMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -2625,10 +2627,12 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderNumber).HasColumnName(@"ShopifyOrderNumber").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.ShopifyFinancialStatus).HasColumnName(@"ShopifyFinancialStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
-            Property(x => x.IsEmptyOrCancelled).HasColumnName(@"IsEmptyOrCancelled").HasColumnType("bit").IsRequired();
+            Property(x => x.ShopifyFulfillmentStatus).HasColumnName(@"ShopifyFulfillmentStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.ShopifyTotalPrice).HasColumnName(@"ShopifyTotalPrice").HasColumnType("money").IsRequired().HasPrecision(19,4);
+            Property(x => x.ShopifyIsCancelled).HasColumnName(@"ShopifyIsCancelled").HasColumnType("bit").IsRequired();
+            Property(x => x.IsCompletelyRefunded).HasColumnName(@"IsCompletelyRefunded").HasColumnType("bit").IsRequired();
             Property(x => x.NeedsTransactionGet).HasColumnName(@"NeedsTransactionGet").HasColumnType("bit").IsRequired();
             Property(x => x.NeedsOrderPut).HasColumnName(@"NeedsOrderPut").HasColumnType("bit").IsRequired();
-            Property(x => x.IsBlocked).HasColumnName(@"IsBlocked").HasColumnType("bit").IsRequired();
             Property(x => x.PutErrorCount).HasColumnName(@"PutErrorCount").HasColumnType("int").IsRequired();
             Property(x => x.CustomerMonsterId).HasColumnName(@"CustomerMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();

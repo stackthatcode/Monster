@@ -19,11 +19,11 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return input.ShopifyJson.DeserializeFromJson<Transaction>();
         }
 
-        public static Refund ToRefundObj(this ShopifyRefund input)
+        public static bool ChangesDetected(this ShopifyOrder currentRecord, Order newOrder)
         {
-            var shopifyOrderRecord = input.ShopifyOrder;
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-            return shopifyOrder.refunds.First(x => x.id == input.ShopifyRefundId);
+            return
+                currentRecord.ShopifyIsCancelled != newOrder.IsCancelled ||
+                currentRecord.ShopifyFinancialStatus != newOrder.financial_status;
         }
     }
 }
