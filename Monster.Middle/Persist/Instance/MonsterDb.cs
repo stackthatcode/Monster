@@ -2627,7 +2627,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyOrderNumber).HasColumnName(@"ShopifyOrderNumber").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.ShopifyFinancialStatus).HasColumnName(@"ShopifyFinancialStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
-            Property(x => x.ShopifyFulfillmentStatus).HasColumnName(@"ShopifyFulfillmentStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.ShopifyFulfillmentStatus).HasColumnName(@"ShopifyFulfillmentStatus").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.ShopifyTotalPrice).HasColumnName(@"ShopifyTotalPrice").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.ShopifyIsCancelled).HasColumnName(@"ShopifyIsCancelled").HasColumnType("bit").IsRequired();
             Property(x => x.IsCompletelyRefunded).HasColumnName(@"IsCompletelyRefunded").HasColumnType("bit").IsRequired();

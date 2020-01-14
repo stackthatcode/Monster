@@ -83,7 +83,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 var orders = 
                     _salesOrderClient.RetrieveUpdatedSalesOrders(
                         lastModifiedMin, page, pageSize, 
-                        expand:Expand.Shipments_ShippingSettings);
+                        expand:Expand.Shipments_Totals);
 
                 if (orders.Count == 0)
                 {
