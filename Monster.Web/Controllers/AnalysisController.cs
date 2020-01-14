@@ -84,6 +84,14 @@ namespace Monster.Web.Controllers
                 ShopifyOrderId = shopifyOrderId,
                 ShopifyOrderNbr = order.ShopifyOrderNumber,
                 ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(shopifyOrderId),
+                ShopifyCustomerId = order.ShopifyCustomer.ShopifyCustomerId,
+                ShopifyCustomerHref = _shopifyUrlService.ShopifyCustomerUrl(order.ShopifyCustomer.ShopifyCustomerId),
+
+                ShopifyFinancialStatus = order.ShopifyFinancialStatus,
+                ShopifyFulfillmentStatus = order.ShopifyFulfillmentStatus,
+                ShopifyIsCancelled = order.ShopifyIsCancelled,
+                ShopifyIsCompletelyRefunded = order.IsCompletelyRefunded,
+
                 Transfer = taxTransfer,
             };
 

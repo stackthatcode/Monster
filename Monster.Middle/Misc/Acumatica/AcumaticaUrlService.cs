@@ -18,11 +18,31 @@ namespace Monster.Middle.Misc.Acumatica
             return $"{acumaticaCredentials.InstanceUrl}/Main?ScreenId=IN202500&InventoryCD={id}";
         }
 
+        public string AcumaticaCustomerUrl(string id)
+        {
+            var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
+            return $"{acumaticaCredentials.InstanceUrl}//Main?ScreenId=AR303000&AcctCD={id}";
+        }
+
         public string AcumaticaSalesOrderUrl(string orderType, string refNbr)
         {
             var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
             return $"{acumaticaCredentials.InstanceUrl}/Main" 
                    + $"?ScreenId=SO301000&OrderType={orderType}&OrderNbr={refNbr}";
+        }
+
+        public string AcumaticaPaymentUrl(string paymentType, string refNbr)
+        {
+            var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
+            return $"{acumaticaCredentials.InstanceUrl}/Main"
+                   + $"?ScreenId=AR302000&DocType={paymentType}&RefNbr={refNbr}";
+        }
+
+        public string AcumaticaShipmentUrl(string shipmentNbr)
+        {
+            var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
+            return $"{acumaticaCredentials.InstanceUrl}/Main" 
+                + $"?ScreenId=SO302000&ShipmentNbr={shipmentNbr}";
         }
     }
 }

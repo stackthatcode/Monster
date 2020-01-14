@@ -6,7 +6,9 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
     public class PaymentAction
     {
         public long ShopifyTransactionId { get; set; }
+        public string AcumaticaPaymentDocType { get; set; }
         public string AcumaticaPaymentRef { get; set; }
+        public string AcumaticaHref { get; set; }
 
         public string TransDesc { get; set; }
         public decimal Amount { get; set; }

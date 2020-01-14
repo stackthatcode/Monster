@@ -81,7 +81,7 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderId = record.ShopifyOrderId;
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(record.ShopifyOrderId);
             output.ShopifyOrderName = record.ToShopifyObj().name;
-
+            
             output.Validation = new ValidationResult();
             output.ActionCode = ActionCode.None;
 
@@ -131,13 +131,21 @@ namespace Monster.Middle.Processes.Sync.Services
                     paymentAction.ActionCode = ActionCode.CreateInAcumatica;
                 }
 
-                if (payment.ExistsInAcumatica() && payment.NeedsPaymentPut)
+                if (payment.ExistsInAcumatica())
                 {
-                    paymentAction.ActionCode = ActionCode.UpdateInAcumatica;
-                }
-                else if (payment.ExistsInAcumatica() && !payment.AcumaticaPayment.IsReleased)
-                {
-                    paymentAction.ActionCode = ActionCode.ReleaseInAcumatica;
+                    paymentAction.AcumaticaPaymentRef = payment.AcumaticaPayment.AcumaticaRefNbr;
+                    paymentAction.AcumaticaHref
+                        = _acumaticaUrlService.AcumaticaPaymentUrl(
+                            PaymentType.Payment, payment.AcumaticaPayment.AcumaticaRefNbr);
+
+                    if (payment.NeedsPaymentPut)
+                    {
+                        paymentAction.ActionCode = ActionCode.UpdateInAcumatica;
+                    }
+                    else if (payment.ExistsInAcumatica() && !payment.AcumaticaPayment.IsReleased)
+                    {
+                        paymentAction.ActionCode = ActionCode.ReleaseInAcumatica;
+                    }
                 }
             }
             else
@@ -169,6 +177,14 @@ namespace Monster.Middle.Processes.Sync.Services
                 if (!refund.ExistsInAcumatica())
                 {
                     refundAction.ActionCode = ActionCode.CreateInAcumatica;
+                }
+
+                if (refund.ExistsInAcumatica())
+                {
+                    refundAction.AcumaticaPaymentRef = refund.AcumaticaPayment.AcumaticaRefNbr;
+                    refundAction.AcumaticaHref
+                        = _acumaticaUrlService.AcumaticaPaymentUrl(
+                            PaymentType.CustomerRefund, refund.AcumaticaPayment.AcumaticaRefNbr);
                 }
 
                 if (refund.ExistsInAcumatica() && !refund.IsReleased())
@@ -217,6 +233,9 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 var action = new ShipmentAction();
                 action.ShipmentNbr = soShipment.AcumaticaShipmentNbr;
+                action.ShipmentHref
+                    = _acumaticaUrlService.AcumaticaShipmentUrl(soShipment.AcumaticaShipmentNbr);
+
                 action.InvoiceNbr = soShipment.AcumaticaInvoiceNbr;
                 action.InvoiceAmount = soShipment.AcumaticaInvoiceAmount.Value;
                 action.InvoiceTax = soShipment.AcumaticaInvoiceTax.Value;
@@ -228,6 +247,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 else
                 {
                     action.ActionCode = ActionCode.None;
+                    action.ShopifyFulfillmentId = soShipment.ShopifyFulfillment.ShopifyFulfillmentId;
                 }
 
                 output.Add(action);

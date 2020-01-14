@@ -122,6 +122,11 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderNbr = shopifyOrderRecord.ShopifyOrderNumber;
             output.ShopifyOrderId = shopifyOrderRecord.ShopifyOrderId;
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(shopifyOrderRecord.ShopifyOrderId);
+
+            output.ShopifyCustomerId = shopifyOrderRecord.ShopifyCustomer.ShopifyCustomerId;
+            output.ShopifyCustomerHref =
+                _shopifyUrlService.ShopifyCustomerUrl(shopifyOrderRecord.ShopifyCustomer.ShopifyCustomerId);
+
             output.ShopifyTotalLinePrice = shopifyOrder.total_line_items_price;
             output.ShopifyShippingPriceTotal = shopifyOrder.ShippingDiscountedTotal;
             output.ShopifyTotalTax = shopifyOrder.total_tax;
@@ -146,6 +151,12 @@ namespace Monster.Middle.Processes.Sync.Services
                 output.AcumaticaSalesOrderHref
                     = _acumaticaUrlService.AcumaticaSalesOrderUrl(
                         SalesOrderType.SO, shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr);
+
+                output.AcumaticaCustomerNbr = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaCustomer.AcumaticaCustomerId;
+                output.AcumaticaCustomerHref 
+                    = _acumaticaUrlService.AcumaticaCustomerUrl(
+                        shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaCustomer.AcumaticaCustomerId);
+
 
                 if (includeAcumaticaTotals)
                 {

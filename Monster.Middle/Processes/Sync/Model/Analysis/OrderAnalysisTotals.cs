@@ -5,6 +5,9 @@
         public long ShopifyOrderId { get; set; }
         public string ShopifyOrderNbr { get; set; }
         public string ShopifyOrderHref { get; set; }
+        public long ShopifyCustomerId { get; set; }
+        public string ShopifyCustomerHref { get; set; }
+
 
         public decimal ShopifyTotalLinePrice { get; set; }
         public decimal ShopifyShippingPriceTotal { get; set; }
@@ -25,6 +28,10 @@
 
         public string AcumaticaSalesOrderNbr { get; set; }
         public string AcumaticaSalesOrderHref { get; set; }
+        public string AcumaticaCustomerNbr { get; set; }
+        public string AcumaticaCustomerHref { get; set; }
+
+
         public decimal AcumaticaOrderLineTotal { get; set; }
         public decimal AcumaticaOrderFreight { get; set; }
         public decimal AcumaticaTaxTotal { get; set; }
@@ -39,7 +46,6 @@
         public decimal AcumaticaInvoiceFreightTotal { get; set; }
         public decimal AcumaticaInvoiceTaxTotal { get; set; }
         public decimal AcumaticaInvoiceTotal { get; set; }
-
 
         public OrderAnalysisTotals()
         {
@@ -64,6 +70,8 @@
 
             AcumaticaSalesOrderNbr = AnalysisExtensions.MissingField;
             AcumaticaSalesOrderHref = null;
+            AcumaticaCustomerNbr = AnalysisExtensions.MissingField;
+            AcumaticaCustomerHref = null;
             AcumaticaOrderLineTotal = 0m;
             AcumaticaOrderFreight = 0m;
             AcumaticaTaxTotal = 0m;

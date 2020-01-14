@@ -4,6 +4,9 @@
 <script>
     var Monster = Monster || {};
     Monster.MissingField = '@AnalysisExtensions.MissingField';
+    Monster.IsMissing = function(input) {
+        return Monster.MissingField == input;
+    }
 </script>
 
 <main role="main" class="large-size">

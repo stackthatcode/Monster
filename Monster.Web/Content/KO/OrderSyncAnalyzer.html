@@ -116,47 +116,50 @@
                     <th scope="col">Shopify<br />Order Total</th>
                     <th scope="col">Acumatica<br />Order Total</th>
                     <th scope="col">Acumatica<br />Invoice Total</th>
-                    <th scope="col">Pending<br />Actions</th>
+                    <th scope="col">Sync<br />Status</th>
                 </tr>
                 </thead>
                 <tbody data-bind="foreach: Grid">
-                    <tr data-bind="click: $parent.OrderClick">
-                        <td>
-                            <a target="_blank" data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a>
-                        </td>
-                        <td>
-                            <div>
-                                <div class="badge badge-light" data-bind="text: ShopifyFinancialStatus"></div>
-                            </div>
-                            <div>
-                                <div class="badge badge-light" data-bind="text: ShopifyFulfillmentStatus"></div>
-                            </div>
-                            <div data-bind="if: ShopifyIsCancelled">
-                                <div class="badge badge-warning">Order Cancelled</div>
-                            </div>
-                            <div data-bind="if: ShopifyIsCompletelyRefunded">
-                                <div class="badge badge-warning">All Items Refunded</div>
-                            </div>
-                        </td>
+                <tr data-bind="click: $parent.OrderClick">
+                    <td>
+                        <a target="_blank" data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a>
+                    </td>
+                    <td>
+                        <div>
+                            <div class="badge badge-light" data-bind="text: ShopifyFinancialStatus"></div>
+                        </div>
+                        <div>
+                            <div class="badge badge-light" data-bind="text: ShopifyFulfillmentStatus"></div>
+                        </div>
+                        <div data-bind="if: ShopifyIsCancelled">
+                            <div class="badge badge-warning">Order Cancelled</div>
+                        </div>
+                        <div data-bind="if: ShopifyIsCompletelyRefunded">
+                            <div class="badge badge-warning">All Items Refunded</div>
+                        </div>
+                    </td>
 
-                        <td data-bind="ifnot:Monster.MissingField == AcumaticaSalesOrderNbr">
-                            <div data-bind="text: AcumaticaSalesOrderNbr"></div>
-                        </td>
+                    <td data-bind="ifnot:Monster.MissingField == AcumaticaSalesOrderNbr">
+                        <div data-bind="text: AcumaticaSalesOrderNbr"></div>
+                    </td>
 
-                        <td data-bind="ifnot:Monster.MissingField == AcumaticaStatus">
-                            <div class="badge badge-light" data-bind="text: AcumaticaStatus"></div>
-                        </td>
+                    <td data-bind="ifnot:Monster.MissingField == AcumaticaStatus">
+                        <div class="badge badge-light" data-bind="text: AcumaticaStatus"></div>
+                    </td>
 
-                        <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
-                        <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
-                        <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
-                        <td>
-                            <div data-bind="if: HasPendingActions">
-                                <div class="badge badge-success">Pending</div>
-                            </div>
-                            <div data-bind="if: HasError">
-                                <div class="badge badge-danger">Error</div>
-                            </div>
+                    <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
+                    <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
+                    <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
+                    <td>
+                        <div data-bind="if: HasPendingActions">
+                            <div class="badge badge-success">Pending</div>
+                        </div>
+                        <div data-bind="if: HasError">
+                            <div class="badge badge-danger">Error</div>
+                        </div>
+                        <div data-bind="if: !HasPendingActions && !HasError">
+                            <div class="badge badge-light">Done</div>
+                        </div>
                         </td>
                     </tr>
                 </tbody>
@@ -180,10 +183,20 @@
                 <a class="nav-link active" href="#">Financial Summary</a>
             </li>
             <!-- /ko -->
-
             <!-- ko ifnot: IsFinancialSummaryActive -->
             <li class="nav-item" data-bind="click: FinancialSummaryClick">
                 <a class="nav-link" href="#">Financial Summary</a>
+            </li>
+            <!-- /ko -->
+
+            <!-- ko if: IsRootActionActive -->
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Sync Status</a>
+            </li>
+            <!-- /ko -->
+            <!-- ko ifnot: IsRootActionActive -->
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bind="click: RootActionClick">Sync Status</a>
             </li>
             <!-- /ko -->
 
@@ -192,23 +205,12 @@
                 <a class="nav-link active" href="#">Shopify Detail</a>
             </li>
             <!-- /ko -->
-
             <!-- ko ifnot: IsShopifyDetailActive -->
             <li class="nav-item">
                 <a class="nav-link" href="#" data-bind="click: ShopifyDetailClick">Shopify Detail</a>
             </li>
             <!-- /ko -->
 
-            <!-- ko if: IsRootActionActive -->
-            <li class="nav-item">
-                <a class="nav-link active" href="#">Order Status</a>
-            </li>
-            <!-- /ko -->
-            <!-- ko ifnot: IsRootActionActive -->
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-bind="click: RootActionClick">Order Status</a>
-            </li>
-            <!-- /ko -->
         </ul>
 
         <div style="height: 40px;"></div>
@@ -244,8 +246,17 @@
                         Shopify Order <span data-bind="text: ShopifyOrderName"></span>
                     </a>
                 </strong>
-
-                <span>-</span> <span data-bind="text: ActionDesc"></span>
+                
+                <span data-bind="ifnot: Monster.IsMissing(AcumaticaSalesOrderNbr)">
+                    <strong>
+                        <span> - </span>
+                        <a target="_blank" data-bind="attr: { href: AcumaticaSalesOrderHref}">
+                            Acumatica Sales Order <span data-bind="text: AcumaticaSalesOrderNbr"></span>
+                        </a>
+                    </strong>
+                </span>
+                
+                <span> - <span data-bind="text: ActionDesc"></span></span>
 
                 <div data-bind="foreach: Validation.FailureMessages">
                     <div data-bind="text: $data" style="font-style: italic"></div>
@@ -263,8 +274,19 @@
                     </strong>
                     <span>-</span>
                     <span data-bind="text: Monster.NumberFormat(Amount)"></span>
+                    
+                    <span data-bind="ifnot: Monster.IsMissing(AcumaticaPaymentRef)">
+                        <strong>
+                            <span> - </span>
+                            <a target="_blank" data-bind="attr: { href: AcumaticaHref}">
+                                Acumatica Payment <span data-bind="text: AcumaticaPaymentRef"></span>
+                            </a>
+                        </strong>
+                    </span>
+                    
                     <span>-</span>
                     <span data-bind="text: ActionDesc"></span>
+                    
                     <div data-bind="foreach: Validation.FailureMessages">
                         <div style="font-style: italic" data-bind="text: $data"></div>
                     </div>
@@ -279,10 +301,19 @@
                 <strong>
                     <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
                 </strong>
-                <span>-</span>
-                <span data-bind="text: Monster.NumberFormat(Amount)"></span>
-                <span>-</span>
-                <span data-bind="text: ActionDesc"></span>
+                
+                <span data-bind="ifnot: Monster.IsMissing(AcumaticaPaymentRef)">
+                    <strong>
+                        <span> - </span>
+                        <a target="_blank" data-bind="attr: { href: AcumaticaHref}">
+                            Acumatica Refund <span data-bind="text: AcumaticaPaymentRef"></span>
+                        </a>
+                    </strong>
+                </span>
+
+                <span> - <span data-bind="text: Monster.NumberFormat(Amount)"></span></span>
+                <span> - <span data-bind="text: ActionDesc"></span></span>
+
                 <div data-bind="foreach: Validation.FailureMessages">
                     <div style="font-style: italic" data-bind="text: $data"></div>
                 </div>
@@ -304,13 +335,22 @@
                      'alert-info': IsValid,
                      'alert-danger': !IsValid}">
                 <strong>
-                    Acumatica Shipment <span data-bind="text: ShipmentNbr"></span>
+                    <a target="_blank" data-bind="attr: { href: ShipmentHref}">
+                        Acumatica Shipment <span data-bind="text: ShipmentNbr"></span>
+                    </a>
                     <span>-</span> Invoice <span data-bind="text: InvoiceNbr"></span>
                 </strong>
-                <span>-</span>
-                <span data-bind="text:  Monster.NumberFormat(InvoiceAmount)"></span>
-                <span>-</span>
-                <span data-bind="text: ActionDesc"></span>
+
+                <span data-bind="if: ShopifyFulfillmentId">
+                    <strong>
+                        <span> - </span>
+                            Shopify Fulfillment (<span data-bind="text: ShopifyFulfillmentId"></span>)
+                    </strong>
+                </span>
+
+                <span> - <span data-bind="text:  Monster.NumberFormat(InvoiceAmount)"></span></span>
+                <span> - <span data-bind="text: ActionDesc"></span></span>
+
                 <div data-bind="foreach: Validation.FailureMessages">
                     <div style="font-style: italic" data-bind="text: $data"></div>
                 </div>
@@ -378,6 +418,19 @@
             <td> </td>
             <td></td>
             <td></td>
+        </tr>
+        <tr>
+            <td>Shopify Customer ID</td>
+            <td>
+                <a class="order-link" href="#" target="_blank"
+                   data-bind="text: ShopifyCustomerId, attr: { href: ShopifyCustomerHref }"></a>
+            </td>
+            <td> </td>
+            <td>Acumatica Customer ID</td>
+            <td>
+                <a class="order-link" href="#" target="_blank"
+                   data-bind="text: AcumaticaCustomerNbr, attr: { href: AcumaticaCustomerHref }"></a>
+            </td>
         </tr>
         <tr><td colspan="5"></td></tr>
 
@@ -560,6 +613,54 @@
             <td></td>
             <td></td>
         </tr>
+        <tr>
+            <td class="shopify-detail-bold">Shopify Customer ID</td>
+            <td>
+                <a class="order-link" href="#" target="_blank"
+                   data-bind="text: ShopifyCustomerId, attr: { href: ShopifyCustomerHref }"></a>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="shopify-detail-bold">Financial Status</td>
+            <td>
+                <div data-bind="text: ShopifyFinancialStatus"></div>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="shopify-detail-bold">Fulfillment Status</td>
+            <td>
+                <div data-bind="text: ShopifyFulfillmentStatus"></div>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="shopify-detail-bold">Cancelled/Refunded?</td>
+            <td>
+                <span data-bind="if: ShopifyIsCancelled">Order Cancelled</span>
+                <span data-bind="if: ShopifyIsCompletelyRefunded">All Items Refunded</span>
+                <span data-bind="if: !ShopifyIsCompletelyRefunded && !ShopifyIsCancelled">(No)</span>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        
         <tr><td colspan="7"></td></tr>
 
         <tr class="shopify-detail-bold">
@@ -571,6 +672,7 @@
             <td>Tax Amount</td>
             <td>Line Amount</td>
         </tr>
+
         <!-- ko with: Transfer -->
         <!-- ko foreach: LineItems -->
         <tr>

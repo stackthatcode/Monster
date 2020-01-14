@@ -16,6 +16,11 @@ namespace Monster.Middle.Misc.Shopify
             var shopifyCredentials = _connectionRepository.RetrieveShopifyCredentials();
             return $"{shopifyCredentials.Domain.BaseUrl}/admin/orders/{id}";
         }
+        public string ShopifyCustomerUrl(long id)
+        {
+            var shopifyCredentials = _connectionRepository.RetrieveShopifyCredentials();
+            return $"{shopifyCredentials.Domain.BaseUrl}/admin/customers/{id}";
+        }
 
         public string ShopifyProductUrl(long id)
         {
