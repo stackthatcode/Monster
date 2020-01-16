@@ -51,6 +51,7 @@ namespace Monster.ConsoleApp.Testing.Feeder
                         {
                             kind =  TransactionKind.Sale,
                             status = TransactionStatus.Success,
+                            gateway = "bogus",
                             amount = Quantity * UnitPrice,
                         }
                     }
@@ -66,7 +67,10 @@ namespace Monster.ConsoleApp.Testing.Feeder
                 {
                     currency = "USD",
                     amount = Quantity * UnitPrice,
-                    kind = TransactionKind.Sale,
+                    kind = TransactionKind.Capture,
+                    test = true,
+                    gateway = "bogus",
+                    parent_id = 389404469,
                 }
             }.SerializeToJson();
         }

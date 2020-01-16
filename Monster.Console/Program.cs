@@ -144,6 +144,8 @@ namespace Monster.ConsoleApp
         private const string ShopifyFulfillmentPut = "108";
         private const string ShopifyFulfillmentEmail = "109";
         private const string ShopifyRetrieveOrder = "110";
+        private const string ShopifyDataFeeder = "200";
+
 
         private static void DisplayTestingFunctions()
         {
@@ -160,6 +162,8 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{ShopifyFulfillmentPut} - Shopify Fulfillment Put");
             Console.WriteLine($"{ShopifyFulfillmentEmail} - Shopify Fulfillment Email");
             Console.WriteLine($"{ShopifyRetrieveOrder} - Measure Shopify Order JSON storage size");
+            Console.WriteLine();
+            Console.WriteLine($"{ShopifyDataFeeder} - Run Shopify Data feeder");
             Console.WriteLine();
 
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
@@ -187,6 +191,9 @@ namespace Monster.ConsoleApp
                 MoreTestingStuff.RunShopifyFulfillmentEmail();
             if (input == ShopifyRetrieveOrder)
                 MoreTestingStuff.RunShopifyOrderRetrieve();
+
+            if (input == ShopifyDataFeeder)
+                MoreTestingStuff.RunShopifyDataFeeder();
         }
     }
 }

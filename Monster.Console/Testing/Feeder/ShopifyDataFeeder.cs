@@ -7,6 +7,7 @@ using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Customer;
 using Push.Shopify.Api.Order;
+using Push.Shopify.Api.Transactions;
 
 namespace Monster.ConsoleApp.Testing.Feeder
 {
@@ -33,9 +34,7 @@ namespace Monster.ConsoleApp.Testing.Feeder
         {
             var instanceId = Guid.Parse("51AA413D-E679-4F38-BA47-68129B3F9212");
             _connection.Initialize(instanceId);
-            var testCustomerJson 
-                = System.IO.File.ReadAllText("Feeder/TestCustomers.json");
-
+            var testCustomerJson = System.IO.File.ReadAllText("Testing/Feeder/TestCustomers.json");
             var testCustomers = testCustomerJson.DeserializeFromJson<List<TestCustomerDto>>();
             var count = 0;
             foreach (var customer in testCustomers)
@@ -49,9 +48,9 @@ namespace Monster.ConsoleApp.Testing.Feeder
                     CustomerEmail = standardizedEmail,
                     CustomerFirstName = customer.FirstName,
                     CustomerLastName = customer.LastName,
-                    LineItemVariantId = 12489243918434, // MED123
+                    LineItemVariantId = 31975123484717, // TAX ROUNDING BEAST
                     UnitPrice = 50,
-                    Quantity = 2,
+                    Quantity = 3,
                 };
                 PushCustomerOrderTransaction(payload);
                 _logger.Info($"Created Customer+Order+Transaction - {++count}");
