@@ -37,6 +37,12 @@ namespace Monster.Middle.Misc.Acumatica
             return $"{acumaticaCredentials.InstanceUrl}/Main"
                    + $"?ScreenId=AR302000&DocType={paymentType}&RefNbr={refNbr}";
         }
+        public string AcumaticaInvoiceUrl(string docType, string refNbr)
+        {
+            var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
+            return $"{acumaticaCredentials.InstanceUrl}/Main"
+                   + $"?ScreenId=AR301000&DocType={docType}&RefNbr={refNbr}";
+        }
 
         public string AcumaticaShipmentUrl(string shipmentNbr)
         {

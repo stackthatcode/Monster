@@ -13,7 +13,16 @@ EXEC dbo.ResetStartingShopifyOrder;
 */
 
 USE MonsterSys;
-SELECT * FROM AspNetUsers;
+
+
+USE Monster0001;
+SELECT * FROM ShopifyTransaction;
+SELECT * FROM ShopifyOrder;
+
+USE Acu19R10002;
+GO
+
+SELECT * FROM ARInvoice;
 
 
 USE Monster0001;

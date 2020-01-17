@@ -21,7 +21,7 @@ namespace Monster.Acumatica
             builder.RegisterType<ShipmentClient>().InstancePerLifetimeScope();
             builder.RegisterType<PaymentClient>().InstancePerLifetimeScope();
             builder.RegisterType<ReferenceClient>().InstancePerLifetimeScope();
-
+            builder.RegisterType<InvoiceClient>().InstancePerLifetimeScope();
         }
     }
 }

@@ -25,6 +25,17 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 currentRecord.ShopifyIsCancelled != newOrder.IsCancelled ||
                 currentRecord.ShopifyFinancialStatus != newOrder.financial_status;
         }
+
+        public static bool IsCancelledOrAllRefunded(this ShopifyOrder orderRecord)
+        {
+            return orderRecord.IsCompletelyRefunded || orderRecord.ShopifyIsCancelled;
+        }
+
+
+        public static bool IsNotCancelledOrAllRefunded(this ShopifyOrder orderRecord)
+        {
+            return !orderRecord.IsCancelledOrAllRefunded();
+        }
     }
 }
 

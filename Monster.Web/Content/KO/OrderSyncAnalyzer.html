@@ -239,8 +239,7 @@
     </style>
     <div style="min-height: 400px;" class="pending-action-view">
         <div data-bind="with: OrderAction">
-            <div class="alert"
-                 data-bind="css: { 'alert-info': IsValid, 'alert-danger': !IsValid }">
+            <div class="alert" data-bind="css: { 'alert-info': IsValid, 'alert-danger': !IsValid }">
                 <strong>
                     <a target="_blank" data-bind="attr: { href: ShopifyOrderHref }">
                         Shopify Order <span data-bind="text: ShopifyOrderName"></span>
@@ -266,9 +265,7 @@
 
         <div data-bind="if: PaymentAction">
             <div data-bind="with: PaymentAction">
-                <div class="alert" data-bind="css: {
-                     'alert-info': IsValid,
-                     'alert-danger': !IsValid }">
+                <div class="alert" data-bind="css: { 'alert-info': IsValid, 'alert-danger': !IsValid }">
                     <strong>
                         <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
                     </strong>
@@ -321,12 +318,18 @@
         </div>
 
         <div data-bind="foreach: AdjustmentMemoActions">
-            <div class="alert alert-secondary">
+            <div class="alert" data-bind="css: {
+                     'alert-info': IsValid,
+                     'alert-danger': !IsValid}">
                 <strong>Shopify <span data-bind="text: MemoTypeDesc"></span></strong>
                 <span>-</span>
                 <span data-bind="text:  Monster.NumberFormat(MemoAmount)"></span>
                 <span>-</span>
                 <span data-bind="text: ActionDesc"></span>
+
+                <div data-bind="foreach: Validation.FailureMessages">
+                    <div style="font-style: italic" data-bind="text: $data"></div>
+                </div>
             </div>
         </div>
 

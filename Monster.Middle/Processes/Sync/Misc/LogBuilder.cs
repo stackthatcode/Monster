@@ -80,6 +80,15 @@ namespace Monster.Middle.Processes.Sync.Misc
         }
 
 
+        public static string CreateAcumaticaMemo(ShopifyRefund refund)
+        {
+            return $"Creating Acumatica Memo from {refund.LogDescriptor()}";
+        }
+        public static string ReleaseAcumaticaMemo(ShopifyRefund refund)
+        {
+            return $"Releasing Acumatica Memo {refund.LogDescriptor()}";
+        }
+
         public static string CreateAcumaticaPayment(ShopifyTransaction transaction)
         {
             return $"Creating Acumatica Payment from {transaction.LogDescriptor()}";

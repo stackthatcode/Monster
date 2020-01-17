@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
+using Monster.Acumatica.Api.Payment;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Hangfire;
@@ -246,8 +247,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             acumaticaRecord.AcumaticaLineTotal = (decimal)salesOrder.Totals.LineTotalAmount.value;
             acumaticaRecord.AcumaticaTaxTotal = (decimal)salesOrder.Totals.TaxTotal.value;
             acumaticaRecord.AcumaticaOrderTotal = (decimal)salesOrder.OrderTotal.value;
-
-
             acumaticaRecord.LastUpdated = DateTime.Now;
             
             shopifyOrderRecord.NeedsOrderPut = !acumaticaRecord.AcumaticaIsTaxValid;
@@ -300,6 +299,14 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.ShipToContact = BuildContact(shopifyOrder, shopifyOrder.shipping_address);
             salesOrder.ShipToAddressOverride = true.ToValue();
             salesOrder.ShipToAddress = BuildAddress(shopifyOrder.shipping_address);
+
+
+            // Payment optimization *** FAIL - PENDING ACUMATICA SUPPORT
+            //
+            //var payment = _acumaticaOrderPaymentPut.BuildPaymentForCreate(shopifyOrderRecord.PaymentTransaction());
+            //salesOrder.Payments = new List<object> { payment };
+
+            salesOrder.PaymentRef = shopifyOrderRecord.PaymentTransaction().ShopifyTransactionId.ToString().ToValue();
 
             return salesOrder;
         }

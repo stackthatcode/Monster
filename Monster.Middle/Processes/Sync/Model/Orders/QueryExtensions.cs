@@ -11,9 +11,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
                     this IQueryable<ShopifyOrder> queryable, 
                     int errorThreshold = SystemConsts.ErrorThreshold)
         {
-            return queryable.Where(
-                x => x.PutErrorCount < errorThreshold &&
-                    x.ShopifyTransactions.All(y => y.PutErrorCount < errorThreshold));
+            return queryable.Where(x => x.PutErrorCount < errorThreshold);
         }
 
         public static IQueryable<AcumaticaSoShipment> 

@@ -61,25 +61,8 @@ namespace Monster.Acumatica.Api
 
         public string WriteSalesOrder(string json, string expand)
         {
-            var response = _httpContext.Put($"SalesOrder?$expand={expand}", json);   
+            var response = _httpContext.Put($"SalesOrder?$expand={expand}", json);
             return response.Body;
         }
-
-        public string RetrieveSalesOrderInvoiceAndTaxes(string invoiceRefNbr, string invoiceType)
-        {
-            var url = $"SalesInvoice/{invoiceType}/{invoiceRefNbr}?$expand={Expand.Invoice_TaxDetail}";
-            var response = _httpContext.Get(url);
-            return response.Body;
-        }
-
-        public string RetrieveInvoiceAndTaxes(string invoiceRefNbr, string invoiceType)
-        {
-            var url = $"Invoice/{invoiceType}/{invoiceRefNbr}?$expand={Expand.Invoice_TaxDetail}";
-            var response = _httpContext.Get(url);
-            return response.Body;
-        }
-
-
     }
 }
-

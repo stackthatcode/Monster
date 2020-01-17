@@ -71,6 +71,7 @@
     <Compile Include="Api\Reference\Tax.cs" />
     <Compile Include="Api\Reference\TaxCategory.cs" />
     <Compile Include="Api\Reference\TaxZone.cs" />
+    <Compile Include="Api\InvoiceClient.cs" />
     <Compile Include="Api\SalesOrderClient.cs" />
     <Compile Include="Api\BankClient.cs" />
     <Compile Include="Api\Common\Values.cs" />

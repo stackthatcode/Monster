@@ -80,6 +80,8 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Include(x => x.AcumaticaSalesOrder.AcumaticaSoShipments.Select(y => y.ShopifyFulfillment))
                 .Include(x => x.ShopifyTransactions)
                 .Include(x => x.ShopifyTransactions.Select(y => y.AcumaticaPayment))
+                .Include(x => x.ShopifyRefunds)
+                .Include(x => x.ShopifyRefunds.Select(y => y.AcumaticaMemo))
                 .FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
         }
 
@@ -92,6 +94,17 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyTransactionId == shopifyTransactionId);
         }
 
+        public ShopifyRefund RetrieveShopifyRefundWithNoTracking(long shopifyRefundId)
+        {
+            return Entities
+                .ShopifyRefunds
+                .Include(x => x.ShopifyOrder)
+                .Include(x => x.ShopifyOrder.AcumaticaSalesOrder)
+                .Include(x => x.ShopifyOrder.AcumaticaSalesOrder.AcumaticaCustomer)
+                .AsNoTracking()
+                .Include(x => x.ShopifyOrder)
+                .FirstOrDefault(x => x.ShopifyRefundId == shopifyRefundId);
+        }
 
         public AcumaticaSalesOrder RetrieveSalesOrder(string orderNbr)
         {
@@ -163,9 +176,8 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .Include(x => x.ShopifyTransactions)
                 .WhereOrderSyncErrorsBelowThreshold(errorTheshold)
                 .Where(x => x.AcumaticaSalesOrder != null)
-                .Where(x => x.ShopifyTransactions.Any(
-                            y => y.Ignore == false &&
-                            (y.AcumaticaPayment == null || y.NeedsPaymentPut == true)))
+                .Where(x => x.ShopifyTransactions.Any(y => !y.Ignore && (y.AcumaticaPayment == null || y.NeedsPaymentPut))
+                        || x.ShopifyRefunds.Any(y => y.AcumaticaMemo == null))
                 .Select(x => x.ShopifyOrderId)
                 .Distinct()
                 .ToList();
@@ -237,20 +249,6 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Payment Synchronization
         //
-        public void IncreaseTransactionErrorCount(long shopifyTransactionId)
-        {
-            var order = Entities.ShopifyTransactions.First(x => x.ShopifyTransactionId == shopifyTransactionId);
-            order.PutErrorCount += 1;
-            Entities.SaveChanges();
-        }
-
-        public void ResetTransactionErrorCount(long shopifyTransactionId)
-        {
-            var order = Entities.ShopifyTransactions.First(x => x.ShopifyTransactionId == shopifyTransactionId);
-            order.PutErrorCount = 0;
-            Entities.SaveChanges();
-        }
-
         public void InsertPayment(AcumaticaPayment payment)
         {
             Entities.AcumaticaPayments.Add(payment);
@@ -278,7 +276,6 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
 
-
         public void PaymentIsReleased(long shopifyTransactionMonsterId)
         {
             var payment = Entities
@@ -288,6 +285,33 @@ namespace Monster.Middle.Processes.Sync.Persist
             payment.IsReleased = true;
             Entities.SaveChanges();
         }
+
+
+        // Credit Memo synchronization
+        //
+        public void InsertMemo(AcumaticaMemo memo)
+        {
+            Entities.AcumaticaMemoes.Add(memo);
+            Entities.SaveChanges();
+        }
+
+        public AcumaticaMemo RetreiveMemo(long shopifyRefundMonsterId)
+        {
+            return Entities
+                .AcumaticaMemoes
+                .FirstOrDefault(x => x.ShopifyRefundMonsterId == shopifyRefundMonsterId);
+        }
+
+        public void MemoIsReleased(long shopifyRefundMonsterId)
+        {
+            var invoice = Entities
+                .AcumaticaMemoes
+                .First(x => x.ShopifyRefundMonsterId == shopifyRefundMonsterId);
+
+            invoice.IsReleased = true;
+            Entities.SaveChanges();
+        }
+
 
         public void SaveChanges()
         {

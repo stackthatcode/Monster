@@ -209,6 +209,7 @@
     <Compile Include="Processes\Acumatica\Persist\Extensions.cs" />
     <Compile Include="Processes\Acumatica\Persist\AcumaticaBatchRepository.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\VariantAndStockItemDto.cs" />
+    <Compile Include="Processes\Sync\Services\MemoValidationService.cs" />
     <Compile Include="Processes\Sync\Services\PaymentValidationService.cs" />
     <Compile Include="Processes\Sync\Services\PendingActionService.cs" />
     <Compile Include="Processes\Sync\Services\OrderValidationService.cs" />

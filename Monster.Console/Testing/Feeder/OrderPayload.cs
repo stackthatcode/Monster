@@ -31,6 +31,7 @@ namespace Monster.ConsoleApp.Testing.Feeder
             {
                 order = new
                 {
+                    suppress_notifications = true,
                     customer = new
                     {
                         id = customerId,

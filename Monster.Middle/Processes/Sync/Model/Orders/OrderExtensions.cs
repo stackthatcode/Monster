@@ -10,8 +10,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         {
             return order.PutErrorCount >= SystemConsts.ErrorThreshold ||
                    (order.AcumaticaSalesOrder != null && order.AcumaticaSalesOrder
-                        .AcumaticaSoShipments.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold)) ||
-                   order.ShopifyTransactions.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold);
+                        .AcumaticaSoShipments.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold));
         }
 
 
@@ -28,6 +27,10 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         public static string AcumaticaSalesOrderId(this ShopifyOrder order)
         {
             return order.ExistsInAcumatica() ? order.SyncedSalesOrder().AcumaticaOrderNbr : null;
+        }
+        public static string AcumaticaCustomerId(this ShopifyOrder order)
+        {
+            return order.ExistsInAcumatica() ? order.SyncedSalesOrder().AcumaticaCustomer.AcumaticaCustomerId : null;
         }
 
         public static ShopifyOrder OriginalShopifyOrder(this AcumaticaSalesOrder order)

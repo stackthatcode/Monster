@@ -82,8 +82,8 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             return new Validation<PaymentValidationContext>()
                 .Add(x => x.CurrentTransaction.DoNotIgnore(), $"Transaction is not valid for synchronization")
-                .Add(x => x.CurrentTransaction.PutErrorCount < SystemConsts.ErrorThreshold,
-                    "Encountered too many errors attempting to synchronize this Transaction");
+                .Add(x => x.CurrentTransaction.ShopifyOrderId < SystemConsts.ErrorThreshold,
+                    "Encountered too many errors attempting to synchronize");
         }
 
         private ValidationResult ReadyToCreatePayment(ShopifyTransaction currentTransaction)
@@ -155,6 +155,16 @@ namespace Monster.Middle.Processes.Sync.Services
             //        $"Acumatica Payment/Customer Refund has unknown Reference Number");
 
             return validation.Run(context);
+        }
+
+
+        private ValidationResult ReadyToCreateMemo(RootAction rootActions)
+        {
+            var validation = new Validation<RootAction>()
+                .Add(x => x.HasPendingOrderActions, "Cannot create Memos until Order is synced")
+                .Add(x => x.HasPendingOrderActions, "Cannot create Memos until Payments/Refunds are synced");
+
+            return validation.Run(rootActions);
         }
     }
 }

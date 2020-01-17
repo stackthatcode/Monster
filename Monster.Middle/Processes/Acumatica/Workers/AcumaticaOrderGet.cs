@@ -18,6 +18,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
     public class AcumaticaOrderGet
     {
         private readonly SalesOrderClient _salesOrderClient;
+        private readonly InvoiceClient _invoiceClient;
         private readonly ShipmentClient _shipmentClient;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly AcumaticaHttpConfig _acumaticaHttpConfig;
@@ -33,7 +34,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaHttpConfig acumaticaHttpConfig,
                 SettingsRepository settingsRepository,
                 SalesOrderClient salesOrderClient,
-                ShipmentClient shipmentClient)
+                ShipmentClient shipmentClient, InvoiceClient invoiceClient)
         {
             _orderRepository = orderRepository;
             _timeZoneService = timeZoneService;
@@ -42,6 +43,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _salesOrderClient = salesOrderClient;
             _settingsRepository = settingsRepository;
             _shipmentClient = shipmentClient;
+            _invoiceClient = invoiceClient;
         }
 
         public void Run(string orderId)
@@ -205,8 +207,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
                 if (soShipment.AcumaticaInvoiceAmount == null || soShipment.AcumaticaInvoiceTax == null)
                 {
-                    var invoiceJson = 
-                        _salesOrderClient.RetrieveInvoiceAndTaxes(
+                    var invoiceJson =
+                        _invoiceClient.RetrieveInvoiceAndTaxes(
                                 soShipment.AcumaticaInvoiceNbr, soShipment.AcumaticaInvoiceType);
 
                     var invoice = invoiceJson.DeserializeFromJson<Invoice>();

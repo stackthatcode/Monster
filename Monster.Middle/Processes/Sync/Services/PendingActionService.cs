@@ -19,6 +19,7 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly OrderValidationService _orderValidation;
         private readonly PaymentValidationService _paymentValidation;
+        private readonly MemoValidationService _memoValidationService;
         private readonly FulfillmentStatusService _fulfillmentStatusService;
         private readonly ShopifyUrlService _shopifyUrlService;
         private readonly AcumaticaUrlService _acumaticaUrlService;
@@ -27,6 +28,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 SyncOrderRepository orderRepository,
                 OrderValidationService orderValidation,
                 PaymentValidationService paymentValidation,
+                MemoValidationService memoValidationService,
                 FulfillmentStatusService fulfillmentStatusService,
                 ShopifyUrlService shopifyUrlService, 
                 AcumaticaUrlService acumaticaUrlService)
@@ -34,6 +36,7 @@ namespace Monster.Middle.Processes.Sync.Services
             _syncOrderRepository = orderRepository;
             _orderValidation = orderValidation;
             _paymentValidation = paymentValidation;
+            _memoValidationService = memoValidationService;
             _fulfillmentStatusService = fulfillmentStatusService;
             _shopifyUrlService = shopifyUrlService;
             _acumaticaUrlService = acumaticaUrlService;
@@ -68,6 +71,11 @@ namespace Monster.Middle.Processes.Sync.Services
                 foreach (var action in output.ShipmentInvoiceActions)
                 {
                     _fulfillmentStatusService.Validate(orderRecord, action);
+                }
+
+                foreach (var action in output.AdjustmentMemoActions)
+                {
+                    _memoValidationService.Validate(output, action);
                 }
             }
 
@@ -206,8 +214,30 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 var action = new AdjustmentAction();
                 action.ActionCode = ActionCode.CreateInAcumatica;
+                action.ShopifyOrderId = orderRecord.ShopifyOrderId;
+                action.ShopifyRefundId = creditAdj.ShopifyRefundId;
+
                 action.MemoType = AdjustmentMemoType.CreditMemo;
                 action.MemoAmount = creditAdj.CreditAdjustment;
+
+
+                if (creditAdj.AcumaticaMemo == null)
+                {
+                    action.ActionCode = ActionCode.CreateInAcumatica;
+                }
+
+                if (creditAdj.AcumaticaMemo != null)
+                {
+                    action.AcumaticaRefNbr = creditAdj.AcumaticaMemo.AcumaticaRefNbr;
+                    action.AcumaticaHref
+                        = _acumaticaUrlService.AcumaticaInvoiceUrl(
+                            SalesInvoiceType.Credit_Memo, creditAdj.AcumaticaMemo.AcumaticaRefNbr);
+                }
+
+                if (creditAdj.AcumaticaMemo != null && !creditAdj.AcumaticaMemo.IsReleased)
+                {
+                    action.ActionCode = ActionCode.ReleaseInAcumatica;
+                }
 
                 output.Add(action);
             }

@@ -20,22 +20,22 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
             ShipmentInvoiceActions = new List<ShipmentAction>();
         }
 
+        public bool HasPendingOrderActions => OrderAction.ActionCode != ActionCode.None;
+
+        public bool HasPendingPaymentActions => PaymentAction.ActionCode != ActionCode.None;
+
+        public bool HasPendingRefundActions => RefundPaymentActions.Any(x => x.ActionCode != ActionCode.None);
+
+
         public bool HasPendingActions
         {
             get
             {
-                if (OrderAction.ActionCode != ActionCode.None)
+                if (HasPendingOrderActions || HasPendingPaymentActions || HasPendingRefundActions)
                 {
                     return true;
                 }
-                if (PaymentAction.ActionCode != ActionCode.None)
-                {
-                    return true;
-                }
-                if (RefundPaymentActions.Any(x => x.ActionCode != ActionCode.None))
-                {
-                    return true;
-                }
+
                 if (AdjustmentMemoActions.Any(x => x.ActionCode != ActionCode.None))
                 {
                     return true;

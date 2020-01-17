@@ -29,7 +29,11 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue Terms { get; set; }
         public StringValue Type { get; set; }
         public StringValue custom { get; set; }
+
+        public List<object> ApplicationsDefault { get; set; }
+
         public List<object> files { get; set; }
+        public List<object> Details { get; set; }
     }
 
     public class InvoiceTaxDetail

@@ -278,8 +278,8 @@ namespace Monster.Middle.Processes.Sync.Managers
                 EndToEndRunner(
                     new Action[]
                     {
-                        () => _syncManager.SyncCustomersToAcumatica(),
                         () => _syncManager.SyncOrdersToAcumatica(),
+                        () => _syncManager.SyncCustomersToAcumatica(),
                         () => _syncManager.SyncPaymentsToAcumatica(),
                     },
                     x => x.AcumaticaOrderEtcPutState, 

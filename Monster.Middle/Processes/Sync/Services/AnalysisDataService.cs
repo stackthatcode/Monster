@@ -105,8 +105,6 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 queryable = queryable
                     .Where(x => x.PutErrorCount >= SystemConsts.ErrorThreshold ||
-                                x.ShopifyTransactions
-                                    .Any(y => y.PutErrorCount >= SystemConsts.ErrorThreshold) ||
                                 x.AcumaticaSalesOrder
                                     .AcumaticaSoShipments
                                     .Any(y => y.PutErrorCount >= SystemConsts.ErrorThreshold));

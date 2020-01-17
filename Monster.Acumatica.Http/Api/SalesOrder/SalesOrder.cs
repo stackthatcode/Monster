@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api.Common;
+using Monster.Acumatica.Api.Payment;
 
 
 namespace Monster.Acumatica.Api.SalesOrder
@@ -37,6 +38,7 @@ namespace Monster.Acumatica.Api.SalesOrder
         public StringValue OrderNbr { get; set; }
         public StringValue OrderType { get; set; }
         public StringValue PaymentCardIdentifier { get; set; }
+        public List<object> Payments { get; set; }
         public StringValue PaymentMethod { get; set; }
         public StringValue PaymentRef { get; set; }
         public StringValue PreAuthorizationNbr { get; set; }
