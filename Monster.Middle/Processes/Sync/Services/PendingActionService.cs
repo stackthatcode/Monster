@@ -213,7 +213,7 @@ namespace Monster.Middle.Processes.Sync.Services
             foreach (var creditAdj in orderRecord.CreditAdustmentRefunds())
             {
                 var action = new AdjustmentAction();
-                action.ActionCode = ActionCode.CreateInAcumatica;
+                action.ActionCode = ActionCode.None;
                 action.ShopifyOrderId = orderRecord.ShopifyOrderId;
                 action.ShopifyRefundId = creditAdj.ShopifyRefundId;
 
@@ -229,6 +229,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 if (creditAdj.AcumaticaMemo != null)
                 {
                     action.AcumaticaRefNbr = creditAdj.AcumaticaMemo.AcumaticaRefNbr;
+                    action.AcumaticaDocType = creditAdj.AcumaticaMemo.AcumaticaDocType;
                     action.AcumaticaHref
                         = _acumaticaUrlService.AcumaticaInvoiceUrl(
                             SalesInvoiceType.Credit_Memo, creditAdj.AcumaticaMemo.AcumaticaRefNbr);

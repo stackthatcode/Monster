@@ -1,7 +1,7 @@
-﻿using Monster.Middle.Processes.Sync.Model.Analysis;
-using Monster.Middle.Processes.Sync.Model.PendingActions;
+﻿using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Validation;
+
 
 namespace Monster.Middle.Processes.Sync.Services
 {
@@ -35,14 +35,11 @@ namespace Monster.Middle.Processes.Sync.Services
             return validation.Run(rootActions);
         }
 
-
         private ValidationResult ReadyToReleaseMemo(AdjustmentAction adjustmentAction)
         {
 
             var validation = new Validation<AdjustmentAction>()
-                .Add(x => !x.AcumaticaRefNbr.IsNullOrEmpty() 
-                          && x.AcumaticaRefNbr != AcumaticaSyncConstants.UnknownRefNbr, 
-                    "Cannot Release Memo until it is synced with Acumatica");
+                .Add(x => !x.AcumaticaRefNbr.IsNullOrEmpty(), "Cannot Release Memo until it is synced with Acumatica");
 
             return validation.Run(adjustmentAction);
         }

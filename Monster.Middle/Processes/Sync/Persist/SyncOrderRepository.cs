@@ -188,8 +188,10 @@ namespace Monster.Middle.Processes.Sync.Persist
             return Entities.ShopifyOrders
                 .Include(x => x.ShopifyTransactions)
                 .WhereOrderSyncErrorsBelowThreshold(errorTheshold)
-                .Where(x => x.ShopifyTransactions
-                            .Any(y => y.AcumaticaPayment != null && y.AcumaticaPayment.IsReleased == false))
+                .Where(x => 
+                    x.ShopifyTransactions.Any(y => y.AcumaticaPayment != null && y.AcumaticaPayment.IsReleased == false) ||
+                    x.ShopifyRefunds.Any(y => y.AcumaticaMemo != null && y.AcumaticaMemo.IsReleased == false)
+                )
                 .Select(x => x.ShopifyOrderId)
                 .Distinct()
                 .ToList();
@@ -262,7 +264,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.ShopifyTransactionMonsterId == shopifyTransactionMonsterId);
         }
 
-        public void UpdateUnknownPaymentRecord(long shopifyTransactionMonsterId, string paymentNbr)
+        public void UpdatePaymentRecordRefNbr(long shopifyTransactionMonsterId, string paymentNbr)
         {
             var payment = RetreivePayment(shopifyTransactionMonsterId);
             payment.AcumaticaRefNbr = paymentNbr;
@@ -300,6 +302,20 @@ namespace Monster.Middle.Processes.Sync.Persist
             return Entities
                 .AcumaticaMemoes
                 .FirstOrDefault(x => x.ShopifyRefundMonsterId == shopifyRefundMonsterId);
+        }
+
+        public void UpdateMemoRecordRefNbr(long shopifyRefundMonsterId, string documentNbr)
+        {
+            var refund = RetreiveMemo(shopifyRefundMonsterId);
+            refund.AcumaticaRefNbr = documentNbr;
+            Entities.SaveChanges();
+        }
+
+        public void DeleteMemoPaymentRecord(long shopifyRefundMonsterId)
+        {
+            var refund = RetreiveMemo(shopifyRefundMonsterId);
+            Entities.AcumaticaMemoes.Remove(refund);
+            Entities.SaveChanges();
         }
 
         public void MemoIsReleased(long shopifyRefundMonsterId)

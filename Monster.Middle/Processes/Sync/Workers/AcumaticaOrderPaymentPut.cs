@@ -75,12 +75,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 // Clear-out any un-Released Transaction
                 //
-                ProcessAllTransactionReleases(shopifyOrderId);
+                ProcessAllReleases(shopifyOrderId);
 
                 // Refresh Status and run for Payment Transaction
                 //
                 ProcessPaymentTransaction(shopifyOrderId);
-                ProcessAllTransactionReleases(shopifyOrderId);
+                ProcessAllReleases(shopifyOrderId);
 
                 // Refresh Status and run for Refund Transactions
                 //
@@ -88,13 +88,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                 foreach (var refundAction in rootAction.RefundPaymentActions)
                 {
                     ProcessRefundTransaction(refundAction);
-                    ProcessAllTransactionReleases(shopifyOrderId);
+                    ProcessAllReleases(shopifyOrderId);
                 }
 
                 var rootAction2 = _pendingActionService.Create(shopifyOrderId);
                 foreach (var memoAction in rootAction2.AdjustmentMemoActions)
                 {
                     ProcessAdjustmentMemo(memoAction);
+                    ProcessAllReleases(shopifyOrderId);
                 }
 
                 return true;
@@ -176,7 +177,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        private void ProcessAllTransactionReleases(long shopifyOrderId)
+        private void ProcessAllReleases(long shopifyOrderId)
         {
             var status = _pendingActionService.Create(shopifyOrderId);
 
@@ -185,6 +186,11 @@ namespace Monster.Middle.Processes.Sync.Workers
             foreach (var refund in status.RefundPaymentActions)
             {
                 ProcessTransactionRelease(refund);
+            }
+
+            foreach (var memo in status.AdjustmentMemoActions)
+            {
+                ProcessAdjustMemoRelease(memo);
             }
         }
 
@@ -367,6 +373,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
 
             _syncOrderRepository.UpdateShopifyTransactionNeedsPut(transactionRecord.Id, false);
+            _syncOrderRepository.ResetOrderErrorCount(transactionRecord.ShopifyOrderId);
         }
 
         private void PushPaymentReleaseAndUpdateSync(ShopifyTransaction transactionRecord)
@@ -375,30 +382,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 // Workarounds for Acumatica bug that prevents storage of Payment Nbr
                 //
-                var acumaticaPayment = transactionRecord.AcumaticaPayment;
-                if (acumaticaPayment.AcumaticaRefNbr == AcumaticaSyncConstants.UnknownRefNbr)
-                {
-                    var paymentRef = transactionRecord.ShopifyTransactionId.ToString();
-                    var payments = _paymentClient.RetrievePaymentByPaymentRef(paymentRef);
+                var acumaticaPayment = RetrieveCorrectedPayment(transactionRecord);
 
-                    if (payments.Count == 0)
-                    {
-                        _syncOrderRepository.DeleteErroneousPaymentRecord(transactionRecord.Id);
-
-                        throw new Exception(
-                            $"Shopify Transaction {transactionRecord.Id} sync to Acumatica Payment false record detected");
-                    }
-                    if (payments.Count > 1)
-                    {
-                        throw new Exception(
-                            $"Multiple Acumatica Payment records with Payment Ref {paymentRef}");
-                    }
-
-                    var correctedPaymentNbr = payments.First().ReferenceNbr.value;
-                    _syncOrderRepository.UpdateUnknownPaymentRecord(transactionRecord.Id, correctedPaymentNbr);
-                    acumaticaPayment.AcumaticaRefNbr = correctedPaymentNbr;
-                }
-                
                 // Release the actual Payment
                 //
                 _paymentClient.ReleasePayment(acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType);
@@ -412,6 +397,32 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _syncOrderRepository.IncreaseOrderErrorCount(transactionRecord.ShopifyOrderId);
                 return;
             }
+        }
+
+        private AcumaticaPayment RetrieveCorrectedPayment(ShopifyTransaction transactionRecord)
+        {
+            var acumaticaPayment = transactionRecord.AcumaticaPayment;
+            if (acumaticaPayment.AcumaticaRefNbr == AcumaticaSyncConstants.UnknownRefNbr)
+            {
+                var paymentRef = transactionRecord.ShopifyTransactionId.ToString();
+                var payments = _paymentClient.RetrievePaymentByPaymentRef(paymentRef);
+
+                if (payments.Count == 0)
+                {
+                    _syncOrderRepository.DeleteErroneousPaymentRecord(transactionRecord.Id);
+                    throw new Exception($"Shopify Transaction {transactionRecord.Id} sync to Acumatica Payment false record detected");
+                }
+                if (payments.Count > 1)
+                {
+                    throw new Exception($"Multiple Acumatica Payment records with Payment Ref {paymentRef}");
+                }
+
+                var correctedPaymentNbr = payments.First().ReferenceNbr.value;
+                _syncOrderRepository.UpdatePaymentRecordRefNbr(transactionRecord.Id, correctedPaymentNbr);
+                acumaticaPayment.AcumaticaRefNbr = correctedPaymentNbr;
+            }
+
+            return acumaticaPayment;
         }
 
 
@@ -438,7 +449,10 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _logService.Log(LogBuilder.CreateAcumaticaMemo(refund));
                 PushMemoAndWriteSync(refund, memoWrite);
             }
+        }
 
+        private void ProcessAdjustMemoRelease(AdjustmentAction action)
+        {
             if (action.ActionCode == ActionCode.ReleaseInAcumatica && action.IsValid)
             {
                 var refund = _syncOrderRepository.RetrieveShopifyRefundWithNoTracking(action.ShopifyRefundId);
@@ -450,14 +464,16 @@ namespace Monster.Middle.Processes.Sync.Workers
         private Invoice BuildCreditMemo(ShopifyRefund refund)
         {
             // Locate the Acumatica Customer
+            //
             var acumaticaCustId = refund.ShopifyOrder.AcumaticaCustomerId();
             
             // Create the payload for Acumatica
             //
             var amount = ((double)refund.CreditAdjustment);
-                
+            
             var memo = new Invoice();
             memo.Customer = acumaticaCustId.ToValue();
+            memo.CustomerOrder = refund.ShopifyRefundId.ToString().ToValue();
             memo.Hold = false.ToValue();
             memo.Type = SalesInvoiceType.Credit_Memo.ToValue();
             memo.Description = $"Adjustment for Shopify Refund {refund.ShopifyRefundId}".ToValue();
@@ -511,8 +527,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                     newRecord.AcumaticaRefNbr = result.ReferenceNbr.value;
                 }
 
-                newRecord.AcumaticaDocType = result.Type.value;
-                newRecord.AcumaticaAmount = (decimal)result.Amount.value;
+                newRecord.AcumaticaDocType = invoice.Type.value;
+                newRecord.AcumaticaAmount = (decimal)invoice.Amount.value;
                 newRecord.IsReleased = false;
                 newRecord.IsAppliedToOrder = false;
 
@@ -526,8 +542,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 existingRecord.LastUpdated = DateTime.UtcNow;
                 _syncOrderRepository.SaveChanges();
             }
+            _syncOrderRepository.ResetOrderErrorCount(refundRecord.ShopifyOrderId);
         }
-
 
         private void PushMemoReleaseAndUpdateSync(ShopifyRefund refundRecord)
         {
@@ -535,8 +551,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 // Workarounds for Acumatica bug that prevents storage of Payment Nbr
                 //
-                var acumaticaMemo = refundRecord.AcumaticaMemo;
-                
+                var acumaticaMemo = RetrieveCorrectedCreditMemo(refundRecord);
+
                 // Release the actual Payment
                 //
                 _invoiceClient.ReleaseInvoice(acumaticaMemo.AcumaticaRefNbr, acumaticaMemo.AcumaticaDocType);
@@ -553,7 +569,33 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        
+        private AcumaticaMemo RetrieveCorrectedCreditMemo(ShopifyRefund refundRecord)
+        {
+            var acumaticaCreditMemo = refundRecord.AcumaticaMemo;
+            if (acumaticaCreditMemo.AcumaticaRefNbr == AcumaticaSyncConstants.UnknownRefNbr)
+            {
+                var customerOrder = refundRecord.ShopifyRefundId.ToString();
+                var invoices = _invoiceClient.RetrieveInvoiceByCustomerOrder(customerOrder);
+
+                if (invoices.Count == 0)
+                {
+                    _syncOrderRepository.DeleteMemoPaymentRecord(refundRecord.Id);
+                    throw new Exception($"Shopify  {refundRecord.Id} sync to Acumatica Credit Memo false record detected");
+                }
+                if (invoices.Count > 1)
+                {
+                    throw new Exception($"Multiple Acumatica Memo records with Customer Order Number {customerOrder}");
+                }
+
+                var correctedReferenceNbr = invoices.First().ReferenceNbr.value;
+                _syncOrderRepository.UpdateMemoRecordRefNbr(refundRecord.Id, correctedReferenceNbr);
+                acumaticaCreditMemo.AcumaticaRefNbr = correctedReferenceNbr;
+            }
+
+            return acumaticaCreditMemo;
+        }
+
+
         //memo.ApplicationsDefault = new List<object>()
         //{
         //    new

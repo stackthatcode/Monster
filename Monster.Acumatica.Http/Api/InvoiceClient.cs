@@ -31,9 +31,16 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+        public List<Invoice> RetrieveInvoiceByCustomerOrder(string customerOrder)
+        {
+            var path = $"Invoice?$filter=CustomerOrder eq '{customerOrder}'";
+            var response = _httpContext.Get(path);
+            return response.Body.DeserializeFromJson<List<Invoice>>();
+        }
+
         public string RetrieveInvoiceAndTaxes(string invoiceRefNbr, string invoiceType)
         {
-            var url = $"Invoice/{invoiceType}/{invoiceRefNbr}?$expand=ApplicationsCreditMemo";// {Expand.ApplicationsDefault}";
+            var url = $"Invoice/{invoiceType}/{invoiceRefNbr}?$expand=ApplicationsCreditMemo"; 
             var response = _httpContext.Get(url);
             return response.Body;
         }

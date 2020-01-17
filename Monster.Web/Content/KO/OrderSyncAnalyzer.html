@@ -269,8 +269,6 @@
                     <strong>
                         <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
                     </strong>
-                    <span>-</span>
-                    <span data-bind="text: Monster.NumberFormat(Amount)"></span>
                     
                     <span data-bind="ifnot: Monster.IsMissing(AcumaticaPaymentRef)">
                         <strong>
@@ -281,6 +279,9 @@
                         </strong>
                     </span>
                     
+                    <span>-</span>
+                    <span data-bind="text: Monster.NumberFormat(Amount)"></span>
+
                     <span>-</span>
                     <span data-bind="text: ActionDesc"></span>
                     
@@ -318,10 +319,20 @@
         </div>
 
         <div data-bind="foreach: AdjustmentMemoActions">
-            <div class="alert" data-bind="css: {
-                     'alert-info': IsValid,
-                     'alert-danger': !IsValid}">
+            <div class="alert" data-bind="css: { 'alert-info': IsValid, 'alert-danger': !IsValid}">
                 <strong>Shopify <span data-bind="text: MemoTypeDesc"></span></strong>
+
+                <span data-bind="ifnot: Monster.IsMissing(AcumaticaRefNbr)">
+                    <strong>
+                        <span> - </span>
+                        <a target="_blank" data-bind="attr: { href: AcumaticaHref}">
+                            Acumatica
+                            <span data-bind="text: AcumaticaDocType"></span>
+                            <span data-bind="text: AcumaticaRefNbr"></span>
+                        </a>
+                    </strong>
+                </span>
+
                 <span>-</span>
                 <span data-bind="text:  Monster.NumberFormat(MemoAmount)"></span>
                 <span>-</span>

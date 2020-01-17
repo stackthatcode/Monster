@@ -19,6 +19,7 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         public bool IsValid => Validation.Success;
 
         public string AcumaticaRefNbr { get; set; }
+        public string AcumaticaDocType { get; set; }
         public string AcumaticaHref { get; set; }
 
 
