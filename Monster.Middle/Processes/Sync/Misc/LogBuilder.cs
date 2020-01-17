@@ -5,6 +5,16 @@ namespace Monster.Middle.Processes.Sync.Misc
 {
     public static class LogBuilder
     {
+        public static string NewShopifyOrder(ShopifyOrder order)
+        {
+            return $"Detected new Shopify Order {order.LogDescriptor()}";
+        }
+
+        public static string UpdateShopifyOrder(ShopifyOrder order)
+        {
+            return $"Detected changes to Shopify Order {order.LogDescriptor()}";
+        }
+
         public static string UpdateShopifyPrice(AcumaticaStockItem item)
         {
             return $"Updating Shopify Price {item.LogDescriptor()}";

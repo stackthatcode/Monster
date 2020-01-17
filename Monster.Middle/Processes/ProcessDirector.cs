@@ -254,7 +254,11 @@ namespace Monster.Middle.Processes.Sync.Managers
 
             var settings = _settingsRepository.RetrieveSettings();
 
-            EndToEndRunner(
+            if (settings.PullFromShopifyEnabled
+                && _stateRepository.CheckSystemState(x => x.CanPollDataFromAcumatica()))
+            {
+
+                EndToEndRunner(
                 new Action[]
                 {
                     () => _shopifyManager.PullCustomers(),
@@ -262,13 +266,19 @@ namespace Monster.Middle.Processes.Sync.Managers
                     () => _shopifyManager.PullTransactions(),
                 },
                 "End-to-End - Get Customers, Orders, Transactions from Shopify");
+            }
 
-            EndToEndRunner(
-                new Action[]
-                {
-                    () => _acumaticaManager.PullOrdersAndCustomer()
-                },
-                "End-to-End - Get Orders, Shipments and Customers from Acumatica");
+            if (settings.PullFromAcumaticaEnabled
+                    && _stateRepository.CheckSystemState(x => x.CanPollDataFromAcumatica()))
+            {
+
+                EndToEndRunner(
+                    new Action[]
+                    {
+                        () => _acumaticaManager.PullOrdersAndCustomer()
+                    },
+                    "End-to-End - Get Orders, Shipments and Customers from Acumatica");
+            }
 
             if (settings.SyncOrdersEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncOrdersToAcumatica()))

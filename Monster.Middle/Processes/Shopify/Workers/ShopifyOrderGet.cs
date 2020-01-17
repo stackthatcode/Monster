@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Misc.Hangfire;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
@@ -18,7 +21,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly SettingsRepository _settingsRepository;
         private readonly ShopifyCustomerGet _shopifyCustomerPull;
         private readonly ShopifyTransactionGet _shopifyTransactionGet;
+        private readonly ExecutionLogService _executionLogService;
         private readonly OrderApi _orderApi;
+        private readonly JobMonitoringService _jobMonitoringService;
 
 
         public ShopifyOrderGet(
@@ -27,7 +32,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 SettingsRepository settingsRepository,
                 ShopifyCustomerGet shopifyCustomerPull,
                 ShopifyTransactionGet shopifyTransactionGet,
-                OrderApi orderApi)
+                OrderApi orderApi, 
+                JobMonitoringService jobMonitoringService,
+                ExecutionLogService executionLogService)
         {
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
@@ -35,6 +42,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyTransactionGet = shopifyTransactionGet;
             _orderApi = orderApi;
+            _jobMonitoringService = jobMonitoringService;
+            _executionLogService = executionLogService;
         }
 
         public void RunAutomatic()
@@ -113,6 +122,12 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 }
                 else
                 {
+                    if (_jobMonitoringService.IsJobTypeInterrupted(BackgroundJobType.EndToEndSync))
+                    {
+                        _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
+                        return;
+                    }
+
                     UpsertOrder(order);
                 }
             }
@@ -155,6 +170,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
 
+                _executionLogService.Log(LogBuilder.NewShopifyOrder(newOrder));
                 _orderRepository.InsertOrder(newOrder);
             }
             else
@@ -171,11 +187,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existingOrder.NeedsTransactionGet = true;
                 existingOrder.LastUpdated = DateTime.UtcNow;
 
+                _executionLogService.Log(LogBuilder.UpdateShopifyOrder(existingOrder));
                 _orderRepository.SaveChanges();
             }
         }
         
-
         public void UpsertOrderFulfillments(Order order)
         {
             var orderRecord = _orderRepository.RetrieveOrder(order.id);

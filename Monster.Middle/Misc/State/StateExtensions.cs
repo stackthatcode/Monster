@@ -16,6 +16,16 @@ namespace Monster.Middle.Misc.State
             return state.ShopifyConnState != StateCode.None;
         }
 
+        public static bool CanPollDataFromShopify(this SystemState state)
+        {
+            return state.ShopifyConnState == StateCode.Ok;
+        }
+
+        public static bool CanPollDataFromAcumatica(this SystemState state)
+        {
+            return state.AcumaticaConnState == StateCode.Ok;
+        }
+
         public static bool CanSyncOrdersToAcumatica(this SystemState state)
         {
             return state.AcumaticaConnState == StateCode.Ok &&
