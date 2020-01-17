@@ -159,7 +159,6 @@ namespace Monster.Middle.Processes.Sync.Services
                     = _acumaticaUrlService.AcumaticaCustomerUrl(
                         shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaCustomer.AcumaticaCustomerId);
 
-
                 if (includeAcumaticaTotals)
                 {
                     // Ready when you need me - Aye Aye!
@@ -177,9 +176,8 @@ namespace Monster.Middle.Processes.Sync.Services
             output.AcumaticaRefundPaymentTotal = shopifyOrderRecord.AcumaticaCustomerRefundTotal();
             output.AcumaticaNetPaymentTotal = shopifyOrderRecord.AcumaticaNetPaymentAmount();
 
-            //output.AcumaticaCreditTotal
-            //output.AcumaticaRefundDebitTotal
-            //output.AcumaticaCreditDebitMemoTotal
+            output.AcumaticaRefundCreditTotal = shopifyOrderRecord.AcumaticaCreditMemosTotal();
+            output.AcumaticaRefundDebitTotal = shopifyOrderRecord.AcumaticaDebitMemosTotal();
 
             output.AcumaticaInvoiceTaxTotal = shopifyOrderRecord.AcumaticaInvoiceTaxTotal();
             output.AcumaticaInvoiceTotal = shopifyOrderRecord.AcumaticaInvoiceTotal();

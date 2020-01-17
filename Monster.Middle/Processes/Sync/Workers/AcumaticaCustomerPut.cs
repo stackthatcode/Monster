@@ -42,8 +42,6 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var shopifyCustomer in notLoadedCustomers)
             {
-                var msg = LogBuilder.CreateAcumaticaCustomer(shopifyCustomer);
-                _logService.Log(msg);
                 PushCustomer(shopifyCustomer);
             }
 
@@ -51,17 +49,25 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var shopifyCustomer in customersNeedingUpdate)
             {
-                var msg = LogBuilder.UpdateAcumaticaCustomer(shopifyCustomer);
-                _logService.Log(msg);
                 PushCustomer(shopifyCustomer);
             }
         }
 
-        public AcumaticaCustomer PushCustomer(ShopifyCustomer shopifyCustomerRecord)
+        public AcumaticaCustomer PushCustomer(ShopifyCustomer customerRecord)
         {
             var shopifyCustomer =
-                shopifyCustomerRecord
+                customerRecord
                     .ShopifyJson.DeserializeFromJson<Push.Shopify.Api.Customer.Customer>();
+
+            if (customerRecord.AcumaticaCustomer == null)
+            {
+                _logService.Log(LogBuilder.CreateAcumaticaCustomer(customerRecord));
+            }
+            else
+            {
+                _logService.Log(LogBuilder.UpdateAcumaticaCustomer(customerRecord));
+            }
+
 
             // Push Customer to Acumatica API
             //
@@ -76,11 +82,11 @@ namespace Monster.Middle.Processes.Sync.Workers
                 // Create the local cache of Acumatica Customer record
                 //
                 var acumaticaCustomerRecord 
-                        = UpsertCustomerToPersist(acumaticaCustomer, shopifyCustomerRecord);
+                        = UpsertCustomerToPersist(acumaticaCustomer, customerRecord);
 
                 // Lastly, flag the Shopify Customer as updated
                 //
-                shopifyCustomerRecord.NeedsCustomerPut = false;
+                customerRecord.NeedsCustomerPut = false;
                 _syncOrderRepository.SaveChanges();
                 transaction.Commit();
 

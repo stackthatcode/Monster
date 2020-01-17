@@ -11,7 +11,6 @@ namespace Monster.Middle.Misc.State
             return input.Database.SqlQuery<T>(sql).FirstOrDefault();
         }
 
-
         public static bool IsShopifyUrlFinalized(this SystemState state)
         {
             return state.ShopifyConnState != StateCode.None;
@@ -22,28 +21,24 @@ namespace Monster.Middle.Misc.State
             return state.AcumaticaConnState == StateCode.Ok &&
                    state.AcumaticaRefDataState == StateCode.Ok &&
                    state.WarehouseSyncState == StateCode.Ok &&
-                   state.ShopifyConnState == StateCode.Ok &&
-                   state.ShopifyOrderEtcGetState == StateCode.Ok;
+                   state.ShopifyConnState == StateCode.Ok;
         }
 
         public static bool CanSyncRefundsToAcumatica(this SystemState state)
         {
-            return state.CanSyncOrdersToAcumatica() 
-                   && state.AcumaticaOrderEtcPutState == StateCode.Ok;
+            return state.CanSyncOrdersToAcumatica() ;
         }
 
         public static bool CanSyncFulfillmentsToShopify(this SystemState state)
         {
             return state.ShopifyConnState == StateCode.Ok &&
-                   state.InventoryRefreshState == StateCode.Ok &&
-                   state.AcumaticaOrderEtcGetState == StateCode.Ok;
+                   state.InventoryRefreshState == StateCode.Ok;
         }
 
         public static bool CanSyncInventoryCountsToShopify(this SystemState state)
         {
             return state.ShopifyConnState == StateCode.Ok &&
-                   state.InventoryRefreshState == StateCode.Ok &&
-                   state.AcumaticaOrderEtcGetState == StateCode.Ok;
+                   state.InventoryRefreshState == StateCode.Ok;
         }
     }
 }

@@ -91,17 +91,25 @@ namespace Monster.Middle.Processes.Sync.Persist
                 {
                     var settings = new MonsterSetting();
 
+                    settings.PullFromShopifyEnabled = false;
+                    settings.PullFromAcumaticaEnabled = false;
+
                     settings.SyncOrdersEnabled = false;
+                    settings.SyncAllCustomersEnabled = false;
                     settings.SyncInventoryEnabled = false;
                     settings.SyncRefundsEnabled = false;
                     settings.SyncFulfillmentsEnabled = false;
                     settings.MaxParallelAcumaticaSyncs = 1;
                     settings.MaxNumberOfOrders = 1;
+                    settings.ReleasePaymentsOnSync = false;
+
                     settings.InventorySyncWeight = true;
                     settings.InventorySyncPrice = true;
                     settings.InventorySyncAvailableQty = true;
+
                     settings.LastRecurringSchedule = RecurringSchedule.Default.Id;
                     Entities.MonsterSettings.Add(settings);
+                    Entities.SaveChanges();
                     return settings;
                 }
             }

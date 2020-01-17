@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Misc;
 
@@ -37,5 +38,20 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         {
             return order.ShopifyOrder;
         }
+
+        public static decimal AcumaticaCreditMemosTotal(this ShopifyOrder order)
+        {
+            return order.ShopifyRefunds
+                .Where(x => x.CreditAdjustment > 0 && x.AcumaticaMemo != null)
+                .Sum(x => x.AcumaticaMemo.AcumaticaAmount);
+        }
+
+        public static decimal AcumaticaDebitMemosTotal(this ShopifyOrder order)
+        {
+            return order.ShopifyRefunds
+                .Where(x => x.DebitAdjustment > 0 && x.AcumaticaMemo != null)
+                .Sum(x => x.AcumaticaMemo.AcumaticaAmount);
+        }
+
     }
 }

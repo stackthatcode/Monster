@@ -75,12 +75,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 // Clear-out any un-Released Transaction
                 //
-                ProcessAllReleases(shopifyOrderId);
+                ProcessPaymentReleases(shopifyOrderId);
 
                 // Refresh Status and run for Payment Transaction
                 //
                 ProcessPaymentTransaction(shopifyOrderId);
-                //ProcessAllReleases(shopifyOrderId);
+                ProcessPaymentReleases(shopifyOrderId);
 
                 // Refresh Status and run for Refund Transactions
                 //
@@ -88,14 +88,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                 foreach (var refundAction in rootAction.RefundPaymentActions)
                 {
                     ProcessRefundTransaction(refundAction);
-                    //ProcessAllReleases(shopifyOrderId);
+                    ProcessPaymentReleases(shopifyOrderId);
                 }
 
                 var rootAction2 = _pendingActionService.Create(shopifyOrderId);
                 foreach (var memoAction in rootAction2.AdjustmentMemoActions)
                 {
                     ProcessAdjustmentMemo(memoAction);
-                    //ProcessAllReleases(shopifyOrderId);
+                    ProcessAdjustmentReleases(shopifyOrderId);
                 }
 
                 return true;
@@ -177,7 +177,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        private void ProcessAllReleases(long shopifyOrderId)
+        private void ProcessPaymentReleases(long shopifyOrderId)
         {
             var status = _pendingActionService.Create(shopifyOrderId);
 
@@ -186,11 +186,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             foreach (var refund in status.RefundPaymentActions)
             {
                 ProcessTransactionRelease(refund);
-            }
-
-            foreach (var memo in status.AdjustmentMemoActions)
-            {
-                ProcessAdjustMemoRelease(memo);
             }
         }
 
@@ -205,7 +200,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                 PushPaymentReleaseAndUpdateSync(transaction);
             }
         }
-
 
         public PaymentWrite BuildPaymentForCreate(ShopifyTransaction transactionRecord)
         {
@@ -448,6 +442,16 @@ namespace Monster.Middle.Processes.Sync.Workers
                 //
                 _logService.Log(LogBuilder.CreateAcumaticaMemo(refund));
                 PushMemoAndWriteSync(refund, memoWrite);
+            }
+        }
+
+        private void ProcessAdjustmentReleases(long shopifyOrderId)
+        {
+            var status = _pendingActionService.Create(shopifyOrderId);
+
+            foreach (var memo in status.AdjustmentMemoActions)
+            {
+                ProcessAdjustMemoRelease(memo);
             }
         }
 

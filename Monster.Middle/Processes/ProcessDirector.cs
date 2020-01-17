@@ -252,25 +252,23 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             _executionLogService.Log("End-to-End - process starting");
 
-            //EndToEndRunner(
-            //    new Action[] 
-            //    {
-            //        () => _shopifyManager.PullCustomers(),
-            //        () => _shopifyManager.PullOrders(),
-            //        () => _shopifyManager.PullTransactions(),
-            //    },
-            //    x => x.ShopifyOrderEtcGetState,
-            //    "End-to-End - Get Customers, Orders, Transactions from Shopify");
+            var settings = _settingsRepository.RetrieveSettings();
+
+            EndToEndRunner(
+                new Action[]
+                {
+                    () => _shopifyManager.PullCustomers(),
+                    () => _shopifyManager.PullOrders(),
+                    () => _shopifyManager.PullTransactions(),
+                },
+                "End-to-End - Get Customers, Orders, Transactions from Shopify");
 
             EndToEndRunner(
                 new Action[]
                 {
                     () => _acumaticaManager.PullOrdersAndCustomer()
                 },
-                x => x.AcumaticaOrderEtcGetState,
                 "End-to-End - Get Orders, Shipments and Customers from Acumatica");
-
-            var settings = _settingsRepository.RetrieveSettings();
 
             if (settings.SyncOrdersEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncOrdersToAcumatica()))
@@ -278,29 +276,18 @@ namespace Monster.Middle.Processes.Sync.Managers
                 EndToEndRunner(
                     new Action[]
                     {
-                        () => _syncManager.SyncOrdersToAcumatica(),
                         () => _syncManager.SyncCustomersToAcumatica(),
+                        () => _syncManager.SyncOrdersToAcumatica(),
                         () => _syncManager.SyncPaymentsToAcumatica(),
                     },
-                    x => x.AcumaticaOrderEtcPutState, 
                     "End-to-End - Sync Customers, Orders, Payments to Acumatica");
             }
-
-            //if (settings.SyncRefundsEnabled
-            //        && _stateRepository.CheckSystemState(x => x.CanSyncRefundsToAcumatica()))
-            //{
-            //    EndToEndRunner(
-            //        new Action[] { () => _syncManager.SyncRefundsToAcumatica() },
-            //        x => x.AcumaticaRefundPutState, 
-            //        "End-to-End - Sync Refunds to Acumatica");
-            //}
 
             if (settings.SyncFulfillmentsEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
             {
                 EndToEndRunner(
                     new Action[] { () => _syncManager.SyncFulfillmentsToShopify() },
-                    x => x.ShopifyFulfillmentPutState, 
                     "End-to-End - Sync Fulfillments to Shopify");
             }
 
@@ -314,12 +301,10 @@ namespace Monster.Middle.Processes.Sync.Managers
                         () => _shopifyManager.PullInventory(),
                         () => _acumaticaManager.PullInventory(),
                     },
-                    x => x.InventoryRefreshState,
                     "End-to-End - Refresh Inventory from Shopify and Acumatica");
 
                 EndToEndRunner(
                     new Action[] { () => _syncManager.SyncInventoryCountsToShopify() },
-                    x => x.ShopifyInventoryPutState, 
                     "End-to-End - Sync Inventory Count to Shopify");
             }
 
@@ -327,8 +312,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         }
 
 
-        private void EndToEndRunner(
-                Action[] actions, Expression<Func<SystemState, int>> stateVariable, string descriptor)
+        private void EndToEndRunner(Action[] actions, string descriptor)
         {
             _executionLogService.Log($"{descriptor}  - executing");
 
@@ -346,13 +330,10 @@ namespace Monster.Middle.Processes.Sync.Managers
                 catch (Exception ex)
                 {
                     _logger.Error(ex);
-                    _stateRepository.UpdateSystemState(stateVariable, StateCode.SystemFault);
                     _executionLogService.Log($"{descriptor} - encountered an error");
                     throw;
                 }
             }
-
-            _stateRepository.UpdateSystemState(stateVariable, StateCode.Ok);
         }
     }
 }

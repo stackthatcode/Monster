@@ -50,15 +50,6 @@ namespace Monster.Middle.Misc.State
                     newRecord.InventoryRefreshState = StateCode.None;
                     newRecord.StartingShopifyOrderState = StateCode.None;
 
-                    // Synchronization
-                    //
-                    newRecord.ShopifyOrderEtcGetState = StateCode.None;
-                    newRecord.AcumaticaOrderEtcGetState = StateCode.None;
-                    newRecord.AcumaticaOrderEtcPutState = StateCode.None;
-                    newRecord.AcumaticaRefundPutState = StateCode.None;
-                    newRecord.ShopifyFulfillmentPutState = StateCode.None;
-                    newRecord.ShopifyInventoryPutState = StateCode.None;
-
                     Entities.SystemStates.Add(newRecord);
                     Entities.SaveChanges();
                 }

@@ -82,7 +82,6 @@
             AcumaticaNetPaymentTotal = 0m;
             AcumaticaRefundCreditTotal = 0m;
             AcumaticaRefundDebitTotal = 0m;
-            AcumaticaCreditDebitMemoTotal = 0m;
 
             AcumaticaInvoicePriceTotal = 0m;
             AcumaticaInvoiceTaxTotal = 0m;

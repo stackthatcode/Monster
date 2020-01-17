@@ -1240,13 +1240,17 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaTaxableCategory { get; set; } // AcumaticaTaxableCategory (length: 50)
         public string AcumaticaLineItemTaxId { get; set; } // AcumaticaLineItemTaxId (length: 50)
         public string AcumaticaFreightTaxId { get; set; } // AcumaticaFreightTaxId (length: 50)
+        public bool PullFromAcumaticaEnabled { get; set; } // PullFromAcumaticaEnabled
+        public bool PullFromShopifyEnabled { get; set; } // PullFromShopifyEnabled
         public bool SyncOrdersEnabled { get; set; } // SyncOrdersEnabled
+        public bool SyncAllCustomersEnabled { get; set; } // SyncAllCustomersEnabled
         public bool SyncInventoryEnabled { get; set; } // SyncInventoryEnabled
         public bool SyncFulfillmentsEnabled { get; set; } // SyncFulfillmentsEnabled
         public bool SyncRefundsEnabled { get; set; } // SyncRefundsEnabled
         public long? ShopifyOrderId { get; set; } // ShopifyOrderId
         public string ShopifyOrderName { get; set; } // ShopifyOrderName (length: 50)
         public System.DateTime? ShopifyOrderCreatedAtUtc { get; set; } // ShopifyOrderCreatedAtUtc
+        public bool ReleasePaymentsOnSync { get; set; } // ReleasePaymentsOnSync
         public int MaxParallelAcumaticaSyncs { get; set; } // MaxParallelAcumaticaSyncs
         public int MaxNumberOfOrders { get; set; } // MaxNumberOfOrders
         public bool InventorySyncPrice { get; set; } // InventorySyncPrice
@@ -1687,12 +1691,6 @@ namespace Monster.Middle.Persist.Instance
         public int WarehouseSyncState { get; set; } // WarehouseSyncState
         public int InventoryRefreshState { get; set; } // InventoryRefreshState
         public int StartingShopifyOrderState { get; set; } // StartingShopifyOrderState
-        public int ShopifyOrderEtcGetState { get; set; } // ShopifyOrderEtcGetState
-        public int AcumaticaOrderEtcGetState { get; set; } // AcumaticaOrderEtcGetState
-        public int AcumaticaOrderEtcPutState { get; set; } // AcumaticaOrderEtcPutState
-        public int AcumaticaRefundPutState { get; set; } // AcumaticaRefundPutState
-        public int ShopifyFulfillmentPutState { get; set; } // ShopifyFulfillmentPutState
-        public int ShopifyInventoryPutState { get; set; } // ShopifyInventoryPutState
     }
 
     // vw_AcumaticaInventory
@@ -2459,13 +2457,17 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaTaxableCategory).HasColumnName(@"AcumaticaTaxableCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaLineItemTaxId).HasColumnName(@"AcumaticaLineItemTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaFreightTaxId).HasColumnName(@"AcumaticaFreightTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.PullFromAcumaticaEnabled).HasColumnName(@"PullFromAcumaticaEnabled").HasColumnType("bit").IsRequired();
+            Property(x => x.PullFromShopifyEnabled).HasColumnName(@"PullFromShopifyEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncOrdersEnabled).HasColumnName(@"SyncOrdersEnabled").HasColumnType("bit").IsRequired();
+            Property(x => x.SyncAllCustomersEnabled).HasColumnName(@"SyncAllCustomersEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncInventoryEnabled).HasColumnName(@"SyncInventoryEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncFulfillmentsEnabled).HasColumnName(@"SyncFulfillmentsEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncRefundsEnabled).HasColumnName(@"SyncRefundsEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsOptional();
             Property(x => x.ShopifyOrderName).HasColumnName(@"ShopifyOrderName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyOrderCreatedAtUtc).HasColumnName(@"ShopifyOrderCreatedAtUtc").HasColumnType("datetime").IsOptional();
+            Property(x => x.ReleasePaymentsOnSync).HasColumnName(@"ReleasePaymentsOnSync").HasColumnType("bit").IsRequired();
             Property(x => x.MaxParallelAcumaticaSyncs).HasColumnName(@"MaxParallelAcumaticaSyncs").HasColumnType("int").IsRequired();
             Property(x => x.MaxNumberOfOrders).HasColumnName(@"MaxNumberOfOrders").HasColumnType("int").IsRequired();
             Property(x => x.InventorySyncPrice).HasColumnName(@"InventorySyncPrice").HasColumnType("bit").IsRequired();
@@ -2904,12 +2906,6 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.WarehouseSyncState).HasColumnName(@"WarehouseSyncState").HasColumnType("int").IsRequired();
             Property(x => x.InventoryRefreshState).HasColumnName(@"InventoryRefreshState").HasColumnType("int").IsRequired();
             Property(x => x.StartingShopifyOrderState).HasColumnName(@"StartingShopifyOrderState").HasColumnType("int").IsRequired();
-            Property(x => x.ShopifyOrderEtcGetState).HasColumnName(@"ShopifyOrderEtcGetState").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaOrderEtcGetState).HasColumnName(@"AcumaticaOrderEtcGetState").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaOrderEtcPutState).HasColumnName(@"AcumaticaOrderEtcPutState").HasColumnType("int").IsRequired();
-            Property(x => x.AcumaticaRefundPutState).HasColumnName(@"AcumaticaRefundPutState").HasColumnType("int").IsRequired();
-            Property(x => x.ShopifyFulfillmentPutState).HasColumnName(@"ShopifyFulfillmentPutState").HasColumnType("int").IsRequired();
-            Property(x => x.ShopifyInventoryPutState).HasColumnName(@"ShopifyInventoryPutState").HasColumnType("int").IsRequired();
         }
     }
 

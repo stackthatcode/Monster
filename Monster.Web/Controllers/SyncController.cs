@@ -112,8 +112,7 @@ namespace Monster.Web.Controllers
             var isRecurringEndToEndActive = _recurringJobService.IsEndToEndSyncActive();
             var settings = _settingsRepository.RetrieveSettings();
             var recurringSchedule =
-                RecurringSchedule
-                    .Options.First(x => x.Id == settings.LastRecurringSchedule).Desc;
+                RecurringSchedule.Options.First(x => x.Id == settings.LastRecurringSchedule).Desc;
 
             var output = new 
             {
@@ -137,6 +136,9 @@ namespace Monster.Web.Controllers
             var settings = _settingsRepository.RetrieveSettings();
 
             var output = new SyncSettingsModel();
+            output.PullFromAcumaticaEnabled = settings.PullFromAcumaticaEnabled;
+            output.PullFromShopifyEnabled = settings.PullFromShopifyEnabled;
+
             output.SyncOrdersEnabled = settings.SyncOrdersEnabled;
             output.SyncInventoryEnabled = settings.SyncInventoryEnabled;
             output.SyncRefundsEnabled = settings.SyncRefundsEnabled;
@@ -144,14 +146,14 @@ namespace Monster.Web.Controllers
 
             output.StartingOrderId = settings.ShopifyOrderId;
             output.StartingOrderName = settings.ShopifyOrderName.IsNullOrEmptyAlt("(not set)");
-            output.StartOrderCreatedAtUtc 
-                = settings.ShopifyOrderCreatedAtUtc?.ToString() ?? "(not set)";
+            output.StartOrderCreatedAtUtc = settings.ShopifyOrderCreatedAtUtc?.ToString() ?? "(not set)";
 
             if (settings.ShopifyOrderId.HasValue)
             {
                 output.StartingOrderHref = _shopifyUrlService.ShopifyOrderUrl(settings.ShopifyOrderId.Value);
             }
 
+            output.ReleasePaymentsOnSync = settings.ReleasePaymentsOnSync;
             output.MaxParallelAcumaticaSyncs = settings.MaxParallelAcumaticaSyncs;
             output.MaxNumberOfOrders = settings.MaxNumberOfOrders;
 
@@ -166,6 +168,8 @@ namespace Monster.Web.Controllers
         public ActionResult UpdateSyncEnables(SyncEnablesUpdateModel input)
         {
             var data = _settingsRepository.RetrieveSettings();
+            data.PullFromShopifyEnabled = input.PullFromShopifyEnabled;
+            data.PullFromAcumaticaEnabled = input.PullFromAcumaticaEnabled;
             data.SyncOrdersEnabled = input.SyncOrdersEnabled;
             data.SyncInventoryEnabled = input.SyncInventoryEnabled;
             data.SyncRefundsEnabled = input.SyncRefundsEnabled;
@@ -224,6 +228,8 @@ namespace Monster.Web.Controllers
 
                 _stateRepository.UpdateSystemState(x => x.StartingShopifyOrderState, StateCode.Ok);
             }
+
+            data.ReleasePaymentsOnSync = model.ReleasePaymentsOnSync;
 
             data.MaxParallelAcumaticaSyncs = model.MaxParallelAcumaticaSyncs;
             data.MaxNumberOfOrders
