@@ -80,7 +80,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 // Refresh Status and run for Payment Transaction
                 //
                 ProcessPaymentTransaction(shopifyOrderId);
-                ProcessAllReleases(shopifyOrderId);
+                //ProcessAllReleases(shopifyOrderId);
 
                 // Refresh Status and run for Refund Transactions
                 //
@@ -88,14 +88,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                 foreach (var refundAction in rootAction.RefundPaymentActions)
                 {
                     ProcessRefundTransaction(refundAction);
-                    ProcessAllReleases(shopifyOrderId);
+                    //ProcessAllReleases(shopifyOrderId);
                 }
 
                 var rootAction2 = _pendingActionService.Create(shopifyOrderId);
                 foreach (var memoAction in rootAction2.AdjustmentMemoActions)
                 {
                     ProcessAdjustmentMemo(memoAction);
-                    ProcessAllReleases(shopifyOrderId);
+                    //ProcessAllReleases(shopifyOrderId);
                 }
 
                 return true;

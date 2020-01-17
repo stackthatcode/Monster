@@ -252,15 +252,15 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             _executionLogService.Log("End-to-End - process starting");
 
-            EndToEndRunner(
-                new Action[] 
-                {
-                    () => _shopifyManager.PullCustomers(),
-                    () => _shopifyManager.PullOrders(),
-                    () => _shopifyManager.PullTransactions(),
-                },
-                x => x.ShopifyOrderEtcGetState,
-                "End-to-End - Get Customers, Orders, Transactions from Shopify");
+            //EndToEndRunner(
+            //    new Action[] 
+            //    {
+            //        () => _shopifyManager.PullCustomers(),
+            //        () => _shopifyManager.PullOrders(),
+            //        () => _shopifyManager.PullTransactions(),
+            //    },
+            //    x => x.ShopifyOrderEtcGetState,
+            //    "End-to-End - Get Customers, Orders, Transactions from Shopify");
 
             EndToEndRunner(
                 new Action[]

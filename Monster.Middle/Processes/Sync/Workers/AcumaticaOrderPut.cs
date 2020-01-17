@@ -202,7 +202,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             newRecord.AcumaticaOrderTotal = (decimal)newOrder.OrderTotal.value;
 
             newRecord.ShopifyCustomerMonsterId = acumaticaCustomer.ShopifyCustomerMonsterId;
-
             newRecord.DateCreated = DateTime.UtcNow;
             newRecord.LastUpdated = DateTime.UtcNow;
 

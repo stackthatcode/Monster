@@ -12,21 +12,6 @@ EXEC dbo.DeleteAllSystemRecords;
 EXEC dbo.ResetStartingShopifyOrder;
 */
 
-USE MonsterSys;
-
-
-USE Monster0001;
-SELECT * FROM ShopifyTransaction;
-SELECT * FROM ShopifyOrder;
-
-USE Acu19R10002;
-GO
-
-SELECT * FROM ARInvoice;
-
-
-USE Monster0001;
-GO
 
 SELECT * FROM vw_SyncWarehousesAndLocations
 SELECT * FROM vw_ShopifyInventory 

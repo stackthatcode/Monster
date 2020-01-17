@@ -23,6 +23,7 @@ GO
 
 CREATE PROCEDURE dbo.DeleteAllAcumaticaOrderRecords
 AS
+	DELETE FROM AcumaticaMemo;
 	DELETE FROM AcumaticaPayment;
 	DELETE FROM AcumaticaSoShipment;
 	DELETE FROM AcumaticaSalesOrder;

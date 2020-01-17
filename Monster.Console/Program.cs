@@ -43,8 +43,8 @@ namespace Monster.ConsoleApp
 
             while (MainLoop())
             {
-                Console.WriteLine("Hit any key to proceed...");
-                Console.ReadKey();
+                Console.WriteLine("Hit enter to continue...");
+                Console.ReadLine();
             }
 
             Console.WriteLine("FIN");

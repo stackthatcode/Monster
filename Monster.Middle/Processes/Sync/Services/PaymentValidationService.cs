@@ -82,7 +82,7 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             return new Validation<PaymentValidationContext>()
                 .Add(x => x.CurrentTransaction.DoNotIgnore(), $"Transaction is not valid for synchronization")
-                .Add(x => x.CurrentTransaction.ShopifyOrderId < SystemConsts.ErrorThreshold,
+                .Add(x => x.CurrentTransaction.ShopifyOrder.PutErrorCount < SystemConsts.ErrorThreshold,
                     "Encountered too many errors attempting to synchronize");
         }
 
