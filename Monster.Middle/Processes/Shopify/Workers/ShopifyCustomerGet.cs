@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Persist;
@@ -15,18 +16,20 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _batchRepository;
         private readonly SettingsRepository _settingsRepository;
-
+        private readonly JobMonitoringService _jobMonitoringService;
         
         public ShopifyCustomerGet(
                 CustomerApi customerApi,
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository batchRepository,
-                SettingsRepository settingsRepository)
+                SettingsRepository settingsRepository, 
+                JobMonitoringService jobMonitoringService)
         {
             _customerApi = customerApi;
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
             _settingsRepository = settingsRepository;
+            _jobMonitoringService = jobMonitoringService;
         }
 
 
@@ -65,6 +68,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             while (true)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 var currentFilter = firstFilter.Clone();
                 currentFilter.Page = currentPage;
                 var currentJson = _customerApi.Retrieve(currentFilter);

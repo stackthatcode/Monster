@@ -4,6 +4,7 @@ using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Distribution;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -24,6 +25,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly DistributionClient _distributionClient;
         private readonly SettingsRepository _settingsRepository;
         private readonly ExecutionLogService _logService;
+        private readonly JobMonitoringService _jobMonitoringService;
 
         public AcumaticaStockItemPut(
                 AcumaticaInventoryRepository inventoryRepository,
@@ -31,19 +33,25 @@ namespace Monster.Middle.Processes.Sync.Workers
                 DistributionClient distributionClient,
                 SettingsRepository settingsRepository,
                 ExecutionLogService logService,
-                IPushLogger logger)
+                JobMonitoringService jobMonitoringService)
         {
             _syncRepository = syncRepository;
             _inventoryRepository = inventoryRepository;
             _distributionClient = distributionClient;
             _settingsRepository = settingsRepository;
             _logService = logService;
+            _jobMonitoringService = jobMonitoringService;
         }
 
         public void RunImportToAcumatica(AcumaticaStockItemImportContext context)
         {
             foreach (var shopifyProductId in context.ShopifyProductIds)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 var variants = _syncRepository.RetrieveUnmatchedVariants(shopifyProductId);
 
                 var variantsForReceipt = new List<ShopifyVariant>();

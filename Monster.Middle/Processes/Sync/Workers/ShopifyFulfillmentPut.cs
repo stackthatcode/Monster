@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Monster.Acumatica.Api.Shipment;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -22,31 +23,30 @@ namespace Monster.Middle.Processes.Sync.Workers
     {
         private readonly FulfillmentApi _fulfillmentApi;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
-        private readonly AcumaticaOrderRepository _orderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
         private readonly ExecutionLogService _logService;
         private readonly FulfillmentStatusService _fulfillmentStatusService;
+        private readonly JobMonitoringService _jobMonitoringService;
         private readonly IPushLogger _pushLogger;
 
         public ShopifyFulfillmentPut(
                 ShopifyOrderRepository shopifyOrderRepository,
-                AcumaticaOrderRepository orderRepository, 
                 SyncOrderRepository syncOrderRepository,
                 SyncInventoryRepository syncInventoryRepository,
                 FulfillmentApi fulfillmentApi, 
                 ExecutionLogService logService, 
                 FulfillmentStatusService fulfillmentStatusService, 
-                IPushLogger pushLogger)
+                IPushLogger pushLogger, JobMonitoringService jobMonitoringService)
         {
             _shopifyOrderRepository = shopifyOrderRepository;
-            _orderRepository = orderRepository;
             _syncOrderRepository = syncOrderRepository;
             _syncInventoryRepository = syncInventoryRepository;
             _fulfillmentApi = fulfillmentApi;
             _logService = logService;
             _fulfillmentStatusService = fulfillmentStatusService;
             _pushLogger = pushLogger;
+            _jobMonitoringService = jobMonitoringService;
         }
 
 
@@ -58,6 +58,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var salesOrderRef in salesOrderRefs)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 var syncReadiness = _fulfillmentStatusService.Validate(salesOrderRef);
 
                 if (syncReadiness.Success)

@@ -72,6 +72,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         private void Run(SearchFilter filter)
         {
+            if (_jobMonitoringService.DetectCurrentJobInterrupt())
+            {
+                return;
+            }
+
             var startOfRun = DateTime.UtcNow;
             var firstJson = _orderApi.Retrieve(filter);
             var firstOrders = firstJson.DeserializeToOrderList().orders;
@@ -81,19 +86,22 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             while (true)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 var currentFilter = filter.Clone();
                 currentFilter.Page = currentPage;
 
                 var currentJson = _orderApi.Retrieve(currentFilter);
                 var currentOrders = currentJson.DeserializeToOrderList().orders;
-
-                UpsertOrders(currentOrders);
-
                 if (currentOrders.Count == 0)
                 {
                     break;
                 }
 
+                UpsertOrders(currentOrders);
                 currentPage++;
             }
 
@@ -122,9 +130,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 }
                 else
                 {
-                    if (_jobMonitoringService.IsJobTypeInterrupted(BackgroundJobType.EndToEndSync))
+                    if (_jobMonitoringService.DetectCurrentJobInterrupt())
                     {
-                        _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
                         return;
                     }
 
@@ -155,7 +162,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newOrder.ShopifyOrderId = order.id;
                 newOrder.ShopifyOrderNumber = order.name;
                 newOrder.ShopifyJson = order.SerializeToJson();
-
                 newOrder.ShopifyTotalPrice = order.total_price;
                 newOrder.ShopifyFinancialStatus = order.financial_status;
                 newOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
@@ -164,19 +170,18 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 newOrder.NeedsTransactionGet = true;
                 newOrder.NeedsOrderPut = true;
-
                 newOrder.PutErrorCount = 0;
+
                 newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
 
-                _executionLogService.Log(LogBuilder.NewShopifyOrder(newOrder));
+                _executionLogService.Log(LogBuilder.DetectedNewShopifyOrder(newOrder));
                 _orderRepository.InsertOrder(newOrder);
             }
             else
             {
                 existingOrder.ShopifyJson = order.SerializeToJson();
-
                 existingOrder.ShopifyTotalPrice = order.total_price;
                 existingOrder.ShopifyFinancialStatus = order.financial_status;
                 existingOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
@@ -187,7 +192,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existingOrder.NeedsTransactionGet = true;
                 existingOrder.LastUpdated = DateTime.UtcNow;
 
-                _executionLogService.Log(LogBuilder.UpdateShopifyOrder(existingOrder));
+                _executionLogService.Log(LogBuilder.DetectedUpdateShopifyOrder(existingOrder));
                 _orderRepository.SaveChanges();
             }
         }
@@ -248,6 +253,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
 
+                    _executionLogService.Log(LogBuilder.DetectedNewShopifyRefund(newRecord));
                     _orderRepository.InsertRefund(newRecord);
                 }
                 else

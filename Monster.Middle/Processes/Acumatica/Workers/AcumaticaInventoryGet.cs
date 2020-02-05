@@ -7,7 +7,7 @@ using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Acumatica.Workers
@@ -20,7 +20,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
         private readonly AcumaticaHttpConfig _config;
         private readonly ExecutionLogService _executionLogService;
-        private readonly SettingsRepository _settingsRepository;
 
         public AcumaticaInventoryGet(
                     DistributionClient inventoryClient, 
@@ -28,14 +27,12 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     AcumaticaBatchRepository batchStateRepository,
                     AcumaticaTimeZoneService instanceTimeZoneService,
                     AcumaticaHttpConfig config,
-                    ExecutionLogService executionLogService, 
-                    SettingsRepository settingsRepository)
+                    ExecutionLogService executionLogService)
         {
             _inventoryClient = inventoryClient;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
             _executionLogService = executionLogService;
-            _settingsRepository = settingsRepository;
             _instanceTimeZoneService = instanceTimeZoneService;
             _config = config;
         }
@@ -103,6 +100,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     newData.DateCreated = DateTime.UtcNow;
                     newData.LastUpdated = DateTime.UtcNow;
 
+                    _executionLogService.Log(LogBuilder.DetectedNewStockItem(newData));
                     _inventoryRepository.InsertStockItems(newData);
                 }
                 else
@@ -112,10 +110,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     existingData.AcumaticaTaxCategory = item.TaxCategory.value;
                     existingData.AcumaticaDefaultPrice = (decimal)item.DefaultPrice.value;
                     existingData.AcumaticaLastCost = (decimal)item.LastCost.value;
-
                     existingData.IsVariantSynced = false;
                     existingData.LastUpdated = DateTime.UtcNow;
 
+                    _executionLogService.Log(LogBuilder.DetectedChangeToStockItem(existingData));
                     _inventoryRepository.SaveChanges();
                 }
             }

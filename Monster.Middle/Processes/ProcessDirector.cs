@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Linq.Expressions;
-using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
-using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Shopify;
@@ -223,15 +220,14 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         private void BackgroundJobRunner(Action action, int jobType)
         {
-            string descriptor = BackgroundJobType.Name[jobType];
-
+            var descriptor = BackgroundJobType.Name[jobType];
             _executionLogService.Log($"{descriptor}  - executing");
-
+            _monitoringService.RegisterCurrentJobType(jobType);
+            
             try
             {
-                if (_monitoringService.IsJobTypeInterrupted(jobType))
+                if (_monitoringService.DetectCurrentJobInterrupt())
                 {
-                    _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
                     return;
                 }
                 action();
@@ -251,13 +247,13 @@ namespace Monster.Middle.Processes.Sync.Managers
         public void EndToEndSync()
         {
             _executionLogService.Log("End-to-End - process starting");
+            _monitoringService.RegisterCurrentJobType(BackgroundJobType.EndToEndSync);
 
             var settings = _settingsRepository.RetrieveSettings();
 
             if (settings.PullFromShopifyEnabled
                 && _stateRepository.CheckSystemState(x => x.CanPollDataFromAcumatica()))
             {
-
                 EndToEndRunner(
                 new Action[]
                 {
@@ -330,9 +326,8 @@ namespace Monster.Middle.Processes.Sync.Managers
             {
                 try
                 {
-                    if (_monitoringService.IsJobTypeInterrupted(BackgroundJobType.EndToEndSync))
+                    if (_monitoringService.DetectCurrentJobInterrupt())
                     {
-                        _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
                         return;
                     }
                     action();

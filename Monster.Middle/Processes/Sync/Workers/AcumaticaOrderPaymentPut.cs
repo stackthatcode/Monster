@@ -6,6 +6,7 @@ using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Payment;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Misc.Acumatica;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -33,6 +34,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaTimeZoneService _acumaticaTimeZoneService;
         private readonly PendingActionService _pendingActionService;
         private readonly IPushLogger _systemLogger;
+        private readonly JobMonitoringService _jobMonitoringService;
 
         public AcumaticaOrderPaymentPut(
                     SyncOrderRepository syncOrderRepository, 
@@ -41,6 +43,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                     ExecutionLogService logService, 
                     PendingActionService pendingActionService, 
                     IPushLogger systemLogger, 
+                    JobMonitoringService jobMonitoringService,
                     AcumaticaTimeZoneService acumaticaTimeZoneService, 
                     InvoiceClient invoiceClient)
         {
@@ -50,6 +53,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _logService = logService;
             _pendingActionService = pendingActionService;
             _systemLogger = systemLogger;
+            _jobMonitoringService = jobMonitoringService;
             _acumaticaTimeZoneService = acumaticaTimeZoneService;
             _invoiceClient = invoiceClient;
         }
@@ -63,6 +67,11 @@ namespace Monster.Middle.Processes.Sync.Workers
             var shopifyOrderIds = processingList.Distinct().OrderBy(x => x);
             foreach (var shopifyOrderId in shopifyOrderIds)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 ProcessOrder(shopifyOrderId);
             }
         }

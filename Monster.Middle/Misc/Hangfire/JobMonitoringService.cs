@@ -4,6 +4,7 @@ using System.Linq;
 using Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Sync.Misc;
 using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Misc.Hangfire
@@ -15,7 +16,9 @@ namespace Monster.Middle.Misc.Hangfire
         private readonly ExecutionLogService _executionLogService;
 
         private MonsterDataContext Entities => _dataContext.Entities;
-        
+
+        private int? _currentRunningJobType = null;
+
 
         public JobMonitoringService(
                 InstanceContext instanceContext, 
@@ -74,10 +77,9 @@ namespace Monster.Middle.Misc.Hangfire
 
         public bool AreAnyJobsRunning()
         {
-            return Entities.ExclusiveJobMonitors
-                .AsNoTracking()
-                .Any();
+            return Entities.ExclusiveJobMonitors.AsNoTracking().Any();
         }
+
 
         public void AssignHangfireJob(long monitorId, string hangfireJobId)
         {
@@ -105,6 +107,32 @@ namespace Monster.Middle.Misc.Hangfire
                 .FirstOrDefault(x => x.BackgroundJobType == jobType);
         }
 
+        // Having some doubts about the location of this one
+        //
+        public void RegisterCurrentJobType(int jobType)
+        {
+            _currentRunningJobType = jobType;
+        }
+
+        public bool DetectCurrentJobInterrupt()
+        {
+            if (!_currentRunningJobType.HasValue)
+            {
+                throw new Exception("Must invoke IdentifyCurrentJobType() before calling this method");
+            }
+
+            if (IsJobTypeInterrupted(_currentRunningJobType.Value))
+            {
+                _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
         public bool IsJobTypeInterrupted(int jobType)
         {
             var monitor = RetrieveMonitorByTypeNoTracking(jobType);
@@ -131,7 +159,7 @@ namespace Monster.Middle.Misc.Hangfire
             }
         }
 
-        public void SendKillSignal(long monitorId)
+        private void SendKillSignal(long monitorId)
         {
             var monitor = Entities.ExclusiveJobMonitors.FirstOrDefault(x => x.Id == monitorId);
             if (monitor == null)
@@ -165,7 +193,6 @@ namespace Monster.Middle.Misc.Hangfire
 
             Cleanup();
         }
-
 
         public void Cleanup()
         {

@@ -82,10 +82,18 @@ namespace Monster.Acumatica.Http
 
         public void Login()
         {
-            var path = $"/entity/auth/login";
-            var content = _credentials.AuthenticationJson;
-            var response = Post(path, content, excludeVersion: true);
-            IsLoggedIn = true;
+            try
+            {
+                var path = $"/entity/auth/login";
+                var content = _credentials.AuthenticationJson;
+                var response = Post(path, content, excludeVersion: true);
+                IsLoggedIn = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                throw;
+            }
         }
 
         public void Logout()

@@ -5,14 +5,34 @@ namespace Monster.Middle.Processes.Sync.Misc
 {
     public static class LogBuilder
     {
-        public static string NewShopifyOrder(ShopifyOrder order)
+        public static string DetectedNewShopifyOrder(ShopifyOrder order)
         {
             return $"Detected new Shopify Order {order.LogDescriptor()}";
         }
 
-        public static string UpdateShopifyOrder(ShopifyOrder order)
+        public static string DetectedUpdateShopifyOrder(ShopifyOrder order)
         {
             return $"Detected changes to Shopify Order {order.LogDescriptor()}";
+        }
+
+        public static string DetectedNewShopifyRefund(ShopifyRefund refund)
+        {
+            return $"Detected new Shopify Refund {refund.LogDescriptor()}";
+        }
+
+        public static string DetectedNewAcumaticaSoShipment(AcumaticaSoShipment shipment)
+        {
+            return $"Detected new Acumatica Shipment (Complete) {shipment.LogDescriptor()}";
+        }
+
+        public static string DetectedNewStockItem(AcumaticaStockItem item)
+        {
+            return $"Detected new Acumatica Stock Item {item.LogDescriptor()}";
+        }
+
+        public static string DetectedChangeToStockItem(AcumaticaStockItem item)
+        {
+            return $"Detected change to Acumatica Stock Item {item.LogDescriptor()}";
         }
 
         public static string UpdateShopifyPrice(AcumaticaStockItem item)

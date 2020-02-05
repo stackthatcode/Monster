@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
@@ -21,6 +22,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly InventoryApi _inventoryApi;
         private readonly EventApi _eventApi;
         private readonly ShopifyInventoryRepository _inventoryRepository;
+        private readonly JobMonitoringService _jobMonitoringService;
         private readonly ShopifyBatchRepository _batchRepository;
         private readonly ExecutionLogService _executionLogService;
         private readonly IPushLogger _logger;
@@ -30,7 +32,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 ProductApi productApi,
                 InventoryApi inventoryApi,
                 EventApi eventApi,
-                ShopifyInventoryRepository inventoryRepository, 
+                ShopifyInventoryRepository inventoryRepository,
+                JobMonitoringService jobMonitoringService,
                 ShopifyBatchRepository batchRepository, 
                 ExecutionLogService executionLogService)
         {
@@ -38,6 +41,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _inventoryApi = inventoryApi;
             _eventApi = eventApi;
             _inventoryRepository = inventoryRepository;
+            _jobMonitoringService = jobMonitoringService;
             _batchRepository = batchRepository;
             _executionLogService = executionLogService;
             _logger = logger;
@@ -68,6 +72,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         private void Run(SearchFilter firstFilter)
         {
+            if (_jobMonitoringService.DetectCurrentJobInterrupt())
+            {
+                return;
+            }
+
             // We've hanging on to this to compute the end of the Batch State
             var startOfRun = DateTime.UtcNow;
             var firstJson = _productApi.Retrieve(firstFilter);
@@ -79,6 +88,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             while (true)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 var currentFilter = firstFilter.Clone();
                 currentFilter.Page = currentPage;
                 
@@ -111,7 +125,15 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public void UpsertProductsAndInventory(IEnumerable<Product> products)
         {
-            products.ForEach(x => UpsertProductAndInventory(x));
+            foreach (var product in products)
+            {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
+                UpsertProductAndInventory(product);
+            }
         }
 
         public long UpsertProductAndInventory(Product product)

@@ -98,9 +98,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 long shopifyOrderId;
 
-                if (_jobMonitoringService.IsJobTypeInterrupted(BackgroundJobType.EndToEndSync))
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
                 {
-                    _logService.Log(LogBuilder.JobExecutionIsInterrupted());
                     return;
                 }
 

@@ -6,8 +6,11 @@ using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Api.Shipment;
 using Monster.Acumatica.Config;
 using Monster.Middle.Misc.Acumatica;
+using Monster.Middle.Misc.Hangfire;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
@@ -25,6 +28,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaTimeZoneService _timeZoneService;
         private readonly SettingsRepository _settingsRepository;
+        private readonly ExecutionLogService _executionLogService;
+        private readonly JobMonitoringService _jobMonitoringService;
 
 
         public AcumaticaOrderGet(
@@ -34,7 +39,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaHttpConfig acumaticaHttpConfig,
                 SettingsRepository settingsRepository,
                 SalesOrderClient salesOrderClient,
-                ShipmentClient shipmentClient, InvoiceClient invoiceClient)
+                ShipmentClient shipmentClient, 
+                InvoiceClient invoiceClient, 
+                ExecutionLogService executionLogService,
+                JobMonitoringService jobMonitoringService)
         {
             _orderRepository = orderRepository;
             _timeZoneService = timeZoneService;
@@ -44,6 +52,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _settingsRepository = settingsRepository;
             _shipmentClient = shipmentClient;
             _invoiceClient = invoiceClient;
+            _executionLogService = executionLogService;
+            _jobMonitoringService = jobMonitoringService;
         }
 
         public void Run(string orderId)
@@ -67,7 +77,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             else
             {
                 var orderStartDateUtc = settings.ShopifyOrderCreatedAtUtc.Value;
-
                 RunWithPaging(orderStartDateUtc);
             }
         }
@@ -82,10 +91,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             while (true)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 var orders = 
                     _salesOrderClient.RetrieveUpdatedSalesOrders(
-                        lastModifiedMin, page, pageSize, 
-                        expand:Expand.Shipments_Totals);
+                        lastModifiedMin, page, pageSize, expand:Expand.Shipments_Totals);
 
                 if (orders.Count == 0)
                 {
@@ -122,12 +135,10 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 }
 
                 existingData.AcumaticaShipmentDetailsJson = order.SerializeToJson();
-
                 existingData.AcumaticaFreight = (decimal)order.Totals.Freight.value;
                 existingData.AcumaticaLineTotal = (decimal)order.Totals.LineTotalAmount.value;
                 existingData.AcumaticaTaxTotal = (decimal)order.Totals.TaxTotal.value;
                 existingData.AcumaticaOrderTotal = (decimal)order.OrderTotal.value;
-
                 existingData.AcumaticaStatus = order.Status.value;
                 existingData.AcumaticaIsTaxValid = order.IsTaxValid.value;
 
@@ -175,6 +186,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 record.DateCreated = DateTime.UtcNow;
                 record.LastUpdated = DateTime.UtcNow;
 
+                _executionLogService.Log(LogBuilder.DetectedNewAcumaticaSoShipment(record));
                 _orderRepository.InsertSoShipmentInvoice(record);
             }
         }

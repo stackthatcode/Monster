@@ -4,8 +4,8 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Config;
 using Monster.Middle.Misc.Acumatica;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Sync.Model.Status;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Json;
 
@@ -19,6 +19,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaOrderRepository _orderRepository;
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
         private readonly SettingsRepository _settingsRepository;
+        private readonly JobMonitoringService _jobMonitoringService;
         private readonly AcumaticaHttpConfig _config;
 
 
@@ -28,6 +29,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaBatchRepository batchStateRepository,
                 AcumaticaTimeZoneService instanceTimeZoneService,
                 SettingsRepository settingsRepository,
+                JobMonitoringService jobMonitoringService,
                 AcumaticaHttpConfig config)
         {
             _customerClient = customerClient;
@@ -35,6 +37,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _batchStateRepository = batchStateRepository;
             _instanceTimeZoneService = instanceTimeZoneService;
             _settingsRepository = settingsRepository;
+            _jobMonitoringService = jobMonitoringService;
             _config = config;
         }
 
@@ -64,6 +67,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             while (true)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 var json = _customerClient.RetrieveCustomers(updateMin, page, pageSize);
                 var customers = json.DeserializeFromJson<List<Customer>>();
 

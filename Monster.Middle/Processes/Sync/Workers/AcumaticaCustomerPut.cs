@@ -3,6 +3,7 @@ using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.Customer;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -18,6 +19,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly CustomerClient _customerClient;
+        private readonly JobMonitoringService _jobMonitoringService;
         private readonly ExecutionLogService _logService;
         private readonly SettingsRepository _settingsRepository;
 
@@ -26,12 +28,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 SyncOrderRepository syncOrderRepository, 
                 CustomerClient customerClient, 
+                JobMonitoringService jobMonitoringService,
                 ExecutionLogService logService, 
                 SettingsRepository settingsRepository)
         {
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _syncOrderRepository = syncOrderRepository;
             _customerClient = customerClient;
+            _jobMonitoringService = jobMonitoringService;
             _logService = logService;
             _settingsRepository = settingsRepository;
         }
@@ -42,6 +46,10 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var shopifyCustomer in notLoadedCustomers)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
                 PushCustomer(shopifyCustomer);
             }
 
@@ -49,6 +57,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var shopifyCustomer in customersNeedingUpdate)
             {
+                if (_jobMonitoringService.DetectCurrentJobInterrupt())
+                {
+                    return;
+                }
+
                 PushCustomer(shopifyCustomer);
             }
         }

@@ -141,8 +141,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 if (existingVariant != null)
                 {
-                    _logService.Log(
-                        $"Auto-matched {itemId.LogDescriptorItemId()} to {existingVariant.LogDescriptor()}");
+                    _logService.Log($"Auto-matched {itemId.LogDescriptorItemId()} to {existingVariant.LogDescriptor()}");
 
                     CreateSyncRecord(itemId.StandardizedSku(), existingVariant);
                     //context.AcumaticaItemIds.Remove(itemId);
