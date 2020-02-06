@@ -237,7 +237,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void UpdateInventoryLevels(AcumaticaStockItem stockItem)
         {
-            var variant = _inventoryRepository.RetrieveVariant(stockItem.MatchedVariant().ShopifyVariantId);
+            var variant = 
+                _inventoryRepository
+                    .RetrieveVariant(stockItem.MatchedVariant().ShopifyVariantId);
 
             if (variant.IsMissing)
             {

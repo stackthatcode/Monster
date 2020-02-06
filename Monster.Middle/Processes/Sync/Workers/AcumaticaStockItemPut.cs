@@ -250,6 +250,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             foreach (var inventoryLevel in inventory)
             {
+                if (inventoryLevel.ShopifyAvailableQuantity <= 0)
+                {
+                    continue;
+                }
+
                 var variant = inventoryLevel.ShopifyVariant;
                 var location = inventoryLevel.ShopifyLocation;
                 var stockItemId = variant.AcumaticaStockItemId();

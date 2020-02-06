@@ -24,32 +24,17 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Order Syncing
         //
-        private IQueryable<ShopifyOrder> OrderNeedingPut(int errorThreshold = SystemConsts.ErrorThreshold)
-        {
-            return Entities.ShopifyOrders
-                .Include(x => x.ShopifyCustomer)
-                .Include(x => x.ShopifyFulfillments)
-                .Include(x => x.ShopifyRefunds)
-                .Include(x => x.ShopifyTransactions)
-                .Join(Entities.ShopifyOrdersNeedingSyncAlls,
-                        ord => ord.MonsterId,
-                        vw => vw.MonsterId,
-                        (ord, vw) => ord)
-                .OrderBy(x => x.ShopifyOrderId);
-        }
-
-        public List<long> RetrieveShopifyOrdersToPut(int errorThreshold = SystemConsts.ErrorThreshold)
+        public List<long> RetrieveShopifyOrdersToPut()
         {
             var settings = Entities.MonsterSettings.First();
             var numberOfOrders = settings.MaxNumberOfOrders;
 
-            var newOrders = OrderNeedingPut(errorThreshold)
-                .Where(x => x.AcumaticaSalesOrder == null)
+            var newOrders = Entities.ShopifyOrdersNeedingCreateSyncs
                 .Select(x => x.ShopifyOrderId)
+                .Take(numberOfOrders)
                 .ToList();
 
-            var updatedOrders = OrderNeedingPut(errorThreshold)
-                .Where(x => x.AcumaticaSalesOrder != null)
+            var updatedOrders = Entities.ShopifyOrdersNeedingUpdateSyncs
                 .Select(x => x.ShopifyOrderId)
                 .ToList();
 

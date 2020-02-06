@@ -106,10 +106,32 @@ namespace Monster.Middle.Processes.Sync.Services
                 queryable = queryable.Where(x => x.ErrorCount >= SystemConsts.ErrorThreshold);
             }
 
+            if (request.OrderStatus == AnalyzerStatus.Unsynced)
+            {
+                queryable 
+                    = queryable.Join(
+                        _persistContext.Entities.ShopifyOrdersNeedingSyncAlls,
+                        ord => ord.MonsterId,
+                        vw => vw.MonsterId,
+                        (ord, vw) => ord);
+            }
+
+            if (request.OrderStatus == AnalyzerStatus.Synced)
+            {
+                queryable
+                    = queryable.Join(
+                        _persistContext.Entities.ShopifyOrdersNotNeedingSyncAlls,
+                        ord => ord.MonsterId,
+                        vw => vw.MonsterId,
+                        (ord, vw) => ord);
+            }
+
             return queryable;
         }
 
-        public OrderAnalysisTotals GetOrderFinancialSummary(long shopifyOrderId, bool includeAcumaticaTotals = true)
+        public OrderAnalysisTotals 
+                    GetOrderFinancialSummary(
+                        long shopifyOrderId, bool includeAcumaticaTotals = true)
         {
             var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
