@@ -141,8 +141,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 existingData.AcumaticaOrderTotal = (decimal)order.OrderTotal.value;
                 existingData.AcumaticaStatus = order.Status.value;
                 existingData.AcumaticaIsTaxValid = order.IsTaxValid.value;
-
                 existingData.LastUpdated = DateTime.UtcNow;
+
                 _orderRepository.SaveChanges();
 
                 UpsertSoShipments(existingData);
@@ -157,7 +157,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             var salesOrder = salesOrderRecord.ToSalesOrderObj();
             foreach (var shipment in salesOrder.Shipments)
             {
-                var exists = _orderRepository.SoShipmentExists(
+                var exists = 
+                    _orderRepository.SoShipmentExists(
                         salesOrderRecord.ShopifyOrderMonsterId, 
                         shipment.ShipmentNbr.value, 
                         shipment.InvoiceNbr.value);

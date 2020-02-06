@@ -608,16 +608,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             return acumaticaCreditMemo;
         }
 
-
-        //memo.ApplicationsDefault = new List<object>()
-        //{
-        //    new
-        //    {
-        //        Amount = amount.ToValue(),
-        //        DocType = SalesOrderType.SO.ToValue(),
-        //        ReferenceNbr = refund.ShopifyOrder.AcumaticaSalesOrderId().ToValue(),
-        //    }
-        //};
     }
 }
 

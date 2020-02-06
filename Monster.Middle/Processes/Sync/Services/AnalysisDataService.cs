@@ -113,8 +113,8 @@ namespace Monster.Middle.Processes.Sync.Services
             return queryable;
         }
 
-        public OrderAnalysisTotals 
-                GetOrderFinancialSummary(long shopifyOrderId, bool includeAcumaticaTotals = true)
+        public OrderAnalysisTotals GetOrderFinancialSummary(
+                    long shopifyOrderId, bool includeAcumaticaTotals = true)
         {
             var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -314,8 +314,8 @@ namespace Monster.Middle.Processes.Sync.Services
             return GetProductStockItemQueryable(request).Count();
         }
 
-        public ProductStockItemResultsRow 
-                    MakeProductStockItemResults(ShopifyVariant variant, MonsterSetting settings)
+        public ProductStockItemResultsRow MakeProductStockItemResults(
+                ShopifyVariant variant, MonsterSetting settings)
         {
             var output = new ProductStockItemResultsRow();
 
