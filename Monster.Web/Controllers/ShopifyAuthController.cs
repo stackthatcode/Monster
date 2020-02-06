@@ -203,6 +203,12 @@ namespace Monster.Web.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult Logout()
+        {
+            _identityService.SignOut();
+            return new RedirectResult(@GlobalConfig.Url("/Public/Splash"));
+        }
 
         private string BuildShopifyRedirectUrl(string fullShopDomain)
         {

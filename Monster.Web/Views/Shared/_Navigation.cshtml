@@ -103,6 +103,9 @@
                             </a>
                         </div>
                     </li>
+                    <li class="nav-item disabled">
+                        <a class="nav-link" href="@GlobalConfig.Url("/ShopifyAuth/Logout")">Logout</a>
+                    </li>
                 </ul>
             }
             else
@@ -122,7 +125,7 @@
         }
 
         <span class="navbar-text text-white ml-auto">
-            <a href="mailto:info@logicautomated.com">info@logicautomated.com</a> / 800-323-5992
+            <a href="@identityContext.InstanceHref" target="_blank">@identityContext.InstanceDomain</a>
         </span>
     </div>
 </nav>

@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Master;
@@ -21,6 +22,7 @@ namespace Monster.Middle.Identity
 
         private readonly InstanceContext _instanceContext;
         private readonly StateRepository _stateRepository;
+        private readonly ShopifyUrlService _shopifyUrlService;
 
         private readonly IPushLogger _logger;
 
@@ -32,7 +34,8 @@ namespace Monster.Middle.Identity
                 IdentitySignInManager signInManager,
                 InstanceContext instanceContext,
                 StateRepository stateRepository,
-                IPushLogger logger)
+                IPushLogger logger, 
+                ShopifyUrlService shopifyUrlService)
         {
             _masterRepository = masterRepository;
             _dbContext = dbContext;
@@ -42,6 +45,7 @@ namespace Monster.Middle.Identity
             _instanceContext = instanceContext;
             _stateRepository = stateRepository;
             _logger = logger;
+            _shopifyUrlService = shopifyUrlService;
         }
 
         public IdentityContext HydrateIdentity(string userId)
@@ -87,6 +91,8 @@ namespace Monster.Middle.Identity
             //
             context.InstanceId = instance.Id;
             context.InstanceNickName = instance.OwnerNickname;
+            context.InstanceDomain = instance.OwnerDomain;
+            context.InstanceHref = $"https://{instance.OwnerDomain}";
 
             // Auto-initialize persistence layer
             //

@@ -3,6 +3,7 @@ using Monster.Acumatica.Http;
 using Monster.Middle.Misc.External;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Master;
+using Monster.Middle.Processes.Sync.Persist;
 using Push.Shopify.Http;
 
 
@@ -12,6 +13,7 @@ namespace Monster.Middle.Persist.Instance
     {
         private readonly MasterRepository _systemRepository;
         private readonly CredentialsRepository _connectionRepository;
+        private readonly SettingsRepository _settingsRepository;
         private readonly ProcessPersistContext _processPersistContext;
         private readonly MiscPersistContext _miscPersistContext;
         private readonly ShopifyHttpContext _shopifyHttpContext;
@@ -30,11 +32,13 @@ namespace Monster.Middle.Persist.Instance
                 ProcessPersistContext processPersistContext,
                 MiscPersistContext miscPersistContext,
                 CredentialsRepository connectionRepository,
+                SettingsRepository settingsRepository,
                 ShopifyHttpContext shopifyHttpContext,
                 StateRepository stateRepository,
                 AcumaticaHttpContext acumaticaHttpContext)
         {
             _connectionRepository = connectionRepository;
+            _settingsRepository = settingsRepository;
             _systemRepository = systemRepository;
             _processPersistContext = processPersistContext;
             _miscPersistContext = miscPersistContext;
@@ -56,20 +60,22 @@ namespace Monster.Middle.Persist.Instance
             _processPersistContext.Initialize(instance.InstanceDatabase);
             _miscPersistContext.Initialize(instance.InstanceDatabase);
 
-            InitializeShopify(instanceId);
-            InitializeAcumatica(instanceId);
+            InitializeShopify();
+            InitializeAcumatica();
         }
 
-        public void InitializeShopify(Guid instanceId)
+        public void InitializeShopify()
         {  
             var shopifyCredentials = _connectionRepository.RetrieveShopifyCredentials();
+            var settings = _settingsRepository.RetrieveSettings();
+
             if (shopifyCredentials != null)
             {
-                _shopifyHttpContext.Initialize(shopifyCredentials);
+                _shopifyHttpContext.Initialize(shopifyCredentials, settings.ShopifyDelayMs);
             }
         }
 
-        public void InitializeAcumatica(Guid instanceId)
+        public void InitializeAcumatica()
         {
             var acumaticaCredentials = _connectionRepository.RetrieveAcumaticaCredentials();
             if (acumaticaCredentials != null)

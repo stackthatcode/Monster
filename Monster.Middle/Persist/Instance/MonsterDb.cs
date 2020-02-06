@@ -1276,6 +1276,7 @@ namespace Monster.Middle.Persist.Instance
         public bool SyncInventoryEnabled { get; set; } // SyncInventoryEnabled
         public bool SyncFulfillmentsEnabled { get; set; } // SyncFulfillmentsEnabled
         public bool SyncRefundsEnabled { get; set; } // SyncRefundsEnabled
+        public int? ShopifyDelayMs { get; set; } // ShopifyDelayMs
         public long? ShopifyOrderId { get; set; } // ShopifyOrderId
         public string ShopifyOrderName { get; set; } // ShopifyOrderName (length: 50)
         public System.DateTime? ShopifyOrderCreatedAtUtc { get; set; } // ShopifyOrderCreatedAtUtc
@@ -2368,6 +2369,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.SyncInventoryEnabled).HasColumnName(@"SyncInventoryEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncFulfillmentsEnabled).HasColumnName(@"SyncFulfillmentsEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncRefundsEnabled).HasColumnName(@"SyncRefundsEnabled").HasColumnType("bit").IsRequired();
+            Property(x => x.ShopifyDelayMs).HasColumnName(@"ShopifyDelayMs").HasColumnType("int").IsOptional();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsOptional();
             Property(x => x.ShopifyOrderName).HasColumnName(@"ShopifyOrderName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyOrderCreatedAtUtc).HasColumnName(@"ShopifyOrderCreatedAtUtc").HasColumnType("datetime").IsOptional();

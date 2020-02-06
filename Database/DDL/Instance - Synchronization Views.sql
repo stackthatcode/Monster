@@ -137,7 +137,6 @@ AND ( ShopifyFulfillmentId IS NULL )
 GO
 
 
-
 DROP VIEW IF EXISTS ShopifyOrdersNeedingSyncAll
 GO
 CREATE VIEW ShopifyOrdersNeedingSyncAll
@@ -155,6 +154,13 @@ UNION
 SELECT MonsterId FROM ShopifyOrderSoShipmentsNeedingSync
 GO
 
+DROP VIEW IF EXISTS ShopifyOrdersNotNeedingSyncAll
+GO
+CREATE VIEW ShopifyOrdersNotNeedingSyncAll
+AS
+SELECT MonsterId FROM ShopifyOrder 
+WHERE MonsterId NOT IN ( SELECT MonsterId FROM ShopifyOrdersNeedingSyncAll )
+GO
 
 
 SELECT * FROM ShopifyOrdersNeedingCreateSync

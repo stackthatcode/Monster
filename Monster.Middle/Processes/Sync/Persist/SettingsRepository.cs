@@ -82,6 +82,19 @@ namespace Monster.Middle.Processes.Sync.Persist
             return _dataContext.Entities.PaymentGateways.Any(x => x.ShopifyGatewayId == shopifyGatewayId);
         }
 
+        public List<int> RetrieveShopifyDelayOptions()
+        {
+            return new List<int>()
+            {
+                0,
+                500,
+                1000,
+            };
+        }
+        public int RetrieveShopifyDelayDefault()
+        {
+            return 500;
+        }
 
         public MonsterSetting RetrieveSettings()
         {
@@ -103,6 +116,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                     settings.MaxNumberOfOrders = 1;
                     settings.ReleasePaymentsOnSync = false;
 
+                    settings.ShopifyDelayMs = RetrieveShopifyDelayDefault();
                     settings.InventorySyncWeight = true;
                     settings.InventorySyncPrice = true;
                     settings.InventorySyncAvailableQty = true;

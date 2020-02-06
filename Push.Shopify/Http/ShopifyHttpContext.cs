@@ -15,7 +15,7 @@ namespace Push.Shopify.Http
 {
     public class ShopifyHttpContext : IDisposable
     {
-        private readonly ShopifyHttpConfig _settings;
+        private readonly ShopifyHttpConfig _httpConfig;
         private readonly IPushLogger _logger;
 
         // Hydrated by calls to Initialize()
@@ -24,21 +24,23 @@ namespace Push.Shopify.Http
         public Uri BaseAddress { private set; get; }
 
 
-        public ShopifyHttpContext(ShopifyHttpConfig settings, IPushLogger logger)
+        public ShopifyHttpContext(ShopifyHttpConfig httpConfig, IPushLogger logger)
         {
-            _settings = settings;
+            _httpConfig = httpConfig;
             _logger = logger;
         }
         
-        public void Initialize(IShopifyCredentials credentials)
+        public void Initialize(IShopifyCredentials credentials, int? shopifyDelayMsOverride = null)
         {
             BaseAddress = new Uri(credentials.Domain.BaseUrl);
 
+            var throttlingDelay = shopifyDelayMsOverride ?? _httpConfig.ThrottlingDelay;
+
             _executor = new FaultTolerantExecutor()
             {
-                MaxNumberOfAttempts = _settings.MaxAttempts,
+                MaxNumberOfAttempts = _httpConfig.MaxAttempts,
                 ThrottlingKey = credentials.Domain.BaseUrl,
-                ThrottlingDelay = _settings.ThrottlingDelay,
+                ThrottlingDelay = throttlingDelay,
                 Logger = _logger,
             };
 
@@ -66,7 +68,7 @@ namespace Push.Shopify.Http
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             // Spawn the WebRequest
-            _httpClient.Timeout = new TimeSpan(0, 0, 0, _settings.Timeout);
+            _httpClient.Timeout = new TimeSpan(0, 0, 0, _httpConfig.Timeout);
 
             // Key and Secret authentication, for purpose of retrieving OAuth access token
             //

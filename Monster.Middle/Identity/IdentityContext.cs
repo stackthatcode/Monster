@@ -17,6 +17,9 @@ namespace Monster.Middle.Identity
         //
         public Guid InstanceId { get; set; }
         public string InstanceNickName { get; set; }
+        public string InstanceDomain { get; set; }
+        public string InstanceHref { get; set; }
+
 
         // Monster -> Instance -> State
         //

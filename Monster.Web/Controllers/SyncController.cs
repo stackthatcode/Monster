@@ -183,7 +183,7 @@ namespace Monster.Web.Controllers
         public ActionResult VerifyShopifyOrder(string orderNameOrId)
         {
             var identity = HttpContext.GetIdentity();
-            _instanceContext.InitializeShopify(identity.InstanceId);
+            _instanceContext.InitializeShopify();
 
             var jsonByName = _shopifyOrderApi.RetrieveByName(orderNameOrId);
             var ordersByName = jsonByName.DeserializeToOrderList().orders;

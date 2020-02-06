@@ -72,7 +72,6 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult OrderAnalysis(long shopifyOrderId)
         {
-            _instanceContext.InitializeAcumatica(HttpContext.GetIdentity().InstanceId);
             var financialSummary = _analysisDataService.GetOrderFinancialSummary(shopifyOrderId, true);
             var rootAction = _pendingActionService.Create(shopifyOrderId);
 
