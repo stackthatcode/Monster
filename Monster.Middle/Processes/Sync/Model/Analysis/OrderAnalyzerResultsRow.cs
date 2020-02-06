@@ -14,7 +14,7 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
         public string ShopifyFinancialStatus { get; set; }
         public string ShopifyFulfillmentStatus { get; set; }
         public bool ShopifyIsCancelled { get; set; }
-        public bool ShopifyIsCompletelyRefunded { get; set; }
+        public bool ShopifyAreAllItemsRefunded { get; set; }
 
         public string AcumaticaSalesOrderNbr { get; set; }
         public string AcumaticaSalesOrderHref { get; set; }

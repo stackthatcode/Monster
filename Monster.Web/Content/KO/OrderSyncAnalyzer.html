@@ -134,7 +134,7 @@
                         <div data-bind="if: ShopifyIsCancelled">
                             <div class="badge badge-warning">Order Cancelled</div>
                         </div>
-                        <div data-bind="if: ShopifyIsCompletelyRefunded">
+                        <div data-bind="if: ShopifyAreAllItemsRefunded">
                             <div class="badge badge-warning">All Items Refunded</div>
                         </div>
                     </td>
@@ -665,8 +665,8 @@
             <td class="shopify-detail-bold">Cancelled/Refunded?</td>
             <td>
                 <span data-bind="if: ShopifyIsCancelled">Order Cancelled</span>
-                <span data-bind="if: ShopifyIsCompletelyRefunded">All Items Refunded</span>
-                <span data-bind="if: !ShopifyIsCompletelyRefunded && !ShopifyIsCancelled">(No)</span>
+                <span data-bind="if: ShopifyAreAllItemsRefunded">All Items Refunded</span>
+                <span data-bind="if: !ShopifyAreAllItemsRefunded && !ShopifyIsCancelled">(No)</span>
             </td>
             <td></td>
             <td></td>

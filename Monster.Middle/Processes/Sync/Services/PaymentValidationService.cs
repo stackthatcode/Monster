@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Validation;
+
 
 namespace Monster.Middle.Processes.Sync.Services
 {
@@ -82,7 +82,7 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             return new Validation<PaymentValidationContext>()
                 .Add(x => x.CurrentTransaction.DoNotIgnore(), $"Transaction is not valid for synchronization")
-                .Add(x => x.CurrentTransaction.ShopifyOrder.PutErrorCount < SystemConsts.ErrorThreshold,
+                .Add(x => x.CurrentTransaction.ShopifyOrder.DoesNotExceedErrorLimit(),
                     "Encountered too many errors attempting to synchronize");
         }
 
@@ -95,9 +95,8 @@ namespace Monster.Middle.Processes.Sync.Services
                     .Add(x => x.ValidPaymentGateway, $"Does not have a valid payment gateway; please check configuration")
                     .Add(x => !x.CurrentTransaction.ExistsInAcumatica(), "Payment has already been created in Acumatica")
                     .Add(x => x.CurrentTransaction.IsPayment(), $"Transaction is not a capture or sale")
-                    .Add(x => x.AcumaticaSalesOrder == null
-                              || x.AcumaticaSalesOrder.AcumaticaIsTaxValid,
-                            "Acumatica Sales Order Taxes are invalid");
+                    .Add(x => x.AcumaticaSalesOrder == null || x.AcumaticaSalesOrder.AcumaticaIsTaxValid,
+                                "Acumatica Sales Order Taxes are invalid");
 
             return validation.Run(context);
         }

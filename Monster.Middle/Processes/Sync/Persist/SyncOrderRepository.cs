@@ -25,14 +25,18 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Order Syncing
         //
-        private IQueryable<ShopifyOrder> OrdersForPutting(int errorThreshold = SystemConsts.ErrorThreshold)
+        private IQueryable<ShopifyOrder> OrderNeedingPut(int errorThreshold = SystemConsts.ErrorThreshold)
         {
             return Entities.ShopifyOrders
-                .WhereOrderSyncErrorsBelowThreshold(errorThreshold)
                 .Include(x => x.ShopifyCustomer)
                 .Include(x => x.ShopifyFulfillments)
                 .Include(x => x.ShopifyRefunds)
-                .Include(x => x.ShopifyTransactions);
+                .Include(x => x.ShopifyTransactions)
+                .Join(Entities.ShopifyOrdersNeedingSyncAlls,
+                        ord => ord.MonsterId,
+                        vw => vw.MonsterId,
+                        (ord, vw) => ord)
+                .OrderBy(x => x.ShopifyOrderId);
         }
 
         public List<long> RetrieveShopifyOrdersToPut(int errorThreshold = SystemConsts.ErrorThreshold)
@@ -40,16 +44,13 @@ namespace Monster.Middle.Processes.Sync.Persist
             var settings = Entities.MonsterSettings.First();
             var numberOfOrders = settings.MaxNumberOfOrders;
 
-            var newOrders = OrdersForPutting(errorThreshold)
+            var newOrders = OrderNeedingPut(errorThreshold)
                 .Where(x => x.AcumaticaSalesOrder == null)
-                .OrderBy(x => x.ShopifyOrderId)
-                .Take(numberOfOrders)
                 .Select(x => x.ShopifyOrderId)
                 .ToList();
 
-            var updatedOrders = OrdersForPutting(errorThreshold)
-                .Where(x => x.NeedsOrderPut == true && x.AcumaticaSalesOrder != null)
-                .OrderBy(x => x.ShopifyOrderId)
+            var updatedOrders = OrderNeedingPut(errorThreshold)
+                .Where(x => x.AcumaticaSalesOrder != null)
                 .Select(x => x.ShopifyOrderId)
                 .ToList();
 
@@ -115,11 +116,6 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
 
-        public long MaxShopifyOrderId()
-        {
-            return Entities.ShopifyOrders.Max(x => x.ShopifyOrderId);
-        }
-
 
         // Customer syncing
         //
@@ -173,7 +169,6 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities.ShopifyOrders
                 .Include(x => x.ShopifyTransactions)
-                .WhereOrderSyncErrorsBelowThreshold(errorTheshold)
                 .Where(x => x.AcumaticaSalesOrder != null)
                 .Where(x => x.ShopifyTransactions.Any(y => !y.Ignore && (y.AcumaticaPayment == null || y.NeedsPaymentPut))
                         || x.ShopifyRefunds.Any(y => y.AcumaticaMemo == null))
@@ -186,7 +181,6 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities.ShopifyOrders
                 .Include(x => x.ShopifyTransactions)
-                .WhereOrderSyncErrorsBelowThreshold(errorTheshold)
                 .Where(x => 
                     x.ShopifyTransactions.Any(y => y.AcumaticaPayment != null && y.AcumaticaPayment.IsReleased == false) ||
                     x.ShopifyRefunds.Any(y => y.AcumaticaMemo != null && y.AcumaticaMemo.IsReleased == false)
@@ -197,38 +191,9 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
 
-        public void IncreaseSoShipmentErrorCount(string invoiceNbr, string shipmentNbr)
-        {
-            var soShipment = Entities.
-                AcumaticaSoShipments
-                .First(x => x.AcumaticaInvoiceNbr == invoiceNbr &&
-                            x.AcumaticaShipmentNbr == shipmentNbr);
-            soShipment.PutErrorCount += 1;
-            Entities.SaveChanges();
-        }
-
-        public void ResetSoShipmentErrorCount(string invoiceNbr, string shipmentNbr)
-        {
-            var soShipment = Entities.
-                AcumaticaSoShipments
-                .First(x => x.AcumaticaInvoiceNbr == invoiceNbr &&
-                            x.AcumaticaShipmentNbr == shipmentNbr);
-            soShipment.PutErrorCount = 0;
-            Entities.SaveChanges();
-        }
-
-
-        public List<ShopifyTransaction> RetrieveUnsyncedTransactions(long shopifyOrderId)
-        {
-            return Entities.ShopifyTransactions
-                .Where(x => x.ShopifyOrderId == shopifyOrderId)
-                .Where(x => x.Ignore && x.AcumaticaPayment == null)
-                .ToList();
-        }
-
         public void UpdateShopifyTransactionNeedsPut(long monsterId, bool value)
         {
-            var transaction = Entities.ShopifyTransactions.First(x => x.Id == monsterId);
+            var transaction = Entities.ShopifyTransactions.First(x => x.MonsterId == monsterId);
             transaction.NeedsPaymentPut = value;
             Entities.SaveChanges();
         }
@@ -236,14 +201,14 @@ namespace Monster.Middle.Processes.Sync.Persist
         public void IncreaseOrderErrorCount(long shopifyOrderId)
         {
             var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);
-            order.PutErrorCount += 1;
+            order.ErrorCount += 1;
             Entities.SaveChanges();
         }
 
         public void ResetOrderErrorCount(long shopifyOrderId)
         {
             var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);
-            order.PutErrorCount = 0;
+            order.ErrorCount = 0;
             Entities.SaveChanges();
         }
 
@@ -280,10 +245,9 @@ namespace Monster.Middle.Processes.Sync.Persist
         public void PaymentIsReleased(long shopifyTransactionMonsterId)
         {
             var payment = Entities
-                .AcumaticaPayments
-                .First(x => x.ShopifyTransactionMonsterId == shopifyTransactionMonsterId);
+                .AcumaticaPayments.First(x => x.ShopifyTransactionMonsterId == shopifyTransactionMonsterId);
 
-            payment.IsReleased = true;
+            payment.NeedRelease = false;
             Entities.SaveChanges();
         }
 
@@ -319,11 +283,8 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         public void MemoIsReleased(long shopifyRefundMonsterId)
         {
-            var invoice = Entities
-                .AcumaticaMemoes
-                .First(x => x.ShopifyRefundMonsterId == shopifyRefundMonsterId);
-
-            invoice.IsReleased = true;
+            var memo = Entities.AcumaticaMemoes.First(x => x.ShopifyRefundMonsterId == shopifyRefundMonsterId);
+            memo.NeedRelease = true;
             Entities.SaveChanges();
         }
 

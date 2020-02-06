@@ -12,25 +12,15 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 
         public static bool IsReleased(this ShopifyTransaction transaction)
         {
-            return transaction.AcumaticaPayment != null && transaction.AcumaticaPayment.IsReleased;
+            return transaction.AcumaticaPayment != null && !transaction.AcumaticaPayment.NeedRelease;
         }
 
-        public static bool NeedToCreate(this ShopifyTransaction transaction)
+        public static bool NeedsSync(this ShopifyTransaction transaction)
         {
-            return transaction.DoNotIgnore() && !transaction.ExistsInAcumatica();
+            return transaction.NeedsSync() &&
+                   (!transaction.ExistsInAcumatica() || !transaction.IsReleased());
         }
 
-        public static bool NeedToUpdate(this ShopifyTransaction transaction)
-        {
-            return transaction.DoNotIgnore() &&
-                   transaction.AcumaticaPayment != null
-                   && transaction.NeedsPaymentPut;
-        }
-
-        public static bool NeedToRelease(this ShopifyTransaction transaction)
-        {
-            return transaction.DoNotIgnore() && !transaction.IsReleased();
-        }
     }
 }
 

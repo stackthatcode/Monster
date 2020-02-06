@@ -182,8 +182,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 record.AcumaticaTrackingNbr = null;
                 record.AcumaticaInvoiceAmount = null;
                 record.AcumaticaInvoiceTax = null;
-                record.NeedShipmentGet = true;
-                record.PutErrorCount = 0;
+                record.NeedShipmentAndInvoiceGet = true;
                 record.DateCreated = DateTime.UtcNow;
                 record.LastUpdated = DateTime.UtcNow;
 
@@ -199,7 +198,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             foreach (var soShipment in soShipments)
             {
-                if (soShipment.NeedShipmentGet == false)
+                if (soShipment.NeedShipmentAndInvoiceGet == false)
                 {
                     continue;
                 }
@@ -233,7 +232,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     _orderRepository.SaveChanges();
                 }
 
-                soShipment.NeedShipmentGet = false;
+                soShipment.NeedShipmentAndInvoiceGet = false;
                 _orderRepository.SaveChanges();
             }
         }

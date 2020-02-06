@@ -148,6 +148,11 @@ namespace Monster.Middle.Processes.Sync.Misc
         {
             return $"Shopify Order {shopifyOrderId} is blocked from syncing to Acumatica";
         }
+
+        public static string SkippingShopifyOrderForPaymentErrors(long shopifyOrderId)
+        {
+            return $"Shopify Order {shopifyOrderId} encountered errors syncing Payments to Acumatica - skipping";
+        }
     }
 }
 

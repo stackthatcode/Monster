@@ -98,7 +98,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 var order = record.ToShopifyObj();
 
                 output.ActionCode =
-                    order.IsCancelled ||  order.AllLineItemsRefunded
+                    order.IsCancelled || order.AreAllLineItemsRefunded
                         ? ActionCode.CreateBlankSyncRecord
                         : ActionCode.CreateInAcumatica;
             }
@@ -127,11 +127,11 @@ namespace Monster.Middle.Processes.Sync.Services
             if (orderRecord.HasPayment())
             {
                 var payment = orderRecord.PaymentTransaction();
-                
                 paymentAction.ShopifyTransactionId = payment.ShopifyTransactionId;
                 paymentAction.TransDesc = $"Shopify Payment ({payment.ShopifyTransactionId})";
                 paymentAction.PaymentGateway = payment.ShopifyGateway;
                 paymentAction.Amount = payment.ShopifyAmount;
+
                 paymentAction.ActionCode = ActionCode.None;
 
                 if (!payment.ExistsInAcumatica())
@@ -144,13 +144,13 @@ namespace Monster.Middle.Processes.Sync.Services
                     paymentAction.AcumaticaPaymentRef = payment.AcumaticaPayment.AcumaticaRefNbr;
                     paymentAction.AcumaticaHref
                         = _acumaticaUrlService.AcumaticaPaymentUrl(
-                            PaymentType.Payment, payment.AcumaticaPayment.AcumaticaRefNbr);
+                                PaymentType.Payment, payment.AcumaticaPayment.AcumaticaRefNbr);
 
                     if (payment.NeedsPaymentPut)
                     {
                         paymentAction.ActionCode = ActionCode.UpdateInAcumatica;
                     }
-                    else if (payment.ExistsInAcumatica() && !payment.AcumaticaPayment.IsReleased)
+                    else if (payment.ExistsInAcumatica() && payment.AcumaticaPayment.NeedRelease)
                     {
                         paymentAction.ActionCode = ActionCode.ReleaseInAcumatica;
                     }
@@ -235,7 +235,7 @@ namespace Monster.Middle.Processes.Sync.Services
                             SalesInvoiceType.Credit_Memo, creditAdj.AcumaticaMemo.AcumaticaRefNbr);
                 }
 
-                if (creditAdj.AcumaticaMemo != null && !creditAdj.AcumaticaMemo.IsReleased)
+                if (creditAdj.AcumaticaMemo != null && creditAdj.AcumaticaMemo.NeedRelease)
                 {
                     action.ActionCode = ActionCode.ReleaseInAcumatica;
                 }

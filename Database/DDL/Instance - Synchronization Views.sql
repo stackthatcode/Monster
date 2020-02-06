@@ -2,22 +2,19 @@ USE Monster0001;
 GO
 
 
-DROP VIEW IF EXISTS ShopifyOrdersSyncView
+DROP VIEW IF EXISTS ShopifyOrdersOnlySyncView
 GO
-CREATE VIEW ShopifyOrdersSyncView
+CREATE VIEW ShopifyOrdersOnlySyncView
 AS
 SELECT	t1.MonsterId, 
 		t1.ShopifyOrderId, 
 		t1.Ignore, 
+		t1.NeedsOrderPut,
 		t1.NeedsTransactionGet,
-		t2.AcumaticaOrderNbr, 
-		t3.ShopifyRefundId, 
-		t3.NeedOrderQuantitiesPut
+		t2.AcumaticaOrderNbr 
 FROM ShopifyOrder t1
 	LEFT JOIN AcumaticaSalesOrder t2
 		ON t1.MonsterId = t2.ShopifyOrderMonsterId
-	LEFT JOIN ShopifyRefund t3
-		ON t1.MonsterId = t3.ShopifyOrderMonsterId
 GO
 
 DROP VIEW IF EXISTS ShopifyOrderPaymentsSyncStatus
@@ -53,7 +50,7 @@ SELECT	t1.MonsterId,
 FROM ShopifyOrder t1
 	INNER JOIN ShopifyRefund t7
 		ON t1.MonsterId = t7.ShopifyOrderMonsterId
-		AND t7.IsSyncableToMemo = 1
+		AND t7.RequiresMemo = 1
 	LEFT JOIN AcumaticaMemo t8
 		ON t7.MonsterId = t8.ShopifyRefundMonsterId
 GO
@@ -85,14 +82,20 @@ GO
 -- Views for identifying records needing sync
 --
 
-DROP VIEW IF EXISTS ShopifyOrdersNeedingSync
+DROP VIEW IF EXISTS ShopifyOrdersNeedingCreateSync
 GO
-CREATE VIEW ShopifyOrdersNeedingSync
+CREATE VIEW ShopifyOrdersNeedingCreateSync
 AS
-SELECT * FROM ShopifyOrdersSyncView
-WHERE ( Ignore = 0 ) 
-AND ( ( AcumaticaOrderNbr IS NULL )
-		OR ( AcumaticaOrderNbr IS NOT NULL AND NeedOrderQuantitiesPut = 1 ) )
+SELECT * FROM ShopifyOrdersOnlySyncView
+WHERE ( Ignore = 0 ) AND ( AcumaticaOrderNbr IS NULL )
+GO
+
+DROP VIEW IF EXISTS ShopifyOrdersNeedingUpdateSync
+GO
+CREATE VIEW ShopifyOrdersNeedingUpdateSync
+AS
+SELECT * FROM ShopifyOrdersOnlySyncView
+WHERE ( Ignore = 0 ) AND ( AcumaticaOrderNbr IS NOT NULL ) AND ( NeedsOrderPut = 1 )
 GO
 
 DROP VIEW IF EXISTS ShopifyOrderPaymentsNeedingSync
@@ -127,8 +130,28 @@ GO
 
 
 
-SELECT * FROM ShopifyOrdersNeedingSync
+DROP VIEW IF EXISTS ShopifyOrdersNeedingSyncAll
+GO
+CREATE VIEW ShopifyOrdersNeedingSyncAll
+AS
+SELECT MonsterId FROM ShopifyOrdersNeedingCreateSync
+UNION
+SELECT MonsterId FROM ShopifyOrdersNeedingUpdateSync
+UNION
+SELECT MonsterId FROM ShopifyOrderPaymentsNeedingSync
+UNION
+SELECT MonsterId FROM ShopifyOrderAdjustmentsNeedingSync
+UNION
+SELECT MonsterId FROM ShopifyOrderSoShipmentsNeedingSync
+GO
+
+
+
+SELECT * FROM ShopifyOrdersNeedingCreateSync
+SELECT * FROM ShopifyOrdersNeedingUpdateSync
 SELECT * FROM ShopifyOrderPaymentsNeedingSync
 SELECT * FROM ShopifyOrderAdjustmentsNeedingSync
 SELECT * FROM ShopifyOrderSoShipmentsNeedingSync
+
+SELECT * FROM ShopifyOrdersNeedingSyncAll;
 

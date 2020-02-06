@@ -103,18 +103,13 @@ namespace Monster.Middle.Processes.Sync.Services
 
             if (request.OrderStatus == AnalyzerStatus.Errors)
             {
-                queryable = queryable
-                    .Where(x => x.PutErrorCount >= SystemConsts.ErrorThreshold ||
-                                x.AcumaticaSalesOrder
-                                    .AcumaticaSoShipments
-                                    .Any(y => y.PutErrorCount >= SystemConsts.ErrorThreshold));
+                queryable = queryable.Where(x => x.ErrorCount >= SystemConsts.ErrorThreshold);
             }
 
             return queryable;
         }
 
-        public OrderAnalysisTotals GetOrderFinancialSummary(
-                    long shopifyOrderId, bool includeAcumaticaTotals = true)
+        public OrderAnalysisTotals GetOrderFinancialSummary(long shopifyOrderId, bool includeAcumaticaTotals = true)
         {
             var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
@@ -219,7 +214,7 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyFinancialStatus = order.ShopifyFinancialStatus;
             output.ShopifyFulfillmentStatus = order.ShopifyFulfillmentStatus;
             output.ShopifyIsCancelled = order.ShopifyIsCancelled;
-            output.ShopifyIsCompletelyRefunded = order.IsCompletelyRefunded;
+            output.ShopifyAreAllItemsRefunded = order.ShopifyAreAllItemsRefunded;
 
             if (order.AcumaticaSalesOrder != null
                 && order.AcumaticaSalesOrder.AcumaticaOrderNbr != AcumaticaSyncConstants.BlankRefNbr)
@@ -243,10 +238,9 @@ namespace Monster.Middle.Processes.Sync.Services
             }
 
             output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal();
-            output.HasError = order.HasErrorsPastThreshold();
+            output.HasError = order.ExceedsErrorLimit();
 
-            output.HasPendingActions = 
-                _pendingActionService.Create(order, validate: false).HasPendingActions;
+            output.HasPendingActions = _pendingActionService.Create(order, false).HasPendingActions;
 
             return output;
         }

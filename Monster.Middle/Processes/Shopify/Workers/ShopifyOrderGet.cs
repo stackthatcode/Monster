@@ -166,13 +166,13 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newOrder.ShopifyFinancialStatus = order.financial_status;
                 newOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
                 newOrder.ShopifyIsCancelled = order.IsCancelled;
-                newOrder.IsCompletelyRefunded = order.AllLineItemsRefunded;
+                newOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
 
                 newOrder.NeedsTransactionGet = true;
-                newOrder.NeedsOrderPut = true;
-                newOrder.PutErrorCount = 0;
+                newOrder.ErrorCount = 0;
+                newOrder.Ignore = false;
 
-                newOrder.CustomerMonsterId = monsterCustomerRecord.Id;
+                newOrder.CustomerMonsterId = monsterCustomerRecord.MonsterId;
                 newOrder.DateCreated = DateTime.UtcNow;
                 newOrder.LastUpdated = DateTime.UtcNow;
 
@@ -186,7 +186,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existingOrder.ShopifyFinancialStatus = order.financial_status;
                 existingOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
                 existingOrder.ShopifyIsCancelled = order.IsCancelled;
-                existingOrder.IsCompletelyRefunded = order.AllLineItemsRefunded;
+                existingOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
 
                 existingOrder.NeedsOrderPut = existingOrder.ChangesDetected(order);
                 existingOrder.NeedsTransactionGet = true;
@@ -211,7 +211,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 if (fulfillmentRecord == null)
                 {
                     var newRecord = new ShopifyFulfillment();
-                    newRecord.OrderMonsterId = orderRecord.Id;
+                    newRecord.ShopifyOrderMonsterId = orderRecord.MonsterId;
                     newRecord.ShopifyFulfillmentId = fulfillment.id;
                     newRecord.ShopifyOrderId = order.id;
                     newRecord.ShopifyStatus = fulfillment.status;
@@ -247,9 +247,10 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     var newRecord = new ShopifyRefund();
                     newRecord.ShopifyRefundId = refund.id;
                     newRecord.ShopifyOrderId = order.id;
+                    newRecord.ShopifyOrder = orderRecord;
                     newRecord.CreditAdjustment = refund.CreditMemoTotal;
                     newRecord.DebitAdjustment = refund.DebitMemoTotal;
-                    newRecord.ShopifyOrder = orderRecord;
+                    newRecord.NeedOriginalPaymentPut = true;
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
 

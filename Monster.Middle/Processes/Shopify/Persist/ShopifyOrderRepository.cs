@@ -101,7 +101,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public void UpdateNeedsTranasactionGet(long orderMonsterId, bool value)
         {
-            var order = Entities.ShopifyOrders.First(x => x.Id == orderMonsterId);
+            var order = Entities.ShopifyOrders.First(x => x.MonsterId == orderMonsterId);
             order.NeedsTransactionGet = false;
             Entities.SaveChanges();
         }

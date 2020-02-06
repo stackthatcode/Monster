@@ -3,6 +3,7 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Validation;
@@ -49,6 +50,12 @@ namespace Monster.Middle.Processes.Sync.Services
                 return;
             }
 
+            if (action.ActionCode == ActionCode.UpdateInAcumatica)
+            {
+                action.Validation = ReadyToUpdateOrder(action.ShopifyOrderId);
+                return;
+            }
+
             // Vhut, no validation for Update Order...?
             return;
         }
@@ -81,19 +88,20 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var validation = new Validation<ShopifyOrder>()
-                .Add(x => x.IsCompletelyRefunded || x.ShopifyIsCancelled, 
-                    "This is not an actual empty or cancelled Shopify Order");
+                .Add(x => x.IsEmptyOrCancelled(), "This is not an actual empty or cancelled Shopify Order");
+
             return validation.Run(orderRecord);
         }
-
 
         private ValidationResult ReadyToUpdateOrder(long shopifyOrderId)
         {
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var validation = new Validation<ShopifyOrder>()
-                .Add(x => x.PutErrorCount < SystemConsts.ErrorThreshold,
+                
+                .Add(x => x.ErrorCount < SystemConsts.ErrorThreshold, 
                         "Encountered too many errors attempting to synchronize this Order")
-                .Add(x => !x.ShopifyTransactions.Any(y => y.NeedsPaymentPut), 
+                
+                .Add(x => x.ShopifyTransactions.All(y => !y.NeedsSync()), 
                         "Payments/Refunds need to be synced before updating Sales Order");
 
             return validation.Run(orderRecord);

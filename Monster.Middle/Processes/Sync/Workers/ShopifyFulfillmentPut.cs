@@ -83,9 +83,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 _pushLogger.Error(ex);
                 _logService.Log($"Encounter error syncing {salesOrderShipment.LogDescriptor()}");
-                _syncOrderRepository
-                    .IncreaseSoShipmentErrorCount(
-                        salesOrderShipment.AcumaticaInvoiceNbr, salesOrderShipment.AcumaticaShipmentNbr);
+                _syncOrderRepository.IncreaseOrderErrorCount(
+                        salesOrderShipment.AcumaticaSalesOrder.ShopifyOrder.ShopifyOrderId);
                 throw;
             }
         }
@@ -142,7 +141,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Save the result
             //
             var fulfillmentRecord = new ShopifyFulfillment();
-            fulfillmentRecord.OrderMonsterId = shopifyOrderRecord.Id;
+            fulfillmentRecord.ShopifyOrderMonsterId = shopifyOrderRecord.MonsterId;
             fulfillmentRecord.ShopifyOrderId = shopifyOrder.id;
             fulfillmentRecord.ShopifyFulfillmentId = resultFulfillmentParent.fulfillment.id;
             fulfillmentRecord.ShopifyTrackingNumber = salesOrderShipment.AcumaticaTrackingNbr;

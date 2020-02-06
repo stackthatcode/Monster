@@ -28,7 +28,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public static bool IsCancelledOrAllRefunded(this ShopifyOrder orderRecord)
         {
-            return orderRecord.IsCompletelyRefunded || orderRecord.ShopifyIsCancelled;
+            return orderRecord.ShopifyAreAllItemsRefunded || orderRecord.ShopifyIsCancelled;
         }
 
 

@@ -134,7 +134,7 @@ namespace Push.Shopify.Api.Order
         public int RefundedLineItems => refunds.Sum(x => x.refund_line_items.Sum(y => y.quantity));
 
         [JsonIgnore]
-        public bool AllLineItemsRefunded => (line_items.Sum(x => x.quantity) - RefundedLineItems) == 0;
+        public bool AreAllLineItemsRefunded => (line_items.Sum(x => x.quantity) - RefundedLineItems) == 0;
 
         public bool IsCancelled => cancelled_at.HasValue;
 

@@ -74,17 +74,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 record.ShopifyJson = transaction.SerializeToJson();
                 record.ShopifyGateway = transaction.gateway;
                 record.ShopifyAmount = transaction.amount;
-                record.Ignore = transaction.Ignore();
-                record.NeedsPaymentPut = !transaction.Ignore();
-                record.OrderMonsterId = orderRecord.Id;
-
-                // IF this is a refund, we will need to update the Payment -> Amount Applied To Orders
-                //
-                if (record.DoNotIgnore() && record.IsRefund())
-                {
-                    orderRecord.PaymentTransaction().NeedsPaymentPut = true;
-                }
-
+                record.ShopifyOrderMonsterId = orderRecord.MonsterId;
                 record.DateCreated = DateTime.UtcNow;
                 record.LastUpdated = DateTime.UtcNow;
                 _orderRepository.InsertTransaction(record);

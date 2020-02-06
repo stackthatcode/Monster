@@ -7,13 +7,10 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class OrderExtensions
     {
-        public static bool HasErrorsPastThreshold(this ShopifyOrder order)
+        public static bool IsEmptyOrCancelled(this ShopifyOrder order)
         {
-            return order.PutErrorCount >= SystemConsts.ErrorThreshold ||
-                   (order.AcumaticaSalesOrder != null && order.AcumaticaSalesOrder
-                        .AcumaticaSoShipments.Any(x => x.PutErrorCount >= SystemConsts.ErrorThreshold));
+            return order.SyncedSalesOrder() != null; // && !order.IsEmptyOrCancelled;
         }
-
 
         public static AcumaticaSalesOrder SyncedSalesOrder(this ShopifyOrder order)
         {
@@ -53,5 +50,14 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
                 .Sum(x => x.AcumaticaMemo.AcumaticaAmount);
         }
 
+        public static bool ExceedsErrorLimit(this ShopifyOrder order)
+        {
+            return order.ErrorCount > SystemConsts.ErrorThreshold;
+        }
+
+        public static bool DoesNotExceedErrorLimit(this ShopifyOrder order)
+        {
+            return order.ErrorCount > SystemConsts.ErrorThreshold;
+        }
     }
 }
