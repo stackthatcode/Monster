@@ -146,7 +146,7 @@ namespace Monster.Middle.Processes.Sync.Services
                         = _acumaticaUrlService.AcumaticaPaymentUrl(
                                 PaymentType.Payment, payment.AcumaticaPayment.AcumaticaRefNbr);
 
-                    if (payment.NeedsPaymentPut)
+                    if (orderRecord.OriginalPaymentNeedsUpdateForRefund())
                     {
                         paymentAction.ActionCode = ActionCode.UpdateInAcumatica;
                     }

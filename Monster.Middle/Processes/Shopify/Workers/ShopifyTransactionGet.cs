@@ -60,11 +60,18 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
                 if (transaction.kind == TransactionKind.Refund)
                 {
+                    record.IsSyncableToPayment = true;
+
                     var refund = order.RefundByTransaction(transaction.id);
                     if (refund != null)
                     {
                         record.ShopifyRefundId = refund.id;
                     }
+                }
+
+                if (transaction.kind == TransactionKind.Capture || transaction.kind == TransactionKind.Sale)
+                {
+                    record.IsSyncableToPayment = true;
                 }
 
                 record.ShopifyOrderId = transaction.order_id;

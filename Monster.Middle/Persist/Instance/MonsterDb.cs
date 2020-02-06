@@ -65,7 +65,8 @@ namespace Monster.Middle.Persist.Instance
         System.Data.Entity.DbSet<ShopifyOrderAdjustmentsNeedingSync> ShopifyOrderAdjustmentsNeedingSyncs { get; set; } // ShopifyOrderAdjustmentsNeedingSyncS
         System.Data.Entity.DbSet<ShopifyOrderAdjustmentsNeedingSync1> ShopifyOrderAdjustmentsNeedingSync1 { get; set; } // ShopifyOrderAdjustmentsNeedingSync
         System.Data.Entity.DbSet<ShopifyOrderAdjustmentsSyncStatu> ShopifyOrderAdjustmentsSyncStatus { get; set; } // ShopifyOrderAdjustmentsSyncStatus
-        System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingSync> ShopifyOrderPaymentsNeedingSyncs { get; set; } // ShopifyOrderPaymentsNeedingSync
+        System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingCreateSync> ShopifyOrderPaymentsNeedingCreateSyncs { get; set; } // ShopifyOrderPaymentsNeedingCreateSync
+        System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingReleaseSync> ShopifyOrderPaymentsNeedingReleaseSyncs { get; set; } // ShopifyOrderPaymentsNeedingReleaseSync
         System.Data.Entity.DbSet<ShopifyOrderPaymentsSyncStatu> ShopifyOrderPaymentsSyncStatus { get; set; } // ShopifyOrderPaymentsSyncStatus
         System.Data.Entity.DbSet<ShopifyOrdersNeedingCreateSync> ShopifyOrdersNeedingCreateSyncs { get; set; } // ShopifyOrdersNeedingCreateSync
         System.Data.Entity.DbSet<ShopifyOrdersNeedingSync> ShopifyOrdersNeedingSyncs { get; set; } // ShopifyOrdersNeedingSync
@@ -159,7 +160,8 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<ShopifyOrderAdjustmentsNeedingSync> ShopifyOrderAdjustmentsNeedingSyncs { get; set; } // ShopifyOrderAdjustmentsNeedingSyncS
         public System.Data.Entity.DbSet<ShopifyOrderAdjustmentsNeedingSync1> ShopifyOrderAdjustmentsNeedingSync1 { get; set; } // ShopifyOrderAdjustmentsNeedingSync
         public System.Data.Entity.DbSet<ShopifyOrderAdjustmentsSyncStatu> ShopifyOrderAdjustmentsSyncStatus { get; set; } // ShopifyOrderAdjustmentsSyncStatus
-        public System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingSync> ShopifyOrderPaymentsNeedingSyncs { get; set; } // ShopifyOrderPaymentsNeedingSync
+        public System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingCreateSync> ShopifyOrderPaymentsNeedingCreateSyncs { get; set; } // ShopifyOrderPaymentsNeedingCreateSync
+        public System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingReleaseSync> ShopifyOrderPaymentsNeedingReleaseSyncs { get; set; } // ShopifyOrderPaymentsNeedingReleaseSync
         public System.Data.Entity.DbSet<ShopifyOrderPaymentsSyncStatu> ShopifyOrderPaymentsSyncStatus { get; set; } // ShopifyOrderPaymentsSyncStatus
         public System.Data.Entity.DbSet<ShopifyOrdersNeedingCreateSync> ShopifyOrdersNeedingCreateSyncs { get; set; } // ShopifyOrdersNeedingCreateSync
         public System.Data.Entity.DbSet<ShopifyOrdersNeedingSync> ShopifyOrdersNeedingSyncs { get; set; } // ShopifyOrdersNeedingSync
@@ -254,7 +256,8 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new ShopifyOrderAdjustmentsNeedingSyncConfiguration());
             modelBuilder.Configurations.Add(new ShopifyOrderAdjustmentsNeedingSync1Configuration());
             modelBuilder.Configurations.Add(new ShopifyOrderAdjustmentsSyncStatuConfiguration());
-            modelBuilder.Configurations.Add(new ShopifyOrderPaymentsNeedingSyncConfiguration());
+            modelBuilder.Configurations.Add(new ShopifyOrderPaymentsNeedingCreateSyncConfiguration());
+            modelBuilder.Configurations.Add(new ShopifyOrderPaymentsNeedingReleaseSyncConfiguration());
             modelBuilder.Configurations.Add(new ShopifyOrderPaymentsSyncStatuConfiguration());
             modelBuilder.Configurations.Add(new ShopifyOrdersNeedingCreateSyncConfiguration());
             modelBuilder.Configurations.Add(new ShopifyOrdersNeedingSyncConfiguration());
@@ -304,7 +307,8 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new ShopifyOrderAdjustmentsNeedingSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopifyOrderAdjustmentsNeedingSync1Configuration(schema));
             modelBuilder.Configurations.Add(new ShopifyOrderAdjustmentsSyncStatuConfiguration(schema));
-            modelBuilder.Configurations.Add(new ShopifyOrderPaymentsNeedingSyncConfiguration(schema));
+            modelBuilder.Configurations.Add(new ShopifyOrderPaymentsNeedingCreateSyncConfiguration(schema));
+            modelBuilder.Configurations.Add(new ShopifyOrderPaymentsNeedingReleaseSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopifyOrderPaymentsSyncStatuConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopifyOrdersNeedingCreateSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopifyOrdersNeedingSyncConfiguration(schema));
@@ -446,7 +450,8 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<ShopifyOrderAdjustmentsNeedingSync> ShopifyOrderAdjustmentsNeedingSyncs { get; set; }
         public System.Data.Entity.DbSet<ShopifyOrderAdjustmentsNeedingSync1> ShopifyOrderAdjustmentsNeedingSync1 { get; set; }
         public System.Data.Entity.DbSet<ShopifyOrderAdjustmentsSyncStatu> ShopifyOrderAdjustmentsSyncStatus { get; set; }
-        public System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingSync> ShopifyOrderPaymentsNeedingSyncs { get; set; }
+        public System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingCreateSync> ShopifyOrderPaymentsNeedingCreateSyncs { get; set; }
+        public System.Data.Entity.DbSet<ShopifyOrderPaymentsNeedingReleaseSync> ShopifyOrderPaymentsNeedingReleaseSyncs { get; set; }
         public System.Data.Entity.DbSet<ShopifyOrderPaymentsSyncStatu> ShopifyOrderPaymentsSyncStatus { get; set; }
         public System.Data.Entity.DbSet<ShopifyOrdersNeedingCreateSync> ShopifyOrdersNeedingCreateSyncs { get; set; }
         public System.Data.Entity.DbSet<ShopifyOrdersNeedingSync> ShopifyOrdersNeedingSyncs { get; set; }
@@ -499,7 +504,8 @@ namespace Monster.Middle.Persist.Instance
             ShopifyOrderAdjustmentsNeedingSyncs = new FakeDbSet<ShopifyOrderAdjustmentsNeedingSync>("MonsterId", "ShopifyOrderId", "Ignore", "ShopifyRefundId");
             ShopifyOrderAdjustmentsNeedingSync1 = new FakeDbSet<ShopifyOrderAdjustmentsNeedingSync1>("MonsterId", "ShopifyOrderId", "Ignore", "ShopifyRefundId");
             ShopifyOrderAdjustmentsSyncStatus = new FakeDbSet<ShopifyOrderAdjustmentsSyncStatu>("MonsterId", "ShopifyOrderId", "Ignore", "ShopifyRefundId");
-            ShopifyOrderPaymentsNeedingSyncs = new FakeDbSet<ShopifyOrderPaymentsNeedingSync>("MonsterId", "ShopifyOrderId", "Ignore");
+            ShopifyOrderPaymentsNeedingCreateSyncs = new FakeDbSet<ShopifyOrderPaymentsNeedingCreateSync>("MonsterId", "ShopifyOrderId", "Ignore");
+            ShopifyOrderPaymentsNeedingReleaseSyncs = new FakeDbSet<ShopifyOrderPaymentsNeedingReleaseSync>("MonsterId", "ShopifyOrderId", "Ignore");
             ShopifyOrderPaymentsSyncStatus = new FakeDbSet<ShopifyOrderPaymentsSyncStatu>("MonsterId", "ShopifyOrderId", "Ignore");
             ShopifyOrdersNeedingCreateSyncs = new FakeDbSet<ShopifyOrdersNeedingCreateSync>("MonsterId", "ShopifyOrderId", "Ignore", "NeedsOrderPut", "NeedsTransactionGet");
             ShopifyOrdersNeedingSyncs = new FakeDbSet<ShopifyOrdersNeedingSync>("MonsterId", "ShopifyOrderId", "Ignore", "NeedsTransactionGet");
@@ -1556,9 +1562,21 @@ namespace Monster.Middle.Persist.Instance
         public bool? NeedApplyToOrder { get; set; } // NeedApplyToOrder
     }
 
-    // ShopifyOrderPaymentsNeedingSync
+    // ShopifyOrderPaymentsNeedingCreateSync
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class ShopifyOrderPaymentsNeedingSync
+    public class ShopifyOrderPaymentsNeedingCreateSync
+    {
+        public long MonsterId { get; set; } // MonsterId (Primary key)
+        public long ShopifyOrderId { get; set; } // ShopifyOrderId (Primary key)
+        public bool Ignore { get; set; } // Ignore (Primary key)
+        public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
+        public string AcumaticaRefNbr { get; set; } // AcumaticaRefNbr (length: 50)
+        public bool? NeedRelease { get; set; } // NeedRelease
+    }
+
+    // ShopifyOrderPaymentsNeedingReleaseSync
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class ShopifyOrderPaymentsNeedingReleaseSync
     {
         public long MonsterId { get; set; } // MonsterId (Primary key)
         public long ShopifyOrderId { get; set; } // ShopifyOrderId (Primary key)
@@ -2655,18 +2673,41 @@ namespace Monster.Middle.Persist.Instance
         }
     }
 
-    // ShopifyOrderPaymentsNeedingSync
+    // ShopifyOrderPaymentsNeedingCreateSync
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class ShopifyOrderPaymentsNeedingSyncConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ShopifyOrderPaymentsNeedingSync>
+    public class ShopifyOrderPaymentsNeedingCreateSyncConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ShopifyOrderPaymentsNeedingCreateSync>
     {
-        public ShopifyOrderPaymentsNeedingSyncConfiguration()
+        public ShopifyOrderPaymentsNeedingCreateSyncConfiguration()
             : this("dbo")
         {
         }
 
-        public ShopifyOrderPaymentsNeedingSyncConfiguration(string schema)
+        public ShopifyOrderPaymentsNeedingCreateSyncConfiguration(string schema)
         {
-            ToTable("ShopifyOrderPaymentsNeedingSync", schema);
+            ToTable("ShopifyOrderPaymentsNeedingCreateSync", schema);
+            HasKey(x => new { x.MonsterId, x.ShopifyOrderId, x.Ignore });
+
+            Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Ignore).HasColumnName(@"Ignore").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.NeedRelease).HasColumnName(@"NeedRelease").HasColumnType("bit").IsOptional();
+        }
+    }
+
+    // ShopifyOrderPaymentsNeedingReleaseSync
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class ShopifyOrderPaymentsNeedingReleaseSyncConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<ShopifyOrderPaymentsNeedingReleaseSync>
+    {
+        public ShopifyOrderPaymentsNeedingReleaseSyncConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public ShopifyOrderPaymentsNeedingReleaseSyncConfiguration(string schema)
+        {
+            ToTable("ShopifyOrderPaymentsNeedingReleaseSync", schema);
             HasKey(x => new { x.MonsterId, x.ShopifyOrderId, x.Ignore });
 
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);

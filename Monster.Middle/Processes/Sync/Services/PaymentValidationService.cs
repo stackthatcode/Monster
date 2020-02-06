@@ -23,8 +23,7 @@ namespace Monster.Middle.Processes.Sync.Services
             action.Validation = new ValidationResult();
 
             var transaction = order
-                .ShopifyTransactions
-                .FirstOrDefault(x => x.ShopifyTransactionId == action.ShopifyTransactionId);
+                .ShopifyTransactions.FirstOrDefault(x => x.ShopifyTransactionId == action.ShopifyTransactionId);
 
             if (transaction == null)
             {
@@ -107,7 +106,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
             var validation
                 = BuildBaseValidation()
-                    .Add(x => x.CurrentTransaction.NeedsPaymentPut, "Payment has already been updated in Acumatica")
+                    .Add(x => x.ShopifyOrder.OriginalPaymentNeedsUpdateForRefund(), "Payment has already been updated in Acumatica")
                     .Add(x => x.CurrentTransaction.ExistsInAcumatica(), "Payment has not been synced")
                     .Add(x => x.CurrentTransaction.IsPayment(), $"Transaction is not a capture or sale");
 
@@ -133,8 +132,15 @@ namespace Monster.Middle.Processes.Sync.Services
             var validation
                 = BuildBaseValidation()
                     .Add(x => !x.CurrentTransaction.ExistsInAcumatica(), "Refund has been synced already")
-                    .Add(x => x.OriginalPaymentTransaction.ExistsInAcumatica(), $"Original Payment has not been synced yet")
+                    
+                    .Add(x => x.OriginalPaymentTransaction.ExistsInAcumatica(), 
+                            $"Original Payment has not been synced yet")
+                    
+                    .Add(x => x.ShopifyOrder.OriginalPaymentNeedsUpdateForRefund(), 
+                            "Original Payment needs to be updated in Acumatica before syncing Refund")
+                    
                     .Add(x => !x.ShopifyOrder.HasUnreleasedTransactions(), "There are unreleased Payments/Refunds")
+                    
                     .Add(x => x.CurrentTransaction.IsRefund(), $"Transaction Kind is not a refund");
 
             return validation.Run(context);
@@ -155,7 +161,6 @@ namespace Monster.Middle.Processes.Sync.Services
 
             return validation.Run(context);
         }
-
 
         private ValidationResult ReadyToCreateMemo(RootAction rootActions)
         {

@@ -214,7 +214,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (acumaticaRecord.AcumaticaOrderNbr == AcumaticaSyncConstants.BlankRefNbr)
             {
-                shopifyOrderRecord.NeedsOrderPut = !acumaticaRecord.AcumaticaIsTaxValid;
+                shopifyOrderRecord.NeedsOrderPut = false;
                 shopifyOrderRecord.ErrorCount = 0;
                 _syncOrderRepository.SaveChanges();
                 return;

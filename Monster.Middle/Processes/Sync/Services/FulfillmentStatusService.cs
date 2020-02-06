@@ -76,7 +76,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
             // Error threshold
             //
-            output.ErrorThresholdExceeded = shipmentRecord.PutErrorCount >= SystemConsts.ErrorThreshold;
+            output.ErrorThresholdExceeded = salesOrder.OriginalShopifyOrder().ExceedsErrorLimit();
             return output.Result();
         }
     }

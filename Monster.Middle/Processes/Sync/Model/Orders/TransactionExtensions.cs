@@ -1,4 +1,5 @@
-﻿using Monster.Middle.Persist.Instance;
+﻿using System.Linq;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
@@ -17,8 +18,12 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 
         public static bool NeedsSync(this ShopifyTransaction transaction)
         {
-            return transaction.NeedsSync() &&
-                   (!transaction.ExistsInAcumatica() || !transaction.IsReleased());
+            return transaction.NeedsSync() && (!transaction.ExistsInAcumatica() || !transaction.IsReleased());
+        }
+
+        public static bool OriginalPaymentNeedsUpdateForRefund(this ShopifyOrder order)
+        {
+            return order.ShopifyRefunds.Any(x => x.NeedOriginalPaymentPut);
         }
 
     }

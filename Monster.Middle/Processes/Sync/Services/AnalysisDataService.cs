@@ -180,25 +180,6 @@ namespace Monster.Middle.Processes.Sync.Services
             return output;
         }
 
-        private void InjectTotalsFromAcumatica(ShopifyOrder shopifyOrderRecord, OrderAnalysisTotals output)
-        {
-            SalesOrder acumaticaOrder = null;
-            var acumaticaOrderNbr = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr;
-
-            _acumaticaHttpContext.SessionRun(() =>
-            {
-                var json = _salesOrderClient
-                    .RetrieveSalesOrder(acumaticaOrderNbr, SalesOrderType.SO, Expand.Totals);
-                acumaticaOrder = json.ToSalesOrderObj();
-            });
-
-            output.AcumaticaOrderLineTotal = (decimal)acumaticaOrder.Totals.LineTotalAmount.value;
-            output.AcumaticaOrderFreight = (decimal)acumaticaOrder.Totals.Freight.value;
-            output.AcumaticaTaxTotal = (decimal)acumaticaOrder.Totals.TaxTotal.value;
-            output.AcumaticaOrderTotal = (decimal)acumaticaOrder.OrderTotal.value;
-        }
-
-
         private OrderAnalyzerResultsRow MakeOrderAnalyzerResults(ShopifyOrder order)
         {
             var output = new OrderAnalyzerResultsRow();
@@ -240,9 +221,29 @@ namespace Monster.Middle.Processes.Sync.Services
             output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal();
             output.HasError = order.ExceedsErrorLimit();
 
+            // Check if there are pending actions
+            //
             output.HasPendingActions = _pendingActionService.Create(order, false).HasPendingActions;
 
             return output;
+        }
+
+        private void InjectTotalsFromAcumatica(ShopifyOrder shopifyOrderRecord, OrderAnalysisTotals output)
+        {
+            SalesOrder acumaticaOrder = null;
+            var acumaticaOrderNbr = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr;
+
+            _acumaticaHttpContext.SessionRun(() =>
+            {
+                var json = _salesOrderClient
+                    .RetrieveSalesOrder(acumaticaOrderNbr, SalesOrderType.SO, Expand.Totals);
+                acumaticaOrder = json.ToSalesOrderObj();
+            });
+
+            output.AcumaticaOrderLineTotal = (decimal)acumaticaOrder.Totals.LineTotalAmount.value;
+            output.AcumaticaOrderFreight = (decimal)acumaticaOrder.Totals.Freight.value;
+            output.AcumaticaTaxTotal = (decimal)acumaticaOrder.Totals.TaxTotal.value;
+            output.AcumaticaOrderTotal = (decimal)acumaticaOrder.OrderTotal.value;
         }
 
 
@@ -308,8 +309,8 @@ namespace Monster.Middle.Processes.Sync.Services
             return GetProductStockItemQueryable(request).Count();
         }
 
-        public ProductStockItemResultsRow MakeProductStockItemResults(
-                ShopifyVariant variant, MonsterSetting settings)
+        public ProductStockItemResultsRow 
+                    MakeProductStockItemResults(ShopifyVariant variant, MonsterSetting settings)
         {
             var output = new ProductStockItemResultsRow();
 

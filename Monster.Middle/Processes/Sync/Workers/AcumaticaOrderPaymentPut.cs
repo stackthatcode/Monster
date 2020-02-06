@@ -372,7 +372,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _syncOrderRepository.SaveChanges();
             }
 
-            _syncOrderRepository.UpdateShopifyTransactionNeedsPut(transactionRecord.MonsterId, false);
+            _syncOrderRepository.UpdateShopifyRefundsNeedsPut(transactionRecord.ShopifyOrderMonsterId, false);
             _syncOrderRepository.ResetOrderErrorCount(transactionRecord.ShopifyOrderId);
         }
 

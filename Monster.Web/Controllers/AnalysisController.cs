@@ -90,7 +90,7 @@ namespace Monster.Web.Controllers
                 ShopifyFinancialStatus = order.ShopifyFinancialStatus,
                 ShopifyFulfillmentStatus = order.ShopifyFulfillmentStatus,
                 ShopifyIsCancelled = order.ShopifyIsCancelled,
-                ShopifyAreAllItemsRefunded = order.IsCompletelyRefunded,
+                ShopifyAreAllItemsRefunded = order.IsCancelledOrAllRefunded(),
 
                 Transfer = taxTransfer,
             };

@@ -243,33 +243,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         }
 
 
-        // TODO - PHASE 2 - Specifically for instances where the Sales Order in Acumatica was loaded
-        // ... from Monster, but Monster experienced data-loss i.e. this is disaster recovery
-        //
-        public void SalesOrderRecovery(SalesOrder order)
-        {
-            //var orderNbr = order.OrderNbr.value;
-
-            //// Locate Acumatica Customer...
-            ////
-            //var customerId = order.CustomerID.value;
-
-            //// *** Pending Disaster Recovery
-            ////
-            //var customerMonsterId = _customerPull.RunAndUpsertCustomerIfNotExists(customerId);
-
-            //var newData = new AcumaticaSalesOrder();
-            //newData.AcumaticaOrderNbr = orderNbr;
-            //newData.DetailsJson = order.SerializeToJson();
-            //newData.ShipmentsJson = null;
-            //newData.AcumaticaStatus = order.Status.value;
-            //newData.CustomerMonsterId = customerMonsterId;
-            //newData.DateCreated = DateTime.UtcNow;
-            //newData.LastUpdated = DateTime.UtcNow;
-
-            //_orderRepository.InsertSalesOrder(newData);
-            //return newData;
-        }
     }
 }
 

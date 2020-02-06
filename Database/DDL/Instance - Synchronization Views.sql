@@ -98,14 +98,22 @@ SELECT * FROM ShopifyOrdersOnlySyncView
 WHERE ( Ignore = 0 ) AND ( AcumaticaOrderNbr IS NOT NULL ) AND ( NeedsOrderPut = 1 )
 GO
 
-DROP VIEW IF EXISTS ShopifyOrderPaymentsNeedingSync
+DROP VIEW IF EXISTS ShopifyOrderPaymentsNeedingCreateSync
 GO
-CREATE VIEW ShopifyOrderPaymentsNeedingSync
+CREATE VIEW ShopifyOrderPaymentsNeedingCreateSync
 AS
 SELECT * FROM ShopifyOrderPaymentsSyncStatus
 WHERE ( Ignore = 0 )
-AND ( ( AcumaticaRefNbr IS NULL )
-	OR ( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 ) )
+AND ( AcumaticaRefNbr IS NULL )
+GO
+
+DROP VIEW IF EXISTS ShopifyOrderPaymentsNeedingReleaseSync
+GO
+CREATE VIEW ShopifyOrderPaymentsNeedingReleaseSync
+AS
+SELECT * FROM ShopifyOrderPaymentsSyncStatus
+WHERE ( Ignore = 0 )
+AND ( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 )
 GO
 
 DROP VIEW IF EXISTS ShopifyOrderAdjustmentsNeedingSync
@@ -138,7 +146,9 @@ SELECT MonsterId FROM ShopifyOrdersNeedingCreateSync
 UNION
 SELECT MonsterId FROM ShopifyOrdersNeedingUpdateSync
 UNION
-SELECT MonsterId FROM ShopifyOrderPaymentsNeedingSync
+SELECT MonsterId FROM ShopifyOrderPaymentsNeedingCreateSync
+UNION
+SELECT MonsterId FROM ShopifyOrderPaymentsNeedingReleaseSync
 UNION
 SELECT MonsterId FROM ShopifyOrderAdjustmentsNeedingSync
 UNION

@@ -2,7 +2,7 @@
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.Middle.Processes.Sync.Misc;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Order;
@@ -41,15 +41,13 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         public ValidationResult Result()
         {
             var validation = new Validation<CreateOrderValidation>()
-                .Add(x => x.ShopifyOrderRecord.PutErrorCount < SystemConsts.ErrorThreshold,
+                .Add(x => x.ShopifyOrderRecord.DoesNotExceedErrorLimit(),
                         "Encountered too many errors attempting to synchronize this Shopify Order", true)
 
                 .Add(x => !x.IsFulfilledBeforeSync,
                         $"Shopify Order has been fulfilled before sync with Acumatica", instantFailure: true)
                 
                 .Add(x => !x.ShopifyOrder.AreAllLineItemsRefunded, "All Line Items have been refunded")
-
-                //.Add(x => !x.IsCancelledBeforeSync, $"Shopify Order has been cancelled before sync with Acumatica")
                 
                 .Add(x => x.HasShopifyCustomer, "Shopify Customer has not been downloaded yet", true)
                 
