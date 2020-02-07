@@ -103,12 +103,12 @@ namespace Monster.Middle.Misc.Hangfire
 
         private void ExecuteJob(Guid instanceId, Action action, long jobMonitorId)
         {
+            _instanceContext.Initialize(instanceId);
             _jobMonitoringService.RegisterCurrentScopeMonitorId(jobMonitorId);
             var monitor = _jobMonitoringService.RetrieveCurrentScopeMonitor();
 
             try
             {
-                _instanceContext.Initialize(instanceId);
 
                 if (!InstanceLock.Acquire(instanceId.ToString()))
                 {
@@ -137,7 +137,8 @@ namespace Monster.Middle.Misc.Hangfire
 
                 // Phew - we made it! Execute the requested task
                 //
-                _executionLogService.Log(BackgroundJobType.Name[monitor.BackgroundJobType] + " - is starting");
+                _executionLogService.Log(
+                    BackgroundJobType.Name[monitor.BackgroundJobType] + " - starting");
 
                 action();
 
@@ -156,12 +157,14 @@ namespace Monster.Middle.Misc.Hangfire
                 //
                 _jobMonitoringService.CleanupPostExecution(jobMonitorId);
 
-                _executionLogService.Log(BackgroundJobType.Name[monitor.BackgroundJobType] + " - has errors");
+                _executionLogService.Log(
+                    BackgroundJobType.Name[monitor.BackgroundJobType] + " - encountered an error");
                 _logger.Error(ex);
             }
             finally
             {
-                _executionLogService.Log(BackgroundJobType.Name[monitor.BackgroundJobType] + " - is finished");
+                _executionLogService.Log(
+                    BackgroundJobType.Name[monitor.BackgroundJobType] + " - finished");
             }
         }
     }

@@ -30,13 +30,12 @@ namespace Monster.Middle.Misc.State
         {
             return state.AcumaticaConnState == StateCode.Ok &&
                    state.AcumaticaRefDataState == StateCode.Ok &&
-                   state.WarehouseSyncState == StateCode.Ok &&
-                   state.ShopifyConnState == StateCode.Ok;
+                   state.WarehouseSyncState == StateCode.Ok;
         }
 
         public static bool CanSyncRefundsToAcumatica(this SystemState state)
         {
-            return state.CanSyncOrdersToAcumatica() ;
+            return state.CanSyncOrdersToAcumatica();
         }
 
         public static bool CanSyncFulfillmentsToShopify(this SystemState state)

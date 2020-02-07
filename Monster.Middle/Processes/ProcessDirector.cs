@@ -74,49 +74,38 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void RefreshReferenceData()
         {
-            Run(() => RefreshReferenceDataWorker(), x => x.AcumaticaRefDataState);
+            Run(new Action[]
+            {
+                () => _acumaticaManager.PullReferenceData(),
+                () => _combinedRefDataService.ReconcileSettingsWithRefData(),
+                () => _combinedRefDataService.ReconcilePaymentGatewaysWithRefData(),
+                () => _configStatusService.RefreshSettingsStatus(),
+                () => _configStatusService.RefreshSettingsTaxesStatus(),
+            }, 
+            x => x.AcumaticaRefDataState);
         }
 
-        private void RefreshReferenceDataWorker()
-        {
-            _acumaticaManager.PullReferenceData();
-            _combinedRefDataService.ReconcileSettingsWithRefData();
-            _combinedRefDataService.ReconcilePaymentGatewaysWithRefData();
-
-            // Retrieve the refreshed Settings
-            //
-            _configStatusService.RefreshSettingsStatus();
-            _configStatusService.RefreshSettingsTaxesStatus();
-        }
 
         public void SyncWarehouseAndLocation()
         {
-            Run(() => SyncWarehouseAndLocationWorker(), x => x.WarehouseSyncState);
+            Run(new Action[]
+                {
+                    () => _acumaticaManager.PullWarehouses(),
+                    () => _shopifyManager.PullLocations(),
+                    () => _syncManager.SynchronizeWarehouseLocation(),
+                    () => _configStatusService.RefreshWarehouseSyncStatus(),
+                },
+                x => x.WarehouseSyncState);
         }
 
-        private void SyncWarehouseAndLocationWorker()
-        {
-            // Step 1 - Pull Locations and Warehouses
-            //
-            _acumaticaManager.PullWarehouses();
-            _shopifyManager.PullLocations();
-
-            // Step 2 - Synchronize Locations and Warehouses
-            //
-            _syncManager.SynchronizeWarehouseLocation();
-
-            // Step 3 - Determine resultant System State
-            //
-            _configStatusService.RefreshWarehouseSyncStatus();
-        }
 
         public void RunDiagnostics()
         {
             Run(() =>
             {
                 _shopifyManager.TestConnection();
-                RefreshReferenceDataWorker();
-                SyncWarehouseAndLocationWorker();
+                RefreshReferenceData();
+                SyncWarehouseAndLocation();
             });
         }
 
@@ -198,8 +187,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         {
             var settings = _settingsRepository.RetrieveSettings();
 
-            if (settings.PullFromShopifyEnabled 
-                && _stateRepository.CheckSystemState(x => x.CanPollDataFromAcumatica()))
+            if (settings.PullFromShopifyEnabled)
             {
                 Run(new Action[]
                     {
@@ -209,8 +197,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     });
             }
 
-            if (settings.PullFromAcumaticaEnabled 
-                && _stateRepository.CheckSystemState(x => x.CanPollDataFromAcumatica()))
+            if (settings.PullFromAcumaticaEnabled)
             {
 
                 Run(new Action[]
@@ -219,8 +206,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     });
             }
 
-            if (settings.SyncOrdersEnabled 
-                && _stateRepository.CheckSystemState(x => x.CanSyncOrdersToAcumatica()))
+            if (settings.SyncOrdersEnabled)
             {
                 Run(new Action[]
                     {

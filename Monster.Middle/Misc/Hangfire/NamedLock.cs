@@ -10,18 +10,17 @@ namespace Monster.Middle.Misc.Hangfire
 
         private static readonly object _lock = new object();
 
-        private readonly string _methodName;
-        public string MethodName => _methodName;
+        public string MethodName { get; }
 
 
         public NamedLock(string methodName)
         {
-            _methodName = methodName;
+            MethodName = methodName;
         }
 
         private string BuildKey(string userId)
         {
-            return _methodName + ":" + userId;
+            return MethodName + ":" + userId;
         }
 
         public bool Acquire(string userId)
