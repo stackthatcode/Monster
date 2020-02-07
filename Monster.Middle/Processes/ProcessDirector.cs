@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Shopify;
@@ -61,283 +64,230 @@ namespace Monster.Middle.Processes.Sync.Managers
         //
         public void ConnectToShopify()
         {
-            try
-            {
-                _executionLogService.Log("Testing Shopify Connection");
-                _shopifyManager.TestConnection();
-                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
-            }
+            Run(() => _shopifyManager.TestConnection(), x => x.ShopifyConnState);
         }
 
         public void ConnectToAcumatica()
         {
-            try
-            {
-                _executionLogService.Log("Testing Acumatica Connection");
-                _acumaticaManager.TestConnection();
-                _stateRepository.UpdateSystemState(x => x.AcumaticaConnState, StateCode.Ok);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                _stateRepository.UpdateSystemState(
-                        x => x.AcumaticaConnState, StateCode.SystemFault);
-            }
+            Run(() => _acumaticaManager.TestConnection(), x => x.AcumaticaConnState);
         }
 
         public void RefreshReferenceData()
         {
-            try
-            {
-                _executionLogService.Log("Refreshing Acumatica Reference Data");
-                _acumaticaManager.PullReferenceData();
-                
-                // Update the Reference Data State
-                //
-                _stateRepository.UpdateSystemState(x => x.AcumaticaRefDataState, StateCode.Ok);
+            Run(() => RefreshReferenceDataWorker(), x => x.AcumaticaRefDataState);
+        }
 
-                // Reconcile based on any changes
-                //
-                _combinedRefDataService.ReconcileSettingsWithRefData();
-                _combinedRefDataService.ReconcilePaymentGatewaysWithRefData();
+        private void RefreshReferenceDataWorker()
+        {
+            _acumaticaManager.PullReferenceData();
+            _combinedRefDataService.ReconcileSettingsWithRefData();
+            _combinedRefDataService.ReconcilePaymentGatewaysWithRefData();
 
-                // Retrieve the refreshed Settings
-                //
-                _configStatusService.RefreshSettingsStatus();
-                _configStatusService.RefreshSettingsTaxesStatus();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                _stateRepository.UpdateSystemState(x => x.AcumaticaRefDataState, StateCode.SystemFault);
-            }
+            // Retrieve the refreshed Settings
+            //
+            _configStatusService.RefreshSettingsStatus();
+            _configStatusService.RefreshSettingsTaxesStatus();
         }
 
         public void SyncWarehouseAndLocation()
         {
-            try
-            {
-                _executionLogService.Log("Refresh Acumatica Warehouses and Shopify Locations");
+            Run(() => SyncWarehouseAndLocationWorker(), x => x.WarehouseSyncState);
+        }
 
-                // Step 1 - Pull Locations and Warehouses
-                _acumaticaManager.PullWarehouses();
-                _shopifyManager.PullLocations();
+        private void SyncWarehouseAndLocationWorker()
+        {
+            // Step 1 - Pull Locations and Warehouses
+            //
+            _acumaticaManager.PullWarehouses();
+            _shopifyManager.PullLocations();
 
-                // Step 2 - Synchronize Locations and Warehouses
-                _syncManager.SynchronizeWarehouseLocation();
+            // Step 2 - Synchronize Locations and Warehouses
+            //
+            _syncManager.SynchronizeWarehouseLocation();
 
-                // Step 3 - Determine resultant System State
-                _configStatusService.RefreshWarehouseSyncStatus();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                _stateRepository.UpdateSystemState(x => x.WarehouseSyncState, StateCode.SystemFault);
-            }
+            // Step 3 - Determine resultant System State
+            //
+            _configStatusService.RefreshWarehouseSyncStatus();
         }
 
         public void RunDiagnostics()
         {
-            ConnectToShopify();
-            RefreshReferenceData();
-            SyncWarehouseAndLocation();
+            Run(() =>
+            {
+                _shopifyManager.TestConnection();
+                RefreshReferenceDataWorker();
+                SyncWarehouseAndLocationWorker();
+            });
         }
-
 
 
         // Inventory Jobs 
         //
         public void RefreshInventory()
         {
-            try
-            {
-                _executionLogService.Log("Inventory Refresh - starting");
-
-                _shopifyManager.PullInventory();
-                _acumaticaManager.PullInventory();
-                
-                _stateRepository.UpdateSystemState(x => x.InventoryRefreshState, StateCode.Ok);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                _executionLogService.Log("Inventory Refresh - encountered error");
-
-                _stateRepository.UpdateSystemState(x => x.InventoryRefreshState, StateCode.SystemFault);
-            }
+            Run(() => RefreshInventoryWorker(), x => x.InventoryRefreshState);
         }
-        
+
+        private void RefreshInventoryWorker()
+        {
+            _shopifyManager.PullInventory();
+            _acumaticaManager.PullInventory();
+        }
+
+
         public void ImportAcumaticaStockItems(AcumaticaStockItemImportContext context)
         {
-            RefreshInventory();
-            var state = _stateRepository.RetrieveSystemStateNoTracking();
-            if (state.InventoryRefreshState != StateCode.Ok)
+            Action action = () =>
             {
-                _executionLogService.Log("Inventory Refresh is broken; aborting ImportAcumaticaStockItems");
-                return;
-            }
+                RefreshInventory();
 
-            BackgroundJobRunner(
-                () => _syncManager.ImportAcumaticaStockItems(context),
-                BackgroundJobType.ImportAcumaticaStockItems);
+                var state = _stateRepository.RetrieveSystemStateNoTracking();
+                if (state.InventoryRefreshState != StateCode.Ok)
+                {
+                    _executionLogService.Log("Inventory Refresh is broken; aborting ImportAcumaticaStockItems");
+                    return;
+                }
+
+                _syncManager.ImportAcumaticaStockItems(context);
+            };
+
+            Run(action);
         }
 
         public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
         {
-            RefreshInventory();
-            var state = _stateRepository.RetrieveSystemStateNoTracking();
-            if (state.InventoryRefreshState != StateCode.Ok)
+            Action action = () =>
             {
-                _executionLogService.Log("Inventory Refresh is broken; aborting ImportNewShopifyProduct");
-                return;
-            }
+                RefreshInventory();
+                var state = _stateRepository.RetrieveSystemStateNoTracking();
+                if (state.InventoryRefreshState != StateCode.Ok)
+                {
+                    _executionLogService.Log("Inventory Refresh is broken; aborting ImportNewShopifyProduct");
+                    return;
+                }
 
-            BackgroundJobRunner(
-                () => _syncManager.ImportNewShopifyProduct(context),
-                BackgroundJobType.ImportNewShopifyProduct);
+                _syncManager.ImportNewShopifyProduct(context);
+            };
+
+            Run(action);
         }
 
         public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
         {
-            RefreshInventory();
-            var state = _stateRepository.RetrieveSystemStateNoTracking();
-            if (state.InventoryRefreshState != StateCode.Ok)
+            Action action = () =>
             {
-                _executionLogService.Log(
-                    "Inventory Refresh is broken; aborting ImportAddShopifyVariantsToProduct");
-                return;
-            }
 
-            BackgroundJobRunner(
-                () => _syncManager.ImportAddShopifyVariantsToProduct(context),
-                BackgroundJobType.ImportAddShopifyVariantsToProduct);
-        }
+                RefreshInventory();
 
-        private void BackgroundJobRunner(Action action, int jobType)
-        {
-            var descriptor = BackgroundJobType.Name[jobType];
-            _executionLogService.Log($"{descriptor}  - executing");
-            _monitoringService.RegisterCurrentJobType(jobType);
-            
-            try
-            {
-                if (_monitoringService.DetectCurrentJobInterrupt())
+                var state = _stateRepository.RetrieveSystemStateNoTracking();
+                if (state.InventoryRefreshState != StateCode.Ok)
                 {
+                    _executionLogService.Log(
+                        "Inventory Refresh is broken; aborting ImportAddShopifyVariantsToProduct");
+
                     return;
                 }
-                action();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                _executionLogService.Log($"{descriptor} - encountered an error");
-                throw;
-            }
+
+                _syncManager.ImportAddShopifyVariantsToProduct(context);
+            };
+
+            Run(action);
         }
 
-
-
-        // Synchronization
-        //
         public void EndToEndSync()
         {
-            _executionLogService.Log("End-to-End - process starting");
-            _monitoringService.RegisterCurrentJobType(BackgroundJobType.EndToEndSync);
-
             var settings = _settingsRepository.RetrieveSettings();
 
-            if (settings.PullFromShopifyEnabled
+            if (settings.PullFromShopifyEnabled 
                 && _stateRepository.CheckSystemState(x => x.CanPollDataFromAcumatica()))
             {
-                EndToEndRunner(
-                new Action[]
-                {
-                    () => _shopifyManager.PullCustomers(),
-                    () => _shopifyManager.PullOrders(),
-                    () => _shopifyManager.PullTransactions(),
-                },
-                "End-to-End - Get Customers, Orders, Transactions from Shopify");
+                Run(new Action[]
+                    {
+                        () => _shopifyManager.PullCustomers(),
+                        () => _shopifyManager.PullOrders(),
+                        () => _shopifyManager.PullTransactions(),
+                    });
             }
 
-            if (settings.PullFromAcumaticaEnabled
-                    && _stateRepository.CheckSystemState(x => x.CanPollDataFromAcumatica()))
+            if (settings.PullFromAcumaticaEnabled 
+                && _stateRepository.CheckSystemState(x => x.CanPollDataFromAcumatica()))
             {
 
-                EndToEndRunner(
-                    new Action[]
+                Run(new Action[]
                     {
                         () => _acumaticaManager.PullOrdersAndCustomer()
-                    },
-                    "End-to-End - Get Orders, Shipments and Customers from Acumatica");
+                    });
             }
 
-            if (settings.SyncOrdersEnabled
-                    && _stateRepository.CheckSystemState(x => x.CanSyncOrdersToAcumatica()))
+            if (settings.SyncOrdersEnabled 
+                && _stateRepository.CheckSystemState(x => x.CanSyncOrdersToAcumatica()))
             {
-                EndToEndRunner(
-                    new Action[]
+                Run(new Action[]
                     {
                         () => _syncManager.SyncCustomersToAcumatica(),
                         () => _syncManager.SyncOrdersToAcumatica(),
                         () => _syncManager.SyncPaymentsToAcumatica(),
-                    },
-                    "End-to-End - Sync Customers, Orders, Payments to Acumatica");
+                    });
             }
 
-            if (settings.SyncFulfillmentsEnabled
-                    && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
+            if (settings.SyncFulfillmentsEnabled 
+                && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
             {
-                EndToEndRunner(
-                    new Action[] { () => _syncManager.SyncFulfillmentsToShopify() },
-                    "End-to-End - Sync Fulfillments to Shopify");
+                Run(new Action[]
+                    {
+                        () => _syncManager.SyncFulfillmentsToShopify()
+                    });
             }
 
             if (settings.SyncInventoryEnabled
                     && _stateRepository.CheckSystemState(x => x.CanSyncInventoryCountsToShopify()))
             {
 
-                EndToEndRunner(
-                    new Action[]
+                Run(new Action[]
                     {
                         () => _shopifyManager.PullInventory(),
                         () => _acumaticaManager.PullInventory(),
-                    },
-                    "End-to-End - Refresh Inventory from Shopify and Acumatica");
-
-                EndToEndRunner(
-                    new Action[] { () => _syncManager.SyncInventoryCountsToShopify() },
-                    "End-to-End - Sync Inventory Count to Shopify");
+                        () => _syncManager.SyncInventoryCountsToShopify()
+                    });
             }
-
-            _executionLogService.Log("End-to-End - process finishing");
         }
 
 
-        private void EndToEndRunner(Action[] actions, string descriptor)
-        {
-            _executionLogService.Log($"{descriptor}  - executing");
 
-            foreach (var action in actions)
+        private void Run(Action action, Expression<Func<SystemState, int>> stateProperty = null)
+        {
+            Run(new [] { action }, stateProperty);
+        }
+
+        private void Run(Action[] actions, Expression<Func<SystemState, int>> stateProperty = null)
+        {
+            try
             {
-                try
+                foreach (var action in actions)
                 {
                     if (_monitoringService.DetectCurrentJobInterrupt())
                     {
                         return;
                     }
+
                     action();
                 }
-                catch (Exception ex)
+
+                if (stateProperty != null)
                 {
-                    _logger.Error(ex);
-                    _executionLogService.Log($"{descriptor} - encountered an error");
-                    throw;
+                    _stateRepository.UpdateSystemState(stateProperty, StateCode.Ok);
                 }
+            }
+            catch
+            {
+                if (stateProperty != null)
+                {
+                    _stateRepository.UpdateSystemState(stateProperty, StateCode.SystemFault);
+                }
+
+                // The Job Runner Logs errors
+                //
+                throw;
             }
         }
     }

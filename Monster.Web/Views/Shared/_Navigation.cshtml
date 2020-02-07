@@ -103,7 +103,7 @@
                             </a>
                         </div>
                     </li>
-                    <li class="nav-item disabled">
+                    <li class="nav-item active">
                         <a class="nav-link" href="@GlobalConfig.Url("/ShopifyAuth/Logout")">Logout</a>
                     </li>
                 </ul>
@@ -120,12 +120,22 @@
                     <li class="nav-item disabled">
                         <a class="nav-link" href="#">Analyze</a>
                     </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="@GlobalConfig.Url("/ShopifyAuth/Logout")">Logout</a>
+                    </li>
                 </ul>
             }
         }
 
         <span class="navbar-text text-white ml-auto">
+        @if (identityContext.IsAuthenticated)
+        {
             <a href="@identityContext.InstanceHref" target="_blank">@identityContext.InstanceDomain</a>
+        }
+        else
+        {
+            <a href="mailto:info@logicautomated.com">Contact Us</a>
+        }
         </span>
     </div>
 </nav>

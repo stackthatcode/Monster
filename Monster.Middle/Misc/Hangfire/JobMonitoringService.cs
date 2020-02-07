@@ -17,7 +17,7 @@ namespace Monster.Middle.Misc.Hangfire
 
         private MonsterDataContext Entities => _dataContext.Entities;
 
-        private int? _currentRunningJobType = null;
+        private long? _currentScopeMonitorId = null;
 
 
         public JobMonitoringService(
@@ -91,6 +91,11 @@ namespace Monster.Middle.Misc.Hangfire
             }
         }
 
+        public ExclusiveJobMonitor RetrieveCurrentScopeMonitor()
+        {
+            return RetrieveMonitorNoTracking(_currentScopeMonitorId.Value);
+        }
+
         public ExclusiveJobMonitor RetrieveMonitorNoTracking(long monitorId)
         {
             return Entities
@@ -109,19 +114,19 @@ namespace Monster.Middle.Misc.Hangfire
 
         // Having some doubts about the location of this one
         //
-        public void RegisterCurrentJobType(int jobType)
+        public void RegisterCurrentScopeMonitorId(long monitorId)
         {
-            _currentRunningJobType = jobType;
+            _currentScopeMonitorId = monitorId;
         }
 
         public bool DetectCurrentJobInterrupt()
         {
-            if (!_currentRunningJobType.HasValue)
+            if (!_currentScopeMonitorId.HasValue)
             {
                 throw new Exception("Must invoke IdentifyCurrentJobType() before calling this method");
             }
 
-            if (IsJobTypeInterrupted(_currentRunningJobType.Value))
+            if (IsInterrupted(_currentScopeMonitorId.Value))
             {
                 _executionLogService.Log(LogBuilder.JobExecutionIsInterrupted());
                 return true;
@@ -130,13 +135,6 @@ namespace Monster.Middle.Misc.Hangfire
             {
                 return false;
             }
-        }
-
-
-        public bool IsJobTypeInterrupted(int jobType)
-        {
-            var monitor = RetrieveMonitorByTypeNoTracking(jobType);
-            return (monitor == null || monitor.ReceivedKillSignal);
         }
 
         public bool IsInterrupted(long monitorId)

@@ -1,4 +1,8 @@
-﻿using Monster.Middle.Processes.Shopify.Workers;
+﻿using System;
+using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.State;
+using Monster.Middle.Processes.Shopify.Workers;
+using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 
 namespace Monster.Middle.Processes.Shopify
@@ -10,6 +14,9 @@ namespace Monster.Middle.Processes.Shopify
         private readonly ShopifyCustomerGet _shopifyCustomerPull;
         private readonly ShopifyOrderGet _shopifyOrderPull;
         private readonly ShopifyTransactionGet _shopifyTransactionPull;
+        private readonly ExecutionLogService _executionLogService;
+        private readonly StateRepository _stateRepository;
+        private readonly IPushLogger _logger;
         private readonly OrderApi _orderApi;
 
         public ShopifyManager(
@@ -18,6 +25,9 @@ namespace Monster.Middle.Processes.Shopify
             ShopifyCustomerGet shopifyCustomerPull, 
             ShopifyOrderGet shopifyOrderPull, 
             ShopifyTransactionGet shopifyTransactionPull, 
+            ExecutionLogService executionLogService,
+            StateRepository stateRepository,
+            IPushLogger logger,
             OrderApi orderApi)
         {
             _shopifyLocationPull = shopifyLocationPull;
@@ -25,15 +35,29 @@ namespace Monster.Middle.Processes.Shopify
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyOrderPull = shopifyOrderPull;
             _shopifyTransactionPull = shopifyTransactionPull;
+            _executionLogService = executionLogService;
+            _stateRepository = stateRepository;
+            _logger = logger;
             _orderApi = orderApi;
         }
 
         
         public void TestConnection()
         {
-            _orderApi.RetrieveCount();
+            try
+            {
+                _executionLogService.Log("Connecting to Shopify...");
+                _orderApi.RetrieveCount();
+                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
+            }
         }
         
+
         public void PullLocations()
         {
             _shopifyLocationPull.Run();

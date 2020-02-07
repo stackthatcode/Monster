@@ -83,15 +83,16 @@ namespace Monster.Middle.Misc.Hangfire
             ExecuteJob(instanceId, () => _processDirector.ImportAddShopifyVariantsToProduct(context), jobMonitorId);
         }
 
+        public void EndToEndSync(Guid instanceId, long jobMonitorId)
+        {
+            ExecuteJob(instanceId, () => _processDirector.EndToEndSync(), jobMonitorId);
+        }
+
+        // Invoked by Recurring Job scheduler
         public void TriggerEndToEndSync(Guid instanceId)
         {
             _instanceContext.Initialize(instanceId);
             _oneTimeJobScheduler.EndToEndSync();
-        }
-
-        public void EndToEndSync(Guid instanceId, long jobMonitorId)
-        {
-            ExecuteJob(instanceId, () => _processDirector.EndToEndSync(), jobMonitorId);
         }
 
 
@@ -102,6 +103,9 @@ namespace Monster.Middle.Misc.Hangfire
 
         private void ExecuteJob(Guid instanceId, Action action, long jobMonitorId)
         {
+            _jobMonitoringService.RegisterCurrentScopeMonitorId(jobMonitorId);
+            var monitor = _jobMonitoringService.RetrieveCurrentScopeMonitor();
+
             try
             {
                 _instanceContext.Initialize(instanceId);
@@ -133,6 +137,8 @@ namespace Monster.Middle.Misc.Hangfire
 
                 // Phew - we made it! Execute the requested task
                 //
+                _executionLogService.Log(BackgroundJobType.Name[monitor.BackgroundJobType] + " - is starting");
+
                 action();
 
                 _jobMonitoringService.CleanupPostExecution(jobMonitorId);
@@ -150,11 +156,12 @@ namespace Monster.Middle.Misc.Hangfire
                 //
                 _jobMonitoringService.CleanupPostExecution(jobMonitorId);
 
+                _executionLogService.Log(BackgroundJobType.Name[monitor.BackgroundJobType] + " - has errors");
                 _logger.Error(ex);
-
-                // Do we need to do this...?
-                //
-                //throw;
+            }
+            finally
+            {
+                _executionLogService.Log(BackgroundJobType.Name[monitor.BackgroundJobType] + " - is finished");
             }
         }
     }

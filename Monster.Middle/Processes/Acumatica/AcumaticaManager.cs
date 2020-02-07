@@ -1,5 +1,7 @@
 ﻿using System;
 using Monster.Acumatica.Http;
+using Monster.Middle.Misc.Logging;
+using Monster.Middle.Misc.State;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Push.Foundation.Utilities.Logging;
 
@@ -11,6 +13,8 @@ namespace Monster.Middle.Processes.Acumatica
         private readonly AcumaticaReferenceGet _acumaticaReferencePull;
         private readonly AcumaticaWarehouseGet _acumaticaWarehousePull;
         private readonly AcumaticaInventoryGet _acumaticaInventoryPull;
+        private readonly StateRepository _stateRepository;
+        private readonly ExecutionLogService _executionLogService;
         private readonly AcumaticaCustomerGet _acumaticaCustomerPull;
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly IPushLogger _logger;
@@ -22,7 +26,9 @@ namespace Monster.Middle.Processes.Acumatica
                 AcumaticaCustomerGet acumaticaCustomerPull, 
                 AcumaticaOrderGet acumaticaOrderPull, 
                 AcumaticaWarehouseGet acumaticaWarehousePull, 
-                AcumaticaInventoryGet acumaticaInventoryPull,                 
+                AcumaticaInventoryGet acumaticaInventoryPull,  
+                StateRepository stateRepository,
+                ExecutionLogService executionLogService,
                 IPushLogger logger)
         {
             _acumaticaHttpContext = acumaticaHttpContext;
@@ -30,6 +36,8 @@ namespace Monster.Middle.Processes.Acumatica
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaWarehousePull = acumaticaWarehousePull;
             _acumaticaInventoryPull = acumaticaInventoryPull;
+            _stateRepository = stateRepository;
+            _executionLogService = executionLogService;
             _acumaticaReferencePull = acumaticaReferencePull;
             _logger = logger;
         }
@@ -37,7 +45,17 @@ namespace Monster.Middle.Processes.Acumatica
 
         public void TestConnection()
         {
-            _acumaticaHttpContext.SessionRun(() => {});
+            try
+            {
+                _executionLogService.Log("Testing Acumatica Connection");
+                _acumaticaHttpContext.SessionRun(() => { });
+                _stateRepository.UpdateSystemState(x => x.AcumaticaConnState, StateCode.Ok);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                _stateRepository.UpdateSystemState(x => x.AcumaticaConnState, StateCode.SystemFault);
+            }
         }
 
         public void PullReferenceData()
