@@ -25,10 +25,10 @@ namespace Monster.Middle.Processes.Sync.Services
             var transaction = order
                 .ShopifyTransactions.FirstOrDefault(x => x.ShopifyTransactionId == action.ShopifyTransactionId);
 
-            if (transaction == null)
-            {
-                return;
-            }
+            //if (transaction == null)
+            //{
+            //    return;
+            //}
             
             if (action.ActionCode == ActionCode.CreateInAcumatica)
             {
@@ -91,6 +91,7 @@ namespace Monster.Middle.Processes.Sync.Services
 
             var validation
                 = BuildBaseValidation()
+                    .Add(x => x.AcumaticaSalesOrder != null, "Acumatica Sales Order not created yet", instantFailure:true)
                     .Add(x => x.ValidPaymentGateway, $"Does not have a valid payment gateway; please check configuration")
                     .Add(x => !x.CurrentTransaction.ExistsInAcumatica(), "Payment has already been created in Acumatica")
                     .Add(x => x.CurrentTransaction.IsPayment(), $"Transaction is not a capture or sale")
@@ -136,7 +137,7 @@ namespace Monster.Middle.Processes.Sync.Services
                     .Add(x => x.OriginalPaymentTransaction.ExistsInAcumatica(), 
                             $"Original Payment has not been synced yet")
                     
-                    .Add(x => x.ShopifyOrder.OriginalPaymentNeedsUpdateForRefund(), 
+                    .Add(x => !x.ShopifyOrder.OriginalPaymentNeedsUpdateForRefund(), 
                             "Original Payment needs to be updated in Acumatica before syncing Refund")
                     
                     .Add(x => !x.ShopifyOrder.HasUnreleasedTransactions(), "There are unreleased Payments/Refunds")

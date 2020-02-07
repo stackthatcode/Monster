@@ -29,12 +29,12 @@ namespace Monster.Middle.Processes.Sync.Persist
             var settings = Entities.MonsterSettings.First();
             var numberOfOrders = settings.MaxNumberOfOrders;
 
-            var newOrders = Entities.ShopifyOrdersNeedingCreateSyncs
+            var newOrders = Entities.ShopifyOrdersNeedingOrderCreates
                 .Select(x => x.ShopifyOrderId)
                 .Take(numberOfOrders)
                 .ToList();
 
-            var updatedOrders = Entities.ShopifyOrdersNeedingUpdateSyncs
+            var updatedOrders = Entities.ShopifyOrdersNeedingOrderUpdates
                 .Select(x => x.ShopifyOrderId)
                 .ToList();
 
@@ -148,19 +148,10 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Shopify Transactions
         //
-        public List<long> RetrieveSyncedOrdersWithUnsyncedTransactions()
+        public List<long> RetrieveOrdersWithPaymentsNeedingSync()
         {
-            return Entities.ShopifyOrderPaymentsNeedingCreateSyncs
-                .Select(x => x.MonsterId)
-                .Distinct()
-                .OrderBy(x => x)
-                .ToList();
-        }
-
-        public List<long> RetrieveOrdersWithUnreleasedTransactions()
-        {
-            return Entities.ShopifyOrderPaymentsNeedingReleaseSyncs
-                .Select(x => x.MonsterId)
+            return Entities.ShopifyOrdersNeedingPaymentSyncs
+                .Select(x => x.ShopifyOrderId)
                 .Distinct()
                 .OrderBy(x => x)
                 .ToList();

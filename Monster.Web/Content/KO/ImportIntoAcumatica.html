@@ -141,7 +141,7 @@
                     <button type="button"
                             data-bind="click: SyncWithAcumaticaClick, enable: SyncButtonsEnabled"
                             class="btn btn-sm btn-primary">
-                        Sync with Acumatica <i class="fas fa-bolt"></i>
+                        Match with Acumatica Items <i class="fas fa-bolt"></i>
                     </button>
 
                 </div>
@@ -340,7 +340,7 @@
         <div class="modal-dialog" role="document" style="max-width:600px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirm Stock Item Sync with Acumatica</h5>
+                    <h5 class="modal-title">Confirm Matching SKU's with Stock Item in Acumatica</h5>
 
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -349,13 +349,13 @@
                 <div class="modal-body">
                     <div class="mb-4">
                         <div class="mb-2">
-                            <label>Ready to proceed with synchronizing Shopify Product-Variants with 
+                            <label>Ready to proceed with matching Shopify Product-Variants with 
                              existing Acumatica Stock Items (no new Items will be created).</label>
                         </div>
 
                         <span class="modal-heavy-text">
                             <span data-bind="text: ProductCount"></span> Shopify Product(s) with
-                            <span data-bind="text: UnsyncedVariantCount"></span> Unsynced Shopify Variant(s)
+                            <span data-bind="text: UnsyncedVariantCount"></span> Unmatched Shopify Variant(s)
                         </span>
                     </div>
 
@@ -374,7 +374,7 @@
                         Cancel <i class="fas fa-times"></i>
                     </button>
                     <button type="button" data-bind="click: RunSyncWithAcumatica" class="btn btn-primary">
-                        Proceed with Sync <i class="fas fa-bolt"></i>
+                        Proceed with Matching <i class="fas fa-bolt"></i>
                     </button>
                 </div>
             </div>

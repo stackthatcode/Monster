@@ -92,7 +92,7 @@ namespace Monster.Middle.Identity
             context.InstanceId = instance.Id;
             context.InstanceNickName = instance.OwnerNickname;
             context.InstanceDomain = instance.OwnerDomain;
-            context.InstanceHref = $"https://{instance.OwnerDomain}";
+            context.InstanceHref = $"https://{instance.OwnerDomain}/admin";
 
             // Auto-initialize persistence layer
             //

@@ -182,13 +182,15 @@
             <td>
                 <div style="clear: both; vertical-align: middle;"
                      data-bind="template: { name: 'Sync-Enable-Item', data: PullFromShopifyEnabled }">
-                </div></td>
+                </div>
+            </td>
         </tr>
         <tr>
             <td>
                 <div style="clear: both; vertical-align: middle;"
                      data-bind="template: { name: 'Sync-Enable-Item', data: PullFromAcumaticaEnabled }">
-                </div></td>
+                </div>
+            </td>
         </tr>
         <tr>
             <td>
@@ -233,7 +235,7 @@
                             </span>
                         </div>
 
-                        
+
                         <div style="clear: both; text-align: left;">
                             <span class="sync-label" style="min-width: 200px; text-align: left;">Release Payments</span>
                             <span class="bold-light" data-bind="text: Monster.BoolToEnabled(ReleasePaymentsOnSync())"></span>
@@ -248,58 +250,60 @@
                             <span class="bold-light" data-bind="text: MaxNumberOfOrders"></span>
                         </div>
                     </div>
-                    </div>
+                </div>
 
-                    <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
-                        <div style="height: 20px;"></div>
-                        <div class="alert alert-secondary">
-                            <strong>Beginning Mark Order must be set to start End-to-End</strong>
-                        </div>
+                <div style="clear: both;" data-bind="ifnot: IsStartingOrderSet">
+                    <div style="height: 20px;"></div>
+                    <div class="alert alert-secondary">
+                        <strong>Beginning Mark Order must be set to start End-to-End</strong>
                     </div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <div style="clear: both; vertical-align: middle;"
-                         data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }">
-                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="clear: both; vertical-align: middle;"
+                     data-bind="template: { name: 'Sync-Enable-Item', data: SyncInventoryEnabled }">
+                </div>
 
-                    <div style="clear:both; height:10px;"></div>
+                <div style="clear:both; height:10px;"></div>
 
-                    <div id="inventory-settings" style="float: left;">
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Price</span>
-                            <span class="bold-light"
-                                  data-bind="text: Monster.BoolToEnabled(InventorySyncPrice())"></span>
-                        </div>
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Avail Qty</span>
-                            <span class="bold-light"
-                                  data-bind="text: Monster.BoolToEnabled(InventorySyncAvailableQty())"></span>
-                        </div>
-                        <div style="clear: both; text-align: left;">
-                            <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Weight</span>
-                            <span class="bold-light" data-bind="text: Monster.BoolToEnabled(InventorySyncWeight())"></span>
-                        </div>
+                <div id="inventory-settings" style="float: left;">
+                    <div style="clear: both; text-align: left;">
+                        <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Price</span>
+                        <span class="bold-light"
+                              data-bind="text: Monster.BoolToEnabled(InventorySyncPrice())"></span>
                     </div>
+                    <div style="clear: both; text-align: left;">
+                        <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Avail Qty</span>
+                        <span class="bold-light"
+                              data-bind="text: Monster.BoolToEnabled(InventorySyncAvailableQty())"></span>
+                    </div>
+                    <div style="clear: both; text-align: left;">
+                        <span class="sync-label" style="min-width: 200px; text-align: left;">Synchronize Weight</span>
+                        <span class="bold-light" data-bind="text: Monster.BoolToEnabled(InventorySyncWeight())"></span>
+                    </div>
+                </div>
 
-                    <div style="float: right; padding-top: 15px;">
-                        <a href="#" class="btn btn-primary btn-sm"
-                           data-bind="click: EditInventorySettingsClick"
-                           style="padding: 8px;">
-                            Settings <i class="fa fa-pencil-alt"></i>
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td style="vertical-align: middle;"
-                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
-            </tr>
-            <tr>
-                <td style="vertical-align: middle;"
-                    data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
-            </tr>
+                <div style="float: right; padding-top: 15px;">
+                    <a href="#" class="btn btn-primary btn-sm"
+                       data-bind="click: EditInventorySettingsClick"
+                       style="padding: 8px;">
+                        Settings <i class="fa fa-pencil-alt"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: middle;"
+                data-bind="template: { name: 'Sync-Enable-Item', data: SyncShipmentsEnabled }"></td>
+        </tr>
+        <!--
+        <tr>
+            <td style="vertical-align: middle;"
+                data-bind="template: { name: 'Sync-Enable-Item', data: SyncRefundsEnabled }"></td>
+        </tr>-->
+
         </tbody>
     </table>
 </script>
@@ -392,7 +396,8 @@
                             <hr />
                         </div>
                     </div>
-
+                    
+                    <!--
                     <div class="form-group">
                         <label for="orderNumber">
                             Release Payments and Refunds on Synchronization
@@ -403,7 +408,7 @@
                         </select>
                         <hr />
                     </div>
-
+                    -->
 
                     <div class="form-group">
                         <label for="orderNumber">

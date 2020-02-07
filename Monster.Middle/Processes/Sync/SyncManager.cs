@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using Autofac;
 using Monster.Acumatica.Http;
+using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Inventory;
@@ -27,6 +28,7 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ShopifyInventoryPut _shopifyInventorySync;
         private readonly ShopifyFulfillmentPut _shopifyFulfillmentSync;
         private readonly ShopifyProductVariantPut _shopifyProductVariantPut;
+        private readonly JobMonitoringService _monitoringService;
 
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPut _acumaticaOrderSync;
@@ -50,6 +52,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ShopifyFulfillmentPut shopifyFulfillmentSync,
                 ShopifyProductVariantPut shopifyProductVariantPut,
 
+                JobMonitoringService monitoringService,
                 SettingsRepository settingsRepository,
                 InstanceContext connectionContext,
                 ExecutionLogService executionLogService,
@@ -67,6 +70,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             _shopifyInventorySync = shopifyInventorySync;
             _shopifyFulfillmentSync = shopifyFulfillmentSync;
             _shopifyProductVariantPut = shopifyProductVariantPut;
+            _monitoringService = monitoringService;
 
             _acumaticaContext = acumaticaContext;
             _settingsRepository = settingsRepository;
@@ -112,17 +116,21 @@ namespace Monster.Middle.Processes.Sync.Managers
             try
             {
                 var instanceId = _connectionContext.InstanceId;
+                var monitorId = _monitoringService.CurrentScopeMonitorId;
 
                 using (var childScope = _lifetimeScope.BeginLifetimeScope())
                 {
                     var childConnectionContext = childScope.Resolve<InstanceContext>();
                     var childAcumaticaContext = childScope.Resolve<AcumaticaHttpContext>();
                     var childOrderSync = childScope.Resolve<AcumaticaOrderPut>();
+                    var monitoringService = childScope.Resolve<JobMonitoringService>();
 
                     _logger.Debug(
                         $"OrderSyncInChildScope - Acumatica Context: {childAcumaticaContext.ObjectIdentifier}");
 
                     childConnectionContext.Initialize(instanceId);
+                    monitoringService.RegisterCurrentScopeMonitorId(monitorId);
+
                     childAcumaticaContext.SessionRun(() => childOrderSync.RunQueue(queue));
                 }
             }

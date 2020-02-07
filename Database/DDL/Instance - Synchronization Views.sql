@@ -35,14 +35,17 @@ FROM ShopifyOrder t1
 		ON t5.MonsterId = t6.ShopifyTransactionMonsterId
 GO
 
-DROP VIEW IF EXISTS ShopifyOrderAdjustmentsSyncStatus
+
+DROP VIEW IF EXISTS ShopifyOrderRefundsSyncStatus
 GO
-CREATE VIEW ShopifyOrderAdjustmentsSyncStatus
+CREATE VIEW ShopifyOrderRefundsSyncStatus
 AS
 SELECT	t1.MonsterId, 
 		t1.ShopifyOrderId, 
 		t1.Ignore, 
 		t7.ShopifyRefundId, 
+		t7.NeedOriginalPaymentPut,
+		t7.RequiresMemo,
 		t8.AcumaticaDocType, 
 		t8.AcumaticaRefNbr, 
 		t8.NeedRelease, 
@@ -50,7 +53,6 @@ SELECT	t1.MonsterId,
 FROM ShopifyOrder t1
 	INNER JOIN ShopifyRefund t7
 		ON t1.MonsterId = t7.ShopifyOrderMonsterId
-		AND t7.RequiresMemo = 1
 	LEFT JOIN AcumaticaMemo t8
 		ON t7.MonsterId = t8.ShopifyRefundMonsterId
 GO
@@ -82,54 +84,55 @@ GO
 -- Views for identifying records needing sync
 --
 
-DROP VIEW IF EXISTS ShopifyOrdersNeedingCreateSync
+DROP VIEW IF EXISTS ShopifyOrdersNeedingOrderCreate
 GO
-CREATE VIEW ShopifyOrdersNeedingCreateSync
+CREATE VIEW ShopifyOrdersNeedingOrderCreate
 AS
 SELECT * FROM ShopifyOrdersOnlySyncView
 WHERE ( Ignore = 0 ) AND ( AcumaticaOrderNbr IS NULL )
 GO
 
-DROP VIEW IF EXISTS ShopifyOrdersNeedingUpdateSync
+DROP VIEW IF EXISTS ShopifyOrdersNeedingOrderUpdate
 GO
-CREATE VIEW ShopifyOrdersNeedingUpdateSync
+CREATE VIEW ShopifyOrdersNeedingOrderUpdate
 AS
 SELECT * FROM ShopifyOrdersOnlySyncView
-WHERE ( Ignore = 0 ) AND ( AcumaticaOrderNbr IS NOT NULL ) AND ( NeedsOrderPut = 1 )
+WHERE ( Ignore = 0 ) AND ( AcumaticaOrderNbr IS NOT NULL AND NeedsOrderPut = 1  )
 GO
 
-DROP VIEW IF EXISTS ShopifyOrderPaymentsNeedingCreateSync
+DROP VIEW IF EXISTS ShopifyOrdersNeedingPaymentSync
 GO
-CREATE VIEW ShopifyOrderPaymentsNeedingCreateSync
+CREATE VIEW ShopifyOrdersNeedingPaymentSync
 AS
 SELECT * FROM ShopifyOrderPaymentsSyncStatus
 WHERE ( Ignore = 0 )
-AND ( AcumaticaRefNbr IS NULL )
+AND ( ( AcumaticaRefNbr IS NULL ) OR
+	( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 ) )
 GO
 
-DROP VIEW IF EXISTS ShopifyOrderPaymentsNeedingReleaseSync
+DROP VIEW IF EXISTS ShopifyOrdersNeedingOriginalPaymentUpdate
 GO
-CREATE VIEW ShopifyOrderPaymentsNeedingReleaseSync
+CREATE VIEW ShopifyOrdersNeedingOriginalPaymentUpdate
 AS
-SELECT * FROM ShopifyOrderPaymentsSyncStatus
-WHERE ( Ignore = 0 )
-AND ( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 )
+SELECT * FROM ShopifyOrderRefundsSyncStatus
+WHERE ( Ignore = 0  AND NeedOriginalPaymentPut = 1 ) 
 GO
 
-DROP VIEW IF EXISTS ShopifyOrderAdjustmentsNeedingSync
+
+DROP VIEW IF EXISTS ShopifyOrderNeedingRefundSync
 GO
-CREATE VIEW ShopifyOrderAdjustmentsNeedingSync
+CREATE VIEW ShopifyOrderNeedingRefundSync
 AS
-SELECT * FROM ShopifyOrderAdjustmentsSyncStatus
-WHERE ( Ignore = 0 )
+SELECT * FROM ShopifyOrderRefundsSyncStatus
+WHERE ( Ignore = 0 AND RequiresMemo = 1 )
 AND ( ( AcumaticaRefNbr IS NULL )
 		OR ( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 ) 
 		OR ( AcumaticaRefNbr IS NOT NULL AND NeedApplyToOrder = 1 ) )
 GO
 
-DROP VIEW IF EXISTS ShopifyOrderSoShipmentsNeedingSync
+DROP VIEW IF EXISTS ShopifyOrderNeedingSoShipmentsSync
 GO
-CREATE VIEW ShopifyOrderSoShipmentsNeedingSync
+CREATE VIEW ShopifyOrderNeedingSoShipmentsSync
 AS
 SELECT * FROM ShopifyOrderSoShipmentsSyncStatus
 WHERE ( Ignore = 0 )
@@ -137,37 +140,43 @@ AND ( ShopifyFulfillmentId IS NULL )
 GO
 
 
+
+
+
 DROP VIEW IF EXISTS ShopifyOrdersNeedingSyncAll
 GO
 CREATE VIEW ShopifyOrdersNeedingSyncAll
 AS
-SELECT MonsterId FROM ShopifyOrdersNeedingCreateSync
+SELECT MonsterId, ShopifyOrderId FROM ShopifyOrdersNeedingOrderCreate
 UNION
-SELECT MonsterId FROM ShopifyOrdersNeedingUpdateSync
+SELECT MonsterId, ShopifyOrderId FROM ShopifyOrdersNeedingOrderUpdate
 UNION
-SELECT MonsterId FROM ShopifyOrderPaymentsNeedingCreateSync
+SELECT MonsterId, ShopifyOrderId FROM ShopifyOrdersNeedingPaymentSync
 UNION
-SELECT MonsterId FROM ShopifyOrderPaymentsNeedingReleaseSync
+SELECT MonsterId, ShopifyOrderId FROM ShopifyOrdersNeedingOriginalPaymentUpdate
 UNION
-SELECT MonsterId FROM ShopifyOrderAdjustmentsNeedingSync
+SELECT MonsterId, ShopifyOrderId FROM ShopifyOrderNeedingRefundSync
 UNION
-SELECT MonsterId FROM ShopifyOrderSoShipmentsNeedingSync
+SELECT MonsterId, ShopifyOrderId FROM ShopifyOrderNeedingSoShipmentsSync
 GO
 
 DROP VIEW IF EXISTS ShopifyOrdersNotNeedingSyncAll
 GO
 CREATE VIEW ShopifyOrdersNotNeedingSyncAll
 AS
-SELECT MonsterId FROM ShopifyOrder 
+SELECT MonsterId, ShopifyOrderId 
+FROM ShopifyOrder 
 WHERE MonsterId NOT IN ( SELECT MonsterId FROM ShopifyOrdersNeedingSyncAll )
 GO
 
 
-SELECT * FROM ShopifyOrdersNeedingCreateSync
-SELECT * FROM ShopifyOrdersNeedingUpdateSync
-SELECT * FROM ShopifyOrderPaymentsNeedingSync
-SELECT * FROM ShopifyOrderAdjustmentsNeedingSync
-SELECT * FROM ShopifyOrderSoShipmentsNeedingSync
+
+SELECT * FROM ShopifyOrdersNeedingOrderCreate
+SELECT * FROM ShopifyOrdersNeedingOrderUpdate
+SELECT * FROM ShopifyOrdersNeedingPaymentSync
+SELECT * FROM ShopifyOrdersNeedingOriginalPaymentUpdate
+SELECT * FROM ShopifyOrderNeedingRefundSync
+SELECT * FROM ShopifyOrderNeedingSoShipmentsSync
 
 SELECT * FROM ShopifyOrdersNeedingSyncAll;
 

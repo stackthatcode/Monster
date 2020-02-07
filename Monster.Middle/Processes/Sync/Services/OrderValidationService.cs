@@ -98,7 +98,7 @@ namespace Monster.Middle.Processes.Sync.Services
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var validation = new Validation<ShopifyOrder>()
                 
-                .Add(x => x.ErrorCount < SystemConsts.ErrorThreshold, 
+                .Add(x => x.DoesNotExceedErrorLimit(), 
                         "Encountered too many errors attempting to synchronize this Order")
                 
                 .Add(x => x.ShopifyTransactions.All(y => !y.NeedsSync()), 

@@ -57,7 +57,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 
         public static bool DoesNotExceedErrorLimit(this ShopifyOrder order)
         {
-            return order.ErrorCount > SystemConsts.ErrorThreshold;
+            return !order.ExceedsErrorLimit();
         }
     }
 }

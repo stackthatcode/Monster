@@ -18,6 +18,7 @@ namespace Monster.Middle.Misc.Hangfire
         private MonsterDataContext Entities => _dataContext.Entities;
 
         private long? _currentScopeMonitorId = null;
+        public long CurrentScopeMonitorId => _currentScopeMonitorId.Value;
 
 
         public JobMonitoringService(

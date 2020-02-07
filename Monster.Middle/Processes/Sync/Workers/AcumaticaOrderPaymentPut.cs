@@ -61,10 +61,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void RunAutomatic()
         {
-            var processingList = _syncOrderRepository.RetrieveSyncedOrdersWithUnsyncedTransactions();
-            processingList.AddRange(_syncOrderRepository.RetrieveOrdersWithUnreleasedTransactions());
-
-            var shopifyOrderIds = processingList.Distinct().OrderBy(x => x);
+            var shopifyOrderIds = _syncOrderRepository.RetrieveOrdersWithPaymentsNeedingSync();
+            
             foreach (var shopifyOrderId in shopifyOrderIds)
             {
                 if (_jobMonitoringService.DetectCurrentJobInterrupt())
@@ -361,6 +359,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 paymentRecord.AcumaticaDocType = payment.Type.value;
                 paymentRecord.AcumaticaAmount = (decimal)payment.PaymentAmount.value;
                 paymentRecord.AcumaticaAppliedToOrder = (decimal) payment.AmountAppliedToOrder;
+                paymentRecord.NeedRelease = true;
                 paymentRecord.DateCreated = DateTime.UtcNow;
                 paymentRecord.LastUpdated = DateTime.UtcNow;
                 _syncOrderRepository.InsertPayment(paymentRecord);

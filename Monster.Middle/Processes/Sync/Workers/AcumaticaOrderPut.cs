@@ -3,14 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
-using Monster.Acumatica.Api.Payment;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
-using Monster.Middle.Processes.Acumatica.Workers;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Analysis;
@@ -35,12 +33,10 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SettingsRepository _settingsRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly AcumaticaCustomerPut _acumaticaCustomerSync;
         private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
         private readonly AcumaticaTimeZoneService _acumaticaTimeZoneService;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
-        private readonly OrderValidationService _orderValidation;
         private readonly PendingActionService _pendingActionService;
         private readonly JobMonitoringService _jobMonitoringService;
         private readonly SalesOrderClient _salesOrderClient;
@@ -70,7 +66,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             _acumaticaCustomerSync = acumaticaCustomerSync;
             _acumaticaOrderPaymentPut = acumaticaOrderPaymentPut;
             _acumaticaTimeZoneService = acumaticaTimeZoneService;
-            _orderValidation = orderValidation;
             _pendingActionService = pendingActionService;
             _jobMonitoringService = jobMonitoringService;
             _settingsRepository = settingsRepository;
@@ -118,8 +113,6 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             try
             {
-                _acumaticaOrderPaymentPut.ProcessOrder(shopifyOrderId);
-
                 var orderAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
                 if (!orderAction.IsValid)
                 {
@@ -136,6 +129,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 if (orderAction.ActionCode == ActionCode.UpdateInAcumatica)
                 {
+                    _acumaticaOrderPaymentPut.ProcessOrder(shopifyOrderId);
                     UpdateExistingSalesOrder(shopifyOrderId);
                     return;
                 }
@@ -149,7 +143,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             catch (Exception ex)
             {
                 _systemLogger.Error(ex);
-                _logService.Log($"Encounter error syncing Shopify Order {shopifyOrderId}");
+                _logService.Log($"Encountered error syncing Shopify Order {shopifyOrderId}");
                 _syncOrderRepository.IncreaseOrderErrorCount(shopifyOrderId);
             }
         }
