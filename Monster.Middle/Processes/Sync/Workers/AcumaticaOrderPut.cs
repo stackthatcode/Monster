@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
@@ -113,8 +114,16 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             try
             {
+                // *** SAVE THIS, JONES! - This little branch of logic increases throughput!!
+                //
+                var orderPreAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
+                if (orderPreAction.ActionCode == ActionCode.UpdateInAcumatica && !orderPreAction.IsValid)
+                {
+                    _acumaticaOrderPaymentPut.ProcessOrder(shopifyOrderId);
+                }
+
                 var orderAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
-                if (!orderAction.IsValid)
+                if(!orderAction.IsValid)
                 {
                     _logService.Log(LogBuilder.SkippingInvalidShopifyOrder(shopifyOrderId));
                     return;
@@ -181,6 +190,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             newRecord.AcumaticaFreight = (decimal)newOrder.Totals.Freight.value;
             newRecord.AcumaticaTaxTotal = (decimal)newOrder.Totals.TaxTotal.value;
             newRecord.AcumaticaOrderTotal = (decimal)newOrder.OrderTotal.value;
+            newRecord.AcumaticaQtyTotal = (int)salesOrder.Details.Sum(x => x.OrderQty.value);
 
             newRecord.ShopifyCustomerMonsterId = acumaticaCustomer.ShopifyCustomerMonsterId;
             newRecord.DateCreated = DateTime.UtcNow;
@@ -227,6 +237,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             acumaticaRecord.AcumaticaLineTotal = (decimal)salesOrder.Totals.LineTotalAmount.value;
             acumaticaRecord.AcumaticaTaxTotal = (decimal)salesOrder.Totals.TaxTotal.value;
             acumaticaRecord.AcumaticaOrderTotal = (decimal)salesOrder.OrderTotal.value;
+            acumaticaRecord.AcumaticaQtyTotal = (int)salesOrder.Details.Sum(x => x.OrderQty.value);
             acumaticaRecord.LastUpdated = DateTime.Now;
 
             shopifyOrderRecord.NeedsOrderPut = false;

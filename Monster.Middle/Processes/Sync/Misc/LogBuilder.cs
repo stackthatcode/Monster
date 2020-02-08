@@ -7,12 +7,18 @@ namespace Monster.Middle.Processes.Sync.Misc
     {
         public static string DetectedNewShopifyOrder(ShopifyOrder order)
         {
-            return $"Detected new Shopify Order {order.LogDescriptor()}";
+            return $"Detected new Shopify Order - {order.LogDescriptor()}";
         }
+
+        public static string DetectedNewShopifyTransaction(ShopifyTransaction transaction)
+        {
+            return $"Detected new Shopify Order {transaction.LogDescriptor()}";
+        }
+
 
         public static string DetectedUpdateShopifyOrder(ShopifyOrder order)
         {
-            return $"Detected changes to Shopify Order {order.LogDescriptor()}";
+            return $"Detected changes to Shopify Order - {order.LogDescriptor()}";
         }
 
         public static string DetectedNewShopifyRefund(ShopifyRefund refund)

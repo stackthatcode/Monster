@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Transactions;
@@ -12,11 +13,16 @@ namespace Monster.Middle.Processes.Shopify.Workers
     {
         private readonly OrderApi _orderApi;
         private readonly ShopifyOrderRepository _orderRepository;
+        private readonly ExecutionLogService _logService;
         
-        public ShopifyTransactionGet(OrderApi orderApi, ShopifyOrderRepository orderRepository)
+        public ShopifyTransactionGet(
+                OrderApi orderApi, 
+                ShopifyOrderRepository orderRepository, 
+                ExecutionLogService logService)
         {
             _orderApi = orderApi;
             _orderRepository = orderRepository;
+            _logService = logService;
         }
 
 
@@ -84,6 +90,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 record.ShopifyOrderMonsterId = orderRecord.MonsterId;
                 record.DateCreated = DateTime.UtcNow;
                 record.LastUpdated = DateTime.UtcNow;
+
+                _logService.Log(LogBuilder.DetectedNewShopifyTransaction(record));
                 _orderRepository.InsertTransaction(record);
             }
 

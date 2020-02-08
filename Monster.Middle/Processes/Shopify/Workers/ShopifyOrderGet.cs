@@ -167,7 +167,9 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 newOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
                 newOrder.ShopifyIsCancelled = order.IsCancelled;
                 newOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
+                newOrder.ShopifyTotalQuantity = order.TotalQuantity;
 
+                newOrder.NeedsOrderPut = false;
                 newOrder.NeedsTransactionGet = true;
                 newOrder.ErrorCount = 0;
                 newOrder.Ignore = false;
@@ -187,8 +189,13 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 existingOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
                 existingOrder.ShopifyIsCancelled = order.IsCancelled;
                 existingOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
+                existingOrder.ShopifyTotalQuantity = order.TotalQuantity;
 
-                existingOrder.NeedsOrderPut = existingOrder.ChangesDetected(order);
+                if (existingOrder.StatusChangeDetected(order))
+                {
+                    existingOrder.NeedsOrderPut = true;
+                }
+
                 existingOrder.NeedsTransactionGet = true;
                 existingOrder.LastUpdated = DateTime.UtcNow;
 
@@ -236,9 +243,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             foreach (var refund in order.refunds)
             {
-                var refundRecord
-                    = orderRecord
-                        .ShopifyRefunds.FirstOrDefault(x => x.ShopifyRefundId == refund.id);
+                var refundRecord 
+                    = orderRecord.ShopifyRefunds.FirstOrDefault(x => x.ShopifyRefundId == refund.id);
 
                 if (refundRecord == null)
                 {
@@ -251,6 +257,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     newRecord.CreditAdjustment = refund.CreditMemoTotal;
                     newRecord.DebitAdjustment = refund.DebitMemoTotal;
                     newRecord.NeedOriginalPaymentPut = true;
+                    newRecord.RequiresMemo 
+                        = refund.CreditMemoTotal > 0 || refund.DebitMemoTotal > 0;
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
 

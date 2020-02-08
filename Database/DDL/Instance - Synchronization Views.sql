@@ -11,7 +11,9 @@ SELECT	t1.MonsterId,
 		t1.Ignore, 
 		t1.NeedsOrderPut,
 		t1.NeedsTransactionGet,
-		t2.AcumaticaOrderNbr 
+		t1.ShopifyTotalQuantity,
+		t2.AcumaticaOrderNbr,
+		t2.AcumaticaQtyTotal
 FROM ShopifyOrder t1
 	LEFT JOIN AcumaticaSalesOrder t2
 		ON t1.MonsterId = t2.ShopifyOrderMonsterId
@@ -97,7 +99,9 @@ GO
 CREATE VIEW ShopifyOrdersNeedingOrderUpdate
 AS
 SELECT * FROM ShopifyOrdersOnlySyncView
-WHERE ( Ignore = 0 ) AND ( AcumaticaOrderNbr IS NOT NULL AND NeedsOrderPut = 1  )
+WHERE ( Ignore = 0 ) AND 
+	( ( AcumaticaOrderNbr IS NOT NULL AND NeedsOrderPut = 1  ) OR
+	( ShopifyTotalQuantity <> AcumaticaQtyTotal ) )
 GO
 
 DROP VIEW IF EXISTS ShopifyOrdersNeedingPaymentSync
@@ -126,9 +130,10 @@ AS
 SELECT * FROM ShopifyOrderRefundsSyncStatus
 WHERE ( Ignore = 0 AND RequiresMemo = 1 )
 AND ( ( AcumaticaRefNbr IS NULL )
-		OR ( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 ) 
-		OR ( AcumaticaRefNbr IS NOT NULL AND NeedApplyToOrder = 1 ) )
+		OR ( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 ) )
+--		OR ( AcumaticaRefNbr IS NOT NULL AND NeedApplyToOrder = 1 ) )  -- *** SAVE THIS UNTIL ACUMATICA ADDRESSES ***
 GO
+
 
 DROP VIEW IF EXISTS ShopifyOrderNeedingSoShipmentsSync
 GO
@@ -180,3 +185,4 @@ SELECT * FROM ShopifyOrderNeedingSoShipmentsSync
 
 SELECT * FROM ShopifyOrdersNeedingSyncAll;
 
+UPDATE ShopifyOrder SET ShopifyTotalQuantity = 2 WHERE MonsterId = 6;

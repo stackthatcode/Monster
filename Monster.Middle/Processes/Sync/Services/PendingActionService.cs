@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
@@ -109,7 +108,8 @@ namespace Monster.Middle.Processes.Sync.Services
                         = _acumaticaUrlService.AcumaticaSalesOrderUrl(
                                 SalesOrderType.SO, record.AcumaticaSalesOrder.AcumaticaOrderNbr);
 
-                if (record.NeedsOrderPut)
+                if (record.NeedsOrderPut || 
+                    record.ShopifyTotalQuantity != record.SyncedSalesOrder().AcumaticaQtyTotal)
                 {
                     output.ActionCode = ActionCode.UpdateInAcumatica;
                 }

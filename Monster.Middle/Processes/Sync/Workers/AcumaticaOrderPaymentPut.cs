@@ -61,7 +61,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void RunAutomatic()
         {
-            var shopifyOrderIds = _syncOrderRepository.RetrieveOrdersWithPaymentsNeedingSync();
+            var shopifyOrderIds = _syncOrderRepository.RetrieveOrdersWithPaymentsAndRefundsNeedingActions();
             
             foreach (var shopifyOrderId in shopifyOrderIds)
             {
@@ -562,7 +562,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 //
                 var acumaticaMemo = RetrieveCorrectedCreditMemo(refundRecord);
 
-                // Release the actual Payment
+                // Release the actual Memo
                 //
                 _invoiceClient.ReleaseInvoice(acumaticaMemo.AcumaticaRefNbr, acumaticaMemo.AcumaticaDocType);
 

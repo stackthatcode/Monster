@@ -148,13 +148,19 @@ namespace Monster.Middle.Processes.Sync.Persist
 
         // Shopify Transactions
         //
-        public List<long> RetrieveOrdersWithPaymentsNeedingSync()
+        public List<long> RetrieveOrdersWithPaymentsAndRefundsNeedingActions()
         {
-            return Entities.ShopifyOrdersNeedingPaymentSyncs
-                .Select(x => x.ShopifyOrderId)
-                .Distinct()
-                .OrderBy(x => x)
-                .ToList();
+            var output = Entities
+                .ShopifyOrdersNeedingPaymentSyncs.Select(x => x.ShopifyOrderId).ToList();
+
+            output.AddRange(Entities
+                .ShopifyOrdersNeedingOriginalPaymentUpdates.Select(x => x.ShopifyOrderId).ToList());
+
+            output.AddRange(Entities
+                .ShopifyOrderNeedingRefundSyncs
+                .Select(x => x.ShopifyOrderId).ToList());
+
+            return output.Distinct().OrderBy(x => x).ToList();
         }
 
 
@@ -259,7 +265,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         public void MemoIsReleased(long shopifyRefundMonsterId)
         {
             var memo = Entities.AcumaticaMemoes.First(x => x.ShopifyRefundMonsterId == shopifyRefundMonsterId);
-            memo.NeedRelease = true;
+            memo.NeedRelease = false;
             Entities.SaveChanges();
         }
 

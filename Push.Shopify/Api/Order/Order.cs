@@ -69,6 +69,13 @@ namespace Push.Shopify.Api.Order
         
 
 
+        // Quantity Totals
+        //
+        [JsonIgnore]
+        public int TotalQuantity => 
+            line_items.Sum(x => x.quantity)
+            - refunds.SelectMany(x => x.refund_line_items).Sum(x => x.quantity);
+            
         // Shipping Totals
         //
         [JsonIgnore]

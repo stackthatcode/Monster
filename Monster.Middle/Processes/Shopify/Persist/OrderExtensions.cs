@@ -19,7 +19,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return input.ShopifyJson.DeserializeFromJson<Transaction>();
         }
 
-        public static bool ChangesDetected(this ShopifyOrder currentRecord, Order newOrder)
+        public static bool StatusChangeDetected(this ShopifyOrder currentRecord, Order newOrder)
         {
             return
                 currentRecord.ShopifyIsCancelled != newOrder.IsCancelled ||

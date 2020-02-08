@@ -18,7 +18,8 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 
         public static bool NeedsSync(this ShopifyTransaction transaction)
         {
-            return transaction.NeedsSync() && (!transaction.ExistsInAcumatica() || !transaction.IsReleased());
+            return transaction.IsSyncableToPayment 
+                   && (!transaction.ExistsInAcumatica() || !transaction.IsReleased());
         }
 
         public static bool OriginalPaymentNeedsUpdateForRefund(this ShopifyOrder order)
