@@ -1,4 +1,5 @@
-﻿using Monster.Middle.Persist.Instance;
+﻿using Monster.Acumatica.Api.Customer;
+using Monster.Middle.Persist.Instance;
 using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Misc
@@ -23,6 +24,11 @@ namespace Monster.Middle.Processes.Sync.Misc
         public static string LogDescriptor(this ShopifyCustomer customer)
         {
             return $"Shopify Customer {customer.ShopifyCustomerId}";
+        }
+
+        public static string LogDescriptor(this Customer customer)
+        {
+            return $"Acumatica Customer {customer.CustomerID.value}";
         }
 
         public static string LogDescriptor(this ShopifyOrder shopifyOrder)

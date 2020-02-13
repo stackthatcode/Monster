@@ -17,6 +17,7 @@
         public bool ReleasePaymentsOnSync { get; set; }
         public int MaxParallelAcumaticaSyncs { get; set; }
         public int MaxNumberOfOrders { get; set; }
+        public int ShopifyDelayMs { get; set; }
 
         public string StartingOrderHref { get; set; }
         public bool IsStartingOrderSet => StartingOrderId.HasValue;
@@ -24,7 +25,6 @@
         public bool InventorySyncAvailableQty { get; set; }
         public bool InventorySyncPrice { get; set; }
         public bool InventorySyncWeight { get; set; }
-
     }
 }
 

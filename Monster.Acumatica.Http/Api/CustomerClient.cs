@@ -20,8 +20,7 @@ namespace Monster.Acumatica.Api
         }
         
 
-        public string RetrieveCustomers(
-                DateTime lastModified, int page = 1, int? pageSize = null)
+        public string RetrieveCustomers(DateTime lastModified, int page = 1, int? pageSize = null)
         {
             var queryString = "$expand=MainContact";
 
@@ -45,7 +44,23 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get(path);
             return response.Body;
         }
-        
+
+        public string SearchCustomerByCustomerId(string customerId)
+        {
+            var path = $"Customer/?$filter=CustomerID eq '{customerId}'&$expand=MainContact";
+
+            //var path = $"Customer/?$filter=MainContact/Email eq '{email}'&$expand=MainContact";
+            var response = _httpContext.Get(path);
+            return response.Body;
+        }
+
+        public string SearchCustomerByEmail(string email)
+        {
+            var path = $"Customer/?$filter=MainContact/Email eq '{email}'&$expand=MainContact";
+            var response = _httpContext.Get(path);
+            return response.Body;
+        }
+
         public Customer.Customer WriteCustomer(Customer.Customer customer)
         {
             var content = customer.SerializeToJson();

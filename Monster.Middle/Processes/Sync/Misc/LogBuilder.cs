@@ -1,4 +1,5 @@
-﻿using Monster.Middle.Persist.Instance;
+﻿using Monster.Acumatica.Api.Customer;
+using Monster.Middle.Persist.Instance;
 using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Misc
@@ -80,6 +81,22 @@ namespace Monster.Middle.Processes.Sync.Misc
         {
             return $"Creating Acumatica Customer from {customer.LogDescriptor()}";
         }
+
+        public static string FoundAcumaticaCustomerByEmail(string email)
+        {
+            return $"Found Acumatica Customer by email {email}";
+        }
+
+        public static string MultipleCustomersWithSameEmail(string email)
+        {
+            return $"Multiple Acumatica Customers found with email {email}";
+        }
+
+        public static string AutomatchingCustomers(ShopifyCustomer shopify, Customer acumatica)
+        {
+            return $"Auto-matching {shopify.LogDescriptor()} with {acumatica.LogDescriptor()}";
+        }
+
 
         public static string UpdateAcumaticaCustomer(ShopifyCustomer customer)
         {

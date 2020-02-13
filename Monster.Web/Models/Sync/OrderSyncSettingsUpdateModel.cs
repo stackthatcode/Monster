@@ -12,6 +12,7 @@ namespace Monster.Web.Models.Sync
 
         public int MaxParallelAcumaticaSyncs { get; set; }
         public int MaxNumberOfOrders { get; set; }
+        public int ShopifyDelayMs { get; set; }
         public bool ReleasePaymentsOnSync { get; set; }
     }
 }

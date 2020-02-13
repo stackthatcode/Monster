@@ -156,6 +156,7 @@ namespace Monster.Web.Controllers
             output.ReleasePaymentsOnSync = settings.ReleasePaymentsOnSync;
             output.MaxParallelAcumaticaSyncs = settings.MaxParallelAcumaticaSyncs;
             output.MaxNumberOfOrders = settings.MaxNumberOfOrders;
+            output.ShopifyDelayMs = settings.ShopifyDelayMs;
 
             output.InventorySyncAvailableQty = settings.InventorySyncAvailableQty;
             output.InventorySyncPrice = settings.InventorySyncPrice;
@@ -235,6 +236,7 @@ namespace Monster.Web.Controllers
             data.MaxNumberOfOrders
                 = model.MaxNumberOfOrders == 0 
                     ? SettingsRepository.DefaultMaxNumberOfOrders : model.MaxNumberOfOrders;
+            data.ShopifyDelayMs = model.ShopifyDelayMs;
 
             _settingsRepository.SaveChanges();
 

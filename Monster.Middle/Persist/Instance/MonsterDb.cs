@@ -491,12 +491,12 @@ namespace Monster.Middle.Persist.Instance
             ShopifyOrderPaymentsSyncStatus = new FakeDbSet<ShopifyOrderPaymentsSyncStatu>("MonsterId", "ShopifyOrderId", "Ignore");
             ShopifyOrderRefundsSyncStatus = new FakeDbSet<ShopifyOrderRefundsSyncStatu>("MonsterId", "ShopifyOrderId", "Ignore", "ShopifyRefundId", "NeedOriginalPaymentPut", "RequiresMemo");
             ShopifyOrdersNeedingOrderCreates = new FakeDbSet<ShopifyOrdersNeedingOrderCreate>("MonsterId", "ShopifyOrderId", "Ignore", "NeedsOrderPut", "NeedsTransactionGet");
-            ShopifyOrdersNeedingOrderUpdates = new FakeDbSet<ShopifyOrdersNeedingOrderUpdate>("MonsterId", "ShopifyOrderId", "Ignore", "NeedsOrderPut", "NeedsTransactionGet");
+            ShopifyOrdersNeedingOrderUpdates = new FakeDbSet<ShopifyOrdersNeedingOrderUpdate>("MonsterId", "ShopifyOrderId", "Ignore", "NeedsOrderPut", "NeedsTransactionGet", "ShopifyTotalQuantity");
             ShopifyOrdersNeedingOriginalPaymentUpdates = new FakeDbSet<ShopifyOrdersNeedingOriginalPaymentUpdate>("MonsterId", "ShopifyOrderId", "Ignore", "ShopifyRefundId", "NeedOriginalPaymentPut");
             ShopifyOrdersNeedingPaymentSyncs = new FakeDbSet<ShopifyOrdersNeedingPaymentSync>("MonsterId", "ShopifyOrderId", "Ignore");
             ShopifyOrdersNeedingSyncAlls = new FakeDbSet<ShopifyOrdersNeedingSyncAll>("MonsterId", "ShopifyOrderId");
             ShopifyOrdersNotNeedingSyncAlls = new FakeDbSet<ShopifyOrdersNotNeedingSyncAll>("MonsterId", "ShopifyOrderId");
-            ShopifyOrdersOnlySyncViews = new FakeDbSet<ShopifyOrdersOnlySyncView>("MonsterId", "ShopifyOrderId", "Ignore", "NeedsOrderPut", "NeedsTransactionGet");
+            ShopifyOrdersOnlySyncViews = new FakeDbSet<ShopifyOrdersOnlySyncView>("MonsterId", "ShopifyOrderId", "Ignore", "NeedsOrderPut", "NeedsTransactionGet", "ShopifyTotalQuantity");
             ShopifyOrderSoShipmentsSyncStatus = new FakeDbSet<ShopifyOrderSoShipmentsSyncStatu>("MonsterId", "ShopifyOrderId", "Ignore", "AcumaticaOrderNbr", "AcumaticaShipmentNbr", "AcumaticaInvoiceNbr", "NeedShipmentAndInvoiceGet");
             ShopifyPayouts = new FakeDbSet<ShopifyPayout>("Id");
             ShopifyPayoutTransactions = new FakeDbSet<ShopifyPayoutTransaction>("Id");
@@ -1253,7 +1253,7 @@ namespace Monster.Middle.Persist.Instance
         public bool SyncInventoryEnabled { get; set; } // SyncInventoryEnabled
         public bool SyncFulfillmentsEnabled { get; set; } // SyncFulfillmentsEnabled
         public bool SyncRefundsEnabled { get; set; } // SyncRefundsEnabled
-        public int? ShopifyDelayMs { get; set; } // ShopifyDelayMs
+        public int ShopifyDelayMs { get; set; } // ShopifyDelayMs
         public long? ShopifyOrderId { get; set; } // ShopifyOrderId
         public string ShopifyOrderName { get; set; } // ShopifyOrderName (length: 50)
         public System.DateTime? ShopifyOrderCreatedAtUtc { get; set; } // ShopifyOrderCreatedAtUtc
@@ -1584,7 +1584,9 @@ namespace Monster.Middle.Persist.Instance
         public bool Ignore { get; set; } // Ignore (Primary key)
         public bool NeedsOrderPut { get; set; } // NeedsOrderPut (Primary key)
         public bool NeedsTransactionGet { get; set; } // NeedsTransactionGet (Primary key)
+        public int ShopifyTotalQuantity { get; set; } // ShopifyTotalQuantity (Primary key)
         public string AcumaticaOrderNbr { get; set; } // AcumaticaOrderNbr (length: 50)
+        public int? AcumaticaQtyTotal { get; set; } // AcumaticaQtyTotal
     }
 
     // ShopifyOrdersNeedingOriginalPaymentUpdate
@@ -1639,7 +1641,9 @@ namespace Monster.Middle.Persist.Instance
         public bool Ignore { get; set; } // Ignore (Primary key)
         public bool NeedsOrderPut { get; set; } // NeedsOrderPut (Primary key)
         public bool NeedsTransactionGet { get; set; } // NeedsTransactionGet (Primary key)
+        public int ShopifyTotalQuantity { get; set; } // ShopifyTotalQuantity (Primary key)
         public string AcumaticaOrderNbr { get; set; } // AcumaticaOrderNbr (length: 50)
+        public int? AcumaticaQtyTotal { get; set; } // AcumaticaQtyTotal
     }
 
     // ShopifyOrderSoShipmentsSyncStatus
@@ -2290,7 +2294,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.SyncInventoryEnabled).HasColumnName(@"SyncInventoryEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncFulfillmentsEnabled).HasColumnName(@"SyncFulfillmentsEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncRefundsEnabled).HasColumnName(@"SyncRefundsEnabled").HasColumnType("bit").IsRequired();
-            Property(x => x.ShopifyDelayMs).HasColumnName(@"ShopifyDelayMs").HasColumnType("int").IsOptional();
+            Property(x => x.ShopifyDelayMs).HasColumnName(@"ShopifyDelayMs").HasColumnType("int").IsRequired();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsOptional();
             Property(x => x.ShopifyOrderName).HasColumnName(@"ShopifyOrderName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyOrderCreatedAtUtc).HasColumnName(@"ShopifyOrderCreatedAtUtc").HasColumnType("datetime").IsOptional();
@@ -2672,14 +2676,16 @@ namespace Monster.Middle.Persist.Instance
         public ShopifyOrdersNeedingOrderUpdateConfiguration(string schema)
         {
             ToTable("ShopifyOrdersNeedingOrderUpdate", schema);
-            HasKey(x => new { x.MonsterId, x.ShopifyOrderId, x.Ignore, x.NeedsOrderPut, x.NeedsTransactionGet });
+            HasKey(x => new { x.MonsterId, x.ShopifyOrderId, x.Ignore, x.NeedsOrderPut, x.NeedsTransactionGet, x.ShopifyTotalQuantity });
 
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.Ignore).HasColumnName(@"Ignore").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.NeedsOrderPut).HasColumnName(@"NeedsOrderPut").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.NeedsTransactionGet).HasColumnName(@"NeedsTransactionGet").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyTotalQuantity).HasColumnName(@"ShopifyTotalQuantity").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.AcumaticaOrderNbr).HasColumnName(@"AcumaticaOrderNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaQtyTotal).HasColumnName(@"AcumaticaQtyTotal").HasColumnType("int").IsOptional();
         }
     }
 
@@ -2782,14 +2788,16 @@ namespace Monster.Middle.Persist.Instance
         public ShopifyOrdersOnlySyncViewConfiguration(string schema)
         {
             ToTable("ShopifyOrdersOnlySyncView", schema);
-            HasKey(x => new { x.MonsterId, x.ShopifyOrderId, x.Ignore, x.NeedsOrderPut, x.NeedsTransactionGet });
+            HasKey(x => new { x.MonsterId, x.ShopifyOrderId, x.Ignore, x.NeedsOrderPut, x.NeedsTransactionGet, x.ShopifyTotalQuantity });
 
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.Ignore).HasColumnName(@"Ignore").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.NeedsOrderPut).HasColumnName(@"NeedsOrderPut").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.NeedsTransactionGet).HasColumnName(@"NeedsTransactionGet").HasColumnType("bit").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.ShopifyTotalQuantity).HasColumnName(@"ShopifyTotalQuantity").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             Property(x => x.AcumaticaOrderNbr).HasColumnName(@"AcumaticaOrderNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaQtyTotal).HasColumnName(@"AcumaticaQtyTotal").HasColumnType("int").IsOptional();
         }
     }
 
