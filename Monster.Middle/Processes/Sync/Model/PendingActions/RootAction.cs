@@ -10,7 +10,11 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         public List<PaymentAction> RefundPaymentActions { get; set; }
         public List<AdjustmentAction> AdjustmentMemoActions { get; set; }
         public List<ShipmentAction> ShipmentInvoiceActions { get; set; }
-        
+        public int ErrorCount { get; set; }
+        public bool ExceedsErrorLimit { get; set; }
+        public bool Ignore { get; set; }
+
+
         public RootAction()
         {
             OrderAction = new OrderAction();
@@ -18,6 +22,9 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
             RefundPaymentActions = new List<PaymentAction>();
             AdjustmentMemoActions = new List<AdjustmentAction>();
             ShipmentInvoiceActions = new List<ShipmentAction>();
+            ErrorCount = 0;
+            ExceedsErrorLimit = false;
+            Ignore = false;
         }
 
         public bool HasPendingOrderActions => OrderAction.ActionCode != ActionCode.None;
@@ -48,6 +55,7 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
                 return false;
             }
         }
+
     }
 }
 

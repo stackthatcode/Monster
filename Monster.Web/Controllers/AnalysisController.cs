@@ -4,6 +4,7 @@ using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Analysis;
+using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.TaxTransfer;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;

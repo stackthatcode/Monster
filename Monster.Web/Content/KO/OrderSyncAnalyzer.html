@@ -172,7 +172,7 @@
 
 <script type="text/html" id="Order-Analyzer-Drilldown">
     <div class="center std-pad-side" style="width: 100%;">
-        <a href="#" class="btn btn-secondary btn-sm std-pad-side"
+        <a href="#" class="btn btn-light btn-sm std-pad-side" style="width:100%; color:#777777"
            data-bind="click: function() { ShowDrilldown(false); }">
             Back to Results <i class="fas fa-undo"></i>
         </a>
@@ -247,7 +247,7 @@
                         Shopify Order <span data-bind="text: ShopifyOrderName"></span>
                     </a>
                 </strong>
-                
+
                 <span data-bind="ifnot: Monster.IsMissing(AcumaticaSalesOrderNbr)">
                     <strong>
                         <span> - </span>
@@ -256,7 +256,7 @@
                         </a>
                     </strong>
                 </span>
-                
+
                 <span> - <span data-bind="text: ActionDesc"></span></span>
 
                 <div data-bind="foreach: Validation.FailureMessages">
@@ -271,7 +271,7 @@
                     <strong>
                         <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
                     </strong>
-                    
+
                     <span data-bind="ifnot: Monster.IsMissing(AcumaticaPaymentRef)">
                         <strong>
                             <span> - </span>
@@ -280,13 +280,13 @@
                             </a>
                         </strong>
                     </span>
-                    
+
                     <span>-</span>
                     <span data-bind="text: Monster.NumberFormat(Amount)"></span>
 
                     <span>-</span>
                     <span data-bind="text: ActionDesc"></span>
-                    
+
                     <div data-bind="foreach: Validation.FailureMessages">
                         <div style="font-style: italic" data-bind="text: $data"></div>
                     </div>
@@ -301,7 +301,7 @@
                 <strong>
                     <span data-bind="text: TransDesc"></span> (<span data-bind="text: PaymentGateway"></span>)
                 </strong>
-                
+
                 <span data-bind="ifnot: Monster.IsMissing(AcumaticaPaymentRef)">
                     <strong>
                         <span> - </span>
@@ -360,7 +360,7 @@
                 <span data-bind="if: ShopifyFulfillmentId">
                     <strong>
                         <span> - </span>
-                            Shopify Fulfillment (<span data-bind="text: ShopifyFulfillmentId"></span>)
+                        Shopify Fulfillment (<span data-bind="text: ShopifyFulfillmentId"></span>)
                     </strong>
                 </span>
 
@@ -369,6 +369,63 @@
 
                 <div data-bind="foreach: Validation.FailureMessages">
                     <div style="font-style: italic" data-bind="text: $data"></div>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+
+        <div data-bind="if: ExceedsErrorLimit">
+            <div class="alert alert-danger">
+                <div class="row">
+                    <div class="col-8">
+                        <strong>
+                            There were <span data-bind="text: ErrorCount"></span> system errors logged while attempting to sync data.
+                        </strong>
+                    </div>
+                    <div class="col-4 right">
+                        <strong>
+                            <a href="#" data-bind="click: function() { Monster.Events.publish(Monster.ResetErrorCountEvent); }">
+                                Reset error count
+                            </a>
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-bind="if: Ignore">
+            <div class="alert alert-secondary">
+                <div class="row">
+                    <div class="col-8">
+                        <strong>Synchronization is currently blocked for this set of transactions.</strong>
+                    </div>
+
+                    <div class="col-4 right">
+                        <strong>
+                            <a href="#" data-bind="click: function() { Monster.Events.publish(Monster.EnableSyncEvent); }">
+                                Re-enable synchronization
+                            </a>
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-bind="ifnot: Ignore">
+            <div class="alert alert-info">
+                <div class="row">
+                    <div class="col-8">
+                        <strong>Synchronization is currently enabled for this set of transactions.</strong>
+                    </div>
+
+                    <div class="col-4 right">
+                        <strong>
+                            <a href="#" data-bind="click: function() { Monster.Events.publish(Monster.DisableSyncEvent); }">
+                                Disable synchronization
+                            </a>
+                        </strong>
+                    </div>
                 </div>
             </div>
         </div>
@@ -879,11 +936,33 @@
             self.IsRootActionActive(false);
         };
 
-
         self.ShowDrilldown = ko.observable(false);
         self.HideDrilldown = ko.computed(function () { return !self.ShowDrilldown(); });
 
         self.Initialize = function () { self.RefreshGrid(); };
+
+        // Events
+        //
+        Monster.ResetErrorCountEvent = "/ResetErrorCountEvent";
+        Monster.DisableSyncEvent = "/DisableSyncEvent";
+        Monster.EnableSyncEvent = "/EnableSyncEvent";
+
+        self.ResetErrorCount = function() {
+            alert("Oh, hey!");
+        };
+
+        self.DisableSync = function() {
+            alert("What deh bloodclaat!");
+        };
+
+        self.EnableSync = function() {
+            alert("Ya mon!");
+        };
+
+        Monster.Events.subscribe(Monster.ResetErrorCountEvent, self.ResetErrorCount);
+        Monster.Events.subscribe(Monster.DisableSyncEvent, self.DisableSync);
+        Monster.Events.subscribe(Monster.EnableSyncEvent, self.EnableSync);
+
 
         self.OrderClick = function (item) {
             flow.exec(function () {

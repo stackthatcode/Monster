@@ -57,6 +57,11 @@ namespace Monster.Middle.Processes.Sync.Services
             output.AdjustmentMemoActions = BuildRefundAdjustmentActions(orderRecord);
             output.ShipmentInvoiceActions = BuildShipmentInvoiceActions(orderRecord);
 
+            output.ErrorCount = orderRecord.ErrorCount;
+            output.ExceedsErrorLimit = orderRecord.ExceedsErrorLimit();
+            output.Ignore = orderRecord.Ignore;
+
+
             if (validate)
             {
                 _orderValidation.Validate(output.OrderAction);
