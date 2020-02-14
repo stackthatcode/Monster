@@ -188,17 +188,6 @@
         <div style="height: 20px;"></div>
 
         <ul class="nav nav-tabs nav-fill" style="font-size: 0.9em;">
-            <!-- ko if: IsFinancialSummaryActive -->
-            <li class="nav-item">
-                <a class="nav-link active" href="#">Financial Summary</a>
-            </li>
-            <!-- /ko -->
-            <!-- ko ifnot: IsFinancialSummaryActive -->
-            <li class="nav-item" data-bind="click: FinancialSummaryClick">
-                <a class="nav-link" href="#">Financial Summary</a>
-            </li>
-            <!-- /ko -->
-
             <!-- ko if: IsRootActionActive -->
             <li class="nav-item">
                 <a class="nav-link active" href="#">Sync Status</a>
@@ -207,6 +196,17 @@
             <!-- ko ifnot: IsRootActionActive -->
             <li class="nav-item">
                 <a class="nav-link" href="#" data-bind="click: RootActionClick">Sync Status</a>
+            </li>
+            <!-- /ko -->
+            
+            <!-- ko if: IsFinancialSummaryActive -->
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Financial Summary</a>
+            </li>
+            <!-- /ko -->
+            <!-- ko ifnot: IsFinancialSummaryActive -->
+            <li class="nav-item" data-bind="click: FinancialSummaryClick">
+                <a class="nav-link" href="#">Financial Summary</a>
             </li>
             <!-- /ko -->
 
@@ -220,7 +220,6 @@
                 <a class="nav-link" href="#" data-bind="click: ShopifyDetailClick">Shopify Detail</a>
             </li>
             <!-- /ko -->
-
         </ul>
 
         <div style="height: 40px;"></div>
@@ -229,7 +228,7 @@
             <div data-bind="template: { name: 'Order-Analyzer-Financial-Summary', data: FinancialSummary }">
             </div>
         </div>
-        <div data-bind="if: IsRootActionActive">
+        <div data-bind="if: IsRootActionActive() && RootAction()">
             <div data-bind="template: { name: 'Order-Analyzer-Pending-Action', data: RootAction }">
             </div>
         </div>
@@ -241,13 +240,21 @@
 </script>
 
 <script type="text/html" id="Order-Analyzer-Pending-Action">
-    <style>
-        .pending-action-view .alert {
-            text-align: left;
-            font-size: 0.9em;
-        }
-    </style>
-    <div style="min-height: 400px;" class="pending-action-view">
+<style>
+    .pending-action-view .alert {
+        text-align: left;
+        font-size: 0.9em;
+    }
+</style>
+<div style="min-height: 400px;" class="pending-action-view">
+    <div class="std-pad-sm-b">
+        <a href="#" class="btn btn-sm btn-primary" style="width:100%;"
+           data-bind="click: function() { Monster.Events.publish(Monster.RunEndToEndSelectedOrderEvent); }">
+            Run End-to-End Synchronization for this Order
+            <i class="fa fa-bolt"></i>
+        </a>
+    </div>
+
         <div data-bind="with: OrderAction">
             <div class="alert" data-bind="css: { 'alert-info': IsValid, 'alert-danger': !IsValid }">
                 <strong>
@@ -927,9 +934,9 @@
         self.RootAction = ko.observable();
         self.ShopifyDetail = ko.observable();
 
-        self.IsFinancialSummaryActive = ko.observable(true);
+        self.IsRootActionActive = ko.observable(true);
+        self.IsFinancialSummaryActive = ko.observable(false);
         self.IsShopifyDetailActive = ko.observable(false);
-        self.IsRootActionActive = ko.observable(false);
 
         self.FinancialSummaryClick = function () {
             self.IsFinancialSummaryActive(true);
@@ -984,14 +991,14 @@
         self.PostAjaxIgnore = function(item, ignore) {
             var item = self.SelectedItem();
             flow.exec(function() {
-                    var ajax = new Monster.Ajax();
-                    var url = "/Analysis/IgnoreOrder?shopifyOrderId=" + item.ShopifyOrderId + "&ignore=" + ignore;
-                    ajax.HttpPost(url, {}, this);
-                },
-                function() {
-                    self.OrderClick(item);
-                });
-        };
+                var ajax = new Monster.Ajax();
+                var url = "/Analysis/IgnoreOrder?shopifyOrderId=" + item.ShopifyOrderId + "&ignore=" + ignore;
+                ajax.HttpPost(url, {}, this);
+            },
+            function() {
+                self.OrderClick(item);
+            });
+        }
 
         self.RunEndToEndSelectedOrder = function() {
             var item = self.SelectedItem();
@@ -1002,7 +1009,7 @@
                 },
                 function() {
                 });
-        };
+        }
 
         Monster.Events.subscribe(Monster.ResetErrorCountEvent, self.ResetErrorCount);
         Monster.Events.subscribe(Monster.IgnoreOrderEvent, self.IgnoreOrder);
