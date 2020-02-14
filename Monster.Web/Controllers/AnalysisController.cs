@@ -103,6 +103,27 @@ namespace Monster.Web.Controllers
             });
         }
 
+        [HttpPost]
+        public ActionResult IgnoreOrder(long shopifyOrderId, bool ignore)
+        {
+            var order = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
+            order.Ignore = ignore;
+            _shopifyOrderRepository.SaveChanges();
+            return JsonNetResult.Success();
+        }
+
+        [HttpPost]
+        public ActionResult ResetErrorCount(long shopifyOrderId)
+        {
+            var order = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
+            order.ErrorCount = 0;
+            _shopifyOrderRepository.SaveChanges();
+            return JsonNetResult.Success();
+        }
+
+
+
+
 
         [HttpGet]
         public ActionResult ProductStockItem()

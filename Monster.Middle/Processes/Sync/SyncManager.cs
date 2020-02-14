@@ -173,13 +173,22 @@ namespace Monster.Middle.Processes.Sync.Managers
             _shopifyInventorySync.Run();
         }
         
-        public void SingleOrderPush(long shopifyOrderId)
+        public void SyncSingleOrderToAcumatica(long shopifyOrderId)
         {
             _acumaticaContext.SessionRun(() =>
             {
                 _acumaticaOrderSync.RunOrder(shopifyOrderId);
+                _acumaticaPaymentSync.ProcessOrder(shopifyOrderId);
             });
         }
+
+        public void SyncSingleOrderFulfillmentsToShopify(long shopifyOrderId)
+        {
+            _shopifyFulfillmentSync.Run(shopifyOrderId);
+        }
+
+
+
 
         public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
         {

@@ -26,6 +26,7 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
         public decimal OutstandingBalance { get; set; }
         public bool HasError { get; set; }
         public bool HasPendingActions { get; set; }
+        public bool Ignore { get; set; }
 
         public OrderAnalyzerResultsRow()
         {

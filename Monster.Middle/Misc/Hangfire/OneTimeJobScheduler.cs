@@ -144,6 +144,16 @@ namespace Monster.Middle.Misc.Hangfire
 
             _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
         }
+
+        public void EndToEndSyncSingleShopifyOrder(long shopifyOrderId)
+        {
+            var monitor = _monitoringService.ProvisionMonitor(BackgroundJobType.EndToEndSync);
+
+            var hangfireJobId = BackgroundJob.Enqueue<JobRunner>(
+                x => x.EndToEndSyncSingleOrder(_tenantContext.InstanceId, monitor.Id, shopifyOrderId));
+
+            _monitoringService.AssignHangfireJob(monitor.Id, hangfireJobId);
+        }
     }
 }
 

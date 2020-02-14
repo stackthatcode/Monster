@@ -105,6 +105,14 @@ namespace Monster.Web.Controllers
             return JsonNetResult.Success();
         }
 
+        [HttpPost]
+        public ActionResult RunEndToEndImmediatelySingleOrder(long shopifyOrderId)
+        {
+            _oneTimeJobService.EndToEndSyncSingleShopifyOrder(shopifyOrderId);
+            return JsonNetResult.Success();
+        }
+
+
         [HttpGet]
         public ActionResult EndToEndStatus()
         {
@@ -245,7 +253,6 @@ namespace Monster.Web.Controllers
 
             return JsonNetResult.Success();
         }
-
 
         [HttpPost]
         public ActionResult InventorySettingsUpdate(InventorySyncSettingsUpdateModel model)

@@ -126,6 +126,11 @@ namespace Monster.Middle.Processes.Sync.Services
                         (ord, vw) => ord);
             }
 
+            if (request.OrderStatus == AnalyzerStatus.Blocked)
+            {
+                queryable = queryable.Where(x => x.Ignore == true);
+            }
+
             return queryable;
         }
 
@@ -241,10 +246,9 @@ namespace Monster.Middle.Processes.Sync.Services
             }
 
             output.AcumaticaInvoiceTotal = order.AcumaticaInvoiceTotal();
-            output.HasError = order.ExceedsErrorLimit();
 
-            // Check if there are pending actions
-            //
+            output.Ignore = order.Ignore;
+            output.HasError = order.ExceedsErrorLimit();
             output.HasPendingActions = _pendingActionService.Create(order, false).HasPendingActions;
 
             return output;

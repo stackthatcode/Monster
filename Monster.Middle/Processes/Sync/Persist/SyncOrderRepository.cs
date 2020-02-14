@@ -135,16 +135,25 @@ namespace Monster.Middle.Processes.Sync.Persist
                           x.ShopifyFulfillments.Any(y => !y.AcumaticaSoShipments.Any()));
         }
 
-        public List<AcumaticaSoShipment> RetrieveUnsyncedSoShipments()
-        {
-            return Entities.AcumaticaSoShipments
+        public IQueryable<AcumaticaSoShipment> UnsyncAcumaticaSoShipmentsQueryable =>
+            Entities.AcumaticaSoShipments
                 .Include(x => x.AcumaticaSalesOrder)
                 .Include(x => x.AcumaticaSalesOrder.ShopifyOrder)
-                .Where(x => x.NeedShipmentAndInvoiceGet == false && x.ShopifyFulfillment == null)
+                .Where(x => x.NeedShipmentAndInvoiceGet == false && x.ShopifyFulfillment == null);
+
+        public List<AcumaticaSoShipment> RetrieveUnsyncedSoShipments()
+        {
+            return UnsyncAcumaticaSoShipmentsQueryable.ToList();
+        }
+
+        public List<AcumaticaSoShipment> RetrieveUnsyncedSoShipments(long shopifyOrderId)
+        {
+            return UnsyncAcumaticaSoShipmentsQueryable
+                .Where(x => x.AcumaticaSalesOrder.ShopifyOrder.ShopifyOrderId == shopifyOrderId)
                 .ToList();
         }
 
-       
+
 
         // Shopify Transactions
         //

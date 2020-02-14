@@ -88,6 +88,12 @@ namespace Monster.Middle.Misc.Hangfire
             ExecuteJob(instanceId, () => _processDirector.EndToEndSync(), jobMonitorId);
         }
 
+        public void EndToEndSyncSingleOrder(Guid instanceId, long jobMonitorId, long shopifyOrderId)
+        {
+            ExecuteJob(instanceId, () => _processDirector.EndToEndSyncSingleOrder(shopifyOrderId), jobMonitorId);
+        }
+
+
         // Invoked by Recurring Job scheduler
         public void TriggerEndToEndSync(Guid instanceId)
         {

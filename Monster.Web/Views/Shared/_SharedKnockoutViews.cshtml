@@ -9,10 +9,12 @@
     <p class="center">
         There is currently a background job running
     </p>
-    <a href="#" class="btn btn-secondary btn-sm" style="width:125px;" data-bind="click: RefreshCleanUp">
+    <a href="#" class="btn btn-secondary btn-sm" 
+       style="width:125px;" data-bind="click: RefreshCleanUp">
         Clean-up <i class="fa fa-recycle"></i>
     </a>
-    <a href="#" class="btn btn-secondary btn-sm" style="width:125px;" data-bind="click: StopAll">
+    <a href="#" class="btn btn-secondary btn-sm" 
+       style="width:125px;" data-bind="click: StopAll">
         Stop All <i class="fa fa-times"></i>
     </a>
 </script>
@@ -56,6 +58,14 @@
         <div data-bind="template: { name: 'Execution-Log-Ticker' }"></div>
     </div>
 </script>
+<script id="Mini-Job-Running-Panel" type="text/html">
+    <div class="alert alert-secondary">
+        <strong>A Background Job is currently a running... </strong>
+        &nbsp; &nbsp;
+        <img style="width: 25px;" src="@GlobalConfig.Url("/Content/throbber_12.gif")" />
+    </div>
+</script>
+
 <script>
     var Monster = Monster || {};
 
@@ -100,7 +110,7 @@
             ajax.DisablePopupsAndSpinners();
             ajax.HttpPost("/Job/Cleanup", {});
         }
-
+        
         self.StopAll = function() {
             var ajax = new Monster.Ajax();
             ajax.DisablePopupsAndSpinners();

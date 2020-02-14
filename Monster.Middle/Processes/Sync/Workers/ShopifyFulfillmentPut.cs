@@ -52,11 +52,22 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            // return;
-            // SKOUTS HONOR
+            // DISABLE FOR SKOUTS HONOR
 
             var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments();
 
+            RunWorker(salesOrderRefs);
+        }
+
+        public void Run(long shopifyOrderId)
+        {
+            var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments(shopifyOrderId);
+            RunWorker(salesOrderRefs);
+        }
+
+
+        private void RunWorker(List<AcumaticaSoShipment> salesOrderRefs)
+        {
             foreach (var salesOrderRef in salesOrderRefs)
             {
                 if (_jobMonitoringService.DetectCurrentJobInterrupt())
@@ -72,6 +83,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 }
             }
         }
+
 
         private void PushFulfillmentToShopifyAux(AcumaticaSoShipment salesOrderShipment)
         {

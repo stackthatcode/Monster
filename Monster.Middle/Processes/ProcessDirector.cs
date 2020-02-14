@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
@@ -8,7 +7,6 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Shopify;
-using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -183,27 +181,38 @@ namespace Monster.Middle.Processes.Sync.Managers
             Run(action);
         }
 
+
+        public void EndToEndSyncSingleOrder(long shopifyOrderId)
+        {
+            var settings = _settingsRepository.RetrieveSettings();
+
+            if (settings.PullFromShopifyEnabled)
+            {
+                RunPullFromShopify();
+            }
+
+            if (settings.PullFromAcumaticaEnabled)
+            {
+                RunPullFromAcumatica();
+            }
+
+            _syncManager.SyncSingleOrderToAcumatica(shopifyOrderId);
+
+            _syncManager.SyncSingleOrderFulfillmentsToShopify(shopifyOrderId);
+        }
+
         public void EndToEndSync()
         {
             var settings = _settingsRepository.RetrieveSettings();
 
             if (settings.PullFromShopifyEnabled)
             {
-                Run(new Action[]
-                    {
-                        () => _shopifyManager.PullCustomers(),
-                        () => _shopifyManager.PullOrders(),
-                        () => _shopifyManager.PullTransactions(),
-                    });
+                RunPullFromShopify();
             }
 
             if (settings.PullFromAcumaticaEnabled)
             {
-
-                Run(new Action[]
-                    {
-                        () => _acumaticaManager.PullOrdersAndCustomer()
-                    });
+                RunPullFromAcumatica();
             }
 
             if (settings.SyncOrdersEnabled)
@@ -238,6 +247,23 @@ namespace Monster.Middle.Processes.Sync.Managers
             }
         }
 
+        private void RunPullFromAcumatica()
+        {
+            Run(new Action[]
+            {
+                () => _acumaticaManager.PullOrdersAndCustomer()
+            });
+        }
+
+        private void RunPullFromShopify()
+        {
+            Run(new Action[]
+            {
+                () => _shopifyManager.PullCustomers(),
+                () => _shopifyManager.PullOrders(),
+                () => _shopifyManager.PullTransactions(),
+            });
+        }
 
 
         private void Run(Action action, Expression<Func<SystemState, int>> stateProperty = null)

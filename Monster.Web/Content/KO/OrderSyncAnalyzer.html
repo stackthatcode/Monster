@@ -1,4 +1,8 @@
 ﻿
+<div data-bind="if: JobRunningModel.AreAnyJobsRunning">
+    <div data-bind="template: { name: 'Mini-Job-Running-Panel', data: JobRunningModel }"></div>
+</div>
+
 <div class="card std-pad-sm">
     <div class="card-title-interface">
         Order Synchronization Analyzer
@@ -92,6 +96,7 @@
                     <option value="Synced">Synced</option>
                     <option value="Unsynced">Unsynced</option>
                     <option value="Errors">With Errors</option>
+                    <option value="Blocked">Blocked</option>
                 </select>
             </div>
 
@@ -140,11 +145,9 @@
                             <div class="badge badge-warning">All Items Refunded</div>
                         </div>
                     </td>
-
                     <td data-bind="ifnot:Monster.MissingField == AcumaticaSalesOrderNbr">
                         <div data-bind="text: AcumaticaSalesOrderNbr"></div>
                     </td>
-
                     <td data-bind="ifnot:Monster.MissingField == AcumaticaStatus">
                         <div class="badge badge-light" data-bind="text: AcumaticaStatus"></div>
                     </td>
@@ -152,6 +155,7 @@
                     <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
                     <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
                     <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
+
                     <td>
                         <div data-bind="if: HasPendingActions">
                             <div class="badge badge-success">Pending</div>
@@ -161,6 +165,9 @@
                         </div>
                         <div data-bind="if: !HasPendingActions && !HasError">
                             <div class="badge badge-light">Done</div>
+                        </div>
+                        <div data-bind="if: Ignore">
+                            <div class="badge badge-secondary">Blocked</div>
                         </div>
                         </td>
                     </tr>
@@ -172,9 +179,10 @@
 
 <script type="text/html" id="Order-Analyzer-Drilldown">
     <div class="center std-pad-side" style="width: 100%;">
-        <a href="#" class="btn btn-light btn-sm std-pad-side" style="width:100%; color:#777777"
-           data-bind="click: function() { ShowDrilldown(false); }">
-            Back to Results <i class="fas fa-undo"></i>
+        <a href="#" class="btn btn-light btn-sm std-pad-side" 
+           style="width:100%; color:#555555;"
+           data-bind="click: ReturnToGrid">
+            <strong>Back to Results <i class="fas fa-undo"></i></strong>
         </a>
 
         <div style="height: 20px;"></div>
@@ -403,7 +411,7 @@
 
                     <div class="col-4 right">
                         <strong>
-                            <a href="#" data-bind="click: function() { Monster.Events.publish(Monster.EnableSyncEvent); }">
+                            <a href="#" data-bind="click: function() { Monster.Events.publish(Monster.UnignoreOrderEvent); }">
                                 Re-enable synchronization
                             </a>
                         </strong>
@@ -421,7 +429,7 @@
 
                     <div class="col-4 right">
                         <strong>
-                            <a href="#" data-bind="click: function() { Monster.Events.publish(Monster.DisableSyncEvent); }">
+                            <a href="#" data-bind="click: function() { Monster.Events.publish(Monster.IgnoreOrderEvent); }">
                                 Disable synchronization
                             </a>
                         </strong>
@@ -868,6 +876,8 @@
         self.Grid = ko.observableArray([]);
         self.OrderStatus = ko.observable("All");
 
+        self.JobRunningModel = new Monster.JobStatusModel();
+        
         self.ScrollToTop = function () {
             $('html,body').animate({ scrollTop: 0 });
         };
@@ -912,6 +922,7 @@
 
         // Order drill down...
         //
+        self.SelectedItem = ko.observable();
         self.FinancialSummary = ko.observable();
         self.RootAction = ko.observable();
         self.ShopifyDetail = ko.observable();
@@ -939,44 +950,95 @@
         self.ShowDrilldown = ko.observable(false);
         self.HideDrilldown = ko.computed(function () { return !self.ShowDrilldown(); });
 
-        self.Initialize = function () { self.RefreshGrid(); };
+        self.Initialize = function () {
+            self.JobRunningModel.StartPolling(false);
+            self.RefreshGrid();
+        };
 
         // Events
         //
         Monster.ResetErrorCountEvent = "/ResetErrorCountEvent";
-        Monster.DisableSyncEvent = "/DisableSyncEvent";
-        Monster.EnableSyncEvent = "/EnableSyncEvent";
+        Monster.IgnoreOrderEvent = "/IgnoreOrderEvent";
+        Monster.UnignoreOrderEvent = "/UnignoreOrderEvent";
+        Monster.RunEndToEndSelectedOrderEvent = "/RunEndToEndSelectedOrderEvent";
 
-        self.ResetErrorCount = function() {
-            alert("Oh, hey!");
+        self.ResetErrorCount = function () {
+            var item = self.SelectedItem();
+            flow.exec(function() {
+                var ajax = new Monster.Ajax();
+                ajax.HttpPost("/Analysis/ResetErrorCount?shopifyOrderId=" + item.ShopifyOrderId, {}, this);
+            },
+            function() {
+                self.OrderClick(item);
+            });
         };
 
-        self.DisableSync = function() {
-            alert("What deh bloodclaat!");
+        self.IgnoreOrder = function() {
+            self.PostAjaxIgnore(self.SelectedItem(), true);
         };
 
-        self.EnableSync = function() {
-            alert("Ya mon!");
+        self.UnignoreOrder = function() {
+            self.PostAjaxIgnore(self.SelectedItem(), false);
+        };
+
+        self.PostAjaxIgnore = function(item, ignore) {
+            var item = self.SelectedItem();
+            flow.exec(function() {
+                    var ajax = new Monster.Ajax();
+                    var url = "/Analysis/IgnoreOrder?shopifyOrderId=" + item.ShopifyOrderId + "&ignore=" + ignore;
+                    ajax.HttpPost(url, {}, this);
+                },
+                function() {
+                    self.OrderClick(item);
+                });
+        };
+
+        self.RunEndToEndSelectedOrder = function() {
+            var item = self.SelectedItem();
+            flow.exec(function() {
+                    var ajax = new Monster.Ajax();
+                    var url = "/Sync/RunEndToEndImmediatelySingleOrder?shopifyOrderId=" + item.ShopifyOrderId;
+                    ajax.HttpPost(url, {}, this);
+                },
+                function() {
+                });
         };
 
         Monster.Events.subscribe(Monster.ResetErrorCountEvent, self.ResetErrorCount);
-        Monster.Events.subscribe(Monster.DisableSyncEvent, self.DisableSync);
-        Monster.Events.subscribe(Monster.EnableSyncEvent, self.EnableSync);
+        Monster.Events.subscribe(Monster.IgnoreOrderEvent, self.IgnoreOrder);
+        Monster.Events.subscribe(Monster.UnignoreOrderEvent, self.UnignoreOrder);
+        Monster.Events.subscribe(Monster.RunEndToEndSelectedOrderEvent, self.RunEndToEndSelectedOrder);
 
 
         self.OrderClick = function (item) {
             flow.exec(function () {
-                // console.log(item);
-                var ajax = new Monster.Ajax();
-                ajax.HttpGet("/Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
-            },
+                    // console.log(item);
+                    var ajax = new Monster.Ajax();
+                    ajax.HttpGet("/Analysis/OrderAnalysis?shopifyOrderId=" + item.ShopifyOrderId, this);
+                },
                 function (response) {
+                    self.SelectedItem(item);
                     self.FinancialSummary(response.FinancialSummary);
                     self.RootAction(response.RootAction);
                     self.ShopifyDetail(response.ShopifyDetail);
                     self.ShowDrilldown(true);
                 });
         };
+
+        self.ReturnToGrid = function() {
+            self.ShowDrilldown(false);
+            self.RefreshGrid();
+        };
+
+        self.Refresh = function () {
+            if (self.ShowDrilldown()) {
+                self.OrderClick(self.SelectedItem());
+            } else {
+                self.RefreshGrid();
+            }
+        };
+
+        Monster.Events.subscribe(Monster.JobStatusRunningComplete, self.Refresh);
 
         return self;
     };
