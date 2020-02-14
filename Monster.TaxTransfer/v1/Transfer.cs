@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 
-namespace Monster.TaxTransfer
+namespace Monster.TaxTransfer.v1
 {
     public class Transfer
     {

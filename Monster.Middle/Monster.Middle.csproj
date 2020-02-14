@@ -185,6 +185,7 @@
     <Compile Include="Processes\Sync\Model\PendingActions\PaymentValidationContext.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\CreateFullfillmentValidation.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\ActionCode.cs" />
+    <Compile Include="Processes\Sync\Model\TaxTransfer\TaxSnapshotExtensions.cs" />
     <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
     <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
     <Compile Include="Processes\Sync\Services\AnalysisDataService.cs" />

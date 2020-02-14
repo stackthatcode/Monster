@@ -4,7 +4,7 @@ using Monster.TaxProvider.Acumatica;
 using Monster.TaxProvider.InvoiceTaxes;
 using Monster.TaxProvider.InvoiceTaxService;
 using Monster.TaxProvider.Utility;
-using Monster.TaxTransfer;
+using Monster.TaxTransfer.v1;
 using Newtonsoft.Json;
 using PX.Data;
 using PX.TaxProvider;
@@ -104,7 +104,7 @@ namespace Monster.TaxProvider.Calc
             }
             else
             {
-                return InvoiceSplitShipmentTax(request, transfer, otherInvoiceTaxes);
+                return InvoiceSplitShipmentTax(request, transfer);
             }
         }
 
@@ -125,13 +125,8 @@ namespace Monster.TaxProvider.Calc
 
         // Recreate Tax Calculation using the Tax Transfer
         //
-        private CalcResult InvoiceSplitShipmentTax(
-                GetTaxRequest request, Transfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
+        private CalcResult InvoiceSplitShipmentTax(GetTaxRequest request, Transfer transfer)
         {
-            // TODO - do we need to check for this...?
-            //
-            var isFirstInvoice = otherInvoiceTaxes.AtLeastOneOtherInvoice;
-
             var result = new CalcResult();
 
             foreach (var lineItem in request.CartItems)

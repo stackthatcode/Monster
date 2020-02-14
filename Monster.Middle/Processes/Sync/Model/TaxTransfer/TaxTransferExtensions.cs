@@ -3,6 +3,7 @@ using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.TaxTransfer;
+using Monster.TaxTransfer.v1;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
@@ -38,7 +39,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
             {
                 var xferRefund = new TransferRefund();
                 xferRefund.ExternalRefNbr = refund.id.ToString();
-                xferRefund.TaxableAmount = refund.TotalTaxableAmount;
+                xferRefund.TaxableAmount = refund.TotalTaxableLineAndShippingAmount;
                 xferRefund.LineItemTotal = refund.LineItemTotal;
                 xferRefund.LineItemsTax = refund.TotalLineItemTax;
                 xferRefund.Freight = refund.TotalShippingAdjustment;

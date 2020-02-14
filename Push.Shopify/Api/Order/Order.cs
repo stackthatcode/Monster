@@ -80,6 +80,8 @@ namespace Push.Shopify.Api.Order
         //
         [JsonIgnore]
         public decimal ShippingTotal => shipping_lines.Sum(x => x.price);
+        [JsonIgnore]
+        public decimal ShippingTaxableTotal => IsShippingTaxable ? ShippingTotal : 0m;
 
         [JsonIgnore]
         public decimal ShippingDiscountedTotal => shipping_lines.Sum(x => x.discounted_price);
@@ -89,10 +91,19 @@ namespace Push.Shopify.Api.Order
 
         [JsonIgnore]
         public bool IsShippingTaxable => ShippingTotal > 0m && ShippingTax > 0m;
-
         [JsonIgnore]
-        public decimal 
-                NetShippingTotal => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
+        public decimal NetShippingTotal => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
+        [JsonIgnore]
+        public decimal NetShippingTaxableTotal => IsShippingTaxable ? NetShippingTotal : 0m;
+        [JsonIgnore]
+        public decimal NetShippingTax => ShippingTax - refunds.Sum(x => x.TotalShippingAdjustmentTax);
+
+
+        // Line Item (Tax)
+        //
+        [JsonIgnore]
+        public decimal NetLineItemTax => line_items.Sum(x => x.Tax) - refunds.Sum(x => x.TotalLineItemTax);
+
 
         // Refund Totals
         //
@@ -115,8 +126,7 @@ namespace Push.Shopify.Api.Order
 
         [JsonIgnore]
 
-        public List<LineItem> 
-                LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
+        public List<LineItem> LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
 
         public LineItem LineItem(string sku)
         {

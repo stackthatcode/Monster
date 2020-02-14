@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Monster.TaxTransfer
+namespace Monster.TaxTransfer.v1
 {
     public class TransferTaxLine
     {
@@ -18,8 +18,7 @@ namespace Monster.TaxTransfer
 
     public static class TransferTaxLineFunctions
     {
-        public static decimal CalculateTaxes(
-                this IEnumerable<TransferTaxLine> taxLines, decimal price)
+        public static decimal CalculateTaxes(this IEnumerable<TransferTaxLine> taxLines, decimal price)
         {
             return taxLines.Sum(x => Math.Round(price * x.Rate, 2));
         }

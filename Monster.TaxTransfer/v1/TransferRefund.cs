@@ -1,4 +1,4 @@
-﻿namespace Monster.TaxTransfer
+﻿namespace Monster.TaxTransfer.v1
 {
     public class TransferRefund
     {
@@ -17,8 +17,7 @@
         
         public decimal RefundAmount { get; set; }
 
-        public decimal ExpectedTotal
-            => LineItemTotal + Freight + LineItemsTax + FreightTax + Credit - Debit;
+        public decimal ExpectedTotal => LineItemTotal + Freight + LineItemsTax + FreightTax + Credit - Debit;
         public decimal Overpayment => RefundAmount - ExpectedTotal;
     }
 }

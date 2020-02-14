@@ -1,4 +1,4 @@
-﻿namespace Monster.TaxTransfer
+﻿namespace Monster.TaxTransfer.v1
 {
     public class TransferTaxCalc
     {

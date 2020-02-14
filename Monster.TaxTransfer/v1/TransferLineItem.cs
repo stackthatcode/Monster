@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Monster.TaxTransfer
+namespace Monster.TaxTransfer.v1
 {
     public class TransferLineItem
     {
