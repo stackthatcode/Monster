@@ -126,7 +126,9 @@ namespace Push.Shopify.Api.Order
 
         [JsonIgnore]
 
-        public List<LineItem> LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
+        public List<LineItem> 
+                LineItemsWithManualVariants 
+                    => line_items.Where(x => x.variant_id == null).ToList();
 
         public LineItem LineItem(string sku)
         {
@@ -196,10 +198,8 @@ namespace Push.Shopify.Api.Order
                 return output;
             }
 
-            throw new ArgumentException(
-                    $"Unrecognized target_type {application.target_type}");
+            throw new ArgumentException($"Unrecognized target_type {application.target_type}");
         }
     }
-
 }
 

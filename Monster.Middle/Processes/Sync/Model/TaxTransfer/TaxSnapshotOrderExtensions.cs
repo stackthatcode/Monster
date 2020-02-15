@@ -2,14 +2,12 @@
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
-using Monster.TaxTransfer;
-using Monster.TaxTransfer.v1;
 using Monster.TaxTransfer.v2;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
 {
-    public static class TaxSnapshotExtensions
+    public static class TaxSnapshotOrderExtensions
     {
         public static TaxSnapshot ToTaxSnapshot(this ShopifyOrder shopifyOrderRecord)
         {
@@ -25,7 +23,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
 
             // *** Includes Shipping
             //
-            snapshot.NetTaxableAmount = 
+            snapshot.NetTaxableAmount =
                 shopifyOrder.line_items.Sum(x => x.TaxableAmount)
                   + shopifyOrder.ShippingTaxableTotal
                   - shopifyOrder.refunds.Sum(x => x.TotalTaxableLineAndShippingAmount);
@@ -53,9 +51,8 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
 
         public static List<TaxSnapshotTaxLine> ToSnapshotTaxLines(this IEnumerable<ShippingLine> shippingLines)
         {
-            return !shippingLines.Any() 
+            return !shippingLines.Any()
                 ? new List<TaxSnapshotTaxLine>() : shippingLines.First().tax_lines.ToSnapshotTaxLines();
         }
-
     }
 }
