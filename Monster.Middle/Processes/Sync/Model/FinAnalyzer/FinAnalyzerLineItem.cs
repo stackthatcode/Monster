@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Monster.TaxTransfer.v1
+namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
 {
-    public class TransferLineItem
+    public class FinAnalyzerLineItem
     {
         public string ExternalRefNbr { get; set; }
         public string InventoryID { get; set; }
@@ -13,12 +13,12 @@ namespace Monster.TaxTransfer.v1
         public decimal TaxAmount { get; set; }
         public decimal Total => LineAmount + TaxAmount;
         public bool IsTaxable => TaxAmount > 0m;
-        public List<TransferTaxLine> TaxLines { get; set; }
+        public List<FinAnalyzerTaxLine> TaxLines { get; set; }
 
 
-        public TransferLineItem()
+        public FinAnalyzerLineItem()
         {
-            TaxLines = new List<TransferTaxLine>();
+            TaxLines = new List<FinAnalyzerTaxLine>();
         }
 
         public decimal OnTheFlyTaxableAmount(int quantity)

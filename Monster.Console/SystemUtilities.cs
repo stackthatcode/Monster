@@ -15,7 +15,7 @@ using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync.Model.TaxTransfer;
+using Monster.Middle.Processes.Sync.Model.FinAnalyzer;
 using Monster.Middle.Processes.Sync.Workers;
 using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
@@ -97,11 +97,11 @@ namespace Monster.ConsoleApp
                 var shopifyOrder = repository.RetrieveOrder(shopifyOrderId);
                 logger.Info("Shopify Order JSON" + Environment.NewLine + shopifyOrder.ShopifyJson);
 
-                var taxTransfer = shopifyOrder.ToTaxTransfer();
-                logger.Info("Shopify Tax Transfer" + Environment.NewLine + taxTransfer.SerializeToJson());
+                var taxTransfer = shopifyOrder.ToFinAnalyzer();
+                logger.Info("Shopify Financial Analyzer" + Environment.NewLine + taxTransfer.SerializeToJson());
 
                 var compressedSize = taxTransfer.SerializeToJson(Formatting.None).ToBase64Zip();
-                logger.Info($"Shopify Tax Transfer size: {compressedSize.Length} bytes");
+                logger.Info($"Shopify Financial Analyzer size: {compressedSize.Length} bytes");
 
             });
         }

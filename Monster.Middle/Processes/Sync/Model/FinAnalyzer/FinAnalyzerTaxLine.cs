@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Monster.TaxTransfer.v1
+namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
 {
-    public class TransferTaxLine
+    public class FinAnalyzerTaxLine
     {
         public string Name { get; private set; }
         public decimal Rate { get; private set; }
 
-        public TransferTaxLine(string name, decimal rate)
+        public FinAnalyzerTaxLine(string name, decimal rate)
         {
             Name = name;
             Rate = rate;
@@ -18,7 +18,7 @@ namespace Monster.TaxTransfer.v1
 
     public static class TransferTaxLineFunctions
     {
-        public static decimal CalculateTaxes(this IEnumerable<TransferTaxLine> taxLines, decimal price)
+        public static decimal CalculateTaxes(this IEnumerable<FinAnalyzerTaxLine> taxLines, decimal price)
         {
             return taxLines.Sum(x => Math.Round(price * x.Rate, 2));
         }

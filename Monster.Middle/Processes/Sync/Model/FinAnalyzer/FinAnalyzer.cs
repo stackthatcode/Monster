@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Monster.TaxTransfer.v1
+namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
 {
-    public class Transfer
+    public class FinAnalyzer
     {
         public string ExternalRefNbr { get; set; }
-        public List<TransferLineItem> LineItems { get; set; }
-        public TransferFreight Freight { get; set; }
-        public List<TransferRefund> Refunds { get; set; }
+        public List<FinAnalyzerLineItem> LineItems { get; set; }
+        public FinAnalyzerFreight Freight { get; set; }
+        public List<FinAnalyzerRefund> Refunds { get; set; }
 
         public decimal TotalPrice => LineItems.Sum(x => x.LineAmount) + Freight.Price 
                                      + LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
@@ -32,11 +32,11 @@ namespace Monster.TaxTransfer.v1
         public decimal OverpaymentTotal => Refunds.Sum(x => x.Overpayment);
 
 
-        public Transfer()
+        public FinAnalyzer()
         {
-            LineItems = new List<TransferLineItem>();
-            Freight = new TransferFreight();
-            Refunds = new List<TransferRefund>();
+            LineItems = new List<FinAnalyzerLineItem>();
+            Freight = new FinAnalyzerFreight();
+            Refunds = new List<FinAnalyzerRefund>();
         }
 
         public bool LineItemExists(string inventoryID)
@@ -44,14 +44,14 @@ namespace Monster.TaxTransfer.v1
             return LineItem(inventoryID) != null;
         }
 
-        public TransferLineItem LineItem(string inventoryID)
+        public FinAnalyzerLineItem LineItem(string inventoryID)
         {
             return LineItems.FirstOrDefault(x => x.InventoryID == inventoryID);
         }
 
-        public TransferTaxCalc PlainLineItemTaxCalc(string inventoryID, int quantity)
+        public FinAnalyzerTaxCalc PlainLineItemTaxCalc(string inventoryID, int quantity)
         {
-            var output = new TransferTaxCalc();
+            var output = new FinAnalyzerTaxCalc();
             var lineItem = LineItem(inventoryID);
             var taxableAmount = lineItem.OnTheFlyTaxableAmount(quantity);
                 

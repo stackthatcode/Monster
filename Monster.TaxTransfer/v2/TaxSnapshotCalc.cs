@@ -1,6 +1,6 @@
-﻿namespace Monster.TaxTransfer.v1
+﻿namespace Monster.TaxTransfer.v2
 {
-    public class TransferTaxCalc
+    public class TaxSnapshotCalc
     {
         public string Name { get; set; }
         public decimal TaxableAmount { get; set; }

@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Monster.TaxProvider.Utility
+namespace Monster.TaxTransfer.v2
 {
-    public static class Compression
+    public static class Utilities
     {
         public static void CopyTo(Stream src, Stream dest)
         {
@@ -54,6 +52,22 @@ namespace Monster.TaxProvider.Utility
 
                 return Encoding.UTF8.GetString(mso.ToArray());
             }
+        }
+
+
+        public static decimal ToDecimal(this string input)
+        {
+            return decimal.Parse(input);
+        }
+
+        public static long ToLong(this string input)
+        {
+            return long.Parse(input);
+        }
+
+        public static string ToDelimited(this IEnumerable<string> input, string delimeter)
+        {
+            return string.Join(delimeter, input);
         }
     }
 }

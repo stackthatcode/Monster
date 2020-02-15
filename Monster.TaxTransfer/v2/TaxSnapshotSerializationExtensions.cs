@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Monster.TaxTransfer.v2;
-using Push.Foundation.Utilities.General;
-using Push.Foundation.Utilities.Helpers;
 
-namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
+namespace Monster.TaxTransfer.v2
 {
     public static class TaxSnapshotSerializationExtensions
     {
@@ -60,7 +57,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
             return output;
         }
 
-        public static TaxSnapshot Deserialize(this string input)
+        public static TaxSnapshot DeserializeTaxSnapshot(this string input)
         {
             var output = new TaxSnapshot();
             var lines = input.Split(new [] { Environment.NewLine }, StringSplitOptions.None);
@@ -91,7 +88,5 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
 
             return output;
         }
-
-
     }
 }

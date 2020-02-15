@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Monster.TaxProvider.Acumatica;
 using Monster.TaxProvider.InvoiceTaxes;
 using Monster.TaxProvider.InvoiceTaxService;
 using Monster.TaxProvider.Utility;
-using Monster.TaxTransfer.v1;
+using Monster.TaxTransfer.v2;
 using Newtonsoft.Json;
 using PX.Data;
 using PX.TaxProvider;
@@ -70,7 +71,7 @@ namespace Monster.TaxProvider.Calc
         {
             var repository = new BqlRepository(new PXGraph(), _logger);
 
-            var transfer = repository.RetrieveTaxTransfer(context.OrderType, context.OrderNbr);
+            var transfer = repository.RetrieveTaxSnapshot(context.OrderType, context.OrderNbr);
             var result = new CalcResult();
 
             result.AddTaxLine("Sales Order Tax", 0m, transfer.NetTaxableAmount, transfer.NetTotalTax);
@@ -91,7 +92,7 @@ namespace Monster.TaxProvider.Calc
             var invoiceTaxService = new OtherInvoiceTaxService(repository, _logger);
 
             var salesOrder = repository.RetrieveSalesOrderByInvoice(context.InvoiceType, context.InvoiceNbr);
-            var transfer = repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
+            var transfer = repository.RetrieveTaxSnapshot(salesOrder.OrderType, salesOrder.OrderNbr);
 
             var otherInvoiceTaxes = invoiceTaxService.GetOtherTaxes(context.InvoiceType, context.InvoiceNbr);
 
@@ -110,7 +111,7 @@ namespace Monster.TaxProvider.Calc
 
         // TODO - offload this to web service
         //
-        private CalcResult InvoiceFinalTax(Transfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
+        private CalcResult InvoiceFinalTax(TaxSnapshot transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
         {
             var taxableTotal = transfer.NetTaxableAmount - otherInvoiceTaxes.TotalTaxableAmount;
             var taxTotal = transfer.NetTotalTax - otherInvoiceTaxes.TotalTaxAmount;
@@ -125,7 +126,7 @@ namespace Monster.TaxProvider.Calc
 
         // Recreate Tax Calculation using the Tax Transfer
         //
-        private CalcResult InvoiceSplitShipmentTax(GetTaxRequest request, Transfer transfer)
+        private CalcResult InvoiceSplitShipmentTax(GetTaxRequest request, TaxSnapshot snapshot)
         {
             var result = new CalcResult();
 
@@ -135,13 +136,13 @@ namespace Monster.TaxProvider.Calc
                 //
                 if (lineItem.ItemCode == null)
                 {
-                    result.AddTaxLine(lineItem.Description, 0m, lineItem.Amount, transfer.NetFreightTax);
+                    result.AddTaxLine(lineItem.Description, 0m, lineItem.Amount, snapshot.NetFreightTax);
                     continue;
                 }
 
                 var correctedItemCode = lineItem.ItemCode.Trim();
 
-                if (transfer.LineItemExists(correctedItemCode) == false)
+                if (snapshot.LineItems.Any(x => x.ItemID == correctedItemCode) == false)
                 {
                     result.AddError($"Unable to locate Inventory ID {correctedItemCode} in Tax Transfer");
                     continue;
@@ -149,7 +150,8 @@ namespace Monster.TaxProvider.Calc
 
                 // Compute Line Item Tax using Tax Lines from Transfer
                 //
-                var lineItemTaxCalc = transfer.PlainLineItemTaxCalc(correctedItemCode, (int)lineItem.Quantity);
+                var lineItemTaxCalc 
+                    = snapshot.CalculateTax(correctedItemCode, (decimal)lineItem.Amount, (int)lineItem.Quantity);
 
                 result.AddTaxLine(lineItemTaxCalc.Name, 0m, lineItemTaxCalc.TaxableAmount, lineItemTaxCalc.TaxAmount);
             }

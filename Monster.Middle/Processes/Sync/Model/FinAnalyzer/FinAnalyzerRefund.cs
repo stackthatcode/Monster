@@ -1,6 +1,6 @@
-﻿namespace Monster.TaxTransfer.v1
+﻿namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
 {
-    public class TransferRefund
+    public class FinAnalyzerRefund
     {
         public string ExternalRefNbr { get; set; }
         

@@ -4,8 +4,8 @@ using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Analysis;
+using Monster.Middle.Processes.Sync.Model.FinAnalyzer;
 using Monster.Middle.Processes.Sync.Model.Orders;
-using Monster.Middle.Processes.Sync.Model.TaxTransfer;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Push.Foundation.Web.Json;
@@ -77,7 +77,7 @@ namespace Monster.Web.Controllers
             var rootAction = _pendingActionService.Create(shopifyOrderId);
 
             var order = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
-            var taxTransfer = order.ToTaxTransfer();
+            var finAnalyzer = order.ToFinAnalyzer();
 
             var shopifyDetail = new
             {
@@ -92,7 +92,7 @@ namespace Monster.Web.Controllers
                 ShopifyIsCancelled = order.ShopifyIsCancelled,
                 ShopifyAreAllItemsRefunded = order.IsCancelledOrAllRefunded(),
 
-                Transfer = taxTransfer,
+                Transfer = finAnalyzer,
             };
 
             return new JsonNetResult(new

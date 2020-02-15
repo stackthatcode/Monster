@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Monster.TaxTransfer.v2
 {
@@ -18,6 +16,18 @@ namespace Monster.TaxTransfer.v2
         public List<TaxSnapshotTaxLine> FreightTaxLines { get; set; }
         public List<TaxSnapshotLineItem> LineItems { get; set; }
 
+        public TaxSnapshotCalc CalculateTax(
+                string correctedItemCode, decimal taxableAmount, int quantity)
+        {
+            var lineItem = LineItems.First(x => x.ItemID == correctedItemCode);
+            var output = new TaxSnapshotCalc();
+
+            output.Name = $"{correctedItemCode} - qty {quantity}";
+            output.TaxableAmount = taxableAmount;
+            output.TaxAmount = lineItem.TaxLines.Sum(x => x.Rate * taxableAmount);
+
+            return output;
+        }
 
     }
 }

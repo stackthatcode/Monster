@@ -13,10 +13,11 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Analysis;
+using Monster.Middle.Processes.Sync.Model.FinAnalyzer;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
-using Monster.Middle.Processes.Sync.Model.TaxTransfer;
+using Monster.Middle.Processes.Sync.Model.TaxSnapshot;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Newtonsoft.Json;
@@ -394,7 +395,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             var taxTransfer
                 = shopifyOrderRecord
-                    .ToTaxTransfer()
+                    .ToTaxSnapshot()
                     .SerializeToJson(Formatting.None)
                     .ToBase64Zip();
 
@@ -480,7 +481,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
 
             var taxTransfer = shopifyOrderRecord
-                    .ToTaxTransfer()
+                    .ToTaxSnapshot()
                     .SerializeToJson(Formatting.None)
                     .ToBase64Zip();
 

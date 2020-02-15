@@ -1,7 +1,7 @@
 ﻿using System;
 using Monster.TaxProvider.Utility;
 using Monster.TaxTransfer;
-using Monster.TaxTransfer.v1;
+using Monster.TaxTransfer.v2;
 using Newtonsoft.Json;
 using PX.Data;
 using PX.Objects.AR;
@@ -56,7 +56,7 @@ namespace Monster.TaxProvider.Acumatica
             return salesOrder;
         }
 
-        public Transfer RetrieveTaxTransfer(string orderType, string orderNumber)
+        public TaxSnapshot RetrieveTaxSnapshot(string orderType, string orderNumber)
         {
             var salesOrder = RetrieveSalesOrder(orderType, orderNumber);
             var salesOrderExt = PXCache<SOOrder>.GetExtension<SOOrderTaxSnapshotExt>(salesOrder);
@@ -69,11 +69,11 @@ namespace Monster.TaxProvider.Acumatica
 
             // Unpack Base64-encoded and GZip-compressed tax data
             //
-            string json = salesOrderExt.UsrTaxSnapshot.Unzip();
+            string serializedData = salesOrderExt.UsrTaxSnapshot.Unzip();
 
-            _logger.Debug($"Tax Transfer Snapshot ({orderType} {orderNumber}) - " + json);
+            _logger.Debug($"Tax Snapshot ({orderType} {orderNumber}) - " + serializedData);
 
-            return JsonConvert.DeserializeObject<Transfer>(json);
+            return serializedData.DeserializeTaxSnapshot();
         }
     }
 }

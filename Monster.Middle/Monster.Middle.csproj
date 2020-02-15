@@ -162,6 +162,12 @@
     <Compile Include="Processes\Sync\Misc\SystemConsts.cs" />
     <Compile Include="Processes\Sync\Misc\WeightCalc.cs" />
     <Compile Include="Processes\Sync\Misc\Descriptors.cs" />
+    <Compile Include="Processes\Sync\Model\FinAnalyzer\FinAnalyzer.cs" />
+    <Compile Include="Processes\Sync\Model\FinAnalyzer\FinAnalyzerFreight.cs" />
+    <Compile Include="Processes\Sync\Model\FinAnalyzer\FinAnalyzerLineItem.cs" />
+    <Compile Include="Processes\Sync\Model\FinAnalyzer\FinAnalyzerRefund.cs" />
+    <Compile Include="Processes\Sync\Model\FinAnalyzer\FinAnalyzerTaxCalc.cs" />
+    <Compile Include="Processes\Sync\Model\FinAnalyzer\FinAnalyzerTaxLine.cs" />
     <Compile Include="Processes\Sync\Model\Inventory\StockItemPutResult.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\AcumaticaSyncConstants.cs" />
     <Compile Include="Processes\Sync\Model\Analysis\Extensions.cs" />
@@ -185,9 +191,8 @@
     <Compile Include="Processes\Sync\Model\PendingActions\PaymentValidationContext.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\CreateFullfillmentValidation.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\ActionCode.cs" />
-    <Compile Include="Processes\Sync\Model\TaxTransfer\TaxSnapshotSerializationExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\TaxTransfer\TaxSnapshotOrderExtensions.cs" />
-    <Compile Include="Processes\Sync\Model\TaxTransfer\TaxTransferExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\TaxSnapshot\TaxSnapshotOrderExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\FinAnalyzer\FinAnalyzerExtensions.cs" />
     <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
     <Compile Include="Processes\Sync\Services\AnalysisDataService.cs" />
     <Compile Include="Processes\Sync\Services\FulfillmentStatusService.cs" />

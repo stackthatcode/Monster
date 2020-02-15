@@ -5,15 +5,15 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.TaxTransfer.v2;
 using Push.Shopify.Api.Order;
 
-namespace Monster.Middle.Processes.Sync.Model.TaxTransfer
+namespace Monster.Middle.Processes.Sync.Model.TaxSnapshot
 {
     public static class TaxSnapshotOrderExtensions
     {
-        public static TaxSnapshot ToTaxSnapshot(this ShopifyOrder shopifyOrderRecord)
+        public static TaxTransfer.v2.TaxSnapshot ToTaxSnapshot(this ShopifyOrder shopifyOrderRecord)
         {
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
-            var snapshot = new TaxSnapshot();
+            var snapshot = new TaxTransfer.v2.TaxSnapshot();
 
             snapshot.ShopifyOrderId = shopifyOrder.id;
             snapshot.ShopifyRefundIds = shopifyOrder.refunds.Select(x => x.id).OrderBy(x => x).ToList();
