@@ -71,7 +71,7 @@ namespace Monster.TaxTransfer.v2
 
             var firstLineRaw = lines[0].SplitByDelimiter();
             output.ShopifyOrderId = firstLineRaw[0].ToLong();
-            output.ShopifyRefundIds = firstLineRaw.Take(1).Select(x => x.ToLong()).ToList();
+            output.ShopifyRefundIds = firstLineRaw.Skip(1).Select(x => x.ToLong()).ToList();
 
             var secondLineRaw = lines[1].SplitByDelimiter();
             output.NetTaxableFreight = secondLineRaw[0].ToDecimal();

@@ -100,7 +100,7 @@ namespace Monster.ConsoleApp
                 logger.Info("Shopify Order JSON" + Environment.NewLine + 
                             shopifyOrder.ShopifyJson + Environment.NewLine);
 
-                var taxTransfer = shopifyOrder.ToTaxSnapshot();
+                var taxTransfer = shopifyOrder.ToTaxTransfer();
                 logger.Info("Shopify Tax Transfer: " + Environment.NewLine + 
                             taxTransfer.SerializeToJson() + Environment.NewLine);
 

@@ -115,6 +115,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             try
             {
+
+
                 // *** SAVE THIS, JONES! - This little branch of logic increases throughput!!
                 //
                 var orderPreAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
@@ -393,12 +395,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
             };
 
-            var taxTransfer
-                = shopifyOrderRecord
-                    .ToTaxSnapshot()
-                    .SerializeToJson(Formatting.None)
-                    .ToBase64Zip();
-
+            var taxTransfer = shopifyOrderRecord.ToSerializedAndZippedTaxTransfer();
             salesOrder.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
 
             return salesOrder;
@@ -480,10 +477,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 salesOrderUpdate.Details.Add(detail);
             }
 
-            var taxTransfer = shopifyOrderRecord
-                    .ToTaxSnapshot()
-                    .SerializeToJson(Formatting.None)
-                    .ToBase64Zip();
+            var taxTransfer = shopifyOrderRecord.ToSerializedAndZippedTaxTransfer();
 
             salesOrderUpdate.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
             return salesOrderUpdate;

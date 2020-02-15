@@ -2,7 +2,9 @@
 using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
+using Monster.Middle.Processes.Sync.Model.TaxTranfser;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Order;
@@ -41,6 +43,10 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         public ValidationResult Result()
         {
             var validation = new Validation<CreateOrderValidation>()
+                .Add(x => x.ShopifyOrder.ToSerializedAndZippedTaxTransfer().Length <= SystemConsts.MaximumTaxTransferSizeBytes,
+                        $"CRITICAL - please contact tech support immediately - " + 
+                        $"Tax Transfer exceeds maximum size of {SystemConsts.MaximumTaxTransferSizeBytes} bytes")
+
                 .Add(x => x.ShopifyOrderRecord.DoesNotExceedErrorLimit(),
                         "Encountered too many errors attempting to synchronize this Shopify Order", true)
 

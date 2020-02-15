@@ -3,16 +3,30 @@ using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.TaxTransfer.v2;
+using Push.Foundation.Utilities.General;
 using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Model.TaxTranfser
 {
     public static class TaxTransferOrderExtensions
     {
-        public static TaxTransfer.v2.TaxTransfer ToTaxSnapshot(this ShopifyOrder shopifyOrderRecord)
+        public static string ToSerializedAndZippedTaxTransfer(this ShopifyOrder orderRecord)
         {
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+            return orderRecord.ToShopifyObj().ToSerializedAndZippedTaxTransfer();
+        }
 
+        public static string ToSerializedAndZippedTaxTransfer(this Order order)
+        {
+            return order.ToTaxTransfer().Serialize().ToBase64Zip();
+        }
+
+        public static TaxTransfer.v2.TaxTransfer ToTaxTransfer(this ShopifyOrder shopifyOrderRecord)
+        {
+            return shopifyOrderRecord.ToShopifyObj().ToTaxTransfer();
+        }
+
+        public static TaxTransfer.v2.TaxTransfer ToTaxTransfer(this Order shopifyOrder)
+        {
             var snapshot = new TaxTransfer.v2.TaxTransfer();
 
             snapshot.ShopifyOrderId = shopifyOrder.id;
