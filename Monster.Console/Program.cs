@@ -94,8 +94,6 @@ namespace Monster.ConsoleApp
                 SystemUtilities.RunViewShopifyOrderAndTaxTransfer();
             if (input == ViewAcumaticaTaxSnapshot)
                 SystemUtilities.RunViewAcumaticaTaxTransfer();
-            if (input == ShopifyOrderGetToAcumaticaOrderPut)
-                SystemUtilities.RunShopifyOrderGetToAcumaticaOrderPut();
 
             // User management functions
             //

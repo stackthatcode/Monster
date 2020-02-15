@@ -9,7 +9,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTranfser
 {
     public static class TaxTransferOrderExtensions
     {
-        public static TaxTransfer ToTaxSnapshot(this ShopifyOrder shopifyOrderRecord)
+        public static TaxTransfer.v2.TaxTransfer ToTaxSnapshot(this ShopifyOrder shopifyOrderRecord)
         {
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
@@ -39,7 +39,11 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTranfser
                 snapshot.LineItems.Add(snapshot_line);
             }
 
-            snapshot.FreightTaxLines = shopifyOrder.shipping_lines.First().tax_lines.ToSnapshotTaxLines();
+            snapshot.FreightTaxLines
+                = shopifyOrder
+                    .shipping_lines
+                    .SelectMany(x => x.tax_lines)
+                    .ToSnapshotTaxLines();
 
             return snapshot;
         }

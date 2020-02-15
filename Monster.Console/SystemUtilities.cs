@@ -16,7 +16,9 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Model.FinAnalyzer;
+using Monster.Middle.Processes.Sync.Model.TaxTranfser;
 using Monster.Middle.Processes.Sync.Workers;
+using Monster.TaxTransfer.v2;
 using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
@@ -41,8 +43,8 @@ namespace Monster.ConsoleApp
 
         public static long SolicitShopifyId()
         {
-            Console.WriteLine(Environment.NewLine + "Enter Shopify Order Id (Default Id: 1840328409132)");
-            return Console.ReadLine().IsNullOrEmptyAlt("1840328409132").ToLong();
+            Console.WriteLine(Environment.NewLine + "Enter Shopify Order Id (Default Id: 1949921378348)");
+            return NumberHelpers.ToLong(Console.ReadLine().IsNullOrEmptyAlt("1949921378348	"));
         }
 
         public static string SolicitAcumaticaSalesOrderId()
@@ -95,14 +97,33 @@ namespace Monster.ConsoleApp
 
                 shopifyOrderGet.Run(shopifyOrderId);
                 var shopifyOrder = repository.RetrieveOrder(shopifyOrderId);
-                logger.Info("Shopify Order JSON" + Environment.NewLine + shopifyOrder.ShopifyJson);
+                logger.Info("Shopify Order JSON" + Environment.NewLine + 
+                            shopifyOrder.ShopifyJson + Environment.NewLine);
 
-                var taxTransfer = shopifyOrder.ToFinAnalyzer();
-                logger.Info("Shopify Financial Analyzer" + Environment.NewLine + taxTransfer.SerializeToJson());
+                var taxTransfer = shopifyOrder.ToTaxSnapshot();
+                logger.Info("Shopify Tax Transfer: " + Environment.NewLine + 
+                            taxTransfer.SerializeToJson() + Environment.NewLine);
 
-                var compressedSize = taxTransfer.SerializeToJson(Formatting.None).ToBase64Zip();
-                logger.Info($"Shopify Financial Analyzer size: {compressedSize.Length} bytes");
+                var serializedTaxTransfer = taxTransfer.Serialize();
+                logger.Info($"Shopify Tax Transfer Serialized:" + Environment.NewLine + 
+                            serializedTaxTransfer + Environment.NewLine);
 
+                logger.Info($"Shopify Tax Transfer gzipped size: " + 
+                            $"{serializedTaxTransfer.ToBase64Zip().Length} bytes" + 
+                            Environment.NewLine);
+
+                var deserializedTaxTransfer = serializedTaxTransfer.DeserializeTaxSnapshot();
+                logger.Info($"Shopify Tax Transfer Deserialized:" + Environment.NewLine +
+                            deserializedTaxTransfer.SerializeToJson() + Environment.NewLine);
+
+                var shopifyOrderObj = shopifyOrder.ToShopifyObj();
+                var lineItem = shopifyOrderObj.line_items[0];
+
+                var testCalc = deserializedTaxTransfer
+                    .CalculateTax(lineItem.sku, lineItem.UnitPriceAfterDiscount, 1);
+
+                logger.Info("Test Tax Calculation: " + Environment.NewLine +
+                            testCalc.SerializeToJson() + Environment.NewLine);
             });
         }
 
@@ -127,7 +148,7 @@ namespace Monster.ConsoleApp
 
                     var salesOrderObj = json.ToSalesOrderObj();
                     var taxSnapshot = salesOrderObj.custom.Document.UsrTaxSnapshot;
-                    var taxJson = taxSnapshot.value.Unzip();
+                    var taxJson = Compression.Unzip(taxSnapshot.value);
 
                     logger.Info("Acumatica Tax Transfer");
                     logger.Info(taxJson);

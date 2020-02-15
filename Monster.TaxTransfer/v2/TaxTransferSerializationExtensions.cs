@@ -17,10 +17,10 @@ namespace Monster.TaxTransfer.v2
             input.ShopifyRefundIds.ForEach(x => output.Append($"{SerializationDelimter}{x.ToString()}"));
 
             output.Append(Environment.NewLine);
-            output.Append($"{input.NetTaxableFreight:0.00}{SerializationDelimter}" +
-                          $"{input.NetFreightTax:0.00}{SerializationDelimter}" +
-                          $"{input.NetTaxableAmount:0.00}{SerializationDelimter}" +
-                          $"{input.NetTotalTax:0.00}");
+            output.Append($"{input.NetTaxableFreight:0.0000}{SerializationDelimter}" +
+                          $"{input.NetFreightTax:0.0000}{SerializationDelimter}" +
+                          $"{input.NetTaxableAmount:0.0000}{SerializationDelimter}" +
+                          $"{input.NetTotalTax:0.0000}");
 
             output.Append(Environment.NewLine);
 
@@ -38,7 +38,10 @@ namespace Monster.TaxTransfer.v2
 
         public static string Serialize(this IEnumerable<TaxTransferTaxLine> input)
         {
-            return input.Select(x => $"{x.Title}{SerializationDelimter}{x.Rate:0.00}").ToList().ToDelimited("{SerializationDelimter}");
+            return input
+                .Select(x => $"{x.Title}{SerializationDelimter}{x.Rate:0.0000}")
+                .ToList()
+                .ToDelimited(SerializationDelimter);
         }
 
         public static string[] SplitByDelimiter(this string input)
@@ -51,8 +54,12 @@ namespace Monster.TaxTransfer.v2
             var output = new List<TaxTransferTaxLine>();
             while (input.Any())
             {
+                if (input[0] == String.Empty)
+                {
+                    break;
+                }
                 output.Add(new TaxTransferTaxLine(input[0], input[1].ToDecimal()));
-                input = input.Take(2).ToList();
+                input = input.Skip(2).ToList();
             }
             return output;
         }
@@ -73,15 +80,19 @@ namespace Monster.TaxTransfer.v2
             output.NetTotalTax = secondLineRaw[3].ToDecimal();
 
             var thirdLineRaw = lines[2].SplitByDelimiter();
-            output.FreightTaxLines = thirdLineRaw.Take(1).ToList().DeserializeSnapshotTaxLines();
+            output.FreightTaxLines = thirdLineRaw.Skip(1).ToList().DeserializeSnapshotTaxLines();
 
             output.LineItems = new List<TaxTransferLineItem>();
 
-            foreach (var lineRaw in lines.Take(3).Select(x => x.SplitByDelimiter()))
+            foreach (var lineRaw in lines.Skip(3).Select(x => x.SplitByDelimiter()))
             {
+                if (lineRaw[0] == String.Empty)
+                {
+                    break;
+                }
                 var lineItem = new TaxTransferLineItem();
                 lineItem.ItemID = lineRaw[0];
-                lineItem.TaxLines = lineRaw.Take(1).ToList().DeserializeSnapshotTaxLines();
+                lineItem.TaxLines = lineRaw.Skip(1).ToList().DeserializeSnapshotTaxLines();
 
                 output.LineItems.Add(lineItem);
             }
