@@ -71,7 +71,7 @@ namespace Monster.TaxProvider.Calc
         {
             var repository = new BqlRepository(new PXGraph(), _logger);
 
-            var transfer = repository.RetrieveTaxSnapshot(context.OrderType, context.OrderNbr);
+            var transfer = repository.RetrieveTaxTransfer(context.OrderType, context.OrderNbr);
             var result = new CalcResult();
 
             result.AddTaxLine("Sales Order Tax", 0m, transfer.NetTaxableAmount, transfer.NetTotalTax);
@@ -92,7 +92,7 @@ namespace Monster.TaxProvider.Calc
             var invoiceTaxService = new OtherInvoiceTaxService(repository, _logger);
 
             var salesOrder = repository.RetrieveSalesOrderByInvoice(context.InvoiceType, context.InvoiceNbr);
-            var transfer = repository.RetrieveTaxSnapshot(salesOrder.OrderType, salesOrder.OrderNbr);
+            var transfer = repository.RetrieveTaxTransfer(salesOrder.OrderType, salesOrder.OrderNbr);
 
             var otherInvoiceTaxes = invoiceTaxService.GetOtherTaxes(context.InvoiceType, context.InvoiceNbr);
 
@@ -111,7 +111,7 @@ namespace Monster.TaxProvider.Calc
 
         // TODO - offload this to web service
         //
-        private CalcResult InvoiceFinalTax(TaxSnapshot transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
+        private CalcResult InvoiceFinalTax(TaxTransfer.v2.TaxTransfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
         {
             var taxableTotal = transfer.NetTaxableAmount - otherInvoiceTaxes.TotalTaxableAmount;
             var taxTotal = transfer.NetTotalTax - otherInvoiceTaxes.TotalTaxAmount;
@@ -126,7 +126,7 @@ namespace Monster.TaxProvider.Calc
 
         // Recreate Tax Calculation using the Tax Transfer
         //
-        private CalcResult InvoiceSplitShipmentTax(GetTaxRequest request, TaxSnapshot snapshot)
+        private CalcResult InvoiceSplitShipmentTax(GetTaxRequest request, TaxTransfer.v2.TaxTransfer snapshot)
         {
             var result = new CalcResult();
 

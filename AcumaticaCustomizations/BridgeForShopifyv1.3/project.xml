@@ -10,9 +10,13 @@
                     </PXTextEdit>
                 </AddItem>
                 <PXLayoutRule OriginalIndex="13" />
+                <PXTextEdit DataField="CustomerRefNbr" OriginalIndex="12" Remove="True" />
             </Children>
         </PXFormView>
     </Page>
+    <AutomationScreenField ScreenID="SO301000" TableName="PX.OBJECTS.SO.SOORDER" FieldName="USRTAXSNAPSHOT" IsUserDefinedField="False">
+        <Prop Name="IsVisible" DisplayName="Visible" IsCustomized="True" Value="False" />
+    </AutomationScreenField>
     <EntityEndpoint>
         <Endpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="BridgeEndpoint" version="18.200.001" systemContractVersion="3" xmlns="http://www.acumatica.com/entity/maintenance/5.31">
             <ExtendsEndpoint name="Default" version="18.200.001" />
@@ -216,7 +220,15 @@
             </data>
         </data-set>
     </GenericInquiryScreen>
-    <Table TableName="SOOrder">
-        <Column TableName="SOOrder" ColumnName="UsrTaxSnapshot" ColumnType="string" AllowNull="True" MaxLength="1000" DecimalPrecision="0" DecimalLength="0" IsNewColumn="True" IsUnicode="True" />
-    </Table>
+    <Sql TableName="UsrTaxSnapshot" CustomScript="#CDATA">
+        <CDATA name="CustomScript"><![CDATA[IF NOT EXISTS (
+  SELECT * 
+  FROM   sys.columns 
+  WHERE  object_id = OBJECT_ID(N'[dbo].[SOOrder]') 
+         AND name = 'UsrTaxSnapshot'
+)
+BEGIN
+	ALTER TABLE SOOrder ADD UsrTaxSnapshot varchar(600);
+END]]></CDATA>
+    </Sql>
 </Customization>

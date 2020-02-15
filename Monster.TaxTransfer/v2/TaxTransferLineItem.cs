@@ -2,9 +2,9 @@
 
 namespace Monster.TaxTransfer.v2
 {
-    public class TaxSnapshotLineItem
+    public class TaxTransferLineItem
     {
         public string ItemID { get; set; }
-        public List<TaxSnapshotTaxLine> TaxLines { get; set; }
+        public List<TaxTransferTaxLine> TaxLines { get; set; }
     }
 }

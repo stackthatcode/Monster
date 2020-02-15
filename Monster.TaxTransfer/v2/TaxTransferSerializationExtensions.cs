@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Monster.TaxTransfer.v2
 {
-    public static class TaxSnapshotSerializationExtensions
+    public static class TaxTransferSerializationExtensions
     {
         public const string SerializationDelimter = "|";
         public const string FreightSymbol = "FREIGHT";
 
-        public static string Serialize(this TaxSnapshot input)
+        public static string Serialize(this TaxTransfer input)
         {
             var output = new StringBuilder();
             output.Append($"{input.ShopifyOrderId}");
@@ -36,7 +36,7 @@ namespace Monster.TaxTransfer.v2
             return output.ToString();
         }
 
-        public static string Serialize(this IEnumerable<TaxSnapshotTaxLine> input)
+        public static string Serialize(this IEnumerable<TaxTransferTaxLine> input)
         {
             return input.Select(x => $"{x.Title}{SerializationDelimter}{x.Rate:0.00}").ToList().ToDelimited("{SerializationDelimter}");
         }
@@ -46,20 +46,20 @@ namespace Monster.TaxTransfer.v2
             return input.Split(new[] { SerializationDelimter }, StringSplitOptions.None);
         }
 
-        public static List<TaxSnapshotTaxLine> DeserializeSnapshotTaxLines(this List<string> input)
+        public static List<TaxTransferTaxLine> DeserializeSnapshotTaxLines(this List<string> input)
         {
-            var output = new List<TaxSnapshotTaxLine>();
+            var output = new List<TaxTransferTaxLine>();
             while (input.Any())
             {
-                output.Add(new TaxSnapshotTaxLine(input[0], input[1].ToDecimal()));
+                output.Add(new TaxTransferTaxLine(input[0], input[1].ToDecimal()));
                 input = input.Take(2).ToList();
             }
             return output;
         }
 
-        public static TaxSnapshot DeserializeTaxSnapshot(this string input)
+        public static TaxTransfer DeserializeTaxSnapshot(this string input)
         {
-            var output = new TaxSnapshot();
+            var output = new TaxTransfer();
             var lines = input.Split(new [] { Environment.NewLine }, StringSplitOptions.None);
 
             var firstLineRaw = lines[0].SplitByDelimiter();
@@ -75,11 +75,11 @@ namespace Monster.TaxTransfer.v2
             var thirdLineRaw = lines[2].SplitByDelimiter();
             output.FreightTaxLines = thirdLineRaw.Take(1).ToList().DeserializeSnapshotTaxLines();
 
-            output.LineItems = new List<TaxSnapshotLineItem>();
+            output.LineItems = new List<TaxTransferLineItem>();
 
             foreach (var lineRaw in lines.Take(3).Select(x => x.SplitByDelimiter()))
             {
-                var lineItem = new TaxSnapshotLineItem();
+                var lineItem = new TaxTransferLineItem();
                 lineItem.ItemID = lineRaw[0];
                 lineItem.TaxLines = lineRaw.Take(1).ToList().DeserializeSnapshotTaxLines();
 

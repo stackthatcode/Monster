@@ -56,7 +56,7 @@ namespace Monster.TaxProvider.Acumatica
             return salesOrder;
         }
 
-        public TaxSnapshot RetrieveTaxSnapshot(string orderType, string orderNumber)
+        public TaxTransfer.v2.TaxTransfer RetrieveTaxTransfer(string orderType, string orderNumber)
         {
             var salesOrder = RetrieveSalesOrder(orderType, orderNumber);
             var salesOrderExt = PXCache<SOOrder>.GetExtension<SOOrderTaxSnapshotExt>(salesOrder);
@@ -64,7 +64,7 @@ namespace Monster.TaxProvider.Acumatica
 
             if (salesOrderExt.UsrTaxSnapshot == null || salesOrderExt.UsrTaxSnapshot.Trim() == String.Empty)
             {
-                throw new Exception("Missing Tax Snapshot - unable to compute Taxes");
+                throw new Exception("Missing Tax Transfer - unable to compute Taxes");
             }
 
             // Unpack Base64-encoded and GZip-compressed tax data

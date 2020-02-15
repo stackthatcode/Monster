@@ -1,11 +1,11 @@
 ﻿namespace Monster.TaxTransfer.v2
 {
-    public class TaxSnapshotTaxLine
+    public class TaxTransferTaxLine
     {
         public string Title { get; set; }
         public decimal Rate { get; set; }
 
-        public TaxSnapshotTaxLine(string title, decimal rate)
+        public TaxTransferTaxLine(string title, decimal rate)
         {
             Title = title;
             Rate = rate;

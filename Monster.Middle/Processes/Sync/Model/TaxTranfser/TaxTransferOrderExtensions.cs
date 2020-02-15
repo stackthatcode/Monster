@@ -5,15 +5,15 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.TaxTransfer.v2;
 using Push.Shopify.Api.Order;
 
-namespace Monster.Middle.Processes.Sync.Model.TaxSnapshot
+namespace Monster.Middle.Processes.Sync.Model.TaxTranfser
 {
-    public static class TaxSnapshotOrderExtensions
+    public static class TaxTransferOrderExtensions
     {
-        public static TaxTransfer.v2.TaxSnapshot ToTaxSnapshot(this ShopifyOrder shopifyOrderRecord)
+        public static TaxTransfer ToTaxSnapshot(this ShopifyOrder shopifyOrderRecord)
         {
             var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
 
-            var snapshot = new TaxTransfer.v2.TaxSnapshot();
+            var snapshot = new TaxTransfer.v2.TaxTransfer();
 
             snapshot.ShopifyOrderId = shopifyOrder.id;
             snapshot.ShopifyRefundIds = shopifyOrder.refunds.Select(x => x.id).OrderBy(x => x).ToList();
@@ -29,11 +29,11 @@ namespace Monster.Middle.Processes.Sync.Model.TaxSnapshot
                   - shopifyOrder.refunds.Sum(x => x.TotalTaxableLineAndShippingAmount);
             snapshot.NetTotalTax = shopifyOrder.NetLineItemTax + shopifyOrder.NetShippingTax;
 
-            snapshot.LineItems = new List<TaxSnapshotLineItem>();
+            snapshot.LineItems = new List<TaxTransferLineItem>();
 
             foreach (var line_item in shopifyOrder.line_items)
             {
-                var snapshot_line = new TaxSnapshotLineItem();
+                var snapshot_line = new TaxTransferLineItem();
                 snapshot_line.ItemID = line_item.sku;
                 snapshot_line.TaxLines = line_item.tax_lines.ToSnapshotTaxLines();
                 snapshot.LineItems.Add(snapshot_line);
@@ -44,15 +44,9 @@ namespace Monster.Middle.Processes.Sync.Model.TaxSnapshot
             return snapshot;
         }
 
-        public static List<TaxSnapshotTaxLine> ToSnapshotTaxLines(this IEnumerable<TaxLine> taxLines)
+        public static List<TaxTransferTaxLine> ToSnapshotTaxLines(this IEnumerable<TaxLine> taxLines)
         {
-            return taxLines.Select(x => new TaxSnapshotTaxLine(x.title, x.rate)).ToList();
-        }
-
-        public static List<TaxSnapshotTaxLine> ToSnapshotTaxLines(this IEnumerable<ShippingLine> shippingLines)
-        {
-            return !shippingLines.Any()
-                ? new List<TaxSnapshotTaxLine>() : shippingLines.First().tax_lines.ToSnapshotTaxLines();
+            return taxLines.Select(x => new TaxTransferTaxLine(x.title, x.rate)).ToList();
         }
     }
 }

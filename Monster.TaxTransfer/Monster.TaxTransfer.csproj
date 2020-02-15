@@ -41,12 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="v2\TaxSnapshotCalc.cs" />
+    <Compile Include="v2\TaxTransferCalc.cs" />
     <Compile Include="v2\Utilities.cs" />
-    <Compile Include="v2\TaxSnapshot.cs" />
-    <Compile Include="v2\TaxSnapshotLineItem.cs" />
-    <Compile Include="v2\TaxSnapshotSerializationExtensions.cs" />
-    <Compile Include="v2\TaxSnapshotTaxLine.cs" />
+    <Compile Include="v2\TaxTransfer.cs" />
+    <Compile Include="v2\TaxTransferLineItem.cs" />
+    <Compile Include="v2\TaxTransferSerializationExtensions.cs" />
+    <Compile Include="v2\TaxTransferTaxLine.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

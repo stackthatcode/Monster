@@ -17,7 +17,7 @@ using Monster.Middle.Processes.Sync.Model.FinAnalyzer;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
-using Monster.Middle.Processes.Sync.Model.TaxSnapshot;
+using Monster.Middle.Processes.Sync.Model.TaxTranfser;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
 using Newtonsoft.Json;

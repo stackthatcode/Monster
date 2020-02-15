@@ -191,7 +191,7 @@
     <Compile Include="Processes\Sync\Model\PendingActions\PaymentValidationContext.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\CreateFullfillmentValidation.cs" />
     <Compile Include="Processes\Sync\Model\PendingActions\ActionCode.cs" />
-    <Compile Include="Processes\Sync\Model\TaxSnapshot\TaxSnapshotOrderExtensions.cs" />
+    <Compile Include="Processes\Sync\Model\TaxTranfser\TaxTransferOrderExtensions.cs" />
     <Compile Include="Processes\Sync\Model\FinAnalyzer\FinAnalyzerExtensions.cs" />
     <Compile Include="Processes\Sync\Persist\AnalyzerRepository.cs" />
     <Compile Include="Processes\Sync\Services\AnalysisDataService.cs" />

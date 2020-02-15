@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Monster.TaxTransfer.v2
 {
-    public class TaxSnapshot
+    public class TaxTransfer
     {
         public long ShopifyOrderId { get; set; }
         public List<long> ShopifyRefundIds { get; set; }
@@ -13,14 +13,14 @@ namespace Monster.TaxTransfer.v2
         public decimal NetTaxableAmount { get; set; }
         public decimal NetTotalTax { get; set; }
 
-        public List<TaxSnapshotTaxLine> FreightTaxLines { get; set; }
-        public List<TaxSnapshotLineItem> LineItems { get; set; }
+        public List<TaxTransferTaxLine> FreightTaxLines { get; set; }
+        public List<TaxTransferLineItem> LineItems { get; set; }
 
-        public TaxSnapshotCalc CalculateTax(
+        public TaxTransferCalc CalculateTax(
                 string correctedItemCode, decimal taxableAmount, int quantity)
         {
             var lineItem = LineItems.First(x => x.ItemID == correctedItemCode);
-            var output = new TaxSnapshotCalc();
+            var output = new TaxTransferCalc();
 
             output.Name = $"{correctedItemCode} - qty {quantity}";
             output.TaxableAmount = taxableAmount;
