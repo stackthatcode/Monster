@@ -49,7 +49,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         public SalesOrder RetrieveSalesOrder(string orderNbr)
         {
-            return RetrieveJson(AcumaticaJsonType.StockItem, orderNbr, SalesOrderType.SO)
+            return RetrieveJson(AcumaticaJsonType.SalesOrderShipments, orderNbr, SalesOrderType.SO)
                     .DeserializeFromJson<SalesOrder>();
         }
 

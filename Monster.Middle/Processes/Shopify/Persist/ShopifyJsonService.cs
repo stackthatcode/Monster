@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
@@ -57,7 +56,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public Order RetrieveOrder(long shopifyId)
         {
-            return RetrieveJson(ShopifyJsonType.Order, shopifyId).DeserializeFromJson<Order>();
+            return RetrieveJson(ShopifyJsonType.Order, shopifyId).DeserializeToOrder();
         }
 
         public Push.Shopify.Api.Transactions.Transaction RetrieveTransaction(long shopifyId)
