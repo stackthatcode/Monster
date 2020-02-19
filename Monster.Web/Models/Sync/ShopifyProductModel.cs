@@ -19,30 +19,6 @@ namespace Monster.Web.Models.Sync
 
         public List<ShopifyVariantModel> Variants { get; set; }
         
-
-        public static ShopifyProductModel Make(
-                ShopifyProduct input, Func<long, string> productUrlBuilder, bool includeVariantGraph = false)
-        {
-            var output = new ShopifyProductModel();
-
-            output.ProductTitle = input.ShopifyTitle;
-            output.ProductType = input.ShopifyProductType;
-            output.Vendor = input.ShopifyVendor;
-            output.ShopifyProductId = input.ShopifyProductId;
-            output.VariantCount = input.NonMissingVariants().Count();
-            output.ShopifyUrl = productUrlBuilder(input.ShopifyProductId);
-
-            output.SyncedVariantCount
-                = input.NonMissingVariants().Count(x => x.AcumaticaStockItems.Any());
-            
-            if (includeVariantGraph)
-            {
-                output.Variants
-                    = input.NonMissingVariants().Select(x => ShopifyVariantModel.Make(x)).ToList();
-            }
-
-            return output;
-        }
     }
 
     public class ShopifyVariantModel
@@ -55,22 +31,5 @@ namespace Monster.Web.Models.Sync
         public int AvailableQuantity { get; set; }
         public bool IsLoadedInAcumatica { get; set; }
         public bool IsMissing { get; set; }
-
-
-        public static ShopifyVariantModel Make(ShopifyVariant input)
-        {
-            var output = new ShopifyVariantModel();
-            output.ShopifyVariantId = input.ShopifyVariantId;
-            output.Sku = input.ShopifySku;
-            output.VariantTitle = input.ShopifyTitle;
-            output.Price = (decimal)input.ToVariantObj().price;
-            output.AvailableQuantity 
-                = input.ShopifyInventoryLevels.Sum(x => x.ShopifyAvailableQuantity);
-            output.IsMissing = input.IsMissing;
-
-            output.IsLoadedInAcumatica = input.IsMatched();
-
-            return output;
-        }
     }
 }

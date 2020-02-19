@@ -35,7 +35,7 @@ namespace Push.Shopify.Api
             return count;
         }
 
-        public virtual string Retrieve(SearchFilter filter)
+        public virtual string RetrieveProduct(SearchFilter filter)
         {
             var querystring = filter.ToQueryString();                
             var path = "/admin/products.json?" + querystring;
@@ -44,17 +44,24 @@ namespace Push.Shopify.Api
             return clientResponse.Body;
         }
 
-        public virtual string Retrieve(long id)
+        public virtual string RetrieveProduct(long id)
         {
             var path = $"/admin/products/{id}.json";
             var clientResponse = _httpClient.Get(path);
             return clientResponse.Body;
         }
 
-        public virtual string Create(string json)
+        public virtual string CreateProduct(string json)
         {
             var path = $"/admin/products.json";
             var clientResponse = _httpClient.Post(path, json);
+            return clientResponse.Body;
+        }
+
+        public virtual string RetrieveVariant(long id)
+        {
+            var path = $"/admin/variants/{id}.json";
+            var clientResponse = _httpClient.Get(path);
             return clientResponse.Body;
         }
 
@@ -126,7 +133,6 @@ namespace Push.Shopify.Api
             var clientResponse = _httpClient.Put(path,json);
             return clientResponse.Body;
         }
-
-
     }
 }
+

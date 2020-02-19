@@ -27,7 +27,9 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly AcumaticaUrlService _acumaticaUrlService;
         private readonly SettingsRepository _settingsRepository;
         private readonly PendingActionService _pendingActionService;
+        private readonly AcumaticaJsonService _acumaticaJsonService;
         private readonly AcumaticaHttpContext _acumaticaHttpContext;
+        private readonly ShopifyJsonService _shopifyJsonService;
         private readonly SalesOrderClient _salesOrderClient;
 
         public AnalysisDataService(
@@ -35,7 +37,10 @@ namespace Monster.Middle.Processes.Sync.Services
                 ShopifyUrlService shopifyUrlService, 
                 AcumaticaUrlService acumaticaUrlService, 
                 SettingsRepository settingsRepository, 
-                PendingActionService pendingActionService, AcumaticaHttpContext acumaticaHttpContext, SalesOrderClient salesOrderClient)
+                PendingActionService pendingActionService, 
+                AcumaticaHttpContext acumaticaHttpContext, 
+                SalesOrderClient salesOrderClient, 
+                ShopifyJsonService shopifyJsonService, AcumaticaJsonService acumaticaJsonService)
         {
             _persistContext = persistContext;
             _shopifyUrlService = shopifyUrlService;
@@ -44,6 +49,8 @@ namespace Monster.Middle.Processes.Sync.Services
             _pendingActionService = pendingActionService;
             _acumaticaHttpContext = acumaticaHttpContext;
             _salesOrderClient = salesOrderClient;
+            _shopifyJsonService = shopifyJsonService;
+            _acumaticaJsonService = acumaticaJsonService;
         }
 
         public List<OrderAnalyzerResultsRow> GetOrderAnalysisResults(AnalyzerRequest request)
@@ -135,12 +142,11 @@ namespace Monster.Middle.Processes.Sync.Services
         }
 
         public OrderAnalysisTotals 
-                    GetOrderFinancialSummary(
-                        long shopifyOrderId, bool includeAcumaticaTotals = true)
+                    GetOrderFinancialSummary(long shopifyOrderId, bool includeAcumaticaTotals = true)
         {
             var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-
+            var shopifyOrder = _shopifyJsonService.RetrieveOrder(shopifyOrderId);
+            
             var output = new OrderAnalysisTotals();
 
             output.ShopifyOrderNbr = shopifyOrderRecord.ShopifyOrderNumber;
@@ -214,7 +220,7 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderNbr = order.ShopifyOrderNumber.ToString();
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(order.ShopifyOrderId);
 
-            var shopifyOrder = order.ToShopifyObj();
+            var shopifyOrder = _shopifyJsonService.RetrieveOrder(order.ShopifyOrderId);
 
             output.ShopifyOrderTotal = shopifyOrder.total_price;
             output.ShopifyNetPayment = order.ShopifyNetPayment();
@@ -335,6 +341,7 @@ namespace Monster.Middle.Processes.Sync.Services
             return GetProductStockItemQueryable(request).Count();
         }
 
+
         public ProductStockItemResultsRow 
                     MakeProductStockItemResults(ShopifyVariant variant, MonsterSetting settings)
         {
@@ -362,7 +369,7 @@ namespace Monster.Middle.Processes.Sync.Services
             if (variant.IsMatched())
             {
                 var stockItemRecord = variant.MatchedStockItem();
-                var stockItem = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
+                var stockItem = _acumaticaJsonService.RetrieveStockItem(stockItemRecord.ItemId);
 
                 output.AcumaticaItemId = stockItemRecord.ItemId;
                 output.AcumaticaItemDesc = stockItemRecord.AcumaticaDescription;

@@ -92,13 +92,17 @@ namespace Monster.ConsoleApp
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
                 var repository = scope.Resolve<ShopifyOrderRepository>();
+                var jsonService = scope.Resolve<ShopifyJsonService>();
+
 
                 instanceContext.Initialize(instanceId);
 
                 shopifyOrderGet.Run(shopifyOrderId);
-                var shopifyOrder = repository.RetrieveOrder(shopifyOrderId);
-                logger.Info("Shopify Order JSON" + Environment.NewLine + 
-                            shopifyOrder.ShopifyJson + Environment.NewLine);
+                var orderRecord = repository.RetrieveOrder(shopifyOrderId);
+                var shopifyOrder = jsonService.RetrieveOrder(orderRecord.ShopifyOrderId);
+
+                logger.Info("Shopify Order JSON" + Environment.NewLine +
+                            shopifyOrder.SerializeToJson() + Environment.NewLine);
 
                 var taxTransfer = shopifyOrder.ToTaxTransfer();
                 logger.Info("Shopify Tax Transfer: " + Environment.NewLine + 
@@ -116,11 +120,9 @@ namespace Monster.ConsoleApp
                 logger.Info($"Shopify Tax Transfer Deserialized:" + Environment.NewLine +
                             deserializedTaxTransfer.SerializeToJson() + Environment.NewLine);
 
-                var shopifyOrderObj = shopifyOrder.ToShopifyObj();
-                var lineItem = shopifyOrderObj.line_items[0];
+                var lineItem = shopifyOrder.line_items[0];
 
-                var testCalc = deserializedTaxTransfer
-                    .CalculateTax(lineItem.sku, lineItem.UnitPriceAfterDiscount, 1);
+                var testCalc = deserializedTaxTransfer.CalculateTax(lineItem.sku, lineItem.UnitPriceAfterDiscount, 1);
 
                 logger.Info("Test Tax Calculation: " + Environment.NewLine +
                             testCalc.SerializeToJson() + Environment.NewLine);

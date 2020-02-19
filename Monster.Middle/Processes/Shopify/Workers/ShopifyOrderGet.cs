@@ -22,8 +22,10 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly ShopifyCustomerGet _shopifyCustomerPull;
         private readonly ShopifyTransactionGet _shopifyTransactionGet;
         private readonly ExecutionLogService _executionLogService;
-        private readonly OrderApi _orderApi;
         private readonly JobMonitoringService _jobMonitoringService;
+        private readonly ShopifyJsonService _shopifyJsonService;
+        private readonly OrderApi _orderApi;
+
 
 
         public ShopifyOrderGet(
@@ -32,18 +34,20 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 SettingsRepository settingsRepository,
                 ShopifyCustomerGet shopifyCustomerPull,
                 ShopifyTransactionGet shopifyTransactionGet,
-                OrderApi orderApi, 
                 JobMonitoringService jobMonitoringService,
-                ExecutionLogService executionLogService)
+                ExecutionLogService executionLogService, 
+                ShopifyJsonService shopifyJsonService,
+                OrderApi orderApi)
         {
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
             _settingsRepository = settingsRepository;
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyTransactionGet = shopifyTransactionGet;
-            _orderApi = orderApi;
             _jobMonitoringService = jobMonitoringService;
             _executionLogService = executionLogService;
+            _shopifyJsonService = shopifyJsonService;
+            _orderApi = orderApi;
         }
 
         public void RunAutomatic()
@@ -152,58 +156,62 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private void UpsertOrderAndCustomer(Order order)
         {
             var monsterCustomerRecord = _shopifyCustomerPull.UpsertCustomer(order.customer);
-             
-            var existingOrder = _orderRepository.RetrieveOrder(order.id);
 
-            if (existingOrder == null)
+            using (var transaction = _orderRepository.BeginTransaction())
             {
-                var newOrder = new ShopifyOrder();
-
-                newOrder.ShopifyOrderId = order.id;
-                newOrder.ShopifyOrderNumber = order.name;
-                newOrder.ShopifyJson = order.SerializeToJson();
-                newOrder.ShopifyTotalPrice = order.total_price;
-                newOrder.ShopifyFinancialStatus = order.financial_status;
-                newOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
-                newOrder.ShopifyIsCancelled = order.IsCancelled;
-                newOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
-                newOrder.ShopifyTotalQuantity = order.TotalQuantity;
-
-                newOrder.NeedsOrderPut = false;
-                newOrder.NeedsTransactionGet = true;
-                newOrder.ErrorCount = 0;
-                newOrder.Ignore = false;
-
-                newOrder.CustomerMonsterId = monsterCustomerRecord.MonsterId;
-                newOrder.DateCreated = DateTime.UtcNow;
-                newOrder.LastUpdated = DateTime.UtcNow;
-
-                _executionLogService.Log(LogBuilder.DetectedNewShopifyOrder(newOrder));
-                _orderRepository.InsertOrder(newOrder);
-            }
-            else
-            {
-                existingOrder.ShopifyJson = order.SerializeToJson();
-                existingOrder.ShopifyTotalPrice = order.total_price;
-                existingOrder.ShopifyFinancialStatus = order.financial_status;
-                existingOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
-                existingOrder.ShopifyIsCancelled = order.IsCancelled;
-                existingOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
-                existingOrder.ShopifyTotalQuantity = order.TotalQuantity;
-
-                if (existingOrder.StatusChangeDetected(order))
+                var existingOrder = _orderRepository.RetrieveOrder(order.id);
+                if (existingOrder == null)
                 {
-                    existingOrder.NeedsOrderPut = true;
+                    var newOrder = new ShopifyOrder();
+
+                    newOrder.ShopifyOrderId = order.id;
+                    newOrder.ShopifyOrderNumber = order.name;
+                    newOrder.ShopifyTotalPrice = order.total_price;
+                    newOrder.ShopifyFinancialStatus = order.financial_status;
+                    newOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
+                    newOrder.ShopifyIsCancelled = order.IsCancelled;
+                    newOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
+                    newOrder.ShopifyTotalQuantity = order.TotalQuantity;
+
+                    newOrder.NeedsOrderPut = false;
+                    newOrder.NeedsTransactionGet = true;
+                    newOrder.ErrorCount = 0;
+                    newOrder.Ignore = false;
+
+                    newOrder.CustomerMonsterId = monsterCustomerRecord.MonsterId;
+                    newOrder.DateCreated = DateTime.UtcNow;
+                    newOrder.LastUpdated = DateTime.UtcNow;
+
+                    _executionLogService.Log(LogBuilder.DetectedNewShopifyOrder(newOrder));
+                    _orderRepository.InsertOrder(newOrder);
+                }
+                else
+                {
+                    existingOrder.ShopifyTotalPrice = order.total_price;
+                    existingOrder.ShopifyFinancialStatus = order.financial_status;
+                    existingOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
+                    existingOrder.ShopifyIsCancelled = order.IsCancelled;
+                    existingOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
+                    existingOrder.ShopifyTotalQuantity = order.TotalQuantity;
+
+                    if (existingOrder.StatusChangeDetected(order))
+                    {
+                        existingOrder.NeedsOrderPut = true;
+                    }
+
+                    existingOrder.NeedsTransactionGet = true;
+                    existingOrder.LastUpdated = DateTime.UtcNow;
+
+                    _executionLogService.Log(LogBuilder.DetectedUpdateShopifyOrder(existingOrder));
+                    _orderRepository.SaveChanges();
                 }
 
-                existingOrder.NeedsTransactionGet = true;
-                existingOrder.LastUpdated = DateTime.UtcNow;
-
-                _executionLogService.Log(LogBuilder.DetectedUpdateShopifyOrder(existingOrder));
-                _orderRepository.SaveChanges();
+                _shopifyJsonService.Upsert(ShopifyJsonType.Order, order.id, order.SerializeToJson());
+                transaction.Commit();
             }
         }
-        
+
+
         public void UpsertOrderFulfillments(Order order)
         {
             var orderRecord = _orderRepository.RetrieveOrder(order.id);

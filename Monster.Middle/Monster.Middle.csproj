@@ -158,7 +158,10 @@
     <Compile Include="Persist\Instance\MiscPersistContext.cs" />
     <Compile Include="Misc\Logging\LogLevel.cs" />
     <Compile Include="Misc\State\StateExtensions.cs" />
-    <Compile Include="Processes\Shopify\Persist\CustomerExtensions.cs" />
+    <Compile Include="Processes\Acumatica\Persist\AcumaticaJsonService.cs" />
+    <Compile Include="Processes\Acumatica\Persist\AcumaticaJsonType.cs" />
+    <Compile Include="Processes\Shopify\Persist\ShopifyJsonType.cs" />
+    <Compile Include="Processes\Shopify\Persist\ShopifyJsonService.cs" />
     <Compile Include="Processes\Sync\Misc\SystemConsts.cs" />
     <Compile Include="Processes\Sync\Misc\WeightCalc.cs" />
     <Compile Include="Processes\Sync\Misc\Descriptors.cs" />

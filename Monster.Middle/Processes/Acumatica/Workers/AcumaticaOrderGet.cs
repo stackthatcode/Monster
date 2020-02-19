@@ -30,6 +30,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly SettingsRepository _settingsRepository;
         private readonly ExecutionLogService _executionLogService;
         private readonly JobMonitoringService _jobMonitoringService;
+        private readonly AcumaticaJsonService _acumaticaJsonService;
 
 
         public AcumaticaOrderGet(
@@ -42,7 +43,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 ShipmentClient shipmentClient, 
                 InvoiceClient invoiceClient, 
                 ExecutionLogService executionLogService,
-                JobMonitoringService jobMonitoringService)
+                JobMonitoringService jobMonitoringService, 
+                AcumaticaJsonService acumaticaJsonService)
         {
             _orderRepository = orderRepository;
             _timeZoneService = timeZoneService;
@@ -54,6 +56,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _invoiceClient = invoiceClient;
             _executionLogService = executionLogService;
             _jobMonitoringService = jobMonitoringService;
+            _acumaticaJsonService = acumaticaJsonService;
         }
 
         public void Run(string orderId)
@@ -125,25 +128,34 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 }
 
                 var orderNbr = order.OrderNbr.value;
-                var existingData = _orderRepository.RetrieveSalesOrder(orderNbr);
 
-                if (existingData == null)
+                AcumaticaSalesOrder existingData;
+
+                using (var transaction = _orderRepository.BeginTransaction())
                 {
-                    // Skip Sales Orders that were not intentionally loaded into Acumatica
-                    //
-                    continue;
+                    existingData = _orderRepository.RetrieveSalesOrder(orderNbr);
+
+                    if (existingData == null)
+                    {
+                        // Skip Sales Orders that were not intentionally loaded into Acumatica
+                        //
+                        continue;
+                    }
+
+                    _acumaticaJsonService.Upsert(
+                        AcumaticaJsonType.SalesOrderShipments, orderNbr, SalesOrderType.SO, order.SerializeToJson());
+
+                    existingData.AcumaticaFreight = (decimal) order.Totals.Freight.value;
+                    existingData.AcumaticaLineTotal = (decimal) order.Totals.LineTotalAmount.value;
+                    existingData.AcumaticaTaxTotal = (decimal) order.Totals.TaxTotal.value;
+                    existingData.AcumaticaOrderTotal = (decimal) order.OrderTotal.value;
+                    existingData.AcumaticaStatus = order.Status.value;
+                    existingData.AcumaticaIsTaxValid = order.IsTaxValid.value;
+                    existingData.LastUpdated = DateTime.UtcNow;
+
+                    _orderRepository.SaveChanges();
+                    transaction.Commit();
                 }
-
-                existingData.AcumaticaShipmentDetailsJson = order.SerializeToJson();
-                existingData.AcumaticaFreight = (decimal)order.Totals.Freight.value;
-                existingData.AcumaticaLineTotal = (decimal)order.Totals.LineTotalAmount.value;
-                existingData.AcumaticaTaxTotal = (decimal)order.Totals.TaxTotal.value;
-                existingData.AcumaticaOrderTotal = (decimal)order.OrderTotal.value;
-                existingData.AcumaticaStatus = order.Status.value;
-                existingData.AcumaticaIsTaxValid = order.IsTaxValid.value;
-                existingData.LastUpdated = DateTime.UtcNow;
-
-                _orderRepository.SaveChanges();
 
                 UpsertSoShipments(existingData);
 
@@ -154,7 +166,8 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void UpsertSoShipments(AcumaticaSalesOrder salesOrderRecord)
         {
-            var salesOrder = salesOrderRecord.ToSalesOrderObj();
+            var salesOrder = _acumaticaJsonService.RetrieveSalesOrder(salesOrderRecord.AcumaticaOrderNbr);
+
             foreach (var shipment in salesOrder.Shipments)
             {
                 var exists = 
@@ -193,8 +206,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
         public void PopulateSoShipments(AcumaticaSalesOrder salesOrderRecord)
         {
-            var soShipments = 
-                _orderRepository.RetrieveSoShipments(salesOrderRecord.ShopifyOrderMonsterId);
+            var soShipments = _orderRepository.RetrieveSoShipments(salesOrderRecord.ShopifyOrderMonsterId);
 
             foreach (var soShipment in soShipments)
             {
@@ -241,8 +253,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             return $"(BLANK TRACKING #) - {Guid.NewGuid()}";
         }
-
-
     }
 }
 

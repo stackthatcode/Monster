@@ -23,6 +23,8 @@ namespace Monster.Web.Controllers
         private readonly InstanceContext _instanceContext;
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly ShopifyUrlService _shopifyUrlService;
+        private readonly ShopifyJsonService _shopifyJsonService;
+
 
         public AnalysisController(
                 ExecutionLogService logRepository,
@@ -30,7 +32,7 @@ namespace Monster.Web.Controllers
                 PendingActionService pendingActionService,
                 InstanceContext instanceContext, 
                 ShopifyOrderRepository shopifyOrderRepository, 
-                ShopifyUrlService shopifyUrlService)
+                ShopifyUrlService shopifyUrlService, ShopifyJsonService shopifyJsonService)
         {
             _logRepository = logRepository;
             _analysisDataService = analysisDataService;
@@ -38,6 +40,7 @@ namespace Monster.Web.Controllers
             _instanceContext = instanceContext;
             _shopifyOrderRepository = shopifyOrderRepository;
             _shopifyUrlService = shopifyUrlService;
+            _shopifyJsonService = shopifyJsonService;
         }
 
 
@@ -76,21 +79,22 @@ namespace Monster.Web.Controllers
             var financialSummary = _analysisDataService.GetOrderFinancialSummary(shopifyOrderId, true);
             var rootAction = _pendingActionService.Create(shopifyOrderId);
 
-            var order = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
-            var finAnalyzer = order.ToFinAnalyzer();
+            var record = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);
+            var order = _shopifyJsonService.RetrieveOrder(record.ShopifyOrderId);
+            var finAnalyzer = record.ToFinAnalyzer(order);
 
             var shopifyDetail = new
             {
                 ShopifyOrderId = shopifyOrderId,
-                ShopifyOrderNbr = order.ShopifyOrderNumber,
+                ShopifyOrderNbr = record.ShopifyOrderNumber,
                 ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(shopifyOrderId),
-                ShopifyCustomerId = order.ShopifyCustomer.ShopifyCustomerId,
-                ShopifyCustomerHref = _shopifyUrlService.ShopifyCustomerUrl(order.ShopifyCustomer.ShopifyCustomerId),
+                ShopifyCustomerId = record.ShopifyCustomer.ShopifyCustomerId,
+                ShopifyCustomerHref = _shopifyUrlService.ShopifyCustomerUrl(record.ShopifyCustomer.ShopifyCustomerId),
 
-                ShopifyFinancialStatus = order.ShopifyFinancialStatus,
-                ShopifyFulfillmentStatus = order.ShopifyFulfillmentStatus,
-                ShopifyIsCancelled = order.ShopifyIsCancelled,
-                ShopifyAreAllItemsRefunded = order.IsCancelledOrAllRefunded(),
+                ShopifyFinancialStatus = record.ShopifyFinancialStatus,
+                ShopifyFulfillmentStatus = record.ShopifyFulfillmentStatus,
+                ShopifyIsCancelled = record.ShopifyIsCancelled,
+                ShopifyAreAllItemsRefunded = record.IsCancelledOrAllRefunded(),
 
                 Transfer = finAnalyzer,
             };

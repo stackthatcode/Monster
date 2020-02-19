@@ -15,6 +15,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly CustomerApi _customerApi;
         private readonly ShopifyOrderRepository _orderRepository;
         private readonly ShopifyBatchRepository _batchRepository;
+        private readonly ShopifyJsonService _shopifyJsonService;
         private readonly SettingsRepository _settingsRepository;
         private readonly JobMonitoringService _jobMonitoringService;
         
@@ -23,13 +24,15 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 ShopifyOrderRepository orderRepository,
                 ShopifyBatchRepository batchRepository,
                 SettingsRepository settingsRepository, 
-                JobMonitoringService jobMonitoringService)
+                JobMonitoringService jobMonitoringService, 
+                ShopifyJsonService shopifyJsonService)
         {
             _customerApi = customerApi;
             _orderRepository = orderRepository;
             _batchRepository = batchRepository;
             _settingsRepository = settingsRepository;
             _jobMonitoringService = jobMonitoringService;
+            _shopifyJsonService = shopifyJsonService;
         }
 
 
@@ -111,31 +114,34 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public ShopifyCustomer UpsertCustomer(Customer customer)
         {
-            var existingCustomer 
-                = _orderRepository.RetrieveCustomer(customer.id);
-
-            if (existingCustomer == null)
+            using (var transaction = _orderRepository.BeginTransaction())
             {
-                var newCustomer = new ShopifyCustomer();
-                newCustomer.ShopifyCustomerId = customer.id;
-                newCustomer.ShopifyJson = customer.SerializeToJson();
-                newCustomer.ShopifyPrimaryEmail = customer.email;
-                newCustomer.DateCreated = DateTime.UtcNow;
-                newCustomer.LastUpdated = DateTime.UtcNow;
-                newCustomer.NeedsCustomerPut = true;
+                var existingCustomer = _orderRepository.RetrieveCustomer(customer.id);
 
-                _orderRepository.InsertCustomer(newCustomer);
-                return newCustomer;
-            }
-            else
-            {
-                existingCustomer.ShopifyJson = customer.SerializeToJson();
-                existingCustomer.ShopifyPrimaryEmail = customer.email;
-                existingCustomer.NeedsCustomerPut = true;
-                existingCustomer.LastUpdated = DateTime.UtcNow;
+                if (existingCustomer == null)
+                {
+                    var newCustomer = new ShopifyCustomer();
+                    newCustomer.ShopifyCustomerId = customer.id;
+                    newCustomer.ShopifyPrimaryEmail = customer.email;
+                    newCustomer.DateCreated = DateTime.UtcNow;
+                    newCustomer.LastUpdated = DateTime.UtcNow;
+                    newCustomer.NeedsCustomerPut = true;
 
-                _orderRepository.SaveChanges();
-                return existingCustomer;
+                    _orderRepository.InsertCustomer(newCustomer);
+                    return newCustomer;
+                }
+                else
+                {
+                    existingCustomer.ShopifyPrimaryEmail = customer.email;
+                    existingCustomer.NeedsCustomerPut = true;
+                    existingCustomer.LastUpdated = DateTime.UtcNow;
+
+                    _orderRepository.SaveChanges();
+                    return existingCustomer;
+                }
+
+                _shopifyJsonService.Upsert(ShopifyJsonType.Customer, customer.id, customer.SerializeToJson());
+                transaction.Commit();
             }
         }        
     }

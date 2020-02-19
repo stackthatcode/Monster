@@ -25,6 +25,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private readonly JobMonitoringService _jobMonitoringService;
         private readonly ShopifyBatchRepository _batchRepository;
         private readonly ExecutionLogService _executionLogService;
+        private readonly ShopifyJsonService _shopifyJsonService;
         private readonly IPushLogger _logger;
         
         public ShopifyInventoryGet(
@@ -35,7 +36,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 ShopifyInventoryRepository inventoryRepository,
                 JobMonitoringService jobMonitoringService,
                 ShopifyBatchRepository batchRepository, 
-                ExecutionLogService executionLogService)
+                ExecutionLogService executionLogService, ShopifyJsonService shopifyJsonService)
         {
             _productApi = productApi;
             _inventoryApi = inventoryApi;
@@ -44,6 +45,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
             _jobMonitoringService = jobMonitoringService;
             _batchRepository = batchRepository;
             _executionLogService = executionLogService;
+            _shopifyJsonService = shopifyJsonService;
             _logger = logger;
         }
 
@@ -79,7 +81,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             // We've hanging on to this to compute the end of the Batch State
             var startOfRun = DateTime.UtcNow;
-            var firstJson = _productApi.Retrieve(firstFilter);
+            var firstJson = _productApi.RetrieveProduct(firstFilter);
             var firstProducts = firstJson.DeserializeFromJson<ProductList>().products;
 
             UpsertProductsAndInventory(firstProducts);
@@ -96,7 +98,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 var currentFilter = firstFilter.Clone();
                 currentFilter.Page = currentPage;
                 
-                var currentJson = _productApi.Retrieve(currentFilter);
+                var currentJson = _productApi.RetrieveProduct(currentFilter);
                 var currentProducts = currentJson.DeserializeFromJson<ProductList>().products;
                 UpsertProductsAndInventory(currentProducts);
 
@@ -118,7 +120,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public long Run(long shopifyProductId)
         {
-            var productJson = _productApi.Retrieve(shopifyProductId);
+            var productJson = _productApi.RetrieveProduct(shopifyProductId);
             var product = productJson.DeserializeFromJson<ProductParent>();
             return UpsertProductAndInventory(product.product);
         }
@@ -138,37 +140,41 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public long UpsertProductAndInventory(Product product)
         {
-            var existing = _inventoryRepository.RetrieveProduct(product.id);
-
             long productMonsterId;
-                
-            if (existing == null)
+
+            using (var transaction = _inventoryRepository.BeginTransaction())
             {
-                var data = new ShopifyProduct();
-                data.ShopifyProductId = product.id;
-                data.ShopifyTitle = product.title ?? "";
-                data.ShopifyProductType = product.product_type;
-                data.ShopifyVendor = product.vendor;
-                data.ShopifyJson = product.SerializeToJson();
-                data.DateCreated = DateTime.UtcNow;
-                data.LastUpdated = DateTime.UtcNow;
+                var existing = _inventoryRepository.RetrieveProduct(product.id);
+                if (existing == null)
+                {
+                    var data = new ShopifyProduct();
+                    data.ShopifyProductId = product.id;
+                    data.ShopifyTitle = product.title ?? "";
+                    data.ShopifyProductType = product.product_type;
+                    data.ShopifyVendor = product.vendor;
+                    data.DateCreated = DateTime.UtcNow;
+                    data.LastUpdated = DateTime.UtcNow;
 
-                _inventoryRepository.InsertProduct(data);
-                _inventoryRepository.SaveChanges();
+                    _inventoryRepository.InsertProduct(data);
+                    _inventoryRepository.SaveChanges();
 
-                productMonsterId = data.MonsterId;
+                    productMonsterId = data.MonsterId;
+                }
+                else
+                {
+                    existing.ShopifyTitle = product.title ?? "";
+                    existing.ShopifyProductType = product.product_type;
+                    existing.ShopifyVendor = product.vendor;
+                    existing.LastUpdated = DateTime.UtcNow;
+                    _inventoryRepository.SaveChanges();
+
+                    productMonsterId = existing.MonsterId;
+                }
+
+                _shopifyJsonService.Upsert(ShopifyJsonType.Product, product.id, product.SerializeToJson());
+                transaction.Commit();
             }
-            else
-            {
-                existing.ShopifyTitle = product.title ?? "";
-                existing.ShopifyProductType = product.product_type;
-                existing.ShopifyVendor = product.vendor;
-                existing.ShopifyJson = product.SerializeToJson();
-                existing.LastUpdated = DateTime.UtcNow;
-                _inventoryRepository.SaveChanges();
 
-                productMonsterId = existing.MonsterId;
-            }
 
             // Write the Product Variants
             UpsertProduct(productMonsterId, product);
@@ -200,35 +206,45 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
             else
             {
-                existing.ShopifySku = variant.sku;
-                existing.ShopifyTitle = variant.title ?? "";
-                existing.ShopifyVariantJson = variant.SerializeToJson();
-                existing.ShopifyIsTaxable = variant.taxable;
-                existing.ShopifyPrice = (decimal)variant.price;
 
-                existing.LastUpdated = DateTime.UtcNow;
 
-                _inventoryRepository.SaveChanges();
+                using (var transaction = _inventoryRepository.BeginTransaction())
+                {
+                    existing.ShopifySku = variant.sku;
+                    existing.ShopifyTitle = variant.title ?? "";
+                    existing.ShopifyIsTaxable = variant.taxable;
+                    existing.ShopifyPrice = (decimal) variant.price;
+                    existing.LastUpdated = DateTime.UtcNow;
+
+                    _shopifyJsonService.Upsert(ShopifyJsonType.Variant, variant.id, variant.SerializeToJson());
+                    _inventoryRepository.SaveChanges();
+                    transaction.Commit();
+                }
             }
         }
 
         public ShopifyVariant CreateNewVariantRecord(long parentProductId, Variant variant)
         {
-            var data = new ShopifyVariant();
-            data.ParentMonsterId = parentProductId;
-            data.ShopifyVariantId = variant.id;
-            data.ShopifySku = variant.sku;
-            data.ShopifyTitle = variant.title ?? "";
-            data.ShopifyInventoryItemId = variant.inventory_item_id;
-            data.ShopifyVariantJson = variant.SerializeToJson();
-            data.ShopifyIsTaxable = variant.taxable;
-            data.ShopifyPrice = (decimal) variant.price;
-            data.IsMissing = false;
-            data.DateCreated = DateTime.UtcNow;
-            data.LastUpdated = DateTime.UtcNow;
+            using (var transaction = _inventoryRepository.BeginTransaction())
+            {
+                var data = new ShopifyVariant();
+                data.ParentMonsterId = parentProductId;
+                data.ShopifyVariantId = variant.id;
+                data.ShopifySku = variant.sku;
+                data.ShopifyTitle = variant.title ?? "";
+                data.ShopifyInventoryItemId = variant.inventory_item_id;
+                data.ShopifyIsTaxable = variant.taxable;
+                data.ShopifyPrice = (decimal) variant.price;
+                data.IsMissing = false;
+                data.DateCreated = DateTime.UtcNow;
+                data.LastUpdated = DateTime.UtcNow;
 
-            _inventoryRepository.InsertVariant(data);
-            return data;
+                _inventoryRepository.InsertVariant(data);
+                _shopifyJsonService.Upsert(ShopifyJsonType.Variant, variant.id, variant.SerializeToJson());
+                transaction.Commit();
+
+                return data;
+            }
         }
 
         public void ProcessMissingVariants(long parentMonsterId, Product shopifyProduct)

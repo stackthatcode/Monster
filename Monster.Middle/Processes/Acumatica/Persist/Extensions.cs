@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Monster.Acumatica.Api.Distribution;
 using Monster.Acumatica.Api.SalesOrder;
-using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Acumatica.Persist
@@ -17,11 +13,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             return input.AddMinutes(FudgeFactorMinutes);
         }
 
-        public static SalesOrder ToSalesOrderObj(this AcumaticaSalesOrder orderRecord)
-        {
-            return orderRecord.AcumaticaShipmentDetailsJson.ToSalesOrderObj();
-        }
-
         public static SalesOrder ToSalesOrderObj(this string json)
         {
             return json.DeserializeFromJson<SalesOrder>();
@@ -32,9 +23,5 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             return json.DeserializeFromJson<SalesInvoice>();
         }
 
-        public static StockItem ToStockItemObj(this AcumaticaStockItem acumaticaStockItem)
-        {
-            return acumaticaStockItem.AcumaticaJson.DeserializeFromJson<StockItem>();
-        }
     }
 }

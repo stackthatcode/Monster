@@ -10,19 +10,9 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTranfser
 {
     public static class TaxTransferOrderExtensions
     {
-        public static string ToSerializedAndZippedTaxTransfer(this ShopifyOrder orderRecord)
-        {
-            return orderRecord.ToShopifyObj().ToSerializedAndZippedTaxTransfer();
-        }
-
         public static string ToSerializedAndZippedTaxTransfer(this Order order)
         {
             return order.ToTaxTransfer().Serialize().ToBase64Zip();
-        }
-
-        public static TaxTransfer.v2.TaxTransfer ToTaxTransfer(this ShopifyOrder shopifyOrderRecord)
-        {
-            return shopifyOrderRecord.ToShopifyObj().ToTaxTransfer();
         }
 
         public static TaxTransfer.v2.TaxTransfer ToTaxTransfer(this Order shopifyOrder)

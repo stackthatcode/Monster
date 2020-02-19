@@ -25,9 +25,10 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly ShopifyOrderRepository _shopifyOrderRepository;
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
-        private readonly ExecutionLogService _logService;
         private readonly FulfillmentStatusService _fulfillmentStatusService;
         private readonly JobMonitoringService _jobMonitoringService;
+        private readonly ShopifyJsonService _shopifyJsonService;
+        private readonly ExecutionLogService _logService;
         private readonly IPushLogger _pushLogger;
 
         public ShopifyFulfillmentPut(
@@ -37,7 +38,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 FulfillmentApi fulfillmentApi, 
                 ExecutionLogService logService, 
                 FulfillmentStatusService fulfillmentStatusService, 
-                IPushLogger pushLogger, JobMonitoringService jobMonitoringService)
+                IPushLogger pushLogger, JobMonitoringService jobMonitoringService, 
+                ShopifyJsonService shopifyJsonService)
         {
             _shopifyOrderRepository = shopifyOrderRepository;
             _syncOrderRepository = syncOrderRepository;
@@ -47,6 +49,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _fulfillmentStatusService = fulfillmentStatusService;
             _pushLogger = pushLogger;
             _jobMonitoringService = jobMonitoringService;
+            _shopifyJsonService = shopifyJsonService;
         }
 
 
@@ -107,7 +110,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var orderRecord = _syncOrderRepository.RetrieveSalesOrder(salesOrderNbr);
 
             var shopifyOrderRecord = orderRecord.OriginalShopifyOrder();
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();            
+            var shopifyOrder = _shopifyJsonService.RetrieveOrder(shopifyOrderRecord.ShopifyOrderId);            
             var shipment = salesOrderShipment.AcumaticaShipmentJson.DeserializeFromJson<Shipment>();
             
             var location = RetrieveMatchingLocation(shipment);
@@ -181,7 +184,10 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var warehouse = _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
             var locationRecord = warehouse.MatchedLocation();
-            var location = locationRecord.ShopifyJson.DeserializeFromJson<Location>();
+            var location = 
+                _shopifyJsonService
+                    .RetrieveJson(ShopifyJsonType.Location, locationRecord.ShopifyLocationId)
+                    .DeserializeFromJson<Location>();
             return location;
         }
     }

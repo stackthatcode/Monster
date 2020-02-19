@@ -25,6 +25,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SettingsRepository _settingsRepository;
         private readonly ShopifyInventoryRepository _inventoryRepository;
         private readonly ExecutionLogService _executionLogService;
+        private readonly AcumaticaJsonService _acumaticaJsonService;
         private readonly IPushLogger _logger;
 
         public ShopifyInventoryPut(
@@ -34,7 +35,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 SyncInventoryRepository syncInventoryRepository, 
                 SettingsRepository settingsRepository,
                 ExecutionLogService executionLogService, 
-                IPushLogger logger)
+                IPushLogger logger, AcumaticaJsonService acumaticaJsonService)
         {
             _inventoryApi = inventoryApi;
             _productApi = productApi;
@@ -43,6 +44,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _settingsRepository = settingsRepository;
             _executionLogService = executionLogService;
             _logger = logger;
+            _acumaticaJsonService = acumaticaJsonService;
         }
 
         public void Run()
@@ -152,7 +154,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             var settings = _settingsRepository.RetrieveSettings();
             var variantRecord = stockItemRecord.MatchedVariant();
-            var stockItemObj = stockItemRecord.ToStockItemObj();
+            var stockItemObj = _acumaticaJsonService.RetrieveStockItem(stockItemRecord.ItemId);
 
             // Build the Shopify DTO
             //

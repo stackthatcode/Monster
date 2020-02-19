@@ -12,11 +12,17 @@ namespace Monster.Middle.Processes.Shopify.Workers
     {
         private readonly ProductApi _productApi;
         private readonly ShopifyInventoryRepository _locationRepository;
+        private readonly ShopifyJsonService _shopifyJsonService;
 
-        public ShopifyLocationGet(ProductApi productApi, ShopifyInventoryRepository locationRepository)
+
+        public ShopifyLocationGet(
+                ProductApi productApi, 
+                ShopifyInventoryRepository locationRepository, 
+                ShopifyJsonService shopifyJsonService)
         {
             _productApi = productApi;
             _locationRepository = locationRepository;
+            _shopifyJsonService = shopifyJsonService;
         }
 
         public void Run()
@@ -32,28 +38,31 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var dataLocation = dataLocations.FindByShopifyId(shopifyLoc);
 
-                if (dataLocation == null)
+                using (var transaction = _locationRepository.BeginTransaction())
                 {
-                    var newDataLocation = new ShopifyLocation
+                    if (dataLocation == null)
                     {
-                        ShopifyLocationId = shopifyLoc.id,
-                        ShopifyJson = shopifyLoc.SerializeToJson(),
-                        ShopifyLocationName = shopifyLoc.name,
-                        ShopifyActive = shopifyLoc.active,
-                        DateCreated = DateTime.UtcNow,
-                        LastUpdated = DateTime.UtcNow,
-                    };
+                        var newDataLocation = new ShopifyLocation
+                        {
+                            ShopifyLocationId = shopifyLoc.id,
+                            ShopifyLocationName = shopifyLoc.name,
+                            ShopifyActive = shopifyLoc.active,
+                            DateCreated = DateTime.UtcNow,
+                            LastUpdated = DateTime.UtcNow,
+                        };
 
-                    _locationRepository.InsertLocation(newDataLocation);
-                }
-                else
-                {
-                    dataLocation.LastUpdated = DateTime.UtcNow;
-                    dataLocation.ShopifyJson = shopifyLoc.SerializeToJson();
-                    dataLocation.ShopifyLocationName = shopifyLoc.name;
-                    dataLocation.ShopifyActive = shopifyLoc.active;
-
+                        _locationRepository.InsertLocation(newDataLocation);
+                    }
+                    else
+                    {
+                        dataLocation.LastUpdated = DateTime.UtcNow;
+                        dataLocation.ShopifyLocationName = shopifyLoc.name;
+                        dataLocation.ShopifyActive = shopifyLoc.active;
+                    }
                     _locationRepository.SaveChanges();
+                    _shopifyJsonService.Upsert(ShopifyJsonType.Location, shopifyLoc.id, shopifyLoc.SerializeToJson());
+
+                    transaction.Commit();
                 }
             }
         }

@@ -13,7 +13,6 @@ using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Persist;
-using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 
 
@@ -25,8 +24,10 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly CustomerClient _customerClient;
         private readonly JobMonitoringService _jobMonitoringService;
-        private readonly ExecutionLogService _logService;
+        private readonly AcumaticaJsonService _acumaticaJsonService;
+        private readonly ShopifyJsonService _shopifyJsonService;
         private readonly SettingsRepository _settingsRepository;
+        private readonly ExecutionLogService _logService;
 
 
         public AcumaticaCustomerPut(
@@ -35,7 +36,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 CustomerClient customerClient, 
                 JobMonitoringService jobMonitoringService,
                 ExecutionLogService logService, 
-                SettingsRepository settingsRepository)
+                SettingsRepository settingsRepository, AcumaticaJsonService acumaticaJsonService)
         {
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _syncOrderRepository = syncOrderRepository;
@@ -43,6 +44,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _jobMonitoringService = jobMonitoringService;
             _logService = logService;
             _settingsRepository = settingsRepository;
+            _acumaticaJsonService = acumaticaJsonService;
         }
 
         public void Run()
@@ -119,35 +121,50 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public AcumaticaCustomer CreateAcumaticaCustomerRecord(ShopifyCustomer shopifyRecord, Customer acumaticaCustomer)
         {
-            var newRecord = new AcumaticaCustomer();
+            using (var transaction = _acumaticaOrderRepository.BeginTransaction())
+            {
+                var newRecord = new AcumaticaCustomer();
 
-            newRecord.AcumaticaCustomerId = acumaticaCustomer.CustomerID.value;
-            newRecord.AcumaticaJson = acumaticaCustomer.SerializeToJson();
-            newRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
-            newRecord.DateCreated = DateTime.UtcNow;
-            newRecord.LastUpdated = DateTime.UtcNow;
+                newRecord.AcumaticaCustomerId = acumaticaCustomer.CustomerID.value;
+                newRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
+                newRecord.DateCreated = DateTime.UtcNow;
+                newRecord.LastUpdated = DateTime.UtcNow;
 
-            shopifyRecord.AcumaticaCustomer = newRecord;
-            shopifyRecord.NeedsCustomerPut = false;
+                shopifyRecord.AcumaticaCustomer = newRecord;
+                shopifyRecord.NeedsCustomerPut = false;
 
-            _acumaticaOrderRepository.InsertCustomer(newRecord);
-            return newRecord;
+                _acumaticaOrderRepository.InsertCustomer(newRecord);
+
+                _acumaticaJsonService.Upsert(
+                    AcumaticaJsonType.Customer, 
+                    acumaticaCustomer.CustomerID.value,
+                    acumaticaCustomer.SerializeToJson());
+
+                return newRecord;
+            }
         }
+
 
         public void UpdateCustomerInAcumatica(ShopifyCustomer shopifyRecord)
         {
             _logService.Log(LogBuilder.UpdateAcumaticaCustomer(shopifyRecord));
 
-            var acumaticaCustomer = BuildCustomer(shopifyRecord);
-            var result = _customerClient.WriteCustomer(acumaticaCustomer);
+            using (var transaction = _acumaticaOrderRepository.BeginTransaction())
+            {
+                var acumaticaCustomer = BuildCustomer(shopifyRecord);
+                var result = _customerClient.WriteCustomer(acumaticaCustomer);
 
-            var acumaticaRecord = shopifyRecord.AcumaticaCustomer;
-            acumaticaRecord.AcumaticaJson = result.SerializeToJson();
-            acumaticaRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
-            acumaticaRecord.LastUpdated = DateTime.UtcNow;
+                var acumaticaRecord = shopifyRecord.AcumaticaCustomer;
+                acumaticaRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
+                acumaticaRecord.LastUpdated = DateTime.UtcNow;
 
-            shopifyRecord.NeedsCustomerPut = false;
-            _syncOrderRepository.SaveChanges();
+                shopifyRecord.NeedsCustomerPut = false;
+                _syncOrderRepository.SaveChanges();
+
+                _acumaticaJsonService.Upsert(
+                    AcumaticaJsonType.Customer, acumaticaRecord.AcumaticaCustomerId, result.SerializeToJson());
+                transaction.Commit();
+            }
         }
 
 
@@ -180,7 +197,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         private Customer BuildCustomer(ShopifyCustomer customerRecord)
         {
-            var shopifyCustomer = customerRecord.ToJsonObj();
+            var shopifyCustomer = _shopifyJsonService.RetrieveCustomer(customerRecord.ShopifyCustomerId);
 
             var name = shopifyCustomer.first_name + " " + shopifyCustomer.last_name;
             var settings = _settingsRepository.RetrieveSettings();

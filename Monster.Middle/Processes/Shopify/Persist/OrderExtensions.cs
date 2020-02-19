@@ -9,16 +9,6 @@ namespace Monster.Middle.Processes.Shopify.Persist
 {
     public static class OrderExtensions
     {
-        public static Order ToShopifyObj(this ShopifyOrder input)
-        {
-            return input.ShopifyJson.DeserializeToOrder();
-        }
-
-        public static Transaction ToShopifyObj(this ShopifyTransaction input)
-        {
-            return input.ShopifyJson.DeserializeFromJson<Transaction>();
-        }
-
         public static bool StatusChangeDetected(this ShopifyOrder currentRecord, Order newOrder)
         {
             return

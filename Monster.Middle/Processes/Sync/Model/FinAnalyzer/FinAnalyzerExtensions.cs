@@ -8,10 +8,8 @@ namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
 {
     public static class FinAnalyzerExtensions
     {
-        public static FinAnalyzer ToFinAnalyzer(this ShopifyOrder shopifyOrderRecord)
+        public static FinAnalyzer ToFinAnalyzer(this ShopifyOrder orderRecord, Order shopifyOrder)
         {
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-
             var FinAnalyzer = new FinAnalyzer();
             FinAnalyzer.ExternalRefNbr = shopifyOrder.id.ToString();
 
@@ -48,7 +46,7 @@ namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
                 FinAnalyzer.Refunds.Add(xferRefund);
             }
 
-            FinAnalyzer.Payment = shopifyOrderRecord.PaymentAmount();
+            FinAnalyzer.Payment = orderRecord.PaymentAmount();
             return FinAnalyzer;
         }
 
@@ -63,6 +61,6 @@ namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
                 ? new List<FinAnalyzerTaxLine>()
                 : shippingLines.First().tax_lines.ToFinAnalyzerTaxLines();
         }
-
     }
 }
+

@@ -162,6 +162,8 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyTransactionGet>().InstancePerLifetimeScope();
 
             builder.RegisterType<ShopifyManager>().InstancePerLifetimeScope();
+
+            builder.RegisterType<ShopifyJsonService>().InstancePerLifetimeScope();
         }
 
         private static void RegisterAcumaticaProcess(ContainerBuilder builder)
@@ -179,6 +181,8 @@ namespace Monster.Middle
             builder.RegisterType<AcumaticaReferenceGet>().InstancePerLifetimeScope();
 
             builder.RegisterType<AcumaticaManager>().InstancePerLifetimeScope();
+
+            builder.RegisterType<AcumaticaJsonService>().InstancePerLifetimeScope();
         }
 
         private static void RegisterSyncProcess(ContainerBuilder builder)

@@ -25,6 +25,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly DistributionClient _distributionClient;
         private readonly SettingsRepository _settingsRepository;
         private readonly ExecutionLogService _logService;
+        private readonly ShopifyJsonService _shopifyJsonService;
+        private readonly AcumaticaJsonService _acumaticaJsonService;
         private readonly JobMonitoringService _jobMonitoringService;
 
         public AcumaticaStockItemPut(
@@ -33,14 +35,17 @@ namespace Monster.Middle.Processes.Sync.Workers
                 DistributionClient distributionClient,
                 SettingsRepository settingsRepository,
                 ExecutionLogService logService,
-                JobMonitoringService jobMonitoringService)
+                ShopifyJsonService shopifyJsonService,
+                JobMonitoringService jobMonitoringService, AcumaticaJsonService acumaticaJsonService)
         {
             _syncRepository = syncRepository;
             _inventoryRepository = inventoryRepository;
             _distributionClient = distributionClient;
             _settingsRepository = settingsRepository;
             _logService = logService;
+            _shopifyJsonService = shopifyJsonService;
             _jobMonitoringService = jobMonitoringService;
+            _acumaticaJsonService = acumaticaJsonService;
         }
 
         public void RunImportToAcumatica(AcumaticaStockItemImportContext context)
@@ -143,7 +148,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             var newRecord = new AcumaticaStockItem();
 
             newRecord.ItemId = item.InventoryID.value;
-            newRecord.AcumaticaJson = item.SerializeToJson();
+
+            _acumaticaJsonService.Upsert(
+                AcumaticaJsonType.StockItem, item.InventoryID.value, null, item.SerializeToJson());
+
             newRecord.AcumaticaDescription = item.Description.value;
             newRecord.AcumaticaTaxCategory = item.TaxCategory.value;
             newRecord.IsVariantSynced = false;
@@ -189,7 +197,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var monsterReceipt = new AcumaticaInventoryReceipt();
             monsterReceipt.AcumaticaRefNumber = resultObject.ReferenceNbr.value;
-            monsterReceipt.AcumaticaJson = resultJson;
             monsterReceipt.IsReleased = false;
             monsterReceipt.DateCreated = DateTime.UtcNow;
             monsterReceipt.LastUpdate = DateTime.UtcNow;
@@ -212,9 +219,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             var defaultPostingClass = settings.AcumaticaDefaultPostingClass;
 
             var defaultTaxCategory = variant.ShopifyIsTaxable.TaxCategory(settings);
-
-            var shopifyVariant = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
-            var shopifyProduct = variant.ShopifyProduct.ShopifyJson.DeserializeFromJson<Product>();
+            var shopifyVariant = _shopifyJsonService.RetrieveVariant(variant.ShopifyVariantId);
+            var shopifyProduct = _shopifyJsonService.RetrieveProduct(variant.ShopifyProduct.ShopifyProductId);
 
             var newStockItem = new StockItem();
             newStockItem.InventoryID = variant.StandardizedSku().ToValue();

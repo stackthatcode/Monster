@@ -25,6 +25,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly SettingsRepository _settingsRepository;
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
         private readonly AcumaticaOrderPut _acumaticaOrderSync;
+        
         private readonly IPushLogger _logger;
 
         public AcumaticaRefundPut(
@@ -49,51 +50,51 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
-        private ReturnForCreditWrite BuildReturnForCredit(ShopifyRefund refundRecord, MonsterSetting settings)
-        {
-            var shopifyOrderRecord = refundRecord.ShopifyOrder;
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
-            var salesOrderRecord = shopifyOrderRecord.SyncedSalesOrder();
-            var salesOrder = salesOrderRecord.ToSalesOrderObj();
+        //private ReturnForCreditWrite BuildReturnForCredit(ShopifyRefund refundRecord, MonsterSetting settings)
+        //{
+        //    var shopifyOrderRecord = refundRecord.ShopifyOrder;
+        //    var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+        //    var salesOrderRecord = shopifyOrderRecord.SyncedSalesOrder();
+        //    var salesOrder = salesOrderRecord.ToSalesOrderObj();
             
-            var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
+        //    var refund = shopifyOrder.refunds.First(x => x.id == refundRecord.ShopifyRefundId);
 
-            var creditMemo = new ReturnForCreditWrite();
-            creditMemo.OrderType = SalesOrderType.CM.ToValue();
-            creditMemo.CustomerID = salesOrder.CustomerID.Copy();
-            creditMemo.Description = $"Shopify Order #{shopifyOrder.order_number} Refund {refund.id}".ToValue();
+        //    var creditMemo = new ReturnForCreditWrite();
+        //    creditMemo.OrderType = SalesOrderType.CM.ToValue();
+        //    creditMemo.CustomerID = salesOrder.CustomerID.Copy();
+        //    creditMemo.Description = $"Shopify Order #{shopifyOrder.order_number} Refund {refund.id}".ToValue();
 
-            creditMemo.FinancialSettings = new FinancialSettings()
-            {
-                OverrideTaxZone = true.ToValue(),
-                CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
-            };
+        //    creditMemo.FinancialSettings = new FinancialSettings()
+        //    {
+        //        OverrideTaxZone = true.ToValue(),
+        //        CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
+        //    };
 
-            foreach (var _return in refund.Returns)
-            {
-                var detail = BuildReturnDetail(shopifyOrder, _return);
-                creditMemo.Details.Add(detail);
-            }
+        //    foreach (var _return in refund.Returns)
+        //    {
+        //        var detail = BuildReturnDetail(shopifyOrder, _return);
+        //        creditMemo.Details.Add(detail);
+        //    }
 
-            return creditMemo;
-        }
+        //    return creditMemo;
+        //}
 
-        private ReturnForCreditWriteDetail BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
-        {
-            var lineItem = shopifyOrder.LineItem(_return.line_item_id);
-            var variant = _syncRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
+        //private ReturnForCreditWriteDetail BuildReturnDetail(Order shopifyOrder, RefundLineItem _return)
+        //{
+        //    var lineItem = shopifyOrder.LineItem(_return.line_item_id);
+        //    var variant = _syncRepository.RetrieveVariant(lineItem.variant_id.Value, lineItem.sku);
 
-            // TODO - this could cause failure if there's a change in inventory
-            var stockItemId = variant.MatchedStockItem().ItemId;
-            var location = _syncRepository.RetrieveLocation(_return.location_id.Value);
-            var warehouse = location.MatchedWarehouse();
+        //    // TODO - this could cause failure if there's a change in inventory
+        //    var stockItemId = variant.MatchedStockItem().ItemId;
+        //    var location = _syncRepository.RetrieveLocation(_return.location_id.Value);
+        //    var warehouse = location.MatchedWarehouse();
 
-            var detail = new ReturnForCreditWriteDetail();
-            detail.InventoryID = stockItemId.ToValue();
-            detail.OrderQty = ((double) _return.quantity).ToValue();
-            detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
-            return detail;
-        }
+        //    var detail = new ReturnForCreditWriteDetail();
+        //    detail.InventoryID = stockItemId.ToValue();
+        //    detail.OrderQty = ((double) _return.quantity).ToValue();
+        //    detail.WarehouseID = warehouse.AcumaticaWarehouseId.ToValue();
+        //    return detail;
+        //}
     }
 }
 

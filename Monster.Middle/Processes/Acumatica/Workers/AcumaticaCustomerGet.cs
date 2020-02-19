@@ -21,7 +21,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly SettingsRepository _settingsRepository;
         private readonly JobMonitoringService _jobMonitoringService;
         private readonly AcumaticaHttpConfig _config;
-
+        private readonly AcumaticaJsonService _acumaticaJsonService;
 
         public AcumaticaCustomerGet(
                 CustomerClient customerClient,
@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 AcumaticaTimeZoneService instanceTimeZoneService,
                 SettingsRepository settingsRepository,
                 JobMonitoringService jobMonitoringService,
-                AcumaticaHttpConfig config)
+                AcumaticaHttpConfig config, AcumaticaJsonService acumaticaJsonService)
         {
             _customerClient = customerClient;
             _orderRepository = orderRepository;
@@ -39,6 +39,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _settingsRepository = settingsRepository;
             _jobMonitoringService = jobMonitoringService;
             _config = config;
+            _acumaticaJsonService = acumaticaJsonService;
         }
 
 
@@ -101,7 +102,11 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             if (existingRecord != null)
             {
-                existingRecord.AcumaticaJson = acumaticaCustomer.SerializeToJson();
+                _acumaticaJsonService.Upsert(
+                    AcumaticaJsonType.Customer, 
+                    acumaticaCustomer.CustomerID.value, 
+                    null, 
+                    acumaticaCustomer.SerializeToJson());
                 existingRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
                 existingRecord.LastUpdated = DateTime.UtcNow;
                 _orderRepository.SaveChanges();

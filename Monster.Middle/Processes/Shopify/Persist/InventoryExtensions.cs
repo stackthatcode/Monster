@@ -71,18 +71,8 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return !variant.IsMatched();
         }
 
-        public static Variant ToVariantObj(this ShopifyVariant variant)
+        public static double CogsByMarginPercent(this Variant variantObject, double marginPercent)
         {
-            return variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
-        }
-
-
-        public static double CogsByMarginPercent(
-                    this ShopifyVariant variant, double marginPercent)
-        {
-            var variantObject 
-                = variant.ShopifyVariantJson.DeserializeFromJson<Variant>();
-
             return variantObject.price * marginPercent;
         }
 
@@ -102,20 +92,9 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
-        public static int ControlQty(
-                this IEnumerable<ShopifyInventoryLevel> input)
+        public static int ControlQty(this IEnumerable<ShopifyInventoryLevel> input)
         {
             return input.Sum(x => x.ShopifyAvailableQuantity);
-
-        }
-        public static double ControlCost(
-                this IEnumerable<ShopifyInventoryLevel> input,
-                double defaultCogs)
-        {
-            return input.Sum(
-                x =>
-                    x.ShopifyVariant.CogsByMarginPercent(defaultCogs)
-                    * x.ShopifyAvailableQuantity);
         }
     }
 }

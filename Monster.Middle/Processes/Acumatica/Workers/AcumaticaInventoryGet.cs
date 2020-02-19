@@ -18,6 +18,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         private readonly AcumaticaInventoryRepository _inventoryRepository;
         private readonly AcumaticaBatchRepository _batchStateRepository;
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
+        private readonly AcumaticaJsonService _acumaticaJsonService;
         private readonly AcumaticaHttpConfig _config;
         private readonly ExecutionLogService _executionLogService;
 
@@ -26,14 +27,16 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     AcumaticaInventoryRepository inventoryRepository,
                     AcumaticaBatchRepository batchStateRepository,
                     AcumaticaTimeZoneService instanceTimeZoneService,
-                    AcumaticaHttpConfig config,
-                    ExecutionLogService executionLogService)
+                    AcumaticaJsonService acumaticaJsonService,
+                    ExecutionLogService executionLogService,
+                    AcumaticaHttpConfig config)
         {
             _inventoryClient = inventoryClient;
             _inventoryRepository = inventoryRepository;
             _batchStateRepository = batchStateRepository;
             _executionLogService = executionLogService;
             _instanceTimeZoneService = instanceTimeZoneService;
+            _acumaticaJsonService = acumaticaJsonService;
             _config = config;
         }
 
@@ -86,35 +89,43 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             {
                 var existingData = _inventoryRepository.RetreiveStockItem(item.InventoryID.value);
 
-                if (existingData == null)
+                using (var transaction = _inventoryRepository.BeginTransaction())
                 {
-                    var newData = new AcumaticaStockItem();
-                    newData.ItemId = item.InventoryID.value;
-                    newData.AcumaticaJson = item.SerializeToJson();
-                    newData.AcumaticaDescription = item.Description.value;
-                    newData.AcumaticaTaxCategory = item.TaxCategory.value;
-                    newData.AcumaticaDefaultPrice = (decimal)item.DefaultPrice.value;
-                    newData.AcumaticaLastCost = (decimal)item.LastCost.value;
 
-                    newData.IsVariantSynced = false;
-                    newData.DateCreated = DateTime.UtcNow;
-                    newData.LastUpdated = DateTime.UtcNow;
+                    if (existingData == null)
+                    {
+                        var newData = new AcumaticaStockItem();
+                        newData.ItemId = item.InventoryID.value;
+                        newData.AcumaticaDescription = item.Description.value;
+                        newData.AcumaticaTaxCategory = item.TaxCategory.value;
+                        newData.AcumaticaDefaultPrice = (decimal) item.DefaultPrice.value;
+                        newData.AcumaticaLastCost = (decimal) item.LastCost.value;
 
-                    _executionLogService.Log(LogBuilder.DetectedNewStockItem(newData));
-                    _inventoryRepository.InsertStockItems(newData);
-                }
-                else
-                {
-                    existingData.AcumaticaJson = item.SerializeToJson();
-                    existingData.AcumaticaDescription = item.Description.value;
-                    existingData.AcumaticaTaxCategory = item.TaxCategory.value;
-                    existingData.AcumaticaDefaultPrice = (decimal)item.DefaultPrice.value;
-                    existingData.AcumaticaLastCost = (decimal)item.LastCost.value;
-                    existingData.IsVariantSynced = false;
-                    existingData.LastUpdated = DateTime.UtcNow;
+                        newData.IsVariantSynced = false;
+                        newData.DateCreated = DateTime.UtcNow;
+                        newData.LastUpdated = DateTime.UtcNow;
 
-                    _executionLogService.Log(LogBuilder.DetectedChangeToStockItem(existingData));
-                    _inventoryRepository.SaveChanges();
+                        _executionLogService.Log(LogBuilder.DetectedNewStockItem(newData));
+                        _inventoryRepository.InsertStockItems(newData);
+
+                    }
+                    else
+                    {
+                        existingData.AcumaticaDescription = item.Description.value;
+                        existingData.AcumaticaTaxCategory = item.TaxCategory.value;
+                        existingData.AcumaticaDefaultPrice = (decimal) item.DefaultPrice.value;
+                        existingData.AcumaticaLastCost = (decimal) item.LastCost.value;
+                        existingData.IsVariantSynced = false;
+                        existingData.LastUpdated = DateTime.UtcNow;
+
+                        _executionLogService.Log(LogBuilder.DetectedChangeToStockItem(existingData));
+                        _inventoryRepository.SaveChanges();
+                    }
+
+                    _acumaticaJsonService.Upsert(
+                        AcumaticaJsonType.StockItem, item.InventoryID.value, item.SerializeToJson());
+                    
+                    transaction.Commit(); 
                 }
             }
         }

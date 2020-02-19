@@ -15,17 +15,20 @@ namespace Monster.Middle.Processes.Sync.Services
     {
         private readonly SyncOrderRepository _syncOrderRepository;
         private readonly SyncInventoryRepository _syncInventoryRepository;
+        private readonly ShopifyJsonService _shopifyJsonService;
         private readonly SettingsRepository _settingsRepository;
 
 
         public OrderValidationService(
                 SyncOrderRepository syncOrderRepository, 
                 SettingsRepository settingsRepository, 
-                SyncInventoryRepository syncInventoryRepository)
+                SyncInventoryRepository syncInventoryRepository, 
+                ShopifyJsonService shopifyJsonService)
         {
             _syncOrderRepository = syncOrderRepository;
             _settingsRepository = settingsRepository;
             _syncInventoryRepository = syncInventoryRepository;
+            _shopifyJsonService = shopifyJsonService;
         }
 
         public void Validate(OrderAction action)
@@ -64,6 +67,8 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var output = new CreateOrderValidation();
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
+            var order = _shopifyJsonService.RetrieveOrder(shopifyOrderId);
+
             var settings = _settingsRepository.RetrieveSettings();
 
             // If the Starting Shopify Order weren't populated, we would not be here i.e.
@@ -71,7 +76,7 @@ namespace Monster.Middle.Processes.Sync.Services
             //
             output.SettingsStartingOrderId = settings.ShopifyOrderId.Value;
             output.ShopifyOrderRecord = orderRecord;
-            output.ShopifyOrder = orderRecord.ToShopifyObj();
+            output.ShopifyOrder = order;
 
             BuildLineItemValidations(output, settings);
 

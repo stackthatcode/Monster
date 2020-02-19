@@ -3,6 +3,7 @@ using System.Linq;
 using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
@@ -22,12 +23,14 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly ProductApi _productApi;
         private readonly ShopifyInventoryGet _shopifyInventoryGet;
         private readonly ShopifyInventoryPut _shopifyInventoryPut;
+        private readonly AcumaticaJsonService _acumaticaJsonService;
 
         public ShopifyProductVariantPut(
                 SyncInventoryRepository syncInventoryRepository,
                 SettingsRepository settingsRepository,
                 ShopifyInventoryGet shopifyInventoryGet, 
                 ShopifyInventoryPut shopifyInventoryPut,
+                AcumaticaJsonService acumaticaJsonService,
                 ExecutionLogService logService,
                 ProductApi productApi)
         {
@@ -35,6 +38,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _settingsRepository = settingsRepository;
             _shopifyInventoryGet = shopifyInventoryGet;
             _shopifyInventoryPut = shopifyInventoryPut;
+            _acumaticaJsonService = acumaticaJsonService;
             _logService = logService;
             _productApi = productApi;
         }
@@ -101,7 +105,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // POST new Product via Shopify API
             //
-            var result = _productApi.Create(parent.SerializeToJson());
+            var result = _productApi.CreateProduct(parent.SerializeToJson());
             var resultProduct = result.DeserializeFromJson<ProductParent>();
             var shopifyProductId = resultProduct.product.id;
 
@@ -157,7 +161,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             foreach (var itemId in itemIds)
             {
                 var stockItemRecord = _syncInventoryRepository.RetrieveStockItem(itemId);
-                var stockItem = stockItemRecord.AcumaticaJson.DeserializeFromJson<StockItem>();
+                var stockItem = _acumaticaJsonService.RetrieveStockItem(itemId);
+
                 var price = stockItem.DefaultPrice.value;
 
                 var isTaxable = stockItemRecord.IsTaxable(settings);

@@ -5,9 +5,9 @@ using Monster.Acumatica.Api.Distribution;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Sync.Model.Inventory;
-using Monster.Middle.Processes.Sync.Persist.Matching;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
+
 
 namespace Monster.Middle.Processes.Acumatica.Workers
 {
@@ -15,48 +15,52 @@ namespace Monster.Middle.Processes.Acumatica.Workers
     {
         private readonly AcumaticaInventoryRepository _dataRepository;
         private readonly DistributionClient _acumaticaInventoryApi;
-        private readonly IPushLogger _logger;
+        private readonly AcumaticaJsonService _acumaticaJsonService;
+
 
         public AcumaticaWarehouseGet(
                 AcumaticaInventoryRepository dataRepository,
                 DistributionClient acumaticaInventoryApi,
-                IPushLogger logger)
+                AcumaticaJsonService acumaticaJsonService)
         {
             _dataRepository = dataRepository;
             _acumaticaInventoryApi = acumaticaInventoryApi;
-            _logger = logger;
+            _acumaticaJsonService = acumaticaJsonService;
         }
 
         public void Run()
         {
             var warehouses =
-                _acumaticaInventoryApi
-                    .RetrieveWarehouses()
-                    .DeserializeFromJson<List<Warehouse>>();
+                _acumaticaInventoryApi.RetrieveWarehouses().DeserializeFromJson<List<Warehouse>>();
             
             var warehouseRecords = _dataRepository.RetrieveWarehouses();
 
             foreach (var warehouse in warehouses)
             {
-                var warehouseRecord = warehouseRecords.FindByAcumaticaId(warehouse);
-
-                if (warehouseRecord == null)
+                using (var transaction = _dataRepository.BeginTransaction())
                 {
-                    var newDataWarehouse = new AcumaticaWarehouse
+                    var warehouseRecord = warehouseRecords.FindByAcumaticaId(warehouse);
+
+                    if (warehouseRecord == null)
                     {
-                        AcumaticaWarehouseId = warehouse.WarehouseID.value,
-                        AcumaticaJson = warehouse.SerializeToJson(),
-                        DateCreated = DateTime.UtcNow,
-                        LastUpdated = DateTime.UtcNow,
-                    };
+                        var newDataWarehouse = new AcumaticaWarehouse
+                        {
+                            AcumaticaWarehouseId = warehouse.WarehouseID.value,
+                            DateCreated = DateTime.UtcNow,
+                            LastUpdated = DateTime.UtcNow,
+                        };
 
-                    _dataRepository.InsertWarehouse(newDataWarehouse);
-                }
-                else
-                {
-                    warehouseRecord.AcumaticaJson = warehouse.SerializeToJson();
-                    warehouseRecord.LastUpdated = DateTime.UtcNow;
-                    _dataRepository.SaveChanges();
+                        _dataRepository.InsertWarehouse(newDataWarehouse);
+                    }
+                    else
+                    {
+                        warehouseRecord.LastUpdated = DateTime.UtcNow;
+                        _dataRepository.SaveChanges();
+                    }
+
+                    _acumaticaJsonService.Upsert(
+                        AcumaticaJsonType.SalesOrderShipments, warehouse.WarehouseID.value, warehouse.SerializeToJson());
+                    transaction.Commit();
                 }
             }
         }

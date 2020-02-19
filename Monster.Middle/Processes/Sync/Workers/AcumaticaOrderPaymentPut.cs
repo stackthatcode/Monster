@@ -32,9 +32,11 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly InvoiceClient _invoiceClient;
         private readonly SettingsRepository _settingsRepository;
         private readonly AcumaticaTimeZoneService _acumaticaTimeZoneService;
+        private readonly ShopifyJsonService _shopifyJsonService;
         private readonly PendingActionService _pendingActionService;
-        private readonly IPushLogger _systemLogger;
         private readonly JobMonitoringService _jobMonitoringService;
+        private readonly IPushLogger _systemLogger;
+
 
         public AcumaticaOrderPaymentPut(
                     SyncOrderRepository syncOrderRepository, 
@@ -42,20 +44,20 @@ namespace Monster.Middle.Processes.Sync.Workers
                     SettingsRepository settingsRepository, 
                     ExecutionLogService logService, 
                     PendingActionService pendingActionService, 
-                    IPushLogger systemLogger, 
                     JobMonitoringService jobMonitoringService,
                     AcumaticaTimeZoneService acumaticaTimeZoneService, 
-                    InvoiceClient invoiceClient)
+                    InvoiceClient invoiceClient,
+                    IPushLogger systemLogger)
         {
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
             _settingsRepository = settingsRepository;
-            _logService = logService;
             _pendingActionService = pendingActionService;
             _systemLogger = systemLogger;
             _jobMonitoringService = jobMonitoringService;
             _acumaticaTimeZoneService = acumaticaTimeZoneService;
             _invoiceClient = invoiceClient;
+            _logService = logService;
         }
 
 
@@ -208,9 +210,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
+        
         public PaymentWrite BuildPaymentForCreate(ShopifyTransaction transactionRecord)
         {
-            var transaction = transactionRecord.ToShopifyObj();
+            var transaction = _shopifyJsonService.RetrieveTransaction(transactionRecord.ShopifyTransactionId);
             var gateway = _settingsRepository.RetrievePaymentGatewayByShopifyId(transaction.gateway);
 
             // Locate the Acumatica Customer
@@ -222,8 +225,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Build the Payment Ref and Description
             //
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrder(transactionRecord.OrderId());
-            var order = orderRecord.ToShopifyObj();
-
+            var order = _shopifyJsonService.RetrieveOrder(orderRecord.ShopifyOrderId);
 
             // Create the payload for Acumatica
             //
@@ -280,8 +282,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         private PaymentWrite BuildCustomerRefund(ShopifyTransaction transactionRecord)
         {
-            var transaction = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
-
+            var transaction = _shopifyJsonService.RetrieveTransaction(transactionRecord.ShopifyTransactionId);
             var paymentGateway = _settingsRepository.RetrievePaymentGatewayByShopifyId(transaction.gateway);
 
             // Locate the Acumatica Customer

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Monster.Middle.Misc.Acumatica;
@@ -7,6 +8,7 @@ using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.Shopify;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -354,13 +356,48 @@ namespace Monster.Web.Controllers
             var searchRecords = 
                 _syncInventoryRepository.ProductSearchRecords(terms, onlyHavingUnsyncedVariants, 0, maxRecords);
 
-            var searchResult = searchRecords
-                .Select(x => ShopifyProductModel.Make(x, _shopifyUrlService.ShopifyProductUrl)).ToList();
+            var searchResult = searchRecords.Select(x => MakeProductModel(x)).ToList();
 
             var searchCount = _syncInventoryRepository.ProductSearchCount(terms, onlyHavingUnsyncedVariants);
 
             var output = new { searchResult, searchCount, };
             return new JsonNetResult(output);
+        }
+
+
+        public ShopifyProductModel MakeProductModel(ShopifyProduct input, bool includeVariantGraph = false)
+        {
+            var output = new ShopifyProductModel();
+
+            output.ProductTitle = input.ShopifyTitle;
+            output.ProductType = input.ShopifyProductType;
+            output.Vendor = input.ShopifyVendor;
+            output.ShopifyProductId = input.ShopifyProductId;
+            output.VariantCount = input.NonMissingVariants().Count();
+            output.ShopifyUrl = _shopifyUrlService.ShopifyProductUrl(input.ShopifyProductId);
+            output.SyncedVariantCount = input.NonMissingVariants().Count(x => x.AcumaticaStockItems.Any());
+
+            if (includeVariantGraph)
+            {
+                output.Variants = input.NonMissingVariants().Select(x => MakeVariantModel(x)).ToList();
+            }
+
+            return output;
+        }
+
+        public ShopifyVariantModel MakeVariantModel(ShopifyVariant input)
+        {
+            var output = new ShopifyVariantModel();
+            output.ShopifyVariantId = input.ShopifyVariantId;
+            output.Sku = input.ShopifySku;
+            output.VariantTitle = input.ShopifyTitle;
+            output.Price = (decimal)input.ShopifyPrice;
+            output.AvailableQuantity = input.ShopifyInventoryLevels.Sum(x => x.ShopifyAvailableQuantity);
+            output.IsMissing = input.IsMissing;
+
+            output.IsLoadedInAcumatica = input.IsMatched();
+
+            return output;
         }
 
 
@@ -377,8 +414,7 @@ namespace Monster.Web.Controllers
         public ActionResult ProductDetail(long shopifyProductId)
         {
             var product = _syncInventoryRepository.RetrieveProduct(shopifyProductId);
-            var output = ShopifyProductModel
-                .Make(product, _shopifyUrlService.ShopifyProductUrl, includeVariantGraph: true);
+            var output = MakeProductModel(product, includeVariantGraph: true);
             return new JsonNetResult(output);
         }
 

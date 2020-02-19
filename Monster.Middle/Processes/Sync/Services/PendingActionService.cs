@@ -86,21 +86,23 @@ namespace Monster.Middle.Processes.Sync.Services
             return output;
         }
 
+        private readonly ShopifyJsonService _shopifyJsonService;
+
+
         private OrderAction BuildOrderPendingAction(ShopifyOrder record)
         {
             var output = new OrderAction();
+            var order = _shopifyJsonService.RetrieveOrder(record.ShopifyOrderId);
 
             output.ShopifyOrderId = record.ShopifyOrderId;
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(record.ShopifyOrderId);
-            output.ShopifyOrderName = record.ToShopifyObj().name;
+            output.ShopifyOrderName = order.name;
             
             output.Validation = new ValidationResult();
             output.ActionCode = ActionCode.None;
 
             if (!record.ExistsInAcumatica())
             {
-                var order = record.ToShopifyObj();
-
                 output.ActionCode =
                     order.IsCancelled || order.AreAllLineItemsRefunded
                         ? ActionCode.CreateBlankSyncRecord

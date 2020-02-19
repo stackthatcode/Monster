@@ -16,6 +16,14 @@ namespace Push.Shopify.Api
             _httpClient = httpClient;
         }
 
+
+        public string RetrieveLocation(long id)
+        {
+            var path = $"/admin/locations/{id}.json";
+            var response = _httpClient.Get(path);
+            return response.Body;
+        }
+
         public string RetrieveLocations()
         {
             var path = $"/admin/locations.json";

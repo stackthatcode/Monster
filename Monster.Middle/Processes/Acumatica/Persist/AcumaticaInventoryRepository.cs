@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
-using Monster.Middle.Persist.Instance;
 
 namespace Monster.Middle.Processes.Acumatica.Persist
 {
@@ -15,6 +14,11 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         public AcumaticaInventoryRepository(ProcessPersistContext dataContext)
         {
             _dataContext = dataContext;
+        }
+
+        public DbContextTransaction BeginTransaction()
+        {
+            return _dataContext.Entities.Database.BeginTransaction();
         }
 
 

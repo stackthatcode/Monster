@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using Monster.Middle.Persist.Instance;
 using Monster.Middle.Persist.Instance;
 
 namespace Monster.Middle.Processes.Shopify.Persist
@@ -17,7 +15,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
             _dataContext = dataContext;
         }
 
-
+        public DbContextTransaction BeginTransaction()
+        {
+            return _dataContext.Entities.Database.BeginTransaction();
+        }
 
         // Shopify Order persistence
         //

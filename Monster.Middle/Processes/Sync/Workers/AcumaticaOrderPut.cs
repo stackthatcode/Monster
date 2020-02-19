@@ -39,6 +39,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
         private readonly AcumaticaTimeZoneService _acumaticaTimeZoneService;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
+        private readonly ShopifyJsonService _shopifyJsonService;
         private readonly PendingActionService _pendingActionService;
         private readonly JobMonitoringService _jobMonitoringService;
         private readonly SalesOrderClient _salesOrderClient;
@@ -57,6 +58,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 PendingActionService pendingActionService,
                 JobMonitoringService jobMonitoringService,
                 AcumaticaTimeZoneService acumaticaTimeZoneService,
+                ShopifyJsonService shopifyJsonService,
                 SettingsRepository settingsRepository,
                 ExecutionLogService logRepository,
                 IPushLogger systemLogger)
@@ -70,6 +72,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _acumaticaTimeZoneService = acumaticaTimeZoneService;
             _pendingActionService = pendingActionService;
             _jobMonitoringService = jobMonitoringService;
+            _shopifyJsonService = shopifyJsonService;
             _settingsRepository = settingsRepository;
             _logService = logRepository;
             _systemLogger = systemLogger;
@@ -115,8 +118,6 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             try
             {
-
-
                 // *** SAVE THIS, JONES! - This little branch of logic increases throughput!!
                 //
                 var orderPreAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
@@ -261,7 +262,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             acumaticaRecord.AcumaticaIsTaxValid = true;
             acumaticaRecord.AcumaticaStatus = "N/A";
             acumaticaRecord.AcumaticaOrderNbr = AcumaticaSyncConstants.BlankRefNbr;
-            acumaticaRecord.AcumaticaShipmentDetailsJson = String.Empty;
             acumaticaRecord.ShopifyOrder = shopifyRecord;
             acumaticaRecord.AcumaticaCustomer = shopifyRecord.ShopifyCustomer.AcumaticaCustomer;
             acumaticaRecord.DateCreated = DateTime.UtcNow;
@@ -276,13 +276,16 @@ namespace Monster.Middle.Processes.Sync.Workers
         //
         private SalesOrder BuildNewSalesOrder(ShopifyOrder shopifyOrderRecord, AcumaticaCustomer customer)
         {
+            // Get the Shopify Order
+            //
+            var shopifyOrder = _shopifyJsonService.RetrieveOrder(shopifyOrderRecord.ShopifyOrderId);
+
             // Header
             //
-            var salesOrder = BuildNewSalesOrderHeader(shopifyOrderRecord, customer);
+            var salesOrder = BuildNewSalesOrderHeader(shopifyOrderRecord, shopifyOrder, customer);
 
             // Detail
             //
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
             salesOrder.Details = BuildSalesOrderDetail(shopifyOrder);
 
             // Billing Address & Contact
@@ -341,11 +344,10 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
         private SalesOrder BuildNewSalesOrderHeader(
-                    ShopifyOrder shopifyOrderRecord, AcumaticaCustomer customer)
+                ShopifyOrder shopifyOrderRecord, Order shopifyOrder, AcumaticaCustomer customer)
         {
             var transactionRecord = shopifyOrderRecord.PaymentTransaction();
-            var payment = transactionRecord.ShopifyJson.DeserializeFromJson<Transaction>();
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+            var payment = _shopifyJsonService.RetrieveTransaction(transactionRecord.ShopifyTransactionId);
 
             var settings = _settingsRepository.RetrieveSettings();
             var gateway = _settingsRepository.RetrievePaymentGatewayByShopifyId(payment.gateway);
@@ -395,7 +397,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
             };
 
-            var taxTransfer = shopifyOrderRecord.ToSerializedAndZippedTaxTransfer();
+            var taxTransfer = shopifyOrder.ToSerializedAndZippedTaxTransfer();
             salesOrder.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
 
             return salesOrder;
@@ -436,7 +438,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         //
         public SalesOrderUpdate BuildSalesOrderUpdate(ShopifyOrder shopifyOrderRecord)
         {
-            var shopifyOrder = shopifyOrderRecord.ToShopifyObj();
+            var shopifyOrder = _shopifyJsonService.RetrieveOrder(shopifyOrderRecord.ShopifyOrderId);
             var salesOrderRecord = shopifyOrderRecord.SyncedSalesOrder();
 
             var existingSalesOrder
@@ -477,8 +479,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 salesOrderUpdate.Details.Add(detail);
             }
 
-            var taxTransfer = shopifyOrderRecord.ToSerializedAndZippedTaxTransfer();
-
+            var taxTransfer = shopifyOrder.ToSerializedAndZippedTaxTransfer();
             salesOrderUpdate.custom = new SalesOrderUsrTaxSnapshot(taxTransfer);
             return salesOrderUpdate;
         }

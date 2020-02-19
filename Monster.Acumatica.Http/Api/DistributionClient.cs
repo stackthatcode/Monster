@@ -28,6 +28,17 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+        public string RetrieveWarehouse(string Id)
+        {
+            var queryString =
+                new QueryStringBuilder()
+                    .Add("$expand", "Locations")
+                    .ToString();
+
+            var response = _httpContext.Get($"Warehouse/{Id}?{queryString}");
+            return response.Body;
+        }
+
         public string RetrieveStockItems(DateTime? lastModifiedAcuTz = null, int page = 1, int? pageSize = null)
         {
             var queryString = "$filter=ItemStatus eq 'Active'";
@@ -50,6 +61,12 @@ namespace Monster.Acumatica.Api
         public string AddNewStockItem(string content)
         {
             var response = _httpContext.Put("StockItem", content);
+            return response.Body;
+        }
+
+        public string RetrieveStockItem(string Id)
+        {
+            var response = _httpContext.Get($"StockItem/{Id}");
             return response.Body;
         }
 
