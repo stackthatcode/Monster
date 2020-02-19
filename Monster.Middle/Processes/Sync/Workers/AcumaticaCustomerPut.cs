@@ -140,6 +140,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                     acumaticaCustomer.CustomerID.value,
                     acumaticaCustomer.SerializeToJson());
 
+                transaction.Commit();
                 return newRecord;
             }
         }

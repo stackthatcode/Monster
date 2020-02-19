@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Monster.Middle.Persist.Instance;
@@ -19,6 +20,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
         private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
         private readonly CustomerApi _customerApi;
+        private readonly ShopifyOrderRepository _orderRepository;
 
         public ShopifyJsonService(
                 OrderApi orderApi, 
@@ -79,11 +81,13 @@ namespace Monster.Middle.Processes.Shopify.Persist
             }
             else
             {
-                var json = RetrieveExternalJson(shopifyJsonType, shopifyId);
-                record.Json = json;
-                record.LastAccessed = DateTime.UtcNow;
-                Entities.SaveChanges();
-                return json;
+                if (rehydrate == true)
+                {
+                    HydrateExternalJson(shopifyJsonType, shopifyId);
+                }
+
+                var rehydratedRecord = RetrieveRecordOnly(shopifyJsonType, shopifyId);
+                return rehydratedRecord.Json;
             }
         }
 
@@ -111,31 +115,52 @@ namespace Monster.Middle.Processes.Shopify.Persist
             }
         }
 
-        private string RetrieveExternalJson(int shopifyJsonType, long shopifyId)
+        public void UpdateRecord(int shopifyJsonType, long shopifyId, string json)
+        {
+            var record = RetrieveRecordOnly(shopifyJsonType, shopifyId);
+            record.Json = json;
+            record.LastAccessed = DateTime.UtcNow;
+            Entities.SaveChanges();
+        }
+
+        private void HydrateExternalJson(int shopifyJsonType, long shopifyId)
         {
             if (shopifyJsonType == ShopifyJsonType.Location)
             {
-                return _inventoryApi.RetrieveLocation(shopifyId);
+                var json = _inventoryApi.RetrieveLocation(shopifyId);
+                UpdateRecord(shopifyJsonType, shopifyId, json);
             }
             if (shopifyJsonType == ShopifyJsonType.Customer)
             {
-                return _customerApi.Retrieve(shopifyId);
+                var json = _customerApi.Retrieve(shopifyId);
+                UpdateRecord(shopifyJsonType, shopifyId, json);
             }
             if (shopifyJsonType == ShopifyJsonType.Product)
             {
-                return _productApi.RetrieveProduct(shopifyId);
+                var json = _productApi.RetrieveProduct(shopifyId);
+                UpdateRecord(shopifyJsonType, shopifyId, json);
             }
             if (shopifyJsonType == ShopifyJsonType.Variant)
             {
-                return _productApi.RetrieveVariant(shopifyId);
+                var json = _productApi.RetrieveVariant(shopifyId);
+                UpdateRecord(shopifyJsonType, shopifyId, json);
             }
             if (shopifyJsonType == ShopifyJsonType.Order)
             {
-                return _orderApi.Retrieve(shopifyId);
+                var json = _orderApi.Retrieve(shopifyId);
+                UpdateRecord(shopifyJsonType, shopifyId, json);
             }
             if (shopifyJsonType == ShopifyJsonType.Transaction)
             {
-                return _orderApi.RetrieveTransactions(shopifyId);
+                var record = _orderRepository.RetrieveTransaction(shopifyId);
+
+                var transactions =
+                    _orderApi.RetrieveTransactions(shopifyId)
+                        .DeserializeFromJson<List<Push.Shopify.Api.Transactions.Transaction>>();
+                foreach (var transaction in transactions)
+                {
+                    UpdateRecord(shopifyJsonType, transaction.id, transaction.SerializeToJson());
+                }
             }
 
             throw new NotImplementedException();

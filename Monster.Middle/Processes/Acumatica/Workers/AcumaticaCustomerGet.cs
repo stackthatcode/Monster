@@ -102,14 +102,18 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 
             if (existingRecord != null)
             {
-                _acumaticaJsonService.Upsert(
-                    AcumaticaJsonType.Customer, 
-                    acumaticaCustomer.CustomerID.value, 
-                    null, 
-                    acumaticaCustomer.SerializeToJson());
-                existingRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
-                existingRecord.LastUpdated = DateTime.UtcNow;
-                _orderRepository.SaveChanges();
+                using (var transaction = _orderRepository.BeginTransaction())
+                {
+                    _acumaticaJsonService.Upsert(
+                        AcumaticaJsonType.Customer,
+                        acumaticaCustomer.CustomerID.value,
+                        null,
+                        acumaticaCustomer.SerializeToJson());
+                    existingRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
+                    existingRecord.LastUpdated = DateTime.UtcNow;
+                    _orderRepository.SaveChanges();
+                    transaction.Commit();
+                }
             }
         }
 

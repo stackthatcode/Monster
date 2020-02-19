@@ -91,7 +91,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public ShopifyTransaction RetrieveTransaction(long shopifyTransactionId)
         {
-            return Entities.ShopifyTransactions.FirstOrDefault(x => x.ShopifyTransactionId == shopifyTransactionId);
+            return Entities
+                .ShopifyTransactions
+                .Include(x => x.ShopifyOrder)
+                .FirstOrDefault(x => x.ShopifyTransactionId == shopifyTransactionId);
         }
 
         public void InsertTransaction(ShopifyTransaction transaction)

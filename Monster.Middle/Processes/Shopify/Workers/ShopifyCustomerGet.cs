@@ -128,6 +128,8 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     newCustomer.NeedsCustomerPut = true;
 
                     _orderRepository.InsertCustomer(newCustomer);
+                    _shopifyJsonService.Upsert(ShopifyJsonType.Customer, customer.id, customer.SerializeToJson());
+                    transaction.Commit();
                     return newCustomer;
                 }
                 else
@@ -137,11 +139,11 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     existingCustomer.LastUpdated = DateTime.UtcNow;
 
                     _orderRepository.SaveChanges();
+                    _shopifyJsonService.Upsert(ShopifyJsonType.Customer, customer.id, customer.SerializeToJson());
+                    transaction.Commit();
                     return existingCustomer;
                 }
 
-                _shopifyJsonService.Upsert(ShopifyJsonType.Customer, customer.id, customer.SerializeToJson());
-                transaction.Commit();
             }
         }        
     }

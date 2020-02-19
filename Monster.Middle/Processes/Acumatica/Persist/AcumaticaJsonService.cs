@@ -35,7 +35,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             Upsert(acumaticaJsonType, acumaticaNbr, null, json);
         }
 
-
         public void Upsert(int acumaticaJsonType, string acumaticaNbr, string acumaticaType, string json)
         {
             var record = RetrieveRecordOnly(acumaticaJsonType, acumaticaNbr, acumaticaType);
