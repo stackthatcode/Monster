@@ -32,7 +32,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         public void Upsert(int acumaticaJsonType, string acumaticaNbr, string json)
         {
-            Upsert(acumaticaJsonType, acumaticaNbr, null, json);
+            Upsert(acumaticaJsonType, acumaticaNbr, String.Empty, json);
         }
 
         public void Upsert(int acumaticaJsonType, string acumaticaNbr, string acumaticaType, string json)
@@ -56,11 +56,11 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         public string RetrieveJson(int acumaticaJsonType, string acumaticaNbr, bool rehydrate = true)
         {
-            return RetrieveJson(acumaticaJsonType, acumaticaNbr, rehydrate);
+            return RetrieveJson(acumaticaJsonType, acumaticaNbr, String.Empty, rehydrate);
         }
 
         public string RetrieveJson(
-                    int acumaticaJsonType, string acumaticaNbr, string acumaticaType = null, bool rehydrate = true)
+                    int acumaticaJsonType, string acumaticaNbr, string acumaticaType = "", bool rehydrate = true)
         {
             var record = RetrieveRecordOnly(acumaticaJsonType, acumaticaNbr, acumaticaType);
 

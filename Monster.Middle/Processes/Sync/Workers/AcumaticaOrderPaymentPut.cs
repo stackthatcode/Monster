@@ -47,13 +47,14 @@ namespace Monster.Middle.Processes.Sync.Workers
                     JobMonitoringService jobMonitoringService,
                     AcumaticaTimeZoneService acumaticaTimeZoneService, 
                     InvoiceClient invoiceClient,
-                    IPushLogger systemLogger)
+                    IPushLogger systemLogger, ShopifyJsonService shopifyJsonService)
         {
             _syncOrderRepository = syncOrderRepository;
             _paymentClient = paymentClient;
             _settingsRepository = settingsRepository;
             _pendingActionService = pendingActionService;
             _systemLogger = systemLogger;
+            _shopifyJsonService = shopifyJsonService;
             _jobMonitoringService = jobMonitoringService;
             _acumaticaTimeZoneService = acumaticaTimeZoneService;
             _invoiceClient = invoiceClient;

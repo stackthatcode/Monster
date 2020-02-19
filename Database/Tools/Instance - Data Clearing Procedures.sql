@@ -95,6 +95,9 @@ GO
 
 CREATE PROCEDURE dbo.DeleteAllSystemRecords
 AS
+	DELETE FROM AcumaticaJsonStore;
+	DELETE FROM ShopifyJsonStore;
+
 	DELETE FROM AcumaticaBatchState;
 	DELETE FROM ShopifyBatchState;
 

@@ -22,6 +22,8 @@ namespace Monster.Middle.Processes.Sync.Services
         private readonly FulfillmentStatusService _fulfillmentStatusService;
         private readonly ShopifyUrlService _shopifyUrlService;
         private readonly AcumaticaUrlService _acumaticaUrlService;
+        private readonly ShopifyJsonService _shopifyJsonService;
+
 
         public PendingActionService(
                 SyncOrderRepository orderRepository,
@@ -30,7 +32,8 @@ namespace Monster.Middle.Processes.Sync.Services
                 MemoValidationService memoValidationService,
                 FulfillmentStatusService fulfillmentStatusService,
                 ShopifyUrlService shopifyUrlService, 
-                AcumaticaUrlService acumaticaUrlService)
+                AcumaticaUrlService acumaticaUrlService, 
+                ShopifyJsonService shopifyJsonService)
         {
             _syncOrderRepository = orderRepository;
             _orderValidation = orderValidation;
@@ -39,6 +42,7 @@ namespace Monster.Middle.Processes.Sync.Services
             _fulfillmentStatusService = fulfillmentStatusService;
             _shopifyUrlService = shopifyUrlService;
             _acumaticaUrlService = acumaticaUrlService;
+            _shopifyJsonService = shopifyJsonService;
         }
 
 
@@ -85,8 +89,6 @@ namespace Monster.Middle.Processes.Sync.Services
 
             return output;
         }
-
-        private readonly ShopifyJsonService _shopifyJsonService;
 
 
         private OrderAction BuildOrderPendingAction(ShopifyOrder record)
