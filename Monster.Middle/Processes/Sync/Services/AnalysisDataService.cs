@@ -157,7 +157,7 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyCustomerHref =
                 _shopifyUrlService.ShopifyCustomerUrl(shopifyOrderRecord.ShopifyCustomer.ShopifyCustomerId);
 
-            output.ShopifyTotalLinePrice = shopifyOrder.total_line_items_price;
+            output.ShopifyTotalLinePrice = shopifyOrder.LineAmountTotalAfterDiscount;
             output.ShopifyShippingPriceTotal = shopifyOrder.ShippingDiscountedTotal;
             output.ShopifyTotalTax = shopifyOrder.total_tax;
             output.ShopifyOrderTotal = shopifyOrder.total_price;

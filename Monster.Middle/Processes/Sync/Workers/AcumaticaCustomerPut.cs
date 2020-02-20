@@ -36,7 +36,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 CustomerClient customerClient, 
                 JobMonitoringService jobMonitoringService,
                 ExecutionLogService logService, 
-                SettingsRepository settingsRepository, AcumaticaJsonService acumaticaJsonService)
+                SettingsRepository settingsRepository, AcumaticaJsonService acumaticaJsonService, ShopifyJsonService shopifyJsonService)
         {
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _syncOrderRepository = syncOrderRepository;
@@ -45,6 +45,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _logService = logService;
             _settingsRepository = settingsRepository;
             _acumaticaJsonService = acumaticaJsonService;
+            _shopifyJsonService = shopifyJsonService;
         }
 
         public void Run()

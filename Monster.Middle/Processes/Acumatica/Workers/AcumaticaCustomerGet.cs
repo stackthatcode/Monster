@@ -107,7 +107,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     _acumaticaJsonService.Upsert(
                         AcumaticaJsonType.Customer,
                         acumaticaCustomer.CustomerID.value,
-                        null,
                         acumaticaCustomer.SerializeToJson());
                     existingRecord.AcumaticaMainContactEmail = acumaticaCustomer.MainContact.Email.value;
                     existingRecord.LastUpdated = DateTime.UtcNow;

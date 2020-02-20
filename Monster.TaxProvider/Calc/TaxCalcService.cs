@@ -136,7 +136,11 @@ namespace Monster.TaxProvider.Calc
                 //
                 if (lineItem.ItemCode == null)
                 {
-                    result.AddTaxLine(lineItem.Description, 0m, lineItem.Amount, snapshot.NetFreightTax);
+                    if (lineItem.Amount > 0.00m)
+                    {
+                        result.AddTaxLine(lineItem.Description, 0m, lineItem.Amount, snapshot.NetFreightTax);
+                    }
+
                     continue;
                 }
 
