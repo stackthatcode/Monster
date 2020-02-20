@@ -14,8 +14,8 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return input.ShopifyTransactionId == other.ShopifyTransactionId;
         }
 
-        public static ShopifyTransaction Find(
-                this IEnumerable<ShopifyTransaction> input, ShopifyTransaction other)
+        public static ShopifyTransaction 
+                Find(this IEnumerable<ShopifyTransaction> input, ShopifyTransaction other)
         {
             return input.FirstOrDefault(x => x.IsMatch(other));
         }
@@ -62,6 +62,12 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return order.ShopifyTransactions.FirstOrDefault(x => x.DoNotIgnore() && x.IsPayment());
         }
 
+        public static AcumaticaPayment AcumaticaPayment(this ShopifyOrder order)
+        {
+            return order.PaymentTransaction() != null ? order.PaymentTransaction().AcumaticaPayment : null;
+        }
+
+
         public static bool HasPayment(this ShopifyOrder order)
         {
             return order.PaymentTransaction() != null;
@@ -104,7 +110,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
 
         public static decimal PaymentTotalInAcumatica(this ShopifyOrder order)
         {
-            return order.PaymentTransaction()?.AcumaticaPayment.AcumaticaAmount ?? 0m;
+            return order.AcumaticaPayment() != null ? order.AcumaticaPayment().AcumaticaAmount : 0m;
         }
 
         public static decimal RefundTotalInAcumatica(this ShopifyOrder order)
@@ -119,9 +125,14 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return order.PaymentTotalInAcumatica() - order.RefundTotalInAcumatica();
         }
         
-        public static decimal PaymentRemainingInAcumatica(this ShopifyOrder order)
+        // *** IMPORTANT => Shopify is the single source of truth (SSoT) for Payment Transactions
+        //  ... whereas Acumatica is the SSoT for goods issued to Customer via Shipments
+        //
+        public static decimal TheoreticalPaymentRemaining(this ShopifyOrder order)
         {
-            var output = order.NetPaymentInAcumatica() - order.AcumaticaInvoiceTotal();
+            // SAVE => only change this with careful and thorough investigation
+            //
+            var output = order.ShopifyNetPayment() - order.AcumaticaInvoiceTotal();
             return output <= 0.00m ? 0.00m : output;
         }
 

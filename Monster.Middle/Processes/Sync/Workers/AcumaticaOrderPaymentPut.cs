@@ -243,7 +243,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Amount computations
             //
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
-            var appliedToOrder = orderRecord.PaymentRemainingInAcumatica();
+            var appliedToOrder = orderRecord.TheoreticalPaymentRemaining();
 
 
             // Applied to Documents
@@ -272,7 +272,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Create the payload for Acumatica
             //
-            var netPayment = order.PaymentRemainingInAcumatica();
+            var netPayment = order.TheoreticalPaymentRemaining();
             var payment = new PaymentWrite();
             payment.ReferenceNbr = paymentNbr.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
@@ -307,8 +307,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             var acumaticaPayment = order.PaymentTransaction().AcumaticaPayment;
 
             var amountToApply
-                = transaction.amount > order.PaymentRemainingInAcumatica()
-                    ? order.PaymentRemainingInAcumatica()
+                = transaction.amount > order.TheoreticalPaymentRemaining()
+                    ? order.TheoreticalPaymentRemaining()
                     : transaction.amount;
 
             // *** Currently do not like this - the Payment Amount truly NEEDS to match the Transaction Amount
