@@ -46,7 +46,7 @@ namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
                 FinAnalyzer.Refunds.Add(xferRefund);
             }
 
-            FinAnalyzer.Payment = orderRecord.PaymentAmount();
+            FinAnalyzer.Payment = orderRecord.PaymentAmountInShopify();
             return FinAnalyzer;
         }
 

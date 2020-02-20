@@ -243,7 +243,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Amount computations
             //
             payment.PaymentAmount = ((double)transaction.amount).ToValue();
-            var appliedToOrder = orderRecord.NetRemainingPayment();
+            var appliedToOrder = orderRecord.PaymentRemainingInAcumatica();
 
 
             // Applied to Documents
@@ -272,7 +272,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Create the payload for Acumatica
             //
-            var netPayment = order.NetRemainingPayment();
+            var netPayment = order.PaymentRemainingInAcumatica();
             var payment = new PaymentWrite();
             payment.ReferenceNbr = paymentNbr.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
@@ -301,14 +301,23 @@ namespace Monster.Middle.Processes.Sync.Workers
             refundPayment.Hold = false.ToValue();
             refundPayment.Type = PaymentType.CustomerRefund.ToValue();
             refundPayment.PaymentRef = $"{transaction.id}".ToValue();
-            refundPayment.PaymentAmount = ((double)transaction.amount).ToValue();
-
+            
             // Reference to the original Payment
             //
             var acumaticaPayment = order.PaymentTransaction().AcumaticaPayment;
+
+            var amountToApply
+                = transaction.amount > order.PaymentRemainingInAcumatica()
+                    ? order.PaymentRemainingInAcumatica()
+                    : transaction.amount;
+
+            // *** Currently do not like this - the Payment Amount truly NEEDS to match the Transaction Amount
+            //
+            refundPayment.PaymentAmount = ((double) amountToApply).ToValue(); // ((double)transaction.amount).ToValue();
+
             refundPayment.DocumentsToApply 
                 = PaymentDocumentsToApply.ForDocument(
-                        acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double)transaction.amount);
+                    acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double)amountToApply);
 
             // Amounts
             //

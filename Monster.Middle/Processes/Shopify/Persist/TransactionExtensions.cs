@@ -85,17 +85,44 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return order.UnreleasedTransaction().Any();
         }
 
-        public static decimal PaymentAmount(this ShopifyOrder order)
+
+        public static decimal PaymentAmountInShopify(this ShopifyOrder order)
         {
             return (order.PaymentTransaction()?.ShopifyAmount ?? 0m);
         }
 
-        public static decimal NetRemainingPayment(this ShopifyOrder order)
+        public static decimal RefundTotalInShopify(this ShopifyOrder order)
         {
-            return order.PaymentAmount()
-                   - order.RefundTransactions().Sum(x => x.ShopifyAmount)
-                   - order.ShopifyRefunds.Sum(x => x.DebitAdjustment)
-                   - order.AcumaticaInvoiceTotal();
+            return order.RefundTransactions().Sum(x => x.ShopifyAmount);
+        }
+
+        public static decimal NetPaymentInShopify(this ShopifyOrder order)
+        {
+            return order.PaymentAmountInShopify() - order.RefundTotalInShopify();
+        }
+
+
+        public static decimal PaymentTotalInAcumatica(this ShopifyOrder order)
+        {
+            return order.PaymentTransaction()?.AcumaticaPayment.AcumaticaAmount ?? 0m;
+        }
+
+        public static decimal RefundTotalInAcumatica(this ShopifyOrder order)
+        {
+            return order.RefundTransactions()
+                .Where(x => x.AcumaticaPayment != null)
+                .Select(x => x.AcumaticaPayment).Sum(x => x.AcumaticaAmount);
+        }
+
+        public static decimal NetPaymentInAcumatica(this ShopifyOrder order)
+        {
+            return order.PaymentTotalInAcumatica() - order.RefundTotalInAcumatica();
+        }
+        
+        public static decimal PaymentRemainingInAcumatica(this ShopifyOrder order)
+        {
+            var output = order.NetPaymentInAcumatica() - order.AcumaticaInvoiceTotal();
+            return output <= 0.00m ? 0.00m : output;
         }
 
 
