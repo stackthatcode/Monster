@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
 {
@@ -15,9 +16,9 @@ namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
         public decimal TotalTaxableAmount => LineItems.Sum(x => x.TaxableAmount) + Freight.TaxableAmount;
         public decimal TotalTax => LineItems.Sum(x => x.TaxAmount) + Freight.TaxAmount;
 
-        public decimal NetTotalPrice => TotalPrice
-                                        - Refunds.Sum(x => x.LineItemTotal) 
-                                        - Refunds.Sum(x => x.Freight);
+
+        public decimal NetOrderTotal => TotalPrice - Refunds.Sum(x => x.LineItemsAndFreightTotal + x.TaxTotal);
+
         public decimal NetTaxableAmount => TotalTaxableAmount - Refunds.Sum(x => x.TaxableAmount);
         public decimal NetLineItemTax => LineItems.Sum(x => x.TaxAmount) - Refunds.Sum(x => x.LineItemsTax);
         public decimal NetFreightTax => Freight.TaxAmount - Refunds.Sum(x => x.FreightTax);

@@ -8,48 +8,58 @@ namespace Monster.Middle.Processes.Sync.Misc
     {
         public static string DetectedNewShopifyOrder(ShopifyOrder order)
         {
-            return $"Detected new Shopify Order - {order.LogDescriptor()}";
+            return $"Detected new {order.LogDescriptor()}";
         }
 
         public static string DetectedNewShopifyTransaction(ShopifyTransaction transaction)
         {
-            return $"Detected new Shopify Order {transaction.LogDescriptor()}";
+            return $"Detected new {transaction.LogDescriptor()}";
+        }
+
+        public static string DetectedNewProduct(ShopifyProduct product)
+        {
+            return $"Detected new {product.LogDescriptor()}";
+        }
+
+        public static string DetectedNewVariant(Variant variant)
+        {
+            return $"Detected new {variant.LogDescriptor()}";
         }
 
 
         public static string DetectedUpdateShopifyOrder(ShopifyOrder order)
         {
-            return $"Detected changes to Shopify Order - {order.LogDescriptor()}";
+            return $"Detected changes to {order.LogDescriptor()}";
         }
 
         public static string DetectedNewShopifyRefund(ShopifyRefund refund)
         {
-            return $"Detected new Shopify Refund {refund.LogDescriptor()}";
+            return $"Detected new {refund.LogDescriptor()}";
         }
 
-        public static string DetectedNewAcumaticaSoShipment(AcumaticaSoShipment shipment)
+        public static string DetectedNewCompleteAcumaticaSoShipment(AcumaticaSoShipment shipment)
         {
-            return $"Detected new Acumatica Shipment (Complete) {shipment.LogDescriptor()}";
+            return $"Detected new {shipment.LogDescriptor()} (Complete)";
         }
 
         public static string DetectedNewStockItem(AcumaticaStockItem item)
         {
-            return $"Detected new Acumatica Stock Item {item.LogDescriptor()}";
+            return $"Detected new {item.LogDescriptor()}";
         }
 
         public static string DetectedChangeToStockItem(AcumaticaStockItem item)
         {
-            return $"Detected change to Acumatica Stock Item {item.LogDescriptor()}";
+            return $"Detected change to {item.LogDescriptor()}";
         }
 
         public static string UpdateShopifyPrice(AcumaticaStockItem item)
         {
-            return $"Updating Shopify Price {item.LogDescriptor()}";
+            return $"Updating Shopify Price for {item.LogDescriptor()}";
         }
 
         public static string UpdateShopifyInventory(AcumaticaStockItem item)
         {
-            return $"Updating Shopify Inventory {item.LogDescriptor()}";
+            return $"Updating {item.LogDescriptor()}";
         }
 
         public static string CreateShopifyFulfillment(AcumaticaSoShipment shipmentRef)
@@ -70,11 +80,6 @@ namespace Monster.Middle.Processes.Sync.Misc
         public static string CreateStockItem(ShopifyVariant variant)
         {
             return $"Creating Acumatica Stock Item from {variant.LogDescriptor()}";
-        }
-
-        public static string CreateInventoryReceipt(long shopifyProductId)
-        {
-            return $"Creating Acumatica Inventory Receipt for Shopify Product: ({shopifyProductId})";
         }
 
         public static string CreateAcumaticaCustomer(ShopifyCustomer customer)
@@ -139,7 +144,7 @@ namespace Monster.Middle.Processes.Sync.Misc
         }
         public static string ReleaseAcumaticaMemo(ShopifyRefund refund)
         {
-            return $"Releasing Acumatica Memo {refund.LogDescriptor()}";
+            return $"Releasing Acumatica Memo for {refund.LogDescriptor()}";
         }
 
         public static string CreateAcumaticaPayment(ShopifyTransaction transaction)

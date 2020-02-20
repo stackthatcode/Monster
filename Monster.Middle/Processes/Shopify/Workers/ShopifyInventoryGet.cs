@@ -155,6 +155,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     data.DateCreated = DateTime.UtcNow;
                     data.LastUpdated = DateTime.UtcNow;
 
+                    _executionLogService.Log(LogBuilder.DetectedNewProduct(data));
                     _inventoryRepository.InsertProduct(data);
                     _inventoryRepository.SaveChanges();
 
@@ -239,6 +240,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 data.DateCreated = DateTime.UtcNow;
                 data.LastUpdated = DateTime.UtcNow;
 
+                _executionLogService.Log(LogBuilder.DetectedNewVariant(variant));
                 _inventoryRepository.InsertVariant(data);
                 _shopifyJsonService.Upsert(ShopifyJsonType.Variant, variant.id, variant.SerializeToJson());
                 transaction.Commit();

@@ -157,10 +157,10 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyCustomerHref =
                 _shopifyUrlService.ShopifyCustomerUrl(shopifyOrderRecord.ShopifyCustomer.ShopifyCustomerId);
 
-            output.ShopifyTotalLinePrice = shopifyOrder.LineAmountTotalAfterDiscount;
-            output.ShopifyShippingPriceTotal = shopifyOrder.ShippingDiscountedTotal;
-            output.ShopifyTotalTax = shopifyOrder.total_tax;
-            output.ShopifyOrderTotal = shopifyOrder.total_price;
+            output.ShopifyTotalLinePrice = shopifyOrder.LineItemAmountAfterDiscountAndRefund;
+            output.ShopifyShippingPriceTotal = shopifyOrder.NetShippingPrice;
+            output.ShopifyTotalTax = shopifyOrder.NetTax;
+            output.ShopifyOrderTotal = shopifyOrder.NetOrderTotal;
 
             output.ShopifyOrderPayment = shopifyOrderRecord.ShopifyPaymentAmount();
             output.ShopifyRefundPayment = shopifyOrderRecord.RefundTransactions().Sum(x => x.ShopifyAmount);
@@ -220,9 +220,11 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyOrderNbr = order.ShopifyOrderNumber.ToString();
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(order.ShopifyOrderId);
 
+            // TODO - need to add a flag that indicates this Order has been archived
+            //
             var shopifyOrder = _shopifyJsonService.RetrieveOrder(order.ShopifyOrderId);
 
-            output.ShopifyOrderTotal = shopifyOrder.total_price;
+            output.ShopifyOrderTotal = shopifyOrder.NetOrderTotal;
             output.ShopifyNetPayment = order.ShopifyNetPayment();
 
             output.ShopifyFinancialStatus = order.ShopifyFinancialStatus;
@@ -230,14 +232,15 @@ namespace Monster.Middle.Processes.Sync.Services
             output.ShopifyIsCancelled = order.ShopifyIsCancelled;
             output.ShopifyAreAllItemsRefunded = order.ShopifyAreAllItemsRefunded;
 
-            if (order.AcumaticaSalesOrder != null
-                && order.AcumaticaSalesOrder.AcumaticaOrderNbr != AcumaticaSyncConstants.BlankRefNbr)
+            var acumaticaSalesOrder = order.AcumaticaSalesOrder;
+            if (acumaticaSalesOrder != null && acumaticaSalesOrder.AcumaticaOrderNbr != AcumaticaSyncConstants.BlankRefNbr)
             {
-                output.AcumaticaSalesOrderNbr = order.AcumaticaSalesOrder.AcumaticaOrderNbr;
+                output.AcumaticaSalesOrderNbr =acumaticaSalesOrder.AcumaticaOrderNbr;
                 output.AcumaticaSalesOrderHref =
-                    _acumaticaUrlService.AcumaticaSalesOrderUrl(
-                            SalesOrderType.SO, order.AcumaticaSalesOrder.AcumaticaOrderNbr);
-                output.AcumaticaStatus = order.AcumaticaSalesOrder.AcumaticaStatus;
+                    _acumaticaUrlService
+                        .AcumaticaSalesOrderUrl(SalesOrderType.SO, acumaticaSalesOrder.AcumaticaOrderNbr);
+                output.AcumaticaStatus = acumaticaSalesOrder.AcumaticaStatus;
+                output.AcumaticaOrderTotal = acumaticaSalesOrder.AcumaticaOrderTotal;
             }
 
             if (order.IsPaymentSynced())

@@ -381,7 +381,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Freight Price and Taxes
             //
-            salesOrder.FreightPrice = ((double)shopifyOrder.NetShippingTotal).ToValue();
+            salesOrder.FreightPrice = ((double)shopifyOrder.NetShippingPrice).ToValue();
 
             salesOrder.OverrideFreightPrice = true.ToValue();
             salesOrder.FreightTaxCategory = shopifyOrder.IsShippingTaxable
@@ -454,7 +454,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Update the Shipping Cost
             //
-            salesOrderUpdate.FreightPrice = ((double)shopifyOrder.NetShippingTotal).ToValue();
+            salesOrderUpdate.FreightPrice = ((double)shopifyOrder.NetShippingPrice).ToValue();
             salesOrderUpdate.OverrideFreightPrice = true.ToValue();
 
             foreach (var line_item in shopifyOrder.line_items)

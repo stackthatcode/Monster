@@ -16,6 +16,11 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Shopify Variant {variant.ShopifySku} ({variant.ShopifyVariantId})";
         }
 
+        public static string LogDescriptor(this Variant variant)
+        {
+            return $"Shopify Variant {variant.sku} ({variant.id})";
+        }
+
         public static string LogDescriptor(this ShopifyVariantNew variant)
         {
             return $"Shopify Variant {variant.sku} (new)";

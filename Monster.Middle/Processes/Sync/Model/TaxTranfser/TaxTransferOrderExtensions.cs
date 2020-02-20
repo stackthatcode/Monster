@@ -22,7 +22,7 @@ namespace Monster.Middle.Processes.Sync.Model.TaxTranfser
             snapshot.ShopifyOrderId = shopifyOrder.id;
             snapshot.ShopifyRefundIds = shopifyOrder.refunds.Select(x => x.id).OrderBy(x => x).ToList();
 
-            snapshot.NetTaxableFreight = shopifyOrder.NetShippingTaxableTotal;
+            snapshot.NetTaxableFreight = shopifyOrder.NetShippingTaxablePrice;
             snapshot.NetFreightTax = shopifyOrder.NetShippingTax;
 
             // *** Includes Shipping

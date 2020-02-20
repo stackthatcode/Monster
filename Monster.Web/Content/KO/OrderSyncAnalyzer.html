@@ -153,7 +153,7 @@
                     </td>
 
                     <td data-bind="text: Monster.NumberFormat(ShopifyOrderTotal)"></td>
-                    <td data-bind="text: Monster.NumberFormat(AcumaticaOrderPayment)"></td>
+                    <td data-bind="text: Monster.NumberFormat(AcumaticaOrderTotal)"></td>
                     <td data-bind="text: Monster.NumberFormat(AcumaticaInvoiceTotal)"></td>
 
                     <td>
@@ -648,189 +648,186 @@
 </script>
 
 <script type="text/html" id="Order-Analyzer-Shopify-Detail">
-    <style>
-        .shopify-detail td {
-            font-size: 0.9em;
-            padding: 0.5em;
-        }
+<style>
+    .shopify-detail td {
+        font-size: 0.9em;
+        padding: 0.5em;
+    }
 
-        .shopify-detail-bold {
-            font-weight: 700;
-            color:#777;
-        }
+    .shopify-detail-bold {
+        font-weight: 700;
+        color:#777;
+    }
 
-        .shopify-detail td:nth-child(1) {
-            text-align: left;
-        }
+    .shopify-detail td:nth-child(1) {
+        text-align: left;
+    }
 
-        .shopify-detail td:nth-child(2),  
-        .shopify-detail td:nth-child(3),  
-        .shopify-detail td:nth-child(4),  
-        .shopify-detail td:nth-child(5),  
-        .shopify-detail td:nth-child(6),
-        .shopify-detail td:nth-child(7),   
-        .shopify-detail td:nth-child(8)        
-        {
-            text-align: right;
-        }
-    </style>
+    .shopify-detail td:nth-child(2),  
+    .shopify-detail td:nth-child(3),  
+    .shopify-detail td:nth-child(4),  
+    .shopify-detail td:nth-child(5),  
+    .shopify-detail td:nth-child(6),
+    .shopify-detail td:nth-child(7),   
+    .shopify-detail td:nth-child(8)        
+    {
+        text-align: right;
+    }
+</style>
 
-    <table class="table shopify-detail">
-        <tr>
-            <td class="shopify-detail-bold">Shopify Order Name</td>
-            <td>
-                <a class="order-link" href="#" target="_blank"
-                   data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
+<table class="table shopify-detail">
+    <tr>
+        <td class="shopify-detail-bold">Shopify Order Name</td>
+        <td>
+            <a class="order-link" href="#" target="_blank"
+               data-bind="text: ShopifyOrderNbr, attr: { href: ShopifyOrderHref }"></a>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
 
-        <tr>
-            <td class="shopify-detail-bold">Shopify Order ID</td>
-            <td>
-                <a class="order-link" href="#" target="_blank"
-                   data-bind="text: ShopifyOrderId, attr: { href: ShopifyOrderHref }"></a>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Shopify Customer ID</td>
-            <td>
-                <a class="order-link" href="#" target="_blank"
-                   data-bind="text: ShopifyCustomerId, attr: { href: ShopifyCustomerHref }"></a>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Financial Status</td>
-            <td>
-                <div data-bind="text: ShopifyFinancialStatus"></div>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Fulfillment Status</td>
-            <td>
-                <div data-bind="text: ShopifyFulfillmentStatus"></div>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Cancelled/Refunded?</td>
-            <td>
-                <span data-bind="if: ShopifyIsCancelled">Order Cancelled</span>
-                <span data-bind="if: ShopifyAreAllItemsRefunded">All Items Refunded</span>
-                <span data-bind="if: !ShopifyAreAllItemsRefunded && !ShopifyIsCancelled">(No)</span>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        
-        <tr><td colspan="7"></td></tr>
+    <tr>
+        <td class="shopify-detail-bold">Shopify Order ID</td>
+        <td>
+            <a class="order-link" href="#" target="_blank"
+               data-bind="text: ShopifyOrderId, attr: { href: ShopifyOrderHref }"></a>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="shopify-detail-bold">Shopify Customer ID</td>
+        <td>
+            <a class="order-link" href="#" target="_blank"
+               data-bind="text: ShopifyCustomerId, attr: { href: ShopifyCustomerHref }"></a>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="shopify-detail-bold">Financial Status</td>
+        <td>
+            <div data-bind="text: ShopifyFinancialStatus"></div>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="shopify-detail-bold">Fulfillment Status</td>
+        <td>
+            <div data-bind="text: ShopifyFulfillmentStatus"></div>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="shopify-detail-bold">Cancelled/Refunded?</td>
+        <td>
+            <span data-bind="if: ShopifyIsCancelled">Order Cancelled</span>
+            <span data-bind="if: ShopifyAreAllItemsRefunded">All Items Refunded</span>
+            <span data-bind="if: !ShopifyAreAllItemsRefunded && !ShopifyIsCancelled">(No)</span>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
 
-        <tr class="shopify-detail-bold">
-            <td>Shopify SKU</td>
-            <td>Quantity</td>
-            <td>Unit Price</td>
-            <td>Line Amount</td>
-            <td>Taxable Amount</td>
-            <td>Tax Amount</td>
-            <td>Line Amount</td>
-        </tr>
+    <tr><td colspan="7"></td></tr>
 
-        <!-- ko with: Transfer -->
-        <!-- ko foreach: LineItems -->
-        <tr>
-            <td data-bind="text: InventoryID"></td>
-            <td data-bind="text: Monster.NumberFormat(Quantity)"></td>
-            <td data-bind="text: Monster.NumberFormat(UnitPrice)"></td>
-            <td data-bind="text: Monster.NumberFormat(LineAmount)"></td>
-            <td data-bind="text: Monster.NumberFormat(TaxableAmount)"></td>
-            <td data-bind="text: Monster.NumberFormat(TaxAmount)"></td>
-            <td data-bind="text: Monster.NumberFormat(Total)"></td>
-        </tr>
-        <!-- /ko -->
-        <!-- ko with: Freight-->
-        <tr>
-            <td>Shipping</td>
-            <td></td>
-            <td></td>
-            <td data-bind="text: Monster.NumberFormat(Price)"></td>
-            <td data-bind="text: Monster.NumberFormat(TaxableAmount)"></td>
-            <td data-bind="text: Monster.NumberFormat(TaxAmount)"></td>
-            <td data-bind="text: Monster.NumberFormat(Total)"></td>
-        </tr>
-        <tr><td colspan="7"></td></tr>
-        <!-- /ko -->
-        <!-- ko if: Refunds.length -->
-        <tr class="shopify-detail-bold">
-            <td>Shopify Refund</td>
-            <td>Line Item Total</td>
-            <td>Shipping</td>
-            <td>Tax Total</td>
-            <td>Credit/Debit</td>
-            <td>Expected</td>
-            <td>Actual</td>
-            <td>Overpayment</td>
-        </tr>
+    <tr class="shopify-detail-bold">
+        <td>Shopify SKU</td>
+        <td>Quantity</td>
+        <td>Unit Price</td>
+        <td>Line Amount</td>
+        <td>Taxable Amount</td>
+        <td>Tax Amount</td>
+        <td>Line Amount</td>
+    </tr>
 
-        <!-- ko foreach: Refunds-->
-        <tr>
-            <td data-bind="text: ExternalRefNbr"></td>
-            <td data-bind="text: Monster.NumberFormat(LineItemTotal)"></td>
-            <td data-bind="text: Monster.NumberFormat(Freight)"></td>
-            <td data-bind="text: Monster.NumberFormat(TaxTotal)"></td>
-            <td data-bind="text: Monster.NumberFormat(NetCreditDebit)"></td>
-            <td data-bind="text: Monster.NumberFormat(ExpectedTotal)"></td>
-            <td data-bind="text: Monster.NumberFormat(RefundAmount)"></td>
-            <td data-bind="text: Monster.NumberFormat(Overpayment)"></td>
-        </tr>
-        <!-- /ko  -->
-        <!-- /ko  -->
-        <!-- /ko  -->
-        <!-- ko with: Transfer -->
-        <tr>
-            <td colspan="8"></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Original Price</td>
-            <td data-bind="text: Monster.NumberFormat(TotalPrice)"></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Original Taxable Amount</td>
-            <td data-bind="text: Monster.NumberFormat(TotalTaxableAmount)"></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Original Tax</td>
-            <td data-bind="text: Monster.NumberFormat(TotalTax)"></td>
-        </tr>
-        <tr>
-            <td class="shopify-detail-bold">Net Total Price</td>
-            <td data-bind="text: Monster.NumberFormat(NetTotalPrice)"></td>
-        </tr>
+    <!-- ko with: Transfer -->
+    <!-- ko foreach: LineItems -->
+    <tr>
+        <td data-bind="text: InventoryID"></td>
+        <td data-bind="text: Monster.NumberFormat(Quantity)"></td>
+        <td data-bind="text: Monster.NumberFormat(UnitPrice)"></td>
+        <td data-bind="text: Monster.NumberFormat(LineAmount)"></td>
+        <td data-bind="text: Monster.NumberFormat(TaxableAmount)"></td>
+        <td data-bind="text: Monster.NumberFormat(TaxAmount)"></td>
+        <td data-bind="text: Monster.NumberFormat(Total)"></td>
+    </tr>
+    <!-- /ko -->
+    <!-- ko with: Freight-->
+    <tr>
+        <td>Shipping</td>
+        <td></td>
+        <td></td>
+        <td data-bind="text: Monster.NumberFormat(Price)"></td>
+        <td data-bind="text: Monster.NumberFormat(TaxableAmount)"></td>
+        <td data-bind="text: Monster.NumberFormat(TaxAmount)"></td>
+        <td data-bind="text: Monster.NumberFormat(Total)"></td>
+    </tr>
+    <tr><td colspan="7"></td></tr>
+    <!-- /ko -->
+    <!-- ko if: Refunds.length -->
+    <tr class="shopify-detail-bold">
+        <td>Shopify Refund</td>
+        <td>Line Item Total</td>
+        <td>Shipping</td>
+        <td>Tax Total</td>
+        <td>Credit/Debit</td>
+        <td>Expected</td>
+        <td>Actual</td>
+        <td>Overpayment</td>
+    </tr>
+
+    <!-- ko foreach: Refunds-->
+    <tr>
+        <td data-bind="text: ExternalRefNbr"></td>
+        <td data-bind="text: Monster.NumberFormat(LineItemTotal)"></td>
+        <td data-bind="text: Monster.NumberFormat(Freight)"></td>
+        <td data-bind="text: Monster.NumberFormat(TaxTotal)"></td>
+        <td data-bind="text: Monster.NumberFormat(NetCreditDebit)"></td>
+        <td data-bind="text: Monster.NumberFormat(ExpectedTotal)"></td>
+        <td data-bind="text: Monster.NumberFormat(RefundAmount)"></td>
+        <td data-bind="text: Monster.NumberFormat(Overpayment)"></td>
+    </tr>
+    <!-- /ko  -->
+    <!-- /ko  -->
+    <!-- /ko  -->
+    <!-- ko with: Transfer -->
+    <tr>
+        <td colspan="8"></td>
+    </tr>
+    <tr>
+        <td class="shopify-detail-bold">Original Taxable Amount</td>
+        <td data-bind="text: Monster.NumberFormat(TotalTaxableAmount)"></td>
+    </tr>
+    <tr>
+        <td class="shopify-detail-bold">Original Tax</td>
+        <td data-bind="text: Monster.NumberFormat(TotalTax)"></td>
+    </tr>
+    <tr>
+        <td class="shopify-detail-bold">Original Order Total</td>
+        <td data-bind="text: Monster.NumberFormat(TotalPrice)"></td>
+    </tr>
+
         <tr>
             <td class="shopify-detail-bold">Net Taxable Amount</td>
             <td data-bind="text: Monster.NumberFormat(NetTaxableAmount)"></td>
@@ -839,6 +836,10 @@
             <td class="shopify-detail-bold">Net Total Tax</td>
             <td data-bind="text: Monster.NumberFormat(NetTotalTax)"></td>
         </tr>
+    <tr>
+        <td class="shopify-detail-bold">Net Order Total</td>
+        <td data-bind="text: Monster.NumberFormat(NetOrderTotal)"></td>
+    </tr>
         <tr>
             <td colspan="2"></td>
         </tr>

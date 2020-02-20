@@ -20,6 +20,7 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
         public string AcumaticaSalesOrderHref { get; set; }
         public string AcumaticaStatus { get; set; }
         public decimal AcumaticaOrderPayment { get; set; }
+        public decimal AcumaticaOrderTotal { get; set; }
         public decimal AcumaticaNetPayment { get; set; }
         public decimal AcumaticaInvoiceTotal { get; set; }
 

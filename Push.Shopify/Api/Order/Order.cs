@@ -96,12 +96,12 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public bool IsShippingTaxable => ShippingTotal > 0m && ShippingTax > 0m;
         [JsonIgnore]
-        public decimal NetShippingTotal => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
+        public decimal NetShippingPrice => ShippingDiscountedTotal - refunds.Sum(x => x.TotalShippingAdjustment);
         [JsonIgnore]
-        public decimal NetShippingTaxableTotal => IsShippingTaxable ? NetShippingTotal : 0m;
+        public decimal NetShippingTaxablePrice => IsShippingTaxable ? NetShippingPrice : 0m;
         [JsonIgnore]
         public decimal NetShippingTax => ShippingTax - refunds.Sum(x => x.TotalShippingAdjustmentTax);
-
+        
 
         // Line Item (Tax)
         //
@@ -129,9 +129,16 @@ namespace Push.Shopify.Api.Order
         public decimal RefundOverpayment => refunds.Sum(x => x.PaymentTotal) - RefundTotal;
 
         [JsonIgnore]
+        public decimal LineItemAmountAfterDiscountAndRefund => LineAmountTotalAfterDiscount - RefundLineItemTotal;
 
-        public List<LineItem> 
-                LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
+        [JsonIgnore]
+        public decimal NetTax => total_tax - RefundTotalTax;
+
+        [JsonIgnore]
+        public decimal NetOrderTotal => LineItemAmountAfterDiscountAndRefund + NetShippingPrice + NetTax;
+
+        [JsonIgnore]
+        public List<LineItem> LineItemsWithManualVariants => line_items.Where(x => x.variant_id == null).ToList();
 
         public LineItem LineItem(string sku)
         {
@@ -165,7 +172,6 @@ namespace Push.Shopify.Api.Order
         {
             return refunds.FirstOrDefault(x => x.HasTransaction(transaction_id));
         }
-
 
         public Order Initialize()
         {

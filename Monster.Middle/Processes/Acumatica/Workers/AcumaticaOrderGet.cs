@@ -199,7 +199,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                 record.DateCreated = DateTime.UtcNow;
                 record.LastUpdated = DateTime.UtcNow;
 
-                _executionLogService.Log(LogBuilder.DetectedNewAcumaticaSoShipment(record));
+                _executionLogService.Log(LogBuilder.DetectedNewCompleteAcumaticaSoShipment(record));
                 _orderRepository.InsertSoShipmentInvoice(record);
             }
         }
