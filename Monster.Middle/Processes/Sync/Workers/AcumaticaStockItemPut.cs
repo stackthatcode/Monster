@@ -150,7 +150,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             newRecord.ItemId = item.InventoryID.value;
 
             _acumaticaJsonService.Upsert(
-                AcumaticaJsonType.StockItem, item.InventoryID.value, null, item.SerializeToJson());
+                AcumaticaJsonType.StockItem, item.InventoryID.value, item.SerializeToJson());
 
             newRecord.AcumaticaDescription = item.Description.value;
             newRecord.AcumaticaTaxCategory = item.TaxCategory.value;
