@@ -41,19 +41,17 @@ namespace Monster.Middle.Processes.Sync.Services
 
             var salesOrder = shipmentRecord.AcumaticaSalesOrder;
             
-
             var shopifyOrderId = salesOrder.OriginalShopifyOrder().ShopifyOrderId;
 
             // Fulfilled in Shopify - thus corrupted!
             //
-            output.AnyShopifyMadeFulfillments = _syncOrderRepository.AnyUnsyncedFulfillments(shopifyOrderId);
+            output.AnyShopifyMadeFulfillments 
+                    = _syncOrderRepository.AnyUnsyncedFulfillments(shopifyOrderId);
 
             // Unmatched Warehouse
             //
             var shipment = shipmentRecord.AcumaticaShipmentJson.DeserializeFromJson<Shipment>();
-
             var warehouseRecord = _syncInventoryRepository.RetrieveWarehouse(shipment.WarehouseID.value);
-
             var locationRecord = warehouseRecord.MatchedLocation();
             if (locationRecord == null)
             {

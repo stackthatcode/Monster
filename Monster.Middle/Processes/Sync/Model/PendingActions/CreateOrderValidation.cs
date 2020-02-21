@@ -9,6 +9,7 @@ using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Validation;
 using Push.Shopify.Api.Order;
 
+
 namespace Monster.Middle.Processes.Sync.Model.PendingActions
 {
     public class CreateOrderValidation
@@ -35,9 +36,7 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         public bool IsCancelledBeforeSync => !HasBeenSynced && ShopifyOrder.cancelled_at != null;
 
         public bool IsFulfilledBeforeSync
-            => !HasBeenSynced &&
-               ShopifyOrder.fulfillment_status.HasValue() &&
-               ShopifyOrder.fulfillment_status != FulfillmentStatus.NoFulfillment;
+                => !HasBeenSynced && ShopifyOrderRecord.HasFulfillmentsNotFromAcumatica();
 
 
         public ValidationResult Result()

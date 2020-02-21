@@ -103,6 +103,9 @@ namespace Monster.Middle.Processes.Sync.Services
             var orderRecord = _syncOrderRepository.RetrieveShopifyOrderWithNoTracking(shopifyOrderId);
             var validation = new Validation<ShopifyOrder>()
                 
+                .Add(x => !x.HasUnsyncedFulfillments(),
+                        "There are unsynced Shipments on the Sales Order; please run fulfillment sync first")
+
                 .Add(x => x.DoesNotExceedErrorLimit(), 
                         "Encountered too many errors attempting to synchronize this Order")
                 

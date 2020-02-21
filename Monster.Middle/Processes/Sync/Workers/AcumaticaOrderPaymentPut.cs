@@ -270,19 +270,18 @@ namespace Monster.Middle.Processes.Sync.Workers
             var acumaticaOrderRef = order.AcumaticaSalesOrderId();
             var paymentNbr = transactionRecord.AcumaticaPayment.AcumaticaRefNbr;
 
-            // Get the balance from Acumatica to make sure everything stays "tight"
-            //
+            // Get the balance from Acumatica in case other Invoices have grabbed some of the monies!!
+            // 
             var balance = _paymentClient.RetrievePaymentBalance(paymentNbr, PaymentType.Payment);
-
-            // Create the payload for Acumatica
-            //
-            var netPayment = order.TheoreticalPaymentRemaining();
-
+            var amountToApply 
+                = balance < order.TheoreticalPaymentRemaining()
+                    ? balance : order.TheoreticalPaymentRemaining();
 
             var payment = new PaymentWrite();
             payment.ReferenceNbr = paymentNbr.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
-            payment.OrdersToApply = PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double)netPayment);
+            payment.OrdersToApply 
+                = PaymentOrdersRef.ForOrder(acumaticaOrderRef, SalesOrderType.SO, (double)amountToApply);
 
             return payment;
         }
@@ -306,29 +305,27 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var refundPayment = new PaymentWrite();
             refundPayment.CustomerID = acumaticaCustId.ToValue();
-            refundPayment.Hold = false.ToValue();
             refundPayment.Type = PaymentType.CustomerRefund.ToValue();
             refundPayment.PaymentRef = $"{transaction.id}".ToValue();
-            
+
             // Reference to the original Payment
             //
-            var acumaticaPayment = order.PaymentTransaction().AcumaticaPayment;
-
-            var amountToApply
-                = transaction.amount > order.TheoreticalPaymentRemaining()
-                    ? order.TheoreticalPaymentRemaining()
-                    : transaction.amount;
-
-            // *** Currently do not like this - the Payment Amount truly NEEDS to match the Transaction Amount
-            //  UPDATE => false, only need to make sure we're not Applying beyond the current Payment Balance
-            //
-            refundPayment.PaymentAmount = ((double) amountToApply).ToValue(); // ((double)transaction.amount).ToValue();
-
             if (!transactionRecord.IsPureReturn)
             {
+                var acumaticaPayment = order.PaymentTransaction().AcumaticaPayment;
+                var balance = _paymentClient.RetrievePaymentBalance(acumaticaPayment.AcumaticaRefNbr, PaymentType.Payment);
+                var amountToApply = transaction.amount > balance ? balance : transaction.amount;
+
+                refundPayment.Hold = false.ToValue();
+                refundPayment.PaymentAmount = ((double)amountToApply).ToValue();
                 refundPayment.DocumentsToApply
                     = PaymentDocumentsToApply.ForDocument(
                         acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double) amountToApply);
+            }
+            else
+            {
+                refundPayment.Hold = true.ToValue();
+                refundPayment.PaymentAmount = ((double) transaction.amount).ToValue();
             }
 
             // Amounts
@@ -336,7 +333,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             refundPayment.PaymentMethod = paymentGateway.AcumaticaPaymentMethod.ToValue();
             refundPayment.CashAccount = paymentGateway.AcumaticaCashAccount.ToValue();
             refundPayment.Description = $"Refund for Order #{order.ShopifyOrderNumber} (TransId #{transaction.id})".ToValue();
-
             return refundPayment;
         }
 

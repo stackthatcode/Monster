@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Monster.Middle.Persist.Instance;
+using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
@@ -21,6 +21,18 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         {
             return order.SyncedSalesOrder() != null; // && !order.IsEmptyOrCancelled;
         }
+
+        public static bool HasFulfillmentsNotFromAcumatica(this ShopifyOrder order)
+        {
+            return order.ShopifyFulfillments.Any(
+                x => x.AcumaticaSoShipments == null || !x.AcumaticaSoShipments.Any());
+        }
+
+        public static bool HasUnsyncedFulfillments(this ShopifyOrder order)
+        {
+            return order.SoShipments().Any(x => x.ShopifyFulfillment == null);
+        }
+
 
         public static string AcumaticaSalesOrderId(this ShopifyOrder order)
         {
