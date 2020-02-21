@@ -23,6 +23,9 @@ namespace Monster.Acumatica.Api.Payment
         public StringValue Status { get; set; }
         public StringValue Type { get; set; }
         public StringValue custom { get; set; }
+
+        public List<PaymentApplicationHistory> ApplicationHistory { get; set; }
+
         public List<object> files { get; set; }
     }
 }

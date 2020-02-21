@@ -20,7 +20,7 @@ using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
-using Push.Shopify.Api.Transactions;
+
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
@@ -211,7 +211,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        
+
         public PaymentWrite BuildPaymentForCreate(ShopifyTransaction transactionRecord)
         {
             var transaction = _shopifyJsonService.RetrieveTransaction(transactionRecord.ShopifyTransactionId);
@@ -270,9 +270,15 @@ namespace Monster.Middle.Processes.Sync.Workers
             var acumaticaOrderRef = order.AcumaticaSalesOrderId();
             var paymentNbr = transactionRecord.AcumaticaPayment.AcumaticaRefNbr;
 
+            // Get the balance from Acumatica to make sure everything stays "tight"
+            //
+            var balance = _paymentClient.RetrievePaymentBalance(paymentNbr, PaymentType.Payment);
+
             // Create the payload for Acumatica
             //
             var netPayment = order.TheoreticalPaymentRemaining();
+
+
             var payment = new PaymentWrite();
             payment.ReferenceNbr = paymentNbr.ToValue();
             payment.Type = PaymentType.Payment.ToValue();
@@ -287,11 +293,13 @@ namespace Monster.Middle.Processes.Sync.Workers
             var paymentGateway = _settingsRepository.RetrievePaymentGatewayByShopifyId(transaction.gateway);
 
             // Locate the Acumatica Customer
+            //
             var shopifyCustomerId = transactionRecord.CustomerId();
             var customer = _syncOrderRepository.RetrieveCustomer(shopifyCustomerId);
             var acumaticaCustId = customer.AcumaticaCustId();
 
             // Build the Payment Ref and Description
+            //
             var order = _syncOrderRepository.RetrieveShopifyOrder(transactionRecord.OrderId());
 
             // Create the payload for Acumatica
@@ -312,12 +320,16 @@ namespace Monster.Middle.Processes.Sync.Workers
                     : transaction.amount;
 
             // *** Currently do not like this - the Payment Amount truly NEEDS to match the Transaction Amount
+            //  UPDATE => false, only need to make sure we're not Applying beyond the current Payment Balance
             //
             refundPayment.PaymentAmount = ((double) amountToApply).ToValue(); // ((double)transaction.amount).ToValue();
 
-            refundPayment.DocumentsToApply 
-                = PaymentDocumentsToApply.ForDocument(
-                    acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double)amountToApply);
+            if (!transactionRecord.IsPureReturn)
+            {
+                refundPayment.DocumentsToApply
+                    = PaymentDocumentsToApply.ForDocument(
+                        acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double) amountToApply);
+            }
 
             // Amounts
             //
@@ -434,6 +446,8 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             return acumaticaPayment;
         }
+
+
 
 
         private void ProcessAdjustmentMemo(AdjustmentAction action)

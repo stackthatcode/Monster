@@ -76,6 +76,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                         if (refund != null)
                         {
                             record.ShopifyRefundId = refund.id;
+                            record.IsPureReturn = refund.IsPureReturn;
                         }
                     }
 

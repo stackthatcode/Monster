@@ -5,7 +5,6 @@
         public const string NoRestock = "no_restock";
         public const string Cancel = "cancel";
         public const string Return = "return";
-        public const string Restock = "restock";
     }
 }
 

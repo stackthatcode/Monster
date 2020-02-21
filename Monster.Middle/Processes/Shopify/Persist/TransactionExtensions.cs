@@ -14,8 +14,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return input.ShopifyTransactionId == other.ShopifyTransactionId;
         }
 
-        public static ShopifyTransaction 
-                Find(this IEnumerable<ShopifyTransaction> input, ShopifyTransaction other)
+        public static ShopifyTransaction Find(this IEnumerable<ShopifyTransaction> input, ShopifyTransaction other)
         {
             return input.FirstOrDefault(x => x.IsMatch(other));
         }
@@ -73,17 +72,22 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return order.PaymentTransaction() != null;
         }
 
-        public static List<ShopifyTransaction> RefundTransactions(this ShopifyOrder order)
+        public static List<ShopifyTransaction> RefundTransactions(this ShopifyOrder order, bool excludePureReturns = false)
         {
-            return order.ShopifyTransactions.Where(x => x.DoNotIgnore() && x.IsRefund()).ToList();
+            var output = order.ShopifyTransactions.Where(x => x.DoNotIgnore() && x.IsRefund());
+
+            if (excludePureReturns)
+            {
+                output = output.Where(x => x.IsPureReturn == false);
+            }
+            return output.ToList();
         }
 
         public static List<ShopifyTransaction> UnreleasedTransaction(this ShopifyOrder order)
         {
-            return order.ShopifyTransactions.Where(
-                    x => x.DoNotIgnore() 
-                         && x.ExistsInAcumatica()
-                         && !x.IsReleased()).ToList();
+            return order.ShopifyTransactions
+                    .Where(x => x.DoNotIgnore() && x.ExistsInAcumatica() && !x.IsReleased())
+                    .ToList();
         }
 
         public static bool HasUnreleasedTransactions(this ShopifyOrder order)
@@ -92,39 +96,44 @@ namespace Monster.Middle.Processes.Shopify.Persist
         }
 
 
-        public static decimal PaymentAmountInShopify(this ShopifyOrder order)
+        // Payment summarization functions
+        //
+
+        public static decimal ShopifyPaymentAmount(this ShopifyOrder order)
         {
-            return (order.PaymentTransaction()?.ShopifyAmount ?? 0m);
+            return order.PaymentTransaction() != null
+                ? order.PaymentTransaction().ShopifyAmount
+                : 0m;
         }
 
-        public static decimal RefundTotalInShopify(this ShopifyOrder order)
+        public static decimal ShopifyRefundTotal(this ShopifyOrder order,bool excludePureReturns = false)
         {
-            return order.RefundTransactions().Sum(x => x.ShopifyAmount);
+            return order.RefundTransactions(excludePureReturns).Sum(x => x.ShopifyAmount);
         }
 
-        public static decimal NetPaymentInShopify(this ShopifyOrder order)
+        public static decimal ShopifyNetPayment(this ShopifyOrder order, bool excludePureReturns = false)
         {
-            return order.PaymentAmountInShopify() - order.RefundTotalInShopify();
+            return order.ShopifyPaymentAmount() - order.ShopifyRefundTotal();
         }
 
 
-        public static decimal PaymentTotalInAcumatica(this ShopifyOrder order)
+        // These should be obsoleted... but they are fine for now
+        //
+        public static decimal AcumaticaPaymentTotal(this ShopifyOrder order)
         {
-            return order.AcumaticaPayment() != null ? order.AcumaticaPayment().AcumaticaAmount : 0m;
+            return order.AcumaticaPayment() != null 
+                ? order.AcumaticaPayment().AcumaticaAmount : 0m;
         }
 
-        public static decimal RefundTotalInAcumatica(this ShopifyOrder order)
+        public static decimal AcumaticaRefundTotal(this ShopifyOrder order)
         {
             return order.RefundTransactions()
                 .Where(x => x.AcumaticaPayment != null)
                 .Select(x => x.AcumaticaPayment).Sum(x => x.AcumaticaAmount);
         }
 
-        public static decimal NetPaymentInAcumatica(this ShopifyOrder order)
-        {
-            return order.PaymentTotalInAcumatica() - order.RefundTotalInAcumatica();
-        }
-        
+
+
         // *** IMPORTANT => Shopify is the single source of truth (SSoT) for Payment Transactions
         //  ... whereas Acumatica is the SSoT for goods issued to Customer via Shipments
         //
@@ -132,7 +141,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
         {
             // SAVE => only change this with careful and thorough investigation
             //
-            var output = order.ShopifyNetPayment() - order.AcumaticaInvoiceTotal();
+            var output = order.ShopifyNetPayment(excludePureReturns:true) - order.AcumaticaInvoiceTotal();
             return output <= 0.00m ? 0.00m : output;
         }
 
@@ -142,7 +151,8 @@ namespace Monster.Middle.Processes.Shopify.Persist
         //
         public static bool IsPayment(this Transaction transaction)
         {
-            return transaction.kind == TransactionKind.Capture || transaction.kind == TransactionKind.Sale;
+            return transaction.kind == TransactionKind.Capture 
+                   || transaction.kind == TransactionKind.Sale;
         }
 
         public static bool IsRefund(this Transaction transaction)

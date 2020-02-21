@@ -37,11 +37,9 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public Order Parent { get; set; }
 
-        [JsonIgnore]
-        public int CancelAdjustedQuantity => quantity - CancelledQuantity;
+        public int FulfilledQuantity => Parent.FulfillmentLineItems(this.id).Sum(x => x.quantity);
+        public int NetOrderedQuantity => FulfilledQuantity + fulfillable_quantity;
 
-        [JsonIgnore]
-        public int CancelledQuantity => Parent.CancelledLineItems(this.id).Sum(x => x.quantity);
 
 
         [JsonIgnore]
@@ -53,11 +51,8 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public decimal LineAmountAfterDiscount => LineAmount - Discount;
 
-        [JsonIgnore]
-        public decimal CancelledAmount => Parent.CancelledLineItems(this.id).Sum(x => x.subtotal);
-
-        [JsonIgnore]
-        public decimal NetLineAmount => LineAmountAfterDiscount - CancelledAmount;
+        //[JsonIgnore]
+        //public decimal NetLineAmount => LineAmountAfterDiscount - CancelledAmount;
 
         [JsonIgnore]
         public decimal UnitPriceAfterDiscount => LineAmountAfterDiscount / quantity;

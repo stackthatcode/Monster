@@ -13,19 +13,15 @@ using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Analysis;
-using Monster.Middle.Processes.Sync.Model.FinAnalyzer;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Model.TaxTranfser;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
-using Newtonsoft.Json;
-using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
-using Push.Shopify.Api.Transactions;
 
 
 namespace Monster.Middle.Processes.Sync.Workers
@@ -54,7 +50,6 @@ namespace Monster.Middle.Processes.Sync.Workers
                 AcumaticaOrderRepository acumaticaOrderRepository,
                 AcumaticaCustomerPut acumaticaCustomerSync, 
                 AcumaticaOrderPaymentPut acumaticaOrderPaymentPut,
-                OrderValidationService orderValidation,
                 PendingActionService pendingActionService,
                 JobMonitoringService jobMonitoringService,
                 AcumaticaTimeZoneService acumaticaTimeZoneService,
@@ -326,7 +321,7 @@ namespace Monster.Middle.Processes.Sync.Workers
 
                 var detail = new SalesOrderDetail();
                 detail.InventoryID = stockItemRecord.ItemId.ToValue();
-                detail.OrderQty = ((double)lineItem.CancelAdjustedQuantity).ToValue();
+                detail.OrderQty = ((double)lineItem.NetOrderedQuantity).ToValue();
                 detail.UnitPrice = ((double) lineItem.price).ToValue();
                 detail.DiscountAmount = ((double) lineItem.Discount).ToValue();
 
@@ -465,15 +460,9 @@ namespace Monster.Middle.Processes.Sync.Workers
                 var stockItemId = variant.MatchedStockItem().ItemId;
                 var salesOrderDetail = existingSalesOrder.DetailByInventoryId(stockItemId);
 
-                var newQuantity = (double)line_item.CancelAdjustedQuantity;
-
                 var detail = new SalesOrderUpdateDetail();
-
                 detail.id = salesOrderDetail.id;
-                detail.OrderQty = newQuantity.ToValue();
-
-                // Not needed - only the row identifier
-                //
+                detail.OrderQty = ((double)line_item.NetOrderedQuantity).ToValue();
                 detail.InventoryID = variant.MatchedStockItem().ItemId.ToValue();
 
                 salesOrderUpdate.Details.Add(detail);

@@ -150,14 +150,14 @@ namespace Push.Shopify.Api.Order
             return line_items.FirstOrDefault(x => x.id == id);
         }
         
-        public List<RefundLineItem> CancelledLineItems(long line_item_id)
+        public List<LineItem> FulfillmentLineItems(long line_item_id)
         {
-            return refunds
-                .SelectMany(x => x.refund_line_items)
-                .Where(x => x.line_item_id == line_item_id)
-                .Where(x => x.restock_type == RestockType.Cancel)
+            return fulfillments
+                .SelectMany(x => x.line_items)
+                .Where(x => x.id == line_item_id)
                 .ToList();
         }
+
 
         [JsonIgnore]
         public int RefundedLineItems => refunds.Sum(x => x.refund_line_items.Sum(y => y.quantity));

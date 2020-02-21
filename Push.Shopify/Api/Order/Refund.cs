@@ -74,13 +74,8 @@ namespace Push.Shopify.Api.Order
         public decimal TotalTax => TotalShippingAdjustmentTax + TotalLineItemTax;
 
 
-
-        // Phase 2 - Returns
-        //
-        [JsonIgnore]
-        public List<RefundLineItem> Returns 
-                => refund_line_items.Where(x => x.restock_type == RestockType.Return).ToList();
-
+        public bool IsPureReturn => refund_line_items.All(x => x.restock_type == RestockType.Return);
+            
 
         public bool HasTransaction(long transaction_id)
         {

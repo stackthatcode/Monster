@@ -24,19 +24,6 @@ namespace Monster.Middle.Processes.Sync.Model.Analysis
         }
 
 
-        public static decimal ShopifyPaymentAmount(this ShopifyOrder order)
-        {
-            return order.PaymentTransaction() != null
-                ? order.PaymentTransaction().ShopifyAmount
-                : 0m;
-        }
-
-
-        public static decimal ShopifyNetPayment(this ShopifyOrder order)
-        {
-            return order.ShopifyPaymentAmount()
-                   - order.RefundTransactions().Sum(x => x.ShopifyAmount);
-        }
 
         public static bool IsPaymentSynced(this ShopifyOrder order)
         {

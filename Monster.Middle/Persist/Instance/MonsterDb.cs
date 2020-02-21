@@ -1801,6 +1801,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyGateway { get; set; } // ShopifyGateway (length: 50)
         public decimal ShopifyAmount { get; set; } // ShopifyAmount
         public long? ShopifyRefundId { get; set; } // ShopifyRefundId
+        public bool IsPureReturn { get; set; } // IsPureReturn
         public bool IsSyncableToPayment { get; set; } // IsSyncableToPayment
         public long ShopifyOrderMonsterId { get; set; } // ShopifyOrderMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -3014,6 +3015,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyGateway).HasColumnName(@"ShopifyGateway").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyAmount).HasColumnName(@"ShopifyAmount").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsOptional();
+            Property(x => x.IsPureReturn).HasColumnName(@"IsPureReturn").HasColumnType("bit").IsRequired();
             Property(x => x.IsSyncableToPayment).HasColumnName(@"IsSyncableToPayment").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyOrderMonsterId).HasColumnName(@"ShopifyOrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
