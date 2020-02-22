@@ -18,6 +18,8 @@ namespace Monster.TaxProvider.Calc
         private readonly Logger _logger;
         private readonly List<ITaxProviderSetting> _settings;
 
+        public const string CalcVersion = "2020.02.22.3";
+
         public TaxCalcService(Logger logger, List<ITaxProviderSetting> settings)
         {
             _logger = logger;
@@ -29,7 +31,7 @@ namespace Monster.TaxProvider.Calc
         {
             var calcRequestType = request.ToCalcRequestContext();
             _logger.Info(
-                $"TaxCalcService -> Calculate (Type) - " +
+                $"TaxCalcService {CalcVersion} -> Calculate (Type) - " +
                 $"{JsonConvert.SerializeObject(calcRequestType)}");
 
             if (calcRequestType.Type == CalcRequestTypeEnum.SalesOrder)
@@ -49,18 +51,18 @@ namespace Monster.TaxProvider.Calc
         {
             if (result.Failed)
             {
-                var log = "TaxCalcService -> Calculate failed:" + Environment.NewLine;
+                var log = $"TaxCalcService {CalcVersion} -> Calculate failed:" + Environment.NewLine;
                 result.ErrorMessages.ForEach(x => log += x + Environment.NewLine);
 
                 _logger.Info(log);
 
-                throw new Exception("TaxCalcService -> Calculate failed");
+                throw new Exception($"TaxCalcService {CalcVersion} -> Calculate failed");
             }
             else
             {
                 var acumaticaTaxId = _settings.Setting(ProviderSettings.SETTING_EXTERNALTAXID).Value;
                 var json = JsonConvert.SerializeObject(result);
-                _logger.Info($"TaxCalcService -> Calculate (Result) - {json}");
+                _logger.Info($"TaxCalcService {CalcVersion} -> Calculate (Result) - {json}");
 
                 var output = result.ToGetTaxResult(acumaticaTaxId);
                 return output;
@@ -80,9 +82,6 @@ namespace Monster.TaxProvider.Calc
 
 
 
-
-        // TODO - offload this to web service
-        //
         private CalcResult InvoiceTax(GetTaxRequest request)
         {
             var context = request.ToCalcRequestContext();
@@ -109,8 +108,6 @@ namespace Monster.TaxProvider.Calc
             }
         }
 
-        // TODO - offload this to web service
-        //
         private CalcResult InvoiceFinalTax(TaxTransfer.v2.TaxTransfer transfer, OtherInvoiceTaxContext otherInvoiceTaxes)
         {
             var taxableTotal = transfer.NetTaxableAmount - otherInvoiceTaxes.TotalTaxableAmount;

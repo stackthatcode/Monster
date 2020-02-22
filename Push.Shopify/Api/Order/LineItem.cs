@@ -37,7 +37,9 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public Order Parent { get; set; }
 
+        [JsonIgnore]
         public int FulfilledQuantity => Parent.FulfillmentLineItems(this.id).Sum(x => x.quantity);
+        [JsonIgnore]
         public int NetOrderedQuantity => FulfilledQuantity + fulfillable_quantity;
 
 

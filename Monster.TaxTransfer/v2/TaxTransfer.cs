@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Monster.TaxTransfer.v2
@@ -24,9 +25,15 @@ namespace Monster.TaxTransfer.v2
 
             output.Name = $"{correctedItemCode} - qty {quantity}";
             output.TaxableAmount = taxableAmount;
-            output.TaxAmount = lineItem.TaxLines.Sum(x => x.Rate * taxableAmount);
+            output.TaxAmount = lineItem.TaxLines.Sum(x => Math.Round(x.Rate * taxableAmount, 2));
 
             return output;
+        }
+
+        [Obsolete]
+        public static decimal TruncateToHundreths(decimal value)
+        {
+            return Math.Truncate(100 * value) / 100;
         }
 
     }
