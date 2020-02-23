@@ -185,3 +185,4 @@ SELECT * FROM ShopifyOrderNeedingSoShipmentsSync
 SELECT * FROM ShopifyOrdersNeedingSyncAll;
 
 UPDATE ShopifyOrder SET ShopifyTotalQuantity = 2 WHERE MonsterId = 6;
+

@@ -267,7 +267,7 @@ namespace Monster.Middle.Processes.Sync.Services
                 }
 
                 if (creditAdj.AcumaticaMemo != null
-                    && !creditAdj.AcumaticaMemo.NeedManualApply)
+                    && creditAdj.AcumaticaMemo.NeedManualApply)
                 {
                     action.ActionCode = ActionCode.NeedManualApply;
                 }

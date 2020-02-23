@@ -173,7 +173,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         }
 
 
-        public void UpdateShopifyRefundsNeedsPut(long shopifyOrderMonsterId, bool value)
+        public void UpdateShopifyOriginalPaymentNeedPut(long shopifyOrderMonsterId, bool value)
         {
             var refunds = Entities.ShopifyRefunds.Where(x => x.ShopifyOrderMonsterId == shopifyOrderMonsterId).ToList();
             foreach (var refund in refunds)

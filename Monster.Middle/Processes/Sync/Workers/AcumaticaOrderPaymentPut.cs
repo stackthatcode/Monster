@@ -381,14 +381,23 @@ namespace Monster.Middle.Processes.Sync.Workers
                 paymentRecord.AcumaticaAmount = (decimal)payment.PaymentAmount.value;
                 paymentRecord.AcumaticaAppliedToOrder = (decimal) payment.AmountAppliedToOrder;
 
-                if (transactionRecord.IsPureCancel)
+                if (transactionRecord.IsRefund())
                 {
-                    // Users are tasked with creating their Return for Credit
-                    // 
-                    paymentRecord.NeedRelease = false;
-                    paymentRecord.NeedManualApply = true;
+                    if (transactionRecord.NeedManualApply())
+                    {
+                        // Users are tasked with creating their Return for Credit
+                        // 
+                        paymentRecord.NeedRelease = false;
+                        paymentRecord.NeedManualApply = true;
+                    }
+                    else
+                    {
+                        paymentRecord.NeedRelease = true;
+                        paymentRecord.NeedManualApply = false;
+                    }
                 }
-                else
+
+                if (!transactionRecord.IsRefund())
                 {
                     paymentRecord.NeedRelease = true;
                     paymentRecord.NeedManualApply = false;
@@ -405,7 +414,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 _syncOrderRepository.SaveChanges();
             }
 
-            _syncOrderRepository.UpdateShopifyRefundsNeedsPut(transactionRecord.ShopifyOrderMonsterId, false);
+            _syncOrderRepository.UpdateShopifyOriginalPaymentNeedPut(transactionRecord.ShopifyOrderMonsterId, false);
             _syncOrderRepository.ResetOrderErrorCount(transactionRecord.ShopifyOrderId);
         }
 

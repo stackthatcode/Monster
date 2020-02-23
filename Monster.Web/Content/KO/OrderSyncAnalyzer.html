@@ -331,9 +331,9 @@
             <span> - <span data-bind="text: ActionDesc"></span></span>
             
             <div data-bind="if: HasShipping">
-                Includes Shipping Refund - 
-                Shipping Amount: <span data-bind="text: Shipping"></span>
-                Shipping Tax: <span data-bind="text: ActionDesc"></span>)
+                (Includes Shipping Refund - 
+                Shipping Amount: <span data-bind="text: Monster.NumberFormat(Shipping)"></span>
+                Shipping Tax: <span data-bind="text: Monster.NumberFormat(ShippingTax)"></span>)
             </div>
 
             <div data-bind="foreach: Validation.FailureMessages">
@@ -448,7 +448,7 @@
                     <div class="col-4 right">
                         <strong>
                             <a href="#" data-bind="click: function() { Monster.Events.publish(Monster.IgnoreOrderEvent); }">
-                                Disable synchronization
+                                Block (disable sync)
                             </a>
                         </strong>
                     </div>

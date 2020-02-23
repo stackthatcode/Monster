@@ -42,7 +42,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
 
         public static bool NeedManualApply(this ShopifyTransaction record)
         {
-            return record.IsPureCancel ||
+            return !record.IsPureCancel ||
                    (record.HasShippingRefund() && record.ShopifyOrder.HasInvoicedShipments());
         }
     }

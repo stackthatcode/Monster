@@ -215,6 +215,15 @@ namespace Monster.Middle.Processes.Sync.Managers
                 RunPullFromAcumatica();
             }
 
+            if (settings.SyncFulfillmentsEnabled
+                && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
+            {
+                Run(new Action[]
+                {
+                    () => _syncManager.SyncFulfillmentsToShopify()
+                });
+            }
+            
             if (settings.SyncOrdersEnabled)
             {
                 Run(new Action[]
@@ -222,15 +231,6 @@ namespace Monster.Middle.Processes.Sync.Managers
                         () => _syncManager.SyncCustomersToAcumatica(),
                         () => _syncManager.SyncOrdersToAcumatica(),
                         () => _syncManager.SyncPaymentsToAcumatica(),
-                    });
-            }
-
-            if (settings.SyncFulfillmentsEnabled 
-                && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
-            {
-                Run(new Action[]
-                    {
-                        () => _syncManager.SyncFulfillmentsToShopify()
                     });
             }
 

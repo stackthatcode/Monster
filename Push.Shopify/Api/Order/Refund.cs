@@ -77,8 +77,7 @@ namespace Push.Shopify.Api.Order
         public decimal TotalTax => TotalShippingAdjustmentTax + TotalLineItemTax;
 
 
-        public bool IsPureCancel =>
-            refund_line_items.Any() && refund_line_items.All(x => x.restock_type == RestockType.Cancel);
+        public bool IsPureCancel => refund_line_items.All(x => x.restock_type == RestockType.Cancel);
             
 
         public bool HasTransaction(long transaction_id)
