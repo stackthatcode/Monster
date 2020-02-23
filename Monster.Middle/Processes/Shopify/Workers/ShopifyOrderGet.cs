@@ -171,7 +171,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     newOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
                     newOrder.ShopifyIsCancelled = order.IsCancelled;
                     newOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
-                    newOrder.ShopifyTotalQuantity = order.TotalQuantity;
+                    newOrder.ShopifyTotalQuantity = order.NetOrderedQuantity;
 
                     newOrder.NeedsOrderPut = false;
                     newOrder.NeedsTransactionGet = true;
@@ -192,7 +192,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     existingOrder.ShopifyFulfillmentStatus = order.fulfillment_status;
                     existingOrder.ShopifyIsCancelled = order.IsCancelled;
                     existingOrder.ShopifyAreAllItemsRefunded = order.AreAllLineItemsRefunded;
-                    existingOrder.ShopifyTotalQuantity = order.TotalQuantity;
+                    existingOrder.ShopifyTotalQuantity = order.NetOrderedQuantity;
 
                     if (existingOrder.StatusChangeDetected(order))
                     {
@@ -262,11 +262,16 @@ namespace Monster.Middle.Processes.Shopify.Workers
                     newRecord.ShopifyRefundId = refund.id;
                     newRecord.ShopifyOrderId = order.id;
                     newRecord.ShopifyOrder = orderRecord;
+
+                    newRecord.NeedOriginalPaymentPut = true;
+                    newRecord.RequiresMemo =
+                        Math.Abs(refund.CreditMemoTotal) > 0 || Math.Abs(refund.DebitMemoTotal) > 0;
+
                     newRecord.CreditAdjustment = refund.CreditMemoTotal;
                     newRecord.DebitAdjustment = refund.DebitMemoTotal;
-                    newRecord.NeedOriginalPaymentPut = true;
-                    newRecord.RequiresMemo 
-                        = refund.CreditMemoTotal > 0 || refund.DebitMemoTotal > 0;
+                    newRecord.Shipping = refund.TotalShippingAdjustment;
+                    newRecord.ShippingTax = refund.TotalShippingAdjustmentTax;
+
                     newRecord.DateCreated = DateTime.UtcNow;
                     newRecord.LastUpdated = DateTime.UtcNow;
 

@@ -12,6 +12,11 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
 
         public string TransDesc { get; set; }
         public decimal Amount { get; set; }
+
+        public bool HasShipping { get; set; }
+        public decimal Shipping { get; set; }
+        public decimal ShippingTax { get; set; }
+
         public string PaymentGateway { get; set; }
 
         public ActionCode ActionCode { get; set; }
@@ -21,7 +26,7 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
         //
         public string ActionDesc => ActionCode.Description();
         public bool IsValid => Validation.Success;
-
+        public bool IsManualApply => ActionCode == ActionCode.NeedManualApply;
 
         public PaymentAction()
         {

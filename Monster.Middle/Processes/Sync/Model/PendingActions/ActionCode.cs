@@ -10,7 +10,9 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
          ReleaseInAcumatica = 4,
          UpdateInAcumatica = 5,
          CreateInShopify = 6,
+         NeedManualApply = 7,
     }
+
 
     public static class ActionCodeDesc
     {
@@ -22,7 +24,8 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
                 {ActionCode.ReleaseInAcumatica, "Pending release in Acumatica"},
                 {ActionCode.UpdateInAcumatica, "Pending update in Acumatica"},
                 {ActionCode.CreateInShopify, "Pending creation in Shopify"},
-                {ActionCode.CreateBlankSyncRecord, "Pending creation in Acumatica"}
+                {ActionCode.CreateBlankSyncRecord, "Pending creation in Acumatica"},
+                {ActionCode.NeedManualApply, "Need manual application in Acumatica"}
             };
 
         public static string Description(this ActionCode actionCode)

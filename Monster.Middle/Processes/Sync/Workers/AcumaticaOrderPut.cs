@@ -262,6 +262,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             acumaticaRecord.DateCreated = DateTime.UtcNow;
             acumaticaRecord.LastUpdated = DateTime.UtcNow;
 
+            shopifyRecord.NeedsOrderPut = false;
             _syncOrderRepository.Entities.AcumaticaSalesOrders.Add(acumaticaRecord);
             _syncOrderRepository.SaveChanges();
         }

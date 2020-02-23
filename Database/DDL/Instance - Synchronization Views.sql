@@ -28,7 +28,8 @@ SELECT	t1.MonsterId,
 		t1.Ignore, 
 		t6.AcumaticaDocType, 
 		t6.AcumaticaRefNbr, 
-		t6.NeedRelease
+		t6.NeedRelease,
+		t6.NeedManualApply
 FROM ShopifyOrder t1
 	INNER JOIN ShopifyTransaction t5
 		ON t1.MonsterId = t5.ShopifyOrderMonsterId
@@ -51,7 +52,7 @@ SELECT	t1.MonsterId,
 		t8.AcumaticaDocType, 
 		t8.AcumaticaRefNbr, 
 		t8.NeedRelease, 
-		t8.NeedApplyToOrder
+		t8.NeedManualApply
 FROM ShopifyOrder t1
 	INNER JOIN ShopifyRefund t7
 		ON t1.MonsterId = t7.ShopifyOrderMonsterId
@@ -111,7 +112,7 @@ AS
 SELECT * FROM ShopifyOrderPaymentsSyncStatus
 WHERE ( Ignore = 0 )
 AND ( ( AcumaticaRefNbr IS NULL ) OR
-	( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 ) )
+	( AcumaticaRefNbr IS NOT NULL AND ( NeedRelease = 1 OR NeedManualApply = 1 ) ) )
 GO
 
 DROP VIEW IF EXISTS ShopifyOrdersNeedingOriginalPaymentUpdate
@@ -130,8 +131,7 @@ AS
 SELECT * FROM ShopifyOrderRefundsSyncStatus
 WHERE ( Ignore = 0 AND RequiresMemo = 1 )
 AND ( ( AcumaticaRefNbr IS NULL )
-		OR ( AcumaticaRefNbr IS NOT NULL AND NeedRelease = 1 ) )
---		OR ( AcumaticaRefNbr IS NOT NULL AND NeedApplyToOrder = 1 ) )  -- *** SAVE THIS UNTIL ACUMATICA ADDRESSES ***
+		OR ( AcumaticaRefNbr IS NOT NULL AND ( NeedRelease = 1 OR NeedManualApply = 1 ) ) )
 GO
 
 
@@ -182,7 +182,6 @@ SELECT * FROM ShopifyOrdersNeedingPaymentSync
 SELECT * FROM ShopifyOrdersNeedingOriginalPaymentUpdate
 SELECT * FROM ShopifyOrderNeedingRefundSync
 SELECT * FROM ShopifyOrderNeedingSoShipmentsSync
-
 SELECT * FROM ShopifyOrdersNeedingSyncAll;
 
 UPDATE ShopifyOrder SET ShopifyTotalQuantity = 2 WHERE MonsterId = 6;

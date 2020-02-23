@@ -181,32 +181,47 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var output = new List<PaymentAction>();
 
-            foreach (var refund in orderRecord.RefundTransactions())
+            foreach (var refundTrans in orderRecord.RefundTransactions())
             {
                 var refundAction = new PaymentAction();
 
-                refundAction.ShopifyTransactionId = refund.ShopifyTransactionId;
-                refundAction.TransDesc = $"Shopify Refund ({refund.ShopifyTransactionId})";
-                refundAction.PaymentGateway = refund.ShopifyGateway;
-                refundAction.Amount = refund.ShopifyAmount;
+                refundAction.ShopifyTransactionId = refundTrans.ShopifyTransactionId;
+                refundAction.TransDesc = $"Shopify Refund ({refundTrans.ShopifyTransactionId})";
+                refundAction.PaymentGateway = refundTrans.ShopifyGateway;
+                refundAction.Amount = refundTrans.ShopifyAmount;
+
+                var refund = orderRecord.Refund(refundTrans.ShopifyRefundId.Value);
+
+                refundAction.HasShipping = refund.HasShipping();
+                refundAction.Shipping = refund.Shipping;
+                refundAction.ShippingTax = refund.ShippingTax;
+
                 refundAction.ActionCode = ActionCode.None;
 
-                if (!refund.ExistsInAcumatica())
+                if (!refundTrans.ExistsInAcumatica())
                 {
                     refundAction.ActionCode = ActionCode.CreateInAcumatica;
                 }
 
-                if (refund.ExistsInAcumatica())
+                if (refundTrans.ExistsInAcumatica())
                 {
-                    refundAction.AcumaticaPaymentRef = refund.AcumaticaPayment.AcumaticaRefNbr;
+                    refundAction.AcumaticaPaymentRef = refundTrans.AcumaticaPayment.AcumaticaRefNbr;
                     refundAction.AcumaticaHref
                         = _acumaticaUrlService.AcumaticaPaymentUrl(
-                            PaymentType.CustomerRefund, refund.AcumaticaPayment.AcumaticaRefNbr);
+                            PaymentType.CustomerRefund, refundTrans.AcumaticaPayment.AcumaticaRefNbr);
                 }
 
-                if (refund.ExistsInAcumatica() && !refund.IsReleased())
+                if (refundTrans.ExistsInAcumatica() 
+                    && !refundTrans.AcumaticaPayment.NeedManualApply 
+                    && !refundTrans.IsReleased())
                 {
                     refundAction.ActionCode = ActionCode.ReleaseInAcumatica;
+                }
+
+                if (refundTrans.ExistsInAcumatica()
+                    && refundTrans.AcumaticaPayment.NeedManualApply)
+                {
+                    refundAction.ActionCode = ActionCode.NeedManualApply;
                 }
 
                 output.Add(refundAction);
@@ -244,9 +259,17 @@ namespace Monster.Middle.Processes.Sync.Services
                             SalesInvoiceType.Credit_Memo, creditAdj.AcumaticaMemo.AcumaticaRefNbr);
                 }
 
-                if (creditAdj.AcumaticaMemo != null && creditAdj.AcumaticaMemo.NeedRelease)
+                if (creditAdj.AcumaticaMemo != null 
+                    && !creditAdj.AcumaticaMemo.NeedManualApply
+                    && creditAdj.AcumaticaMemo.NeedRelease)
                 {
                     action.ActionCode = ActionCode.ReleaseInAcumatica;
+                }
+
+                if (creditAdj.AcumaticaMemo != null
+                    && !creditAdj.AcumaticaMemo.NeedManualApply)
+                {
+                    action.ActionCode = ActionCode.NeedManualApply;
                 }
 
                 output.Add(action);

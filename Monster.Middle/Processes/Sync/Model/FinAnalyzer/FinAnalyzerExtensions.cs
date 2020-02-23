@@ -34,7 +34,11 @@ namespace Monster.Middle.Processes.Sync.Model.FinAnalyzer
             foreach (var refund in shopifyOrder.refunds)
             {
                 var xferRefund = new FinAnalyzerRefund();
-                xferRefund.ExternalRefNbr = refund.id.ToString();
+                if (refund.transactions.Any())
+                {
+                    xferRefund.ExternalRefNbr = refund.transactions.First().id.ToString();
+                }
+
                 xferRefund.TaxableAmount = refund.TotalTaxableLineAndShippingAmount;
                 xferRefund.LineItemTotal = refund.LineItemTotal;
                 xferRefund.LineItemsTax = refund.TotalLineItemTax;

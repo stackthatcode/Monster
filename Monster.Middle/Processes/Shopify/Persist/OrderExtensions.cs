@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using Monster.Middle.Persist.Instance;
-using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Order;
-using Push.Shopify.Api.Transactions;
 
 
 namespace Monster.Middle.Processes.Shopify.Persist
@@ -25,6 +23,11 @@ namespace Monster.Middle.Processes.Shopify.Persist
         public static bool IsNotCancelledOrAllRefunded(this ShopifyOrder orderRecord)
         {
             return !orderRecord.IsCancelledOrAllRefunded();
+        }
+
+        public static ShopifyRefund Refund(this ShopifyOrder orderRecord, long shopifyRefundId)
+        {
+            return orderRecord.ShopifyRefunds.FirstOrDefault(x => x.ShopifyRefundId == shopifyRefundId);
         }
     }
 }

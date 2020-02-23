@@ -33,14 +33,17 @@ namespace Push.Shopify.Api.Order
         // Shipping Refunds/Adjustments
         //
         [JsonIgnore]
-        public IEnumerable<OrderAdjustment> ShippingAdjustments 
-                => order_adjustments.Where(x => x.IsShippingAdjustment);
+        public IEnumerable<OrderAdjustment> 
+                ShippingAdjustments => order_adjustments.Where(x => x.IsShippingAdjustment);
 
         [JsonIgnore]
         public decimal TotalShippingAdjustment => -ShippingAdjustments.Sum(x => x.amount);
 
         [JsonIgnore]
         public decimal TotalShippingAdjustmentTax => -(ShippingAdjustments.Sum(x => x.tax_amount));
+
+        [JsonIgnore]
+        public bool HasShipping => TotalShippingAdjustment + TotalShippingAdjustmentTax > 0.0m;
 
 
         // Refund Discrepancy Adjustments
@@ -74,7 +77,8 @@ namespace Push.Shopify.Api.Order
         public decimal TotalTax => TotalShippingAdjustmentTax + TotalLineItemTax;
 
 
-        public bool IsPureReturn => refund_line_items.All(x => x.restock_type == RestockType.Return);
+        public bool IsPureCancel =>
+            refund_line_items.Any() && refund_line_items.All(x => x.restock_type == RestockType.Cancel);
             
 
         public bool HasTransaction(long transaction_id)

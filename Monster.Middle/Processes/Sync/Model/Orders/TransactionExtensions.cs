@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
+
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
 {
@@ -27,6 +29,22 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
             return order.ShopifyRefunds.Any(x => x.NeedOriginalPaymentPut);
         }
 
+        public static bool HasShippingRefund(this ShopifyTransaction transaction)
+        {
+            return transaction.ShopifyRefundId.HasValue &&
+                transaction.ShopifyOrder.Refund(transaction.ShopifyRefundId.Value).HasShipping();
+        }
+
+        public static bool HasShipping(this ShopifyRefund refund)
+        {
+            return (Math.Abs(refund.Shipping) + Math.Abs(refund.ShippingTax)) > 0;
+        }
+
+        public static bool NeedManualApply(this ShopifyTransaction record)
+        {
+            return record.IsPureCancel ||
+                   (record.HasShippingRefund() && record.ShopifyOrder.HasInvoicedShipments());
+        }
     }
 }
 

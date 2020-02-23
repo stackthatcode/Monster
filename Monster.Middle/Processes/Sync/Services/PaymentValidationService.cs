@@ -89,6 +89,8 @@ namespace Monster.Middle.Processes.Sync.Services
         {
             var context = BuildContext(currentTransaction);
 
+            //!x.ShopifyOrder.ShopifyAreAllItemsRefunded && 
+
             var validation
                 = BuildBaseValidation()
                     .Add(x => x.AcumaticaSalesOrder != null, "Acumatica Sales Order not created yet", instantFailure:true)

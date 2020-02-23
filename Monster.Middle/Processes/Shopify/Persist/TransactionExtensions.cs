@@ -72,14 +72,9 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return order.PaymentTransaction() != null;
         }
 
-        public static List<ShopifyTransaction> RefundTransactions(this ShopifyOrder order, bool excludePureReturns = false)
+        public static List<ShopifyTransaction> RefundTransactions(this ShopifyOrder order)
         {
             var output = order.ShopifyTransactions.Where(x => x.DoNotIgnore() && x.IsRefund());
-
-            if (excludePureReturns)
-            {
-                output = output.Where(x => x.IsPureReturn == false);
-            }
             return output.ToList();
         }
 
@@ -106,12 +101,12 @@ namespace Monster.Middle.Processes.Shopify.Persist
                 : 0m;
         }
 
-        public static decimal ShopifyRefundTotal(this ShopifyOrder order,bool excludePureReturns = false)
+        public static decimal ShopifyRefundTotal(this ShopifyOrder order)
         {
-            return order.RefundTransactions(excludePureReturns).Sum(x => x.ShopifyAmount);
+            return order.RefundTransactions().Sum(x => x.ShopifyAmount);
         }
 
-        public static decimal ShopifyNetPayment(this ShopifyOrder order, bool excludePureReturns = false)
+        public static decimal ShopifyNetPayment(this ShopifyOrder order)
         {
             return order.ShopifyPaymentAmount() - order.ShopifyRefundTotal();
         }
@@ -139,9 +134,12 @@ namespace Monster.Middle.Processes.Shopify.Persist
         //
         public static decimal TheoreticalPaymentRemaining(this ShopifyOrder order)
         {
-            // SAVE => only change this with careful and thorough investigation
+            // UPDATE => We'll play conservatively for system stability and clarity.
+            //  ... This is computed figure is inclusive of Cancels, Returns and InStock
+            //  ... aka indeterminate. If a Return is received before the Order is Complete,
+            //  ... the user will bear the responsibility of manually applying Payments and Refunds. 
             //
-            var output = order.ShopifyNetPayment(excludePureReturns:true) - order.AcumaticaInvoiceTotal();
+            var output = order.ShopifyNetPayment() - order.AcumaticaInvoiceTotal();
             return output <= 0.00m ? 0.00m : output;
         }
 

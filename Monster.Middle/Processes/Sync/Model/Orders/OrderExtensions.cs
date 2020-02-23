@@ -9,7 +9,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
     {
         public static bool IsEmptyOrCancelled(this ShopifyOrder order)
         {
-            return order.SyncedSalesOrder() != null; // && !order.IsEmptyOrCancelled;
+            return order.ShopifyAreAllItemsRefunded || order.ShopifyIsCancelled;
         }
 
         public static AcumaticaSalesOrder SyncedSalesOrder(this ShopifyOrder order)
@@ -31,6 +31,11 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         public static bool HasUnsyncedFulfillments(this ShopifyOrder order)
         {
             return order.SoShipments().Any(x => x.ShopifyFulfillment == null);
+        }
+
+        public static bool HasInvoicedShipments(this ShopifyOrder order)
+        {
+            return order.SoShipments().Any();
         }
 
 

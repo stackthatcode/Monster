@@ -20,6 +20,7 @@ using Monster.Middle.Processes.Sync.Services;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
+using Push.Shopify.Api.Order;
 
 
 namespace Monster.Middle.Processes.Sync.Workers
@@ -310,22 +311,23 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             // Reference to the original Payment
             //
-            if (!transactionRecord.IsPureReturn)
+            if (transactionRecord.NeedManualApply())
+            {
+                refundPayment.Hold = true.ToValue();
+                refundPayment.PaymentAmount = ((double)transaction.amount).ToValue();
+            }
+            else
             {
                 var acumaticaPayment = order.PaymentTransaction().AcumaticaPayment;
                 var balance = _paymentClient.RetrievePaymentBalance(acumaticaPayment.AcumaticaRefNbr, PaymentType.Payment);
+
                 var amountToApply = transaction.amount > balance ? balance : transaction.amount;
 
                 refundPayment.Hold = false.ToValue();
                 refundPayment.PaymentAmount = ((double)amountToApply).ToValue();
                 refundPayment.DocumentsToApply
                     = PaymentDocumentsToApply.ForDocument(
-                        acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double) amountToApply);
-            }
-            else
-            {
-                refundPayment.Hold = true.ToValue();
-                refundPayment.PaymentAmount = ((double) transaction.amount).ToValue();
+                        acumaticaPayment.AcumaticaRefNbr, acumaticaPayment.AcumaticaDocType, (double)amountToApply);
             }
 
             // Amounts
@@ -378,7 +380,20 @@ namespace Monster.Middle.Processes.Sync.Workers
                 paymentRecord.AcumaticaDocType = payment.Type.value;
                 paymentRecord.AcumaticaAmount = (decimal)payment.PaymentAmount.value;
                 paymentRecord.AcumaticaAppliedToOrder = (decimal) payment.AmountAppliedToOrder;
-                paymentRecord.NeedRelease = true;
+
+                if (transactionRecord.IsPureCancel)
+                {
+                    // Users are tasked with creating their Return for Credit
+                    // 
+                    paymentRecord.NeedRelease = false;
+                    paymentRecord.NeedManualApply = true;
+                }
+                else
+                {
+                    paymentRecord.NeedRelease = true;
+                    paymentRecord.NeedManualApply = false;
+                }
+
                 paymentRecord.DateCreated = DateTime.UtcNow;
                 paymentRecord.LastUpdated = DateTime.UtcNow;
                 _syncOrderRepository.InsertPayment(paymentRecord);
@@ -400,7 +415,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 // Workarounds for Acumatica bug that prevents storage of Payment Nbr
                 //
-                var acumaticaPayment = RetrieveCorrectedPayment(transactionRecord);
+                var acumaticaPayment = RetrievePaymentWithMissingId(transactionRecord);
 
                 // Release the actual Payment
                 //
@@ -417,7 +432,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        private AcumaticaPayment RetrieveCorrectedPayment(ShopifyTransaction transactionRecord)
+        private AcumaticaPayment RetrievePaymentWithMissingId(ShopifyTransaction transactionRecord)
         {
             var acumaticaPayment = transactionRecord.AcumaticaPayment;
             if (acumaticaPayment.AcumaticaRefNbr == AcumaticaSyncConstants.UnknownRefNbr)
@@ -453,7 +468,8 @@ namespace Monster.Middle.Processes.Sync.Workers
                 return;
             }
 
-            if (action.ActionCode == ActionCode.CreateInAcumatica && action.IsValid)
+            if (action.ActionCode == ActionCode.CreateInAcumatica
+                    && action.MemoType ==  AdjustmentMemoType.CreditMemo && action.IsValid)
             {
                 // Create Acumatica Refund payload
                 // 
@@ -560,7 +576,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 newRecord.AcumaticaDocType = invoice.Type.value;
                 newRecord.AcumaticaAmount = (decimal)invoice.Amount.value;
                 newRecord.NeedRelease = true;
-                newRecord.NeedApplyToOrder = true;
+                newRecord.NeedManualApply = true;
 
                 newRecord.DateCreated = DateTime.UtcNow;
                 newRecord.LastUpdated = DateTime.UtcNow;
@@ -581,7 +597,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 // Workarounds for Acumatica bug that prevents storage of Payment Nbr
                 //
-                var acumaticaMemo = RetrieveCorrectedCreditMemo(refundRecord);
+                var acumaticaMemo = RetrieveCreditMemoWithMissingId(refundRecord);
 
                 // Release the actual Memo
                 //
@@ -599,7 +615,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             }
         }
 
-        private AcumaticaMemo RetrieveCorrectedCreditMemo(ShopifyRefund refundRecord)
+        private AcumaticaMemo RetrieveCreditMemoWithMissingId(ShopifyRefund refundRecord)
         {
             var acumaticaCreditMemo = refundRecord.AcumaticaMemo;
             if (acumaticaCreditMemo.AcumaticaRefNbr == AcumaticaSyncConstants.UnknownRefNbr)
@@ -613,6 +629,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                     throw new Exception(
                         $"Shopify  {refundRecord.MonsterId} sync to Acumatica Credit Memo false record detected");
                 }
+
                 if (invoices.Count > 1)
                 {
                     throw new Exception($"Multiple Acumatica Memo records with Customer Order Number {customerOrder}");

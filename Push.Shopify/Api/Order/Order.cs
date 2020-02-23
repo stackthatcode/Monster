@@ -88,7 +88,7 @@ namespace Push.Shopify.Api.Order
         [JsonIgnore]
         public decimal ShippingTaxableTotal => IsShippingTaxable ? ShippingTotal : 0m;
         [JsonIgnore]
-        public decimal ShippingDiscountedTotal => shipping_lines.Sum(x => x.discounted_price);
+        public decimal ShippingDiscountedTotal => shipping_lines.Sum(x => x.ShippingAfterDiscount);
 
         [JsonIgnore]
         public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
@@ -164,6 +164,9 @@ namespace Push.Shopify.Api.Order
 
         [JsonIgnore]
         public bool AreAllLineItemsRefunded => (line_items.Sum(x => x.quantity) - RefundedLineItems) == 0;
+
+        [JsonIgnore]
+        public int NetOrderedQuantity => line_items.Sum(x => x.NetOrderedQuantity);
 
         public bool IsCancelled => cancelled_at.HasValue;
 

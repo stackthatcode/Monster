@@ -1006,7 +1006,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
         public decimal AcumaticaAmount { get; set; } // AcumaticaAmount
         public bool NeedRelease { get; set; } // NeedRelease
-        public bool NeedApplyToOrder { get; set; } // NeedApplyToOrder
+        public bool NeedManualApply { get; set; } // NeedManualApply
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1028,6 +1028,7 @@ namespace Monster.Middle.Persist.Instance
         public decimal AcumaticaAmount { get; set; } // AcumaticaAmount
         public decimal? AcumaticaAppliedToOrder { get; set; } // AcumaticaAppliedToOrder
         public bool NeedRelease { get; set; } // NeedRelease
+        public bool NeedManualApply { get; set; } // NeedManualApply
         public System.DateTime DateCreated { get; set; } // DateCreated
         public System.DateTime LastUpdated { get; set; } // LastUpdated
 
@@ -1769,6 +1770,8 @@ namespace Monster.Middle.Persist.Instance
         public long ShopifyOrderMonsterId { get; set; } // ShopifyOrderMonsterId
         public bool RequiresMemo { get; set; } // RequiresMemo
         public bool NeedOriginalPaymentPut { get; set; } // NeedOriginalPaymentPut
+        public decimal Shipping { get; set; } // Shipping
+        public decimal ShippingTax { get; set; } // ShippingTax
         public decimal CreditAdjustment { get; set; } // CreditAdjustment
         public decimal DebitAdjustment { get; set; } // DebitAdjustment
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -1801,7 +1804,7 @@ namespace Monster.Middle.Persist.Instance
         public string ShopifyGateway { get; set; } // ShopifyGateway (length: 50)
         public decimal ShopifyAmount { get; set; } // ShopifyAmount
         public long? ShopifyRefundId { get; set; } // ShopifyRefundId
-        public bool IsPureReturn { get; set; } // IsPureReturn
+        public bool IsPureCancel { get; set; } // IsPureCancel
         public bool IsSyncableToPayment { get; set; } // IsSyncableToPayment
         public long ShopifyOrderMonsterId { get; set; } // ShopifyOrderMonsterId
         public System.DateTime DateCreated { get; set; } // DateCreated
@@ -2025,7 +2028,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaAmount).HasColumnName(@"AcumaticaAmount").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.NeedRelease).HasColumnName(@"NeedRelease").HasColumnType("bit").IsRequired();
-            Property(x => x.NeedApplyToOrder).HasColumnName(@"NeedApplyToOrder").HasColumnType("bit").IsRequired();
+            Property(x => x.NeedManualApply).HasColumnName(@"NeedManualApply").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
@@ -2054,6 +2057,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaAmount).HasColumnName(@"AcumaticaAmount").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.AcumaticaAppliedToOrder).HasColumnName(@"AcumaticaAppliedToOrder").HasColumnType("money").IsOptional().HasPrecision(19,4);
             Property(x => x.NeedRelease).HasColumnName(@"NeedRelease").HasColumnType("bit").IsRequired();
+            Property(x => x.NeedManualApply).HasColumnName(@"NeedManualApply").HasColumnType("bit").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
             Property(x => x.LastUpdated).HasColumnName(@"LastUpdated").HasColumnType("datetime").IsRequired();
 
@@ -2983,6 +2987,8 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyOrderMonsterId).HasColumnName(@"ShopifyOrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.RequiresMemo).HasColumnName(@"RequiresMemo").HasColumnType("bit").IsRequired();
             Property(x => x.NeedOriginalPaymentPut).HasColumnName(@"NeedOriginalPaymentPut").HasColumnType("bit").IsRequired();
+            Property(x => x.Shipping).HasColumnName(@"Shipping").HasColumnType("money").IsRequired().HasPrecision(19,4);
+            Property(x => x.ShippingTax).HasColumnName(@"ShippingTax").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.CreditAdjustment).HasColumnName(@"CreditAdjustment").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.DebitAdjustment).HasColumnName(@"DebitAdjustment").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
@@ -3015,7 +3021,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.ShopifyGateway).HasColumnName(@"ShopifyGateway").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyAmount).HasColumnName(@"ShopifyAmount").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.ShopifyRefundId).HasColumnName(@"ShopifyRefundId").HasColumnType("bigint").IsOptional();
-            Property(x => x.IsPureReturn).HasColumnName(@"IsPureReturn").HasColumnType("bit").IsRequired();
+            Property(x => x.IsPureCancel).HasColumnName(@"IsPureCancel").HasColumnType("bit").IsRequired();
             Property(x => x.IsSyncableToPayment).HasColumnName(@"IsSyncableToPayment").HasColumnType("bit").IsRequired();
             Property(x => x.ShopifyOrderMonsterId).HasColumnName(@"ShopifyOrderMonsterId").HasColumnType("bigint").IsRequired();
             Property(x => x.DateCreated).HasColumnName(@"DateCreated").HasColumnType("datetime").IsRequired();
