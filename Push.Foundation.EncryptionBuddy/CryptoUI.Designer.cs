@@ -39,6 +39,7 @@ namespace Push.Foundation
             this.label13 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.buttonConfigFileKeys = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
             this.textAesIv = new System.Windows.Forms.TextBox();
             this.textAesKey = new System.Windows.Forms.TextBox();
@@ -106,7 +107,6 @@ namespace Push.Foundation
             this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.buttonConfigFileKeys = new System.Windows.Forms.Button();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage7.SuspendLayout();
@@ -236,6 +236,18 @@ namespace Push.Foundation
             this.tabPage2.Text = "AES Crypto";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // buttonConfigFileKeys
+            // 
+            this.buttonConfigFileKeys.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.125F);
+            this.buttonConfigFileKeys.Location = new System.Drawing.Point(1495, 129);
+            this.buttonConfigFileKeys.Margin = new System.Windows.Forms.Padding(5);
+            this.buttonConfigFileKeys.Name = "buttonConfigFileKeys";
+            this.buttonConfigFileKeys.Size = new System.Drawing.Size(609, 107);
+            this.buttonConfigFileKeys.TabIndex = 76;
+            this.buttonConfigFileKeys.Text = "Load System Keys";
+            this.buttonConfigFileKeys.UseVisualStyleBackColor = true;
+            this.buttonConfigFileKeys.Click += new System.EventHandler(this.ButtonConfigFileKeys_Click);
+            // 
             // label11
             // 
             this.label11.AutoSize = true;
@@ -251,10 +263,10 @@ namespace Push.Foundation
             this.textAesIv.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F);
             this.textAesIv.Location = new System.Drawing.Point(576, 231);
             this.textAesIv.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.textAesIv.MaxLength = 16;
             this.textAesIv.Name = "textAesIv";
             this.textAesIv.Size = new System.Drawing.Size(879, 57);
             this.textAesIv.TabIndex = 74;
-            this.textAesIv.Text = "1234567890123456";
             this.textAesIv.WordWrap = false;
             // 
             // textAesKey
@@ -262,10 +274,10 @@ namespace Push.Foundation
             this.textAesKey.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textAesKey.Location = new System.Drawing.Point(576, 129);
             this.textAesKey.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.textAesKey.MaxLength = 32;
             this.textAesKey.Name = "textAesKey";
             this.textAesKey.Size = new System.Drawing.Size(879, 57);
             this.textAesKey.TabIndex = 72;
-            this.textAesKey.Text = "12345678901234567890123456789012";
             this.textAesKey.WordWrap = false;
             // 
             // textAesDecryptedOutput
@@ -1019,18 +1031,6 @@ namespace Push.Foundation
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(2275, 1350);
             this.tabControl1.TabIndex = 30;
-            // 
-            // buttonConfigFileKeys
-            // 
-            this.buttonConfigFileKeys.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.125F);
-            this.buttonConfigFileKeys.Location = new System.Drawing.Point(1495, 129);
-            this.buttonConfigFileKeys.Margin = new System.Windows.Forms.Padding(5);
-            this.buttonConfigFileKeys.Name = "buttonConfigFileKeys";
-            this.buttonConfigFileKeys.Size = new System.Drawing.Size(407, 107);
-            this.buttonConfigFileKeys.TabIndex = 76;
-            this.buttonConfigFileKeys.Text = "Config";
-            this.buttonConfigFileKeys.UseVisualStyleBackColor = true;
-            this.buttonConfigFileKeys.Click += new System.EventHandler(this.ButtonConfigFileKeys_Click);
             // 
             // CryptoUi
             // 
