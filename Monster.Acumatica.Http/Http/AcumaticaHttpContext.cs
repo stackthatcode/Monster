@@ -209,7 +209,7 @@ namespace Monster.Acumatica.Http
         {
             // All other non-200 calls throw an exception
             //
-            if (response.HasBadStatusCode)
+            if (response.HasBadStatusCodeAndNotFound)
             {
                 throw new Exception(
                     $"Bad Status Code - HTTP {(int)response.StatusCode} ({response.StatusCode})"
@@ -219,7 +219,7 @@ namespace Monster.Acumatica.Http
             return response;
         }
 
-        public void SessionRun(Action action)
+        public void SessionRun(Action action, bool throwException = false)
         {
             try
             {
@@ -229,6 +229,13 @@ namespace Monster.Acumatica.Http
                 }
 
                 action();
+            }
+            catch
+            {
+                if (throwException)
+                {
+                    throw;
+                }
             }
             finally
             {

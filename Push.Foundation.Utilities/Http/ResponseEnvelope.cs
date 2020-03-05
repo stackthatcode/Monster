@@ -27,6 +27,13 @@ namespace Push.Foundation.Utilities.Http
                 || this.StatusCode == HttpStatusCode.Created
                 || this.StatusCode == HttpStatusCode.Accepted
                 || this.StatusCode == HttpStatusCode.NotFound);
+
+        public bool HasBadStatusCodeAndNotFound =>
+            !(this.StatusCode == HttpStatusCode.OK
+              || this.StatusCode == HttpStatusCode.NoContent
+              || this.StatusCode == HttpStatusCode.Created
+              || this.StatusCode == HttpStatusCode.Accepted);
+
     }
 }
 

@@ -45,17 +45,8 @@ namespace Monster.Middle.Processes.Acumatica
 
         public void TestConnection()
         {
-            try
-            {
-                _executionLogService.Log("Testing Acumatica Connection");
-                _acumaticaHttpContext.SessionRun(() => { });
-                _stateRepository.UpdateSystemState(x => x.AcumaticaConnState, StateCode.Ok);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                _stateRepository.UpdateSystemState(x => x.AcumaticaConnState, StateCode.SystemFault);
-            }
+            _executionLogService.Log("Testing Acumatica Connection");
+            _acumaticaHttpContext.SessionRun(() => { }, throwException:true);
         }
 
         public void PullReferenceData()
