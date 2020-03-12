@@ -58,16 +58,13 @@ namespace Monster.Middle.Processes.Shopify.Workers
             {
                 var firstFilter = new SearchFilter();
                 firstFilter.UpdatedAtMinUtc = batchState.ShopifyProductsGetEnd.Value;
-                firstFilter.Page = 1;
-
                 Run(firstFilter);
             }
             else
             {
                 // For the first run, we pull the complete catalog of Shopify Products
+                //
                 var firstFilter = new SearchFilter();
-                firstFilter.Page = 1;
-
                 Run(firstFilter);
             }
         }
@@ -81,33 +78,27 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
             // We've hanging on to this to compute the end of the Batch State
             var startOfRun = DateTime.UtcNow;
-            var firstJson = _productApi.RetrieveProduct(firstFilter);
-            var firstProducts = firstJson.DeserializeFromJson<ProductList>().products;
-
-            UpsertProductsAndInventory(firstProducts);
-
-            var currentPage = 2;
+            var results = _productApi.RetrieveProducts(firstFilter);
 
             while (true)
             {
+                var products = results.Body.DeserializeFromJson<ProductList>().products;
+                UpsertProductsAndInventory(products);
+
                 if (_jobMonitoringService.DetectCurrentJobInterrupt())
                 {
                     return;
                 }
-
-                var currentFilter = firstFilter.Clone();
-                currentFilter.Page = currentPage;
-                
-                var currentJson = _productApi.RetrieveProduct(currentFilter);
-                var currentProducts = currentJson.DeserializeFromJson<ProductList>().products;
-                UpsertProductsAndInventory(currentProducts);
-
-                if (currentProducts.Count == 0)
+                if (results.LinkHeader.NoMo)
                 {
                     break;
                 }
+                //if (currentProducts.Count == 0)
+                //{
+                //    break;
+                //}
 
-                currentPage++;
+                results = _productApi.RetrieveProducts(results.LinkHeader.NextLink);
             }
 
             // Process Delete Events
@@ -120,7 +111,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public long Run(long shopifyProductId)
         {
-            var productJson = _productApi.RetrieveProduct(shopifyProductId);
+            var productJson = _productApi.RetrieveProducts(shopifyProductId);
             var product = productJson.DeserializeFromJson<ProductParent>();
             return UpsertProductAndInventory(product.product);
         }

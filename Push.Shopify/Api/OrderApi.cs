@@ -1,6 +1,4 @@
-﻿using Push.Foundation.Utilities.General;
-using Push.Foundation.Utilities.Http;
-using Push.Foundation.Utilities.Logging;
+﻿using Push.Foundation.Utilities.Http;
 using Push.Shopify.Http;
 
 
@@ -10,53 +8,52 @@ namespace Push.Shopify.Api
     public class OrderApi
     {
         private readonly ShopifyHttpContext _httpClient;
-        private readonly IPushLogger _logger;
 
-        public OrderApi(ShopifyHttpContext httpClient, IPushLogger logger)
+        public OrderApi(ShopifyHttpContext httpClient)
         {
             _httpClient = httpClient;
-            _logger = logger;
         }
 
         
-        public string Retrieve(SearchFilter filter)
+        public ResponseEnvelope Retrieve(SearchFilter filter)
         {
             var querystring = filter.ToQueryString();
-            var path = string.Format("/admin/orders.json?" + querystring);
+            var path = string.Format("/admin/api/2019-10/orders.json?" + querystring);
             var response = _httpClient.Get(path);
-            return response.Body;
+            return response;
         }
 
-        public string OrderInterfaceUrlById(long orderId)
+        public ResponseEnvelope RetrieveByLink(string link)
         {
-            return $"{_httpClient.BaseAddress}admin/orders/{orderId}";
+            var response = _httpClient.Get(link);
+            return response;
         }
-        
+
+
         public string Retrieve(long orderId)
         {
-            var path = $"/admin/orders/{orderId}.json";
+            var path = $"/admin/api/2019-10/orders/{orderId}.json";
             var response = _httpClient.Get(path);
             return response.Body;
         }
         
         public string RetrieveByName(string name)
         {
-            var path = $"/admin/orders.json?name={name.UrlEncode()}&status=any&created_at_min=2001-01-01";
+            var path = $"/admin/api/2019-10/orders.json?name={name.UrlEncode()}&status=any&created_at_min=2001-01-01";
             var response = _httpClient.Get(path);
             return response.Body;
         }
 
-
         public string RetrieveCount()
         {
-            var path = $"/admin/orders/count.json";
+            var path = $"/admin/api/2019-10/orders/count.json";
             var response = _httpClient.Get(path);
             return response.Body;
         }
 
         public string RetrieveTransactions(long orderId)
         {
-            var path = $"/admin/orders/{orderId}/transactions.json";
+            var path = $"/admin/api/2019-10/orders/{orderId}/transactions.json";
             var response = _httpClient.Get(path);
 
             return response.Body;
@@ -64,14 +61,14 @@ namespace Push.Shopify.Api
         
         public string Insert(string json)
         {
-            var path = "/admin/orders.json";
+            var path = "/admin/api/2019-10/orders.json";
             var response = _httpClient.Post(path, json);
             return response.Body;
         }
 
         public string InsertTransaction(long order_id, string json)
         {
-            var path = $"/admin/orders/{order_id}/transactions.json";
+            var path = $"/admin/api/2019-10/orders/{order_id}/transactions.json";
             var response = _httpClient.Post(path, json);
             return response.Body;
         }

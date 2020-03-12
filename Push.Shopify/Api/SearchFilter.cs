@@ -1,13 +1,11 @@
 ﻿using System;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Http;
-using Push.Foundation.Web.Helpers;
 
 namespace Push.Shopify.Api
 {
     public class SearchFilter
     {
-        public int? Page { get; set; }
         public int? Limit { get; set; }
         public long? SinceId { get; set; }
         public DateTime? CreatedAtMinUtc { get; set; }
@@ -21,7 +19,6 @@ namespace Push.Shopify.Api
         public SearchFilter()
         {
             Status = "any";
-            Page = 1;
             Limit = 250;
         }
 
@@ -29,7 +26,6 @@ namespace Push.Shopify.Api
         {
             return new SearchFilter
             {
-                Page = this.Page,
                 Limit = this.Limit,
                 SinceId = this.SinceId,
                 CreatedAtMinUtc = this.CreatedAtMinUtc,
@@ -57,10 +53,6 @@ namespace Push.Shopify.Api
             if (Status != null)
             {
                 builder.Add("status", Status);
-            }
-            if (Page != null)
-            {
-                builder.Add("page", Page.Value);
             }
             if (Limit != null)
             {

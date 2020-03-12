@@ -82,31 +82,24 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             var startOfRun = DateTime.UtcNow;
-            var firstJson = _orderApi.Retrieve(filter);
-            var firstOrders = firstJson.DeserializeToOrderList().orders;
-
-            UpsertOrders(firstOrders);
-            var currentPage = 2;
+            var results = _orderApi.Retrieve(filter);
 
             while (true)
             {
+                var orders = results.Body.DeserializeToOrderList().orders;
+                UpsertOrders(orders);
+
                 if (_jobMonitoringService.DetectCurrentJobInterrupt())
                 {
                     return;
                 }
 
-                var currentFilter = filter.Clone();
-                currentFilter.Page = currentPage;
-
-                var currentJson = _orderApi.Retrieve(currentFilter);
-                var currentOrders = currentJson.DeserializeToOrderList().orders;
-                if (currentOrders.Count == 0)
+                if (results.LinkHeader.NoMo)
                 {
                     break;
                 }
 
-                UpsertOrders(currentOrders);
-                currentPage++;
+                results = _orderApi.RetrieveByLink(results.LinkHeader.NextLink);
             }
 
             // Set the Batch State end marker to the time when this run started

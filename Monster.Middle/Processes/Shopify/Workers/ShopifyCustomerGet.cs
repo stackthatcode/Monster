@@ -38,56 +38,54 @@ namespace Monster.Middle.Processes.Shopify.Workers
 
         public void RunAutomatic()
         {
-            var settings = _settingsRepository.RetrieveSettings();
+            if (_jobMonitoringService.DetectCurrentJobInterrupt())
+            {
+                return;
+            }
             
+            var settings = _settingsRepository.RetrieveSettings();
             var batchState = _batchRepository.Retrieve();
 
             if (batchState.ShopifyCustomersGetEnd == null)
             {
-                var firstFilter = new SearchFilter();
-                firstFilter.Page = 1;
-                firstFilter.UpdatedAtMinUtc = settings.ShopifyOrderCreatedAtUtc.Value;
+                var filter = new SearchFilter();
+                filter.UpdatedAtMinUtc = settings.ShopifyOrderCreatedAtUtc.Value;
                     
-                Run(firstFilter);
+                Run(filter);
             }
             else
             {
-                var firstFilter = new SearchFilter();
-                firstFilter.Page = 1;
-                firstFilter.UpdatedAtMinUtc = batchState.ShopifyCustomersGetEnd.Value;
+                var filter = new SearchFilter();
+                filter.UpdatedAtMinUtc = batchState.ShopifyCustomersGetEnd.Value;
 
-                Run(firstFilter);
+                Run(filter);
             }
         }
 
         private void Run(SearchFilter firstFilter)
         {
             var startOfRun = DateTime.UtcNow;
-            var firstJson = _customerApi.Retrieve(firstFilter);
-            var firstCustomers = firstJson.DeserializeFromJson<CustomerList>().customers;
-
-            UpsertCustomers(firstCustomers);
-            var currentPage = 2;
+            var results = _customerApi.Retrieve(firstFilter);
 
             while (true)
             {
+                var customers = results.Body.DeserializeFromJson<CustomerList>().customers;
+                UpsertCustomers(customers);
+                
                 if (_jobMonitoringService.DetectCurrentJobInterrupt())
                 {
                     return;
                 }
-
-                var currentFilter = firstFilter.Clone();
-                currentFilter.Page = currentPage;
-                var currentJson = _customerApi.Retrieve(currentFilter);
-                var currentCustomers = currentJson.DeserializeFromJson<CustomerList>().customers;
-
-                if (currentCustomers.Count == 0)
+                if (results.LinkHeader.NoMo)
                 {
                     break;
                 }
+                //if (currentCustomers.Count == 0)
+                //{
+                //    break;
+                //}
 
-                UpsertCustomers(currentCustomers);
-                currentPage++;
+                results = _customerApi.Retrieve(results.LinkHeader.NextLink);
             }
 
             // Compute the Batch State Pull End

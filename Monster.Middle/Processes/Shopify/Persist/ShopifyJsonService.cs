@@ -19,7 +19,6 @@ namespace Monster.Middle.Processes.Shopify.Persist
         private readonly ProductApi _productApi;
         private readonly InventoryApi _inventoryApi;
         private readonly CustomerApi _customerApi;
-        private readonly ShopifyOrderRepository _orderRepository;
 
         public ShopifyJsonService(
                 OrderApi orderApi, 
@@ -136,7 +135,7 @@ namespace Monster.Middle.Processes.Shopify.Persist
             }
             if (shopifyJsonType == ShopifyJsonType.Product)
             {
-                var json = _productApi.RetrieveProduct(shopifyId);
+                var json = _productApi.RetrieveProducts(shopifyId);
                 UpdateRecord(shopifyJsonType, shopifyId, json);
             }
             if (shopifyJsonType == ShopifyJsonType.Variant)
@@ -151,11 +150,10 @@ namespace Monster.Middle.Processes.Shopify.Persist
             }
             if (shopifyJsonType == ShopifyJsonType.Transaction)
             {
-                var record = _orderRepository.RetrieveTransaction(shopifyId);
-
                 var transactions =
                     _orderApi.RetrieveTransactions(shopifyId)
                         .DeserializeFromJson<List<Push.Shopify.Api.Transactions.Transaction>>();
+
                 foreach (var transaction in transactions)
                 {
                     UpdateRecord(shopifyJsonType, transaction.id, transaction.SerializeToJson());

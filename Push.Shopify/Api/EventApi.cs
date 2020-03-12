@@ -14,16 +14,14 @@ namespace Push.Shopify.Api
         private readonly ShopifyHttpContext _httpClient;
         private readonly IPushLogger _logger;
         
-        public EventApi(
-                IPushLogger logger, ShopifyHttpContext httpClient)
+        public EventApi(IPushLogger logger, ShopifyHttpContext httpClient)
         {
             _logger = logger;
             _httpClient = httpClient;
         }
         
 
-        public virtual string
-                    Retrieve(EventFilter filter, int page = 1, int limit = 250)
+        public virtual string Retrieve(EventFilter filter, int page = 1, int limit = 250)
         {
             var querystring
                 = new QueryStringBuilder()
@@ -32,7 +30,7 @@ namespace Push.Shopify.Api
                     .Add(filter.ToQueryStringBuilder())
                     .ToString();
 
-            var url = "/admin/events.json?" + querystring;
+            var url = "/admin/api/2019-10/events.json?" + querystring;
             var clientResponse = _httpClient.Get(url);
 
             return clientResponse.Body;
