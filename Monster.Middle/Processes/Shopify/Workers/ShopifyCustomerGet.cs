@@ -4,6 +4,7 @@ using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Persist;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Customer;
@@ -76,7 +77,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 {
                     return;
                 }
-                if (results.LinkHeader.NoMo)
+                if (results.LinkHeader.NoMo())
                 {
                     break;
                 }

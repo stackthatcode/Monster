@@ -7,6 +7,7 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
 using Push.Foundation.Utilities.General;
+using Push.Foundation.Utilities.Http;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
@@ -89,7 +90,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 {
                     return;
                 }
-                if (results.LinkHeader.NoMo)
+                if (results.LinkHeader.NoMo())
                 {
                     break;
                 }
@@ -355,8 +356,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 var existingLevel =
                     existingLevels.FirstOrDefault(x => x.ShopifyLocationId == shopifyLevel.location_id);
 
-                var location 
-                    = locations.First(x => x.ShopifyLocationId == shopifyLevel.location_id);
+                var location = locations.First(x => x.ShopifyLocationId == shopifyLevel.location_id);
 
                 if (existingLevel == null)
                 {
@@ -384,37 +384,25 @@ namespace Monster.Middle.Processes.Shopify.Workers
         public void PullDeletedEventsAndUpsert(DateTime filterMinCreated)
         {
             var firstFilter = new EventFilter();
-            firstFilter.Page = 1;
             firstFilter.Filter = "product";
             firstFilter.Verb = "destroy";
             firstFilter.CreatedAtMinUtc = filterMinCreated;
 
             // Pull from Shopify
-            var firstJson = _eventApi.Retrieve(firstFilter);
-            var firstEvents = firstJson.DeserializeFromJson<EventList>().events;
-
-            UpdateProductsByDeleteEvents(firstEvents);
-
-            var currentPage = 2;
+            //
+            var results = _eventApi.Retrieve(firstFilter);
 
             while (true)
             {
-                var currentFilter = firstFilter.Clone();
-                currentFilter.Page = currentPage;
+                var events = results.Body.DeserializeFromJson<EventList>().events;
+                UpdateProductsByDeleteEvents(events);
 
-                // Pull from Shopify
-                var currentJson = _eventApi.Retrieve(currentFilter);
-                var currentEvents
-                    = currentJson.DeserializeFromJson<EventList>().events;
-
-                UpdateProductsByDeleteEvents(currentEvents);
-
-                if (currentEvents.Count == 0)
+                if (results.LinkHeader.NoMo())
                 {
                     break;
                 }
 
-                currentPage++;
+                results = _eventApi.RetrieveByLink(results.LinkHeader.NextLink);
             }
         }
 

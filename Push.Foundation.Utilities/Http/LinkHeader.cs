@@ -18,12 +18,16 @@ namespace Push.Foundation.Utilities.Http
 
         public bool EOF => NextLink.IsNullOrEmpty() || PrevLink == NextLink;
 
-        public bool NoMo => Empty || EOF;
     }
 
     public static class LinkHeaderExtensions
     {
-        public static LinkHeader ToLinkHeader(this string input)
+        public static bool NoMo(this LinkHeader input)
+        {
+            return input == null || input.Empty || input.EOF;
+        }
+
+    public static LinkHeader ToLinkHeader(this string input)
         {
             LinkHeader linkHeader = new LinkHeader();
 

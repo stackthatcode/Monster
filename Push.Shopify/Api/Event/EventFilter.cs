@@ -9,7 +9,6 @@ namespace Push.Shopify.Api.Event
         public DateTime? CreatedAtMinUtc { get; set; }
         public string Verb { get; set; }
         public string Filter { get; set; }
-        public int? Page { get; set; }
         public int? Limit { get; set; }
 
 
@@ -17,7 +16,6 @@ namespace Push.Shopify.Api.Event
         {
             CreatedAtMinUtc = DateTime.UtcNow;
             Limit = 250;
-            Page = 1;
         }
 
         public EventFilter Clone()
@@ -27,7 +25,6 @@ namespace Push.Shopify.Api.Event
                 CreatedAtMinUtc = this.CreatedAtMinUtc,
                 Verb = this.Verb,
                 Filter = this.Filter,
-                Page = this.Page,
                 Limit = this.Limit,
             };
         }
@@ -52,21 +49,12 @@ namespace Push.Shopify.Api.Event
             {
                 builder.Add("filter", Filter);
             }
-            if (Page != null)
-            {
-                builder.Add("page", Page.Value);
-            }
             if (Limit != null)
             {
                 builder.Add("limit", Limit.Value);
             }
 
             return builder;
-        }
-
-        public string ToQueryString()
-        {
-            return ToQueryStringBuilder().ToString();
         }
     }
 }
