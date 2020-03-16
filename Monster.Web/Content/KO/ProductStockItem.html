@@ -49,8 +49,8 @@
             <div class="col-sm-2">
                 <select class="form-control" data-bind="value: SyncFilter">
                     <option value="All">All</option>
-                    <option value="Synced Only">Synced Only</option>
-                    <option value="Unsynced Only">Unsynced Only</option>
+                    <option value="Synced Only">Matched Only</option>
+                    <option value="Unsynced Only">Unmatched Only</option>
                 </select>
             </div>
 
@@ -61,7 +61,7 @@
         
         <div data-bind="ifnot: Grid().length">
             <div style="height: 400px; padding-top:150px;" class="empty-grid">
-                <h1>Unable find any records that match your query</h1>
+                <h1>Unable find any records that meet your query</h1>
             </div>
         </div>
 
