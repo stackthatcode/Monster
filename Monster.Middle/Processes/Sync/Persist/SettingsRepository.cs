@@ -101,7 +101,7 @@ namespace Monster.Middle.Processes.Sync.Persist
                     settings.SyncRefundsEnabled = false;
                     settings.SyncFulfillmentsEnabled = false;
                     settings.MaxParallelAcumaticaSyncs = 1;
-                    settings.MaxNumberOfOrders = 1;
+                    settings.MaxNumberOfOrders = 5000;
                     settings.ReleasePaymentsOnSync = false;
 
                     settings.ShopifyDelayMs = ShopifyDelay.Default;

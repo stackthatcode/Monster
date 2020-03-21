@@ -59,7 +59,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
             if (batchState.ShopifyOrdersGetEnd.HasValue)
             {
                 var filter = new SearchFilter();
-                //filter.OrderByUpdatedAt();
                 filter.SinceId = settings.ShopifyOrderId.Value;
                 filter.UpdatedAtMinUtc = batchState.ShopifyOrdersGetEnd.Value;
 
@@ -68,7 +67,6 @@ namespace Monster.Middle.Processes.Shopify.Workers
             else
             {
                 var filter = new SearchFilter();
-                filter.OrderByCreatedAt();
                 filter.SinceId = settings.ShopifyOrderId.Value;
 
                 Run(filter);

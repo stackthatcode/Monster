@@ -36,15 +36,6 @@ namespace Push.Shopify.Api
             };
         }
 
-        public void OrderByCreatedAt()
-        {
-            this.OrderBy = "created_at asc";
-        }
-
-        public void OrderByUpdatedAt()
-        {
-            this.OrderBy = "updated_at asc";
-        }
         
         public QueryStringBuilder ToQueryStringBuilder()
         {
