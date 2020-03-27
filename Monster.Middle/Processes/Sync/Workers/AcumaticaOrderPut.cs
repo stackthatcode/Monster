@@ -157,6 +157,35 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
+        private void CorrectSalesOrderWithUnknownRef(long shopifyOrderId)
+        {
+            var shopifyOrderRecord = _syncOrderRepository.RetrieveShopifyOrder(shopifyOrderId);
+
+            if (!shopifyOrderRecord.HasSyncWithUnknownNbr())
+            {
+                return;
+            }
+
+            var salesOrderRecord = shopifyOrderRecord.AcumaticaSalesOrder;
+
+            var customerOrderRef = shopifyOrderRecord.ShopifyOrderId.ToString();
+            var findOrders = _salesOrderClient.FindSalesOrder(customerOrderRef);
+
+            if (findOrders.Count == 0)
+            {
+                _acumaticaOrderRepository.DeleteSalesOrder(shopifyOrderRecord.AcumaticaSalesOrder);
+                return;
+            }
+
+            // Heuristic for now
+            //
+            var salesOrder = findOrders.OrderBy(x => x.OrderNbr.value).First();
+
+            salesOrderRecord.Ingest(salesOrder);
+            _acumaticaOrderRepository.SaveChanges();
+        }
+
+
         // Push Order
         //
         private void CreateSalesOrder(long shopifyOrderId)
@@ -170,32 +199,25 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Write the Sales Order to Acumatica
             //
             var salesOrder = BuildNewSalesOrder(shopifyOrderRecord, acumaticaCustomer);
-            var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson(), Expand.Totals);
 
-            // Create the local Order Record and Sync
+            // Create the Sync record *first*
             //
-            var newOrder = resultJson.ToSalesOrderObj();
             var newRecord = new AcumaticaSalesOrder();
-
             newRecord.ShopifyOrderMonsterId = shopifyOrderRecord.MonsterId;
-
-            // Conspicuously not set - waiting on AcumaticaOrderGet to update this
-            //
-            newRecord.AcumaticaOrderNbr = newOrder.OrderNbr.value;
-            newRecord.AcumaticaStatus = newOrder.Status.value;
-            newRecord.AcumaticaIsTaxValid = newOrder.IsTaxValid.value;
-
-            newRecord.AcumaticaLineTotal = (decimal)newOrder.Totals.LineTotalAmount.value;
-            newRecord.AcumaticaFreight = (decimal)newOrder.Totals.Freight.value;
-            newRecord.AcumaticaTaxTotal = (decimal)newOrder.Totals.TaxTotal.value;
-            newRecord.AcumaticaOrderTotal = (decimal)newOrder.OrderTotal.value;
-            newRecord.AcumaticaQtyTotal = (int)salesOrder.Details.Sum(x => x.OrderQty.value);
-
             newRecord.ShopifyCustomerMonsterId = acumaticaCustomer.ShopifyCustomerMonsterId;
             newRecord.DateCreated = DateTime.UtcNow;
             newRecord.LastUpdated = DateTime.UtcNow;
-
             _acumaticaOrderRepository.InsertSalesOrder(newRecord);
+
+            // Write to Acumatica Sales Order API
+            //
+            var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson(), Expand.Totals);
+            var newOrder = resultJson.ToSalesOrderObj();
+
+            // TODO - verify this is correct?
+            //
+            // newRecord.AcumaticaOrderQty = salesOrder.Details.Sum(x => x.OrderQty.value);
+            newRecord.Ingest(newOrder);
 
             if (!newRecord.AcumaticaIsTaxValid)
             {
@@ -357,7 +379,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var acumaticaDate = _acumaticaTimeZoneService.ToAcumaticaTimeZone(createdAtUtc);
             salesOrder.Date = acumaticaDate.Date.ToValue();
 
-            salesOrder.CustomerOrder = shopifyOrder.name.ToValue();
+            salesOrder.CustomerOrder = $"{shopifyOrder.id}".ToValue();
             salesOrder.ExternalRef = $"{shopifyOrder.id}".ToValue();
             salesOrder.Status = SalesOrderStatus.Open.ToValue();
             salesOrder.Hold = false.ToValue();

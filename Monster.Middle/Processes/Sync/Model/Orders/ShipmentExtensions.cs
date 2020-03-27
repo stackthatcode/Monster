@@ -1,25 +1,30 @@
 ﻿using System.Linq;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Middle.Persist.Instance;
+using Push.Shopify.Api.Order;
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class ShipmentExtensions
     {
 
-        public static bool HasInvoicedShipment(this SalesOrder salesOrder)
+        public static bool HasSyncWithUnknownNbr(this AcumaticaSoShipment shipment)
         {
-            return salesOrder.Shipments.Any(x => x.InvoiceNbr != null);
+            return shipment.ShopifyFulfillment != null &&
+                   shipment.ShopifyFulfillment.ShopifyFulfillmentId == null;
         }
 
-        public static string ShipmentInvoiceNbr(this SalesOrder salesOrder)
+        public static bool IsSynced(this AcumaticaSoShipment shipment)
         {
-            return salesOrder.Shipments.First().InvoiceNbr.value;
+            return shipment.ShopifyFulfillment != null &&
+                   shipment.ShopifyFulfillment.ShopifyFulfillmentId.HasValue;
         }
 
-        public static bool IsInvoiceReleased(this SalesOrder salesOrder)
+        public static void Ingest(this ShopifyFulfillment record, Fulfillment fulfillment)
         {
-            return salesOrder.Status.value == Acumatica.Persist.SalesOrderStatus.Completed;
+            record.ShopifyFulfillmentId = fulfillment.id;
+            record.ShopifyTrackingNumber = fulfillment.tracking_number;
+            record.ShopifyStatus = fulfillment.status;
         }
-
     }
 }

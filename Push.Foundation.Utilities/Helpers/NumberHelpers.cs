@@ -61,6 +61,11 @@ namespace Push.Foundation.Utilities.Helpers
             return long.Parse(input);
         }
 
+        public static long ToLongAlt(this string input, long altValue)
+        {
+            return input.IsLong() ? long.Parse(input) : altValue;
+        }
+
         //public static decimal? ToDecimalFromPercentage
     }
 }

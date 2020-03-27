@@ -153,6 +153,16 @@ namespace Monster.Middle.Processes.Sync.Persist
                 .ToList();
         }
 
+        public AcumaticaSoShipment RetrieveSoShipment(string shipmentNbr)
+        {
+            return Entities
+                .AcumaticaSoShipments
+                .Include(x => x.AcumaticaSalesOrder)
+                .Include(x => x.AcumaticaSalesOrder.ShopifyOrder)
+                .Include(x => x.ShopifyFulfillment)
+                .FirstOrDefault(x => x.AcumaticaShipmentNbr == shipmentNbr);
+        }
+
 
 
         // Shopify Transactions

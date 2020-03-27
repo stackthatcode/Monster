@@ -1370,7 +1370,7 @@ namespace Monster.Middle.Persist.Instance
     public class ShopifyFulfillment
     {
         public long MonsterId { get; set; } // MonsterId (Primary key)
-        public long ShopifyFulfillmentId { get; set; } // ShopifyFulfillmentId
+        public long? ShopifyFulfillmentId { get; set; } // ShopifyFulfillmentId
         public long ShopifyOrderId { get; set; } // ShopifyOrderId
         public string ShopifyStatus { get; set; } // ShopifyStatus (length: 50)
         public string ShopifyTrackingNumber { get; set; } // ShopifyTrackingNumber (length: 200)
@@ -1544,7 +1544,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
         public string AcumaticaRefNbr { get; set; } // AcumaticaRefNbr (length: 50)
         public bool? NeedRelease { get; set; } // NeedRelease
-        public bool? NeedApplyToOrder { get; set; } // NeedApplyToOrder
+        public bool? NeedManualApply { get; set; } // NeedManualApply
     }
 
     // ShopifyOrderNeedingSoShipmentsSync
@@ -1571,6 +1571,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
         public string AcumaticaRefNbr { get; set; } // AcumaticaRefNbr (length: 50)
         public bool? NeedRelease { get; set; } // NeedRelease
+        public bool? NeedManualApply { get; set; } // NeedManualApply
     }
 
     // ShopifyOrderRefundsSyncStatus
@@ -1586,7 +1587,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
         public string AcumaticaRefNbr { get; set; } // AcumaticaRefNbr (length: 50)
         public bool? NeedRelease { get; set; } // NeedRelease
-        public bool? NeedApplyToOrder { get; set; } // NeedApplyToOrder
+        public bool? NeedManualApply { get; set; } // NeedManualApply
     }
 
     // ShopifyOrdersNeedingOrderCreate
@@ -1640,6 +1641,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaDocType { get; set; } // AcumaticaDocType (length: 25)
         public string AcumaticaRefNbr { get; set; } // AcumaticaRefNbr (length: 50)
         public bool? NeedRelease { get; set; } // NeedRelease
+        public bool? NeedManualApply { get; set; } // NeedManualApply
     }
 
     // ShopifyOrdersNeedingSyncAll
@@ -2052,8 +2054,8 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.ShopifyTransactionMonsterId);
 
             Property(x => x.ShopifyTransactionMonsterId).HasColumnName(@"ShopifyTransactionMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
+            Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaAmount).HasColumnName(@"AcumaticaAmount").HasColumnType("money").IsRequired().HasPrecision(19,4);
             Property(x => x.AcumaticaAppliedToOrder).HasColumnName(@"AcumaticaAppliedToOrder").HasColumnType("money").IsOptional().HasPrecision(19,4);
             Property(x => x.NeedRelease).HasColumnName(@"NeedRelease").HasColumnType("bit").IsRequired();
@@ -2104,7 +2106,7 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.ShopifyOrderMonsterId);
 
             Property(x => x.ShopifyOrderMonsterId).HasColumnName(@"ShopifyOrderMonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
-            Property(x => x.AcumaticaOrderNbr).HasColumnName(@"AcumaticaOrderNbr").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaOrderNbr).HasColumnName(@"AcumaticaOrderNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaStatus).HasColumnName(@"AcumaticaStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaIsTaxValid).HasColumnName(@"AcumaticaIsTaxValid").HasColumnType("bit").IsRequired();
             Property(x => x.AcumaticaQtyTotal).HasColumnName(@"AcumaticaQtyTotal").HasColumnType("int").IsRequired();
@@ -2478,7 +2480,7 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.MonsterId);
 
             Property(x => x.MonsterId).HasColumnName(@"MonsterId").HasColumnType("bigint").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyFulfillmentId).HasColumnName(@"ShopifyFulfillmentId").HasColumnType("bigint").IsRequired();
+            Property(x => x.ShopifyFulfillmentId).HasColumnName(@"ShopifyFulfillmentId").HasColumnType("bigint").IsOptional();
             Property(x => x.ShopifyOrderId).HasColumnName(@"ShopifyOrderId").HasColumnType("bigint").IsRequired();
             Property(x => x.ShopifyStatus).HasColumnName(@"ShopifyStatus").HasColumnType("varchar").IsRequired().IsUnicode(false).HasMaxLength(50);
             Property(x => x.ShopifyTrackingNumber).HasColumnName(@"ShopifyTrackingNumber").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(200);
@@ -2624,7 +2626,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.NeedRelease).HasColumnName(@"NeedRelease").HasColumnType("bit").IsOptional();
-            Property(x => x.NeedApplyToOrder).HasColumnName(@"NeedApplyToOrder").HasColumnType("bit").IsOptional();
+            Property(x => x.NeedManualApply).HasColumnName(@"NeedManualApply").HasColumnType("bit").IsOptional();
         }
     }
 
@@ -2673,6 +2675,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.NeedRelease).HasColumnName(@"NeedRelease").HasColumnType("bit").IsOptional();
+            Property(x => x.NeedManualApply).HasColumnName(@"NeedManualApply").HasColumnType("bit").IsOptional();
         }
     }
 
@@ -2699,7 +2702,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.NeedRelease).HasColumnName(@"NeedRelease").HasColumnType("bit").IsOptional();
-            Property(x => x.NeedApplyToOrder).HasColumnName(@"NeedApplyToOrder").HasColumnType("bit").IsOptional();
+            Property(x => x.NeedManualApply).HasColumnName(@"NeedManualApply").HasColumnType("bit").IsOptional();
         }
     }
 
@@ -2797,6 +2800,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaDocType).HasColumnName(@"AcumaticaDocType").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(25);
             Property(x => x.AcumaticaRefNbr).HasColumnName(@"AcumaticaRefNbr").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.NeedRelease).HasColumnName(@"NeedRelease").HasColumnType("bit").IsOptional();
+            Property(x => x.NeedManualApply).HasColumnName(@"NeedManualApply").HasColumnType("bit").IsOptional();
         }
     }
 

@@ -57,17 +57,25 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Sales Order
         //
-        public AcumaticaSalesOrder RetrieveSalesOrder(string acumaticaOrderNbr)
+        public AcumaticaSalesOrder FindSalesOrder(string orderNbr, long shopifyOrderId)
         {
             return Entities
                 .AcumaticaSalesOrders
                 .Include(x => x.ShopifyOrder)
-                .FirstOrDefault(x => x.AcumaticaOrderNbr == acumaticaOrderNbr);
+                .FirstOrDefault(
+                    x => x.AcumaticaOrderNbr == orderNbr 
+                         || x.ShopifyOrder.ShopifyOrderId == shopifyOrderId);
         }
 
         public void InsertSalesOrder(AcumaticaSalesOrder order)
         {
             Entities.AcumaticaSalesOrders.Add(order);
+            Entities.SaveChanges();
+        }
+
+        public void DeleteSalesOrder(AcumaticaSalesOrder order)
+        {
+            Entities.AcumaticaSalesOrders.Remove(order);
             Entities.SaveChanges();
         }
 
@@ -81,6 +89,7 @@ namespace Monster.Middle.Processes.Acumatica.Persist
                 .Where(x => x.AcumaticaSalesOrder.ShopifyOrderMonsterId == shopifyOrderMonsterId)
                 .ToList();
         }
+
 
         public bool SoShipmentExists(long monsterShopifyOrderId, string shipmentNbr, string invoiceNbr)
         {

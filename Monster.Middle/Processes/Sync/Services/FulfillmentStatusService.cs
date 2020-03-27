@@ -40,7 +40,6 @@ namespace Monster.Middle.Processes.Sync.Services
             var output = new CreateFulfillmentValidation();
 
             var salesOrder = shipmentRecord.AcumaticaSalesOrder;
-            
             var shopifyOrderId = salesOrder.OriginalShopifyOrder().ShopifyOrderId;
 
             // Fulfilled in Shopify - thus corrupted!

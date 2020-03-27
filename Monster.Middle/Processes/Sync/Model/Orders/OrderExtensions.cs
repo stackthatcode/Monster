@@ -1,12 +1,15 @@
 ﻿using System.Linq;
+using Monster.Acumatica.Api.SalesOrder;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Misc;
+using Monster.Middle.Processes.Sync.Model.Analysis;
 
 namespace Monster.Middle.Processes.Sync.Model.Orders
 {
     public static class OrderExtensions
     {
+
         public static bool IsEmptyOrCancelled(this ShopifyOrder order)
         {
             return order.ShopifyAreAllItemsRefunded || order.ShopifyIsCancelled;
@@ -15,6 +18,12 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         public static AcumaticaSalesOrder SyncedSalesOrder(this ShopifyOrder order)
         {
             return order.AcumaticaSalesOrder;
+        }
+
+        public static bool HasSyncWithUnknownNbr(this ShopifyOrder order)
+        {
+            return order.AcumaticaSalesOrder != null &&
+                   order.AcumaticaSalesOrder.AcumaticaOrderNbr == AcumaticaSyncConstants.UnknownRefNbr;
         }
 
         public static bool ExistsInAcumatica(this ShopifyOrder order)

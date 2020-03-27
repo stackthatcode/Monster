@@ -15,11 +15,9 @@ namespace Monster.Acumatica.Api
     {
         private readonly AcumaticaHttpContext _httpContext;
         private readonly AcumaticaHttpConfig _config;
-        private readonly IPushLogger _logger;
         
-        public SalesOrderClient(IPushLogger logger, AcumaticaHttpContext httpContext, AcumaticaHttpConfig config)
+        public SalesOrderClient(AcumaticaHttpContext httpContext, AcumaticaHttpConfig config)
         {
-            _logger = logger;
             _httpContext = httpContext;
             _config = config;
         }
@@ -50,7 +48,15 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get($"SalesOrder?{queryString}");
             return response.Body.DeserializeFromJson<List<SalesOrder.SalesOrder>>();
         }
-        
+
+        public List<SalesOrder.SalesOrder> FindSalesOrder(string customerOrder, string expand = Expand.Shipments_ShippingSettings)
+        {
+            var path = $"SalesOrder/?$filter=CustomerOrder eq '{customerOrder}'&$expand={expand}";
+            var response = _httpContext.Get(path);
+            return response.Body.DeserializeFromJson<List<SalesOrder.SalesOrder>>();
+        }
+
+
         public string RetrieveSalesOrder(
                     string orderNbr, string orderType, string expand = Expand.Shipments_ShippingSettings)
         {

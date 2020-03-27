@@ -1,5 +1,6 @@
 ﻿using System;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Json;
 
 namespace Monster.Middle.Processes.Acumatica.Persist
@@ -23,5 +24,17 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             return json.DeserializeFromJson<SalesInvoice>();
         }
 
+        public static void Ingest(this AcumaticaSalesOrder target, SalesOrder source)
+        {
+            target.AcumaticaOrderNbr = source.OrderNbr.value;
+            target.AcumaticaStatus = source.Status.value;
+            target.AcumaticaIsTaxValid = source.IsTaxValid.value;
+            target.AcumaticaLineTotal = (decimal)source.Totals.LineTotalAmount.value;
+            target.AcumaticaFreight = (decimal)source.Totals.Freight.value;
+            target.AcumaticaTaxTotal = (decimal)source.Totals.TaxTotal.value;
+            target.AcumaticaOrderTotal = (decimal)source.OrderTotal.value;
+            target.AcumaticaQtyTotal = (int)source.OrderedQty.value;
+        }
     }
 }
+
