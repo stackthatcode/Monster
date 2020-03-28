@@ -174,7 +174,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             var findOrders = _salesOrderClient.FindSalesOrder(customerOrderRef);
             if (findOrders.Count == 0)
             {
-                _logService.Log(LogBuilder.ClearingBlankAcumaticaSalesOrderRef(shopifyOrderRecord));
+                _logService.Log(LogBuilder.ClearingUnknownAcumaticaSalesOrderRef(shopifyOrderRecord));
                 _acumaticaOrderRepository.DeleteSalesOrder(shopifyOrderRecord.AcumaticaSalesOrder);
                 return;
             }
@@ -183,7 +183,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var salesOrder = findOrders.OrderBy(x => x.OrderNbr.value).First();
             salesOrderRecord.Ingest(salesOrder);
-            _logService.Log(LogBuilder.FillingBlankAcumaticaSalesOrderRef(shopifyOrderRecord, salesOrderRecord));
+            _logService.Log(LogBuilder.FillingUnknownAcumaticaSalesOrderRef(shopifyOrderRecord, salesOrderRecord));
             _acumaticaOrderRepository.SaveChanges();
         }
 
@@ -215,10 +215,6 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             var resultJson = _salesOrderClient.WriteSalesOrder(salesOrder.SerializeToJson(), Expand.Totals);
             var newOrder = resultJson.ToSalesOrderObj();
-
-            // TODO - verify this is correct?
-            //
-            // newRecord.AcumaticaOrderQty = salesOrder.Details.Sum(x => x.OrderQty.value);
             newRecord.Ingest(newOrder);
 
             if (!newRecord.AcumaticaIsTaxValid)

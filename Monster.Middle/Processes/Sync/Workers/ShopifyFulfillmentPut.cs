@@ -76,12 +76,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                     return;
                 }
 
-                var syncReadiness = _fulfillmentStatusService.Validate(salesOrderRef);
-
-                if (syncReadiness.Success)
-                {
-                    PushFulfillmentToShopifyAux(salesOrderRef);
-                }
+                PushFulfillmentToShopifyAux(salesOrderRef);
             }
         }
 
@@ -92,7 +87,12 @@ namespace Monster.Middle.Processes.Sync.Workers
             {
                 CorrectFulfillmentWithUnknownRef(salesOrderShipment.AcumaticaShipmentNbr);
 
-                PushFulfillmentToShopify(salesOrderShipment.AcumaticaShipmentNbr);
+                var syncReadiness = _fulfillmentStatusService.Validate(salesOrderShipment);
+
+                if (syncReadiness.Success)
+                {
+                    PushFulfillmentToShopify(salesOrderShipment.AcumaticaShipmentNbr);
+                }
             }
             catch (Exception ex)
             {
@@ -127,15 +127,15 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (!matches.Any())
             {
-                var content = LogBuilder.ShopifyFulfillmentWithBlankRefNoMatches(salesOrderShipment);
+                var content = LogBuilder.ShopifyFulfillmentWithUnknownRefNoMatches(salesOrderShipment);
                 _logService.Log(content);
-                _syncOrderRepository.IncreaseOrderErrorCount(shopifyOrder.id);
+                _syncOrderRepository.SetErrorCountToMaximum(shopifyOrder.id);
                 return;
             }
 
             if (matches.Count() > 1)
             {
-                var content = LogBuilder.ShopifyFulfillmentWithBlankRefTooManyMatches(salesOrderShipment);
+                var content = LogBuilder.ShopifyFulfillmentWithUnknownRefTooManyMatches(salesOrderShipment);
                 _logService.Log(content);
                 _syncOrderRepository.SetErrorCountToMaximum(shopifyOrder.id);
                 return;
@@ -145,7 +145,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             fulfillmentRecord.DateCreated = DateTime.UtcNow;
             fulfillmentRecord.LastUpdated = DateTime.UtcNow;
 
-            _logService.Log(LogBuilder.FillingBlankShopifyFulfillmentRef(salesOrderShipment, fulfillmentRecord));
+            _logService.Log(LogBuilder.FillingUnknownShopifyFulfillmentRef(salesOrderShipment, fulfillmentRecord));
             _shopifyOrderRepository.SaveChanges();
         }
 
@@ -155,6 +155,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Get a fresh copy
             //
             var salesOrderShipment = _syncOrderRepository.RetrieveSoShipment(shipmentNbr);
+
             if (salesOrderShipment.IsSynced())
             {
                 return;
@@ -178,6 +179,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             fulfillmentRecord.ShopifyOrderMonsterId = orderRecord.MonsterId;
             fulfillmentRecord.ShopifyOrderId = orderRecord.ShopifyOrderId;
             fulfillmentRecord.DateCreated = DateTime.UtcNow;
+            fulfillmentRecord.LastUpdated = DateTime.UtcNow;
 
             // ... and assign Shipment thereto
             //
@@ -252,3 +254,4 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
     }
 }
+

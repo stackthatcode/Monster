@@ -59,14 +59,6 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             _acumaticaJsonService = acumaticaJsonService;
         }
 
-        public void Run(string orderId)
-        {
-            var json = _salesOrderClient
-                .RetrieveSalesOrder(SalesOrderType.SO, orderId, Expand.Shipments_ShippingSettings);
-
-            var salesOrder = json.DeserializeFromJson<SalesOrder>();
-            UpsertOrderRecords(new List<SalesOrder>() { salesOrder });
-        }
 
         public void RunAutomatic()
         {
@@ -100,9 +92,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     return;
                 }
 
-                var orders = 
-                    _salesOrderClient
-                        .RetrieveUpdatedSalesOrders(lastModifiedMin, page, pageSize, expand:Expand.Shipments_Totals);
+                var orders = _salesOrderClient.RetrieveUpdatedSalesOrders(lastModifiedMin, page, pageSize);
 
                 if (orders.Count == 0)
                 {
@@ -128,40 +118,63 @@ namespace Monster.Middle.Processes.Acumatica.Workers
                     continue;
                 }
 
+                var orderRecord = FindAndUpsertSalesOrderData(order);
 
-                AcumaticaSalesOrder existingData;
+                UpsertSoShipments(orderRecord);
 
-                using (var transaction = _orderRepository.BeginTransaction())
+                PopulateSoShipments(orderRecord);
+            }
+        }
+
+        private AcumaticaSalesOrder FindAndUpsertSalesOrderData(SalesOrder order)
+        {
+            using (var transaction = _orderRepository.BeginTransaction())
+            {
+                var orderNbr = order.OrderNbr.value;
+                var shopifyOrderId = order.CustomerOrder.value.ToLongAlt(-1);
+                var orderRecord = _orderRepository.RetrieveSalesOrder(orderNbr);
+
+                bool unknownRef = false;
+                
+                if (orderRecord == null)
                 {
-                    var orderNbr = order.OrderNbr.value;
-                    var shopifyOrderId = order.CustomerOrder.value.ToLongAlt(-1);
+                    // Skip Sales Orders that were not intentionally loaded into Acumatica
+                    //
+                    orderRecord = _orderRepository.FindSalesOrderByShopifyId(shopifyOrderId);
 
-                    existingData = _orderRepository.FindSalesOrder(orderNbr, shopifyOrderId);
-
-                    if (existingData == null)
+                    if (orderRecord == null)
                     {
-                        // Skip Sales Orders that were not intentionally loaded into Acumatica
-                        //
-                        continue;
+                        return null;
                     }
 
-                    _acumaticaJsonService.Upsert(
-                        AcumaticaJsonType.SalesOrderShipments, orderNbr, SalesOrderType.SO, order.SerializeToJson());
-
-                    // Again, to be tested
-                    //
-                    //existingData.AcumaticaQtyTotal = (int)order.Details.Sum(x => x.OrderQty.value);
-
-                    existingData.Ingest(order);
-                    existingData.LastUpdated = DateTime.UtcNow;
-
-                    _orderRepository.SaveChanges();
-                    transaction.Commit();
+                    unknownRef = true;
                 }
 
-                UpsertSoShipments(existingData);
+                if (unknownRef)
+                {
+                    _executionLogService.Log(
+                        LogBuilder.FillingUnknownAcumaticaSalesOrderRef(orderRecord.ShopifyOrder, orderRecord));
+                }
 
-                PopulateSoShipments(existingData);
+                _executionLogService.Log(LogBuilder.DetectedUpdateAcumaticaOrder(orderRecord));
+
+                _acumaticaJsonService.Upsert(
+                    AcumaticaJsonType.SalesOrderShipments, 
+                    orderNbr, 
+                    SalesOrderType.SO, 
+                    order.SerializeToJson());
+
+                // Again, to be tested
+                //
+                // orderRecord.AcumaticaQtyTotal = (int)order.Details.Sum(x => x.OrderQty.value);
+
+                orderRecord.Ingest(order);
+                orderRecord.LastUpdated = DateTime.UtcNow;
+
+                _orderRepository.SaveChanges();
+                transaction.Commit();
+
+                return orderRecord;
             }
         }
 

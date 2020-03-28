@@ -26,6 +26,7 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
                    order.AcumaticaSalesOrder.AcumaticaOrderNbr == AcumaticaSyncConstants.UnknownRefNbr;
         }
 
+
         public static bool ExistsInAcumatica(this ShopifyOrder order)
         {
             return order.SyncedSalesOrder() != null; // && !order.IsEmptyOrCancelled;

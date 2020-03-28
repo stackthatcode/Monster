@@ -139,7 +139,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
         private void UpsertOrder(Order order)
         {
             UpsertOrderAndCustomer(order);
-            UpsertOrderFulfillments(order);
+            UpsertFulfillments(order);
             UpsertOrderRefunds(order);
 
             _shopifyTransactionGet.RunTransactionIfPullNeeded(order.id);
@@ -204,38 +204,66 @@ namespace Monster.Middle.Processes.Shopify.Workers
         }
 
 
-        public void UpsertOrderFulfillments(Order order)
+        public void UpsertFulfillments(Order order)
         {
             var orderRecord = _orderRepository.RetrieveOrder(order.id);
 
             foreach (var fulfillment in order.fulfillments)
             {
-                var fulfillmentRecord
-                    = orderRecord
-                        .ShopifyFulfillments
-                        .FirstOrDefault(x => x.ShopifyFulfillmentId == fulfillment.id);
-
-                if (fulfillmentRecord == null)
-                {
-                    var newRecord = new ShopifyFulfillment();
-                    newRecord.ShopifyOrderMonsterId = orderRecord.MonsterId;
-                    newRecord.ShopifyFulfillmentId = fulfillment.id;
-                    newRecord.ShopifyOrderId = order.id;
-                    newRecord.ShopifyStatus = fulfillment.status;
-                    newRecord.DateCreated = DateTime.UtcNow;
-                    newRecord.LastUpdated = DateTime.UtcNow;
-
-                    _orderRepository.InsertFulfillment(newRecord);
-                }
-                else
-                {
-                    fulfillmentRecord.ShopifyStatus = fulfillment.status;
-                    fulfillmentRecord.LastUpdated = DateTime.UtcNow;
-
-                    _orderRepository.SaveChanges();
-                }
+                UpsertOrderFulfillment(orderRecord, fulfillment);
             }
         }
+
+        private void UpsertOrderFulfillment(ShopifyOrder orderRecord, Fulfillment fulfillment)
+        {
+            var fulfillmentRecord
+                = orderRecord
+                    .ShopifyFulfillments
+                    .FirstOrDefault(x => x.ShopifyFulfillmentId == fulfillment.id);
+
+            if (fulfillmentRecord != null)
+            {
+                // Existing Fulfillment Record
+                //
+                fulfillmentRecord.ShopifyStatus = fulfillment.status;
+                fulfillmentRecord.LastUpdated = DateTime.UtcNow;
+
+                _orderRepository.SaveChanges();
+                return;
+            }
+
+            var matchedRecord
+                = orderRecord
+                    .ShopifyFulfillments
+                    .FirstOrDefault(x => x.ShopifyTrackingNumber == fulfillment.tracking_number);
+
+            if (matchedRecord != null)
+            {
+                // Matched via Tracking Number in Shopify
+                //
+                _executionLogService.Log(
+                    LogBuilder.FillingUnknownShopifyFulfillmentRefByTracking(matchedRecord));
+
+                matchedRecord.ShopifyFulfillmentId = fulfillment.id;
+                matchedRecord.LastUpdated = DateTime.UtcNow;
+                _orderRepository.SaveChanges();
+            }
+            else
+            {
+                // Creating new Fulfillment Record
+                //
+                var newRecord = new ShopifyFulfillment();
+                newRecord.ShopifyOrderMonsterId = orderRecord.MonsterId;
+                newRecord.ShopifyFulfillmentId = fulfillment.id;
+                newRecord.ShopifyOrderId = orderRecord.ShopifyOrderId;
+                newRecord.ShopifyStatus = fulfillment.status;
+                newRecord.DateCreated = DateTime.UtcNow;
+                newRecord.LastUpdated = DateTime.UtcNow;
+
+                _orderRepository.InsertFulfillment(newRecord);
+            }
+        }
+
 
         private void UpsertOrderRefunds(Order order)
         {

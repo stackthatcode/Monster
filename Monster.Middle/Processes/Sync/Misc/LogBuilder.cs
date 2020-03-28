@@ -33,6 +33,12 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Detected changes to {order.LogDescriptor()}";
         }
 
+        public static string DetectedUpdateAcumaticaOrder(AcumaticaSalesOrder order)
+        {
+            return $"Detected changes to {order.LogDescriptor()}";
+        }
+
+
         public static string DetectedNewShopifyRefund(ShopifyRefund refund)
         {
             return $"Detected new {refund.LogDescriptor()}";
@@ -68,22 +74,27 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Creating Shopify Fulfillment for {shipmentRef.LogDescriptor()}";
         }
 
-        public static string ShopifyFulfillmentWithBlankRefNoMatches(AcumaticaSoShipment shipmentRef)
+        public static string ShopifyFulfillmentWithUnknownRefNoMatches(AcumaticaSoShipment shipmentRef)
         {
-            return $"{shipmentRef.LogDescriptor()} has a blank Shopify Fulfillment reference and no matches could be found";
+            return $"{shipmentRef.LogDescriptor()} has a unknown Shopify Fulfillment reference and no matches could be found";
         }
 
-        public static string ShopifyFulfillmentWithBlankRefTooManyMatches(AcumaticaSoShipment shipmentRef)
+        public static string ShopifyFulfillmentWithUnknownRefTooManyMatches(AcumaticaSoShipment shipmentRef)
         {
-            return $"{shipmentRef.LogDescriptor()} has a blank Shopify Fulfillment reference and too many matches";
+            return $"{shipmentRef.LogDescriptor()} has a unknown Shopify Fulfillment reference and too many matches";
         }
 
-        public static string FillingBlankShopifyFulfillmentRef(
+        public static string FillingUnknownShopifyFulfillmentRef(
                     AcumaticaSoShipment shipmentRef, ShopifyFulfillment fulfillment)
         {
-            return $"Filling blank Sales Order reference from {shipmentRef.LogDescriptor()} with {fulfillment.LogDescriptor()}";
+            return $"Filling unknown Shopify Fulfillment reference from {shipmentRef.LogDescriptor()} with {fulfillment.LogDescriptor()}";
         }
 
+        public static string FillingUnknownShopifyFulfillmentRefByTracking(ShopifyFulfillment fulfillment)
+        {
+            return $"Filling unknown Shopify Fulfillment reference for {fulfillment.LogDescriptor()} " +
+                   $"(by tracking number {fulfillment.ShopifyTrackingNumber})";
+        }
 
 
         public static string CreatingShopifyVariant(ShopifyVariantNew item)
@@ -132,14 +143,14 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Creating Acumatica Sales Order from {order.LogDescriptor()}";
         }
 
-        public static string ClearingBlankAcumaticaSalesOrderRef(ShopifyOrder order)
+        public static string ClearingUnknownAcumaticaSalesOrderRef(ShopifyOrder order)
         {
-            return $"Clearing blank Sales Order reference from {order.LogDescriptor()}";
+            return $"Clearing unknown Sales Order reference from {order.LogDescriptor()}";
         }
 
-        public static string FillingBlankAcumaticaSalesOrderRef(ShopifyOrder order, AcumaticaSalesOrder salesOrder)
+        public static string FillingUnknownAcumaticaSalesOrderRef(ShopifyOrder order, AcumaticaSalesOrder salesOrder)
         {
-            return $"Filling blank Sales Order reference from {order.LogDescriptor()} with {salesOrder.LogDescriptor()}";
+            return $"Filling unknown Sales Order reference from {order.LogDescriptor()} with {salesOrder.LogDescriptor()}";
         }
 
         public static string UpdatingAcumaticaSalesOrder(ShopifyOrder order)

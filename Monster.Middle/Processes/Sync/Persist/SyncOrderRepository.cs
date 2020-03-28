@@ -139,7 +139,8 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.AcumaticaSoShipments
                 .Include(x => x.AcumaticaSalesOrder)
                 .Include(x => x.AcumaticaSalesOrder.ShopifyOrder)
-                .Where(x => x.NeedShipmentAndInvoiceGet == false && x.ShopifyFulfillment == null);
+                .Where(x => x.NeedShipmentAndInvoiceGet == false 
+                            && x.ShopifyFulfillment.ShopifyFulfillmentId == null);
 
         public List<AcumaticaSoShipment> RetrieveUnsyncedSoShipments()
         {

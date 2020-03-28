@@ -23,10 +23,8 @@ namespace Monster.Acumatica.Api
         }
         
 
-        public List<SalesOrder.SalesOrder> 
-                    RetrieveUpdatedSalesOrders(
-                            DateTime lastModified, int page = 1, int? pageSize = null,
-                            string expand = Expand.Shipments_ShippingSettings)
+        public List<SalesOrder.SalesOrder> RetrieveUpdatedSalesOrders(
+                DateTime lastModified, int page = 1, int? pageSize = null, string expand = Expand.Shipments_Totals)
         {
             var builder = new QueryStringBuilder().Add("$expand", expand);
 
@@ -49,16 +47,16 @@ namespace Monster.Acumatica.Api
             return response.Body.DeserializeFromJson<List<SalesOrder.SalesOrder>>();
         }
 
-        public List<SalesOrder.SalesOrder> FindSalesOrder(string customerOrder, string expand = Expand.Shipments_ShippingSettings)
+        public List<SalesOrder.SalesOrder> FindSalesOrder(
+                    string customerOrder, string expand = Expand.Shipments_Totals)
         {
             var path = $"SalesOrder/?$filter=CustomerOrder eq '{customerOrder}'&$expand={expand}";
             var response = _httpContext.Get(path);
             return response.Body.DeserializeFromJson<List<SalesOrder.SalesOrder>>();
         }
 
-
         public string RetrieveSalesOrder(
-                    string orderNbr, string orderType, string expand = Expand.Shipments_ShippingSettings)
+                    string orderNbr, string orderType, string expand = Expand.Shipments_Totals)
         {
             var path = $"SalesOrder/{orderType}/{orderNbr}?$expand={expand}&$custom=Document.UsrTaxSnapshot";
             var response = _httpContext.Get(path);

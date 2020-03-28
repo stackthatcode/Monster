@@ -1,4 +1,7 @@
-﻿using Monster.Middle.Misc.External;
+﻿using System;
+using Monster.Middle.Misc.External;
+using Monster.Middle.Processes.Sync.Model.Analysis;
+using Push.Foundation.Utilities.Helpers;
 
 namespace Monster.Middle.Misc.Acumatica
 {

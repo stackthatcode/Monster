@@ -34,6 +34,10 @@ namespace Monster.Middle.Processes.Acumatica.Persist
             target.AcumaticaTaxTotal = (decimal)source.Totals.TaxTotal.value;
             target.AcumaticaOrderTotal = (decimal)source.OrderTotal.value;
             target.AcumaticaQtyTotal = (int)source.OrderedQty.value;
+
+            // TODO - verify this is correct?
+            //
+            // target.AcumaticaOrderQty = source.Details.Sum(x => x.OrderQty.value);
         }
     }
 }

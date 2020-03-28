@@ -177,7 +177,8 @@ namespace Monster.Middle.Processes.Sync.Services
             if (shopifyOrderRecord.ExistsInAcumatica() &&
                 shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr != AcumaticaSyncConstants.BlankRefNbr)
             {
-                output.AcumaticaSalesOrderNbr = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr;
+                output.AcumaticaSalesOrderNbr 
+                    = shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr ?? "BLANK";
                 output.AcumaticaSalesOrderHref
                     = _acumaticaUrlService.AcumaticaSalesOrderUrl(
                         SalesOrderType.SO, shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaOrderNbr);

@@ -57,15 +57,22 @@ namespace Monster.Middle.Processes.Acumatica.Persist
 
         // Sales Order
         //
-        public AcumaticaSalesOrder FindSalesOrder(string orderNbr, long shopifyOrderId)
+        public AcumaticaSalesOrder RetrieveSalesOrder(string orderNbr)
         {
             return Entities
                 .AcumaticaSalesOrders
                 .Include(x => x.ShopifyOrder)
-                .FirstOrDefault(
-                    x => x.AcumaticaOrderNbr == orderNbr 
-                         || x.ShopifyOrder.ShopifyOrderId == shopifyOrderId);
+                .FirstOrDefault(x => x.AcumaticaOrderNbr == orderNbr);
         }
+
+        public AcumaticaSalesOrder FindSalesOrderByShopifyId(long shopifyOrderId)
+        {
+            return Entities
+                .AcumaticaSalesOrders
+                .Include(x => x.ShopifyOrder)
+                .FirstOrDefault(x => x.ShopifyOrder.ShopifyOrderId == shopifyOrderId);
+        }
+
 
         public void InsertSalesOrder(AcumaticaSalesOrder order)
         {
