@@ -127,22 +127,25 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             if (!matches.Any())
             {
-                // LOG 
-                // Throw
+                var content = LogBuilder.ShopifyFulfillmentWithBlankRefNoMatches(salesOrderShipment);
+                _logService.Log(content);
+                _syncOrderRepository.IncreaseOrderErrorCount(shopifyOrder.id);
                 return;
             }
 
             if (matches.Count() > 1)
             {
-                // LOG 
-                // Throw
+                var content = LogBuilder.ShopifyFulfillmentWithBlankRefTooManyMatches(salesOrderShipment);
+                _logService.Log(content);
+                _syncOrderRepository.SetErrorCountToMaximum(shopifyOrder.id);
+                return;
             }
 
             fulfillmentRecord.Ingest(matches.First());
             fulfillmentRecord.DateCreated = DateTime.UtcNow;
             fulfillmentRecord.LastUpdated = DateTime.UtcNow;
 
-            // LOG
+            _logService.Log(LogBuilder.FillingBlankShopifyFulfillmentRef(salesOrderShipment, fulfillmentRecord));
             _shopifyOrderRepository.SaveChanges();
         }
 
@@ -185,6 +188,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Write the Fulfillment to the Shopify API
             //
             var resultJson = _fulfillmentApi.Insert(orderRecord.ShopifyOrderId, fulfillmentParent.SerializeToJson());
+
             var resultParent = resultJson.DeserializeFromJson<FulfillmentParent>();
             
             // Ingest and save the result

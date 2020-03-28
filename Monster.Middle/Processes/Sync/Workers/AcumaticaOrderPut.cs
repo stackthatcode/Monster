@@ -113,6 +113,8 @@ namespace Monster.Middle.Processes.Sync.Workers
         {
             try
             {
+                CorrectSalesOrderWithUnknownRef(shopifyOrderId);
+
                 // *** SAVE THIS, JONES! - This little branch of logic increases throughput!!
                 //
                 var orderPreAction = _pendingActionService.Create(shopifyOrderId).OrderAction;
@@ -170,9 +172,9 @@ namespace Monster.Middle.Processes.Sync.Workers
 
             var customerOrderRef = shopifyOrderRecord.ShopifyOrderId.ToString();
             var findOrders = _salesOrderClient.FindSalesOrder(customerOrderRef);
-
             if (findOrders.Count == 0)
             {
+                _logService.Log(LogBuilder.ClearingBlankAcumaticaSalesOrderRef(shopifyOrderRecord));
                 _acumaticaOrderRepository.DeleteSalesOrder(shopifyOrderRecord.AcumaticaSalesOrder);
                 return;
             }
@@ -180,8 +182,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             // Heuristic for now
             //
             var salesOrder = findOrders.OrderBy(x => x.OrderNbr.value).First();
-
             salesOrderRecord.Ingest(salesOrder);
+            _logService.Log(LogBuilder.FillingBlankAcumaticaSalesOrderRef(shopifyOrderRecord, salesOrderRecord));
             _acumaticaOrderRepository.SaveChanges();
         }
 

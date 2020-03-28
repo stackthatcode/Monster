@@ -76,5 +76,10 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Acumatica Shipment {shipmentSalesOrderRef.AcumaticaShipmentNbr}" +
                    $" - Invoice {shipmentSalesOrderRef.AcumaticaInvoiceNbr}";
         }
+
+        public static string LogDescriptor(this ShopifyFulfillment shopifyFulfillment)
+        {
+            return $"Shopify Fulfillment {shopifyFulfillment.ShopifyFulfillmentId}";
+        }
     }
 }

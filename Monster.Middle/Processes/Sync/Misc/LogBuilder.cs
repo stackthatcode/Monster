@@ -1,5 +1,6 @@
 ﻿using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Instance;
+using Push.Shopify.Api.Order;
 using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Misc
@@ -67,6 +68,24 @@ namespace Monster.Middle.Processes.Sync.Misc
             return $"Creating Shopify Fulfillment for {shipmentRef.LogDescriptor()}";
         }
 
+        public static string ShopifyFulfillmentWithBlankRefNoMatches(AcumaticaSoShipment shipmentRef)
+        {
+            return $"{shipmentRef.LogDescriptor()} has a blank Shopify Fulfillment reference and no matches could be found";
+        }
+
+        public static string ShopifyFulfillmentWithBlankRefTooManyMatches(AcumaticaSoShipment shipmentRef)
+        {
+            return $"{shipmentRef.LogDescriptor()} has a blank Shopify Fulfillment reference and too many matches";
+        }
+
+        public static string FillingBlankShopifyFulfillmentRef(
+                    AcumaticaSoShipment shipmentRef, ShopifyFulfillment fulfillment)
+        {
+            return $"Filling blank Sales Order reference from {shipmentRef.LogDescriptor()} with {fulfillment.LogDescriptor()}";
+        }
+
+
+
         public static string CreatingShopifyVariant(ShopifyVariantNew item)
         {
             return $"Creating Shopify Variant for {item.LogDescriptor()}";
@@ -112,10 +131,28 @@ namespace Monster.Middle.Processes.Sync.Misc
         {
             return $"Creating Acumatica Sales Order from {order.LogDescriptor()}";
         }
+
+        public static string ClearingBlankAcumaticaSalesOrderRef(ShopifyOrder order)
+        {
+            return $"Clearing blank Sales Order reference from {order.LogDescriptor()}";
+        }
+
+        public static string FillingBlankAcumaticaSalesOrderRef(ShopifyOrder order, AcumaticaSalesOrder salesOrder)
+        {
+            return $"Filling blank Sales Order reference from {order.LogDescriptor()} with {salesOrder.LogDescriptor()}";
+        }
+
         public static string UpdatingAcumaticaSalesOrder(ShopifyOrder order)
         {
             return $"Updating Acumatica Sales Order from {order.LogDescriptor()}";
         }
+
+        public static string Deleting(ShopifyOrder order)
+        {
+            return $"Creating Acumatica Sales Order from {order.LogDescriptor()}";
+        }
+
+
 
         public static string UpdateShopifyVariantPrice(
                 string sku, bool taxable, decimal? price, int? grams)

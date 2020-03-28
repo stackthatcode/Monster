@@ -212,6 +212,14 @@ namespace Monster.Middle.Processes.Sync.Persist
             Entities.SaveChanges();
         }
 
+        public void SetErrorCountToMaximum(long shopifyOrderId)
+        {
+            var order = Entities.ShopifyOrders.First(x => x.ShopifyOrderId == shopifyOrderId);
+            order.ErrorCount = SystemConsts.ErrorThreshold;
+            Entities.SaveChanges();
+        }
+
+
 
         // Payment Synchronization
         //
