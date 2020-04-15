@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
-using Castle.Core.Internal;
+using Push.Foundation.Utilities.Helpers;
 
 namespace Push.Foundation.Utilities.Http
 {

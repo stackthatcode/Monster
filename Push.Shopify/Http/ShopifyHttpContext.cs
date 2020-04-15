@@ -57,8 +57,7 @@ namespace Push.Shopify.Http
                         {
                             Accept =
                             {
-                                MediaTypeWithQualityHeaderValue
-                                    .Parse("application/json")
+                                MediaTypeWithQualityHeaderValue.Parse("application/json")
                             }
                         }
                 };
@@ -68,6 +67,7 @@ namespace Push.Shopify.Http
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             // Spawn the WebRequest
+            //
             _httpClient.Timeout = new TimeSpan(0, 0, 0, _httpConfig.Timeout);
 
             // Key and Secret authentication, for purpose of retrieving OAuth access token

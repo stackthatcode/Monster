@@ -55,31 +55,24 @@ namespace Monster.Middle.Processes.Shopify.Workers
             var batchState = _batchRepository.Retrieve();
             _executionLogService.Log("Refreshing Inventory from Shopify");
 
-            if (batchState.ShopifyProductsGetEnd.HasValue)
-            {
-                var firstFilter = new SearchFilter();
-                firstFilter.UpdatedAtMinUtc = batchState.ShopifyProductsGetEnd.Value;
-                Run(firstFilter);
-            }
-            else
-            {
-                // For the first run, we pull the complete catalog of Shopify Products
-                //
-                var firstFilter = new SearchFilter();
-                Run(firstFilter);
-            }
+            Run(batchState.ShopifyProductsGetEnd);
         }
 
-        private void Run(SearchFilter firstFilter)
+        private void Run(DateTime? shopifyProductsGetEnd)
         {
             if (_jobMonitoringService.DetectCurrentJobInterrupt())
             {
                 return;
             }
 
+            var filter = new SearchFilter();
+            filter.UpdatedAtMinUtc = shopifyProductsGetEnd;
+
+
             // We've hanging on to this to compute the end of the Batch State
+            //
             var startOfRun = DateTime.UtcNow;
-            var results = _productApi.RetrieveProducts(firstFilter);
+            var results = _productApi.RetrieveProducts(filter);
 
             while (true)
             {
@@ -94,6 +87,7 @@ namespace Monster.Middle.Processes.Shopify.Workers
                 {
                     break;
                 }
+
                 //if (currentProducts.Count == 0)
                 //{
                 //    break;
@@ -103,9 +97,14 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
 
             // Process Delete Events
-            PullDeletedEventsAndUpsert(startOfRun);
+            //
+            if (shopifyProductsGetEnd.HasValue)
+            {
+                PullDeletedEventsAndUpsert(shopifyProductsGetEnd.Value);
+            }
 
             // Compute the Batch State end marker
+            //
             var batchEnd = startOfRun.SubtractFudgeFactor();
             _batchRepository.UpdateProductsGetEnd(batchEnd);            
         }
