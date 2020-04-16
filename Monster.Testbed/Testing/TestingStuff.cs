@@ -1,8 +1,8 @@
-﻿using Monster.Middle.Persist.Instance;
+﻿using Hangfire;
+using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Logging;
-using BackgroundJob = Hangfire.BackgroundJob;
 
-namespace Monster.ConsoleApp.Testing
+namespace Monster.Testbed.Testing
 {
     // *** Testing LifeTime Scope
     //    builder.RegisterType<ScopeTestingRiffRaff>().InstancePerLifetimeScope();

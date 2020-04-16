@@ -76,7 +76,7 @@ namespace Monster.Web.Controllers
         [HttpGet]
         public ActionResult OrderAnalysis(long shopifyOrderId)
         {
-            var financialSummary = _analysisDataService.GetOrderFinancialSummary(shopifyOrderId, true);
+            var financialSummary = _analysisDataService.GetOrderFinancialSummary(shopifyOrderId);
             var rootAction = _pendingActionService.Create(shopifyOrderId);
 
             var record = _shopifyOrderRepository.RetrieveOrder(shopifyOrderId);

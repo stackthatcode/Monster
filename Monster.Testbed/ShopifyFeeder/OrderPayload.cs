@@ -2,7 +2,7 @@
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api.Transactions;
 
-namespace Monster.ConsoleApp.Testing.Feeder
+namespace Monster.Testbed.ShopifyFeeder
 {
     public class OrderPayload
     {

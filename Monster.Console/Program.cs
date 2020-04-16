@@ -1,5 +1,4 @@
 ﻿using System;
-using Monster.ConsoleApp.Testing;
 
 
 namespace Monster.ConsoleApp
@@ -30,7 +29,6 @@ namespace Monster.ConsoleApp
         // Testing functions
         //
         private const string TestingFunctionsOption = "100";
-
 
 
         static void Main(string[] args)
@@ -77,10 +75,6 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{DisableInstanceOption} - Disable Instance");
             Console.WriteLine();
 
-            // Display the testing functions
-            //
-            Console.WriteLine($"{TestingFunctionsOption} - Testing Functions");
-
             // Solicit input
             //
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
@@ -119,77 +113,7 @@ namespace Monster.ConsoleApp
             if (input == EnableInstanceOption)
                 SystemUtilities.EnableInstance();
 
-            // Testing functions
-            //
-            if (input == TestingFunctionsOption)
-                DisplayTestingFunctions();
-
             return input.Trim() != "";
-        }
-
-
-        // Testing functions
-        //
-        private const string ShopifyOrderTimezoneTest = "101";
-        private const string ShopifyOrderGet = "102";
-        private const string AcumaticaCustomerGet = "103";
-        private const string AcumaticaOrderGet = "104";
-        private const string AcumaticaOrderSync = "105";
-        private const string AcumaticaPaymentGet = "106";
-        private const string AcumaticaSalesOrderRetrieve = "107";
-        private const string ShopifyFulfillmentPut = "108";
-        private const string ShopifyFulfillmentEmail = "109";
-        private const string ShopifyRetrieveOrder = "110";
-        private const string ShopifyDataFeeder = "200";
-
-
-        private static void DisplayTestingFunctions()
-        {
-            // Component testing functions
-            //
-            Console.WriteLine();
-            Console.WriteLine($"{ShopifyOrderTimezoneTest} - Shopify Order to Acumatica Timezone Test");
-            Console.WriteLine($"{ShopifyOrderGet} - Shopify Order Get (Automatic)");
-            Console.WriteLine($"{AcumaticaCustomerGet} - Acumatica Customer Get");
-            Console.WriteLine($"{AcumaticaOrderGet} - Acumatica Order Get");
-            Console.WriteLine($"{AcumaticaOrderSync} - Acumatica Order Sync (Order ID)");
-            Console.WriteLine($"{AcumaticaPaymentGet} - Acumatica Payment Get");
-            Console.WriteLine($"{AcumaticaSalesOrderRetrieve} - Acumatica Sales Order Retrieve");
-            Console.WriteLine($"{ShopifyFulfillmentPut} - Shopify Fulfillment Put");
-            Console.WriteLine($"{ShopifyFulfillmentEmail} - Shopify Fulfillment Email");
-            Console.WriteLine($"{ShopifyRetrieveOrder} - Measure Shopify Order JSON storage size");
-            Console.WriteLine();
-            Console.WriteLine($"{ShopifyDataFeeder} - Run Shopify Data feeder");
-            Console.WriteLine();
-
-            Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
-            var input = Console.ReadLine();
-
-            // Testing functions
-            //
-            if (input == ShopifyOrderTimezoneTest)
-                MoreTestingStuff.RunShopifyOrderTimezoneTest();
-            if (input == ShopifyOrderGet)
-                MoreTestingStuff.RunShopifyOrderGet();
-            if (input == AcumaticaOrderSync)
-                MoreTestingStuff.RunAcumaticaOrderSync();
-            if (input == AcumaticaCustomerGet)
-                MoreTestingStuff.RunAcumaticaCustomerGet();
-            if (input == AcumaticaOrderGet)
-                MoreTestingStuff.RunAcumaticaOrderGet();
-            if (input == AcumaticaPaymentGet)
-                MoreTestingStuff.RunAcumaticaPaymentGet();
-            if (input == AcumaticaSalesOrderRetrieve)
-                MoreTestingStuff.RunAcumaticaSalesOrderRetrieve();
-            if (input == ShopifyFulfillmentPut)
-                MoreTestingStuff.RunShopifyFulfillmentPut();
-            if (input == ShopifyFulfillmentEmail)
-                MoreTestingStuff.RunShopifyFulfillmentEmail();
-            if (input == ShopifyRetrieveOrder)
-                MoreTestingStuff.RunShopifyOrderRetrieve();
-
-            if (input == ShopifyDataFeeder)
-                MoreTestingStuff.RunShopifyDataFeeder();
         }
     }
 }

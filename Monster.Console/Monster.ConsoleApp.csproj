@@ -91,11 +91,6 @@
     <Compile Include="CommandLineFuncs.cs" />
     <Compile Include="ConsoleAppAutofac.cs" />
     <Compile Include="SystemUtilities.cs" />
-    <Compile Include="Testing\Feeder\OrderPayload.cs" />
-    <Compile Include="Testing\Feeder\ShopifyDataFeeder.cs" />
-    <Compile Include="Testing\Feeder\TestCustomerDto.cs" />
-    <Compile Include="Testing\MoreTestingStuff.cs" />
-    <Compile Include="Testing\TestingStuff.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -104,9 +99,6 @@
       <SubType>Designer</SubType>
       <TransformOnBuild>true</TransformOnBuild>
     </None>
-    <Content Include="Testing\Feeder\TestCustomers.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="App.Debug.config">
       <DependentUpon>App.config</DependentUpon>
       <IsTransformFile>true</IsTransformFile>
@@ -130,6 +122,10 @@
     <ProjectReference Include="..\Monster.TaxTransfer\Monster.TaxTransfer.csproj">
       <Project>{7f7d0032-b991-43b4-b43e-29305048a8de}</Project>
       <Name>Monster.TaxTransfer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Monster.Testbed\Monster.Testbed.csproj">
+      <Project>{9728A719-B6E9-4BD5-82EE-2FFCFB786EA1}</Project>
+      <Name>Monster.Testbed</Name>
     </ProjectReference>
     <ProjectReference Include="..\Push.Foundation.Utilities\Push.Foundation.Utilities.csproj">
       <Project>{4e08819b-bab3-46ee-9479-141af7a4057d}</Project>

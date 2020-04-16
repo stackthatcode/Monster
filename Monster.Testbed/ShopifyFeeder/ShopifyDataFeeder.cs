@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Monster.ConsoleApp.Testing.Feeder;
 using Monster.Middle.Persist.Instance;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Customer;
 using Push.Shopify.Api.Order;
-using Push.Shopify.Api.Transactions;
 
-namespace Monster.ConsoleApp.Testing.Feeder
+namespace Monster.Testbed.ShopifyFeeder
 {
     public class ShopifyDataFeeder
     {

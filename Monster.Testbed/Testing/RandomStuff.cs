@@ -3,7 +3,6 @@ using Autofac;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Http;
-using Monster.ConsoleApp.Testing.Feeder;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -18,35 +17,21 @@ using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api;
 
 
-namespace Monster.ConsoleApp.Testing
+namespace Monster.Testbed.Testing
 {
-    public class MoreTestingStuff
+    public class RandomStuff
     {
-        public static long SolicitShopifyOrderId()
-        {
-            Console.WriteLine(Environment.NewLine + "Enter Shopify Order Id (Default Id: 1840328409132)");
-            return Console.ReadLine().IsNullOrEmptyAlt("1840328409132").ToLong();
-        }
-
-        public static long SolicitShopifyFulfillmentId(long defaultId)
-        {
-            Console.WriteLine(Environment.NewLine + $"Enter Shopify Fulfillment Id (Default Id: {defaultId})");
-            return Console.ReadLine().IsNullOrEmptyAlt(defaultId.ToString()).ToLong();
-        }
-
         public static void RunAcumaticaOrderSync()
         {
-            Console.WriteLine(
-                Environment.NewLine + "Enter Shopify Order ID (Default ID: 1840328409132)");
-            var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1840328409132").ToLong();
+            var shopifyOrderId = CommandLineHelpers.SolicitOrderShopifyId();
 
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
                 var orderSync = scope.Resolve<AcumaticaOrderPut>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 acumaticaContext.SessionRun(() => orderSync.RunOrder(shopifyOrderId));
             });
@@ -54,13 +39,13 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunAcumaticaCustomerGet()
         {
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
                 var acumaticaCustomerGet = scope.Resolve<AcumaticaCustomerGet>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 acumaticaContext.SessionRun(() =>
                 {
@@ -71,13 +56,13 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunAcumaticaOrderGet()
         {
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaOrderGet = scope.Resolve<AcumaticaOrderGet>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 acumaticaContext.SessionRun(() =>
                 {
@@ -94,13 +79,13 @@ namespace Monster.ConsoleApp.Testing
                     + $"Enter Acumatica Sales Order ID (Default ID: {defaultSalesOrderNbr})");
             var orderNbr = Console.ReadLine().Trim().IsNullOrEmptyAlt(defaultSalesOrderNbr);
 
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var salesOrderClient = scope.Resolve<SalesOrderClient>();
                 var acumaticaContext = scope.Resolve <AcumaticaHttpContext>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 acumaticaContext.SessionRun(() =>
                 {
@@ -118,13 +103,13 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunAcumaticaPaymentGet()
         {
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
                 var paymentClient = scope.Resolve<PaymentClient>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 acumaticaContext.SessionRun(() =>
                 {
@@ -138,12 +123,12 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyOrderGet()
         {
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 shopifyOrderGet.RunAutomatic();
             });
@@ -152,15 +137,15 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyOrderRetrieve()
         {
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
-                var id = SolicitShopifyOrderId();
+                var id = CommandLineHelpers.SolicitOrderShopifyId();
 
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var shopifyOrderApi = scope.Resolve<OrderApi>();
                 var logger = scope.Resolve<IPushLogger>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 var json = shopifyOrderApi.Retrieve(id);
                 var compressed = json.SerializeToJson(Formatting.None).ToBase64Zip();
@@ -178,11 +163,11 @@ namespace Monster.ConsoleApp.Testing
 
             var shopifyOrderId = Console.ReadLine().IsNullOrEmptyAlt("1778846826540").ToLong();
 
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
 
                 var shopifyOrderGet = scope.Resolve<ShopifyOrderGet>();
@@ -199,12 +184,12 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyFulfillmentPut()
         {
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var shopifyFulfillmentPut = scope.Resolve<ShopifyFulfillmentPut>();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 shopifyFulfillmentPut.Run();
             });
@@ -212,10 +197,10 @@ namespace Monster.ConsoleApp.Testing
 
         public static void RunShopifyFulfillmentEmail()
         {
-            var orderId = SolicitShopifyOrderId();
-            var fulfillmentId = SolicitShopifyFulfillmentId(1767491698732);
+            var orderId = CommandLineHelpers.SolicitOrderShopifyId();
+            var fulfillmentId = CommandLineHelpers.SolicitShopifyFulfillmentId(1767491698732);
 
-            AutofacRunner.RunInScope(scope =>
+            Autofac.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
                 var fulfillmentApi = scope.Resolve<FulfillmentApi>();
@@ -233,18 +218,9 @@ namespace Monster.ConsoleApp.Testing
                     }
                 }.SerializeToJson();
 
-                var TestInstanceId = SystemUtilities.SolicitInstanceId();
+                var TestInstanceId = CommandLineHelpers.SolicitInstanceId();
                 instanceContext.Initialize(TestInstanceId);
                 fulfillmentApi.Update(orderId, fulfillmentId, json);
-            });
-        }
-
-        public static void RunShopifyDataFeeder()
-        {
-            AutofacRunner.RunInScope(scope =>
-            {
-                var feeder = scope.Resolve<ShopifyDataFeeder>();
-                feeder.Run();
             });
         }
     }

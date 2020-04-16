@@ -141,21 +141,22 @@ namespace Monster.Middle.Processes.Sync.Services
             return queryable;
         }
 
-        public OrderAnalysisTotals 
-                    GetOrderFinancialSummary(long shopifyOrderId, bool includeAcumaticaTotals = true)
+        public OrderAnalysisTotals GetOrderFinancialSummary(long shopifyOrderId)
         {
-            var shopifyOrderRecord = ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
+            var shopifyOrderRecord = 
+                ShopifyOrderQueryable.FirstOrDefault(x => x.ShopifyOrderId == shopifyOrderId);
+
             var shopifyOrder = _shopifyJsonService.RetrieveOrder(shopifyOrderId);
             
             var output = new OrderAnalysisTotals();
-
             output.ShopifyOrderNbr = shopifyOrderRecord.ShopifyOrderNumber;
             output.ShopifyOrderId = shopifyOrderRecord.ShopifyOrderId;
             output.ShopifyOrderHref = _shopifyUrlService.ShopifyOrderUrl(shopifyOrderRecord.ShopifyOrderId);
 
             output.ShopifyCustomerId = shopifyOrderRecord.ShopifyCustomer.ShopifyCustomerId;
             output.ShopifyCustomerHref =
-                _shopifyUrlService.ShopifyCustomerUrl(shopifyOrderRecord.ShopifyCustomer.ShopifyCustomerId);
+                _shopifyUrlService
+                    .ShopifyCustomerUrl(shopifyOrderRecord.ShopifyCustomer.ShopifyCustomerId);
 
             output.ShopifyTotalLinePrice = shopifyOrder.LineItemAmountAfterDiscountAndRefund;
             output.ShopifyShippingPriceTotal = shopifyOrder.NetShippingPrice;
@@ -188,17 +189,11 @@ namespace Monster.Middle.Processes.Sync.Services
                     = _acumaticaUrlService.AcumaticaCustomerUrl(
                         shopifyOrderRecord.AcumaticaSalesOrder.AcumaticaCustomer.AcumaticaCustomerId);
 
-                if (includeAcumaticaTotals)
-                {
-                    // Ready when you need me - Aye Aye!
-                    //InjectTotalsFromAcumatica(shopifyOrderRecord, output);
-
-                    var acumaticaOrder = shopifyOrderRecord.AcumaticaSalesOrder;
-                    output.AcumaticaOrderLineTotal = acumaticaOrder.AcumaticaLineTotal;
-                    output.AcumaticaOrderFreight = acumaticaOrder.AcumaticaFreight;
-                    output.AcumaticaTaxTotal = acumaticaOrder.AcumaticaTaxTotal;
-                    output.AcumaticaOrderTotal = acumaticaOrder.AcumaticaOrderTotal;
-                }
+                var acumaticaOrder = shopifyOrderRecord.AcumaticaSalesOrder;
+                output.AcumaticaOrderLineTotal = acumaticaOrder.AcumaticaLineTotal;
+                output.AcumaticaOrderFreight = acumaticaOrder.AcumaticaFreight;
+                output.AcumaticaTaxTotal = acumaticaOrder.AcumaticaTaxTotal;
+                output.AcumaticaOrderTotal = acumaticaOrder.AcumaticaOrderTotal;
             }
 
             output.AcumaticaPaymentTotal = shopifyOrderRecord.AcumaticaPaymentAmount();
