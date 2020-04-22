@@ -8,7 +8,7 @@ namespace Monster.ConsoleApp
     {
         public static void RunInScope(Action<ILifetimeScope> action)
         {
-            var container =  ConsoleAppAutofac.BuildContainer();
+            var container =  AutofacBuilder.BuildContainer();
             //HangFireConfig.ConfigureStorage();
 
             using (var scope = container.BeginLifetimeScope())

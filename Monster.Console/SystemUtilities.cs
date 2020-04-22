@@ -15,11 +15,9 @@ using Monster.Middle.Persist.Master;
 using Monster.Middle.Processes.Acumatica.Persist;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Shopify.Workers;
-using Monster.Middle.Processes.Sync.Model.FinAnalyzer;
 using Monster.Middle.Processes.Sync.Model.TaxTranfser;
 using Monster.Middle.Processes.Sync.Workers;
 using Monster.TaxTransfer.v2;
-using Newtonsoft.Json;
 using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
@@ -31,33 +29,10 @@ namespace Monster.ConsoleApp
 {
     public class SystemUtilities
     {
-        private static string TestInstanceId = "51AA413D-E679-4F38-BA47-68129B3F9212";
-        private static string DefaultSalesOrderNbr = "000046";
-
-
-        public static Guid SolicitInstanceId()
-        {
-            Console.WriteLine(Environment.NewLine + $"Enter Instance Id (Default Id: {TestInstanceId})");
-            return Guid.Parse(Console.ReadLine().IsNullOrEmptyAlt(TestInstanceId));
-        }
-
-        public static long SolicitShopifyId()
-        {
-            Console.WriteLine(Environment.NewLine + "Enter Shopify Order Id (Default Id: 1949921378348)");
-            return NumberHelpers.ToLong(Console.ReadLine().IsNullOrEmptyAlt("1949921378348	"));
-        }
-
-        public static string SolicitAcumaticaSalesOrderId()
-        {
-            Console.WriteLine(Environment.NewLine
-                              + $"Enter Acumatica Sales Order ID (Default ID: {DefaultSalesOrderNbr})");
-            var orderNbr = Console.ReadLine().Trim().IsNullOrEmptyAlt(DefaultSalesOrderNbr);
-            return orderNbr;
-        }
-
+      
         public static void RunHangFireBackgroundService()
         {
-            var container = ConsoleAppAutofac.BuildContainer();
+            var container = AutofacBuilder.BuildContainer();
 
             // Configure Hangfire for Background Job
             //
@@ -83,8 +58,8 @@ namespace Monster.ConsoleApp
 
         public static void RunViewShopifyOrderAndTaxTransfer()
         {
-            var instanceId = SolicitInstanceId();
-            var shopifyOrderId = SolicitShopifyId();
+            var instanceId = CommandLineFuncs.SolicitInstanceId();
+            var shopifyOrderId = CommandLineFuncs.SolicitShopifyId();
             
             AutofacRunner.RunInScope(scope =>
             {
@@ -131,8 +106,8 @@ namespace Monster.ConsoleApp
 
         public static void RunViewAcumaticaTaxTransfer()
         {
-            var instanceId = SolicitInstanceId();
-            var salesOrderNbr = SolicitAcumaticaSalesOrderId();
+            var instanceId = CommandLineFuncs.SolicitInstanceId();
+            var salesOrderNbr = CommandLineFuncs.SolicitAcumaticaSalesOrderId();
 
             AutofacRunner.RunInScope(scope =>
             {
@@ -160,8 +135,8 @@ namespace Monster.ConsoleApp
 
         public static void RunShopifyOrderGetToAcumaticaOrderPut()
         {
-            var instanceId = SolicitInstanceId();
-            var shopifyOrderId = SolicitShopifyId();
+            var instanceId = CommandLineFuncs.SolicitInstanceId();
+            var shopifyOrderId = CommandLineFuncs.SolicitShopifyId();
             AutofacRunner.RunInScope(scope =>
             {
                 var instanceContext = scope.Resolve<InstanceContext>();
@@ -320,7 +295,7 @@ namespace Monster.ConsoleApp
 
         public static void DisableInstance()
         {
-            var instanceId = SolicitInstanceId();
+            var instanceId = CommandLineFuncs.SolicitInstanceId();
             AutofacRunner.RunInScope(scope =>
             {
                 var repository = scope.Resolve<MasterRepository>();
@@ -330,7 +305,7 @@ namespace Monster.ConsoleApp
 
         public static void EnableInstance()
         {
-            var instanceId = SolicitInstanceId();
+            var instanceId = CommandLineFuncs.SolicitInstanceId();
             AutofacRunner.RunInScope(scope =>
             {
                 var repository = scope.Resolve<MasterRepository>();

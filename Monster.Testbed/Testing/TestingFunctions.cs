@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Monster.Testbed.Testing;
 
-namespace Monster.Testbed
+namespace Monster.Testbed.Testing
 {
     class TestingFunctions
     {

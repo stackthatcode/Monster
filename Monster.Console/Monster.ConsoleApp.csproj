@@ -89,7 +89,7 @@
   <ItemGroup>
     <Compile Include="AutofacRunner.cs" />
     <Compile Include="CommandLineFuncs.cs" />
-    <Compile Include="ConsoleAppAutofac.cs" />
+    <Compile Include="AutofacBuilder.cs" />
     <Compile Include="SystemUtilities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

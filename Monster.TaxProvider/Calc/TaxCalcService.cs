@@ -24,7 +24,6 @@ namespace Monster.TaxProvider.Calc
         {
             _logger = logger;
             _settings = settings;
-
         }
 
         public GetTaxResult Calculate(GetTaxRequest request)

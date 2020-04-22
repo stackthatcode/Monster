@@ -15,7 +15,17 @@ namespace Monster.Testbed
 
             using (SentrySdk.Init("https://39a2ab07189641a3a10eeffd1354873d@o378852.ingest.sentry.io/5202882"))
             {
-                Console.WriteLine(x / 0);
+                try
+                {
+                    var exception = new Exception("Oh noes!!!");
+                    throw exception;
+                }
+                catch (Exception ex)
+                {
+                    SentrySdk.CaptureException(ex);
+                }
+
+                // Console.WriteLine(x / 0);
             }
         }
     }

@@ -17,8 +17,7 @@ namespace Monster.Testbed.Testing
         private readonly ProcessPersistContext _persist;
         public int Id = _globalIdentifier++;
 
-        public AutofacScopeTester(
-                IPushLogger logger, ProcessPersistContext persist)
+        public AutofacScopeTester(IPushLogger logger, ProcessPersistContext persist)
         {
             _logger = logger;
             _persist = persist;
@@ -28,12 +27,11 @@ namespace Monster.Testbed.Testing
         public static void ScheduleSomeTrouble()
         {
             // *** Testing LifeTime Scope
-            var jobId1 = BackgroundJob.Enqueue<AutofacScopeTester>(
-                x => x.Run());
-            var jobId2 = BackgroundJob.Enqueue<AutofacScopeTester>(
-                x => x.Run());
-            var jobId3 = BackgroundJob.Enqueue<AutofacScopeTester>(
-                x => x.Run());
+
+            var jobId1 = BackgroundJob.Enqueue<AutofacScopeTester>(x => x.Run());
+            var jobId2 = BackgroundJob.Enqueue<AutofacScopeTester>(x => x.Run());
+            var jobId3 = BackgroundJob.Enqueue<AutofacScopeTester>(x => x.Run());
+
             // *** Testing LifeTime Scope
         }
 
@@ -41,8 +39,7 @@ namespace Monster.Testbed.Testing
         {
             while (true)
             {
-                _logger.Info(
-                    $"Sound off from RiffRaff: {Id} - {_persist.Id}");
+                _logger.Info($"Sound off from RiffRaff: {Id} - {_persist.Id}");
                 System.Threading.Thread.Sleep(1000);
             }
         }

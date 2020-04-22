@@ -120,7 +120,6 @@ namespace Monster.Testbed.Testing
             });
         }
 
-
         public static void RunShopifyOrderGet()
         {
             Autofac.RunInScope(scope =>
@@ -133,7 +132,6 @@ namespace Monster.Testbed.Testing
                 shopifyOrderGet.RunAutomatic();
             });
         }
-
 
         public static void RunShopifyOrderRetrieve()
         {
@@ -154,7 +152,6 @@ namespace Monster.Testbed.Testing
 
             });
         }
-
 
         public static void RunShopifyOrderTimezoneTest()
         {
