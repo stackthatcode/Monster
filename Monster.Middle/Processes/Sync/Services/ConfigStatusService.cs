@@ -72,6 +72,7 @@ namespace Monster.Middle.Processes.Sync.Services
             var valid = settings.AcumaticaTimeZone.HasValue()
                         && settings.AcumaticaDefaultItemClass.HasValue()
                         && settings.AcumaticaDefaultPostingClass.HasValue()
+                        && settings.AcumaticaCustomerClass.HasValue()
                         && gateways.Count > 0;
 
             var state = valid ? StateCode.Ok : StateCode.Invalid;

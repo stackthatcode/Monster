@@ -1,9 +1,10 @@
 ﻿using System;
-using System.ServiceModel.Syndication;
+using System.Runtime.InteropServices;
+using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Http;
 using Monster.Acumatica.Utility;
 using Push.Foundation.Utilities.Http;
-using Push.Foundation.Web.Helpers;
+using Push.Foundation.Utilities.Json;
 
 namespace Monster.Acumatica.Api
 {
@@ -98,10 +99,31 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
-        public string ReleaseInventoryReceipt(string content)
+        //public string ReleaseInventoryReceipt(string content)
+        //{
+        //    var response = _httpContext.Post("InventoryReceipt/ReleaseInventoryReceipt", content);
+        //    return response.Body;
+        //}
+
+
+        public string SalesPricesInquiry()
         {
-            var response = _httpContext.Post("InventoryReceipt/ReleaseInventoryReceipt", content);
+            var payload = new
+            {
+                EffectiveAsOf = new StringValue("4/22/2020"),
+                //InventoryID = new StringValue("ROUNDING-DOOM"),
+                //PriceClass = new StringValue("RETAIL"),
+            };
+
+            // $expand=SalesPriceDetails
+            //var queryString = $"$filter=EffectiveAsOf eq datetimeoffset'{DateTime.UtcNow.ToAcumaticaRestDateEncode()}'";
+            //?{queryString}", "");
+
+            var response = _httpContext.Put($"SalesPricesInquiry?$expand=SalesPriceDetails", payload.SerializeToJson());
+                
+            // $expand=SalesPriceDetails $filter");
             return response.Body;
         }
     }
 }
+

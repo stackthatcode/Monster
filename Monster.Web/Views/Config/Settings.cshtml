@@ -104,6 +104,26 @@
                     </small>
                 </div>
 
+                <!-- Customer Class -->
+                <div class="form-group">
+                    <label for="customerClass">Acumatica Default Customer Class</label>
+
+                    <select class="form-control"
+                            id="customerClass"
+                            data-bind="optionsCaption: 'Choose...',
+                                value: SelectedCustomerClass,
+                                options: CustomerClasses"></select>
+
+                    <small class="form-text text-muted">
+                        @GlobalConfig.AppName will use this selection when it creates Customers in Acumatica from Shopify
+                    </small>
+
+                    <div class="error-message"
+                         data-bind="if: ShowValidation() && !CustomerClassValid()">
+                        Please select a Customer Class
+                    </div>
+                </div>
+
                 <!-- Payment Gateways -->
                 <div>
                     <label for="paymentGateways">
@@ -131,7 +151,7 @@
                                 </span>
                                 <span>
                                     <a class="btn btn-sm btn-primary" href="#"
-                                       data-bind="click: $parent.RemoveGateway"><i class="fas fa-times"></i> Remove</a>
+                                       data-bind="click: $parent.RemoveGateway"><i class="fas fa-times"></i>Remove</a>
                                 </span>
                             </li>
                         </ul>
@@ -286,6 +306,7 @@
         self.SelectedShopifyGateway = ko.observable();
         self.SelectedPaymentMethod = ko.observable();
         self.SelectedCashAccount = ko.observable();
+
         self.ShowValidation = ko.observable(false);
 
         self.Launch = function() {
@@ -339,11 +360,14 @@
         //
         self.TimeZones = ko.observableArray();
         self.ItemClasses = ko.observableArray();
-        
+        self.CustomerClasses = ko.observableArray();
+
         // Selected options
         //
         self.SelectedTimeZone = ko.observable();
         self.SelectedItemClass = ko.observable();
+        self.SelectedCustomerClass = ko.observable();
+        
         self.SelectedPostingClass = ko.computed(
             function () {
                 return self.SelectedItemClass() ? self.SelectedItemClass().PostingClass : null;
@@ -359,8 +383,14 @@
             return self.SelectedItemClass() && self.SelectedPostingClass();
         });
 
+        self.CustomerClassValid = ko.computed(function() {
+            return self.SelectedCustomerClass() && true;
+        });
+
         self.IsValid = ko.computed(function() {
-            return self.TimeZoneValid() && self.ItemClassValid();
+            return self.TimeZoneValid()
+                && self.ItemClassValid()
+                && self.CustomerClassValid();
         });
 
         self.ShowValidation = ko.observable(false);
@@ -417,6 +447,10 @@
                 function (response) {
                     self.TimeZones(response.TimeZones);
                     self.ItemClasses(response.ItemClasses);
+                    self.CustomerClasses(response.CustomerClasses);
+
+                    console.log(response.CustomerClasses);
+
                     self.PaymentGatewayPopupModel.LoadReferenceData(response);
 
                     var ajax = new Monster.Ajax();
@@ -427,6 +461,7 @@
 
                     self.SelectedTimeZone(response.AcumaticaTimeZone);
                     self.SelectedItemClass(response.AcumaticaDefaultItemClass);
+                    self.SelectedCustomerClass(response.AcumaticaDefaultCustomerClass);
                     self.SelectedGateways(response.PaymentGateways);
 
                     var itemClass =
@@ -457,6 +492,7 @@
                 model.AcumaticaTimeZone = self.SelectedTimeZone().TimeZoneId;
                 model.AcumaticaDefaultItemClass = self.SelectedItemClass().ItemClass;
                 model.AcumaticaDefaultPostingClass = self.SelectedPostingClass();
+                model.AcumaticaDefaultCustomerClass = self.SelectedCustomerClass();
                 model.PaymentGateways = self.SelectedGateways();
 
                 var ajax = new Monster.Ajax();

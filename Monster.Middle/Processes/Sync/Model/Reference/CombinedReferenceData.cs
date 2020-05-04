@@ -17,6 +17,8 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
         public List<string> TaxIds { get; set; }
         public List<string> TaxCategories { get; set; }
         public List<string> TaxZones { get; set; }
+        public List<string> CustomerClasses { get; set; }
+
 
         public CombinedReferenceData()
         {
@@ -27,6 +29,8 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
             TaxIds = new List<string>();
             TaxCategories = new List<string>();
             TaxZones = new List<string>();
+
+            CustomerClasses = new List<string>();
         }
 
         public bool IsValid => Validation.Count == 0;
@@ -81,9 +85,15 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
                     output.Add("Tax Zones are empty");
                 }
 
+                if (CustomerClasses.Count == 0)
+                {
+                    output.Add("Customer Classes are empty");
+                }
+
                 return output;
             }
         }
+
     }
 }
 

@@ -22,7 +22,7 @@ namespace Monster.Testbed
                 }
                 catch (Exception ex)
                 {
-                    SentrySdk.CaptureException(ex);
+                    //SentrySdk.CaptureException(ex);
                 }
 
                 // Console.WriteLine(x / 0);

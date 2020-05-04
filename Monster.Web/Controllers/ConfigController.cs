@@ -170,6 +170,7 @@ namespace Monster.Web.Controllers
             output.AcumaticaTimeZone = settings.AcumaticaTimeZone;
             output.AcumaticaDefaultItemClass = settings.AcumaticaDefaultItemClass;
             output.AcumaticaDefaultPostingClass = settings.AcumaticaDefaultPostingClass;
+            output.AcumaticaDefaultCustomerClass = settings.AcumaticaCustomerClass;
 
             var selectedGateways = _settingsRepository.RetrievePaymentGateways();
 
@@ -180,6 +181,7 @@ namespace Monster.Web.Controllers
                 gateway.ShopifyGatewayName = _gatewayService.Name(selectedGateway.ShopifyGatewayId);
                 gateway.AcumaticaPaymentMethod = selectedGateway.AcumaticaPaymentMethod;
                 gateway.AcumaticaCashAcount = selectedGateway.AcumaticaCashAccount;
+
                 output.PaymentGateways.Add(gateway);
             }
 
@@ -196,6 +198,8 @@ namespace Monster.Web.Controllers
             data.AcumaticaTimeZone = selectionsModel.AcumaticaTimeZone;
             data.AcumaticaDefaultItemClass = selectionsModel.AcumaticaDefaultItemClass;
             data.AcumaticaDefaultPostingClass = selectionsModel.AcumaticaDefaultPostingClass;
+            data.AcumaticaCustomerClass = selectionsModel.AcumaticaDefaultCustomerClass;
+
             _settingsRepository.SaveChanges();
 
             // Save Gateways

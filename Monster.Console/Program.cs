@@ -10,6 +10,7 @@ namespace Monster.ConsoleApp
         private const string RunHangfireBackgroundOption = "1";
         private const string ViewShopifyOrderAndTaxTransfer = "2";
         private const string ViewAcumaticaTaxSnapshot = "3";
+        private const string ViewSalesPrices = "4";
 
         // User management functions
         //
@@ -56,6 +57,7 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{RunHangfireBackgroundOption} - Run Hangfire Background Service");
             Console.WriteLine($"{ViewShopifyOrderAndTaxTransfer} - View Shopify Order and Tax Transfer JSON");
             Console.WriteLine($"{ViewAcumaticaTaxSnapshot} - View Acumatica Tax Transfer JSON");
+            Console.WriteLine($"{ViewSalesPrices} - View Sales Price Inquiry JSON");
             Console.WriteLine();
 
             // User management functions
@@ -84,10 +86,15 @@ namespace Monster.ConsoleApp
             //
             if (input == RunHangfireBackgroundOption)
                 SystemUtilities.RunHangFireBackgroundService();
+
             if (input == ViewShopifyOrderAndTaxTransfer)
                 SystemUtilities.RunViewShopifyOrderAndTaxTransfer();
+
             if (input == ViewAcumaticaTaxSnapshot)
                 SystemUtilities.RunViewAcumaticaTaxTransfer();
+
+            if (input == ViewSalesPrices)
+                SystemUtilities.RunViewSalesPriceInquiry();
 
             // User management functions
             //

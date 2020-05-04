@@ -73,6 +73,12 @@ namespace Monster.Middle.Processes.Acumatica.Services
                     .Select(x => x.TaxZoneID.value)
                     .ToList();
 
+            var customerClasses =
+                reference.CustomerClass.IsNullOrEmptyAlt("[]")
+                    .DeserializeFromJson<List<CustomerClass>>()
+                    .Select(x => x.ClassID.value)
+                    .ToList();
+
             var output = new CombinedReferenceData()
             {
                 TimeZones = timeZones,
@@ -82,6 +88,7 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 TaxIds = taxIds,
                 TaxCategories = taxCategories,
                 TaxZones = taxZones,
+                CustomerClasses = customerClasses,
             };
 
             return output;
@@ -127,6 +134,13 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 settings.AcumaticaTaxZone = null;
             }
 
+            if (settings.AcumaticaCustomerClass != null &&
+                referenceData.CustomerClasses.All(x => x != settings.AcumaticaCustomerClass))
+            {
+                _logService.Log($"Customer Class {settings.AcumaticaCustomerClass} is missing from Acumatica");
+                settings.AcumaticaCustomerClass = null;
+            }
+
             _settingsRepository.SaveChanges();
         }
 
@@ -152,6 +166,7 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 }
 
                 // Remove if Payment Method is missing from Acumatica pull
+                //
                 var acumaticaPaymentMethod 
                     = referenceData.PaymentMethods.FirstOrDefault(x => x.PaymentMethod == selectedPaymentMethod);
 

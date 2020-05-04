@@ -55,6 +55,14 @@ namespace Monster.Middle.Processes.Acumatica.Workers
             reference.TaxId = json;
             _dataRepository.SaveChanges();
         }
+
+        public void RunCustomerClasses()
+        {
+            var json = _referenceApi.RetrieveCustomerClasses();
+            var reference = _dataRepository.RetrieveAcumaticaRefData();
+            reference.CustomerClass = json;
+            _dataRepository.SaveChanges();
+        }
     }
 }
 

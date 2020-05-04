@@ -6,6 +6,7 @@ using Autofac;
 using Hangfire;
 using Hangfire.Logging;
 using Monster.Acumatica.Api;
+using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
 using Monster.Acumatica.Http;
 using Monster.Middle.Identity;
@@ -328,6 +329,27 @@ namespace Monster.ConsoleApp
                         $" - Enabled: {instance.IsEnabled}" + Environment.NewLine;
                     Console.WriteLine(output);
                 }
+            });
+        }
+
+        public static void RunViewSalesPriceInquiry()
+        {
+            var instanceId = CommandLineFuncs.SolicitInstanceId();
+
+            AutofacRunner.RunInScope(scope =>
+            {
+                var instanceContext = scope.Resolve<InstanceContext>();
+                var acumaticaContext = scope.Resolve<AcumaticaHttpContext>();
+                var distributionClient = scope.Resolve<DistributionClient>();
+                var logger = scope.Resolve<IPushLogger>();
+
+                instanceContext.Initialize(instanceId);
+
+                acumaticaContext.SessionRun(() =>
+                {
+                    var json = distributionClient.SalesPricesInquiry();
+                        //logger.Info(json);
+                });
             });
         }
     }

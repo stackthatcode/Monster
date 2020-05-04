@@ -58,6 +58,7 @@ namespace Monster.Middle.Processes.Acumatica
                 _acumaticaReferencePull.RunTaxCategories();
                 _acumaticaReferencePull.RunTaxIds();
                 _acumaticaReferencePull.RunTaxZones();
+                _acumaticaReferencePull.RunCustomerClasses();
             });
         }
         

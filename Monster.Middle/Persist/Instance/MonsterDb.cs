@@ -1050,6 +1050,7 @@ namespace Monster.Middle.Persist.Instance
         public string TaxZone { get; set; } // TaxZone
         public string TaxCategory { get; set; } // TaxCategory
         public string TaxId { get; set; } // TaxId
+        public string CustomerClass { get; set; } // CustomerClass
     }
 
     // AcumaticaSalesOrder
@@ -1265,6 +1266,7 @@ namespace Monster.Middle.Persist.Instance
         public string AcumaticaTaxableCategory { get; set; } // AcumaticaTaxableCategory (length: 50)
         public string AcumaticaLineItemTaxId { get; set; } // AcumaticaLineItemTaxId (length: 50)
         public string AcumaticaFreightTaxId { get; set; } // AcumaticaFreightTaxId (length: 50)
+        public string AcumaticaCustomerClass { get; set; } // AcumaticaCustomerClass (length: 50)
         public bool PullFromAcumaticaEnabled { get; set; } // PullFromAcumaticaEnabled
         public bool PullFromShopifyEnabled { get; set; } // PullFromShopifyEnabled
         public bool SyncOrdersEnabled { get; set; } // SyncOrdersEnabled
@@ -2088,6 +2090,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.TaxZone).HasColumnName(@"TaxZone").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.TaxCategory).HasColumnName(@"TaxCategory").HasColumnType("nvarchar(max)").IsOptional();
             Property(x => x.TaxId).HasColumnName(@"TaxId").HasColumnType("nvarchar(max)").IsOptional();
+            Property(x => x.CustomerClass).HasColumnName(@"CustomerClass").HasColumnType("nvarchar(max)").IsOptional();
         }
     }
 
@@ -2333,6 +2336,7 @@ namespace Monster.Middle.Persist.Instance
             Property(x => x.AcumaticaTaxableCategory).HasColumnName(@"AcumaticaTaxableCategory").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaLineItemTaxId).HasColumnName(@"AcumaticaLineItemTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaFreightTaxId).HasColumnName(@"AcumaticaFreightTaxId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaCustomerClass).HasColumnName(@"AcumaticaCustomerClass").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.PullFromAcumaticaEnabled).HasColumnName(@"PullFromAcumaticaEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.PullFromShopifyEnabled).HasColumnName(@"PullFromShopifyEnabled").HasColumnType("bit").IsRequired();
             Property(x => x.SyncOrdersEnabled).HasColumnName(@"SyncOrdersEnabled").HasColumnType("bit").IsRequired();

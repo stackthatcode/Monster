@@ -46,5 +46,10 @@ namespace Monster.Acumatica.Api
             return response.Body;
         }
 
+        public string RetrieveCustomerClasses()
+        {
+            var response = _httpContext.Get($"CustomerClass");
+            return response.Body;
+        }
     }
 }

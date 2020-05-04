@@ -36,7 +36,9 @@ namespace Monster.Middle.Processes.Sync.Workers
                 CustomerClient customerClient, 
                 JobMonitoringService jobMonitoringService,
                 ExecutionLogService logService, 
-                SettingsRepository settingsRepository, AcumaticaJsonService acumaticaJsonService, ShopifyJsonService shopifyJsonService)
+                SettingsRepository settingsRepository, 
+                AcumaticaJsonService acumaticaJsonService, 
+                ShopifyJsonService shopifyJsonService)
         {
             _acumaticaOrderRepository = acumaticaOrderRepository;
             _syncOrderRepository = syncOrderRepository;
@@ -213,6 +215,8 @@ namespace Monster.Middle.Processes.Sync.Workers
             customer.CustomerID = newAcumaticaCustomerId.ToValue();
             customer.CustomerName = name.ToValue();
             //customer.TaxZone = settings.AcumaticaTaxZone.ToValue();
+
+            customer.CustomerClass = settings.AcumaticaCustomerClass.ToValue();
 
             var address = new Address();
             if (shopifyCustomer.default_address != null)
