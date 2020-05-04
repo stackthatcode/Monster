@@ -82,7 +82,8 @@ namespace Monster.Middle.Processes.Acumatica.Services
 
             var carriers =
                 reference.ShopifyCarrier.IsNullOrEmptyAlt("[]")
-                    .DeserializeFromJson<List<ShopifyCarrier>>()
+                    .DeserializeFromJson<ShopifyCarrierParent>()
+                    .carrier_services
                     .Select(x => x.name)
                     .ToList();
 

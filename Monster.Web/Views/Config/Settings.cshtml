@@ -8,6 +8,9 @@
     #preferences .form-group {
         height: 120px;
     }
+    .alert-secondary {
+        margin-bottom: 5px !important;
+    }
 </style>
 
 <main role="main" class="medium-size">
@@ -156,7 +159,7 @@
                             </span>
                             <span>
                                 <a class="btn btn-sm btn-primary" href="#"
-                                   data-bind="click: $parent.RemoveGateway"><i class="fas fa-times"></i>Remove</a>
+                                   data-bind="click: $parent.RemoveGateway"><i class="fas fa-times"></i> Remove</a>
                             </span>
                         </li>
                     </ul>
@@ -167,6 +170,8 @@
                     currently have enabled in your Shopify store.
                 </small>
             </div>
+
+            <div style="height:40px;"></div>
 
             <!-- Carriers-to-Ship-Via -->
             <div>
@@ -180,7 +185,7 @@
 
                 <div data-bind="if: CarriersEmpty">
                     <div class="alert alert-secondary">
-                        <strong>There are currently no Carriers configured</strong>
+                        <strong>There are currently no Shopify Carriers configured</strong>
                     </div>
                 </div>
 
@@ -190,11 +195,11 @@
                             <span>
                                 <span class="bold-light" data-bind="text:ShopifyCarrierName"></span>
                                 <span style="display:inline-block; width:5px;">-</span>
-                                <span class="bold-light" data-bind="text:AcumaticaShipVia"></span>
+                                <span class="bold-light" data-bind="text:AcumaticaCarrierId"></span>
                             </span>
                             <span>
                                 <a class="btn btn-sm btn-primary" href="#"
-                                   data-bind="click: $parent.RemoveCarrier"><i class="fas fa-times"></i>Remove</a>
+                                   data-bind="click: $parent.RemoveCarrier"><i class="fas fa-times"></i> Remove</a>
                             </span>
                         </li>
                     </ul>
@@ -266,7 +271,7 @@
                 </button>
             </div>
 
-            <div data-bind="template: { name: 'Carrier-To-Ship-Via-Modal-Content', data: CarrierToShipViaModel }"></div>
+            <div data-bind="template: { name: 'Carrier-To-Ship-Via-Modal-Content', data: CarrierShipViaPopupModel }"></div>
         </div>
     </div>
 </div>
@@ -475,10 +480,10 @@
 
         self.LoadReferenceData = function (data) {
             self.ShopifyCarriers(data.ShopifyCarriers);
-            self.AcumaticaShipVias(data.AcumaticaShipVias);
+            self.AcumaticaShipVias(data.AcumaticaShipVia);
         };
 
-        self.AddPaymentGateway = function() {
+        self.AddCarrierClick = function() {
             if (!self.SelectedShopifyCarrier() || !self.SelectedAcumaticaShipVia()) {
                 self.ShowValidation(true);
             } else {
@@ -546,12 +551,11 @@
             return self.ShowValidation() && !self.IsValid();
         });
 
-        // Add Payment Gateway pop-up
-        //
-        self.PaymentGatewayPopupModel = new Monster.PaymentGatewayPopupModel();
 
         // Gateway CRUD
         //
+        self.PaymentGatewayPopupModel = new Monster.PaymentGatewayPopupModel();
+
         self.LaunchGatewayPopup = function() {
             self.PaymentGatewayPopupModel.Launch();
         };
@@ -565,29 +569,27 @@
             });
         };
 
-        self.RemoveGateway = function (item) {
-            self.SelectedGateways.remove(item);
-        };
+        self.RemoveGateway = function (item) { self.SelectedGateways.remove(item); };
 
         Monster.Events.subscribe(eventKeys.AddPaymentGateway, self.AddPaymentGateway);
 
 
         // Carrier CRUD
         //
-        self.LaunchGatewayPopup = function() {
+        self.CarrierShipViaPopupModel = new Monster.CarrierShipViaPopupModel();
+        
+        self.LaunchCarrierPopup = function() {
             self.CarrierShipViaPopupModel.Launch();
         };
 
         self.AddCarrierClick = function(model) {
-            self.ShopifyCarriers.push({
-                ShopifyCarrier: model.SelectedShopifyCarrier(),
-                AcumaticaShipVia: model.SelectedAcumaticaShipVia(),
+            self.SelectedCarriers.push({
+                ShopifyCarrierName: model.SelectedShopifyCarrier(),
+                AcumaticaCarrierId: model.SelectedAcumaticaShipVia(),
             });
         };
 
-        self.RemoveCarrier = function(item) {
-            self.SelectedCarriers.remove(item);
-        }
+        self.RemoveCarrier = function(item) { self.SelectedCarriers.remove(item); }
 
         Monster.Events.subscribe(eventKeys.AddCarrierClick, self.AddCarrierClick);
 
@@ -612,13 +614,13 @@
                     ajax.HttpGet("/Config/AcumaticaReferenceData", this);
                 },
                 function (response) {
+                    //console.log(response);
+
                     self.TimeZones(response.TimeZones);
                     self.ItemClasses(response.ItemClasses);
                     self.CustomerClasses(response.CustomerClasses);
-
-                    console.log(response.CustomerClasses);
-
                     self.PaymentGatewayPopupModel.LoadReferenceData(response);
+                    self.CarrierShipViaPopupModel.LoadReferenceData(response);
 
                     var ajax = new Monster.Ajax();
                     ajax.HttpGet("/Config/SettingsSelections", this);
@@ -630,6 +632,7 @@
                     self.SelectedItemClass(response.AcumaticaDefaultItemClass);
                     self.SelectedCustomerClass(response.AcumaticaDefaultCustomerClass);
                     self.SelectedGateways(response.PaymentGateways);
+                    self.SelectedCarriers(response.CarrierToShipVias);
 
                     var itemClass =
                         Monster.FindByField(self.ItemClasses(), 'ItemClass', response.AcumaticaDefaultItemClass);
@@ -655,12 +658,12 @@
                 }
 
                 var model = {};
-
                 model.AcumaticaTimeZone = self.SelectedTimeZone().TimeZoneId;
                 model.AcumaticaDefaultItemClass = self.SelectedItemClass().ItemClass;
                 model.AcumaticaDefaultPostingClass = self.SelectedPostingClass();
                 model.AcumaticaDefaultCustomerClass = self.SelectedCustomerClass();
                 model.PaymentGateways = self.SelectedGateways();
+                model.CarrierToShipVias = self.SelectedCarriers();
 
                 var ajax = new Monster.Ajax();
                 ajax.HttpPost("/Config/SettingsSelections", model, this);

@@ -2221,7 +2221,7 @@ namespace Monster.Middle.Persist.Instance
             ToTable("CarrierToShipVia", schema);
             HasKey(x => x.Id);
 
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.ShopifyCarrierName).HasColumnName(@"ShopifyCarrierName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
             Property(x => x.AcumaticaCarrierId).HasColumnName(@"AcumaticaCarrierId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
         }

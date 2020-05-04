@@ -1,4 +1,6 @@
-﻿namespace Monster.Acumatica.Api.Reference
+﻿using System.Collections.Generic;
+
+namespace Monster.Acumatica.Api.Reference
 {
     public class ShopifyCarrier
     {
@@ -10,6 +12,11 @@
         public string admin_graphql_api_id { get; set; }
         public string format { get; set; }
         public string callback_url { get; set; }
+    }
+
+    public class ShopifyCarrierParent
+    {
+        public List<ShopifyCarrier> carrier_services { get; set; }
     }
 }
 

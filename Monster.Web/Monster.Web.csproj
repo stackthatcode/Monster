@@ -415,9 +415,7 @@
   <ItemGroup>
     <Content Include="Views\Shared\_PagingWidget.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\Analysis\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Views\Sync\ImportIntoShopify.cshtml" />
   </ItemGroup>
