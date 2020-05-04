@@ -20,6 +20,11 @@ namespace Monster.Middle.Processes.Shopify.Persist
             return Entities.Database.BeginTransaction();
         }
 
+        // Reference data
+        //
+
+
+
         // Shopify Location queries
         //
         public void InsertLocation(ShopifyLocation location)

@@ -223,6 +223,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Config\AcumaticaCredentialsModel.cs" />
+    <Compile Include="Models\Config\CarrierToShipViaSelection.cs" />
     <Compile Include="Models\Config\PaymentGatewaySelectionModel.cs" />
     <Compile Include="Models\Config\SettingsTaxesModel.cs" />
     <Compile Include="Models\Sync\EndToEndStatusModel.cs" />

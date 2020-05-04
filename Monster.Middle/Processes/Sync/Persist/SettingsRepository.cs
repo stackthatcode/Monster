@@ -24,6 +24,9 @@ namespace Monster.Middle.Processes.Sync.Persist
         static readonly object SettingsLock = new object();
 
 
+
+        // Payment Gateways
+        //
         public List<PaymentGateway> RetrievePaymentGateways()
         {
             return _dataContext.Entities.PaymentGateways.ToList();
@@ -82,6 +85,69 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return _dataContext.Entities.PaymentGateways.Any(x => x.ShopifyGatewayId == shopifyGatewayId);
         }
+
+
+
+        // Carrier-to-Ship-Via
+        //
+        public List<CarrierToShipVia> RetrieveCarrierToShipVias()
+        {
+            return _dataContext.Entities.CarrierToShipVias.ToList();
+        }
+
+        public CarrierToShipVia RetrieveCarrierToShipVia(string shopifyCarrierName)
+        {
+            return _dataContext
+                .Entities
+                .CarrierToShipVias
+                .FirstOrDefault(x => x.ShopifyCarrierName == shopifyCarrierName);
+        }
+
+        public CarrierToShipVia RetrieveCarrierToShipViaByAcumaticaId(string acumaticaCarrierId)
+        {
+            return _dataContext
+                .Entities
+                .CarrierToShipVias
+                .FirstOrDefault(x => x.AcumaticaCarrierId == acumaticaCarrierId);
+        }
+
+        public void ImprintCarrierToShipVias(IList<CarrierToShipVia> updatedRecords)
+        {
+            var existingRecords = RetrieveCarrierToShipVias();
+
+            foreach (var updatedRecord in updatedRecords)
+            {
+                if (existingRecords.All(x => x.ShopifyCarrierName != updatedRecord.ShopifyCarrierName))
+                {
+                    InsertCarrierToShipVia(updatedRecord);
+                }
+            }
+
+            foreach (var existingRecord in existingRecords)
+            {
+                if (!updatedRecords.Any(x => x.ShopifyCarrierName == existingRecord.ShopifyCarrierName))
+                {
+                    DeleteCarrierToShipVia(existingRecord.ShopifyCarrierName);
+                }
+            }
+
+            Entities.SaveChanges();
+        }
+
+        public void InsertCarrierToShipVia(CarrierToShipVia gateway)
+        {
+            _dataContext.Entities.CarrierToShipVias.Add(gateway);
+            _dataContext.Entities.SaveChanges();
+        }
+
+        public void DeleteCarrierToShipVia(string shopifyCarrierName)
+        {
+            var records = RetrieveCarrierToShipVia(shopifyCarrierName);
+            _dataContext.Entities.CarrierToShipVias.Remove(records);
+            _dataContext.Entities.SaveChanges();
+        }
+
+
 
 
         public MonsterSetting RetrieveSettings()

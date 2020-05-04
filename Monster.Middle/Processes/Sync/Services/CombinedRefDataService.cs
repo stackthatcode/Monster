@@ -4,11 +4,12 @@ using Monster.Acumatica.Api.Reference;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.Shopify;
-using Monster.Middle.Processes.Acumatica.Persist;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Sync.Model.Reference;
 using Monster.Middle.Processes.Sync.Persist;
 using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
+
 
 namespace Monster.Middle.Processes.Acumatica.Services
 {
@@ -16,68 +17,81 @@ namespace Monster.Middle.Processes.Acumatica.Services
     {
         private readonly ShopifyPaymentGatewayService _paymentGatewayService;
         private readonly AcumaticaTimeZoneService _instanceTimeZoneService;
-        private readonly AcumaticaInventoryRepository _inventoryRepository;
+        private readonly ReferenceDataRepository _referenceDataRepository;
         private readonly SettingsRepository _settingsRepository;
         private readonly ExecutionLogService _logService;
 
         public CombinedRefDataService(
                 ShopifyPaymentGatewayService paymentGatewayService,
                 AcumaticaTimeZoneService instanceTimeZoneService,
-                AcumaticaInventoryRepository inventoryRepository, 
                 SettingsRepository settingsRepository, 
+                ReferenceDataRepository referenceDataRepository,
                 ExecutionLogService logService)
         {
             _paymentGatewayService = paymentGatewayService;
             _instanceTimeZoneService = instanceTimeZoneService;
-            _inventoryRepository = inventoryRepository;
             _settingsRepository = settingsRepository;
+            _referenceDataRepository = referenceDataRepository;
             _logService = logService;
         }
 
         public CombinedReferenceData RetrieveRefData()
         {
-            var reference = _inventoryRepository.RetrieveAcumaticaRefData();
+            var reference = _referenceDataRepository.RetrieveAcumaticaRefData();
 
             var timeZones = _instanceTimeZoneService.RetrieveTimeZones();
             var gateways = _paymentGatewayService.Retrieve();
 
             var itemClasses =
-                reference.ItemClass.IsNullOrEmptyAlt("[]")
+                reference.AcumaticaItemClass.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<ItemClass>>()
                     .Where(x => x.DefaultWarehouseID?.value != null)
                     .Select(x => new ItemClassModel(x))
                     .ToList();
 
             var paymentMethods =
-                reference.PaymentMethod.IsNullOrEmptyAlt("[]")
+                reference.AcumaticaPaymentMethod.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<AcumaticaPaymentMethod>>()
                     .Select(x => new PaymentMethodModel(x))
                     .Where(x => x.Validation.Success)
                     .ToList();
 
             var taxIds =
-                reference.TaxId.IsNullOrEmptyAlt("[]")
+                reference.AcumaticaTaxId.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<Tax>>()
                     .Select(x => x.TaxID.value)
                     .ToList();
 
             var taxCategories =
-                reference.TaxCategory.IsNullOrEmptyAlt("[]")
+                reference.AcumaticaTaxCategory.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<TaxCategory>>()
                     .Select(x => x.TaxCategoryID.value)
                     .ToList();
 
             var taxZones =
-                reference.TaxZone.IsNullOrEmptyAlt("[]")
+                reference.AcumaticaTaxZone.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<TaxZone>>()
                     .Select(x => x.TaxZoneID.value)
                     .ToList();
 
             var customerClasses =
-                reference.CustomerClass.IsNullOrEmptyAlt("[]")
+                reference.AcumaticaCustomerClass.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<CustomerClass>>()
                     .Select(x => x.ClassID.value)
                     .ToList();
+
+            var shipVia =
+                reference.AcumaticaShipVia.IsNullOrEmptyAlt("[]")
+                    .DeserializeFromJson<List<AcumaticaShipVia>>()
+                    .Select(x => x.CarrierID.value)
+                    .ToList();
+
+            var carriers =
+                reference.ShopifyCarrier.IsNullOrEmptyAlt("[]")
+                    .DeserializeFromJson<List<ShopifyCarrier>>()
+                    .Select(x => x.name)
+                    .ToList();
+
 
             var output = new CombinedReferenceData()
             {
@@ -89,6 +103,8 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 TaxCategories = taxCategories,
                 TaxZones = taxZones,
                 CustomerClasses = customerClasses,
+                AcumaticaShipVia = shipVia,
+                ShopifyCarriers = carriers,
             };
 
             return output;
@@ -149,7 +165,7 @@ namespace Monster.Middle.Processes.Acumatica.Services
             var referenceData = RetrieveRefData();
             var settingsGateways = _settingsRepository.RetrievePaymentGateways();
 
-            var deleteList = new List<Middle.Persist.Instance.PaymentGateway>();
+            var deleteList = new List<PaymentGateway>();
 
             foreach (var settingsGateway in settingsGateways)
             {
@@ -168,7 +184,9 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 // Remove if Payment Method is missing from Acumatica pull
                 //
                 var acumaticaPaymentMethod 
-                    = referenceData.PaymentMethods.FirstOrDefault(x => x.PaymentMethod == selectedPaymentMethod);
+                        = referenceData
+                            .PaymentMethods
+                            .FirstOrDefault(x => x.PaymentMethod == selectedPaymentMethod);
 
                 if (acumaticaPaymentMethod == null)
                 {

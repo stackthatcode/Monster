@@ -51,5 +51,11 @@ namespace Monster.Acumatica.Api
             var response = _httpContext.Get($"CustomerClass");
             return response.Body;
         }
+
+        public string RetrieveShipVia()
+        {
+            var response = _httpContext.Get($"ShipVia");
+            return response.Body;
+        }
     }
 }

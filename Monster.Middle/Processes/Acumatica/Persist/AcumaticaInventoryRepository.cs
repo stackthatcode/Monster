@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Monster.Middle.Persist.Instance;
@@ -20,25 +19,6 @@ namespace Monster.Middle.Processes.Acumatica.Persist
         {
             return _dataContext.Entities.Database.BeginTransaction();
         }
-
-
-        // Reference data
-        static object RefDataLock = new object();
-        public AcumaticaRefData RetrieveAcumaticaRefData()
-        {
-            lock (RefDataLock)
-            {
-                if (!_dataContext.Entities.AcumaticaRefDatas.Any())
-                {
-                    var newdata = new AcumaticaRefData();
-                    _dataContext.Entities.AcumaticaRefDatas.Add(newdata);
-                    _dataContext.Entities.SaveChanges();
-                }
-            }
-
-            return _dataContext.Entities.AcumaticaRefDatas.First();
-        }
-
 
 
         public void InsertWarehouse(AcumaticaWarehouse warehouse)

@@ -75,6 +75,7 @@ namespace Monster.Middle.Processes.Sync.Managers
             Run(new Action[]
             {
                 () => _acumaticaManager.PullReferenceData(),
+                () => _shopifyManager.PullReferenceData(),
                 () => _combinedRefDataService.ReconcileSettingsWithRefData(),
                 () => _combinedRefDataService.ReconcilePaymentGatewaysWithRefData(),
                 () => _configStatusService.RefreshSettingsStatus(),

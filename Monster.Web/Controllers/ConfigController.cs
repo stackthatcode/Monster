@@ -49,7 +49,6 @@ namespace Monster.Web.Controllers
                 SyncInventoryRepository syncInventoryRepository, 
                 ShopifyPaymentGatewayService gatewayService)
         {
-
             _connectionRepository = connectionRepository;
             _stateRepository = stateRepository;
             _oneTimeJobService = oneTimeJobService;
@@ -185,6 +184,17 @@ namespace Monster.Web.Controllers
                 output.PaymentGateways.Add(gateway);
             }
 
+            var selectedCarriers = _settingsRepository.RetrieveCarrierToShipVias();
+
+            foreach (var selectedCarrier in selectedCarriers)
+            {
+                var carrier = new CarrierToShipViaSelection();
+                carrier.ShopifyCarrierName = selectedCarrier.ShopifyCarrierName;
+                carrier.AcumaticaCarrierId = selectedCarrier.AcumaticaCarrierId;
+
+                output.CarrierToShipVias.Add(carrier);
+            }
+
             return new JsonNetResult(output);
         }
 
@@ -213,6 +223,17 @@ namespace Monster.Web.Controllers
                 })
                 .ToList();
             _settingsRepository.ImprintPaymentGateways(gatewayRecords);
+
+            // Save Carrier-to-Ship-Via mappings
+            //
+            var carrierToShipVia =
+                selectionsModel.CarrierToShipVias.Select(x => new CarrierToShipVia
+                {
+                    ShopifyCarrierName = x.ShopifyCarrierName,
+                    AcumaticaCarrierId = x.AcumaticaCarrierId,
+                })
+                .ToList();
+            _settingsRepository.ImprintCarrierToShipVias(carrierToShipVia);
 
             // Refresh the Settings Status
             //

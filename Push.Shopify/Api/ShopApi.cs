@@ -11,14 +11,23 @@ namespace Push.Shopify.Api
             _httpClient = httpClient;
         }
 
-        public virtual string Retrieve()
+        public virtual string RetrieveShops()
         {
             var path = "/admin/shop.json";                       
             var clientResponse = _httpClient.Get(path);
 
             var output = clientResponse.Body;
             return output;
-        }        
+        }
+
+        public virtual string RetrieveCarriers()
+        {
+            var path = "/admin/carrier_services.json";
+            var clientResponse = _httpClient.Get(path);
+
+            var output = clientResponse.Body;
+            return output;
+        }
     }
 }
 

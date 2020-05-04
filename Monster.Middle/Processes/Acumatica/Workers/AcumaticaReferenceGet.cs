@@ -1,4 +1,5 @@
 ﻿using Monster.Acumatica.Api;
+using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
 
 
@@ -6,21 +7,21 @@ namespace Monster.Middle.Processes.Acumatica.Workers
 {
     public class AcumaticaReferenceGet
     {
-        private readonly AcumaticaInventoryRepository _dataRepository;
+        private readonly ReferenceDataRepository _dataRepository;
         private readonly ReferenceClient _referenceApi;
 
-        public AcumaticaReferenceGet(
-                AcumaticaInventoryRepository dataRepository, ReferenceClient referenceApi)
+        public AcumaticaReferenceGet(ReferenceDataRepository dataRepository, ReferenceClient referenceApi)
         {
             _dataRepository = dataRepository;
             _referenceApi = referenceApi;
         }
 
+
         public void RunItemClass()
         {
             var json = _referenceApi.RetrieveItemClass();
             var reference = _dataRepository.RetrieveAcumaticaRefData();
-            reference.ItemClass = json;
+            reference.AcumaticaItemClass = json;
             _dataRepository.SaveChanges();
         }
 
@@ -28,7 +29,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var json = _referenceApi.RetrievePaymentMethod();
             var reference = _dataRepository.RetrieveAcumaticaRefData();
-            reference.PaymentMethod = json;
+            reference.AcumaticaPaymentMethod = json;
             _dataRepository.SaveChanges();
         }
 
@@ -36,7 +37,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var json = _referenceApi.RetrieveTaxCategories();
             var reference = _dataRepository.RetrieveAcumaticaRefData();
-            reference.TaxCategory = json;
+            reference.AcumaticaTaxCategory = json;
             _dataRepository.SaveChanges();
         }
 
@@ -44,7 +45,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var json = _referenceApi.RetrieveTaxZones();
             var reference = _dataRepository.RetrieveAcumaticaRefData();
-            reference.TaxZone = json;
+            reference.AcumaticaTaxZone = json;
             _dataRepository.SaveChanges();
         }
 
@@ -52,7 +53,7 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var json = _referenceApi.RetrieveTaxes();
             var reference = _dataRepository.RetrieveAcumaticaRefData();
-            reference.TaxId = json;
+            reference.AcumaticaTaxId = json;
             _dataRepository.SaveChanges();
         }
 
@@ -60,7 +61,15 @@ namespace Monster.Middle.Processes.Acumatica.Workers
         {
             var json = _referenceApi.RetrieveCustomerClasses();
             var reference = _dataRepository.RetrieveAcumaticaRefData();
-            reference.CustomerClass = json;
+            reference.AcumaticaCustomerClass = json;
+            _dataRepository.SaveChanges();
+        }
+
+        public void RunShipVia()
+        {
+            var json = _referenceApi.RetrieveShipVia();
+            var reference = _dataRepository.RetrieveAcumaticaRefData();
+            reference.AcumaticaShipVia = json;
             _dataRepository.SaveChanges();
         }
     }

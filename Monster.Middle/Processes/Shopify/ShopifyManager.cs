@@ -9,7 +9,7 @@ namespace Monster.Middle.Processes.Shopify
 {
     public class ShopifyManager
     {
-        private readonly ShopifyLocationGet _shopifyLocationPull;
+        private readonly ShopifyReferenceGet _shopifyReferenceGet;
         private readonly ShopifyInventoryGet _shopifyInventoryPull;
         private readonly ShopifyCustomerGet _shopifyCustomerPull;
         private readonly ShopifyOrderGet _shopifyOrderPull;
@@ -20,7 +20,7 @@ namespace Monster.Middle.Processes.Shopify
         private readonly OrderApi _orderApi;
 
         public ShopifyManager(
-            ShopifyLocationGet shopifyLocationPull,
+            ShopifyReferenceGet shopifyReferenceGet,
             ShopifyInventoryGet shopifyInventoryPull, 
             ShopifyCustomerGet shopifyCustomerPull, 
             ShopifyOrderGet shopifyOrderPull, 
@@ -30,7 +30,7 @@ namespace Monster.Middle.Processes.Shopify
             IPushLogger logger,
             OrderApi orderApi)
         {
-            _shopifyLocationPull = shopifyLocationPull;
+            _shopifyReferenceGet = shopifyReferenceGet;
             _shopifyInventoryPull = shopifyInventoryPull;
             _shopifyCustomerPull = shopifyCustomerPull;
             _shopifyOrderPull = shopifyOrderPull;
@@ -56,11 +56,15 @@ namespace Monster.Middle.Processes.Shopify
                 _stateRepository.UpdateSystemState(x => x.ShopifyConnState, StateCode.SystemFault);
             }
         }
-        
+
+        public void PullReferenceData()
+        {
+            _shopifyReferenceGet.RunShippingCarriers();
+        }
 
         public void PullLocations()
         {
-            _shopifyLocationPull.Run();
+            _shopifyReferenceGet.RunLocations();
         }
 
         public void PullInventory()

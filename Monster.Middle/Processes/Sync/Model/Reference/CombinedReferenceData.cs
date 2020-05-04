@@ -18,6 +18,9 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
         public List<string> TaxCategories { get; set; }
         public List<string> TaxZones { get; set; }
         public List<string> CustomerClasses { get; set; }
+        public List<string> AcumaticaShipVia { get; set; }
+        public List<string> ShopifyCarriers { get; set; }
+
 
 
         public CombinedReferenceData()
@@ -31,6 +34,8 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
             TaxZones = new List<string>();
 
             CustomerClasses = new List<string>();
+            AcumaticaShipVia = new List<string>();
+            ShopifyCarriers = new List<string>();
         }
 
         public bool IsValid => Validation.Count == 0;
@@ -90,10 +95,19 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
                     output.Add("Customer Classes are empty");
                 }
 
+                if (ShopifyCarriers.Count == 0)
+                {
+                    output.Add("Shopify Carriers are empty");
+                }
+
+                if (AcumaticaShipVia.Count == 0)
+                {
+                    output.Add("Acumatica Ship Via are empty");
+                }
+
                 return output;
             }
         }
-
     }
 }
 

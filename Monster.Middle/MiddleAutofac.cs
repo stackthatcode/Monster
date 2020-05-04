@@ -101,6 +101,10 @@ namespace Monster.Middle
 
         private static void RegisterMiscellaneous(ContainerBuilder builder)
         {
+            // Reference Data Repository
+            //
+            builder.RegisterType<ReferenceDataRepository>().InstancePerLifetimeScope();
+
             // External Services
             //
             builder.RegisterType<CredentialsRepository>().InstancePerLifetimeScope();
@@ -155,7 +159,7 @@ namespace Monster.Middle
             builder.RegisterType<ShopifyOrderRepository>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyPayoutRepository>().InstancePerLifetimeScope();
 
-            builder.RegisterType<ShopifyLocationGet>().InstancePerLifetimeScope();
+            builder.RegisterType<ShopifyReferenceGet>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyInventoryGet>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyCustomerGet>().InstancePerLifetimeScope();
             builder.RegisterType<ShopifyOrderGet>().InstancePerLifetimeScope();

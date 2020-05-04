@@ -153,6 +153,7 @@
     <Compile Include="Misc\Hangfire\HangfireLogProvider.cs" />
     <Compile Include="Misc\Hangfire\NamedLock.cs" />
     <Compile Include="Persist\Instance\ConnectionBuilder.cs" />
+    <Compile Include="Persist\Instance\ReferenceDataRepository.cs" />
     <Compile Include="Persist\Master\PaymentGateway.cs" />
     <Compile Include="Misc\Shopify\ShopifyPaymentGatewayService.cs" />
     <Compile Include="Persist\Instance\MiscPersistContext.cs" />
@@ -253,7 +254,7 @@
     <Compile Include="Processes\Shopify\ShopifyManager.cs" />
     <Compile Include="Processes\Shopify\Workers\ShopifyInventoryGet.cs" />
     <Compile Include="Processes\Shopify\Persist\InventoryExtensions.cs" />
-    <Compile Include="Processes\Shopify\Workers\ShopifyLocationGet.cs" />
+    <Compile Include="Processes\Shopify\Workers\ShopifyReferenceGet.cs" />
     <Compile Include="Processes\Sync\Workers\AcumaticaStockItemPut.cs" />
     <Compile Include="Processes\Sync\Misc\Canonizers.cs" />
     <Compile Include="Processes\Sync\SyncManager.cs" />

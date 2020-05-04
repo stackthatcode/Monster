@@ -1,9 +1,9 @@
-﻿using System;
-using Monster.Acumatica.Http;
+﻿using Monster.Acumatica.Http;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
 using Monster.Middle.Processes.Acumatica.Workers;
 using Push.Foundation.Utilities.Logging;
+
 
 namespace Monster.Middle.Processes.Acumatica
 {
@@ -13,11 +13,9 @@ namespace Monster.Middle.Processes.Acumatica
         private readonly AcumaticaReferenceGet _acumaticaReferencePull;
         private readonly AcumaticaWarehouseGet _acumaticaWarehousePull;
         private readonly AcumaticaInventoryGet _acumaticaInventoryPull;
-        private readonly StateRepository _stateRepository;
         private readonly ExecutionLogService _executionLogService;
         private readonly AcumaticaCustomerGet _acumaticaCustomerPull;
         private readonly AcumaticaOrderGet _acumaticaOrderPull;
-        private readonly IPushLogger _logger;
 
 
         public AcumaticaManager(
@@ -36,10 +34,8 @@ namespace Monster.Middle.Processes.Acumatica
             _acumaticaOrderPull = acumaticaOrderPull;
             _acumaticaWarehousePull = acumaticaWarehousePull;
             _acumaticaInventoryPull = acumaticaInventoryPull;
-            _stateRepository = stateRepository;
             _executionLogService = executionLogService;
             _acumaticaReferencePull = acumaticaReferencePull;
-            _logger = logger;
         }
 
 
@@ -59,6 +55,7 @@ namespace Monster.Middle.Processes.Acumatica
                 _acumaticaReferencePull.RunTaxIds();
                 _acumaticaReferencePull.RunTaxZones();
                 _acumaticaReferencePull.RunCustomerClasses();
+                _acumaticaReferencePull.RunShipVia();
             });
         }
         

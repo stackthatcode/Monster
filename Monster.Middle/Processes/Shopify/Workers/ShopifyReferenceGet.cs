@@ -8,24 +8,30 @@ using Push.Shopify.Api.Inventory;
 
 namespace Monster.Middle.Processes.Shopify.Workers
 {
-    public class ShopifyLocationGet
+    public class ShopifyReferenceGet
     {
+        private readonly ShopApi _shopApi;
         private readonly ProductApi _productApi;
         private readonly ShopifyInventoryRepository _locationRepository;
+        private readonly ReferenceDataRepository _referenceDataRepository;
         private readonly ShopifyJsonService _shopifyJsonService;
 
 
-        public ShopifyLocationGet(
+        public ShopifyReferenceGet(
+                ShopApi shopApi,
                 ProductApi productApi, 
                 ShopifyInventoryRepository locationRepository, 
+                ReferenceDataRepository referenceDataRepository,
                 ShopifyJsonService shopifyJsonService)
         {
+            _shopApi = shopApi;
             _productApi = productApi;
             _locationRepository = locationRepository;
+            _referenceDataRepository = referenceDataRepository;
             _shopifyJsonService = shopifyJsonService;
         }
 
-        public void Run()
+        public void RunLocations()
         {
             var dataLocations = _locationRepository.RetreiveLocations();
 
@@ -67,5 +73,14 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
+
+        public void RunShippingCarriers()
+        {
+             var carriers = _shopApi.RetrieveCarriers();
+
+             var refdata = _referenceDataRepository.RetrieveAcumaticaRefData();
+             refdata.ShopifyCarrier = carriers;
+             _referenceDataRepository.SaveChanges();
+        }
     }
 }
