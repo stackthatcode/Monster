@@ -1,8 +1,13 @@
 ﻿@using Monster.Web.Plumbing
 
 <style>
-    .form-group label { font-weight: 700; }
-    #preferences .form-group { height: 120px; }
+    .form-group label {
+        font-weight: 700;
+    }
+
+    #preferences .form-group {
+        height: 120px;
+    }
 </style>
 
 <main role="main" class="medium-size">
@@ -19,200 +24,252 @@
 
 
 <script type="text/html" id="Settings-Editor">
-    <div data-bind="if: ShowRefDataErrorMessage">
-        <div class="std-pad">
-            <div class="alert alert-danger">
-                <strong>Acumatica Reference Data Pull - Broken</strong><br />
-                There's something wrong with your Acumatica reference data.
-            </div>
-            <p>
-                Your Acumatica reference data needs to be properly configured. You can address this now by
-                <a href="@GlobalConfig.Url("/Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
-            </p>
+<div data-bind="if: ShowRefDataErrorMessage">
+    <div class="std-pad">
+        <div class="alert alert-danger">
+            <strong>Acumatica Reference Data Pull - Broken</strong><br />
+            There's something wrong with your Acumatica reference data.
         </div>
+        <p>
+            Your Acumatica reference data needs to be properly configured. You can address this now by
+            <a href="@GlobalConfig.Url("/Config/AcumaticaRefData")"><strong>clicking here</strong></a>.
+        </p>
     </div>
+</div>
 
-    <div data-bind="if: ShowDataEntry">
-        <div class="card text-center">
-            <div id="preferences" class="card-body left">
-                <!-- Time Zone -->
-                <div class="form-group">
-                    <label for="timeZone">Acumatica Instance Time Zone</label>
+<div data-bind="if: ShowDataEntry">
+    <div class="card text-center">
+        <div id="preferences" class="card-body left">
+            <!-- Time Zone -->
+            <div class="form-group">
+                <label for="timeZone">Acumatica Instance Time Zone</label>
 
-                    <select id="timeZone" class="form-control"
-                            data-bind="value: SelectedTimeZone,
+                <select id="timeZone" class="form-control"
+                        data-bind="value: SelectedTimeZone,
                                 options: TimeZones,
                                 optionsText: 'Name',
                                 value: SelectedTimeZone,
                                 optionsCaption: 'Choose...'"></select>
 
-                    <small id="timeZoneHelp" class="form-text text-muted">
-                        In order to synchronize properly, @GlobalConfig.AppName
-                        needs to translate between time zones properly
-                    </small>
+                <small id="timeZoneHelp" class="form-text text-muted">
+                    In order to synchronize properly, @GlobalConfig.AppName
+                    needs to translate between time zones properly
+                </small>
 
-                    <div class="error-message" data-bind="if: ShowValidation() && !TimeZoneValid()">
-                        Please select the right Time Zone for your Acumatica Instance
-                    </div>
+                <div class="error-message" data-bind="if: ShowValidation() && !TimeZoneValid()">
+                    Please select the right Time Zone for your Acumatica Instance
                 </div>
+            </div>
 
-                <!-- Item Class -->
-                <div class="form-group">
-                    <label for="itemClass">Acumatica Default Item Class</label>
+            <!-- Item Class -->
+            <div class="form-group">
+                <label for="itemClass">Acumatica Default Item Class</label>
 
-                    <select class="form-control"
-                            id="itemClass"
-                            data-bind="optionsCaption: 'Choose...',
+                <select class="form-control"
+                        id="itemClass"
+                        data-bind="optionsCaption: 'Choose...',
                                 value: SelectedItemClass,
                                 options: ItemClasses,
                                 optionsText: 'ItemClass'"></select>
 
-                    <small id="itemClassHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection
-                        when it creates Stock Items from Shopify Products
-                    </small>
+                <small id="itemClassHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection
+                    when it creates Stock Items from Shopify Products
+                </small>
 
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !ItemClassValid()">
-                        Please select an Item Class with a valid Posting Class and Default Warehouse
-                    </div>
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !ItemClassValid()">
+                    Please select an Item Class with a valid Posting Class and Default Warehouse
+                </div>
+            </div>
+
+            <!-- Posting Class -->
+            <div class="form-group">
+                <label for="postingClass">Acumatica Default Posting Class</label>
+
+                <div data-bind="ifnot: SelectedPostingClass">
+                    <input type="text"
+                           id="postingClass"
+                           class="form-control"
+                           disabled="disabled"
+                           value="(Select an Item Class that has a Posting Class)" />
                 </div>
 
-                <!-- Posting Class -->
-                <div class="form-group">
-                    <label for="postingClass">Acumatica Default Posting Class</label>
-
-                    <div data-bind="ifnot: SelectedPostingClass">
-                        <input type="text"
-                               id="postingClass"
-                               class="form-control"
-                               disabled="disabled"
-                               value="(Select an Item Class that has a Posting Class)" />
-                    </div>
-
-                    <div data-bind="if: SelectedPostingClass">
-                        <input type="text"
-                               id="postingClass"
-                               class="form-control"
-                               disabled="disabled"
-                               data-bind="value: SelectedPostingClass" />
-                    </div>
-
-                    <small id="postingClassHelp" class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection
-                        when it creates Stock Items from Shopify Products
-                    </small>
+                <div data-bind="if: SelectedPostingClass">
+                    <input type="text"
+                           id="postingClass"
+                           class="form-control"
+                           disabled="disabled"
+                           data-bind="value: SelectedPostingClass" />
                 </div>
 
-                <!-- Customer Class -->
-                <div class="form-group">
-                    <label for="customerClass">Acumatica Default Customer Class</label>
+                <small id="postingClassHelp" class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection
+                    when it creates Stock Items from Shopify Products
+                </small>
+            </div>
 
-                    <select class="form-control"
-                            id="customerClass"
-                            data-bind="optionsCaption: 'Choose...',
+            <!-- Customer Class -->
+            <div class="form-group">
+                <label for="customerClass">Acumatica Default Customer Class</label>
+
+                <select class="form-control"
+                        id="customerClass"
+                        data-bind="optionsCaption: 'Choose...',
                                 value: SelectedCustomerClass,
                                 options: CustomerClasses"></select>
 
-                    <small class="form-text text-muted">
-                        @GlobalConfig.AppName will use this selection when it creates Customers in Acumatica from Shopify
-                    </small>
+                <small class="form-text text-muted">
+                    @GlobalConfig.AppName will use this selection when it creates Customers in Acumatica from Shopify
+                </small>
 
-                    <div class="error-message"
-                         data-bind="if: ShowValidation() && !CustomerClassValid()">
-                        Please select a Customer Class
-                    </div>
-                </div>
-
-                <!-- Payment Gateways -->
-                <div>
-                    <label for="paymentGateways">
-                        <strong>Payment Gateways</strong>
-
-                    </label>
-                    <a href="#" style="float:right;" data-bind="click:LaunchGatewayPopup">
-                        <strong><i class="fas fa-plus"></i> Add Gateway</strong>
-                    </a>
-
-                    <div data-bind="if: GatewaysEmpty">
-                        <div class="alert alert-secondary">
-                            <strong>There are currently no Payment Gateways configured</strong>
-                        </div>
-                    </div>
-
-                    <div data-bind="ifnot: GatewaysEmpty">
-                        <ul class="list-group" data-bind="foreach: SelectedGateways">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>
-                                    <span class="bold-light" data-bind="text:ShopifyGatewayName"></span><br />
-                                    Payment Method - <span data-bind="text: AcumaticaPaymentMethod"></span>
-                                    <span style="display:inline-block; width:5px;"></span>
-                                    Cash Account - <span data-bind="text: AcumaticaCashAcount"></span>
-                                </span>
-                                <span>
-                                    <a class="btn btn-sm btn-primary" href="#"
-                                       data-bind="click: $parent.RemoveGateway"><i class="fas fa-times"></i>Remove</a>
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <small id="paymentGatewaysHelp" class="form-text text-muted">
-                        Assign Acumatica Payment methods for all of the Payment Gateways you
-                        currently have enabled in your Shopify store.
-                    </small>
+                <div class="error-message"
+                     data-bind="if: ShowValidation() && !CustomerClassValid()">
+                    Please select a Customer Class
                 </div>
             </div>
 
-            <div style="height:30px;"></div>
+            <!-- Payment Gateways -->
+            <div>
+                <label>
+                    <strong>Payment Gateways</strong>
+                </label>
 
-            <div class="card-footer text-muted">@GlobalConfig.AppName Settings Editor</div>
-        </div>
+                <a href="#" style="float:right;" data-bind="click:LaunchGatewayPopup">
+                    <strong><i class="fas fa-plus"></i> Add Gateway</strong>
+                </a>
 
-        <div style="height:45px;" data-bind="if: ShowErrorSummary" class="center error-message">
-            One or more items are not valid. Please review and correct.
-        </div>
-    </div>
-
-    <div class="std-pad-b center">
-        <div data-bind="ifnot: IsRandomAccessMode">
-            <a href="@GlobalConfig.Url("/Config/AcumaticaRefData")" class="btn btn-secondary btn-lg">
-                <i class="fas fa-undo"></i> Previous Step
-            </a>
-
-            <a href="#" data-bind="click: GotoNextStepClick" class="btn btn-success btn-lg">
-                Next Step <i class="fas fa-sign-in-alt"></i>
-            </a>
-        </div>
-
-        <div data-bind="if: IsRandomAccessMode">
-            <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
-                Back to Diagnostics <i class="fas fa-undo"></i>
-            </a>
-
-            <a href="#" class="btn btn-primary btn-lg" data-bind="click: SaveChangesClick">
-                Save Changes <i class="fas fa-bolt"></i>
-            </a>
-        </div>
-    </div>
-
-    <div class="modal fade" id="payment-gateway-modal" tabindex="-1"
-         role="dialog" aria-labelledby="payment-gateway-modal" aria-hidden="true">
-
-        <div class="modal-dialog" role="document" style="max-width:600px;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="order-sync-settings-modalLabel">Enter Payment Gateway Settings</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                <div data-bind="if: GatewaysEmpty">
+                    <div class="alert alert-secondary">
+                        <strong>There are currently no Payment Gateways configured</strong>
+                    </div>
                 </div>
 
-                <div data-bind="template: { 
-                     name: 'Payment-Gateway-Modal-Content', data: PaymentGatewayPopupModel }"></div>
+                <div data-bind="ifnot: GatewaysEmpty">
+                    <ul class="list-group" data-bind="foreach: SelectedGateways">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="bold-light" data-bind="text:ShopifyGatewayName"></span><br />
+                                Payment Method - <span data-bind="text: AcumaticaPaymentMethod"></span>
+                                <span style="display:inline-block; width:5px;"></span>
+                                Cash Account - <span data-bind="text: AcumaticaCashAcount"></span>
+                            </span>
+                            <span>
+                                <a class="btn btn-sm btn-primary" href="#"
+                                   data-bind="click: $parent.RemoveGateway"><i class="fas fa-times"></i>Remove</a>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <small id="paymentGatewaysHelp" class="form-text text-muted">
+                    Assign Acumatica Payment methods for all of the Payment Gateways you
+                    currently have enabled in your Shopify store.
+                </small>
             </div>
+
+            <!-- Carriers-to-Ship-Via -->
+            <div>
+                <label>
+                    <strong>Carrier-to-Ship-Via</strong>
+                </label>
+
+                <a href="#" style="float:right;" data-bind="click:LaunchCarrierPopup">
+                    <strong><i class="fas fa-plus"></i> Add Carrier</strong>
+                </a>
+
+                <div data-bind="if: CarriersEmpty">
+                    <div class="alert alert-secondary">
+                        <strong>There are currently no Carriers configured</strong>
+                    </div>
+                </div>
+
+                <div data-bind="ifnot: CarriersEmpty">
+                    <ul class="list-group" data-bind="foreach: SelectedCarriers">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="bold-light" data-bind="text:ShopifyCarrierName"></span>
+                                <span style="display:inline-block; width:5px;">-</span>
+                                <span class="bold-light" data-bind="text:AcumaticaShipVia"></span>
+                            </span>
+                            <span>
+                                <a class="btn btn-sm btn-primary" href="#"
+                                   data-bind="click: $parent.RemoveCarrier"><i class="fas fa-times"></i>Remove</a>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <small class="form-text text-muted">
+                    Assign Shopify Shipping Carriers to Acumatica Ship-Via.
+                </small>
+            </div>
+
+        </div>
+
+        <div style="height:30px;"></div>
+
+        <div class="card-footer text-muted">@GlobalConfig.AppName Settings Editor</div>
+    </div>
+
+    <div style="height:45px;" data-bind="if: ShowErrorSummary" class="center error-message">
+        One or more items are not valid. Please review and correct.
+    </div>
+</div>
+
+<div class="std-pad-b center">
+    <div data-bind="ifnot: IsRandomAccessMode">
+        <a href="@GlobalConfig.Url("/Config/AcumaticaRefData")" class="btn btn-secondary btn-lg">
+            <i class="fas fa-undo"></i> Previous Step
+        </a>
+
+        <a href="#" data-bind="click: GotoNextStepClick" class="btn btn-success btn-lg">
+            Next Step <i class="fas fa-sign-in-alt"></i>
+        </a>
+    </div>
+
+    <div data-bind="if: IsRandomAccessMode">
+        <a href="@GlobalConfig.DiagnosticsHome" class="btn btn-secondary btn-lg">
+            Back to Diagnostics <i class="fas fa-undo"></i>
+        </a>
+
+        <a href="#" class="btn btn-primary btn-lg" data-bind="click: SaveChangesClick">
+            Save Changes <i class="fas fa-bolt"></i>
+        </a>
+    </div>
+</div>
+
+<div class="modal fade" id="payment-gateway-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="max-width:600px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Enter Payment Gateway Settings</h5>
+                    
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div data-bind="template: { name: 'Payment-Gateway-Modal-Content', data: PaymentGatewayPopupModel }"></div>
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="carrier-to-ship-via-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="max-width:600px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Enter Carrier-to-Ship-Via Settings</h5>
+                    
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div data-bind="template: { name: 'Carrier-To-Ship-Via-Modal-Content', data: CarrierToShipViaModel }"></div>
+        </div>
+    </div>
+</div>
 </script>
 
 <script type="text/html" id="Payment-Gateway-Modal-Content">
@@ -255,7 +312,7 @@
                     <input type="text"
                            class="form-control"
                            disabled="disabled"
-                           value="(Select a Payment Method that has a Cash Account)"/>
+                           value="(Select a Payment Method that has a Cash Account)" />
                 </div>
 
                 <div data-bind="if: SelectedPaymentMethod">
@@ -270,7 +327,7 @@
                     @GlobalConfig.AppName will use this selection when it creates Payments in Acumatica.
                 </small>
             </div>
-            
+
             <div style="height:30px;" data-bind="if: ShowValidation">
                 <div class="error-message">Please enter data for all of the fields above.</div>
             </div>
@@ -287,13 +344,59 @@
     </div>
 </script>
 
+<script type="text/html" id="Carrier-To-Ship-Via-Modal-Content">
+    <div class="modal-body left">
+        <div id="carrier-block" class="card-body left">
+
+            <div class="form-group">
+                <label for="shopifyCarrier">Shopify Carrier</label>
+
+                <select class="form-control"
+                        id="shopifyCarrier"
+                        data-bind="optionsCaption: 'Choose...',
+                                            options: ShopifyCarriers,
+                                            value: SelectedShopifyCarrier"></select>
+
+                <small class="form-text text-muted">Select a Shopify Carrier</small>
+            </div>
+
+            <div class="form-group">
+                <label for="paymentMethod">Acumatica Ship-Via</label>
+
+                <select class="form-control" 
+                        id="acumaticaShipVia"
+                        data-bind="optionsCaption: 'Choose...',
+                                            options: AcumaticaShipVias,
+                                            value: SelectedAcumaticaShipVia"></select>
+
+                <small class="form-text text-muted">Select an Acumatica Ship-Via</small>
+            </div>
+
+            <div style="height:30px;" data-bind="if: ShowValidation">
+                <div class="error-message">Please enter data for all of the fields above.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancel <i class="fas fa-times"></i>
+        </button>
+        <button type="button" data-bind="click: AddCarrierClick" class="btn btn-primary">
+            Add <i class="fas fa-check"></i>
+        </button>
+    </div>
+</script>
+
+
 <script>
     var Monster = Monster || {};
 
     var eventKeys = {
         AddPaymentGateway: "/AddPaymentGateway",
+        AddCarrierClick: "/AddCarrierClick",
     }
-    
+
     Monster.PaymentGatewayPopupModel = function() {
         var self = this;
 
@@ -345,9 +448,48 @@
                 $("#payment-gateway-modal").modal('hide');
             }
         };
-        
+
         return self;
     };
+
+    Monster.CarrierShipViaPopupModel = function() {
+        var self = this;
+
+        // Add Payment Gateway pop-up
+        //
+        self.ShopifyCarriers = ko.observableArray();
+        self.AcumaticaShipVias = ko.observableArray();
+
+        self.SelectedShopifyCarrier = ko.observable();
+        self.SelectedAcumaticaShipVia = ko.observable();
+
+        self.ShowValidation = ko.observable(false);
+
+        self.Launch = function() {
+            self.SelectedShopifyCarrier(null);
+            self.SelectedAcumaticaShipVia(null);
+
+            self.ShowValidation(false);
+            $("#carrier-to-ship-via-modal").modal('show');
+        };
+
+        self.LoadReferenceData = function (data) {
+            self.ShopifyCarriers(data.ShopifyCarriers);
+            self.AcumaticaShipVias(data.AcumaticaShipVias);
+        };
+
+        self.AddPaymentGateway = function() {
+            if (!self.SelectedShopifyCarrier() || !self.SelectedAcumaticaShipVia()) {
+                self.ShowValidation(true);
+            } else {
+                Monster.Events.publish(eventKeys.AddCarrierClick, self);
+                $("#carrier-to-ship-via-modal").modal('hide');
+            }
+        };
+
+        return self;
+    };
+
 
     Monster.SettingsModel = function () {
         var self = this;
@@ -367,13 +509,18 @@
         self.SelectedTimeZone = ko.observable();
         self.SelectedItemClass = ko.observable();
         self.SelectedCustomerClass = ko.observable();
-        
+
         self.SelectedPostingClass = ko.computed(
             function () {
                 return self.SelectedItemClass() ? self.SelectedItemClass().PostingClass : null;
             });
+
         self.SelectedGateways = ko.observableArray();
+        self.SelectedCarriers = ko.observableArray();
+
         self.GatewaysEmpty = ko.computed(function() { return self.SelectedGateways().length == 0 });
+        self.CarriersEmpty = ko.computed(function() { return self.SelectedCarriers().length == 0 });
+
 
         // Validation
         //
@@ -423,6 +570,26 @@
         };
 
         Monster.Events.subscribe(eventKeys.AddPaymentGateway, self.AddPaymentGateway);
+
+
+        // Carrier CRUD
+        //
+        self.LaunchGatewayPopup = function() {
+            self.CarrierShipViaPopupModel.Launch();
+        };
+
+        self.AddCarrierClick = function(model) {
+            self.ShopifyCarriers.push({
+                ShopifyCarrier: model.SelectedShopifyCarrier(),
+                AcumaticaShipVia: model.SelectedAcumaticaShipVia(),
+            });
+        };
+
+        self.RemoveCarrier = function(item) {
+            self.SelectedCarriers.remove(item);
+        }
+
+        Monster.Events.subscribe(eventKeys.AddCarrierClick, self.AddCarrierClick);
 
 
         // Initialization stuff
