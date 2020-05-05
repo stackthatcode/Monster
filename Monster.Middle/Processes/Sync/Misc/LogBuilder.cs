@@ -1,12 +1,17 @@
 ﻿using Monster.Acumatica.Api.Customer;
 using Monster.Middle.Persist.Instance;
-using Push.Shopify.Api.Order;
 using Push.Shopify.Api.Product;
 
 namespace Monster.Middle.Processes.Sync.Misc
 {
     public static class LogBuilder
     {
+        public static string ShopifyPutDisabled()
+        {
+            return "Writing data to Shopify is currently disabled";
+        }
+
+
         public static string DetectedNewShopifyOrder(ShopifyOrder order)
         {
             return $"Detected new {order.LogDescriptor()}";

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Configuration;
 using Push.Foundation.Utilities.Config;
+using Push.Foundation.Utilities.General;
 
 namespace Monster.Middle.Config
 {    
@@ -32,5 +33,13 @@ namespace Monster.Middle.Config
             get { return ((string) _settings["SystemDatabaseConnection"]); }
             set { this["SystemDatabaseConnection"] = value; }
         }
+
+        [ConfigurationProperty("DisableShopifyPut", IsRequired = false)]
+        public bool DisableShopifyPut
+        {
+            get => (_settings["DisableShopifyPut"].ToBoolTryParse());
+            set => this["DisableShopifyPut"] = value;
+        }
     }
 }
+

@@ -38,7 +38,7 @@ namespace Monster.Middle
     {
         public static string LoggerName = "Monster.System";
 
-        public static ContainerBuilder Build(ContainerBuilder builder)
+        public static ContainerBuilder Build(ContainerBuilder builder, bool sentryEnabled = false)
         {
             // Register external dependencies
             FoundationWebAutofac.Build(builder);            
@@ -48,7 +48,7 @@ namespace Monster.Middle
             // Logging registrations
             builder.RegisterType<DefaultFormatter>().As<ILogFormatter>().InstancePerLifetimeScope();
 
-            builder.Register(x => new NLogger(LoggerName, x.Resolve<ILogFormatter>()))
+            builder.Register(x => new NLogger(LoggerName, sentryEnabled: sentryEnabled, formatter: x.Resolve<ILogFormatter>()))
                 .As<IPushLogger>()
                 .InstancePerLifetimeScope();
 

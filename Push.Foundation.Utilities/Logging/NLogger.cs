@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using Push.Foundation.Utilities.Helpers;
+using Sentry;
 
 namespace Push.Foundation.Utilities.Logging
 {
@@ -10,11 +11,13 @@ namespace Push.Foundation.Utilities.Logging
     {
         private readonly Logger _nLoggerReference;
         private readonly ILogFormatter _formatter;
+        private readonly bool _sentryEnabled;
         
-        public NLogger(string loggerName, ILogFormatter formatter = null)
+        public NLogger(string loggerName, bool sentryEnabled = false, ILogFormatter formatter = null)
         {
             _formatter = formatter ?? new DefaultFormatter();
             _nLoggerReference = LogManager.GetLogger(loggerName);
+            _sentryEnabled = sentryEnabled;
         }
         
         public bool IsTraceEnabled => _nLoggerReference.IsTraceEnabled;
@@ -73,13 +76,22 @@ namespace Push.Foundation.Utilities.Logging
         public void Error(Exception exception, string message)
         {
             _nLoggerReference.Error(
-                _formatter.Do(exception.FullStackTraceDump()) +
-                Environment.NewLine + message);
+                _formatter.Do(exception.FullStackTraceDump()) + Environment.NewLine + message);
+
+            if (_sentryEnabled)
+            {
+                SentrySdk.CaptureException(exception);
+            }
         }
 
         public void Error(Exception exception)
         {
             _nLoggerReference.Error(_formatter.Do(exception.FullStackTraceDump()));
+
+            if (_sentryEnabled)
+            {
+                SentrySdk.CaptureException(exception);
+            }
         }
 
         public void Fatal(string message)

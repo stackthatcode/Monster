@@ -24,6 +24,7 @@ using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Foundation.Web.Identity;
+using Sentry;
 
 
 namespace Monster.ConsoleApp
@@ -33,7 +34,7 @@ namespace Monster.ConsoleApp
       
         public static void RunHangFireBackgroundService()
         {
-            var container = AutofacBuilder.BuildContainer();
+            var container = AutofacBuilder.BuildContainer(sentryEnabled:true);
 
             // Configure Hangfire for Background Job
             //
@@ -49,6 +50,7 @@ namespace Monster.ConsoleApp
             };
 
             using (var server = new BackgroundJobServer(options))
+            using (SentrySdk.Init("https://39a2ab07189641a3a10eeffd1354873d@o378852.ingest.sentry.io/5202882"))
             {
                 Console.WriteLine("Hangfire Server started. Press any key to exit...");
                 Console.ReadKey();

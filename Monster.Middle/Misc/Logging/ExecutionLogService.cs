@@ -11,13 +11,13 @@ namespace Monster.Middle.Misc.Logging
         private readonly MiscPersistContext _dataContext;
         private readonly IPushLogger _logger;
 
+        private MonsterDataContext Entities => _dataContext.Entities;
+
         public ExecutionLogService(MiscPersistContext dataContext, IPushLogger logger)
         {
             _dataContext = dataContext;
             _logger = logger;
         }
-
-        private MonsterDataContext Entities => _dataContext.Entities;
 
         public void Log(string content, int level = LogLevel.Information)
         {

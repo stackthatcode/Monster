@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Monster.Middle.Config;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Misc.State;
@@ -7,6 +8,7 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica;
 using Monster.Middle.Processes.Acumatica.Services;
 using Monster.Middle.Processes.Shopify;
+using Monster.Middle.Processes.Sync.Misc;
 using Monster.Middle.Processes.Sync.Model.Inventory;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
@@ -26,7 +28,6 @@ namespace Monster.Middle.Processes.Sync.Managers
         private readonly ExecutionLogService _executionLogService;
         private readonly SettingsRepository _settingsRepository;
         private readonly JobMonitoringService _monitoringService;
-        private readonly IPushLogger _logger;
 
 
         public ProcessDirector(
@@ -40,8 +41,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                 ConfigStatusService configStatusService,
                 CombinedRefDataService combinedRefDataService,
                 SettingsRepository settingsRepository,
-                JobMonitoringService monitoringService,
-                IPushLogger logger)
+                JobMonitoringService monitoringService)
         {
             _stateRepository = stateRepository;
 
@@ -53,7 +53,6 @@ namespace Monster.Middle.Processes.Sync.Managers
             _configStatusService = configStatusService;
             _settingsRepository = settingsRepository;
             _combinedRefDataService = combinedRefDataService;
-            _logger = logger;
             _monitoringService = monitoringService;
         }
 
@@ -122,6 +121,18 @@ namespace Monster.Middle.Processes.Sync.Managers
             _acumaticaManager.PullInventory();
         }
 
+        private bool TestIsShopifyPutEnabled()
+        {
+            if (MonsterConfig.Settings.DisableShopifyPut)
+            {
+                _executionLogService.Log(LogBuilder.ShopifyPutDisabled());
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
         public void ImportAcumaticaStockItems(AcumaticaStockItemImportContext context)
         {
@@ -144,6 +155,11 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void ImportNewShopifyProduct(ShopifyNewProductImportContext context)
         {
+            if (!TestIsShopifyPutEnabled())
+            {
+                return;
+            }
+
             Action action = () =>
             {
                 RefreshInventory();
@@ -162,6 +178,11 @@ namespace Monster.Middle.Processes.Sync.Managers
 
         public void ImportAddShopifyVariantsToProduct(ShopifyAddVariantImportContext context)
         {
+            if (!TestIsShopifyPutEnabled())
+            {
+                return;
+            }
+
             Action action = () =>
             {
 
@@ -199,6 +220,12 @@ namespace Monster.Middle.Processes.Sync.Managers
 
             _syncManager.SyncSingleOrderToAcumatica(shopifyOrderId);
 
+
+            if (!TestIsShopifyPutEnabled())
+            {
+                return;
+            }
+
             _syncManager.SyncSingleOrderFulfillmentsToShopify(shopifyOrderId);
         }
 
@@ -219,32 +246,39 @@ namespace Monster.Middle.Processes.Sync.Managers
             if (settings.SyncFulfillmentsEnabled
                 && _stateRepository.CheckSystemState(x => x.CanSyncFulfillmentsToShopify()))
             {
-                Run(new Action[]
+                if (TestIsShopifyPutEnabled())
                 {
-                    () => _syncManager.SyncFulfillmentsToShopify()
-                });
+                    Run(new Action[]
+                    {
+                        () => _syncManager.SyncFulfillmentsToShopify()
+                    });
+                }
             }
-            
+
             if (settings.SyncOrdersEnabled)
             {
                 Run(new Action[]
-                    {
-                        () => _syncManager.SyncCustomersToAcumatica(),
-                        () => _syncManager.SyncOrdersToAcumatica(),
-                        () => _syncManager.SyncPaymentsToAcumatica(),
-                    });
+                {
+                    () => _syncManager.SyncCustomersToAcumatica(),
+                    () => _syncManager.SyncOrdersToAcumatica(),
+                    () => _syncManager.SyncPaymentsToAcumatica(),
+                });
             }
 
             if (settings.SyncInventoryEnabled
-                    && _stateRepository.CheckSystemState(x => x.CanSyncInventoryCountsToShopify()))
+                && _stateRepository.CheckSystemState(x => x.CanSyncInventoryCountsToShopify()))
             {
 
                 Run(new Action[]
-                    {
-                        () => _shopifyManager.PullInventory(),
-                        () => _acumaticaManager.PullInventory(),
-                        () => _syncManager.SyncInventoryCountsToShopify()
-                    });
+                {
+                    () => _shopifyManager.PullInventory(),
+                    () => _acumaticaManager.PullInventory(),
+                });
+
+                if (!TestIsShopifyPutEnabled())
+                {
+                    Run(() => _syncManager.SyncInventoryCountsToShopify());
+                }
             }
         }
 

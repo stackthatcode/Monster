@@ -28,7 +28,8 @@ namespace Monster.Web
                     .As<ILogFormatter>()
                     .InstancePerLifetimeScope();
 
-            builder.Register(x => new NLogger(loggerName, x.Resolve<ILogFormatter>()))
+            builder.Register(x => new NLogger(
+                        loggerName, sentryEnabled: false, formatter: x.Resolve<ILogFormatter>()))
                     .As<IPushLogger>()
                     .InstancePerLifetimeScope();
 
