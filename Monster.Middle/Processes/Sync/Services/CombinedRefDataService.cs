@@ -211,5 +211,48 @@ namespace Monster.Middle.Processes.Acumatica.Services
             }
         }
 
+
+        public void ReconcileCarrierToShipViaWithRefData()
+        {
+            var referenceData = RetrieveRefData();
+            var settingsRecords = _settingsRepository.RetrieveCarrierToShipVias();
+
+            var deleteShopifyCarrierNames = new List<string>();
+
+            foreach (var settingsRecord in settingsRecords)
+            {
+                var shopifyCarrierName = settingsRecord.ShopifyCarrierName;
+                var acumaticaCarrierId = settingsRecord.AcumaticaCarrierId;
+
+                // Remove if Shopify Carrier is missing from Bridge
+                //
+                if (referenceData.ShopifyCarriers.All(x => x != shopifyCarrierName))
+                {
+                    _logService.Log($"Shopify Carrier {shopifyCarrierName} is missing");
+                    deleteShopifyCarrierNames.Add(settingsRecord.ShopifyCarrierName);
+                    continue;
+                }
+
+                // Remove if Acumatica Ship Via is missing from Bridge
+                //
+                var acumaticaShipVia
+                        = referenceData
+                            .AcumaticaShipVia
+                            .FirstOrDefault(x => x == acumaticaCarrierId);
+
+                if (acumaticaShipVia == null)
+                {
+                    _logService.Log($"Acumatica Ship Via {acumaticaCarrierId} is missing");
+                    deleteShopifyCarrierNames.Add(settingsRecord.ShopifyCarrierName);
+                    continue;
+                }
+            }
+
+            foreach (var deleteMe in deleteShopifyCarrierNames)
+            {
+                _settingsRepository.DeleteCarrierToShipVia(deleteMe);
+            }
+        }
     }
 }
+

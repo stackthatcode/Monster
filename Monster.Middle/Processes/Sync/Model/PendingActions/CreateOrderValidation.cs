@@ -26,6 +26,7 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
 
         public string ShopifyPaymentGatewayId { get; set; }
         public bool HasValidGateway { get; set; }
+        public bool HasValidCarrier { get; set; }
 
 
         // Computed for validation
@@ -60,6 +61,8 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
                 
                 .Add(x => HasValidGateway, $"Does not have a valid payment gateway; please check configuration")
                 
+                .Add(x => HasValidCarrier, "Does not have valid shipping carrier; please check settings")
+
                 .Add(x => x.OrderNumberValidForSync,
                         $"Shopify Order number not greater than or equal to Settings -> Starting Order Number")
 

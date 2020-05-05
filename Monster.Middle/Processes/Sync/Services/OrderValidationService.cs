@@ -84,6 +84,7 @@ namespace Monster.Middle.Processes.Sync.Services
             {
                 output.ShopifyPaymentGatewayId = orderRecord.PaymentTransaction().ShopifyGateway;
                 output.HasValidGateway = _settingsRepository.GatewayExistsInConfig(output.ShopifyPaymentGatewayId);
+                output.HasValidCarrier = _settingsRepository.CarrierMappingExists(order.MaybeCarrier);
             }
 
             return output.Result();

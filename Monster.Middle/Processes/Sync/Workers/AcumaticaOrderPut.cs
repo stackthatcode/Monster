@@ -19,6 +19,7 @@ using Monster.Middle.Processes.Sync.Model.PendingActions;
 using Monster.Middle.Processes.Sync.Model.TaxTranfser;
 using Monster.Middle.Processes.Sync.Persist;
 using Monster.Middle.Processes.Sync.Services;
+using Push.Foundation.Utilities.Helpers;
 using Push.Foundation.Utilities.Json;
 using Push.Foundation.Utilities.Logging;
 using Push.Shopify.Api.Order;
@@ -318,8 +319,18 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.ShipToAddressOverride = true.ToValue();
             salesOrder.ShipToAddress = BuildAddress(shopifyOrder.shipping_address);
 
+            if (!shopifyOrder.MaybeCarrier.IsNullOrEmpty())
+            {
+                var carrierToShipVia 
+                    = _settingsRepository.RetrieveCarrierToShipVia(shopifyOrder.MaybeCarrier);
 
-            // Payment optimization *** FAIL - PENDING ACUMATICA SUPPORT
+                if (carrierToShipVia != null)
+                {
+                    salesOrder.ShipVia = carrierToShipVia.AcumaticaCarrierId.ToValue();
+                }
+            }
+
+            // Payment optimization *** FAIL - PENDING ACUMATICA SUPPORT ***
             //
             //var payment = _acumaticaOrderPaymentPut.BuildPaymentForCreate(shopifyOrderRecord.PaymentTransaction());
             //salesOrder.Payments = new List<object> { payment };

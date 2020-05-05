@@ -147,6 +147,13 @@ namespace Monster.Middle.Processes.Sync.Persist
             _dataContext.Entities.SaveChanges();
         }
 
+        public bool CarrierMappingExists(string shopifyCarrierName)
+        {
+            return _dataContext
+                .Entities
+                .CarrierToShipVias
+                .Any(x => x.ShopifyCarrierName == shopifyCarrierName);
+        }
 
 
 

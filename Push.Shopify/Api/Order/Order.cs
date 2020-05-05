@@ -81,15 +81,17 @@ namespace Push.Shopify.Api.Order
         public decimal LineAmountTotalAfterDiscount => line_items.Sum(x => x.LineAmountAfterDiscount);
 
 
-        // Shipping Totals
+        // Shipping, Shipping Totals
         //
+        public string MaybeCarrier
+                => !shipping_lines.Any() ? null : shipping_lines.First().carrier_identifier;
+
         [JsonIgnore]
         public decimal ShippingTotal => shipping_lines.Sum(x => x.price);
         [JsonIgnore]
         public decimal ShippingTaxableTotal => IsShippingTaxable ? ShippingTotal : 0m;
         [JsonIgnore]
         public decimal ShippingDiscountedTotal => shipping_lines.Sum(x => x.ShippingAfterDiscount);
-
         [JsonIgnore]
         public decimal ShippingTax => shipping_lines.Sum(x => x.TotalTaxes);
 
