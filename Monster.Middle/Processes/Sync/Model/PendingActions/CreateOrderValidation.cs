@@ -26,7 +26,8 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
 
         public string ShopifyPaymentGatewayId { get; set; }
         public bool HasValidGateway { get; set; }
-        public bool HasValidCarrier { get; set; }
+        public string ShopifyShippingRateName { get; set; }
+        public bool HasValidShippingRate { get; set; }
 
 
         // Computed for validation
@@ -59,30 +60,32 @@ namespace Monster.Middle.Processes.Sync.Model.PendingActions
                 
                 .Add(x => x.ShopifyOrderRecord.HasPayment(), "Shopify Payment has not been downloaded yet; possibly caused by non-captured Payment", true)
                 
-                .Add(x => HasValidGateway, $"Does not have a valid payment gateway; please check configuration")
+                .Add(x => HasValidGateway, 
+                    x => $"'{x.ShopifyPaymentGatewayId}' is not a valid payment gateway; please check configuration")
                 
-                .Add(x => HasValidCarrier, "Does not have valid shipping carrier; please check settings")
+                .Add(x => HasValidShippingRate, 
+                    x => $"'{x.ShopifyShippingRateName}' is not a recognized shipping rate title; please check settings")
 
                 .Add(x => x.OrderNumberValidForSync,
-                        $"Shopify Order number not greater than or equal to Settings -> Starting Order Number")
+                    "Shopify Order number not greater than or equal to Settings -> Starting Order Number")
 
                 // The cardinal Synchronization Sins
                 //
                 .Add(x => !x.LineItemIdsWithUnrecognizedSku.Any(), "Shopify Order contains line item(s) without a SKU")
                 
                 .Add(x => !x.SkusMissingFromShopify.Any(), 
-                        x => $"Shopify Order contains line item(s) that reference missing Variant(s) {x.SkusMissingFromShopify.StringJoin(", ")}")
+                    x => $"Shopify Order contains line item(s) that reference missing Variant(s) {x.SkusMissingFromShopify.StringJoin(", ")}")
                 
                 .Add(x => !x.SkusNotSyncedInAcumatica.Any(),
-                        x => $"Shopify Order contains Variant(s) not synced with Acumatica: {x.SkusNotSyncedInAcumatica.StringJoin(", ")}")
+                    x => $"Shopify Order contains Variant(s) not synced with Acumatica: {x.SkusNotSyncedInAcumatica.StringJoin(", ")}")
                 
                 .Add(x => !x.SkusWithMismatchedStockItemId.Any(),
-                        x => $"Shopify Order contains Variant(s) with SKU's that mismatch with Acumatica Stock Items: " +
+                    x => $"Shopify Order contains Variant(s) with SKU's that mismatch with Acumatica Stock Items: " +
                         x.SkusWithMismatchedStockItemId.StringJoin(", "))
                 
                 .Add(x => !x.SkusWithMismatchedTaxes.Any(),
-                        x => $"Shopify Order contains Variant(s) that mismatched Taxes with Acumatica: " +
-                        x.SkusWithMismatchedTaxes.StringJoin(", "));
+                    x => $"Shopify Order contains Variant(s) that mismatched Taxes with Acumatica: " + 
+                         x.SkusWithMismatchedTaxes.StringJoin(", "));
 
             return validation.Run(this);
         }

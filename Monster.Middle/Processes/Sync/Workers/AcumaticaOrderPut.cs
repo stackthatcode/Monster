@@ -319,14 +319,14 @@ namespace Monster.Middle.Processes.Sync.Workers
             salesOrder.ShipToAddressOverride = true.ToValue();
             salesOrder.ShipToAddress = BuildAddress(shopifyOrder.shipping_address);
 
-            if (!shopifyOrder.MaybeCarrier.IsNullOrEmpty())
+            if (!shopifyOrder.MaybeShippingRateTitle.IsNullOrEmpty())
             {
                 var carrierToShipVia 
-                    = _settingsRepository.RetrieveCarrierToShipVia(shopifyOrder.MaybeCarrier);
+                    = _settingsRepository.RetrieveRateToShipVia(shopifyOrder.MaybeShippingRateTitle);
 
                 if (carrierToShipVia != null)
                 {
-                    salesOrder.ShipVia = carrierToShipVia.AcumaticaCarrierId.ToValue();
+                    salesOrder.ShipVia = carrierToShipVia.AcumaticaShipViaId.ToValue();
                 }
             }
 

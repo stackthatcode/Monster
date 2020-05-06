@@ -73,14 +73,5 @@ namespace Monster.Middle.Processes.Shopify.Workers
             }
         }
 
-
-        public void RunShippingCarriers()
-        {
-             var carriers = _shopApi.RetrieveCarriers();
-
-             var refdata = _referenceDataRepository.RetrieveAcumaticaRefData();
-             refdata.ShopifyCarrier = carriers;
-             _referenceDataRepository.SaveChanges();
-        }
     }
 }

@@ -80,11 +80,14 @@ namespace Monster.Middle.Processes.Sync.Services
 
             BuildLineItemValidations(output, settings);
 
+            output.ShopifyShippingRateName = order.MaybeShippingRateTitle;
+            output.HasValidShippingRate = _settingsRepository.RateMappingExists(order.MaybeShippingRateTitle);
+
             if (orderRecord.HasPayment())
             {
                 output.ShopifyPaymentGatewayId = orderRecord.PaymentTransaction().ShopifyGateway;
-                output.HasValidGateway = _settingsRepository.GatewayExistsInConfig(output.ShopifyPaymentGatewayId);
-                output.HasValidCarrier = _settingsRepository.CarrierMappingExists(order.MaybeCarrier);
+                output.HasValidGateway 
+                    = _settingsRepository.GatewayExistsInConfig(output.ShopifyPaymentGatewayId);
             }
 
             return output.Result();

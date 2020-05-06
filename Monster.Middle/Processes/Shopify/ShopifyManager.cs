@@ -57,11 +57,6 @@ namespace Monster.Middle.Processes.Shopify
             }
         }
 
-        public void PullReferenceData()
-        {
-            _shopifyReferenceGet.RunShippingCarriers();
-        }
-
         public void PullLocations()
         {
             _shopifyReferenceGet.RunLocations();

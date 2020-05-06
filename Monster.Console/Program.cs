@@ -29,7 +29,7 @@ namespace Monster.ConsoleApp
 
         // Testing functions
         //
-        private const string TestingFunctionsOption = "100";
+        private const string TestingErrorLogging = "100";
 
 
         static void Main(string[] args)
@@ -77,6 +77,11 @@ namespace Monster.ConsoleApp
             Console.WriteLine($"{DisableInstanceOption} - Disable Instance");
             Console.WriteLine();
 
+            // Test error logging
+            // 
+            Console.WriteLine($"{TestingErrorLogging} - Test Error Logging");
+            Console.WriteLine();
+
             // Solicit input
             //
             Console.WriteLine(Environment.NewLine + "Make a selection and hit ENTER:");
@@ -119,6 +124,9 @@ namespace Monster.ConsoleApp
                 SystemUtilities.DisableInstance();
             if (input == EnableInstanceOption)
                 SystemUtilities.EnableInstance();
+
+            if (input == TestingErrorLogging)
+                SystemUtilities.TestingErrorLogging();
 
             return input.Trim() != "";
         }

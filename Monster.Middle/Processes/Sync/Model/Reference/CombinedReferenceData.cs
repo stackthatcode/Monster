@@ -4,12 +4,12 @@ using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Persist.Master;
 using Push.Foundation.Utilities.Helpers;
 
+
 namespace Monster.Middle.Processes.Sync.Model.Reference
 {
     public class CombinedReferenceData
     {
         public List<AcumaticaTimeZone> TimeZones { get; set; }
-
         public List<ItemClassModel> ItemClasses { get; set; }
         public List<PaymentGateway> PaymentGateways { get; set; }
         public List<PaymentMethodModel> PaymentMethods { get; set; }
@@ -19,8 +19,7 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
         public List<string> TaxZones { get; set; }
         public List<string> CustomerClasses { get; set; }
         public List<string> AcumaticaShipVia { get; set; }
-        public List<string> ShopifyCarriers { get; set; }
-
+        
 
 
         public CombinedReferenceData()
@@ -35,7 +34,6 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
 
             CustomerClasses = new List<string>();
             AcumaticaShipVia = new List<string>();
-            ShopifyCarriers = new List<string>();
         }
 
         public bool IsValid => Validation.Count == 0;
@@ -93,11 +91,6 @@ namespace Monster.Middle.Processes.Sync.Model.Reference
                 if (CustomerClasses.Count == 0)
                 {
                     output.Add("Customer Classes are empty");
-                }
-
-                if (ShopifyCarriers.Count == 0)
-                {
-                    output.Add("Shopify Carriers are empty");
                 }
 
                 if (AcumaticaShipVia.Count == 0)

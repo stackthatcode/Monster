@@ -48,7 +48,6 @@ namespace Monster.Middle.Persist.Instance
         System.Data.Entity.DbSet<AcumaticaSoShipment> AcumaticaSoShipments { get; set; } // AcumaticaSoShipment
         System.Data.Entity.DbSet<AcumaticaStockItem> AcumaticaStockItems { get; set; } // AcumaticaStockItem
         System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; } // AcumaticaWarehouse
-        System.Data.Entity.DbSet<CarrierToShipVia> CarrierToShipVias { get; set; } // CarrierToShipVia
         System.Data.Entity.DbSet<Connection> Connections { get; set; } // Connections
         System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; } // ExclusiveJobMonitor
         System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; } // ExecutionLog
@@ -56,6 +55,7 @@ namespace Monster.Middle.Persist.Instance
         System.Data.Entity.DbSet<MonsterSetting> MonsterSettings { get; set; } // MonsterSettings
         System.Data.Entity.DbSet<PaymentGateway> PaymentGateways { get; set; } // PaymentGateways
         System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; } // PayoutPreferences
+        System.Data.Entity.DbSet<RateToShipVia> RateToShipVias { get; set; } // RateToShipVia
         System.Data.Entity.DbSet<ReferenceData> ReferenceDatas { get; set; } // ReferenceData
         System.Data.Entity.DbSet<ShopAcuWarehouseSync> ShopAcuWarehouseSyncs { get; set; } // ShopAcuWarehouseSync
         System.Data.Entity.DbSet<ShopifyBatchState> ShopifyBatchStates { get; set; } // ShopifyBatchState
@@ -143,7 +143,6 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<AcumaticaSoShipment> AcumaticaSoShipments { get; set; } // AcumaticaSoShipment
         public System.Data.Entity.DbSet<AcumaticaStockItem> AcumaticaStockItems { get; set; } // AcumaticaStockItem
         public System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; } // AcumaticaWarehouse
-        public System.Data.Entity.DbSet<CarrierToShipVia> CarrierToShipVias { get; set; } // CarrierToShipVia
         public System.Data.Entity.DbSet<Connection> Connections { get; set; } // Connections
         public System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; } // ExclusiveJobMonitor
         public System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; } // ExecutionLog
@@ -151,6 +150,7 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<MonsterSetting> MonsterSettings { get; set; } // MonsterSettings
         public System.Data.Entity.DbSet<PaymentGateway> PaymentGateways { get; set; } // PaymentGateways
         public System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; } // PayoutPreferences
+        public System.Data.Entity.DbSet<RateToShipVia> RateToShipVias { get; set; } // RateToShipVia
         public System.Data.Entity.DbSet<ReferenceData> ReferenceDatas { get; set; } // ReferenceData
         public System.Data.Entity.DbSet<ShopAcuWarehouseSync> ShopAcuWarehouseSyncs { get; set; } // ShopAcuWarehouseSync
         public System.Data.Entity.DbSet<ShopifyBatchState> ShopifyBatchStates { get; set; } // ShopifyBatchState
@@ -239,7 +239,6 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new AcumaticaSoShipmentConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaStockItemConfiguration());
             modelBuilder.Configurations.Add(new AcumaticaWarehouseConfiguration());
-            modelBuilder.Configurations.Add(new CarrierToShipViaConfiguration());
             modelBuilder.Configurations.Add(new ConnectionConfiguration());
             modelBuilder.Configurations.Add(new ExclusiveJobMonitorConfiguration());
             modelBuilder.Configurations.Add(new ExecutionLogConfiguration());
@@ -247,6 +246,7 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new MonsterSettingConfiguration());
             modelBuilder.Configurations.Add(new PaymentGatewayConfiguration());
             modelBuilder.Configurations.Add(new PayoutPreferenceConfiguration());
+            modelBuilder.Configurations.Add(new RateToShipViaConfiguration());
             modelBuilder.Configurations.Add(new ReferenceDataConfiguration());
             modelBuilder.Configurations.Add(new ShopAcuWarehouseSyncConfiguration());
             modelBuilder.Configurations.Add(new ShopifyBatchStateConfiguration());
@@ -290,7 +290,6 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new AcumaticaSoShipmentConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaStockItemConfiguration(schema));
             modelBuilder.Configurations.Add(new AcumaticaWarehouseConfiguration(schema));
-            modelBuilder.Configurations.Add(new CarrierToShipViaConfiguration(schema));
             modelBuilder.Configurations.Add(new ConnectionConfiguration(schema));
             modelBuilder.Configurations.Add(new ExclusiveJobMonitorConfiguration(schema));
             modelBuilder.Configurations.Add(new ExecutionLogConfiguration(schema));
@@ -298,6 +297,7 @@ namespace Monster.Middle.Persist.Instance
             modelBuilder.Configurations.Add(new MonsterSettingConfiguration(schema));
             modelBuilder.Configurations.Add(new PaymentGatewayConfiguration(schema));
             modelBuilder.Configurations.Add(new PayoutPreferenceConfiguration(schema));
+            modelBuilder.Configurations.Add(new RateToShipViaConfiguration(schema));
             modelBuilder.Configurations.Add(new ReferenceDataConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopAcuWarehouseSyncConfiguration(schema));
             modelBuilder.Configurations.Add(new ShopifyBatchStateConfiguration(schema));
@@ -433,7 +433,6 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<AcumaticaSoShipment> AcumaticaSoShipments { get; set; }
         public System.Data.Entity.DbSet<AcumaticaStockItem> AcumaticaStockItems { get; set; }
         public System.Data.Entity.DbSet<AcumaticaWarehouse> AcumaticaWarehouses { get; set; }
-        public System.Data.Entity.DbSet<CarrierToShipVia> CarrierToShipVias { get; set; }
         public System.Data.Entity.DbSet<Connection> Connections { get; set; }
         public System.Data.Entity.DbSet<ExclusiveJobMonitor> ExclusiveJobMonitors { get; set; }
         public System.Data.Entity.DbSet<ExecutionLog> ExecutionLogs { get; set; }
@@ -441,6 +440,7 @@ namespace Monster.Middle.Persist.Instance
         public System.Data.Entity.DbSet<MonsterSetting> MonsterSettings { get; set; }
         public System.Data.Entity.DbSet<PaymentGateway> PaymentGateways { get; set; }
         public System.Data.Entity.DbSet<PayoutPreference> PayoutPreferences { get; set; }
+        public System.Data.Entity.DbSet<RateToShipVia> RateToShipVias { get; set; }
         public System.Data.Entity.DbSet<ReferenceData> ReferenceDatas { get; set; }
         public System.Data.Entity.DbSet<ShopAcuWarehouseSync> ShopAcuWarehouseSyncs { get; set; }
         public System.Data.Entity.DbSet<ShopifyBatchState> ShopifyBatchStates { get; set; }
@@ -487,7 +487,6 @@ namespace Monster.Middle.Persist.Instance
             AcumaticaSoShipments = new FakeDbSet<AcumaticaSoShipment>("Id");
             AcumaticaStockItems = new FakeDbSet<AcumaticaStockItem>("MonsterId");
             AcumaticaWarehouses = new FakeDbSet<AcumaticaWarehouse>("Id");
-            CarrierToShipVias = new FakeDbSet<CarrierToShipVia>("Id");
             Connections = new FakeDbSet<Connection>("Id");
             ExclusiveJobMonitors = new FakeDbSet<ExclusiveJobMonitor>("Id");
             ExecutionLogs = new FakeDbSet<ExecutionLog>("Id");
@@ -495,6 +494,7 @@ namespace Monster.Middle.Persist.Instance
             MonsterSettings = new FakeDbSet<MonsterSetting>("Id");
             PaymentGateways = new FakeDbSet<PaymentGateway>("Id");
             PayoutPreferences = new FakeDbSet<PayoutPreference>("Id");
+            RateToShipVias = new FakeDbSet<RateToShipVia>("Id");
             ReferenceDatas = new FakeDbSet<ReferenceData>("Id");
             ShopAcuWarehouseSyncs = new FakeDbSet<ShopAcuWarehouseSync>("Id");
             ShopifyBatchStates = new FakeDbSet<ShopifyBatchState>("Id");
@@ -1183,15 +1183,6 @@ namespace Monster.Middle.Persist.Instance
         }
     }
 
-    // CarrierToShipVia
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class CarrierToShipVia
-    {
-        public int Id { get; set; } // Id (Primary key)
-        public string ShopifyCarrierName { get; set; } // ShopifyCarrierName (length: 50)
-        public string AcumaticaCarrierId { get; set; } // AcumaticaCarrierId (length: 50)
-    }
-
     // Connections
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class Connection
@@ -1305,6 +1296,15 @@ namespace Monster.Middle.Persist.Instance
     {
         public int Id { get; set; } // Id (Primary key)
         public string AcumaticaCashAccount { get; set; } // AcumaticaCashAccount (length: 50)
+    }
+
+    // RateToShipVia
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class RateToShipVia
+    {
+        public int Id { get; set; } // Id (Primary key)
+        public string ShopifyRateName { get; set; } // ShopifyRateName (length: 50)
+        public string AcumaticaShipViaId { get; set; } // AcumaticaShipViaId (length: 50)
     }
 
     // ReferenceData
@@ -2207,26 +2207,6 @@ namespace Monster.Middle.Persist.Instance
         }
     }
 
-    // CarrierToShipVia
-    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
-    public class CarrierToShipViaConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<CarrierToShipVia>
-    {
-        public CarrierToShipViaConfiguration()
-            : this("dbo")
-        {
-        }
-
-        public CarrierToShipViaConfiguration(string schema)
-        {
-            ToTable("CarrierToShipVia", schema);
-            HasKey(x => x.Id);
-
-            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyCarrierName).HasColumnName(@"ShopifyCarrierName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-            Property(x => x.AcumaticaCarrierId).HasColumnName(@"AcumaticaCarrierId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
-        }
-    }
-
     // Connections
     [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
     public class ConnectionConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<Connection>
@@ -2408,6 +2388,26 @@ namespace Monster.Middle.Persist.Instance
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
             Property(x => x.AcumaticaCashAccount).HasColumnName(@"AcumaticaCashAccount").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+        }
+    }
+
+    // RateToShipVia
+    [System.CodeDom.Compiler.GeneratedCode("EF.Reverse.POCO.Generator", "2.37.1.0")]
+    public class RateToShipViaConfiguration : System.Data.Entity.ModelConfiguration.EntityTypeConfiguration<RateToShipVia>
+    {
+        public RateToShipViaConfiguration()
+            : this("dbo")
+        {
+        }
+
+        public RateToShipViaConfiguration(string schema)
+        {
+            ToTable("RateToShipVia", schema);
+            HasKey(x => x.Id);
+
+            Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
+            Property(x => x.ShopifyRateName).HasColumnName(@"ShopifyRateName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.AcumaticaShipViaId).HasColumnName(@"AcumaticaShipViaId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
         }
     }
 

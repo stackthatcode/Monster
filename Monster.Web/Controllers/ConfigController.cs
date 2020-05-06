@@ -184,15 +184,15 @@ namespace Monster.Web.Controllers
                 output.PaymentGateways.Add(gateway);
             }
 
-            var selectedCarriers = _settingsRepository.RetrieveCarrierToShipVias();
-
+            var selectedCarriers = _settingsRepository.RetrieveRateToShipVias();
+            
             foreach (var selectedCarrier in selectedCarriers)
             {
-                var carrier = new CarrierToShipViaSelection();
-                carrier.ShopifyCarrierName = selectedCarrier.ShopifyCarrierName;
-                carrier.AcumaticaCarrierId = selectedCarrier.AcumaticaCarrierId;
+                var rate = new CarrierToShipViaSelection();
+                rate.ShopifyRateName = selectedCarrier.ShopifyRateName;
+                rate.AcumaticaCarrierId = selectedCarrier.AcumaticaShipViaId;
 
-                output.CarrierToShipVias.Add(carrier);
+                output.RateToShipVias.Add(rate);
             }
 
             return new JsonNetResult(output);
@@ -227,13 +227,13 @@ namespace Monster.Web.Controllers
             // Save Carrier-to-Ship-Via mappings
             //
             var carrierToShipVia =
-                selectionsModel.CarrierToShipVias.Select(x => new CarrierToShipVia
+                selectionsModel.RateToShipVias.Select(x => new RateToShipVia()
                 {
-                    ShopifyCarrierName = x.ShopifyCarrierName,
-                    AcumaticaCarrierId = x.AcumaticaCarrierId,
+                    ShopifyRateName = x.ShopifyRateName,
+                    AcumaticaShipViaId = x.AcumaticaCarrierId,
                 })
                 .ToList();
-            _settingsRepository.ImprintCarrierToShipVias(carrierToShipVia);
+            _settingsRepository.ImprintRateToShipVias(carrierToShipVia);
 
             // Refresh the Settings Status
             //

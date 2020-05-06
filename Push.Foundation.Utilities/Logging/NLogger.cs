@@ -102,6 +102,11 @@ namespace Push.Foundation.Utilities.Logging
         public void Fatal(Exception exception)
         {
             _nLoggerReference.Fatal(_formatter.Do(exception.FullStackTraceDump()));
+
+            if (_sentryEnabled)
+            {
+                SentrySdk.CaptureException(exception);
+            }
         }
     }
 }

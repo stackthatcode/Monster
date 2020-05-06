@@ -185,7 +185,7 @@
 
                 <div data-bind="if: CarriersEmpty">
                     <div class="alert alert-secondary">
-                        <strong>There are currently no Shopify Carriers configured</strong>
+                        <strong>There are currently no Shopify Shipping Rates configured</strong>
                     </div>
                 </div>
 
@@ -193,10 +193,11 @@
                     <ul class="list-group" data-bind="foreach: SelectedCarriers">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span>
-                                <span class="bold-light" data-bind="text:ShopifyCarrierName"></span>
+                                <span class="bold-light" data-bind="text:ShopifyRateName"></span>
                                 <span style="display:inline-block; width:5px;">-</span>
                                 <span class="bold-light" data-bind="text:AcumaticaCarrierId"></span>
                             </span>
+
                             <span>
                                 <a class="btn btn-sm btn-primary" href="#"
                                    data-bind="click: $parent.RemoveCarrier"><i class="fas fa-times"></i> Remove</a>
@@ -206,7 +207,7 @@
                 </div>
 
                 <small class="form-text text-muted">
-                    Assign Shopify Shipping Carriers to Acumatica Ship-Via.
+                    Assign Shopify Shipping Rates to Acumatica Ship-Via Codes
                 </small>
             </div>
 
@@ -354,15 +355,11 @@
         <div id="carrier-block" class="card-body left">
 
             <div class="form-group">
-                <label for="shopifyCarrier">Shopify Carrier</label>
+                <label for="shopifyCarrier">Shopify Rate Name</label>
+                
+                <input class="form-control" type="text" maxlength="100" data-bind="value: SelectedShopifyCarrier" />
 
-                <select class="form-control"
-                        id="shopifyCarrier"
-                        data-bind="optionsCaption: 'Choose...',
-                                            options: ShopifyCarriers,
-                                            value: SelectedShopifyCarrier"></select>
-
-                <small class="form-text text-muted">Select a Shopify Carrier</small>
+                <small class="form-text text-muted">Copy and paste the entire Shopify Shipping Rate Title</small>
             </div>
 
             <div class="form-group">
@@ -471,7 +468,7 @@
         self.ShowValidation = ko.observable(false);
 
         self.Launch = function() {
-            self.SelectedShopifyCarrier(null);
+            self.SelectedShopifyCarrier("");
             self.SelectedAcumaticaShipVia(null);
 
             self.ShowValidation(false);
@@ -479,12 +476,11 @@
         };
 
         self.LoadReferenceData = function (data) {
-            self.ShopifyCarriers(data.ShopifyCarriers);
             self.AcumaticaShipVias(data.AcumaticaShipVia);
         };
 
         self.AddCarrierClick = function() {
-            if (!self.SelectedShopifyCarrier() || !self.SelectedAcumaticaShipVia()) {
+            if (!self.SelectedShopifyCarrier().trim() || !self.SelectedAcumaticaShipVia()) {
                 self.ShowValidation(true);
             } else {
                 Monster.Events.publish(eventKeys.AddCarrierClick, self);
@@ -584,7 +580,7 @@
 
         self.AddCarrierClick = function(model) {
             self.SelectedCarriers.push({
-                ShopifyCarrierName: model.SelectedShopifyCarrier(),
+                ShopifyRateName: model.SelectedShopifyCarrier(),
                 AcumaticaCarrierId: model.SelectedAcumaticaShipVia(),
             });
         };
@@ -627,24 +623,30 @@
                 },
                 function (response) {
                     //console.log(response);
+                    self.IngestSelections(response);
 
-                    self.SelectedTimeZone(response.AcumaticaTimeZone);
-                    self.SelectedItemClass(response.AcumaticaDefaultItemClass);
-                    self.SelectedCustomerClass(response.AcumaticaDefaultCustomerClass);
-                    self.SelectedGateways(response.PaymentGateways);
-                    self.SelectedCarriers(response.CarrierToShipVias);
-
-                    var itemClass =
-                        Monster.FindByField(self.ItemClasses(), 'ItemClass', response.AcumaticaDefaultItemClass);
-
-                    self.SelectedItemClass(itemClass);
-
-                    var timeZone = Monster.FindByField(self.TimeZones(), 'TimeZoneId', response.AcumaticaTimeZone);
-
-                    self.SelectedTimeZone(timeZone);
                     self.ShowDataEntry(true);
                 });
         };
+
+        self.IngestSelections = function(response) {
+
+            self.SelectedTimeZone(response.AcumaticaTimeZone);
+            self.SelectedItemClass(response.AcumaticaDefaultItemClass);
+            self.SelectedCustomerClass(response.AcumaticaDefaultCustomerClass);
+            self.SelectedGateways(response.PaymentGateways);
+            self.SelectedCarriers(response.RateToShipVias);
+
+            var itemClass =
+                Monster.FindByField(self.ItemClasses(), 'ItemClass', response.AcumaticaDefaultItemClass);
+
+            self.SelectedItemClass(itemClass);
+
+            var timeZone = Monster.FindByField(self.TimeZones(), 'TimeZoneId', response.AcumaticaTimeZone);
+            self.SelectedTimeZone(timeZone);
+
+        };
+
 
         self.SaveChangesClick = function () {
             self.SaveChanges();
@@ -658,17 +660,25 @@
                 }
 
                 var model = {};
+
                 model.AcumaticaTimeZone = self.SelectedTimeZone().TimeZoneId;
                 model.AcumaticaDefaultItemClass = self.SelectedItemClass().ItemClass;
                 model.AcumaticaDefaultPostingClass = self.SelectedPostingClass();
                 model.AcumaticaDefaultCustomerClass = self.SelectedCustomerClass();
                 model.PaymentGateways = self.SelectedGateways();
-                model.CarrierToShipVias = self.SelectedCarriers();
+                model.RateToShipVias = self.SelectedCarriers();
 
                 var ajax = new Monster.Ajax();
                 ajax.HttpPost("/Config/SettingsSelections", model, this);
             },
             function() {
+                var ajax = new Monster.Ajax();
+                ajax.HttpGet("/Config/SettingsSelections", this);
+            },
+            function (response) {
+                //console.log(response);
+                self.IngestSelections(response);
+
                 if (callback) {
                     callback();
                 }

@@ -10,12 +10,12 @@ namespace Monster.Web.Models.Config
         public string AcumaticaDefaultPostingClass { get; set; }
         public string AcumaticaDefaultCustomerClass { get; set; }
         public List<PaymentGatewaySelectionModel> PaymentGateways { get; set; }
-        public List<CarrierToShipViaSelection> CarrierToShipVias { get; set; }
+        public List<CarrierToShipViaSelection> RateToShipVias { get; set; }
         
         public SettingsSelectionsModel()
         {
             PaymentGateways = new List<PaymentGatewaySelectionModel>();
-            CarrierToShipVias = new List<CarrierToShipViaSelection>();
+            RateToShipVias = new List<CarrierToShipViaSelection>();
         }
     }
 }

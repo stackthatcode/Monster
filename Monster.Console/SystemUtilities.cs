@@ -354,5 +354,28 @@ namespace Monster.ConsoleApp
                 });
             });
         }
+
+        public static void TestingErrorLogging()
+        {
+            var container = AutofacBuilder.BuildContainer(sentryEnabled:true);
+
+            using (var scope = container.BeginLifetimeScope())
+            using (SentrySdk.Init("https://39a2ab07189641a3a10eeffd1354873d@o378852.ingest.sentry.io/5202882"))
+            {
+                var logger = scope.Resolve<IPushLogger>();
+
+                try
+                {
+                    logger.Info("Throwing a test System.Exception...");
+                    throw new Exception("Test Error - oh noes!!!");
+                }
+                catch (Exception e)
+                {
+                    // This should appear in Sentry SDK!
+                    //
+                    logger.Error((e));
+                }
+            }
+        }
     }
 }

@@ -38,7 +38,6 @@ namespace Monster.Middle.Processes.Acumatica.Services
         public CombinedReferenceData RetrieveRefData()
         {
             var reference = _referenceDataRepository.RetrieveAcumaticaRefData();
-
             var timeZones = _instanceTimeZoneService.RetrieveTimeZones();
             var gateways = _paymentGatewayService.Retrieve();
 
@@ -105,7 +104,6 @@ namespace Monster.Middle.Processes.Acumatica.Services
                 TaxZones = taxZones,
                 CustomerClasses = customerClasses,
                 AcumaticaShipVia = shipVia,
-                ShopifyCarriers = carriers,
             };
 
             return output;
@@ -212,26 +210,16 @@ namespace Monster.Middle.Processes.Acumatica.Services
         }
 
 
-        public void ReconcileCarrierToShipViaWithRefData()
+        public void ReconcileShipRateToShipViaWithRefData()
         {
             var referenceData = RetrieveRefData();
-            var settingsRecords = _settingsRepository.RetrieveCarrierToShipVias();
+            var settingsRecords = _settingsRepository.RetrieveRateToShipVias();
 
-            var deleteShopifyCarrierNames = new List<string>();
+            var deleteShopifyRateNames = new List<string>();
 
             foreach (var settingsRecord in settingsRecords)
             {
-                var shopifyCarrierName = settingsRecord.ShopifyCarrierName;
-                var acumaticaCarrierId = settingsRecord.AcumaticaCarrierId;
-
-                // Remove if Shopify Carrier is missing from Bridge
-                //
-                if (referenceData.ShopifyCarriers.All(x => x != shopifyCarrierName))
-                {
-                    _logService.Log($"Shopify Carrier {shopifyCarrierName} is missing");
-                    deleteShopifyCarrierNames.Add(settingsRecord.ShopifyCarrierName);
-                    continue;
-                }
+                var acumaticaCarrierId = settingsRecord.AcumaticaShipViaId;
 
                 // Remove if Acumatica Ship Via is missing from Bridge
                 //
@@ -242,15 +230,15 @@ namespace Monster.Middle.Processes.Acumatica.Services
 
                 if (acumaticaShipVia == null)
                 {
-                    _logService.Log($"Acumatica Ship Via {acumaticaCarrierId} is missing");
-                    deleteShopifyCarrierNames.Add(settingsRecord.ShopifyCarrierName);
+                    _logService.Log($"Acumatica Ship Via '{acumaticaCarrierId}' is missing");
+                    deleteShopifyRateNames.Add(settingsRecord.ShopifyRateName);
                     continue;
                 }
             }
 
-            foreach (var deleteMe in deleteShopifyCarrierNames)
+            foreach (var deleteMe in deleteShopifyRateNames)
             {
-                _settingsRepository.DeleteCarrierToShipVia(deleteMe);
+                _settingsRepository.DeleteRateToShipVia(deleteMe);
             }
         }
     }

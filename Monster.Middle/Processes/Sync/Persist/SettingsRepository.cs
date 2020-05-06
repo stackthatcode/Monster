@@ -88,71 +88,71 @@ namespace Monster.Middle.Processes.Sync.Persist
 
 
 
-        // Carrier-to-Ship-Via
+        // Rate-to-Ship-Via
         //
-        public List<CarrierToShipVia> RetrieveCarrierToShipVias()
+        public List<RateToShipVia> RetrieveRateToShipVias()
         {
-            return _dataContext.Entities.CarrierToShipVias.ToList();
+            return _dataContext.Entities.RateToShipVias.ToList();
         }
 
-        public CarrierToShipVia RetrieveCarrierToShipVia(string shopifyCarrierName)
+        public RateToShipVia RetrieveRateToShipVia(string shopifyRateName)
         {
             return _dataContext
                 .Entities
-                .CarrierToShipVias
-                .FirstOrDefault(x => x.ShopifyCarrierName == shopifyCarrierName);
+                .RateToShipVias
+                .FirstOrDefault(x => x.ShopifyRateName == shopifyRateName);
         }
 
-        public CarrierToShipVia RetrieveCarrierToShipViaByAcumaticaId(string acumaticaCarrierId)
+        public RateToShipVia RetrieveRateToShipViaByAcumaticaId(string acumaticaRateId)
         {
             return _dataContext
                 .Entities
-                .CarrierToShipVias
-                .FirstOrDefault(x => x.AcumaticaCarrierId == acumaticaCarrierId);
+                .RateToShipVias
+                .FirstOrDefault(x => x.AcumaticaShipViaId == acumaticaRateId);
         }
 
-        public void ImprintCarrierToShipVias(IList<CarrierToShipVia> updatedRecords)
+        public void ImprintRateToShipVias(IList<RateToShipVia> updatedRecords)
         {
-            var existingRecords = RetrieveCarrierToShipVias();
+            var existingRecords = RetrieveRateToShipVias();
 
             foreach (var updatedRecord in updatedRecords)
             {
-                if (existingRecords.All(x => x.ShopifyCarrierName != updatedRecord.ShopifyCarrierName))
+                if (existingRecords.All(x => x.ShopifyRateName != updatedRecord.ShopifyRateName))
                 {
-                    InsertCarrierToShipVia(updatedRecord);
+                    InsertRateToShipVia(updatedRecord);
                 }
             }
 
             foreach (var existingRecord in existingRecords)
             {
-                if (!updatedRecords.Any(x => x.ShopifyCarrierName == existingRecord.ShopifyCarrierName))
+                if (updatedRecords.All(x => x.ShopifyRateName != existingRecord.ShopifyRateName))
                 {
-                    DeleteCarrierToShipVia(existingRecord.ShopifyCarrierName);
+                    DeleteRateToShipVia(existingRecord.ShopifyRateName);
                 }
             }
 
             Entities.SaveChanges();
         }
 
-        public void InsertCarrierToShipVia(CarrierToShipVia gateway)
+        public void InsertRateToShipVia(RateToShipVia gateway)
         {
-            _dataContext.Entities.CarrierToShipVias.Add(gateway);
+            _dataContext.Entities.RateToShipVias.Add(gateway);
             _dataContext.Entities.SaveChanges();
         }
 
-        public void DeleteCarrierToShipVia(string shopifyCarrierName)
+        public void DeleteRateToShipVia(string shopifyRateName)
         {
-            var records = RetrieveCarrierToShipVia(shopifyCarrierName);
-            _dataContext.Entities.CarrierToShipVias.Remove(records);
+            var records = RetrieveRateToShipVia(shopifyRateName);
+            _dataContext.Entities.RateToShipVias.Remove(records);
             _dataContext.Entities.SaveChanges();
         }
 
-        public bool CarrierMappingExists(string shopifyCarrierName)
+        public bool RateMappingExists(string shopifyRateName)
         {
             return _dataContext
                 .Entities
-                .CarrierToShipVias
-                .Any(x => x.ShopifyCarrierName == shopifyCarrierName);
+                .RateToShipVias
+                .Any(x => x.ShopifyRateName == shopifyRateName);
         }
 
 
