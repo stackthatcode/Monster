@@ -112,8 +112,8 @@ namespace Monster.Acumatica.Http
 
             output +=
                 (path.Contains("?"))
-                    ? $"&company={_credentials.CompanyName}"
-                    : $"?company={_credentials.CompanyName}";
+                    ? $"&COMPANYID={_credentials.CompanyName}"
+                    : $"?COMPANYID={_credentials.CompanyName}";
             return output;
         }
 

@@ -32,7 +32,7 @@ namespace Monster.Acumatica.Http
                 var content = new
                 {
                     branch = Branch,
-                    companyname = CompanyName,
+                    company = CompanyName,
                     name = Username,
                     password = Password,
                 };

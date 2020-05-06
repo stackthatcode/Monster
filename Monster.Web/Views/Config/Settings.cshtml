@@ -167,7 +167,7 @@
 
                 <small id="paymentGatewaysHelp" class="form-text text-muted">
                     Assign Acumatica Payment methods for all of the Payment Gateways you
-                    currently have enabled in your Shopify store.
+                    currently have enabled in your Shopify store
                 </small>
             </div>
 
@@ -677,6 +677,7 @@
             },
             function (response) {
                 //console.log(response);
+
                 self.IngestSelections(response);
 
                 if (callback) {

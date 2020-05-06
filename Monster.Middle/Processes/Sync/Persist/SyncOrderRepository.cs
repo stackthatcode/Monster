@@ -120,7 +120,7 @@ namespace Monster.Middle.Processes.Sync.Persist
         {
             return Entities
                 .ShopifyCustomers
-                .Where(x => x.AcumaticaCustomer == null && x.NeedsCustomerPut == true)
+                .Where(x => x.AcumaticaCustomer == null || x.NeedsCustomerPut == true)
                 .ToList();
         }
 

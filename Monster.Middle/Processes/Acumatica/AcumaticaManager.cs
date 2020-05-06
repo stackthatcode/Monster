@@ -56,7 +56,7 @@ namespace Monster.Middle.Processes.Acumatica
                 _acumaticaReferencePull.RunTaxZones();
                 _acumaticaReferencePull.RunCustomerClasses();
                 _acumaticaReferencePull.RunShipVia();
-            });
+            }, throwException:true);
         }
         
         public void PullWarehouses()
