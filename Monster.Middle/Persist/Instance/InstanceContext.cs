@@ -50,6 +50,9 @@ namespace Monster.Middle.Persist.Instance
         
         public Guid InstanceId => _instanceId.Value;
 
+        public string AcumaticaCompanyCode { get; set; }
+        public string AcumaticaBranchCode { get; set; }
+
         public void Initialize(Guid instanceId)
         {
             _instanceId = instanceId;

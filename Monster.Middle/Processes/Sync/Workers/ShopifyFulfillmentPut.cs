@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Monster.Acumatica.Api.Shipment;
+using Monster.Middle.Config;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
@@ -55,6 +56,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
+            if (MonsterConfig.Settings.DisableShopifyPut)
+            {
+                _logService.Log(LogBuilder.ShopifyPutDisabled());
+                return;
+            }
+
             var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments();
 
             RunWorker(salesOrderRefs);
@@ -62,6 +69,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run(long shopifyOrderId)
         {
+            if (MonsterConfig.Settings.DisableShopifyPut)
+            {
+                _logService.Log(LogBuilder.ShopifyPutDisabled());
+                return;
+            }
+
             var salesOrderRefs = _syncOrderRepository.RetrieveUnsyncedSoShipments(shopifyOrderId);
             RunWorker(salesOrderRefs);
         }

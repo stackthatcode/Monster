@@ -1303,7 +1303,7 @@ namespace Monster.Middle.Persist.Instance
     public class RateToShipVia
     {
         public int Id { get; set; } // Id (Primary key)
-        public string ShopifyRateName { get; set; } // ShopifyRateName (length: 50)
+        public string ShopifyRateName { get; set; } // ShopifyRateName (length: 100)
         public string AcumaticaShipViaId { get; set; } // AcumaticaShipViaId (length: 50)
     }
 
@@ -2406,7 +2406,7 @@ namespace Monster.Middle.Persist.Instance
             HasKey(x => x.Id);
 
             Property(x => x.Id).HasColumnName(@"Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
-            Property(x => x.ShopifyRateName).HasColumnName(@"ShopifyRateName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
+            Property(x => x.ShopifyRateName).HasColumnName(@"ShopifyRateName").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(100);
             Property(x => x.AcumaticaShipViaId).HasColumnName(@"AcumaticaShipViaId").HasColumnType("varchar").IsOptional().IsUnicode(false).HasMaxLength(50);
         }
     }

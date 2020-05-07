@@ -5,6 +5,7 @@ using System.Linq;
 using Monster.Acumatica.Api;
 using Monster.Acumatica.Api.Common;
 using Monster.Acumatica.Api.SalesOrder;
+using Monster.Acumatica.Http;
 using Monster.Middle.Misc.Acumatica;
 using Monster.Middle.Misc.Hangfire;
 using Monster.Middle.Misc.Logging;
@@ -36,6 +37,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         private readonly AcumaticaOrderPaymentPut _acumaticaOrderPaymentPut;
         private readonly AcumaticaTimeZoneService _acumaticaTimeZoneService;
         private readonly AcumaticaOrderRepository _acumaticaOrderRepository;
+        private readonly AcumaticaHttpContext _acumaticaHttpContext;
         private readonly ShopifyJsonService _shopifyJsonService;
         private readonly PendingActionService _pendingActionService;
         private readonly JobMonitoringService _jobMonitoringService;
@@ -54,6 +56,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 PendingActionService pendingActionService,
                 JobMonitoringService jobMonitoringService,
                 AcumaticaTimeZoneService acumaticaTimeZoneService,
+                AcumaticaHttpContext acumaticaHttpContext,
                 ShopifyJsonService shopifyJsonService,
                 SettingsRepository settingsRepository,
                 ExecutionLogService logRepository,
@@ -72,6 +75,7 @@ namespace Monster.Middle.Processes.Sync.Workers
             _settingsRepository = settingsRepository;
             _logService = logRepository;
             _systemLogger = systemLogger;
+            _acumaticaHttpContext = acumaticaHttpContext;
         }
 
 
@@ -406,6 +410,7 @@ namespace Monster.Middle.Processes.Sync.Workers
                 ShippingRule = ShippingRules.BackOrderAllowed.ToValue(),
             };
 
+            
             // Freight Price and Taxes
             //
             salesOrder.FreightPrice = ((double)shopifyOrder.NetShippingPrice).ToValue();
@@ -419,9 +424,10 @@ namespace Monster.Middle.Processes.Sync.Workers
             //
             salesOrder.FinancialSettings = new FinancialSettings()
             {
-                
                 OverrideTaxZone = true.ToValue(),
                 CustomerTaxZone = settings.AcumaticaTaxZone.ToValue(),
+                Branch = _acumaticaHttpContext.AcumaticaBranch.ToValue()
+
             };
 
             var taxTransfer = shopifyOrder.ToSerializedAndZippedTaxTransfer();

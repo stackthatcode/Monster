@@ -5,10 +5,10 @@ using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Shopify.Persist;
 using Monster.Middle.Processes.Sync.Model.Analysis;
 using Monster.Middle.Processes.Sync.Model.FinAnalyzer;
-using Monster.Middle.Processes.Sync.Model.Orders;
 using Monster.Middle.Processes.Sync.Services;
 using Monster.Web.Attributes;
 using Push.Foundation.Web.Json;
+using ServiceStack.Text;
 
 
 namespace Monster.Web.Controllers
@@ -32,7 +32,8 @@ namespace Monster.Web.Controllers
                 PendingActionService pendingActionService,
                 InstanceContext instanceContext, 
                 ShopifyOrderRepository shopifyOrderRepository, 
-                ShopifyUrlService shopifyUrlService, ShopifyJsonService shopifyJsonService)
+                ShopifyUrlService shopifyUrlService, 
+                ShopifyJsonService shopifyJsonService)
         {
             _logRepository = logRepository;
             _analysisDataService = analysisDataService;
@@ -107,6 +108,7 @@ namespace Monster.Web.Controllers
             });
         }
 
+
         [HttpPost]
         public ActionResult IgnoreOrder(long shopifyOrderId, bool ignore)
         {
@@ -142,6 +144,23 @@ namespace Monster.Web.Controllers
             var count = _analysisDataService.GetProductStockItemCount(request);
 
             return new JsonNetResult(new { Grid = stockItemResults, Count = count });
+        }
+
+        [HttpGet]
+        public ActionResult ProductStockItemExport()
+        {
+            var request = new AnalyzerRequest()
+            {
+                PageNumber = 1,
+                PageSize = 50000,
+            };
+
+            var output = _analysisDataService.GetProductStockItemResults(request);
+            var csv = CsvSerializer.SerializeToCsv(output);
+
+            return File(
+                new System.Text.UTF8Encoding().GetBytes(csv), "text/csv",
+                "ProductStockItemExport.csv");
         }
     }
 }

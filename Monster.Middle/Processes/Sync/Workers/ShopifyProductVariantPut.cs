@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Monster.Acumatica.Api.Distribution;
+using Monster.Middle.Config;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -12,6 +12,7 @@ using Push.Foundation.Utilities.General;
 using Push.Foundation.Utilities.Json;
 using Push.Shopify.Api;
 using Push.Shopify.Api.Product;
+
 
 namespace Monster.Middle.Processes.Sync.Workers
 {
@@ -45,7 +46,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void RunAddToProduct(ShopifyAddVariantImportContext context)
         {
-            //return; // SKOUTS HONOR
+            if (MonsterConfig.Settings.DisableShopifyPut)
+            {
+                _logService.Log(LogBuilder.ShopifyPutDisabled());
+                return;
+            }
 
             // Attempt to auto-match Item Ids SKU's that exists
             //
@@ -89,7 +94,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void RunNewProduct(ShopifyNewProductImportContext context)
         {
-            //return; // SKOUTS HONOR
+            if (MonsterConfig.Settings.DisableShopifyPut)
+            {
+                _logService.Log(LogBuilder.ShopifyPutDisabled());
+                return;
+            }
 
             var newVariants = CleanAndBuildVariantPayload(context.AcumaticaItemIds);
 

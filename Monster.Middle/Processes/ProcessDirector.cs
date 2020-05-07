@@ -275,7 +275,7 @@ namespace Monster.Middle.Processes.Sync.Managers
                     () => _acumaticaManager.PullInventory(),
                 });
 
-                if (!TestIsShopifyPutEnabled())
+                if (TestIsShopifyPutEnabled())
                 {
                     Run(() => _syncManager.SyncInventoryCountsToShopify());
                 }

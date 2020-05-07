@@ -27,6 +27,8 @@ namespace Monster.Acumatica.Http
 
         public bool IsLoggedIn { get; private set; } = false;
 
+        public string AcumaticaBranch => _credentials.Branch;
+
         public AcumaticaHttpContext(AcumaticaHttpConfig settings, IPushLogger logger)
         {
             _settings = settings;

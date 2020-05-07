@@ -6,5 +6,6 @@ namespace Monster.Acumatica.Api.SalesOrder
     {
         public BoolValue OverrideTaxZone { get; set; }
         public StringValue CustomerTaxZone { get; set; }
+        public StringValue Branch { get; set; }
     }
 }

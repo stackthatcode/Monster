@@ -44,7 +44,7 @@ namespace Monster.Middle.Processes.Acumatica.Services
             var itemClasses =
                 reference.AcumaticaItemClass.IsNullOrEmptyAlt("[]")
                     .DeserializeFromJson<List<ItemClass>>()
-                    .Where(x => x.DefaultWarehouseID?.value != null)
+                    //.Where(x => x.DefaultWarehouseID?.value != null)
                     .Select(x => new ItemClassModel(x))
                     .ToList();
 

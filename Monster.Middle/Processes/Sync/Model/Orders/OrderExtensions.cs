@@ -23,7 +23,8 @@ namespace Monster.Middle.Processes.Sync.Model.Orders
         public static bool HasSyncWithUnknownNbr(this ShopifyOrder order)
         {
             return order.AcumaticaSalesOrder != null &&
-                   order.AcumaticaSalesOrder.AcumaticaOrderNbr == AcumaticaSyncConstants.UnknownRefNbr;
+                   (order.AcumaticaSalesOrder.AcumaticaOrderNbr == null ||
+                   order.AcumaticaSalesOrder.AcumaticaOrderNbr == AcumaticaSyncConstants.UnknownRefNbr);
         }
 
 

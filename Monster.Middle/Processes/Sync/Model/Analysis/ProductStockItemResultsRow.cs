@@ -1,6 +1,4 @@
-﻿using Monster.Middle.Persist.Instance;
-
-namespace Monster.Middle.Processes.Sync.Model.Analysis
+﻿namespace Monster.Middle.Processes.Sync.Model.Analysis
 {
     public class ProductStockItemResultsRow
     {

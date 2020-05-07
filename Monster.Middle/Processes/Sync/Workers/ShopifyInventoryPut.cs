@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Monster.Middle.Config;
 using Monster.Middle.Misc.Logging;
 using Monster.Middle.Persist.Instance;
 using Monster.Middle.Processes.Acumatica.Persist;
@@ -49,8 +50,11 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void Run()
         {
-            //return; // SKOUTS HONOR
-            //
+            if (MonsterConfig.Settings.DisableShopifyPut)
+            {
+                _executionLogService.Log(LogBuilder.ShopifyPutDisabled());
+                return;
+            }
 
             RunPriceCostWeightUpdates();
             var settings = _settingsRepository.RetrieveSettings();
@@ -101,8 +105,12 @@ namespace Monster.Middle.Processes.Sync.Workers
 
         public void UpdatePriceAndCost(AcumaticaStockItem stockItemRecord, bool setTracking = false)
         {
-            //return; // SKOUTS HONOR
-            //
+            if (MonsterConfig.Settings.DisableShopifyPut)
+            {
+                _executionLogService.Log(LogBuilder.ShopifyPutDisabled());
+                return;
+            }
+
             if (!stockItemRecord.IsMatched())
             {
                 return;
@@ -209,7 +217,7 @@ namespace Monster.Middle.Processes.Sync.Workers
         }
 
 
-        public InventorySyncStatus MakeSyncStatus(AcumaticaStockItem input)
+        private InventorySyncStatus MakeSyncStatus(AcumaticaStockItem input)
         {
             var settings = _settingsRepository.RetrieveSettings();
 
@@ -237,8 +245,15 @@ namespace Monster.Middle.Processes.Sync.Workers
             return output;
         }
 
+
         public void UpdateInventoryLevels(AcumaticaStockItem stockItem)
         {
+            if (MonsterConfig.Settings.DisableShopifyPut)
+            {
+                _executionLogService.Log(LogBuilder.ShopifyPutDisabled());
+                return;
+            }
+
             var variant = 
                 _inventoryRepository
                     .RetrieveVariant(stockItem.MatchedVariant().ShopifyVariantId);

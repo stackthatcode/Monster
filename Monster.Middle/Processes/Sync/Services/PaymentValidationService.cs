@@ -93,12 +93,22 @@ namespace Monster.Middle.Processes.Sync.Services
 
             var validation
                 = BuildBaseValidation()
-                    .Add(x => x.AcumaticaSalesOrder != null, "Acumatica Sales Order not created yet", instantFailure:true)
-                    .Add(x => x.ValidPaymentGateway, $"Does not have a valid payment gateway; please check configuration")
-                    .Add(x => !x.CurrentTransaction.ExistsInAcumatica(), "Payment has already been created in Acumatica")
-                    .Add(x => x.CurrentTransaction.IsPayment(), $"Transaction is not a capture or sale")
-                    .Add(x => x.AcumaticaSalesOrder == null || x.AcumaticaSalesOrder.AcumaticaIsTaxValid,
-                                "Acumatica Sales Order Taxes are invalid");
+                    .Add(x => x.AcumaticaSalesOrder != null, 
+                            "Acumatica Sales Order not created yet", instantFailure:true)
+                    
+                    .Add(x => !x.ShopifyOrder.HasSyncWithUnknownNbr(), 
+                            "Acumatica Sales Order appears corrupted; please re-run", instantFailure:true)
+                    
+                    .Add(x => x.ValidPaymentGateway, 
+                            $"Does not have a valid payment gateway; please check configuration")
+                    
+                    .Add(x => !x.CurrentTransaction.ExistsInAcumatica(), 
+                            "Payment has already been created in Acumatica")
+
+                    .Add(x => x.CurrentTransaction.IsPayment(), $"Transaction is not a capture or sale");
+
+            //.Add(x => x.AcumaticaSalesOrder == null || x.AcumaticaSalesOrder.AcumaticaIsTaxValid,
+            //            "Acumatica Sales Order Taxes are invalid");
 
             return validation.Run(context);
         }
