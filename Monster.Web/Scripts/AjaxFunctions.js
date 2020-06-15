@@ -5,13 +5,14 @@ Monster.StandardErrorMessage = "Something went wrong. Please refresh your browse
 Monster.Http403ErrorMessage = "You are not authorized to view that resource.";
 Monster.Http401ErrorMessage = "You appear to be currently logged out of EWC.";
 
+
 Monster.ErrorPopup = function (message) {
     alert(message || Monster.StandardErrorMessage);
 }
 
 Monster.AjaxSettings = function (modal) {
     return {
-        BaseUrl: Monster.BaseUrl,
+        BaseUrl: "",
         Timeout: 120000,    // Two minutes for development
         UseSpinner: true,
         Modal: modal || false,

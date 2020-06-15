@@ -68,7 +68,6 @@ namespace Push.Foundation.Web
             //
             builder.RegisterType<EmailService>().As<IIdentityMessageService>();
             builder.RegisterType<SmsService>().As<SmsService>();
-
         }
     }
 }

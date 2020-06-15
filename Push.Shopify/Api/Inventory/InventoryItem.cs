@@ -23,3 +23,4 @@ namespace Push.Shopify.Api.Inventory
         public List<InventoryItem> inventory_items { get; set; }
     }
 }
+
